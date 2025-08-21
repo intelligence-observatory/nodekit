@@ -19,13 +19,8 @@ class StartEvent(BaseEvent):
     event_type: Literal['StartEvent'] = 'StartEvent'
 
 
-class NodeResultEvent(BaseEvent):
-    event_type: Literal['NodeResultEvent'] = 'NodeResultEvent'
-    event_payload: NodeResult
-
-
-class PageUnloadedEvent(BaseEvent):
-    event_type: Literal['PageUnloadedEvent'] = 'PageUnloadedEvent'
+class ResumeEvent(BaseEvent):
+    event_type: Literal['ResumeEvent'] = 'ResumeEvent'
 
 
 class EndEvent(BaseEvent):
@@ -33,9 +28,26 @@ class EndEvent(BaseEvent):
 
 
 # %%
+class NodeResultEvent(BaseEvent):
+    event_type: Literal['NodeResultEvent'] = 'NodeResultEvent'
+    event_payload: NodeResult
+
+
+# %%
+class PageLoadedEvent(BaseEvent):
+    event_type: Literal['PageLoadedEvent'] = 'PageLoadedEvent'
+
+
+class PageUnloadedEvent(BaseEvent):
+    event_type: Literal['PageUnloadedEvent'] = 'PageUnloadedEvent'
+
+
+# %%
 Event = Annotated[
     Union[
         StartEvent,
+        ResumeEvent,
+        PageLoadedEvent,
         NodeResultEvent,
         PageUnloadedEvent,
         EndEvent,
