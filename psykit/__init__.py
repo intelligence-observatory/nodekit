@@ -2,12 +2,12 @@
 
 __all__ = [
 
-    # NodeGraph API models:
+    # Top-level models:
     'NodeGraph',
     'Node',
     'NodeResult',
 
-    # Namespaced Models:
+    # Namespaced models:
     'actions',
     'assets',
     'cards',
@@ -18,6 +18,9 @@ __all__ = [
 
     # Types:
     'types',
+
+    # Compile API:
+    'compile',
 
 ]
 
@@ -36,4 +39,4 @@ import psykit.sensors as sensors
 import psykit.actions as actions
 import psykit.bonus_rules as bonus_rules
 import psykit.types as types
-
+import psykit.compile as compile
