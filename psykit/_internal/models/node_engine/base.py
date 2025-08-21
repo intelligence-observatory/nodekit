@@ -1,13 +1,9 @@
-from typing import TypeVar
-
 import pydantic
 
 
 class DslModel(pydantic.BaseModel):
     pass
 
-
-T = TypeVar('T', bound=DslModel)
 
 
 class NullParameters(DslModel):

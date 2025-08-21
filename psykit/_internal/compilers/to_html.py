@@ -3,11 +3,25 @@ from pathlib import Path
 import jinja2
 
 from psykit._internal.models.node_engine.node_graph import NodeGraph
+import pydantic
+
+
+# %%
+class CompileHtmlOptions(pydantic.BaseModel):
+    event_endpoint_url: pydantic.AnyHttpUrl | None = pydantic.Field(
+        description='The endpoint to which Events will be sent. If None, the Events will simply be shown at the end of the Run.',
+        default = None,
+    )
 
 
 def html(
         node_graph: NodeGraph,
+        options: CompileHtmlOptions | None = None,
 ) -> str:
+    if options is None:
+        options = CompileHtmlOptions(
+            event_endpoint_url=None,
+        )
 
     # Render the node sequence using a Jinja2 template
     template_location = Path(__file__).parent / 'node_engine_template.j2'
@@ -16,6 +30,7 @@ def html(
     html_string = template.render(
         dict(
             node_graph=node_graph.model_dump(mode='json'),
+            event_endpoint_url=options.event_endpoint_url,
         )
     )
 

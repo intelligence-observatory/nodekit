@@ -7,6 +7,8 @@
     <script src="https://unpkg.com/@psychoscope/node-player@0.2.2/dist/node-player.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/@psychoscope/node-player@0.2.2/dist/node-player.css">
     <script>
+
+        const eventEndpointUrl = "{{ event_endpoint_url }}";
         const nodeGraph = {{ node_graph | tojson(indent=4) }};
 
         window.onload = async () => {
