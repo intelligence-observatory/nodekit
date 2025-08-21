@@ -9,14 +9,14 @@ __all__ = [
     'PixelArea',
 ]
 
-from psychoscope._internal.models.node_engine.fields import (
+from psykit._internal.models.node_engine.fields import (
     TextContent,
     BoardRectangle,
     BoardLocation,
     Timespan,
 )
 
-from psychoscope._internal.models.node_engine.runtime_metrics import (
+from psykit._internal.models.node_engine.runtime_metrics import (
     PixelArea,
     RuntimeMetrics,
 )

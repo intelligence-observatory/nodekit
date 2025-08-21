@@ -1,5 +1,9 @@
+__all__ = [
+    "AssetLink",
+    "ImageLink",
+]
 
-from psychoscope._internal.models.assets.base import (
+from psykit._internal.models.assets.base import (
     AssetLink,
     ImageLink,
 )

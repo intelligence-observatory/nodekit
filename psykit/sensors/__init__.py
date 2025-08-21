@@ -4,7 +4,7 @@ __all__ = [
     'ClickSensor',
 ]
 
-from psychoscope._internal.models.node_engine.sensors.sensors import (
+from psykit._internal.models.node_engine.sensors.sensors import (
     TimeoutSensor,
     DoneSensor,
     ClickSensor,

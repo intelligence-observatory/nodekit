@@ -3,7 +3,7 @@ __all__ = [
     'Reinforcer',
 ]
 
-from psychoscope._internal.models.node_engine.reinforcer_maps.reinforcer_maps import (
+from psykit._internal.models.node_engine.reinforcer_maps.reinforcer_maps import (
     ConstantReinforcerMap,
     Reinforcer,
 )

@@ -5,7 +5,7 @@ __all__ = [
     'TextCard',
 ]
 
-from psychoscope._internal.models.node_engine.cards.cards import (
+from psykit._internal.models.node_engine.cards.cards import (
     FixationPointCard,
     MarkdownPagesCard,
     ImageCard,

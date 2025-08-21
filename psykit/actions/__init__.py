@@ -5,7 +5,7 @@ __all__ = [
     "TimeoutAction",
 ]
 
-from psychoscope._internal.models.node_engine.sensors.actions.actions import (
+from psykit._internal.models.node_engine.sensors.actions.actions import (
     Action,
     ClickAction,
     DoneAction,
