@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]  # Add build dependencies
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "psykit"
+version = "0.0.1"
+description = "A Python package"
+authors = [
+    { name = "Intelligence Observatory", email = "observatory@mit.edu" }
+]
+readme = "README.md"
+requires-python = ">=3.11"
+
+dependencies = [
+    "pillow>=10.4",
+    "pydantic>=2.9.2",
+    "pytest>=8.3",
+    "Jinja2==3.1.4",
+]
+
+[project.urls]
+repository = "https://github.com/intelligence-observatory/psykit"
+
+[tool.setuptools.packages.find]
+where = ["."]
+namespaces = false
+
+[dependency-groups]
+dev = [
+    "ty>=0.0.1a19",
+]

@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="eng">
+
+<head>
+    <title>NodeGraph</title>
+    <script src="https://unpkg.com/@psychoscope/psg-server-connection@0.1.0/dist/psg-server-connection.js"></script>
+    <script src="https://unpkg.com/@psychoscope/node-player@0.2.2/dist/node-player.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/@psychoscope/node-player@0.2.2/dist/node-player.css">
+    <script>
+        const nodeGraph = {{ node_graph | tojson(indent=4) }};
+
+        window.onload = async () => {
+            // Initialize server connection:
+            const url = new URL(window.location.href);
+            let rawUrl = url.searchParams.get('connection_url');
+            let psgServerConnection = null;
+            if (rawUrl) {
+                const connectionUrl = decodeURIComponent(rawUrl);
+                psgServerConnection = new PsgServerConnection(connectionUrl);
+                await psgServerConnection.sendStartEvent()
+            }
+
+            // Play the Nodes in the NodeGraph:
+            const nodes = nodeGraph.nodes;
+            let nodePlayer = new NodePlayer();
+            const nodeResultsBuffer = [];
+            for (let i = 0; i < nodes.length; i++) {
+                const node = nodes[i];
+                const nodePlayId = await nodePlayer.prepare(node);
+                let nodeMeasurements = await nodePlayer.play(nodePlayId);
+
+                // Update the progress bar:
+                nodePlayer.setProgressBar((i + 1) / nodes.length * 100);
+
+                // Package the NodeResult:
+                const nodeResult = {
+                    node_result_id: crypto.randomUUID(),
+                    node_id: node.node_id,
+                    timestamp_start: nodeMeasurements.timestamp_node_started,
+                    timestamp_end: nodeMeasurements.timestamp_node_completed,
+                    node_execution_index: i,
+                    action: nodeMeasurements.action,
+                    runtime_metrics: nodeMeasurements.runtime_metrics,
+                };
+
+                // Queue the NodeResult being sent to the server:
+                if (psgServerConnection){
+                    psgServerConnection.sendReportEvent(nodeResult)
+                }
+
+                nodeResultsBuffer.push(nodeResult);
+            }
+
+            // Compute and disclose the provisional result of the bonus amount:
+            const bonusRules = nodeGraph.bonus_rules;
+            let bonusComputed = 0;
+            for (let i =0; i < nodeResultsBuffer.length; i++){
+                const action = nodeResultsBuffer[i].action;
+
+                // Run bonus rule engine on this NodeResult:
+                for (let ruleIndex=0; ruleIndex < bonusRules.length; ruleIndex++){
+                    const rule = bonusRules[ruleIndex];
+                    // Dynamic dispatch:
+                    if (rule.bonus_rule_type === 'ConstantBonusRule'){
+                        const parameters = rule.bonus_rule_parameters;
+                        if (parameters.sensor_id === action.sensor_id){
+                            bonusComputed+= Number(parameters.bonus_amount_usd);
+                        }
+                    }
+                }
+            }
+            bonusComputed = Math.max(0, bonusComputed);
+            bonusComputed = Math.round(bonusComputed * 100) / 100; // Round to 2 decimals
+
+            // Play the end screen:
+            let bonusMessage = '';
+            if (bonusComputed > 0){
+                bonusMessage = `Bonus: ${bonusComputed} USD (pending validation)`;
+            }
+            await nodePlayer.playEndScreen(
+                bonusMessage,
+            )
+
+            // Close server connection and possibly redirect:
+            if (psgServerConnection){
+                let endConnectionPromise = psgServerConnection.sendEndEvent();
+                endConnectionPromise.then(
+                    (redirect_url) => {
+                        // Execute redirect
+                        if (redirect_url) {
+                            window.location.replace(redirect_url);
+                        }
+                    }
+                )
+            }
+
+            // If no redirect occurred, show the NodeResults:
+            nodePlayer.showConsoleMessageOverlay(
+                'NodeResults',
+                nodeResultsBuffer
+            );
+        };
+    </script>
+</head>
+<body></body>
+</html>
+
+
