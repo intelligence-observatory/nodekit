@@ -1,10 +1,11 @@
-from pathlib import Path
 from typing import List, Self
 from uuid import uuid4
 
-import jinja2
 import pydantic
 
+from psykit._internal.models.fields import (
+    PayableMonetaryAmountUsd, DatetimeUTC
+)
 from psykit._internal.models.node_engine.board import Board
 from psykit._internal.models.node_engine.bonus_policy import BonusRule
 from psykit._internal.models.node_engine.cards.cards import Card
@@ -14,10 +15,6 @@ from psykit._internal.models.node_engine.reinforcer_maps.reinforcer_maps import 
 from psykit._internal.models.node_engine.runtime_metrics import RuntimeMetrics
 from psykit._internal.models.node_engine.sensors.actions.actions import Action
 from psykit._internal.models.node_engine.sensors.sensors import Sensor
-
-from psykit._internal.models.fields import (
-    PayableMonetaryAmountUsd, DatetimeUTC
-)
 
 
 # %% Node
@@ -103,22 +100,6 @@ class NodeGraph(pydantic.BaseModel):
         description='Keywords that Participants may use to discover this task on the Recruitment Platform.'
     )
 
-    def to_html(self) -> str:
-        """
-        Returns an HTML string that contains the rendered node sequence.
-        """
-
-        # Render the node sequence using a Jinja2 template
-        template_location = Path(__file__).parent / 'node_engine_template.j2'
-        template = jinja2.Environment(loader=jinja2.FileSystemLoader(template_location.parent)).get_template(template_location.name)
-
-        html_string = template.render(
-            dict(
-                node_graph=self.model_dump(mode='json'),
-            )
-        )
-
-        return html_string
 
 
 # %%
