@@ -17,6 +17,8 @@ dependencies = [
     "pydantic>=2.9.2",
     "pytest>=8.3",
     "Jinja2==3.1.4",
+    "setuptools>=42",
+    "wheel>=0.45.1",
 ]
 
 [project.urls]
