@@ -21,8 +21,6 @@ __all__ = [
 
     # Runtime API:
     'compile',
-    'events',
-
 ]
 
 # Incoming models:
@@ -41,4 +39,3 @@ import psykit.actions as actions
 import psykit.bonus_rules as bonus_rules
 import psykit.types as types
 import psykit.compile as compile
-import psykit.events as events
