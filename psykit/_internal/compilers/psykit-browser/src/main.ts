@@ -4,20 +4,14 @@ import type {
     EndEvent,
     NodeResultEvent,
     NodeResult,
-    SubmitEventResponse,
     UUID,
-    ISO8601
+    ISO8601,
+    SubmitEventResponse
 } from "./types.ts";
-
-type SendEventResult = {
-    response: SubmitEventResponse | null,
-    status: number,
-    ok: boolean,
-}
 
 type QueuedEvent = {
     event: Event,
-    resolve: (result: SendEventResult) => void,
+    resolve: (result: SubmitEventResponse) => void,
     reject: (error: Error) => void,
     attempts: number,
 }
@@ -47,11 +41,11 @@ export class EventClient {
         }
     }
 
-    private async queueEvent(event: Event): Promise<SendEventResult> {
+    private async queueEvent(event: Event): Promise<SubmitEventResponse> {
         /*
         Enqueues an event to be sent. Returns a promise that resolves when the event is sent (or fails).
          */
-        return new Promise<SendEventResult>(
+        return new Promise<SubmitEventResponse>(
             (resolve, reject) => {
                 this.queue.push(
                     {
@@ -110,7 +104,7 @@ export class EventClient {
             })
     }
 
-    private async _postEvent(event: Event): Promise<SendEventResult> {
+    private async _postEvent(event: Event): Promise<SubmitEventResponse> {
         /*
          This method posts an event to the server
          */
@@ -150,11 +144,7 @@ export class EventClient {
         } else {
             throw new Error(`Protocol error: expected Content-Type application/json: ${response.status} ${response.statusText}`);
         }
-        return {
-            response: postEventResponse,
-            status: response.status,
-            ok: response.ok,
-        };
+        return postEventResponse;
     }
 
     // Helper methods:
@@ -168,9 +158,8 @@ export class EventClient {
         return now.toISOString() as ISO8601;
     }
 
-
     // Public methods:
-    async sendStartEvent(): Promise<SendEventResult> {
+    async sendStartEvent(): Promise<SubmitEventResponse> {
         let startEvent: StartEvent = {
             run_id: this.runId,
             event_id: this.getEventId(),
@@ -183,7 +172,7 @@ export class EventClient {
 
     async sendNodeResultEvent(
         nodeResult: NodeResult,
-    ): Promise<SendEventResult> {
+    ): Promise<SubmitEventResponse> {
         const reportEvent: NodeResultEvent = {
             run_id: this.runId,
             event_id: this.getEventId(),
@@ -194,7 +183,7 @@ export class EventClient {
         return this.queueEvent(reportEvent);
     }
 
-    async sendEndEvent(): Promise<SendEventResult> {
+    async sendEndEvent(): Promise<SubmitEventResponse> {
         let endEvent: EndEvent = {
             run_id: this.runId,
             event_id: this.getEventId(),

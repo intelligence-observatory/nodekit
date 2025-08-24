@@ -10,15 +10,17 @@
 
         // Rendering context:
         const nodeGraph = {{ node_graph | tojson(indent=4) | indent(8, first=False) }};
-        const options = {{ options | tojson(indent=4) | indent(8, first=False)}};
+        const event_submission_url = "{{ event_submission_url }}";
+        const run_id = "{{ run_id }}";
+        const start_node_execution_index = {{ start_node_execution_index }};
 
         // Run:
         window.onload = async () => {
             let eventClient = null;
-            if (options.event_submission_url) {
+            if (event_submission_url) {
                 eventClient = new EventClient(
-                    options.run_id,
-                    options.event_submission_url
+                    run_id,
+                    event_submission_url
                 );
                 await eventClient.sendStartEvent()
             }
@@ -27,7 +29,7 @@
             const nodes = nodeGraph.nodes;
             let nodePlayer = new NodePlayer();
             const nodeResultsBuffer = [];
-            for (let i = options.start_node_execution_index; i < nodes.length; i++) {
+            for (let i = start_node_execution_index; i < nodes.length; i++) {
                 const node = nodes[i];
                 const nodePlayId = await nodePlayer.prepare(node);
                 let nodeMeasurements = await nodePlayer.play(nodePlayId);

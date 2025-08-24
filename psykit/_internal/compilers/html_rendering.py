@@ -35,7 +35,9 @@ def html(
     html_string = template.render(
         dict(
             node_graph=node_graph.model_dump(mode='json'),
-            options=options.model_dump(mode='json'),
+            event_submission_url=options.event_submission_url,
+            run_id=options.run_id,
+            start_node_execution_index=options.start_node_execution_index,
         )
     )
 
