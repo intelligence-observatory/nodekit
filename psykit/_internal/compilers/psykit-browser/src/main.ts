@@ -37,6 +37,14 @@ export class EventClient {
     ) {
         this.connectionUrl = connectionUrl
         this.runId = runId as UUID;
+
+        // Basic validation:
+        if (!this.connectionUrl) {
+            throw new Error("connectionUrl is required");
+        }
+        if (!this.runId) {
+            throw new Error("runId is required");
+        }
     }
 
     private async queueEvent(event: Event): Promise<SendEventResult> {
