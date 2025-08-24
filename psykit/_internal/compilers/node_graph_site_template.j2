@@ -8,25 +8,23 @@
     <link rel="stylesheet" href="https://unpkg.com/@psychoscope/node-player@0.2.2/dist/node-player.css">
     <script>
 
-        const eventEndpointUrl = "{{ event_endpoint_url }}";
-        const nodeGraph = {{ node_graph | tojson(indent=4) }};
+        // Rendering context:
+        const nodeGraph = {{ node_graph | tojson(indent=4) | indent(8, first=False) }};
+        const options = {{ options | tojson(indent=4) | indent(8, first=False)}};
 
+        // Run:
         window.onload = async () => {
-            // Initialize server connection:
-            const url = new URL(window.location.href);
-            let rawUrl = url.searchParams.get('connection_url');
-            let psgServerConnection = null;
-            if (rawUrl) {
-                const connectionUrl = decodeURIComponent(rawUrl);
-                psgServerConnection = new PsgServerConnection(connectionUrl);
-                await psgServerConnection.sendStartEvent()
+            let eventClient = null;
+            if (options.event_submission_url) {
+                eventClient = new EventClient(options.event_submission_url);
+                await eventClient.sendStartEvent()
             }
 
             // Play the Nodes in the NodeGraph:
             const nodes = nodeGraph.nodes;
             let nodePlayer = new NodePlayer();
             const nodeResultsBuffer = [];
-            for (let i = 0; i < nodes.length; i++) {
+            for (let i = options.start_node_execution_index; i < nodes.length; i++) {
                 const node = nodes[i];
                 const nodePlayId = await nodePlayer.prepare(node);
                 let nodeMeasurements = await nodePlayer.play(nodePlayId);
@@ -46,8 +44,8 @@
                 };
 
                 // Queue the NodeResult being sent to the server:
-                if (psgServerConnection){
-                    psgServerConnection.sendReportEvent(nodeResult)
+                if (eventClient) {
+                    eventClient.sendNodeResult(nodeResult)
                 }
 
                 nodeResultsBuffer.push(nodeResult);
@@ -56,17 +54,17 @@
             // Compute and disclose the provisional result of the bonus amount:
             const bonusRules = nodeGraph.bonus_rules;
             let bonusComputed = 0;
-            for (let i =0; i < nodeResultsBuffer.length; i++){
+            for (let i = 0; i < nodeResultsBuffer.length; i++) {
                 const action = nodeResultsBuffer[i].action;
 
                 // Run bonus rule engine on this NodeResult:
-                for (let ruleIndex=0; ruleIndex < bonusRules.length; ruleIndex++){
+                for (let ruleIndex = 0; ruleIndex < bonusRules.length; ruleIndex++) {
                     const rule = bonusRules[ruleIndex];
                     // Dynamic dispatch:
-                    if (rule.bonus_rule_type === 'ConstantBonusRule'){
+                    if (rule.bonus_rule_type === 'ConstantBonusRule') {
                         const parameters = rule.bonus_rule_parameters;
-                        if (parameters.sensor_id === action.sensor_id){
-                            bonusComputed+= Number(parameters.bonus_amount_usd);
+                        if (parameters.sensor_id === action.sensor_id) {
+                            bonusComputed += Number(parameters.bonus_amount_usd);
                         }
                     }
                 }
@@ -76,7 +74,7 @@
 
             // Play the end screen:
             let bonusMessage = '';
-            if (bonusComputed > 0){
+            if (bonusComputed > 0) {
                 bonusMessage = `Bonus: ${bonusComputed} USD (pending validation)`;
             }
             await nodePlayer.playEndScreen(
@@ -84,16 +82,11 @@
             )
 
             // Close server connection and possibly redirect:
-            if (psgServerConnection){
-                let endConnectionPromise = psgServerConnection.sendEndEvent();
-                endConnectionPromise.then(
-                    (redirect_url) => {
-                        // Execute redirect
-                        if (redirect_url) {
-                            window.location.replace(redirect_url);
-                        }
-                    }
-                )
+            if (eventClient) {
+                let endResponse = await eventClient.sendEndEvent();
+                if (endResponse.redirect_url) {
+                    window.location.replace(redirect_url);
+                }
             }
 
             // If no redirect occurred, show the NodeResults:

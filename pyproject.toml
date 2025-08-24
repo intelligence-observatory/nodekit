@@ -5,7 +5,6 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "psykit"
 version = "0.0.1"
-description = "A Python package"
 authors = [
     { name = "Intelligence Observatory", email = "observatory@mit.edu" }
 ]
@@ -27,6 +26,9 @@ repository = "https://github.com/intelligence-observatory/psykit"
 [tool.setuptools.packages.find]
 where = ["."]
 namespaces = false
+
+[tool.setuptools.package-data]
+psykit = ["_internal/compilers/**/*.j2"]
 
 [dependency-groups]
 dev = [
