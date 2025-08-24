@@ -4,9 +4,9 @@ export default defineConfig({
     build: {
         lib: {
             entry: 'src/main.ts',
-            fileName: () => 'psg-server-connection.js',
-            name: 'PsgServerConnection',
-            formats: ['umd'], // Exports a global "NodePlayer" variable
+            fileName: () => 'psykit.js',
+            name: 'EventClient',
+            formats: ['umd'], // Exports a global "EventClient" variable
         },
         outDir: 'dist',
         emptyOutDir: false,

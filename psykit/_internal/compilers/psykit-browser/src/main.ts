@@ -1,19 +1,19 @@
 type ISO8601 = string & { __brand: 'ISO8601' };
-type EventCode = 'START' | 'REPORT' | 'UNLOAD' | 'END';
 
-type Event = {
-    event_code: EventCode,
-    event_data?: string,
-    event_timestamp: ISO8601,
-}
+import type {
+    Event,
+    StartEvent,
+    EndEvent,
+    NodeResultEvent,
+    NodeResult,
+    SubmitEventResponse,
+    UUID
+} from "./types/events.ts";
 
-type ServerResponse = {
-    message?: string,
-    redirect_url?: string,
-}
+
 
 type SendEventResult = {
-    response: ServerResponse,
+    response: SubmitEventResponse | null,
     status: number,
     ok: boolean,
 }
@@ -25,15 +25,18 @@ type QueuedEvent = {
 }
 
 
-export class PsgServerConnection {
+export class EventClient {
     private readonly connectionUrl: string;
     private readonly queue: QueuedEvent[] = [];
     private flushing = false;
+    private runId: UUID;
 
     constructor(
+        runId: string,
         connectionUrl: string,
     ) {
         this.connectionUrl = connectionUrl
+        this.runId = runId as UUID;
     }
 
     private async queueEvent(event: Event): Promise<SendEventResult> {
@@ -55,13 +58,14 @@ export class PsgServerConnection {
             }
         )
 
-        let postEventResponse: ServerResponse = {}
+        let postEventResponse: SubmitEventResponse | null = null
         if (response.ok) {
             // Check if the response is a valid JSON:
             if (!response.headers.get('content-type')?.includes('application/json')) {
                 console.error('Response is not JSON:', response.headers.get('content-type'))
             } else {
-                postEventResponse = await response.json() as ServerResponse
+                postEventResponse = await response.json() as SubmitEventResponse
+
             }
         } else {
             console.error('Failed to post event:', response.status, response.statusText)
@@ -112,43 +116,44 @@ export class PsgServerConnection {
             )
     }
 
-    async sendStartEvent(): Promise<SendEventResult> {
-        return await this.queueEvent(
-            {
-                event_code: "START",
-                event_timestamp: this.getTimestamp(),
-            }
-        )
+    private getEventId(): UUID{
+        return crypto.randomUUID() as UUID;
     }
 
-    async sendReportEvent(
-        data: any,
-    ): Promise<SendEventResult> {
-        const reportEvent: Event = {
-            event_code: 'REPORT',
-            event_data: JSON.stringify(data),
+    async sendStartEvent(): Promise<SendEventResult> {
+        let startEvent: StartEvent = {
+            run_id: this.runId,
+            event_id: this.getEventId(),
+            event_type: 'StartEvent',
+            event_payload: {},
             event_timestamp: this.getTimestamp(),
         }
-        return new Promise<SendEventResult>((resolve, reject) => {
-            this.queue.push({event: reportEvent, resolve, reject});
-            this._maybeFlushNext();
-        });
+        return await this.queueEvent(startEvent)
     }
 
-    async sendEndEvent() {
-
-        let result = await this.queueEvent(
-            {
-                event_code: 'END',
-                event_timestamp: this.getTimestamp(),
-            }
-        )
-
-        // Check if the response contains a redirect:
-        if (result.response.redirect_url) {
-            // Get the URL
-            return result.response.redirect_url
+    async sendNodeResultEvent(
+        nodeResult: NodeResult,
+    ): Promise<SendEventResult> {
+        const reportEvent: NodeResultEvent = {
+            run_id: this.runId,
+            event_id: this.getEventId(),
+            event_type: 'NodeResultEvent',
+            event_payload: nodeResult,
+            event_timestamp: this.getTimestamp(),
         }
+        return await this.queueEvent(reportEvent);
+    }
+
+    async sendEndEvent():Promise<SendEventResult> {
+
+        let startEvent: EndEvent = {
+            run_id: this.runId,
+            event_id: this.getEventId(),
+            event_type: 'EndEvent',
+            event_payload: {},
+            event_timestamp: this.getTimestamp(),
+        }
+        return await this.queueEvent(startEvent)
     }
 }
 
@@ -156,5 +161,5 @@ export class PsgServerConnection {
 // Manually attach the play function to the global window object, for testing purposes:
 // This code snippet is unnecessary for production, but needed to use vite's development tools.
 if (typeof window !== 'undefined') {
-    (window as any).PsgServerConnection = PsgServerConnection;
+    (window as any).EventClient = EventClient;
 }

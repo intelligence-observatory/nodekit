@@ -14,6 +14,8 @@ class CompileHtmlOptions(pydantic.BaseModel):
     )
     start_node_execution_index: int
 
+    run_id: str
+
 
 def html(
         node_graph: NodeGraph,
@@ -23,6 +25,7 @@ def html(
         options = CompileHtmlOptions(
             event_submission_url=None,
             start_node_execution_index=0,
+            run_id='',
         )
 
     # Render the node sequence using a Jinja2 template

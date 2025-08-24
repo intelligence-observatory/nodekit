@@ -3,7 +3,7 @@
 
 <head>
     <title>NodeGraph</title>
-    <script src="https://unpkg.com/@psychoscope/psg-server-connection@0.1.0/dist/psg-server-connection.js"></script>
+    <script src="https://unpkg.com/psykit-browser@0.0.1/dist/psykit.js"></script>
     <script src="https://unpkg.com/@psychoscope/node-player@0.2.2/dist/node-player.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/@psychoscope/node-player@0.2.2/dist/node-player.css">
     <script>
@@ -16,7 +16,10 @@
         window.onload = async () => {
             let eventClient = null;
             if (options.event_submission_url) {
-                eventClient = new EventClient(options.event_submission_url);
+                eventClient = new EventClient(
+                    options.runId,
+                    options.event_submission_url
+                );
                 await eventClient.sendStartEvent()
             }
 
@@ -34,7 +37,6 @@
 
                 // Package the NodeResult:
                 const nodeResult = {
-                    node_result_id: crypto.randomUUID(),
                     node_id: node.node_id,
                     timestamp_start: nodeMeasurements.timestamp_node_started,
                     timestamp_end: nodeMeasurements.timestamp_node_completed,
@@ -45,7 +47,8 @@
 
                 // Queue the NodeResult being sent to the server:
                 if (eventClient) {
-                    eventClient.sendNodeResult(nodeResult)
+                    // Fire and forget
+                    eventClient.sendNodeResultEvent(nodeResult)
                 }
 
                 nodeResultsBuffer.push(nodeResult);

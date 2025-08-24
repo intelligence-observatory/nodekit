@@ -11,7 +11,13 @@
     <script type="module" src="src/main.ts"></script>
     <script>
         window.onload = async () => {
-            console.log(PsgServerConnection)
+            console.log(EventClient)
+
+            let eventClient = new EventClient(
+                'bla',
+                'example.com'
+            )
+            console.log(eventClient)
         };
     </script>
   </body>
