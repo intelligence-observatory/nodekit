@@ -17,7 +17,7 @@
             let eventClient = null;
             if (options.event_submission_url) {
                 eventClient = new EventClient(
-                    options.runId,
+                    options.run_id,
                     options.event_submission_url
                 );
                 await eventClient.sendStartEvent()
