@@ -45,39 +45,30 @@ export class EventClient {
     }
 
     private async sendEventCore(event: Event): Promise<SendEventResult> {
-        let response = await fetch(
-            this.connectionUrl,
-            {
-                method: 'POST',
-                body: JSON.stringify(event),
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            }
-        )
+        const controller = new AbortController();
+        const response = await fetch(this.connectionUrl, {
+            method: 'POST',
+            body: JSON.stringify(event),
+            headers: { 'Content-Type': 'application/json' },
+            signal: AbortSignal.timeout?.(8000) ?? controller.signal, // fallback if needed
+            keepalive: true, // helps on unload
+        });
 
-        let postEventResponse: SubmitEventResponse | null = null
+        let postEventResponse: SubmitEventResponse | null = null;
         if (response.ok) {
-            // Check if the response is a valid JSON:
-            if (!response.headers.get('content-type')?.includes('application/json')) {
-                console.error('Response is not JSON:', response.headers.get('content-type'))
-            } else {
-                postEventResponse = await response.json() as SubmitEventResponse
-
+            const ct = response.headers.get('content-type') || '';
+            if (response.status !== 204 && ct.includes('application/json')) {
+                postEventResponse = await response.json() as SubmitEventResponse;
             }
         } else {
-            console.error('Failed to post event:', response.status, response.statusText)
+            console.error('Failed to post event:', response.status, response.statusText);
         }
 
-        const sendEventResult = {
-            'response': postEventResponse,
-            'status': response.status,
-            'ok': response.ok,
-        }
-
-        console.log('Sent:', event, 'Received:', sendEventResult);
-
-        return sendEventResult
+        return {
+            response: postEventResponse,
+            status: response.status,
+            ok: response.ok,
+        };
     }
 
     private getTimestamp(): ISO8601 {
@@ -126,7 +117,7 @@ export class EventClient {
             event_payload: {},
             event_timestamp: this.getTimestamp(),
         }
-        return await this.queueEvent(startEvent)
+        return this.queueEvent(startEvent)
     }
 
     async sendNodeResultEvent(
@@ -139,19 +130,19 @@ export class EventClient {
             event_payload: nodeResult,
             event_timestamp: this.getTimestamp(),
         }
-        return await this.queueEvent(reportEvent);
+        return this.queueEvent(reportEvent);
     }
 
     async sendEndEvent():Promise<SendEventResult> {
 
-        let startEvent: EndEvent = {
+        let endEvent: EndEvent = {
             run_id: this.runId,
             event_id: this.getEventId(),
             event_type: 'EndEvent',
             event_payload: {},
             event_timestamp: this.getTimestamp(),
         }
-        return await this.queueEvent(startEvent)
+        return this.queueEvent(endEvent)
     }
 }
 
