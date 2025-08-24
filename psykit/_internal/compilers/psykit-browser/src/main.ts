@@ -15,9 +15,21 @@ type SendEventResult = {
     ok: boolean,
 }
 
+type QueuedEvent = {
+    event: Event,
+    resolve: (result: SendEventResult) => void,
+    reject: (error: Error) => void,
+    attempts: number,
+}
+
+
 export class EventClient {
     private readonly connectionUrl: string;
     private readonly runId: UUID;
+    private readonly queue: QueuedEvent[] = [];
+    private flushing = false;
+
+    private readonly maxRetries = 5;
 
     constructor(
         runId: string,
@@ -27,7 +39,70 @@ export class EventClient {
         this.runId = runId as UUID;
     }
 
-    private async postEventCore(event: Event): Promise<SendEventResult> {
+    private async queueEvent(event: Event): Promise<SendEventResult> {
+        /*
+        Enqueues an event to be sent. Returns a promise that resolves when the event is sent (or fails).
+         */
+        return new Promise<SendEventResult>(
+            (resolve, reject) => {
+                this.queue.push(
+                    {
+                        event: event,
+                        resolve: resolve,
+                        reject: reject,
+                        attempts: 0,
+                    }
+                );
+                this._maybeFlushNext();
+            }
+        );
+    }
+
+    private _maybeFlushNext() {
+        // Flushes the next event in the queue if not already flushing. Once done, calls _maybeFlushNext again to continue processing the queue.
+        if (this.flushing) {
+            return;
+        }
+
+        const nextQueuedEvent = this.queue.shift();
+        if (!nextQueuedEvent) {
+            // No events left in the queue
+            return;
+        }
+
+        // Start flushing:
+        this.flushing = true;
+        console.log(`Flushing event: ${nextQueuedEvent.event.event_type} (attempt ${nextQueuedEvent.attempts + 1})`);
+        let postEventPromise = this._postEvent(nextQueuedEvent.event);
+
+        // Handle the result of the post attempt:
+        postEventPromise
+            .then(result => {
+                nextQueuedEvent.resolve(result)
+
+                // Continue processing the queue:
+                this.flushing = false;
+                this._maybeFlushNext();
+            })
+            .catch(_err => {
+                nextQueuedEvent.attempts += 1;
+                if (nextQueuedEvent.attempts >= this.maxRetries) {
+                    nextQueuedEvent.reject(new Error(`Retry limit exceeded after ${this.maxRetries} retries`,));
+                } else {
+                    const backoffTimeMsec = Math.pow(2, nextQueuedEvent.attempts) * 100;
+                    setTimeout(
+                        () => {
+                            this.queue.unshift(nextQueuedEvent);
+                            this.flushing = false;
+                            this._maybeFlushNext();
+                        },
+                        backoffTimeMsec
+                    );
+                }
+            })
+    }
+
+    private async _postEvent(event: Event): Promise<SendEventResult> {
         /*
          This method posts an event to the server
          */
@@ -45,6 +120,7 @@ export class EventClient {
                     method: 'POST',
                     body: JSON.stringify(event),
                     headers: {'Content-Type': 'application/json'},
+                    keepalive: true,
                     signal: controller.signal,
                 }
             );
@@ -94,8 +170,7 @@ export class EventClient {
             event_payload: {},
             event_timestamp: this.getTimestamp(),
         }
-        console.log('start event', startEvent)
-        return this.postEventCore(startEvent)
+        return this.queueEvent(startEvent)
     }
 
     async sendNodeResultEvent(
@@ -108,8 +183,7 @@ export class EventClient {
             event_payload: nodeResult,
             event_timestamp: this.getTimestamp(),
         }
-        console.log('start event', reportEvent)
-        return this.postEventCore(reportEvent);
+        return this.queueEvent(reportEvent);
     }
 
     async sendEndEvent(): Promise<SendEventResult> {
@@ -120,8 +194,7 @@ export class EventClient {
             event_payload: {},
             event_timestamp: this.getTimestamp(),
         }
-        console.log('end event', endEvent)
-        return this.postEventCore(endEvent)
+        return this.queueEvent(endEvent)
     }
 }
 

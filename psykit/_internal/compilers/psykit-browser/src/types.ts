@@ -3,12 +3,12 @@ export type UUID = string & { __brand: 'UUID' };
 
 
 // NodeResult:
-export type NodeResult = { // todo flow from NodePlayer
+export type NodeResult = {
     node_id: UUID,
     timestamp_start: ISO8601,
     timestamp_end: ISO8601,
     node_execution_index: number, // 0 for first execution, 1 for second, etc.
-    action: any,
+    action: any, // todo flow from NodePlayer
     runtime_metrics: any
 }
 
@@ -34,4 +34,5 @@ export type Event = StartEvent | EndEvent | NodeResultEvent;
 export type SubmitEventResponse = {
     redirect_url: string | null;
 }
+
 
