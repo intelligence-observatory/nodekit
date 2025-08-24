@@ -16,6 +16,7 @@ __all__ = [
     'reinforcer_maps',
     'sensors',
     'bonus_rules',
+    'events',
 
     # Types:
     'types',
@@ -40,5 +41,6 @@ import psykit.actions as actions
 import psykit.bonus_rules as bonus_rules
 import psykit.types as types
 import psykit.compile as compile
+import psykit.events as events
 
 SCHEMA_VERSION = '0.0.1'

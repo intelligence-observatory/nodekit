@@ -108,7 +108,6 @@ class NodeResult(pydantic.BaseModel):
     Describes the result of a NodePlay.
     """
 
-    node_result_id: str = pydantic.Field(description='A unique identifier for this NodeResult.')
     node_id: str = pydantic.Field(description='The ID of the Node from which this NodeResult was produced.')
     node_execution_index: int = pydantic.Field(description='The index of the Node execution in the NodeGraph. This is used to identify the order of Node executions in a TaskRun.')
 
