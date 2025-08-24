@@ -8,9 +8,7 @@ import type {
     NodeResult,
     SubmitEventResponse,
     UUID
-} from "./types/events.ts";
-
-
+} from "./types.ts";
 
 type SendEventResult = {
     response: SubmitEventResponse | null,
