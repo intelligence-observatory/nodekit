@@ -1,4 +1,4 @@
-type ISO8601 = string & { __brand: 'ISO8601' };
+export type ISO8601 = string & { __brand: 'ISO8601' };
 export type UUID = string & { __brand: 'UUID' };
 
 
@@ -34,4 +34,5 @@ export type Event = StartEvent | EndEvent | NodeResultEvent;
 export type SubmitEventResponse = {
     redirect_url: string | null;
 }
+
 

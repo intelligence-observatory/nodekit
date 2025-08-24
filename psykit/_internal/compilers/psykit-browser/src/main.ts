@@ -1,5 +1,3 @@
-type ISO8601 = string & { __brand: 'ISO8601' };
-
 import type {
     Event,
     StartEvent,
@@ -7,7 +5,8 @@ import type {
     NodeResultEvent,
     NodeResult,
     SubmitEventResponse,
-    UUID
+    UUID,
+    ISO8601
 } from "./types.ts";
 
 type SendEventResult = {
@@ -20,14 +19,17 @@ type QueuedEvent = {
     event: Event,
     resolve: (result: SendEventResult) => void,
     reject: (error: Error) => void,
+    attempts: number,
 }
 
 
 export class EventClient {
     private readonly connectionUrl: string;
+    private readonly runId: UUID;
     private readonly queue: QueuedEvent[] = [];
     private flushing = false;
-    private runId: UUID;
+
+    private readonly maxRetries = 5;
 
     constructor(
         runId: string,
@@ -38,37 +40,118 @@ export class EventClient {
     }
 
     private async queueEvent(event: Event): Promise<SendEventResult> {
-        return new Promise<SendEventResult>((resolve, reject) => {
-            this.queue.push({event, resolve, reject});
-            this._maybeFlushNext();
-        });
+        /*
+        Enqueues an event to be sent. Returns a promise that resolves when the event is sent (or fails).
+         */
+        return new Promise<SendEventResult>(
+            (resolve, reject) => {
+                this.queue.push(
+                    {
+                        event: event,
+                        resolve: resolve,
+                        reject: reject,
+                        attempts: 0,
+                    }
+                );
+                this._maybeFlushNext();
+            }
+        );
     }
 
-    private async sendEventCore(event: Event): Promise<SendEventResult> {
-        const controller = new AbortController();
-        const response = await fetch(this.connectionUrl, {
-            method: 'POST',
-            body: JSON.stringify(event),
-            headers: { 'Content-Type': 'application/json' },
-            signal: AbortSignal.timeout?.(8000) ?? controller.signal, // fallback if needed
-            keepalive: true, // helps on unload
-        });
-
-        let postEventResponse: SubmitEventResponse | null = null;
-        if (response.ok) {
-            const ct = response.headers.get('content-type') || '';
-            if (response.status !== 204 && ct.includes('application/json')) {
-                postEventResponse = await response.json() as SubmitEventResponse;
-            }
-        } else {
-            console.error('Failed to post event:', response.status, response.statusText);
+    private _maybeFlushNext() {
+        // Flushes the next event in the queue if not already flushing. Once done, calls _maybeFlushNext again to continue processing the queue.
+        if (this.flushing) {
+            return;
         }
 
+        const nextQueuedEvent = this.queue.shift();
+        if (!nextQueuedEvent) {
+            // No events left in the queue
+            return;
+        }
+
+        // Start flushing:
+        this.flushing = true;
+        console.log(`Flushing event: ${nextQueuedEvent.event.event_type} (attempt ${nextQueuedEvent.attempts + 1})`);
+        let postEventPromise = this._postEvent(nextQueuedEvent.event);
+
+        // Handle the result of the post attempt:
+        postEventPromise
+            .then(result => {
+                nextQueuedEvent.resolve(result)
+
+                // Continue processing the queue:
+                this.flushing = false;
+                this._maybeFlushNext();
+            })
+            .catch(_err => {
+                nextQueuedEvent.attempts += 1;
+                if (nextQueuedEvent.attempts >= this.maxRetries) {
+                    nextQueuedEvent.reject(new Error(`Retry limit exceeded after ${this.maxRetries} retries`,));
+                } else {
+                    const backoffTimeMsec = Math.pow(2, nextQueuedEvent.attempts) * 100;
+                    setTimeout(
+                        () => {
+                            this.queue.unshift(nextQueuedEvent);
+                            this.flushing = false;
+                            this._maybeFlushNext();
+                        },
+                        backoffTimeMsec
+                    );
+                }
+            })
+    }
+
+    private async _postEvent(event: Event): Promise<SendEventResult> {
+        /*
+         This method posts an event to the server
+         */
+
+        // Set a timeout for the fetch request:
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 5000);
+
+        // Post the event:
+        let response: Response;
+        try {
+            response = await fetch(
+                this.connectionUrl,
+                {
+                    method: 'POST',
+                    body: JSON.stringify(event),
+                    headers: {'Content-Type': 'application/json'},
+                    keepalive: true,
+                    signal: controller.signal,
+                }
+            );
+        } catch (error) {
+            throw new Error(`Fetch error: ${error}`);
+        } finally {
+            clearTimeout(timeout);
+        }
+
+        // Process the server response:
+        if (!response.ok) {
+            throw new Error(`Protocol error: got bad response: ${response.status} ${response.statusText}`);
+        }
+
+        let postEventResponse: SubmitEventResponse;
+        const ct = response.headers.get('content-type') || '';
+        if (ct.includes('application/json')) {
+            postEventResponse = await response.json() as SubmitEventResponse;
+        } else {
+            throw new Error(`Protocol error: expected Content-Type application/json: ${response.status} ${response.statusText}`);
+        }
         return {
             response: postEventResponse,
             status: response.status,
             ok: response.ok,
         };
+    }
+
+    // Helper methods:
+    private getEventId(): UUID {
+        return crypto.randomUUID() as UUID;
     }
 
     private getTimestamp(): ISO8601 {
@@ -77,38 +160,8 @@ export class EventClient {
         return now.toISOString() as ISO8601;
     }
 
-    private _maybeFlushNext() {
-        // Flushes the next event in the queue if not already flushing. Once done, calls _maybeFlushNext again to continue processing the queue.
-        if (this.flushing) return;
 
-        const next = this.queue.shift();
-        if (!next) return; // No more events to process
-
-        this.flushing = true;
-        this.sendEventCore(next.event)
-            .then(result => {
-                if (!result.ok) {
-                    // Requeue if an error occurred
-                    this.queue.unshift(next);
-                } else {
-                    next.resolve(result)
-                }
-            })
-            .catch(err => {
-                console.warn("Fetch error, requeuing:", err);
-                this.queue.unshift(next);
-            })
-            .finally(() => {
-                    this.flushing = false;
-                    this._maybeFlushNext(); // Continue processing the queue
-                }
-            )
-    }
-
-    private getEventId(): UUID{
-        return crypto.randomUUID() as UUID;
-    }
-
+    // Public methods:
     async sendStartEvent(): Promise<SendEventResult> {
         let startEvent: StartEvent = {
             run_id: this.runId,
@@ -133,8 +186,7 @@ export class EventClient {
         return this.queueEvent(reportEvent);
     }
 
-    async sendEndEvent():Promise<SendEventResult> {
-
+    async sendEndEvent(): Promise<SendEventResult> {
         let endEvent: EndEvent = {
             run_id: this.runId,
             event_id: this.getEventId(),
