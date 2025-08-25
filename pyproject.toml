@@ -28,7 +28,7 @@ where = ["."]
 namespaces = false
 
 [tool.setuptools.package-data]
-psykit = ["_internal/compilers/**/*.j2"]
+psykit = ["**/*.j2"]
 
 [dependency-groups]
 dev = [
