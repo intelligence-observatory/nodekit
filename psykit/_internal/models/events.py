@@ -6,11 +6,12 @@ from psykit._internal.models.fields import DatetimeUTC
 from psykit._internal.models.node_engine.base import NullValue
 from psykit._internal.models.node_engine.node_graph import NodeResult
 
+from uuid import UUID
 
 # %%
 class BaseEvent(pydantic.BaseModel):
-    event_id: str
-    run_id: str
+    event_id: UUID
+    run_id: UUID
     event_type: str
     event_payload: NullValue
     event_timestamp: DatetimeUTC
@@ -36,7 +37,7 @@ Event = Annotated[
         StartEvent,
         NodeResultEvent,
         EndEvent,
-        # Add other Event types here as needed
     ],
     pydantic.Field(discriminator='event_type')
 ]
+
