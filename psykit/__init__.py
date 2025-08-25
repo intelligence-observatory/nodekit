@@ -1,7 +1,7 @@
 # This module exposes the public API for the psykit package.
 
 __all__ = [
-    'SCHEMA_VERSION',
+    'VERSION',
 
     # Top-level models:
     'NodeGraph',
@@ -43,4 +43,4 @@ import psykit.types as types
 import psykit.compile as compile
 import psykit.events as events
 
-SCHEMA_VERSION = '0.0.1'
+VERSION = '0.0.1'

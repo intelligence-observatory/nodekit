@@ -89,6 +89,7 @@
             // Close server connection and possibly redirect:
             if (eventClient) {
                 let endResponse = await eventClient.sendEndEvent();
+                console.log('end response', endResponse)
                 if (endResponse.redirect_url) {
                     window.location.replace(redirect_url);
                 }
