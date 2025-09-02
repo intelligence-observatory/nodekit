@@ -4,7 +4,7 @@ export default defineConfig({
     build: {
         lib: {
             entry: 'src/main.ts',
-            fileName: () => 'psykit.js',
+            fileName: () => 'nodekit.js',
             name: 'EventClient',
             formats: ['umd'], // Exports a global "EventClient" variable
         },
