@@ -1,0 +1,24 @@
+<!-- example.html -->
+<!doctype html>
+<html lang="en">
+<head>
+    <link rel="icon" href="data:,">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NodeKit Browser</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="src/main.ts"></script>
+    <script>
+        window.onload = async () => {
+            console.log(EventClient)
+
+            let eventClient = new EventClient(
+                'bla',
+                'example.com'
+            )
+            console.log(eventClient)
+        };
+    </script>
+  </body>
+</html>
