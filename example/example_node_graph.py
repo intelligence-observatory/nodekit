@@ -1,4 +1,4 @@
-import psykit as psy
+import nodekit as psy
 import random
 from pathlib import Path
 
