@@ -4,33 +4,33 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "nodekit"
-version = "0.0.1"
+version = "0.0.1a1"
 authors = [
-    { name = "Intelligence Observatory", email = "observatory@mit.edu" }
+    { name = "Michael J. Lee", email = "mil@mit.edu" }
 ]
 readme = "README.md"
+license = { file = "LICENSE" }
 requires-python = ">=3.11"
 
 dependencies = [
     "pillow>=10.4",
     "pydantic>=2.9.2",
-    "pytest>=8.3",
     "Jinja2>=3.1.4",
-    "setuptools>=42",
-    "wheel>=0.45.1",
 ]
 
 [project.urls]
 repository = "https://github.com/intelligence-observatory/nodekit"
+
 
 [tool.setuptools.packages.find]
 where = ["."]
 namespaces = false
 
 [tool.setuptools.package-data]
-psykit = ["**/*.j2"]
+nodekit = ["**/*.j2"]
 
 [dependency-groups]
 dev = [
     "ty>=0.0.1a19",
+    "pytest>=8.3",
 ]

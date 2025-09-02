@@ -25,7 +25,7 @@ def html(
         options = CompileHtmlOptions(
             event_submission_url=None,
             start_node_execution_index=0,
-            run_id='',
+            run_id='NO_RUN_ID',
         )
 
     # Render the node sequence using a Jinja2 template
