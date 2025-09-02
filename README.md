@@ -1,7 +1,3 @@
-# psykit
+# NodeKit
 
-`psykit` is a lightweight authoring tool for browser-ready behavioral experiments. 
-
-
-## Building
-`uv build`
+**NodeKit** is a framework for writing browser-ready behavioral experiments. 
