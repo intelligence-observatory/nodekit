@@ -10,7 +10,7 @@
 
         // Rendering context:
         const nodeGraph = {{ node_graph | tojson(indent=4) | indent(8, first=False) }};
-        const event_submission_url = "{{ event_submission_url }}";
+        const event_submission_url = {{ event_submission_url | tojson}};
         const run_id = "{{ run_id }}";
         const start_node_execution_index = {{ start_node_execution_index }};
 
