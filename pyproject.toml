@@ -3,7 +3,7 @@ requires = ["setuptools>=42", "wheel"]  # Add build dependencies
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "psykit"
+name = "nodekit"
 version = "0.0.1"
 authors = [
     { name = "Intelligence Observatory", email = "observatory@mit.edu" }
@@ -21,7 +21,7 @@ dependencies = [
 ]
 
 [project.urls]
-repository = "https://github.com/intelligence-observatory/psykit"
+repository = "https://github.com/intelligence-observatory/nodekit"
 
 [tool.setuptools.packages.find]
 where = ["."]
