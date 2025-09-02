@@ -6,9 +6,10 @@ build-backend = "setuptools.build_meta"
 name = "nodekit"
 version = "0.0.1a1"
 authors = [
-    { name = "Intelligence Observatory", email = "observatory@mit.edu" }
+    { name = "Michael J. Lee", email = "mil@mit.edu" }
 ]
 readme = "README.md"
+license = { file = "LICENSE" }
 requires-python = ">=3.11"
 
 dependencies = [
