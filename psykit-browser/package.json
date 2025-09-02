@@ -1,7 +1,7 @@
 {
-  "name": "psykit-browser",
+  "name": "nodekit-browser",
   "private": false,
-  "version": "0.0.7",
+  "version": "0.0.1",
   "type": "module",
   "scripts": {
     "dev": "node_modules/.bin/vite",
@@ -14,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/intelligence-observatory/psykit"
+    "url": "git+https://github.com/intelligence-observatory/nodekit"
   },
   "author": "Michael J. Lee"
 }
