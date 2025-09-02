@@ -1,4 +1,4 @@
-import nodekit as psy
+import nodekit as nk
 import random
 from pathlib import Path
 
@@ -9,32 +9,32 @@ nodes = []
 def make_basic_fixation_node(
         fixation_x: float,
         fixation_y: float,
-) -> psy.Node:
+) -> nk.Node:
     """
     Creates a simple Node which places a fixation point at the specified coordinates.
     The Node ends when the participant clicks on the fixation point.
     """
 
-    fixation_card = psy.cards.FixationPointCard(
-        card_shape=psy.types.BoardRectangle(
+    fixation_card = nk.cards.FixationPointCard(
+        card_shape=nk.types.BoardRectangle(
             width=0.05,
             height=0.05,
         ),
-        card_location=psy.types.BoardLocation(
+        card_location=nk.types.BoardLocation(
             x=fixation_x,
             y=fixation_y
         ),
-        card_timespan=psy.types.Timespan(
+        card_timespan=nk.types.Timespan(
             start_time_msec=0,
         ),
     )
 
-    click_sensor = psy.sensors.ClickSensor(
+    click_sensor = nk.sensors.ClickSensor(
         card_id=fixation_card.card_id,
         sensor_timespan=fixation_card.card_timespan
     )
 
-    return psy.Node(
+    return nk.Node(
         cards=[fixation_card],
         sensors=[click_sensor]
     )
@@ -51,8 +51,8 @@ for _ in range(5):
     nodes.append(node)
 
     # Attach a bonus rule to each node
-    bonus_rule = psy.bonus_rules.ConstantBonusRule(
-        bonus_rule_parameters=psy.bonus_rules.ConstantBonusRule.Parameters(
+    bonus_rule = nk.bonus_rules.ConstantBonusRule(
+        bonus_rule_parameters=nk.bonus_rules.ConstantBonusRule.Parameters(
             sensor_id=node.sensors[0].sensor_id,
             bonus_amount_usd='0.01',
         )
@@ -61,7 +61,7 @@ for _ in range(5):
     bonus_rules.append(bonus_rule)
 
 # Generate preview of NodeGraph webpage:
-node_graph = psy.NodeGraph(
+node_graph = nk.NodeGraph(
     nodes=nodes,
     bonus_rules=bonus_rules,
     title="Test task (sandbox)",
@@ -72,7 +72,7 @@ node_graph = psy.NodeGraph(
 )
 
 # %%
-string = psy.compile.html(
+string = nk.compile.html(
     node_graph=node_graph,
 )
 
