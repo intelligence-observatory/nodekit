@@ -7,7 +7,7 @@ export default defineConfig(
             lib: {
                 entry: 'src/main.ts',
                 fileName: (format) => format === 'es' ? 'nodekit.esm.js' : 'nodekit.js',
-                cssFileName: 'nodekit.css',
+                cssFileName: 'nodekit',
                 name: 'NodeKit',
                 formats: ['es', 'iife'],
             },

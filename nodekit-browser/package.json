@@ -20,6 +20,7 @@
       "default": "./dist/nodekit.esm.js"
     }
   },
+  "sideEffects": ["**/*.css"],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/intelligence-observatory/nodekit"

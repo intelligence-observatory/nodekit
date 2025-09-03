@@ -16,6 +16,7 @@ type QueuedEvent = {
     attempts: number,
 }
 
+import './test.css' // Temporary test
 
 export class EventClient {
     private connectionUrl: string;
