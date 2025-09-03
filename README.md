@@ -1,3 +1,3 @@
 # NodeKit
 
-**NodeKit** is a framework for writing browser-ready behavioral experiments. 
+**NodeKit** is a modern, type-safe framework for browser-ready behavioral experiments. 
