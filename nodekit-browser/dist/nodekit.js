@@ -1,81 +1,144 @@
-var l = Object.defineProperty;
-var c = (n, s, a) => s in n ? l(n, s, {enumerable: !0, configurable: !0, writable: !0, value: a}) : n[s] = a;
-var o = (n, s, a) => c(n, typeof s != "symbol" ? s + "" : s, a);
-var NodeKit = (function (n) {
-    "use strict";
-
-    class s {
-        constructor(e, r) {
-            o(this, "connectionUrl");
-            o(this, "runId");
-            o(this, "queue", []);
-            o(this, "flushing", !1);
-            o(this, "maxRetries", 5);
-            if (this.connectionUrl = r, this.runId = e, !this.connectionUrl) throw new Error("connectionUrl is required");
-            if (!this.runId) throw new Error("runId is required")
-        }
-
-        async queueEvent(e) {
-            return new Promise((r, i) => {
-                this.queue.push({event: e, resolve: r, reject: i, attempts: 0}), this._maybeFlushNext()
-            })
-        }
-
-        _maybeFlushNext() {
-            if (this.flushing) return;
-            const e = this.queue.shift();
-            if (!e) return;
-            this.flushing = !0, console.log(`Flushing event: ${e.event.event_type} (attempt ${e.attempts + 1})`), this._postEvent(e.event).then(i => {
-                e.resolve(i), this.flushing = !1, this._maybeFlushNext()
-            }).catch(i => {
-                if (e.attempts += 1, e.attempts >= this.maxRetries) e.reject(new Error(`Retry limit exceeded after ${this.maxRetries} retries`)); else {
-                    const t = Math.pow(2, e.attempts) * 100;
-                    setTimeout(() => {
-                        this.queue.unshift(e), this.flushing = !1, this._maybeFlushNext()
-                    }, t)
-                }
-            })
-        }
-
-        async _postEvent(e) {
-            const r = new AbortController, i = setTimeout(() => r.abort(), 5e3);
-            let t;
-            try {
-                t = await fetch(this.connectionUrl, {method: "POST", body: JSON.stringify(e), headers: {"Content-Type": "application/json"}, keepalive: !0, signal: r.signal})
-            } catch (h) {
-                throw new Error(`Fetch error: ${h}`)
-            } finally {
-                clearTimeout(i)
-            }
-            if (!t.ok) throw new Error(`Protocol error: got bad response: ${t.status} ${t.statusText}`);
-            let u;
-            if ((t.headers.get("content-type") || "").includes("application/json")) u = await t.json(); else throw new Error(`Protocol error: expected Content-Type application/json: ${t.status} ${t.statusText}`);
-            return u
-        }
-
-        getEventId() {
-            return crypto.randomUUID()
-        }
-
-        getTimestamp() {
-            return new Date().toISOString()
-        }
-
-        async sendStartEvent() {
-            let e = {run_id: this.runId, event_id: this.getEventId(), event_type: "StartEvent", event_payload: {}, event_timestamp: this.getTimestamp()};
-            return this.queueEvent(e)
-        }
-
-        async sendNodeResultEvent(e) {
-            const r = {run_id: this.runId, event_id: this.getEventId(), event_type: "NodeResultEvent", event_payload: e, event_timestamp: this.getTimestamp()};
-            return this.queueEvent(r)
-        }
-
-        async sendEndEvent() {
-            let e = {run_id: this.runId, event_id: this.getEventId(), event_type: "EndEvent", event_payload: {}, event_timestamp: this.getTimestamp()};
-            return this.queueEvent(e)
-        }
+var __defProp = Object.defineProperty;
+var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
+var NodeKit = (function(exports) {
+  "use strict";
+  class EventClient {
+    constructor(runId, connectionUrl) {
+      __publicField(this, "connectionUrl");
+      __publicField(this, "runId");
+      __publicField(this, "queue", []);
+      __publicField(this, "flushing", false);
+      __publicField(this, "maxRetries", 5);
+      this.connectionUrl = connectionUrl;
+      this.runId = runId;
+      if (!this.connectionUrl) {
+        throw new Error("connectionUrl is required");
+      }
+      if (!this.runId) {
+        throw new Error("runId is required");
+      }
     }
-
-    return n.EventClient = s, Object.defineProperty(n, Symbol.toStringTag, {value: "Module"}), n
+    async queueEvent(event) {
+      return new Promise(
+        (resolve, reject) => {
+          this.queue.push(
+            {
+              event,
+              resolve,
+              reject,
+              attempts: 0
+            }
+          );
+          this._maybeFlushNext();
+        }
+      );
+    }
+    _maybeFlushNext() {
+      if (this.flushing) {
+        return;
+      }
+      const nextQueuedEvent = this.queue.shift();
+      if (!nextQueuedEvent) {
+        return;
+      }
+      this.flushing = true;
+      console.log(`Flushing event: ${nextQueuedEvent.event.event_type} (attempt ${nextQueuedEvent.attempts + 1})`);
+      let postEventPromise = this._postEvent(nextQueuedEvent.event);
+      postEventPromise.then((result) => {
+        nextQueuedEvent.resolve(result);
+        this.flushing = false;
+        this._maybeFlushNext();
+      }).catch((_err) => {
+        nextQueuedEvent.attempts += 1;
+        if (nextQueuedEvent.attempts >= this.maxRetries) {
+          nextQueuedEvent.reject(new Error(`Retry limit exceeded after ${this.maxRetries} retries`));
+        } else {
+          const backoffTimeMsec = Math.pow(2, nextQueuedEvent.attempts) * 100;
+          setTimeout(
+            () => {
+              this.queue.unshift(nextQueuedEvent);
+              this.flushing = false;
+              this._maybeFlushNext();
+            },
+            backoffTimeMsec
+          );
+        }
+      });
+    }
+    async _postEvent(event) {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 5e3);
+      let response;
+      try {
+        response = await fetch(
+          this.connectionUrl,
+          {
+            method: "POST",
+            body: JSON.stringify(event),
+            headers: { "Content-Type": "application/json" },
+            keepalive: true,
+            signal: controller.signal
+          }
+        );
+      } catch (error) {
+        throw new Error(`Fetch error: ${error}`);
+      } finally {
+        clearTimeout(timeout);
+      }
+      if (!response.ok) {
+        throw new Error(`Protocol error: got bad response: ${response.status} ${response.statusText}`);
+      }
+      let postEventResponse;
+      const ct = response.headers.get("content-type") || "";
+      if (ct.includes("application/json")) {
+        postEventResponse = await response.json();
+      } else {
+        throw new Error(`Protocol error: expected Content-Type application/json: ${response.status} ${response.statusText}`);
+      }
+      return postEventResponse;
+    }
+    // Helper methods:
+    getEventId() {
+      return crypto.randomUUID();
+    }
+    getTimestamp() {
+      const now = /* @__PURE__ */ new Date();
+      return now.toISOString();
+    }
+    // Public methods:
+    async sendStartEvent() {
+      let startEvent = {
+        run_id: this.runId,
+        event_id: this.getEventId(),
+        event_type: "StartEvent",
+        event_payload: {},
+        event_timestamp: this.getTimestamp()
+      };
+      return this.queueEvent(startEvent);
+    }
+    async sendNodeResultEvent(nodeResult) {
+      const reportEvent = {
+        run_id: this.runId,
+        event_id: this.getEventId(),
+        event_type: "NodeResultEvent",
+        event_payload: nodeResult,
+        event_timestamp: this.getTimestamp()
+      };
+      return this.queueEvent(reportEvent);
+    }
+    async sendEndEvent() {
+      let endEvent = {
+        run_id: this.runId,
+        event_id: this.getEventId(),
+        event_type: "EndEvent",
+        event_payload: {},
+        event_timestamp: this.getTimestamp()
+      };
+      return this.queueEvent(endEvent);
+    }
+  }
+  exports.EventClient = EventClient;
+  Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
+  return exports;
 })({});
