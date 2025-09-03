@@ -5,6 +5,8 @@ __all__ = [
     'BoardRectangle',
     'BoardLocation',
     'Timespan',
+    'PressableKey',
+    'KeyHoldSubAction',
 
     'RuntimeMetrics',
     'PixelArea',
@@ -15,6 +17,8 @@ from nodekit._internal.models.node_engine.fields import (
     BoardRectangle,
     BoardLocation,
     Timespan,
+    PressableKey,
+    KeyHoldSubAction,
 )
 
 from nodekit._internal.models.node_engine.runtime_metrics import (
@@ -23,5 +27,6 @@ from nodekit._internal.models.node_engine.runtime_metrics import (
 )
 
 from nodekit._internal.models.node_engine.board import Board
+
 
 

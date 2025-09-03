@@ -1,8 +1,9 @@
-from typing import Literal, Union, Annotated
+from typing import Dict, Literal, Union, Annotated
 
 import pydantic
 
 from nodekit._internal.models.node_engine.base import DslModel, NullValue
+from nodekit._internal.models.node_engine.fields import PressableKey, KeyHoldSubAction
 from nodekit._internal.models.node_engine.sensors.actions.base import BaseAction
 
 
@@ -36,12 +37,29 @@ class TimeoutAction(BaseAction):
     action_value: NullValue = pydantic.Field(default_factory=NullValue, frozen=True)
 
 
+class KeyPressAction(BaseAction):
+    class Value(DslModel):
+        key: PressableKey
+
+    action_type: Literal['KeyPressAction'] = 'KeyPressAction'
+    action_value: Value
+
+
+class KeyHoldsAction(BaseAction):
+    class Value(DslModel):
+        held_keys: Dict[PressableKey, KeyHoldSubAction]
+
+    action_type: Literal['KeyHoldsAction'] = 'KeyHoldsAction'
+    action_value: Value
+
 # %%
 Action = Annotated[
     Union[
         ClickAction,
         DoneAction,
         TimeoutAction,
+        KeyPressAction,
+        KeyHoldsAction,
         # Add other Action types here as needed
     ],
     pydantic.Field(discriminator='action_type')

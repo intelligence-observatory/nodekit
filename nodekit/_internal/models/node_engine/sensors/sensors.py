@@ -44,6 +44,15 @@ class KeyPressSensor(BaseSensor):
     sensor_parameters: KeyPressSensorParameters
     card_id: None = pydantic.Field(default=None, frozen=True)  # Only binds to Board
 
+
+class KeyHoldsSensor(BaseSensor):
+    class KeyHoldsSensorParameters(DslModel):
+        keys: Set[PressableKey]
+
+    sensor_type: Literal['KeyHoldsSensor'] = 'KeyHoldsSensor'
+    sensor_parameters: KeyHoldsSensorParameters
+    card_id: None = pydantic.Field(default=None, frozen=True)  # Only binds to Board
+
 # %%
 Sensor = Annotated[
     Union[
@@ -51,6 +60,7 @@ Sensor = Annotated[
         DoneSensor,
         ClickSensor,
         KeyPressSensor,
+        KeyHoldsSensor,
         # Add other Sensor types here as needed
     ],
     pydantic.Field(discriminator='sensor_type')

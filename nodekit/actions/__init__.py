@@ -3,6 +3,8 @@ __all__ = [
     "ClickAction",
     "DoneAction",
     "TimeoutAction",
+    "KeyPressAction",
+    "KeyHoldsAction",
 ]
 
 from nodekit._internal.models.node_engine.sensors.actions.actions import (
@@ -10,4 +12,6 @@ from nodekit._internal.models.node_engine.sensors.actions.actions import (
     ClickAction,
     DoneAction,
     TimeoutAction,
+    KeyPressAction,
+    KeyHoldsAction,
 )

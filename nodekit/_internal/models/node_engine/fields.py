@@ -90,3 +90,20 @@ PressableKey = Literal[
     'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
     '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
 ]
+
+
+class KeyHoldSubAction(pydantic.BaseModel):
+    key: PressableKey = pydantic.Field(
+        description="The key that was pressed."
+    )
+    started_after_arm: bool = pydantic.Field(
+        description="If true, the key was pressed after the sensor was armed."
+    )
+    tstart_msec: int = pydantic.Field(
+        description="The time delta from the sensor's start time at which the key was pressed. "
+                    "If `not started_after_arm`, this is 0."
+    )
+    tend_msec: int | None = pydantic.Field(
+        description="The time delta from the sensor's end time at which the key was released. "
+                    "If None, the key wasn't released."
+    )
