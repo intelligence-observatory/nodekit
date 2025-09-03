@@ -18,17 +18,19 @@ type QueuedEvent = {
 
 
 export class EventClient {
-    private readonly connectionUrl: string;
-    private readonly runId: UUID;
-    private readonly queue: QueuedEvent[] = [];
-    private flushing = false;
-
-    private readonly maxRetries = 5;
+    private connectionUrl: string;
+    private runId: UUID;
+    private queue: QueuedEvent[];
+    private flushing;
+    private maxRetries;
 
     constructor(
         runId: string,
         connectionUrl: string,
     ) {
+        this.queue = [];
+        this.flushing = false;
+        this.maxRetries = 5;
         this.connectionUrl = connectionUrl
         this.runId = runId as UUID;
 

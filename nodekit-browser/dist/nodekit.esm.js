@@ -1,13 +1,8 @@
-var __defProp = Object.defineProperty;
-var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
 class EventClient {
   constructor(runId, connectionUrl) {
-    __publicField(this, "connectionUrl");
-    __publicField(this, "runId");
-    __publicField(this, "queue", []);
-    __publicField(this, "flushing", false);
-    __publicField(this, "maxRetries", 5);
+    this.queue = [];
+    this.flushing = false;
+    this.maxRetries = 5;
     this.connectionUrl = connectionUrl;
     this.runId = runId;
     if (!this.connectionUrl) {

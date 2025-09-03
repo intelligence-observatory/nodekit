@@ -10,7 +10,15 @@
   },
   "devDependencies": {
     "typescript": "~5.8.3",
-    "vite": "^6.3.5"
+    "vite": "^6.3.5",
+    "vite-plugin-dts": "^4.5.4"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/nodekit.esm.js",
+      "default": "./dist/nodekit.esm.js",
+      "types": "./dist/nodekit.d.ts"
+    }
   },
   "repository": {
     "type": "git",

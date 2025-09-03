@@ -1,4 +1,5 @@
 import {defineConfig} from 'vite';
+import dts from 'vite-plugin-dts'; // Used for generating TypeScript declaration files (.d.ts)
 
 export default defineConfig(
     {
@@ -14,5 +15,14 @@ export default defineConfig(
             emptyOutDir: true,
             minify: false,
         },
+        plugins: [
+            dts(
+                {
+                    tsconfigPath: './tsconfig.json',
+                    rollupTypes: true,
+                }
+            )
+        ]
+
     }
 );
