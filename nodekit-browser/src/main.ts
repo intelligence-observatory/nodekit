@@ -195,9 +195,3 @@ export class EventClient {
     }
 }
 
-
-// Manually attach the play function to the global window object, for testing purposes:
-// This code snippet is unnecessary for production, but needed to use vite's development tools.
-if (typeof window !== 'undefined') {
-    (window as any).EventClient = EventClient;
-}
