@@ -5,7 +5,7 @@ import pydantic
 from nodekit._internal.models.node_engine.base import NullParameters, DslModel
 from nodekit._internal.models.node_engine.cards.base import BaseCard
 from nodekit._internal.models.node_engine.fields import TextContent, ColorHexString
-from nodekit._internal.models.assets.base import ImageLink
+from nodekit._internal.models.assets.base import ImageLink, VideoLink
 
 
 # %% Concrete card classes
@@ -35,6 +35,15 @@ class ImageCard(BaseCard):
 
 
 # %%
+class VideoCard(BaseCard):
+    class Parameters(DslModel):
+        video_link: VideoLink
+
+    card_type: Literal['VideoCard'] = 'VideoCard'
+    card_parameters: Parameters
+
+
+# %%
 class TextCard(BaseCard):
     class Parameters(DslModel):
         content: TextContent
@@ -52,6 +61,7 @@ Card = Annotated[
     Union[
         FixationPointCard,
         ImageCard,
+        VideoCard,
         TextCard,
         MarkdownPagesCard,
         # Add other Card types here as needed
