@@ -224,6 +224,8 @@ export class KeyHoldSensorBinding implements SensorBinding {
     private readonly keys: PressableKey[];
     private readonly keyHolds: KeyHoldSubAction[];
     private tArmed: number | null = null;
+    private readonly keyPressCallback: (e: KeyboardEvent) => void;
+    private readonly keyReleaseCallback: (e: KeyboardEvent) => void;
 
     constructor(
         sensorId: SensorId,
@@ -244,8 +246,10 @@ export class KeyHoldSensorBinding implements SensorBinding {
         // These events must be added to document, and not BoardView.root because
         // 1. This is the only way to ensure that KeyboardEvents are heard, due to how focus works.
         // 2. We want them to listen to key presses prior to the sensor arming.
-        document.addEventListener('keydown', (e) => this.onKeyPress(e));
-        document.addEventListener('keyup', (e) => this.onKeyRelease(e));
+        this.keyPressCallback = this.onKeyPress.bind(this);
+        this.keyReleaseCallback = this.onKeyRelease.bind(this);
+        document.addEventListener('keydown', this.keyPressCallback);
+        document.addEventListener('keyup', this.keyReleaseCallback);
     }
 
     arm() {
@@ -264,14 +268,15 @@ export class KeyHoldSensorBinding implements SensorBinding {
                 },
                 reaction_time_msec: reactionTimeMsec
             };
+            console.log(this.keyHolds)
             this.onSensorFired(action);
         }
 
         this.tArmed = null;
 
         // Manually remove the listeners.
-        document.removeEventListener('keydown', this.onKeyPress);
-        document.removeEventListener('keyup', this.onKeyRelease);
+        document.removeEventListener('keydown', this.keyPressCallback);
+        document.removeEventListener('keyup', this.keyReleaseCallback);
     }
 
     private onKeyPress(e: KeyboardEvent) {
@@ -286,7 +291,7 @@ export class KeyHoldSensorBinding implements SensorBinding {
         let gotKey = false;
         for (const keyHold of this.keyHolds) {
             // If the key isn't already released, register the press as a new event.
-            if (key == keyHold.key && !keyHold.tend_msec) {
+            if (key == keyHold.key && keyHold.tend_msec == null) {
                 gotKey = true;
                 break;
             }
