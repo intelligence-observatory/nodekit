@@ -10,10 +10,9 @@
     <div id="app"></div>
     <script type="module" src="src/main.ts"></script>
     <script type="module">
-        import { EventClient } from '/src/main.ts'; // or from your package once published/linked
+        import { play } from '/src/main.ts'; // or from your package once published/linked
         window.onload = async () => {
-            const ec = new EventClient('bla', 'example.com');
-            console.log(ec);
+            play()
         };
     </script>
 
