@@ -83,3 +83,10 @@ class Timespan(pydantic.BaseModel):
         Check if the Timespan is finite (i.e., has a defined end time).
         """
         return self.end_time_msec is not None
+
+# Enter, spacebar, arrow keys, and alphanumeric keys.
+PressableKey = Literal[
+    'Enter', ' ', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowUp',
+    'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
+]

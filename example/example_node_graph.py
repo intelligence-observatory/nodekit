@@ -5,6 +5,7 @@ from pathlib import Path
 # %% Assemble a simple NodeGraph:
 nodes = []
 
+
 # %% Create a sequence of simple Nodes in which the Participant must click on a fixation point
 def make_basic_fixation_node(
         fixation_x: float,
