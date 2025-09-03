@@ -5,7 +5,48 @@ from pathlib import Path
 # %% Assemble a simple NodeGraph:
 nodes = []
 
+
 # %% Create a sequence of simple Nodes in which the Participant must click on a fixation point
+
+def make_keypress_node(
+        key_to_press: str,
+):
+
+    assert len(key_to_press) == 1
+    text_card = nk.cards.TextCard(
+        card_parameters=nk.cards.TextCard.Parameters(
+            content=nk.types.TextContent(
+                text=f'Press the "{key_to_press}" key to continue.',
+                justification_horizontal='center',
+                justification_vertical='center'
+            )
+        ),
+        card_shape=nk.types.BoardRectangle(
+            width=0.5,
+            height=0.2,
+        ),
+        card_location=nk.types.BoardLocation(
+            x=0,
+            y=0
+        ),
+        card_timespan=nk.types.Timespan(
+            start_time_msec=0,
+        ),
+    )
+
+    sensor = nk.sensors.KeyPressSensor(
+        sensor_parameters=nk.sensors.KeyPressSensor.KeyPressSensorParameters(
+            keys={key_to_press},
+        ),
+        sensor_timespan=nk.types.Timespan(
+            start_time_msec=0,
+        )
+    )
+    return nk.Node(
+        cards=[text_card],
+        sensors=[sensor],
+    )
+
 def make_basic_fixation_node(
         fixation_x: float,
         fixation_y: float,
@@ -42,7 +83,7 @@ def make_basic_fixation_node(
 
 random.seed(42)
 bonus_rules = []
-for _ in range(5):
+for _ in range(2):
     # Randomly sample fixation points
     node = make_basic_fixation_node(
         fixation_x=round(random.uniform(-0.3, 0.3), 2),
@@ -59,6 +100,11 @@ for _ in range(5):
     )
 
     bonus_rules.append(bonus_rule)
+
+
+nodes.append(
+    make_keypress_node('a')
+)
 
 # Generate preview of NodeGraph webpage:
 node_graph = nk.NodeGraph(
