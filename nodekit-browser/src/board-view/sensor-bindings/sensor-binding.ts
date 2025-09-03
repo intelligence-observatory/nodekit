@@ -268,7 +268,6 @@ export class KeyHoldSensorBinding implements SensorBinding {
                 },
                 reaction_time_msec: reactionTimeMsec
             };
-            console.log(this.keyHolds)
             this.onSensorFired(action);
         }
 
