@@ -3,6 +3,7 @@ import type {
     StartEvent,
     EndEvent,
     NodeResultEvent,
+    LeaveEvent,
     NodeResult,
     UUID,
     ISO8601,
@@ -169,6 +170,17 @@ export class EventClient {
             event_timestamp: this.getTimestamp(),
         }
         return this.queueEvent(startEvent)
+    }
+
+    async sendLeaveEvent(): Promise<SubmitEventResponse> {
+        let leaveEvent: LeaveEvent = {
+            run_id: this.runId,
+            event_id: this.getEventId(),
+            event_type: 'LeaveEvent',
+            event_payload: {},
+            event_timestamp: this.getTimestamp(),
+        }
+        return this.queueEvent(leaveEvent)
     }
 
     async sendNodeResultEvent(

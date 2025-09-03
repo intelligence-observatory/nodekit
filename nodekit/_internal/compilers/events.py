@@ -14,6 +14,7 @@ import enum
 class EventTypeEnum(str, enum.Enum):
     StartEvent = 'StartEvent'
     NodeResultEvent = 'NodeResultEvent'
+    LeaveEvent = 'LeaveEvent'
     EndEvent = 'EndEvent'
 
 # %%
@@ -27,10 +28,21 @@ class BaseEvent(pydantic.BaseModel):
 
 # %%
 class StartEvent(BaseEvent):
+    """
+    Emitted when a Participant starts a new run through the NodeGraph.
+    """
     event_type: Literal[EventTypeEnum.StartEvent] = EventTypeEnum.StartEvent
 
+class LeaveEvent(BaseEvent):
+    """
+    Emitted when a Participant leaves a run (e.g., closes the tab or navigates away) before it has completed.
+    """
+    event_type: Literal[EventTypeEnum.LeaveEvent] = EventTypeEnum.LeaveEvent
 
 class EndEvent(BaseEvent):
+    """
+    Emitted when a Participant completes a run through the NodeGraph.
+    """
     event_type: Literal[EventTypeEnum.EndEvent] = EventTypeEnum.EndEvent
 
 
@@ -44,6 +56,7 @@ Event = Annotated[
     Union[
         StartEvent,
         NodeResultEvent,
+        LeaveEvent,
         EndEvent,
     ],
     pydantic.Field(discriminator='event_type')

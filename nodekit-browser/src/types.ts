@@ -24,10 +24,11 @@ export type BaseEvent<T extends string, P> = {
 
 export type StartEvent = BaseEvent<'StartEvent', {}>
 export type EndEvent = BaseEvent<'EndEvent', {}>
+export type LeaveEvent = BaseEvent<'LeaveEvent', {}>
 export type NodeResultEvent = BaseEvent<'NodeResultEvent', NodeResult>
 
 // Union of all event types
-export type Event = StartEvent | EndEvent | NodeResultEvent;
+export type Event = StartEvent | EndEvent | NodeResultEvent | LeaveEvent;
 
 
 // Server responses
