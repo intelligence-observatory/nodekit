@@ -164,6 +164,7 @@ export class KeyPressSensorBinding implements SensorBinding {
     private readonly onSensorFired: (action: Action) => void
     private tArmed: number | null = null;
     private readonly keys: PressableKey[];
+    private readonly onKeyPressCallback: (e: KeyboardEvent) => void;
 
     constructor(
         sensorId: SensorId,
@@ -182,7 +183,8 @@ export class KeyPressSensorBinding implements SensorBinding {
         // This event must be added to document, and not BoardView.root because
         // this is the only way to ensure that KeyboardEvents are heard, due to how focus works.
         // See: https://stackoverflow.com/a/12828055
-        document.addEventListener('keydown', (e) => this.onKeyPress(e));
+        this.onKeyPressCallback = this.onKeyPress.bind(this);
+        document.addEventListener('keydown', this.onKeyPressCallback);
     }
 
     arm() {
@@ -193,13 +195,14 @@ export class KeyPressSensorBinding implements SensorBinding {
         this.tArmed = null;
 
         // Manually remove the listener.
-        document.removeEventListener('keydown', this.onKeyPress);
+        document.removeEventListener('keydown', this.onKeyPressCallback);
     }
 
     private onKeyPress(e: KeyboardEvent) {
         if (!this.tArmed) {
             return;
         }
+        console.log('here');
         e.preventDefault();
         let key = e.key as PressableKey;
         if (this.keys.includes(key)) {
