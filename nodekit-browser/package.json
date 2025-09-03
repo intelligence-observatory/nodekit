@@ -16,8 +16,8 @@
   "exports": {
     ".": {
       "import": "./dist/nodekit.esm.js",
-      "default": "./dist/nodekit.esm.js",
-      "types": "./dist/nodekit.d.ts"
+      "types": "./dist/nodekit.d.ts",
+      "default": "./dist/nodekit.esm.js"
     }
   },
   "repository": {
