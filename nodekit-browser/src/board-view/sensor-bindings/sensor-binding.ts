@@ -202,7 +202,6 @@ export class KeyPressSensorBinding implements SensorBinding {
         if (!this.tArmed) {
             return;
         }
-        console.log('here');
         e.preventDefault();
         let key = e.key as PressableKey;
         if (this.keys.includes(key)) {
@@ -216,6 +215,7 @@ export class KeyPressSensorBinding implements SensorBinding {
                     },
                     reaction_time_msec: reactionTimeMsec as TimePointMsec
                 };
+                document.removeEventListener('keydown', this.onKeyPressCallback);
                 this.onSensorFired(action);
             }
     }
