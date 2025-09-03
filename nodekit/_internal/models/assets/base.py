@@ -32,6 +32,9 @@ class BaseAssetLink(pydantic.BaseModel, ABC):
 class ImageLink(BaseAssetLink):
     mime_type: Literal['image/png'] = 'image/png'
 
+# %%
+class VideoLink(BaseAssetLink):
+    mime_type: Literal['video/mp4'] = 'video/mp4'
 
 # %%
 AssetLink = Annotated[

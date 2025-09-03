@@ -56,5 +56,6 @@ SHA256 = Annotated[str, pydantic.Field(pattern=r'^[a-f0-9]{64}$')]
 
 MimeType = Literal[
     'image/png',
+    'video/mp4'
     # Add other supported mime types here as needed
 ]
