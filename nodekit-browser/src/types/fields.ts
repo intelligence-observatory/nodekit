@@ -54,3 +54,15 @@ export function dateToISO8601(date: Date): ISO8601 {
 }
 
 export type PressableKey = "Enter" | " " | "ArrowDown" | "ArrowLeft" | "ArrowRight" | "ArrowUp" | "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z" | "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
+
+export interface KeyHoldSubAction {
+    key: PressableKey,
+    // If true, the key was pressed after the sensor was armed.
+    pressed_after_armed: boolean;
+    // The time delta from the sensor's start time at which the key was pressed.
+    // If `!started_after_arm`, this is 0.
+    tstart_msec: number;
+    // The time delta from the sensor's end time at which the key was released.
+    // This is null if the key wasn't released.
+    tend_msec: number | null;
+}

@@ -1,6 +1,6 @@
 import type {BaseAction} from "./base.ts";
 import type {NullValue} from "../../base.ts";
-import type {PressableKey} from "../../fields.ts";
+import type {KeyHoldSubAction, PressableKey} from "../../fields.ts";
 
 
 export interface ClickActionValue {
@@ -10,6 +10,10 @@ export interface ClickActionValue {
 
 export interface KeyPressActionValue {
     key: PressableKey;
+}
+
+export interface KeyHoldsActionValue {
+    key_holds: KeyHoldSubAction[]
 }
 
 export interface ClickAction extends BaseAction<ClickActionValue>{
@@ -28,4 +32,8 @@ export interface KeyPressAction extends BaseAction<KeyPressActionValue>{
     action_type: "KeyPressAction";
 }
 
-export type Action = ClickAction | DoneAction | TimeoutAction | KeyPressAction;
+export interface KeyHoldsAction extends BaseAction<KeyHoldsActionValue>{
+    action_type: "KeyHoldsAction";
+}
+
+export type Action = ClickAction | DoneAction | TimeoutAction | KeyPressAction | KeyHoldsAction;

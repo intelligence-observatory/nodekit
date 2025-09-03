@@ -1,9 +1,9 @@
-import type {Action, ClickAction, DoneAction, KeyPressAction} from "../../types/sensors/actions/actions.ts";
+import type {Action, ClickAction, DoneAction, KeyPressAction, KeyHoldsAction} from "../../types/sensors/actions/actions.ts";
 import type {SensorId, TimePointMsec} from "../../types/fields.ts";
 import type {BoardView} from "../board-view.ts";
 import type {ClickableCardView, DoneableCardView} from "../card-views/card-view.ts";
 import {CardView} from "../card-views/card-view.ts";
-import type {PressableKey} from "../../types/fields.ts";
+import type {KeyHoldSubAction, PressableKey} from "../../types/fields.ts";
 
 // Generic contract:
 export interface SensorBinding {
@@ -202,7 +202,7 @@ export class KeyPressSensorBinding implements SensorBinding {
         }
         e.preventDefault();
         let key = e.key as PressableKey;
-        if (this.keys.includes(key)) {
+        if (this.keys.some(k => k == key)) {
                 const reactionTimeMsec = Math.round(performance.now() - this.tArmed) as TimePointMsec;
                 // Create the action to be fired
                 const action: KeyPressAction = {
@@ -215,6 +215,127 @@ export class KeyPressSensorBinding implements SensorBinding {
                 };
                 this.onSensorFired(action);
             }
+    }
+}
+
+export class KeyHoldSensorBinding implements SensorBinding {
+    private readonly sensorId: SensorId;
+    private readonly onSensorFired: (action: Action) => void
+    private readonly keys: PressableKey[];
+    private readonly keyHolds: KeyHoldSubAction[];
+    private tArmed: number | null = null;
+
+    constructor(
+        sensorId: SensorId,
+        onSensorFired: (action: Action) => void,
+        keys: Set<PressableKey>
+    ) {
+        this.sensorId = sensorId;
+        this.onSensorFired = onSensorFired;
+
+        // It would be better for `this.keys` to be `Set<PressableKey>`.
+        // Unfortunately, the Typescript generator will turn that into an array, not a set,
+        // and therefore `this.keys.has(key)` won't work.
+        // So, `keys` is converted to an array, which appeases the generator.
+        this.keys = [...keys];
+
+        this.keyHolds = [];
+
+        // These events must be added to document, and not BoardView.root because
+        // 1. This is the only way to ensure that KeyboardEvents are heard, due to how focus works.
+        // 2. We want them to listen to key presses prior to the sensor arming.
+        document.addEventListener('keydown', (e) => this.onKeyPress(e));
+        document.addEventListener('keyup', (e) => this.onKeyRelease(e));
+    }
+
+    arm() {
+        this.tArmed = performance.now();
+    }
+
+    disarm() {
+        if (this.tArmed) {
+            // Fire the sensor when the sensor times out.
+            const reactionTimeMsec = Math.round(performance.now() - this.tArmed) as TimePointMsec;
+            let action: KeyHoldsAction = {
+                sensor_id: this.sensorId,
+                action_type: "KeyHoldsAction",
+                action_value: {
+                    key_holds: this.keyHolds
+                },
+                reaction_time_msec: reactionTimeMsec
+            };
+            this.onSensorFired(action);
+        }
+
+        this.tArmed = null;
+
+        // Manually remove the listeners.
+        document.removeEventListener('keydown', this.onKeyPress);
+        document.removeEventListener('keyup', this.onKeyRelease);
+    }
+
+    private onKeyPress(e: KeyboardEvent) {
+        e.preventDefault();
+        let key = e.key as PressableKey;
+
+        // Ignore invalid keys.
+        if (!this.keys.some(k => k == key)) {
+            return;
+        }
+
+        let gotKey = false;
+        for (const keyHold of this.keyHolds) {
+            // If the key isn't already released, register the press as a new event.
+            if (key == keyHold.key && !keyHold.tend_msec) {
+                gotKey = true;
+                break;
+            }
+        }
+
+        // An edge case in which the key is pressed before the document loads.
+        if (!gotKey) {
+            this.keyHolds.push({
+                key: key,
+                pressed_after_armed: this.tArmed != null,
+                tstart_msec: this.getTime(),
+                tend_msec: null
+            });
+        }
+    }
+
+    private onKeyRelease(e: KeyboardEvent) {
+        e.preventDefault();
+        let key = e.key as PressableKey;
+
+        // Ignore invalid keys.
+        if (!this.keys.some(k => k == key)) {
+            return;
+        }
+
+        // Try to find the oldest key press that hasn't been released and set its end time.
+        let gotKey = false;
+        for (const keyHold of this.keyHolds) {
+            // Set the end time.
+            if (key == keyHold.key && !keyHold.tend_msec) {
+                keyHold.tend_msec = this.getTime();
+                gotKey = true;
+                break;
+            }
+        }
+
+        // An edge case in which the key is pressed before the document loads.
+        if (!gotKey) {
+            this.keyHolds.push({
+                key: key,
+                pressed_after_armed: false,
+                tstart_msec: 0,
+                tend_msec: 0
+           });
+        }
+    }
+
+    private getTime() {
+        return this.tArmed ? performance.now() - this.tArmed : 0;
     }
 }
 
