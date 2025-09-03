@@ -9,6 +9,6 @@ export default defineConfig({
             formats: ['umd'], // Exports a global "EventClient" variable
         },
         outDir: 'dist',
-        emptyOutDir: false,
+        emptyOutDir: true,
     },
 });
