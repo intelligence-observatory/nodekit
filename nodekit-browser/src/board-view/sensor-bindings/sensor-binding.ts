@@ -292,7 +292,6 @@ export class KeyHoldSensorBinding implements SensorBinding {
             }
         }
 
-        // An edge case in which the key is pressed before the document loads.
         if (!gotKey) {
             this.keyHolds.push({
                 key: key,
