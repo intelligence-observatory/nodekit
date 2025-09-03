@@ -160,11 +160,11 @@
             }
         }]
 
-        import { play, NodePlayer } from '/src/main.ts'; // or from your package once published/linked
+        import { EventClient, NodePlayer } from '/src/main.ts'; // or from your package once published/linked
         window.onload = async () => {
-            play()
 
             console.log(NodePlayer)
+            console.log(EventClient)
 
             let nodePlayer = new NodePlayer();
             const nodeMeasurements = [];

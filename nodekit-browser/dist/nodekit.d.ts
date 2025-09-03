@@ -97,6 +97,23 @@ declare interface DoneSensor extends BaseSensor<'DoneSensor', NullParameters> {
 
 declare type Effect = HidePointerEffect;
 
+export declare class EventClient {
+    private connectionUrl;
+    private runId;
+    private queue;
+    private flushing;
+    private maxRetries;
+    constructor(runId: string, connectionUrl: string);
+    private queueEvent;
+    private _maybeFlushNext;
+    private _postEvent;
+    private getEventId;
+    private getTimestamp;
+    sendStartEvent(): Promise<SubmitEventResponse>;
+    sendNodeResultEvent(nodeResult: NodeResult): Promise<SubmitEventResponse>;
+    sendEndEvent(): Promise<SubmitEventResponse>;
+}
+
 declare interface FixationPointCard extends BaseCard<'FixationPointCard', NullParameters> {
 }
 
@@ -114,6 +131,10 @@ declare interface ImageLink extends BaseAssetLink<"image/png"> {
 }
 
 declare type ISO8601 = string & {
+    __brand: 'ISO8601';
+};
+
+declare type ISO8601_2 = string & {
     __brand: 'ISO8601';
 };
 
@@ -179,6 +200,15 @@ declare type NodePlayId = string & {
     __brand: 'NodePlayId';
 };
 
+declare type NodeResult = {
+    node_id: UUID;
+    timestamp_start: ISO8601_2;
+    timestamp_end: ISO8601_2;
+    node_execution_index: number;
+    action: any;
+    runtime_metrics: any;
+};
+
 declare interface NullParameters {
 }
 
@@ -192,8 +222,6 @@ declare interface PixelArea {
     width_px: number;
     height_px: number;
 }
-
-export declare function play(): void;
 
 declare type PressableKey = "Enter" | " " | "ArrowDown" | "ArrowLeft" | "ArrowRight" | "ArrowUp" | "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z" | "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
 
@@ -222,6 +250,10 @@ declare type SpatialPoint = number & {
 
 declare type SpatialSize = number & {
     __brand: 'SpatialSize';
+};
+
+declare type SubmitEventResponse = {
+    redirect_url: string | null;
 };
 
 declare interface TextCard extends BaseCard<'TextCard', TextCardParameters> {
@@ -264,6 +296,10 @@ declare interface Timespan {
     start_time_msec: TimePointMsec;
     end_time_msec: TimePointMsec | null;
 }
+
+declare type UUID = string & {
+    __brand: 'UUID';
+};
 
 declare interface VideoCard extends BaseCard<'VideoCard', VideoCardParameters> {
 }
