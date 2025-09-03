@@ -43,4 +43,4 @@ import nodekit.types as types
 import nodekit.compile as compile
 import nodekit.events as events
 
-VERSION = '0.0.1'
+VERSION = '0.0.1a2'

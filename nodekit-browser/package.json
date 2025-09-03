@@ -1,17 +1,35 @@
 {
   "name": "nodekit-browser",
   "private": false,
-  "version": "0.0.1",
+  "version": "0.0.2-alpha.1",
   "type": "module",
   "scripts": {
     "dev": "node_modules/.bin/vite",
     "build": "node_modules/.bin/tsc && vite build",
     "preview": "node_modules/.bin/vite preview"
   },
+  "dependencies": {
+    "@fontsource/inter": "^5.2.5",
+    "decimal.js": "^10.5.0",
+    "dompurify": "^3.2.6",
+    "highlight.js": "^11.11.1",
+    "marked": "^15.0.12",
+    "semver": "^7.7.2",
+    "ua-parser-js": "^2.0.3"
+  },
   "devDependencies": {
     "typescript": "~5.8.3",
-    "vite": "^6.3.5"
+    "vite": "^6.3.5",
+    "vite-plugin-dts": "^4.5.4"
   },
+  "exports": {
+    ".": {
+      "import": "./dist/nodekit.esm.js",
+      "types": "./dist/nodekit.d.ts",
+      "default": "./dist/nodekit.esm.js"
+    }
+  },
+  "sideEffects": ["**/*.css"],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/intelligence-observatory/nodekit"

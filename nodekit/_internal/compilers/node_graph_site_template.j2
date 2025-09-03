@@ -3,9 +3,8 @@
 
 <head>
     <title>NodeGraph</title>
-    <script src="https://unpkg.com/nodekit-browser@0.0.1/dist/nodekit.js"></script>
-    <script src="https://unpkg.com/@psychoscope/node-player@0.2.2/dist/node-player.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/@psychoscope/node-player@0.2.2/dist/node-player.css">
+    <script src="https://unpkg.com/nodekit-browser@0.0.2-alpha.1/dist/nodekit.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/nodekit-browser@0.0.2-alpha.1/dist/nodekit.css">
     <script>
 
         // Rendering context:
@@ -18,7 +17,7 @@
         window.onload = async () => {
             let eventClient = null;
             if (event_submission_url) {
-                eventClient = new EventClient(
+                eventClient = new NodeKit.EventClient(
                     run_id,
                     event_submission_url
                 );
@@ -27,7 +26,7 @@
 
             // Play the Nodes in the NodeGraph:
             const nodes = nodeGraph.nodes;
-            let nodePlayer = new NodePlayer();
+            let nodePlayer = new NodeKit.NodePlayer();
             const nodeResultsBuffer = [];
             for (let i = start_node_execution_index; i < nodes.length; i++) {
                 const node = nodes[i];
