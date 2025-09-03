@@ -1,0 +1,44 @@
+
+/*
+A fixed-width <div> which is not selectable.
+ */
+.console-title-box {
+    font-size: 1rem;
+    width: var(--overlay-console-width);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    /* Prevent selection of text in banner */
+    user-select: none;
+    margin-bottom: 0.5rem;
+}
+
+/* Text to be rendered inside the banner. Overflows into an ellipsis. */
+.console-title-box__text {
+    color: var(--system-text-default-color-on-dark);
+    font-family: var(--font-family-mono), monospace;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.copy-button {
+    background-color: hsla(0, 0%, 50%, 0.5);
+    color: var(--system-text-default-color-on-dark);
+    border: var(--system-button-border);
+    font-size: 0.75rem;
+    border-radius: 4px;
+    min-width: 4rem;
+    min-height: 1.5rem;
+    cursor: pointer;
+}
+
+.copy-button:hover {
+    background-color: hsla(0, 0%, 90%, 0.5);
+    color: var(--system-text-default-color-on-light);
+}
+
+.copy-button:active {
+    background-color: hsla(0, 0%, 90%, 1);
+    color: var(--system-text-default-color-on-light);
+}

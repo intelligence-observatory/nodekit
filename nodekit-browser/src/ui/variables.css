@@ -1,0 +1,135 @@
+
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/700.css";
+@import 'board-views-ui/board-views-ui.css';
+
+
+:root {
+    /* ShellUI Dimensions */
+    --top-strip-height: 10px;
+    --overlay-console-width: 80%;
+
+    /* System Surfaces */
+    --system-surface-color: rgb(128, 128, 128);
+    --system-surface-emphasis-color: rgb(140, 140, 140);
+    --system-background-color: rgb(125, 125, 125);
+    --system-overlay-background-color: rgba(0, 0, 0, 0.5);
+
+    /* System Borders */
+    --system-border-default-on-dark: 2px solid rgba(255, 255, 255, 0.1);
+    --system-border-default-on-light: 1px solid rgba(0, 0, 0, 0.2);
+    --system-border-faint: 1px solid rgba(255, 255, 255, 0.1);
+
+    --system-border-radius: 12px;
+
+    /* System Buttons */
+    --system-button-background-color: hsla(0, 0%, 90%, 1);
+    --system-button-hover-background-color: hsla(0, 0%, 80%, 1);
+    --system-button-active-background-color: hsla(0, 0%, 70%, 1);
+    --system-button-border: 0px solid rgba(100, 100, 100, 1);
+    --system-button-box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+
+    /* System Scrollbars */
+    --system-scroll-color: rgba(128,128,128, 0.1);
+
+    /* System Shadows */
+    --system-box-shadow: 0 0 2px rgba(0, 0,0, 0.2);
+
+    /* System Text */
+    --font-family-sans: 'Inter';
+    --font-family-mono: monospace;
+    --system-text-background-color: hsl(0, 0%, 90%);
+    --system-text-muted-background-color: hsl(0, 0%, 80%);
+    --system-text-default-color-on-light: hsl(0, 0%, 15%);
+    --system-text-default-color-on-dark: hsl(210, 0%, 75%);
+
+    --system-text-muted-color-on-light: rgba(0, 0, 0, 0.5);
+    --system-text-muted-color-on-dark: rgba(255, 255, 255, 0.5);
+
+    /* System Valence */
+    --system-positive-color: #68d391;
+    --system-neutral-color: hsla(0,100%,100%,0.2);
+    --system-negative-color: #ff5c5c;
+
+    /* Card Selection */
+    --card-hover-color: rgba(128, 128, 128, 0.5);
+
+    /* Cognition */
+    --cognition-strong-color: hsl(208,100%,80%);
+    --cognition-standard-color: hsl(207, 90%, 83%);
+    --cognition-faint-color: hsla(207, 32%, 84%);
+
+    --cognition-standard-color-alpha-high: hsla(207, 100%, 82%, 0.9);
+    --cognition-standard-color-alpha-medium: hsla(207, 100%, 82%, 0.4);
+    --cognition-standard-color-alpha-low: hsla(207, 100%, 82%, 0.1);
+
+    /* Monetary Reinforcement */
+    --monetary-gain-color: hsla(48, 90%, 60%, 1.0);
+    --monetary-loss-color: hsla(210, 10%, 23%, 1.0);
+    --monetary-gain-background: hsla(48, 90%, 60%, 0.3);
+    --monetary-loss-background: hsla(210, 10%, 23%, 0.3);
+
+    /* Default size for tokens */
+    --monetary-token-size: 16px;
+    --monetary-token-grid-gap: 8px;
+
+}
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+.node-engine-container {
+    background-color: var(--system-background-color);
+    height: 100vh;
+    width: 100vw;
+    top: 0;
+    left:0;
+    position: fixed;
+    overflow: hidden;
+
+    /* Scrollbars */
+    scrollbar-width: thin; /* Firefox */
+    scrollbar-color: var(--system-scroll-color) transparent;
+
+    /* Default Text */
+    font-family: var(--font-family-sans), sans-serif;
+}
+
+/* Scrollbar configuration for Chrome, Safari, Edge (WebKit) */
+.node-engine-container *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.node-engine-container *::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.node-engine-container *::-webkit-scrollbar-thumb {
+    background-color: var(--system-scroll-color, transparent);
+    border-radius: 8px;
+    border: 2px solid transparent; /* space between thumb and track */
+}
+
+.node-engine-container *::-webkit-scrollbar-thumb:hover {
+    background-color: var(--system-scroll-color, transparent);
+}
+
+/* The ContentCard is the root of the PlayspaceUI and ShellUI. */
+.node-engine-container .node-engine-content {
+
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    height: 100%;
+    width: 100%;
+
+    color: var(--system-text-default-color-on-light);
+
+    /*overflow: hidden;*/
+    border-radius: var(--system-border-radius);
+    background-color: var(--system-surface-color);
+}

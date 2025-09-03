@@ -1,0 +1,21 @@
+
+.json-viewer {
+    width: var(--overlay-console-width);
+    max-height: 65vh;
+    max-width: 80vw;
+    overflow: hidden;
+
+    position: relative;
+    font-size: 0.85rem;
+    overflow-y: auto;
+    font-family: var(--font-family-mono), monospace;
+
+    /* Border */
+    border-top: var(--system-border-faint);
+    border-bottom: var(--system-border-faint);
+
+}
+
+.json-viewer__content {}
+
+

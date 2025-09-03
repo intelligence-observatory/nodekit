@@ -1,0 +1,29 @@
+.fixation-point {
+    border-radius: 50%;
+    background: rgb(240, 240, 240);
+    width: 100%;
+    aspect-ratio:1/1;
+    position:absolute;
+    border: none;
+    cursor: pointer;
+}
+
+.fixation-point-cross--horizontal {
+    position:absolute;
+    width: 80%;
+    height: max(2px, 2%);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: black;
+}
+
+.fixation-point-cross--vertical {
+    position:absolute;
+    width: max(2px, 2%);
+    height: 80%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: black;
+}

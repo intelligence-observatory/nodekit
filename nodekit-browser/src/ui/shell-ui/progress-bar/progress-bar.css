@@ -1,0 +1,34 @@
+
+.progress-bar {
+    position: absolute;
+    top: 0; /* or bottom: 0, depending on desired location */
+    left: 0;
+    width: 100%;
+    height: 2px;
+}
+
+.progress-bar__inner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%; /* match outer bar height */
+    width: 0; /* start with no progress */
+    opacity: 0.5;
+    transition: width 0.4s ease-out;
+    border-radius: 3px;
+}
+
+.progress-bar__inner--cognition {
+    background: linear-gradient(
+            to right,
+                /*transparent 0%,*/
+                /*var(--cognition-standard-color-alpha-low) 70%,*/
+            var(--cognition-standard-color-alpha-medium) 50%,
+            /*var(--cognition-standard-color-alpha-high) 95%,*/
+            var(--cognition-standard-color)
+);
+}
+
+.progress-bar__inner--system {
+background: var(--system-neutral-color);
+}

@@ -1,0 +1,29 @@
+
+.video-card {
+    /* Sizing */
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+
+    /* Centering inside of card */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    /* Overflow */
+    overflow: hidden; /* Scroll if too tall */
+
+    background: transparent;
+    user-select: none;     /* disables selection */
+}
+
+.video-card__content {
+    width: 100%;
+    height:100%;
+    /* Flexbox gotcha: allow shrinking below intrinsic size */
+    min-width: 0;
+    min-height: 0;
+
+    object-fit:contain;
+}

@@ -1,0 +1,51 @@
+
+/*
+A fixed-width <div> which is not selectable.
+ */
+.debrief-message-box {
+    width: calc(0.5*var(--overlay-console-width));
+    min-height: 4rem;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(110, 110, 110);
+    border-radius: calc(2*var(--system-border-radius));
+    margin: 1rem;
+}
+
+/* Text to be rendered inside the banner. Overflows into an ellipsis. */
+.debrief-message-box__text {
+    font-family: var(--font-family-mono), monospace;
+    font-size: 1.3rem;
+    color: var(--monetary-gain-color);
+    overflow-y: auto;
+    text-align: center;
+    margin: 1rem;
+}
+
+
+.submit-button {
+    background-color: var(--cognition-faint-color);
+    color: var(--system-text-muted-color-on-light);
+    border: none;
+    font-weight: 700;
+    font-size: 1.5rem;
+    border-radius: calc(2*var(--system-border-radius));
+    width: calc(0.5*var(--overlay-console-width));
+    aspect-ratio: 1.3;
+    cursor: pointer;
+
+    /* Transition for smooth hover effects */
+    transition: background-color 100ms ease-in-out, box-shadow 100ms ease-in-out;
+}
+
+.submit-button:hover {
+    background-color: var(--cognition-standard-color);
+    box-shadow: 0 0 2px 2px var(--cognition-standard-color);
+}
+
+.submit-button:active {
+    background-color: var(--cognition-strong-color);
+}

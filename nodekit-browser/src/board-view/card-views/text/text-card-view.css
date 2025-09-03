@@ -1,0 +1,42 @@
+
+
+/*
+A fixed-sized box which displays text information.
+ */
+.text-card {
+    /* Sizing */
+    box-sizing: border-box;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    width: 100%;
+    height: 100%;
+
+    /* Overflow */
+    overflow: clip; /* Text cards don't offer scrollbars. */
+    /*scrollbar-gutter: stable; /* Ensures gutter space even when no scroll */
+    background: var(--system-text-background-color);
+    border-radius: 1rem;
+    user-select: none;     /* disables text selection */
+    -webkit-user-select: none; /* Safari disable text selection */
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.text-content {
+    /* Sizing */
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+
+    /* Text formatting */
+    font-size: 1rem;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+
+
+}
