@@ -10,10 +10,10 @@ export interface ClickActionValue {
 
 export interface KeyHold {
     key: PressableKey,
-    // The time delta from the sensor's start time at which the key was pressed.
+    // The time delta from the node's start time at which the key was pressed.
     // This is null if the key was pressed before the sensor armed.
     start_time_msec:  TimePointMsec | null;
-    // The time delta from the sensor's end time at which the key was released.
+    // The time delta from the node's end time at which the key was released.
     // This is null if the key wasn't released.
     end_time_msec:  TimePointMsec | null;
 }

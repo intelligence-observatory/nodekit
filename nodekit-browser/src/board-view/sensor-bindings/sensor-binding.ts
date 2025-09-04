@@ -1,9 +1,16 @@
-import type {Action, ClickAction, DoneAction, KeyPressAction, KeyHoldsAction} from "../../types/sensors/actions/actions.ts";
+import type {
+    Action,
+    ClickAction,
+    DoneAction,
+    KeyPressAction,
+    KeyHoldsAction,
+    KeyHold
+} from "../../types/sensors/actions/actions.ts";
 import type {SensorId, TimePointMsec} from "../../types/fields.ts";
 import type {BoardView} from "../board-view.ts";
 import type {ClickableCardView, DoneableCardView} from "../card-views/card-view.ts";
 import {CardView} from "../card-views/card-view.ts";
-import type {KeyHoldSubAction, PressableKey} from "../../types/fields.ts";
+import type {PressableKey} from "../../types/fields.ts";
 
 // Generic contract:
 export interface SensorBinding {
@@ -218,10 +225,10 @@ export class KeyPressSensorBinding implements SensorBinding {
     }
 }
 
+// A raw keyboard event with some extra metadata.
 interface KeyEvent {
     event: KeyboardEvent,
-    timestamp: TimePointMsec,
-    isDown: boolean
+    timeDelta: TimePointMsec, // The time elapsed from the start of the node to the event.
 }
 
 export class KeyHoldSensorBinding implements SensorBinding {
@@ -229,17 +236,21 @@ export class KeyHoldSensorBinding implements SensorBinding {
     private readonly onSensorFired: (action: Action) => void
     private readonly keys: PressableKey[];
     private readonly keyEvents: KeyEvent[];
-    private tArmed: number | null = null;
     private readonly keyPressCallback: (e: KeyboardEvent) => void;
     private readonly keyReleaseCallback: (e: KeyboardEvent) => void;
+    private readonly startTimeMsec: TimePointMsec;
+    private timeFirstKeyEvent: TimePointMsec | null;
+    private armed: boolean;
 
     constructor(
         sensorId: SensorId,
         onSensorFired: (action: Action) => void,
-        keys: Set<PressableKey>
+        keys: Set<PressableKey>,
+        boardView: BoardView
     ) {
         this.sensorId = sensorId;
         this.onSensorFired = onSensorFired;
+        this.startTimeMsec = boardView.startTimeMsec;
 
         // It would be better for `this.keys` to be `Set<PressableKey>`.
         // Unfortunately, the Typescript generator will turn that into an array, not a set,
@@ -248,6 +259,8 @@ export class KeyHoldSensorBinding implements SensorBinding {
         this.keys = [...keys];
 
         this.keyEvents = [];
+        this.armed = false;
+        this.timeFirstKeyEvent = null;
 
         // These events must be added to document, and not BoardView.root because
         // 1. This is the only way to ensure that KeyboardEvents are heard, due to how focus works.
@@ -259,25 +272,29 @@ export class KeyHoldSensorBinding implements SensorBinding {
     }
 
     arm() {
-        this.tArmed = performance.now();
+        this.armed = true;
     }
 
     disarm() {
-        if (this.tArmed) {
-            // Fire the sensor when the sensor times out.
-            const reactionTimeMsec = Math.round(performance.now() - this.tArmed) as TimePointMsec;
+        if (this.armed) {
+            // The time elapsed from the first key hold to now:
+            const reactionTimeMsec = (this.timeFirstKeyEvent == null ? 0 :
+                performance.now() - this.timeFirstKeyEvent) as TimePointMsec;
+
+            let keyHolds = this.getKeyHolds();
+
             let action: KeyHoldsAction = {
                 sensor_id: this.sensorId,
                 action_type: "KeyHoldsAction",
                 action_value: {
-                    key_holds: this.keyHolds
+                    key_holds: keyHolds
                 },
                 reaction_time_msec: reactionTimeMsec
             };
             this.onSensorFired(action);
         }
 
-        this.tArmed = null;
+        this.armed = false;
 
         // Manually remove the listeners.
         document.removeEventListener('keydown', this.keyPressCallback);
@@ -285,81 +302,64 @@ export class KeyHoldSensorBinding implements SensorBinding {
     }
 
     private onKeyPress(e: KeyboardEvent) {
-        e.preventDefault();
-        let key = e.key as PressableKey;
-
-        // Ignore invalid keys.
-        if (!this.keys.some(k => k == key)) {
-            return;
-        }
-
-        let gotKey = false;
-        for (const keyHold of this.keyHolds) {
-            // If the key isn't already released, register the press as a new event:
-            if (key == keyHold.key && keyHold.tend_msec == null) {
-                gotKey = true;
-                break;
-            }
-        }
-
-        if (!gotKey) {
-            this.keyHolds.push({
-                key: key,
-                pressed_after_armed: this.tArmed != null,
-                tstart_msec: this.getTime(),
-                tend_msec: null
-            });
-        }
+        this.addKeyEvent(e);
     }
 
     private onKeyRelease(e: KeyboardEvent) {
-        e.preventDefault();
-        let key = e.key as PressableKey;
+        this.addKeyEvent(e);
+    }
 
-        // Ignore invalid keys:
-        if (!this.keys.some(k => k == key)) {
-            return;
+    private addKeyEvent(event: KeyboardEvent) {
+        event.preventDefault();
+        let timestamp = (performance.now() - this.startTimeMsec) as TimePointMsec;
+        this.keyEvents.push({
+            event: event,
+            timeDelta: timestamp
+        });
+        // Record the time of the first key event:
+        if (!this.timeFirstKeyEvent) {
+            this.timeFirstKeyEvent = timestamp;
         }
+    }
 
-        // Try to find the oldest key press that hasn't been released and set its end time:
-        let gotKey = false;
-        for (const keyHold of this.keyHolds) {
-            // Set the end time.
-            if (key == keyHold.key && !keyHold.tend_msec) {
-                keyHold.tend_msec = this.getTime();
-                gotKey = true;
-                break;
+    private getKeyHolds() : KeyHold[] {
+        let keyEvents: { [key: string]: KeyEvent; } = {};
+
+        let keyHolds: KeyHold[] = [];
+        for (const keyEvent of this.keyEvents) {
+            if (!this.keys.some(k => k == keyEvent.event.key as PressableKey)) {
+                continue;
+            }
+            let key = keyEvent.event.key;
+            // Check if a key event already exists:
+            if (key in keyEvents) {
+                if (keyEvent.event.type != 'keydown') {
+                    // Record the key release:
+                    keyHolds.push({
+                        key: key as PressableKey,
+                        start_time_msec: keyEvents[key].timeDelta,
+                        end_time_msec: keyEvent.timeDelta
+                    });
+                    // Delete the event:
+                    delete keyEvents[key];
+                }
+            }
+            // A new key press:
+            else {
+                keyEvents[keyEvent.event.key] = keyEvent;
             }
         }
-
-        // An edge case in which the key was pressed before the document loads:
-        if (!gotKey) {
-            this.keyHolds.push({
-                key: key,
-                pressed_after_armed: false,
-                tstart_msec: 0,
-                tend_msec: 0
-           });
-        }
-    }
-
-    private getTime() {
-        return this.tArmed ? performance.now() - this.tArmed : 0;
-    }
-
-    private getKeyHolds() {
-        let pressedKeys: Set<PressableKey> = {};
-        this.keyEvents
-            .filter(event => {
-                this.keys.some(k => k == event.event.key as PressableKey)
-            })
-            .forEach(event => {
-                let key = event.event.key as PressableKey;
-                // Already registered this key.
-                if (pressedKeys.has(key)) {
-                    
-                }
-            })
+        // Record all remaining key events:
+        Object.keys(keyEvents).forEach(key => {
+            let keyEvent = keyEvents[key];
+            let isDown = keyEvent.event.type == 'keydown';
+            keyHolds.push({
+                key: key as PressableKey,
+                start_time_msec: isDown ? keyEvent.timeDelta : null,
+                end_time_msec: isDown ? null : keyEvent.timeDelta
+            });
+        });
+        return keyHolds;
     }
 }
 
