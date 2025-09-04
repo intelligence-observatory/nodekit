@@ -218,11 +218,17 @@ export class KeyPressSensorBinding implements SensorBinding {
     }
 }
 
+interface KeyEvent {
+    event: KeyboardEvent,
+    timestamp: TimePointMsec,
+    isDown: boolean
+}
+
 export class KeyHoldSensorBinding implements SensorBinding {
     private readonly sensorId: SensorId;
     private readonly onSensorFired: (action: Action) => void
     private readonly keys: PressableKey[];
-    private readonly keyHolds: KeyHoldSubAction[];
+    private readonly keyEvents: KeyEvent[];
     private tArmed: number | null = null;
     private readonly keyPressCallback: (e: KeyboardEvent) => void;
     private readonly keyReleaseCallback: (e: KeyboardEvent) => void;
@@ -241,7 +247,7 @@ export class KeyHoldSensorBinding implements SensorBinding {
         // So, `keys` is converted to an array, which appeases the generator.
         this.keys = [...keys];
 
-        this.keyHolds = [];
+        this.keyEvents = [];
 
         // These events must be added to document, and not BoardView.root because
         // 1. This is the only way to ensure that KeyboardEvents are heard, due to how focus works.
@@ -339,6 +345,21 @@ export class KeyHoldSensorBinding implements SensorBinding {
 
     private getTime() {
         return this.tArmed ? performance.now() - this.tArmed : 0;
+    }
+
+    private getKeyHolds() {
+        let pressedKeys: Set<PressableKey> = {};
+        this.keyEvents
+            .filter(event => {
+                this.keys.some(k => k == event.event.key as PressableKey)
+            })
+            .forEach(event => {
+                let key = event.event.key as PressableKey;
+                // Already registered this key.
+                if (pressedKeys.has(key)) {
+                    
+                }
+            })
     }
 }
 
