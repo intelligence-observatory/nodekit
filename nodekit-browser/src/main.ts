@@ -13,7 +13,7 @@ import type {BonusRule} from "./types/bonus_rules/bonus_policy.ts";
 import type {ISO8601, MonetaryAmountUsd} from "./types/fields.ts";
 import {computeBonusUsd} from "./bonus-engine.ts";
 
-export interface Node{
+export interface Node {
     node_id: UUID;
     node_parameters: NodeParameters;
 }
@@ -29,6 +29,7 @@ type OnEventCallback = (event: Event) => void;
 function generateEventId(): UUID {
     return crypto.randomUUID() as UUID;
 }
+
 function getCurrentTimestamp(): ISO8601 {
     return new Date().toISOString() as ISO8601;
 }
@@ -37,7 +38,7 @@ export async function play(
     nodeGraph: NodeGraph,
     onEventCallback: OnEventCallback | null = null,
     previousEvents: Event[] = [],
-): Promise<Event[]>{
+): Promise<Event[]> {
     /*
     Executes a run through the NodeGraph. Events are returned as an array.
     */
@@ -48,7 +49,8 @@ export async function play(
 
     // If no onEventCallback is provided, use a no-op function:
     if (!onEventCallback) {
-        onEventCallback = (_event: Event) => {};
+        onEventCallback = (_event: Event) => {
+        };
     }
 
     // Add a listener for the LeaveEvent:
@@ -62,8 +64,7 @@ export async function play(
             };
             events.push(leaveEvent);
             onEventCallback!(leaveEvent);
-        }
-        else if (document.visibilityState === "visible") {
+        } else if (document.visibilityState === "visible") {
             // Optionally handle when the document becomes visible again
             const returnEvent: ReturnEvent = {
                 event_id: generateEventId(),
@@ -75,6 +76,7 @@ export async function play(
             onEventCallback!(returnEvent);
         }
     }
+
     document.addEventListener("visibilitychange", onVisibilityChange)
 
     // Generate the StartEvent
@@ -131,16 +133,18 @@ export async function play(
     )
 
     // Emit the BonusDisclosureEvent:
-    const bonusDisclosureEvent: Event = {
-        event_id: generateEventId(),
-        event_timestamp: getCurrentTimestamp(),
-        event_type: "BonusDisclosureEvent",
-        event_payload: {
-            bonus_amount_usd: bonusComputed.toFixed(2) as MonetaryAmountUsd,
+    if (bonusMessage !== '') {
+        const bonusDisclosureEvent: Event = {
+            event_id: generateEventId(),
+            event_timestamp: getCurrentTimestamp(),
+            event_type: "BonusDisclosureEvent",
+            event_payload: {
+                bonus_amount_usd: bonusComputed.toFixed(2) as MonetaryAmountUsd,
+            }
         }
+        events.push(bonusDisclosureEvent);
+        onEventCallback(bonusDisclosureEvent);
     }
-    events.push(bonusDisclosureEvent);
-    onEventCallback(bonusDisclosureEvent);
 
     // Generate the EndEvent:
     const endEvent: EndEvent = {
