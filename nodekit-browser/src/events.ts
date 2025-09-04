@@ -22,20 +22,26 @@ export type BaseEvent<T extends string, P> = {
     event_timestamp: ISO8601,
 }
 
-
+// Concrete event types:
 export type StartEvent = BaseEvent<'StartEvent', {}>
 export type EndEvent = BaseEvent<'EndEvent', {}>
 export type LeaveEvent = BaseEvent<'LeaveEvent', {}>
 export type ReturnEvent = BaseEvent<'ReturnEvent', {}>
 export type NodeResultEvent = BaseEvent<'NodeResultEvent', NodeResult>
 
-// Union of all event types
+// Union type:
 export type Event = StartEvent | EndEvent | NodeResultEvent | LeaveEvent | ReturnEvent;
 
 
-// Server responses
-export type SubmitEventResponse = {
-    redirect_url: string | null;
+
+// Control messages received from the Server
+export type BaseCommandMessage<T extends string, P> = {
+    command_type: T
+    command_parameters: P
 }
 
+export type RedirectCommandMessage = BaseCommandMessage<"RedirectCommand", { redirect_url: string }>
+export type NullCommandMessage = BaseCommandMessage<"NullCommand", {}>
 
+// Union type
+export type CommandMessage = RedirectCommandMessage

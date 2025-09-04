@@ -7,7 +7,7 @@ import type {
     EndEvent,
     NodeResultEvent,
     UUID
-} from "./types.ts";
+} from "./events.ts";
 import type {NodeParameters} from "./types/models.ts";
 import type {BonusRule} from "./types/bonus_rules/bonus_policy.ts";
 import type {ISO8601} from "./types/fields.ts";
