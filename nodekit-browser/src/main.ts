@@ -23,7 +23,7 @@ export interface NodeGraph {
     bonus_rules: BonusRule[];
 }
 
-type OnEventCallback = (event: Event) => Promise<void>;
+type OnEventCallback = (event: Event) => void;
 
 
 function generateEventId(): UUID {
@@ -36,18 +36,19 @@ function getCurrentTimestamp(): ISO8601 {
 export async function play(
     nodeGraph: NodeGraph,
     onEventCallback: OnEventCallback | null = null,
+    previousEvents: Event[] = [],
 ): Promise<Event[]>{
     /*
     Executes a run through the NodeGraph. Events are returned as an array.
     */
 
-    let events: Event[] = [];
+    let events: Event[] = previousEvents;
+
+    // Todo: the previousEvents can be processed to obtain the current state of the task. Otherwise, we always start from scratch.
 
     // If no onEventCallback is provided, use a no-op function:
     if (!onEventCallback) {
-        onEventCallback = (_event: Event) => {
-            return Promise.resolve();
-        };
+        onEventCallback = (_event: Event) => {};
     }
 
     // Add a listener for the LeaveEvent:
@@ -84,7 +85,7 @@ export async function play(
         event_payload: {},
     }
     events.push(startEvent);
-    await onEventCallback(startEvent);
+    onEventCallback(startEvent);
 
     // Play the Nodes in the NodeGraph:
     const nodes = nodeGraph.nodes;
@@ -112,7 +113,7 @@ export async function play(
             }
         }
         events.push(nodeResultEvent);
-        await onEventCallback(nodeResultEvent);
+        onEventCallback(nodeResultEvent);
     }
 
     // Bonus disclosure + end button phase:
@@ -139,7 +140,7 @@ export async function play(
         }
     }
     events.push(bonusDisclosureEvent);
-    await onEventCallback(bonusDisclosureEvent);
+    onEventCallback(bonusDisclosureEvent);
 
     // Generate the EndEvent:
     const endEvent: EndEvent = {
@@ -149,10 +150,16 @@ export async function play(
         event_payload: {},
     }
     events.push(endEvent);
-    await onEventCallback(endEvent);
+    onEventCallback(endEvent);
 
     // Remove the visibility change listener:
     document.removeEventListener("visibilitychange", onVisibilityChange);
+
+    // Show Events:
+    nodePlayer.showConsoleMessageOverlay(
+        'Events',
+        events,
+    );
 
     return events
 }
