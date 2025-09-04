@@ -6,6 +6,7 @@ __all__ = [
     "StartEvent",
     "EndEvent",
     "NodeResultEvent",
+    "LeaveEvent",
 
     # Client-server models:
     "SubmitEventRequest",
@@ -17,6 +18,7 @@ from nodekit._internal.compilers.events import (
     StartEvent,
     EndEvent,
     NodeResultEvent,
+    LeaveEvent,
     SubmitEventRequest,
     SubmitEventResponse,
     EventTypeEnum,

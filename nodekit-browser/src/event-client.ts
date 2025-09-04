@@ -1,12 +1,5 @@
 import type {
     Event,
-    StartEvent,
-    EndEvent,
-    NodeResultEvent,
-    LeaveEvent,
-    NodeResult,
-    UUID,
-    ISO8601,
     SubmitEventResponse
 } from "./types.ts";
 
@@ -19,31 +12,25 @@ type QueuedEvent = {
 
 export class EventClient {
     private connectionUrl: string;
-    private runId: UUID;
     private queue: QueuedEvent[];
     private flushing;
     private maxRetries;
 
     constructor(
-        runId: string,
         connectionUrl: string,
     ) {
         this.queue = [];
         this.flushing = false;
         this.maxRetries = 5;
         this.connectionUrl = connectionUrl
-        this.runId = runId as UUID;
 
         // Basic validation:
         if (!this.connectionUrl) {
             throw new Error("connectionUrl is required");
         }
-        if (!this.runId) {
-            throw new Error("runId is required");
-        }
     }
 
-    private async queueEvent(event: Event): Promise<SubmitEventResponse> {
+    public async sendEvent(event: Event): Promise<SubmitEventResponse> {
         /*
         Enqueues an event to be sent. Returns a promise that resolves when the event is sent (or fails).
          */
@@ -147,64 +134,6 @@ export class EventClient {
             throw new Error(`Protocol error: expected Content-Type application/json: ${response.status} ${response.statusText}`);
         }
         return postEventResponse;
-    }
-
-    // Helper methods:
-    private getEventId(): UUID {
-        return crypto.randomUUID() as UUID;
-    }
-
-    private getTimestamp(): ISO8601 {
-        // Get the current time in UTC (using system time for now):
-        const now = new Date();
-        return now.toISOString() as ISO8601;
-    }
-
-    // Public methods:
-    async sendStartEvent(): Promise<SubmitEventResponse> {
-        let startEvent: StartEvent = {
-            run_id: this.runId,
-            event_id: this.getEventId(),
-            event_type: 'StartEvent',
-            event_payload: {},
-            event_timestamp: this.getTimestamp(),
-        }
-        return this.queueEvent(startEvent)
-    }
-
-    async sendLeaveEvent(): Promise<SubmitEventResponse> {
-        let leaveEvent: LeaveEvent = {
-            run_id: this.runId,
-            event_id: this.getEventId(),
-            event_type: 'LeaveEvent',
-            event_payload: {},
-            event_timestamp: this.getTimestamp(),
-        }
-        return this.queueEvent(leaveEvent)
-    }
-
-    async sendNodeResultEvent(
-        nodeResult: NodeResult,
-    ): Promise<SubmitEventResponse> {
-        const reportEvent: NodeResultEvent = {
-            run_id: this.runId,
-            event_id: this.getEventId(),
-            event_type: 'NodeResultEvent',
-            event_payload: nodeResult,
-            event_timestamp: this.getTimestamp(),
-        }
-        return this.queueEvent(reportEvent);
-    }
-
-    async sendEndEvent(): Promise<SubmitEventResponse> {
-        let endEvent: EndEvent = {
-            run_id: this.runId,
-            event_id: this.getEventId(),
-            event_type: 'EndEvent',
-            event_payload: {},
-            event_timestamp: this.getTimestamp(),
-        }
-        return this.queueEvent(endEvent)
     }
 }
 

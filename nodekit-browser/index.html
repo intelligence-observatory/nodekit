@@ -3,45 +3,15 @@
 <html lang="en">
 <head>
     <link rel="icon" href="data:,">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>NodeKit Browser</title>
-  </head>
-  <body>
-    <div id="app"></div>
-    <script type="module" src="src/main.ts"></script>
-    <script type="module">
-        const nodes = [{
-            "node_id": "acee5f9b-996c-448d-9d3d-f9fc8e4b0c8d",
-            "node_parameters": {
-                "board": {"board_width_px": 768, "board_height_px": 768},
-                "cards": [
-                    {
-                        "card_id": "3b6f3e51-437b-495f-b1bf-9437e8dcdb25",
-                        "card_type": "VideoCard",
-                        "card_parameters": {
-                            "video_link": {
-                                "mime_type": "video/mp4",
-                                "sha256": "44abfe9cd09734aa445799fb98653f855ea2af0d6d7de0fff1e61a36da358b4e",
-                                "asset_url": "https://ia803409.us.archive.org/18/items/mp4_20210502/mp4.ia.mp4"
-                            },
-                            "play_audio": true
-                        },
-                        "card_shape": {"width": 0.5, "height": 0.5},
-                        "card_location": {"x": 0, "y": 0},
-                        "card_timespan": {"start_time_msec": 0, "end_time_msec": null}
-                    }
-                ],
-                "sensors": [{
-                    "sensor_id": "60f7ce63-0e0e-431c-945b-07570e98d7e4",
-                    "sensor_type": "ClickSensor",
-                    "sensor_parameters": {},
-                    "sensor_timespan": {"start_time_msec": 0, "end_time_msec": null},
-                    "card_id": "3b6f3e51-437b-495f-b1bf-9437e8dcdb25"
-                }],
-                "reinforcer_maps": [],
-                "effects": []
-            }
-        }, {
+</head>
+<body>
+<div id="app"></div>
+<script type="module" src="src/main.ts"></script>
+<script type="module">
+    const nodes = [
+        {
             "node_id": "01988636-b4f7-7901-95de-43599d57a440",
             "node_parameters": {
                 "board": {"board_width_px": 768, "board_height_px": 768},
@@ -70,7 +40,8 @@
                 "reinforcer_maps": [],
                 "effects": []
             }
-        }, {
+        },
+        {
             "node_id": "01988636-b4f7-7901-95de-43850b690ddb",
             "node_parameters": {
                 "board": {"board_width_px": 768, "board_height_px": 768},
@@ -92,7 +63,8 @@
                 "reinforcer_maps": [],
                 "effects": []
             }
-        }, {
+        },
+        {
             "node_id": "01988636-b4f7-7901-95de-43bf5190eaea",
             "node_parameters": {
                 "board": {"board_width_px": 768, "board_height_px": 768},
@@ -114,7 +86,8 @@
                 "reinforcer_maps": [],
                 "effects": []
             }
-        }, {
+        },
+        {
             "node_id": "01988636-b4f7-7901-95de-43e1f2b45f47",
             "node_parameters": {
                 "board": {"board_width_px": 768, "board_height_px": 768},
@@ -136,7 +109,8 @@
                 "reinforcer_maps": [],
                 "effects": []
             }
-        }, {
+        },
+        {
             "node_id": "01988636-b4f7-7901-95de-4419268a31a5",
             "node_parameters": {
                 "board": {"board_width_px": 768, "board_height_px": 768},
@@ -158,40 +132,29 @@
                 "reinforcer_maps": [],
                 "effects": []
             }
-        }]
+        }
+    ]
 
-        import { EventClient, NodePlayer } from '/src/main.ts'; // or from your package once published/linked
-        window.onload = async () => {
+    const nodeGraph = {
+        nodes: nodes,
+        bonus_rules: [],
+    }
 
-            console.log(NodePlayer)
-            console.log(EventClient)
+    import {play} from '/src/main.ts';
 
-            let nodePlayer = new NodePlayer();
-            const nodeMeasurements = [];
-            for (let i = 0; i < nodes.length; i++) {
-                const node = nodes[i];
-                console.log("Preparing node " + (i + 1) + " of " + nodes.length);
-                const nodePlayId = await nodePlayer.prepare(node.node_parameters);
+    window.focus();
 
-                console.log("Playing node " + (i + 1) + " of " + nodes.length);
-                let nodeResult = await nodePlayer.play(nodePlayId);
-                console.log("Done playing node " + (i + 1) + " of " + nodes.length);
-                nodeMeasurements.push(nodeResult)
-
-                // Update pbar
-                nodePlayer.setProgressBar((i + 1) / nodes.length * 100);
+    window.onload = async () => {
+        // Add focus
+        let events = await play(
+            nodeGraph,
+            (event) => {
+                console.log(event);
             }
+        )
+        console.log(events)
+    };
+</script>
 
-            await nodePlayer.playEndScreen(
-                'No bonus',
-            )
-
-            nodePlayer.showConsoleMessageOverlay(
-                'NodeMeasurements',
-                nodeMeasurements,
-            )
-        };
-    </script>
-
-  </body>
+</body>
 </html>
