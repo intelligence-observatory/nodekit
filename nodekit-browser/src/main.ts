@@ -10,7 +10,8 @@ import type {
 } from "./events.ts";
 import type {NodeParameters} from "./types/models.ts";
 import type {BonusRule} from "./types/bonus_rules/bonus_policy.ts";
-import type {ISO8601} from "./types/fields.ts";
+import type {ISO8601, MonetaryAmountUsd} from "./types/fields.ts";
+import {computeBonusUsd} from "./bonus-engine.ts";
 
 export interface Node{
     node_id: UUID;
@@ -22,7 +23,7 @@ export interface NodeGraph {
     bonus_rules: BonusRule[];
 }
 
-type OnEventCallback = (event: Event) => void;
+type OnEventCallback = (event: Event) => Promise<void>;
 
 
 function generateEventId(): UUID {
@@ -44,7 +45,9 @@ export async function play(
 
     // If no onEventCallback is provided, use a no-op function:
     if (!onEventCallback) {
-        onEventCallback = (_event: Event) => {};
+        onEventCallback = (_event: Event) => {
+            return Promise.resolve();
+        };
     }
 
     // Add a listener for the LeaveEvent:
@@ -81,7 +84,7 @@ export async function play(
         event_payload: {},
     }
     events.push(startEvent);
-    onEventCallback(startEvent);
+    await onEventCallback(startEvent);
 
     // Play the Nodes in the NodeGraph:
     const nodes = nodeGraph.nodes;
@@ -108,10 +111,35 @@ export async function play(
                 runtime_metrics: nodeMeasurements.runtime_metrics,
             }
         }
-
         events.push(nodeResultEvent);
-        onEventCallback(nodeResultEvent);
+        await onEventCallback(nodeResultEvent);
     }
+
+    // Bonus disclosure + end button phase:
+    const bonusComputed = computeBonusUsd(
+        events,
+        nodeGraph.bonus_rules,
+    )
+
+    let bonusMessage = '';
+    if (bonusComputed > 0) {
+        bonusMessage = `Bonus: ${bonusComputed} USD (pending validation)`;
+    }
+    await nodePlayer.playEndScreen(
+        bonusMessage,
+    )
+
+    // Emit the BonusDisclosureEvent:
+    const bonusDisclosureEvent: Event = {
+        event_id: generateEventId(),
+        event_timestamp: getCurrentTimestamp(),
+        event_type: "BonusDisclosureEvent",
+        event_payload: {
+            bonus_amount_usd: bonusComputed.toFixed(2) as MonetaryAmountUsd,
+        }
+    }
+    events.push(bonusDisclosureEvent);
+    await onEventCallback(bonusDisclosureEvent);
 
     // Generate the EndEvent:
     const endEvent: EndEvent = {
@@ -121,7 +149,7 @@ export async function play(
         event_payload: {},
     }
     events.push(endEvent);
-    onEventCallback(endEvent);
+    await onEventCallback(endEvent);
 
     // Remove the visibility change listener:
     document.removeEventListener("visibilitychange", onVisibilityChange);

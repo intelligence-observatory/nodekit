@@ -1,6 +1,7 @@
 export type ISO8601 = string & { __brand: 'ISO8601' };
 export type UUID = string & { __brand: 'UUID' };
 
+import type {MonetaryAmountUsd} from "./types/fields.ts";
 import type {Action} from "./types/sensors/actions/actions.ts";
 import type {RuntimeMetrics} from "./types/runtime-metrics.ts";
 
@@ -28,9 +29,10 @@ export type EndEvent = BaseEvent<'EndEvent', {}>
 export type LeaveEvent = BaseEvent<'LeaveEvent', {}>
 export type ReturnEvent = BaseEvent<'ReturnEvent', {}>
 export type NodeResultEvent = BaseEvent<'NodeResultEvent', NodeResult>
+export type BonusDisclosureEvent = BaseEvent<'BonusDisclosureEvent', { bonus_amount_usd: MonetaryAmountUsd }>
 
 // Union type:
-export type Event = StartEvent | EndEvent | NodeResultEvent | LeaveEvent | ReturnEvent;
+export type Event = StartEvent | EndEvent | NodeResultEvent | LeaveEvent | ReturnEvent | BonusDisclosureEvent;
 
 
 
