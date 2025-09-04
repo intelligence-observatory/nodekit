@@ -9,12 +9,12 @@ interface TimeoutSensorParameters {
 }
 
 interface KeyPressSensorParameters {
-    // Listen to these key-down events.
+    // Listen to these key-down events:
     keys: Set<PressableKey>;
 }
 
 interface KeyHoldsSensorParameters {
-    // Listen to these key-hold event.
+    // Listen to these key-hold events:
     keys: Set<PressableKey>;
 }
 

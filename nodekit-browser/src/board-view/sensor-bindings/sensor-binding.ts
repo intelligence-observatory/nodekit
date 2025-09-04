@@ -289,7 +289,7 @@ export class KeyHoldSensorBinding implements SensorBinding {
 
         let gotKey = false;
         for (const keyHold of this.keyHolds) {
-            // If the key isn't already released, register the press as a new event.
+            // If the key isn't already released, register the press as a new event:
             if (key == keyHold.key && keyHold.tend_msec == null) {
                 gotKey = true;
                 break;
@@ -310,12 +310,12 @@ export class KeyHoldSensorBinding implements SensorBinding {
         e.preventDefault();
         let key = e.key as PressableKey;
 
-        // Ignore invalid keys.
+        // Ignore invalid keys:
         if (!this.keys.some(k => k == key)) {
             return;
         }
 
-        // Try to find the oldest key press that hasn't been released and set its end time.
+        // Try to find the oldest key press that hasn't been released and set its end time:
         let gotKey = false;
         for (const keyHold of this.keyHolds) {
             // Set the end time.
@@ -326,7 +326,7 @@ export class KeyHoldSensorBinding implements SensorBinding {
             }
         }
 
-        // An edge case in which the key is pressed before the document loads.
+        // An edge case in which the key was pressed before the document loads:
         if (!gotKey) {
             this.keyHolds.push({
                 key: key,
