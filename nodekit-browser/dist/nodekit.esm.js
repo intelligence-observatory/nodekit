@@ -5839,7 +5839,7 @@ async function xa(n, e = null, t = []) {
   const c = n.nodes;
   let a = new wa();
   for (let A = 0; A < c.length; A++) {
-    const y = c[A], z = await a.prepare(y.node_parameters);
+    const y = c[A], z = await a.prepare(y);
     let I = await a.play(z);
     a.setProgressBar((A + 1) / c.length * 100);
     const H = {

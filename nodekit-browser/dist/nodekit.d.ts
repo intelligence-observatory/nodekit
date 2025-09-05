@@ -182,21 +182,17 @@ declare type MonetaryAmountUsd = string & {
 
 declare interface Node_2 {
     node_id: UUID;
-    node_parameters: NodeParameters;
+    board: Board;
+    cards: Card[];
+    sensors: Sensor[];
+    reinforcer_maps: ReinforcerMap[];
+    effects: Effect[];
 }
 export { Node_2 as Node }
 
 export declare interface NodeGraph {
     nodes: Node_2[];
     bonus_rules: BonusRule[];
-}
-
-declare interface NodeParameters {
-    board: Board;
-    cards: Card[];
-    sensors: Sensor[];
-    reinforcer_maps: ReinforcerMap[];
-    effects: Effect[];
 }
 
 declare type NodeResult = {
