@@ -1,9 +1,9 @@
-from typing import Dict, Literal, Union, Annotated
+from typing import List, Literal, Union, Annotated
 
 import pydantic
 
 from nodekit._internal.models.node_engine.base import DslModel, NullValue
-from nodekit._internal.models.node_engine.fields import PressableKey, KeyHoldSubAction
+from nodekit._internal.models.node_engine.fields import PressableKey, KeyHold
 from nodekit._internal.models.node_engine.sensors.actions.base import BaseAction
 
 
@@ -47,7 +47,7 @@ class KeyPressAction(BaseAction):
 
 class KeyHoldsAction(BaseAction):
     class Value(DslModel):
-        held_keys: Dict[PressableKey, KeyHoldSubAction]
+        key_holds: List[KeyHold]
 
     action_type: Literal['KeyHoldsAction'] = 'KeyHoldsAction'
     action_value: Value

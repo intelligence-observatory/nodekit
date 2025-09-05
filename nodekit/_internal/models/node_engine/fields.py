@@ -92,18 +92,15 @@ PressableKey = Literal[
 ]
 
 
-class KeyHoldSubAction(pydantic.BaseModel):
+class KeyHold(pydantic.BaseModel):
     key: PressableKey = pydantic.Field(
         description="The key that was pressed."
     )
-    started_after_arm: bool = pydantic.Field(
-        description="If true, the key was pressed after the sensor was armed."
-    )
-    tstart_msec: int = pydantic.Field(
-        description="The time delta from the sensor's start time at which the key was pressed. "
-                    "If `not started_after_arm`, this is 0."
+    start_time_msec: int | None = pydantic.Field(
+        description="The time delta from the node's start time at which the key was pressed. "
+                    "This is null if the key was pressed before the sensor armed."
     )
     tend_msec: int | None = pydantic.Field(
-        description="The time delta from the sensor's end time at which the key was released. "
-                    "If None, the key wasn't released."
+        description="The time delta from the node's end time at which the key was released. "
+                    "This is null if the key wasn't released."
     )
