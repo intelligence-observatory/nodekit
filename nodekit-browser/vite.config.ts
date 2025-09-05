@@ -9,14 +9,17 @@ export default defineConfig(
                 fileName: (format) => format === 'es' ? 'nodekit.esm.js' : 'nodekit.js',
                 cssFileName: 'nodekit',
                 name: 'NodeKit',
-                formats: ['es', 'iife'],
+                formats: [
+                    'es',
+                    'iife'
+                ],
             },
             outDir: 'dist',
             emptyOutDir: true,
-            minify: false,
+            minify: true,
         },
         plugins: [
-            dts(
+            dts( // For generating TypeScript declaration file (.d.ts)
                 {
                     tsconfigPath: './tsconfig.json',
                     rollupTypes: true,
