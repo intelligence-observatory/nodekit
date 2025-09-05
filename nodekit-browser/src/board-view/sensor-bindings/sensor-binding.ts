@@ -237,18 +237,15 @@ export class KeyHoldSensorBinding implements SensorBinding {
     private readonly keys: PressableKey[];
     private readonly keyEvents: KeyEvent[];
     private readonly keyboardEventCallback: (e: KeyboardEvent) => void;
-    private readonly startTimeMsec: TimePointMsec;
     private tArmed: number | null = null;
 
     constructor(
         sensorId: SensorId,
         onSensorFired: (action: Action) => void,
         keys: Set<PressableKey>,
-        boardView: BoardView
     ) {
         this.sensorId = sensorId;
         this.onSensorFired = onSensorFired;
-        this.startTimeMsec = boardView.startTimeMsec;
 
         // It would be better for `this.keys` to be `Set<PressableKey>`.
         // Unfortunately, the Typescript generator will turn that into an array, not a set,
@@ -298,7 +295,7 @@ export class KeyHoldSensorBinding implements SensorBinding {
             return;
         }
         event.preventDefault();
-        let timestamp = (this.tArmed - this.startTimeMsec) as TimePointMsec;
+        let timestamp = (performance.now() - this.tArmed) as TimePointMsec;
         this.keyEvents.push({
             event: event,
             timeElapsedMsec: timestamp

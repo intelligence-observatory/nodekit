@@ -2,7 +2,7 @@ import type {AssetManager} from "../asset-manager/asset-manager.ts";
 import type {Board} from "../types/board.ts";
 import type {PixelArea} from "../types/runtime-metrics.ts";
 import type {Card} from "../types/cards/cards.ts";
-import type {BoardLocation, BoardRectangle, CardId, SensorId, SpatialSize, TimePointMsec} from "../types/fields.ts";
+import type {BoardLocation, BoardRectangle, CardId, SensorId, SpatialSize} from "../types/fields.ts";
 import type {Sensor} from "../types/sensors/sensors.ts";
 import type {Action} from "../types/sensors/actions/actions.ts";
 import './board-view.css'
@@ -81,15 +81,11 @@ export class BoardView {
     cardViews: Map<CardId, CardView> = new Map(); // Map of card ID to CardView
     sensorBindings: Map<SensorId, SensorBinding> = new Map(); // Map of sensor ID to SensorBinding
 
-    readonly startTimeMsec: TimePointMsec; // The start time of the node.
-
     constructor(
         boardId: string,
         board: Board,
         assetManager: AssetManager,
     ) {
-        this.startTimeMsec = performance.now() as TimePointMsec;
-
         this.root = document.createElement("div")
         this.root.className = 'board-view'
         this.root.id = `${boardId}`;
@@ -253,7 +249,6 @@ export function placeSensorUnarmedDispatch(
                 sensor.sensor_id,
                 onSensorFired,
                 sensor.sensor_parameters.keys,
-                boardView
             );
         }
         else {
