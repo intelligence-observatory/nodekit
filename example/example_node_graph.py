@@ -118,7 +118,7 @@ node_graph = nk.NodeGraph(
 )
 
 # %%
-string = nk.compile.html(
+string = nk.browser.to_html(
     node_graph=node_graph,
 )
 
