@@ -238,8 +238,7 @@ export class KeyHoldSensorBinding implements SensorBinding {
     private readonly keyEvents: KeyEvent[];
     private readonly keyboardEventCallback: (e: KeyboardEvent) => void;
     private readonly startTimeMsec: TimePointMsec;
-    private timeFirstKeyEvent: TimePointMsec | null;
-    private armed: boolean;
+    private tArmed: number | null = null;
 
     constructor(
         sensorId: SensorId,
@@ -258,8 +257,6 @@ export class KeyHoldSensorBinding implements SensorBinding {
         this.keys = [...keys];
 
         this.keyEvents = [];
-        this.armed = false;
-        this.timeFirstKeyEvent = null;
 
         // These events must be added to document, and not BoardView.root because
         // 1. This is the only way to ensure that KeyboardEvents are heard, due to how focus works.
@@ -270,11 +267,11 @@ export class KeyHoldSensorBinding implements SensorBinding {
     }
 
     arm() {
-        this.armed = true;
+        this.tArmed = performance.now();
     }
 
     disarm() {
-        if (this.armed) {
+        if (!this.tArmed) {
             let keyHolds = this.deriveKeyHolds();
 
             let action: KeyHoldsAction = {
@@ -288,7 +285,7 @@ export class KeyHoldSensorBinding implements SensorBinding {
             this.onSensorFired(action);
         }
 
-        this.armed = false;
+        this.tArmed = null;
 
         // Manually remove the listeners.
         document.removeEventListener('keydown', this.keyboardEventCallback);
@@ -297,19 +294,15 @@ export class KeyHoldSensorBinding implements SensorBinding {
 
     private onKeyboardEvent(event: KeyboardEvent) {
         // Ignore the event if the sensor isn't armed or the sensor isn't listening for the key:
-        if (!this.armed || !this.keys.some(k => k == event.key as PressableKey)) {
+        if (!this.tArmed || !this.keys.some(k => k == event.key as PressableKey)) {
             return;
         }
         event.preventDefault();
-        let timestamp = (performance.now() - this.startTimeMsec) as TimePointMsec;
+        let timestamp = (this.tArmed - this.startTimeMsec) as TimePointMsec;
         this.keyEvents.push({
             event: event,
             timeDelta: timestamp
         });
-        // Record the time of the first key event:
-        if (!this.timeFirstKeyEvent) {
-            this.timeFirstKeyEvent = timestamp;
-        }
     }
 
     private deriveKeyHolds() : KeyHold[] {
