@@ -279,7 +279,7 @@ export class KeyHoldSensorBinding implements SensorBinding {
             const reactionTimeMsec = (this.timeFirstKeyEvent == null ? 0 :
                 performance.now() - this.timeFirstKeyEvent) as TimePointMsec;
 
-            let keyHolds = this.getKeyHolds();
+            let keyHolds = this.deriveKeyHolds();
 
             let action: KeyHoldsAction = {
                 sensor_id: this.sensorId,
@@ -316,7 +316,7 @@ export class KeyHoldSensorBinding implements SensorBinding {
         }
     }
 
-    private getKeyHolds() : KeyHold[] {
+    private deriveKeyHolds() : KeyHold[] {
         let keyEvents: { [key: string]: KeyEvent; } = {};
 
         let keyHolds: KeyHold[] = [];
