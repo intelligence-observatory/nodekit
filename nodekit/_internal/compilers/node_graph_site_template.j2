@@ -3,8 +3,12 @@
 
 <head>
     <title>NodeGraph Preview Page</title>
-    <script src="https://unpkg.com/nodekit-browser@0.0.2-alpha.3/dist/nodekit.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/nodekit-browser@0.0.2-alpha.3/dist/nodekit.css">
+    <script>
+        {{ javascript_source | safe }}
+    </script>
+    <style>
+        {{ css_source | safe }}
+    </style>
     <script>
 
         window.focus();
