@@ -24,7 +24,6 @@ class EventTypeEnum(str, enum.Enum):
 # %%
 class BaseEvent(pydantic.BaseModel):
     event_id: UUID
-    run_id: UUID
     event_type: EventTypeEnum
     event_payload: NullValue
     event_timestamp: DatetimeUTC

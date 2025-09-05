@@ -160,7 +160,6 @@ declare interface KeyPressSensor extends BaseSensor<'KeyPressSensor', KeyPressSe
 }
 
 declare interface KeyPressSensorParameters {
-    // @ts-ignore
     keys: Set<PressableKey>;
 }
 
