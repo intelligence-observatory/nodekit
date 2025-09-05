@@ -236,8 +236,7 @@ export class KeyHoldSensorBinding implements SensorBinding {
     private readonly onSensorFired: (action: Action) => void
     private readonly keys: PressableKey[];
     private readonly keyEvents: KeyEvent[];
-    private readonly keyPressCallback: (e: KeyboardEvent) => void;
-    private readonly keyReleaseCallback: (e: KeyboardEvent) => void;
+    private readonly keyboardEventCallback: (e: KeyboardEvent) => void;
     private readonly startTimeMsec: TimePointMsec;
     private timeFirstKeyEvent: TimePointMsec | null;
     private armed: boolean;
@@ -265,10 +264,9 @@ export class KeyHoldSensorBinding implements SensorBinding {
         // These events must be added to document, and not BoardView.root because
         // 1. This is the only way to ensure that KeyboardEvents are heard, due to how focus works.
         // 2. We want them to listen to key presses prior to the sensor arming.
-        this.keyPressCallback = this.onKeyPress.bind(this);
-        this.keyReleaseCallback = this.onKeyRelease.bind(this);
-        document.addEventListener('keydown', this.keyPressCallback);
-        document.addEventListener('keyup', this.keyReleaseCallback);
+        this.keyboardEventCallback = this.onKeyboardEvent.bind(this);
+        document.addEventListener('keydown', this.keyboardEventCallback);
+        document.addEventListener('keyup', this.keyboardEventCallback);
     }
 
     arm() {
@@ -297,19 +295,15 @@ export class KeyHoldSensorBinding implements SensorBinding {
         this.armed = false;
 
         // Manually remove the listeners.
-        document.removeEventListener('keydown', this.keyPressCallback);
-        document.removeEventListener('keyup', this.keyReleaseCallback);
+        document.removeEventListener('keydown', this.keyboardEventCallback);
+        document.removeEventListener('keyup', this.keyboardEventCallback);
     }
 
-    private onKeyPress(e: KeyboardEvent) {
-        this.addKeyEvent(e);
-    }
-
-    private onKeyRelease(e: KeyboardEvent) {
-        this.addKeyEvent(e);
-    }
-
-    private addKeyEvent(event: KeyboardEvent) {
+    private onKeyboardEvent(event: KeyboardEvent) {
+        // Ignore the event if the sensor isn't armed or the sensor isn't listening for the key:
+        if (!this.armed || !this.keys.some(k => k == event.key as PressableKey)) {
+            return;
+        }
         event.preventDefault();
         let timestamp = (performance.now() - this.startTimeMsec) as TimePointMsec;
         this.keyEvents.push({
@@ -327,9 +321,6 @@ export class KeyHoldSensorBinding implements SensorBinding {
 
         let keyHolds: KeyHold[] = [];
         for (const keyEvent of this.keyEvents) {
-            if (!this.keys.some(k => k == keyEvent.event.key as PressableKey)) {
-                continue;
-            }
             let key = keyEvent.event.key;
             // Check if a key event already exists:
             if (key in keyEvents) {
