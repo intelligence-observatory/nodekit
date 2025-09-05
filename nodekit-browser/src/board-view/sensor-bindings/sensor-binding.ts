@@ -275,10 +275,6 @@ export class KeyHoldSensorBinding implements SensorBinding {
 
     disarm() {
         if (this.armed) {
-            // The time elapsed from the first key hold to now:
-            const reactionTimeMsec = (this.timeFirstKeyEvent == null ? 0 :
-                performance.now() - this.timeFirstKeyEvent) as TimePointMsec;
-
             let keyHolds = this.deriveKeyHolds();
 
             let action: KeyHoldsAction = {
@@ -287,7 +283,7 @@ export class KeyHoldSensorBinding implements SensorBinding {
                 action_value: {
                     key_holds: keyHolds
                 },
-                reaction_time_msec: reactionTimeMsec
+                reaction_time_msec: 0 as TimePointMsec
             };
             this.onSensorFired(action);
         }
