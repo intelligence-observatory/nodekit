@@ -7,19 +7,17 @@ __all__ = [
     "EndEvent",
     "NodeResultEvent",
     "LeaveEvent",
-
-    # Client-server models:
-    "SubmitEventRequest",
-    "SubmitEventResponse",
+    "ReturnEvent",
+    "BonusDisclosureEvent",
 ]
 
 from nodekit._internal.compilers.events import (
     Event,
+    EventTypeEnum,
     StartEvent,
     EndEvent,
     NodeResultEvent,
     LeaveEvent,
-    SubmitEventRequest,
-    SubmitEventResponse,
-    EventTypeEnum,
+    ReturnEvent,
+    BonusDisclosureEvent,
 )
