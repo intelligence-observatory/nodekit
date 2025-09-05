@@ -35,7 +35,6 @@ export type BonusDisclosureEvent = BaseEvent<'BonusDisclosureEvent', { bonus_amo
 export type Event = StartEvent | EndEvent | NodeResultEvent | LeaveEvent | ReturnEvent | BonusDisclosureEvent;
 
 
-
 // Control messages received from the Server
 export type BaseCommandMessage<T extends string, P> = {
     command_type: T

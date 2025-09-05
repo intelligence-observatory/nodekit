@@ -7,23 +7,53 @@ type QueuedEvent = {
     attempts: number,
 }
 
-export class EventClient {
-    private connectionUrl: string;
+async function postJsonMessage(
+    stringifiedJson: string,
+    url: string,
+): Promise<Response>{
+
+    // Set a timeout for the fetch request:
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000); // Abort after 5 seconds
+
+    // Post the event:
+    let response: Response;
+    try {
+        response = await fetch(
+            url,
+            {
+                method: 'POST',
+                body: stringifiedJson,
+                headers: {'Content-Type': 'application/json'},
+                keepalive: true,
+                signal: controller.signal,
+            }
+        );
+    } catch (error) {
+        throw new Error(`Fetch error: ${error}`);
+    } finally {
+        clearTimeout(timeout);
+    }
+    return response;
+}
+
+export class EventSink {
+    private endpointUrl: string;
     private queue: QueuedEvent[];
     private flushing;
     private maxRetries;
 
     constructor(
-        connectionUrl: string,
+        endpointUrl: string,
     ) {
         this.queue = [];
         this.flushing = false;
         this.maxRetries = 5;
-        this.connectionUrl = connectionUrl
+        this.endpointUrl = endpointUrl
 
         // Basic validation:
-        if (!this.connectionUrl) {
-            throw new Error("connectionUrl is required");
+        if (!this.endpointUrl) {
+            throw new Error("endpointUrl is required");
         }
     }
 
@@ -100,7 +130,7 @@ export class EventClient {
         // Post the event:
         let response =await postJsonMessage(
             JSON.stringify(event),
-            this.connectionUrl,
+            this.endpointUrl,
         )
 
         // Process the server response:
@@ -110,35 +140,6 @@ export class EventClient {
     }
 }
 
-async function postJsonMessage(
-    stringifiedJson: string,
-    url: string,
-): Promise<Response>{
-
-    // Set a timeout for the fetch request:
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 5000); // Abort after 5 seconds
-
-    // Post the event:
-    let response: Response;
-    try {
-        response = await fetch(
-            url,
-            {
-                method: 'POST',
-                body: stringifiedJson,
-                headers: {'Content-Type': 'application/json'},
-                keepalive: true,
-                signal: controller.signal,
-            }
-        );
-    } catch (error) {
-        throw new Error(`Fetch error: ${error}`);
-    } finally {
-        clearTimeout(timeout);
-    }
-    return response;
-}
 
 export class CommandClient {
     // The ControlClient polls the server for command messages (e.g. to redirect to a webpage).
@@ -169,7 +170,6 @@ export class CommandClient {
         } else {
             throw new Error(`Protocol error: expected Content-Type application/json: ${response.status} ${response.statusText}`);
         }
-
         return commandMessage;
     }
 }

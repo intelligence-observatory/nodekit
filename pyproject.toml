@@ -27,7 +27,10 @@ where = ["."]
 namespaces = false
 
 [tool.setuptools.package-data]
-nodekit = ["**/*.j2"]
+nodekit = [
+    "**/*.j2",
+    "_static/**"
+]
 
 [dependency-groups]
 dev = [
