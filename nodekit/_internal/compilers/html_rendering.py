@@ -6,6 +6,7 @@ from nodekit._internal.models.node_engine.node_graph import NodeGraph
 import pydantic
 import importlib.resources
 
+
 # %%
 
 
@@ -22,6 +23,7 @@ def load_assets() -> NodeKitBrowserAssets:
         css=css_file.read_text(),
         js=js_file.read_text()
     )
+
 
 # %%
 def to_html(
