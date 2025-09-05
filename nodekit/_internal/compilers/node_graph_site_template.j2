@@ -3,102 +3,23 @@
 
 <head>
     <title>NodeGraph</title>
-    <script src="https://unpkg.com/nodekit-browser@0.0.2-alpha.1/dist/nodekit.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/nodekit-browser@0.0.2-alpha.1/dist/nodekit.css">
+    <script src="https://unpkg.com/nodekit-browser@0.0.2-alpha.2/dist/nodekit.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/nodekit-browser@0.0.2-alpha.2/dist/nodekit.css">
     <script>
+
+        window.focus();
 
         // Rendering context:
         const nodeGraph = {{ node_graph | tojson(indent=4) | indent(8, first=False) }};
-        const event_submission_url = {{ event_submission_url | tojson}};
-        const run_id = "{{ run_id }}";
-        const start_node_execution_index = {{ start_node_execution_index }};
 
         // Run:
         window.onload = async () => {
-            let eventClient = null;
-            if (event_submission_url) {
-                eventClient = new NodeKit.EventClient(
-                    run_id,
-                    event_submission_url
-                );
-                await eventClient.sendStartEvent()
-            }
-
-            // Play the Nodes in the NodeGraph:
-            const nodes = nodeGraph.nodes;
-            let nodePlayer = new NodeKit.NodePlayer();
-            const nodeResultsBuffer = [];
-            for (let i = start_node_execution_index; i < nodes.length; i++) {
-                const node = nodes[i];
-                const nodePlayId = await nodePlayer.prepare(node);
-                let nodeMeasurements = await nodePlayer.play(nodePlayId);
-
-                // Update the progress bar:
-                nodePlayer.setProgressBar((i + 1) / nodes.length * 100);
-
-                // Package the NodeResult:
-                const nodeResult = {
-                    node_id: node.node_id,
-                    timestamp_start: nodeMeasurements.timestamp_node_started,
-                    timestamp_end: nodeMeasurements.timestamp_node_completed,
-                    node_execution_index: i,
-                    action: nodeMeasurements.action,
-                    runtime_metrics: nodeMeasurements.runtime_metrics,
-                };
-
-                // Queue the NodeResult being sent to the server:
-                if (eventClient) {
-                    // Fire and forget
-                    eventClient.sendNodeResultEvent(nodeResult)
+            let events = await NodeKit.play(
+                nodeGraph,
+                (event) => {
+                    console.log('Event', event);
                 }
-
-                nodeResultsBuffer.push(nodeResult);
-            }
-
-            // Compute and disclose the provisional result of the bonus amount:
-            const bonusRules = nodeGraph.bonus_rules;
-            let bonusComputed = 0;
-            for (let i = 0; i < nodeResultsBuffer.length; i++) {
-                const action = nodeResultsBuffer[i].action;
-
-                // Run bonus rule engine on this NodeResult:
-                for (let ruleIndex = 0; ruleIndex < bonusRules.length; ruleIndex++) {
-                    const rule = bonusRules[ruleIndex];
-                    // Dynamic dispatch:
-                    if (rule.bonus_rule_type === 'ConstantBonusRule') {
-                        const parameters = rule.bonus_rule_parameters;
-                        if (parameters.sensor_id === action.sensor_id) {
-                            bonusComputed += Number(parameters.bonus_amount_usd);
-                        }
-                    }
-                }
-            }
-            bonusComputed = Math.max(0, bonusComputed);
-            bonusComputed = Math.round(bonusComputed * 100) / 100; // Round to 2 decimals
-
-            // Play the end screen:
-            let bonusMessage = '';
-            if (bonusComputed > 0) {
-                bonusMessage = `Bonus: ${bonusComputed} USD (pending validation)`;
-            }
-            await nodePlayer.playEndScreen(
-                bonusMessage,
             )
-
-            // Close server connection and possibly redirect:
-            if (eventClient) {
-                let endResponse = await eventClient.sendEndEvent();
-                console.log('end response', endResponse)
-                if (endResponse.redirect_url) {
-                    window.location.replace(endResponse.redirect_url);
-                }
-            }
-
-            // If no redirect occurred, show the NodeResults:
-            nodePlayer.showConsoleMessageOverlay(
-                'NodeResults',
-                nodeResultsBuffer
-            );
         };
     </script>
 </head>

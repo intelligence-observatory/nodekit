@@ -8,14 +8,22 @@ import type {
     NodeResultEvent,
     UUID
 } from "./events.ts";
-import type {NodeParameters} from "./types/models.ts";
 import type {BonusRule} from "./types/bonus_rules/bonus_policy.ts";
 import type {ISO8601, MonetaryAmountUsd} from "./types/fields.ts";
 import {computeBonusUsd} from "./bonus-engine.ts";
+import type {Board} from "./types/board.ts";
+import type {Card} from "./types/cards/cards.ts";
+import type {Sensor} from "./types/sensors/sensors.ts";
+import type {ReinforcerMap} from "./types/reinforcer-maps/reinforcer-maps.ts";
+import type {Effect} from "./types/effects/base.ts";
 
 export interface Node {
     node_id: UUID;
-    node_parameters: NodeParameters;
+    board: Board;
+    cards: Card[];
+    sensors: Sensor[];
+    reinforcer_maps: ReinforcerMap[];
+    effects: Effect[];
 }
 
 export interface NodeGraph {
@@ -94,7 +102,7 @@ export async function play(
     let nodePlayer = new NodePlayer();
     for (let i = 0; i < nodes.length; i++) {
         const node = nodes[i];
-        const nodePlayId = await nodePlayer.prepare(node.node_parameters);
+        const nodePlayId = await nodePlayer.prepare(node);
         let nodeMeasurements = await nodePlayer.play(nodePlayId);
 
         // Update the progress bar:
