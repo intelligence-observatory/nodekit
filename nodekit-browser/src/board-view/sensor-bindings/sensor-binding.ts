@@ -228,7 +228,7 @@ export class KeyPressSensorBinding implements SensorBinding {
 // A raw keyboard event with some extra metadata.
 interface KeyEvent {
     event: KeyboardEvent,
-    timeDelta: TimePointMsec, // The time elapsed from the start of the node to the event.
+    timeElapsedMsec: TimePointMsec, // The time elapsed from the arming of the sensor to the event.
 }
 
 export class KeyHoldSensorBinding implements SensorBinding {
@@ -301,7 +301,7 @@ export class KeyHoldSensorBinding implements SensorBinding {
         let timestamp = (this.tArmed - this.startTimeMsec) as TimePointMsec;
         this.keyEvents.push({
             event: event,
-            timeDelta: timestamp
+            timeElapsedMsec: timestamp
         });
     }
 
@@ -317,8 +317,8 @@ export class KeyHoldSensorBinding implements SensorBinding {
                     // Record the key release:
                     keyHolds.push({
                         key: key as PressableKey,
-                        start_time_msec: keyEvents[key].timeDelta,
-                        end_time_msec: keyEvent.timeDelta
+                        start_time_msec: keyEvents[key].timeElapsedMsec,
+                        end_time_msec: keyEvent.timeElapsedMsec
                     });
                     // Delete the event:
                     delete keyEvents[key];
@@ -335,8 +335,8 @@ export class KeyHoldSensorBinding implements SensorBinding {
             let isDown = keyEvent.event.type == 'keydown';
             keyHolds.push({
                 key: key as PressableKey,
-                start_time_msec: isDown ? keyEvent.timeDelta : null,
-                end_time_msec: isDown ? null : keyEvent.timeDelta
+                start_time_msec: isDown ? keyEvent.timeElapsedMsec : null,
+                end_time_msec: isDown ? null : keyEvent.timeElapsedMsec
             });
         });
         return keyHolds;
