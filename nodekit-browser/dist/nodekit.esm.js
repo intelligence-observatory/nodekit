@@ -7881,140 +7881,132 @@ class NodePlayer {
     );
   }
 }
-class EventClient {
-  constructor(runId, connectionUrl) {
-    this.queue = [];
-    this.flushing = false;
-    this.maxRetries = 5;
-    this.connectionUrl = connectionUrl;
-    this.runId = runId;
-    if (!this.connectionUrl) {
-      throw new Error("connectionUrl is required");
+function computeBonusUsd(events, bonusRules) {
+  let bonusComputed = 0;
+  for (let i = 0; i < events.length; i++) {
+    const eventCur = events[i];
+    if (eventCur.event_type !== "NodeResultEvent") {
+      continue;
     }
-    if (!this.runId) {
-      throw new Error("runId is required");
-    }
-  }
-  async queueEvent(event) {
-    return new Promise(
-      (resolve, reject) => {
-        this.queue.push(
-          {
-            event,
-            resolve,
-            reject,
-            attempts: 0
-          }
-        );
-        this._maybeFlushNext();
-      }
-    );
-  }
-  _maybeFlushNext() {
-    if (this.flushing) {
-      return;
-    }
-    const nextQueuedEvent = this.queue.shift();
-    if (!nextQueuedEvent) {
-      return;
-    }
-    this.flushing = true;
-    console.log(`Flushing event: ${nextQueuedEvent.event.event_type} (attempt ${nextQueuedEvent.attempts + 1})`);
-    let postEventPromise = this._postEvent(nextQueuedEvent.event);
-    postEventPromise.then((result) => {
-      nextQueuedEvent.resolve(result);
-      this.flushing = false;
-      this._maybeFlushNext();
-    }).catch((_err) => {
-      nextQueuedEvent.attempts += 1;
-      if (nextQueuedEvent.attempts >= this.maxRetries) {
-        nextQueuedEvent.reject(new Error(`Retry limit exceeded after ${this.maxRetries} retries`));
-      } else {
-        const backoffTimeMsec = Math.pow(2, nextQueuedEvent.attempts) * 100;
-        setTimeout(
-          () => {
-            this.queue.unshift(nextQueuedEvent);
-            this.flushing = false;
-            this._maybeFlushNext();
-          },
-          backoffTimeMsec
-        );
-      }
-    });
-  }
-  async _postEvent(event) {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 5e3);
-    let response;
-    try {
-      response = await fetch(
-        this.connectionUrl,
-        {
-          method: "POST",
-          body: JSON.stringify(event),
-          headers: { "Content-Type": "application/json" },
-          keepalive: true,
-          signal: controller.signal
+    const nodeResult = eventCur.event_payload;
+    const action = nodeResult.action;
+    for (let ruleIndex = 0; ruleIndex < bonusRules.length; ruleIndex++) {
+      const rule = bonusRules[ruleIndex];
+      if (rule.bonus_rule_type === "ConstantBonusRule") {
+        const parameters = rule.bonus_rule_parameters;
+        if (parameters.sensor_id === action.sensor_id) {
+          bonusComputed += Number(parameters.bonus_amount_usd);
         }
-      );
-    } catch (error) {
-      throw new Error(`Fetch error: ${error}`);
-    } finally {
-      clearTimeout(timeout);
+      }
     }
-    if (!response.ok) {
-      throw new Error(`Protocol error: got bad response: ${response.status} ${response.statusText}`);
-    }
-    let postEventResponse;
-    const ct = response.headers.get("content-type") || "";
-    if (ct.includes("application/json")) {
-      postEventResponse = await response.json();
-    } else {
-      throw new Error(`Protocol error: expected Content-Type application/json: ${response.status} ${response.statusText}`);
-    }
-    return postEventResponse;
   }
-  // Helper methods:
-  getEventId() {
-    return crypto.randomUUID();
-  }
-  getTimestamp() {
-    const now = /* @__PURE__ */ new Date();
-    return now.toISOString();
-  }
-  // Public methods:
-  async sendStartEvent() {
-    let startEvent = {
-      run_id: this.runId,
-      event_id: this.getEventId(),
-      event_type: "StartEvent",
-      event_payload: {},
-      event_timestamp: this.getTimestamp()
+  bonusComputed = Math.max(0, bonusComputed);
+  bonusComputed = Math.round(bonusComputed * 100) / 100;
+  return bonusComputed;
+}
+function generateEventId() {
+  return crypto.randomUUID();
+}
+function getCurrentTimestamp() {
+  return (/* @__PURE__ */ new Date()).toISOString();
+}
+async function play(nodeGraph, onEventCallback = null, previousEvents = []) {
+  let events = previousEvents;
+  if (!onEventCallback) {
+    onEventCallback = (_event) => {
     };
-    return this.queueEvent(startEvent);
   }
-  async sendNodeResultEvent(nodeResult) {
-    const reportEvent = {
-      run_id: this.runId,
-      event_id: this.getEventId(),
+  function onVisibilityChange() {
+    if (document.visibilityState === "hidden") {
+      const leaveEvent = {
+        event_id: generateEventId(),
+        event_timestamp: getCurrentTimestamp(),
+        event_type: "LeaveEvent",
+        event_payload: {}
+      };
+      events.push(leaveEvent);
+      onEventCallback(leaveEvent);
+    } else if (document.visibilityState === "visible") {
+      const returnEvent = {
+        event_id: generateEventId(),
+        event_timestamp: getCurrentTimestamp(),
+        event_type: "ReturnEvent",
+        event_payload: {}
+      };
+      events.push(returnEvent);
+      onEventCallback(returnEvent);
+    }
+  }
+  document.addEventListener("visibilitychange", onVisibilityChange);
+  const startEvent = {
+    event_id: generateEventId(),
+    event_timestamp: getCurrentTimestamp(),
+    event_type: "StartEvent",
+    event_payload: {}
+  };
+  events.push(startEvent);
+  onEventCallback(startEvent);
+  const nodes = nodeGraph.nodes;
+  let nodePlayer = new NodePlayer();
+  for (let i = 0; i < nodes.length; i++) {
+    const node = nodes[i];
+    const nodePlayId = await nodePlayer.prepare(node.node_parameters);
+    let nodeMeasurements = await nodePlayer.play(nodePlayId);
+    nodePlayer.setProgressBar((i + 1) / nodes.length * 100);
+    const nodeResultEvent = {
+      event_id: generateEventId(),
+      event_timestamp: getCurrentTimestamp(),
       event_type: "NodeResultEvent",
-      event_payload: nodeResult,
-      event_timestamp: this.getTimestamp()
+      event_payload: {
+        node_id: node.node_id,
+        timestamp_start: nodeMeasurements.timestamp_node_started,
+        timestamp_end: nodeMeasurements.timestamp_node_completed,
+        node_execution_index: i,
+        action: nodeMeasurements.action,
+        runtime_metrics: nodeMeasurements.runtime_metrics
+      }
     };
-    return this.queueEvent(reportEvent);
+    events.push(nodeResultEvent);
+    onEventCallback(nodeResultEvent);
   }
-  async sendEndEvent() {
-    let endEvent = {
-      run_id: this.runId,
-      event_id: this.getEventId(),
-      event_type: "EndEvent",
-      event_payload: {},
-      event_timestamp: this.getTimestamp()
+  const bonusComputed = computeBonusUsd(
+    events,
+    nodeGraph.bonus_rules
+  );
+  let bonusMessage = "";
+  if (bonusComputed > 0) {
+    bonusMessage = `Bonus: ${bonusComputed} USD (pending validation)`;
+  }
+  await nodePlayer.playEndScreen(
+    bonusMessage
+  );
+  if (bonusMessage !== "") {
+    const bonusDisclosureEvent = {
+      event_id: generateEventId(),
+      event_timestamp: getCurrentTimestamp(),
+      event_type: "BonusDisclosureEvent",
+      event_payload: {
+        bonus_amount_usd: bonusComputed.toFixed(2)
+      }
     };
-    return this.queueEvent(endEvent);
+    events.push(bonusDisclosureEvent);
+    onEventCallback(bonusDisclosureEvent);
   }
+  const endEvent = {
+    event_id: generateEventId(),
+    event_timestamp: getCurrentTimestamp(),
+    event_type: "EndEvent",
+    event_payload: {}
+  };
+  events.push(endEvent);
+  onEventCallback(endEvent);
+  document.removeEventListener("visibilitychange", onVisibilityChange);
+  nodePlayer.showConsoleMessageOverlay(
+    "Events",
+    events
+  );
+  return events;
 }
 export {
-  EventClient,
-  NodePlayer
+  play
 };
