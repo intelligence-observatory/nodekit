@@ -4,7 +4,7 @@ import type {Reinforcer} from "../types/reinforcer-maps/reinforcers/reinforcers.
 import type {RuntimeMetrics} from "../types/runtime-metrics.ts";
 import {BoardView} from "../board-view/board-view.ts";
 import {evaluateReinforcerMap, makeNullReinforcer} from "../types/reinforcer-maps/evaluate.ts";
-import {type EventScheduler, RAFScheduler} from "./event-scheduler.ts";
+import {EventScheduler} from "./event-scheduler.ts";
 import {type EffectBinding, HideCursorEffectBinding} from "../board-view/effect-bindings/effect-bindings.ts";
 import {dateToISO8601} from "../types/fields.ts";
 
@@ -32,13 +32,12 @@ export class NodePlay {
         this.nodeParameters = nodeParameters;
 
         // Instantiate
-        this.mainScheduler = new RAFScheduler();
+        this.mainScheduler = new EventScheduler();
     }
 
     public async prepare() {
         // Reset the board
         this.boardView.reset();
-
 
         // Instantiate Cards:
         let setupPromises: Promise<void>[] = [];
@@ -62,7 +61,6 @@ export class NodePlay {
 
             // Schedule hiding of the Card, if not open-ended:
             if (card.card_timespan.end_time_msec !== null) {
-
                 this.mainScheduler.scheduleEvent(
                     {
                         offsetMsec: card.card_timespan.end_time_msec,
@@ -198,7 +196,7 @@ export class NodePlay {
         const reinforcer = this.getReinforcer(action);
 
         // Set up the Reinforcer phase:
-        const reinforcerScheduler = new RAFScheduler();
+        const reinforcerScheduler = new EventScheduler();
         let maxTimeMsec = 0;
 
         // Add Reinforcer cards
@@ -257,7 +255,6 @@ export class NodePlay {
             }
         )
     }
-
 
     private getReinforcer(action: Action): Reinforcer {
         // Lookup reinforcer
