@@ -40,7 +40,7 @@ export class NodePlay {
         this.boardView.reset();
 
 
-        // Instantiate cards:
+        // Instantiate Cards:
         let setupPromises: Promise<void>[] = [];
         for (const card of this.nodeParameters.cards) {
             // Place Card onto Board:
@@ -93,7 +93,6 @@ export class NodePlay {
                     signal: this.abortController.signal
                 }
             )
-
 
             // Schedule disarming of the Sensor:
             if (sensor.sensor_timespan.end_time_msec !== null) {
