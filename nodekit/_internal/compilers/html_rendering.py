@@ -4,29 +4,33 @@ import jinja2
 
 from nodekit._internal.models.node_engine.node_graph import NodeGraph
 import pydantic
+import importlib.resources
 
 
 # %%
-class CompileHtmlOptions(pydantic.BaseModel):
-    event_submission_url: str | None = pydantic.Field(
-        description='An endpoint to which Events will be sent. If None, the Events will simply be shown at the end of the Run.',
-        default = None,
+
+
+class NodeKitBrowserAssets(pydantic.BaseModel):
+    css: str
+    js: str
+
+
+def load_assets() -> NodeKitBrowserAssets:
+    css_file = importlib.resources.files("nodekit") / "_static" / "nodekit.css"
+    js_file = importlib.resources.files("nodekit") / "_static" / "nodekit.js"
+
+    return NodeKitBrowserAssets(
+        css=css_file.read_text(),
+        js=js_file.read_text()
     )
-    start_node_execution_index: int
-
-    run_id: str
 
 
-def html(
+# %%
+def to_html(
         node_graph: NodeGraph,
-        options: CompileHtmlOptions | None = None,
 ) -> str:
-    if options is None:
-        options = CompileHtmlOptions(
-            event_submission_url=None,
-            start_node_execution_index=0,
-            run_id='NO_RUN_ID',
-        )
+    # Load the JS and CSS resources
+    assets = load_assets()
 
     # Render the node sequence using a Jinja2 template
     template_location = Path(__file__).parent / 'node_graph_site_template.j2'
@@ -35,10 +39,14 @@ def html(
     html_string = template.render(
         dict(
             node_graph=node_graph.model_dump(mode='json'),
-            event_submission_url=options.event_submission_url,
-            run_id=options.run_id,
-            start_node_execution_index=options.start_node_execution_index,
+            javascript_source=assets.js,
+            css_source=assets.css,
         )
     )
 
     return html_string
+
+
+if __name__ == '__main__':
+    assets = load_assets()
+    print(assets.js)

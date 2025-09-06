@@ -13,6 +13,11 @@ declare interface BaseAssetLink<MT = string> {
     asset_url: string;
 }
 
+declare interface BaseBonusRule<T extends string, P> {
+    bonus_rule_type: T;
+    bonus_rule_parameters: P;
+}
+
 declare interface BaseCard<T extends string, P> {
     card_id: CardId;
     card_type: T;
@@ -27,6 +32,13 @@ declare interface BaseEffect<T extends string, P> {
     effect_parameters: P;
     effect_timespan: Timespan;
 }
+
+declare type BaseEvent<T extends string, P> = {
+    event_id: UUID;
+    event_type: T;
+    event_payload: P;
+    event_timestamp: ISO8601;
+};
 
 declare interface BaseReinforcerMap<T extends string, P> {
     reinforcer_map_type: T;
@@ -57,6 +69,12 @@ declare interface BoardRectangle {
     height: SpatialSize;
 }
 
+declare type BonusDisclosureEvent = BaseEvent<'BonusDisclosureEvent', {
+    bonus_amount_usd: MonetaryAmountUsd;
+}>;
+
+declare type BonusRule = ConstantBonusRule;
+
 declare type Card = FixationPointCard | ImageCard | TextCard | MarkdownPagesCard | VideoCard;
 
 declare type CardId = string & {
@@ -80,6 +98,14 @@ declare type ColorHexString = string & {
     __brand: 'ColorHexString';
 };
 
+declare interface ConstantBonusRule extends BaseBonusRule<"ConstantBonusRule", ConstantBonusRuleParameters> {
+}
+
+declare interface ConstantBonusRuleParameters {
+    sensor_id: SensorId;
+    bonus_amount_usd: MonetaryAmountUsd;
+}
+
 declare interface ConstantReinforcerMap extends BaseReinforcerMap<'ConstantReinforcerMap', ConstantReinforcerMapParameters> {
 }
 
@@ -97,22 +123,9 @@ declare interface DoneSensor extends BaseSensor<'DoneSensor', NullParameters> {
 
 declare type Effect = HidePointerEffect;
 
-export declare class EventClient {
-    private connectionUrl;
-    private runId;
-    private queue;
-    private flushing;
-    private maxRetries;
-    constructor(runId: string, connectionUrl: string);
-    private queueEvent;
-    private _maybeFlushNext;
-    private _postEvent;
-    private getEventId;
-    private getTimestamp;
-    sendStartEvent(): Promise<SubmitEventResponse>;
-    sendNodeResultEvent(nodeResult: NodeResult): Promise<SubmitEventResponse>;
-    sendEndEvent(): Promise<SubmitEventResponse>;
-}
+declare type EndEvent = BaseEvent<'EndEvent', {}>;
+
+declare type Event_2 = StartEvent | EndEvent | NodeResultEvent | LeaveEvent | ReturnEvent | BonusDisclosureEvent;
 
 declare interface FixationPointCard extends BaseCard<'FixationPointCard', NullParameters> {
 }
@@ -134,10 +147,6 @@ declare type ISO8601 = string & {
     __brand: 'ISO8601';
 };
 
-declare type ISO8601_2 = string & {
-    __brand: 'ISO8601';
-};
-
 declare interface KeyPressAction extends BaseAction<KeyPressActionValue> {
     action_type: "KeyPressAction";
 }
@@ -154,6 +163,8 @@ declare interface KeyPressSensorParameters {
     keys: Set<PressableKey>;
 }
 
+declare type LeaveEvent = BaseEvent<'LeaveEvent', {}>;
+
 declare interface MarkdownPagesCard extends BaseCard<'MarkdownPagesCard', MarkdownPagesCardParameters> {
 }
 
@@ -165,49 +176,35 @@ declare type MarkdownString = string & {
     __brand: 'MarkdownString';
 };
 
-declare interface NodeMeasurements {
-    timestamp_node_started: ISO8601;
-    timestamp_node_completed: ISO8601;
-    action: Action;
-    runtime_metrics: RuntimeMetrics;
-}
+declare type MonetaryAmountUsd = string & {
+    __brand: 'MonetaryAmountUsd';
+};
 
-declare interface NodeParameters {
+declare interface Node_2 {
+    node_id: UUID;
     board: Board;
     cards: Card[];
     sensors: Sensor[];
     reinforcer_maps: ReinforcerMap[];
     effects: Effect[];
 }
+export { Node_2 as Node }
 
-export declare class NodePlayer {
-    private boardViewsUI;
-    private shellUI;
-    private nodePlays;
-    constructor();
-    prepare(nodeParameters: NodeParameters): Promise<NodePlayId>;
-    play(nodePlayId: NodePlayId): Promise<NodeMeasurements>;
-    setProgressBar(percent: number): void;
-    showConnectingOverlay(startDelayMsec?: number): void;
-    hideConnectingOverlay(): void;
-    showConsoleMessageOverlay(banner: string, message: any): void;
-    hideConsoleMessageOverlay(): void;
-    playEndScreen(message?: string, endScreenTimeoutMsec?: number): Promise<void>;
-    private showErrorMessageOverlay;
+export declare interface NodeGraph {
+    nodes: Node_2[];
+    bonus_rules: BonusRule[];
 }
-
-declare type NodePlayId = string & {
-    __brand: 'NodePlayId';
-};
 
 declare type NodeResult = {
     node_id: UUID;
-    timestamp_start: ISO8601_2;
-    timestamp_end: ISO8601_2;
+    timestamp_start: ISO8601;
+    timestamp_end: ISO8601;
     node_execution_index: number;
-    action: any;
-    runtime_metrics: any;
+    action: Action;
+    runtime_metrics: RuntimeMetrics;
 };
+
+declare type NodeResultEvent = BaseEvent<'NodeResultEvent', NodeResult>;
 
 declare interface NullParameters {
 }
@@ -218,10 +215,14 @@ declare interface NullReinforcerMap extends BaseReinforcerMap<'NullReinforcerMap
 declare interface NullValue {
 }
 
+declare type OnEventCallback = (event: Event_2) => void;
+
 declare interface PixelArea {
     width_px: number;
     height_px: number;
 }
+
+export declare function play(nodeGraph: NodeGraph, onEventCallback?: OnEventCallback | null, previousEvents?: Event_2[]): Promise<Event_2[]>;
 
 declare type PressableKey = "Enter" | " " | "ArrowDown" | "ArrowLeft" | "ArrowRight" | "ArrowUp" | "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z" | "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
 
@@ -230,6 +231,8 @@ declare interface Reinforcer {
 }
 
 declare type ReinforcerMap = ConstantReinforcerMap | NullReinforcerMap;
+
+declare type ReturnEvent = BaseEvent<'ReturnEvent', {}>;
 
 declare interface RuntimeMetrics {
     display_area: PixelArea;
@@ -252,9 +255,7 @@ declare type SpatialSize = number & {
     __brand: 'SpatialSize';
 };
 
-declare type SubmitEventResponse = {
-    redirect_url: string | null;
-};
+declare type StartEvent = BaseEvent<'StartEvent', {}>;
 
 declare interface TextCard extends BaseCard<'TextCard', TextCardParameters> {
 }
