@@ -147,7 +147,6 @@ export class BoardView {
     }
 
     // Cards
-
     async placeCardHidden(card: Card) {
         const cardView = await placeCardHiddenDispatch(
             card,

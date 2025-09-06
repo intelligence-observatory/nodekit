@@ -1,13 +1,14 @@
 export type ScheduleToken = number;
-interface ScheduleEventParams {
-    offsetMsec: number,
-    triggerEventFunc: () => void,
-    signal?: AbortSignal
+
+interface ScheduleEventParameters {
+    triggerTimeMsec: number, // Msec elapsed from .t0 when this Event should occur
+    triggerFunc: () => void, // The function that is called when the event triggers
+    signal?: AbortSignal // Optional AbortSignal to allow cancellation of this event, if emitted
 }
 
 interface TimedEvent {
-    due: number;              // absolute timestamp, relative to start() timestamp
-    cb: () => void;
+    triggerTimeMsec: number;  // Msec elapsed relative to .t0 when this event should trigger
+    triggerFunc: () => void;
     token: ScheduleToken;
     cancelled: boolean;
 }
@@ -17,17 +18,18 @@ export class EventScheduler {
     private nextToken = 1;
     private running = false;
     private rafId: number | null = null;
-    private t0 = 0;           // time at start()
+
+    private t0: number = 0; // The `performance.now()` time when the scheduler was started; initialized in start()
 
     scheduleEvent(
-        parameters: ScheduleEventParams
-    ): ScheduleToken {
+        parameters: ScheduleEventParameters
+    ): void {
         if (!this.running) this.start();
 
         const token = this.nextToken++;
         const ev: TimedEvent = {
-            due: this.t0 + parameters.offsetMsec,
-            cb: parameters.triggerEventFunc,
+            triggerTimeMsec: parameters.triggerTimeMsec,
+            triggerFunc: parameters.triggerFunc,
             token,
             cancelled: false
         };
@@ -37,23 +39,27 @@ export class EventScheduler {
         const signal = parameters.signal;
         if (signal) {
             const abortHandler = () => {
-                this.cancel(token);
+                ev.cancelled = true;
                 signal.removeEventListener('abort', abortHandler);
             };
             signal.addEventListener('abort', abortHandler, { once: true });
         }
-        return token;
     }
 
     start(): void {
-        if (this.running) return;
+        if (this.running) {
+            return;
+        }
         this.running = true;
         this.t0 = performance.now();
-        this.loop();            // kick-off
+        this.loop();
     }
 
     stop(): void {
-        if (!this.running) return;
+        if (!this.running) {
+            return;
+        }
+
         this.running = false;
         if (this.rafId !== null) {
             cancelAnimationFrame(this.rafId);
@@ -61,25 +67,22 @@ export class EventScheduler {
         }
     }
 
-    cancel(token: ScheduleToken): void {
-        const idx = this.events.findIndex(e => e.token === token);
-        if (idx !== -1) this.events[idx].cancelled = true;
-    }
-
     clearAll(): void {
         this.events = [];
     }
 
     private loop = (): void => {
-        if (!this.running) return;
+        if (!this.running) {
+            return;
+        }
 
         const now = performance.now();
 
         // Fire all events that are due *now*
-        while (this.events.length && this.events[0].due <= now) {
+        while (this.events.length && this.events[0].triggerTimeMsec <= now) {
             const ev = this.events.shift()!;
             if (!ev.cancelled) {
-                ev.cb();
+                ev.triggerFunc();
             }
         }
 
@@ -92,7 +95,7 @@ export class EventScheduler {
     };
 
     private insertEvent(ev: TimedEvent): void {
-        const i = this.events.findIndex(e => e.due > ev.due);
+        const i = this.events.findIndex(e => e.triggerTimeMsec > ev.triggerTimeMsec);
         if (i === -1) {
             this.events.push(ev);
         } else {
