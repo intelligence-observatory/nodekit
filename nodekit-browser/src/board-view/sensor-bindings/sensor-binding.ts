@@ -175,8 +175,8 @@ export class KeyPressSensorBinding implements SensorBinding {
 
         this.keys = [...keys];
 
-        // This listener must be added to document, and not the BoardView.root, because
-        // it is not guaranteed that the BoardView will have focus when a key is pressed.
+        // This listener must be added to document (and not the BoardView.root) because
+        // it is not guaranteed that the BoardView will have focus.
         // See: https://stackoverflow.com/a/12828055
         document.addEventListener('keydown', this.onKeyPress);
     }
@@ -187,13 +187,10 @@ export class KeyPressSensorBinding implements SensorBinding {
 
     disarm() {
         this.tArmed = null;
-
         document.removeEventListener('keydown', this.onKeyPress);
-        console.log('removed event listener')
     }
 
     private onKeyPress = (e: KeyboardEvent) => {
-        console.log('Pressed!!', e.key)
         if (!this.tArmed) {
             return;
         }
@@ -215,6 +212,10 @@ export class KeyPressSensorBinding implements SensorBinding {
             },
             reaction_time_msec: reactionTimeMsec as TimePointMsec
         };
+
+        // Disarm the sensor after a key press:
+        this.disarm();
+
         this.onSensorFired(action);
     }
 }

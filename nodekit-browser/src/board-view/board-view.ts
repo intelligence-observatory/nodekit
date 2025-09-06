@@ -218,7 +218,6 @@ export function placeSensorUnarmedDispatch(
     const cardId = sensor.card_id;
     if (!cardId) {
         // This is a Board Sensor.
-
         if (sensor.sensor_type === 'TimeoutSensor') {
             if (sensor.sensor_timespan.end_time_msec !== null) {
                 throw new Error(`${sensor.sensor_type} must not have a defined end_time_msec`);

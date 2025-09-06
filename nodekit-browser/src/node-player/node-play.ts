@@ -33,7 +33,6 @@ export class NodePlay {
 
     public async prepare() {
         // Prepare the NodePlay by setting up the BoardView, Cards, Sensors, and scheduling their events.
-
         this.boardView.reset();
 
         // Instantiate Cards:
@@ -65,7 +64,7 @@ export class NodePlay {
             }
         }
 
-        // Then, mount and schedule any Sensors:
+        // Then, mount and schedule Sensors:
         for (const sensor of this.nodeParameters.sensors) {
             // First, mount an unarmed sensor now:
             this.boardView.placeSensorUnarmed(
