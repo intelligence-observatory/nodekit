@@ -33,16 +33,3 @@ export type BonusDisclosureEvent = BaseEvent<'BonusDisclosureEvent', { bonus_amo
 
 // Union type:
 export type Event = StartEvent | EndEvent | NodeResultEvent | LeaveEvent | ReturnEvent | BonusDisclosureEvent;
-
-
-// Control messages received from the Server
-export type BaseCommandMessage<T extends string, P> = {
-    command_type: T
-    command_parameters: P
-}
-
-export type RedirectCommandMessage = BaseCommandMessage<"RedirectCommand", { redirect_url: string }>
-export type NullCommandMessage = BaseCommandMessage<"NullCommand", {}>
-
-// Union type
-export type CommandMessage = RedirectCommandMessage
