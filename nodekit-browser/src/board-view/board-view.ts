@@ -220,6 +220,9 @@ export function placeSensorUnarmedDispatch(
         // This is a Board Sensor.
 
         if (sensor.sensor_type === 'TimeoutSensor') {
+            if (sensor.sensor_timespan.end_time_msec !== null) {
+                throw new Error(`${sensor.sensor_type} must not have a defined end_time_msec`);
+            }
             return new TimeoutSensorBinding(
                 sensor.sensor_id,
                 onSensorFired,
@@ -227,9 +230,6 @@ export function placeSensorUnarmedDispatch(
             );
         }
         else if (sensor.sensor_type === 'KeyPressSensor') {
-            if (sensor.sensor_timespan.end_time_msec !== null) {
-                throw new Error(`${sensor.sensor_type} must not have a defined end_time_msec`);
-            }
             return new KeyPressSensorBinding(
                 sensor.sensor_id,
                 onSensorFired,

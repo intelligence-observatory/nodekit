@@ -28,10 +28,12 @@ export class NodePlay {
     ) {
         this.boardView = boardView;
         this.nodeParameters = nodeParameters;
-        this.scheduler = new EventScheduler();
+        this.scheduler = new EventScheduler(this.abortController.signal);
     }
 
     public async prepare() {
+        // Prepare the NodePlay by setting up the BoardView, Cards, Sensors, and scheduling their events.
+
         this.boardView.reset();
 
         // Instantiate Cards:
@@ -48,21 +50,16 @@ export class NodePlay {
             this.scheduler.scheduleEvent(
                 {
                     triggerTimeMsec: card.card_timespan.start_time_msec,
-                    triggerFunc: () => {
-                        this.boardView.showCard(card.card_id);
-                    }
+                    triggerFunc: () => {this.boardView.showCard(card.card_id)}
                 }
             )
 
-            // Schedule hiding of the Card, if not open-ended:
+            // Schedule hiding of the Card, if not open-ended Timespan:
             if (card.card_timespan.end_time_msec !== null) {
                 this.scheduler.scheduleEvent(
                     {
                         triggerTimeMsec: card.card_timespan.end_time_msec,
-                        triggerFunc: () => {
-                            this.boardView.hideCard(card.card_id);
-                        },
-                        signal: this.abortController.signal
+                        triggerFunc: () => {this.boardView.hideCard(card.card_id)},
                     }
                 )
             }
@@ -80,22 +77,16 @@ export class NodePlay {
             this.scheduler.scheduleEvent(
                 {
                     triggerTimeMsec: sensor.sensor_timespan.start_time_msec,
-                    triggerFunc: () => {
-                        this.boardView.armSensor(sensor.sensor_id);
-                    },
-                    signal: this.abortController.signal
+                    triggerFunc: () => {this.boardView.armSensor(sensor.sensor_id)},
                 }
             )
 
-            // Schedule disarming of the Sensor:
+            // Schedule disarming of the Sensor, if not an open-ended Timespan:
             if (sensor.sensor_timespan.end_time_msec !== null) {
                 this.scheduler.scheduleEvent(
                     {
                         triggerTimeMsec: sensor.sensor_timespan.end_time_msec,
-                        triggerFunc: () => {
-                            this.boardView.disarmSensor(sensor.sensor_id);
-                        },
-                        signal: this.abortController.signal
+                        triggerFunc: () => {this.boardView.disarmSensor(sensor.sensor_id)},
                     }
                 )
             }
@@ -113,7 +104,6 @@ export class NodePlay {
                     triggerFunc: () => {
                         effectBinding.start();
                     },
-                    signal: this.abortController.signal
                 }
             )
 
@@ -125,7 +115,6 @@ export class NodePlay {
                         triggerFunc: () => {
                             effectBinding.stop();
                         },
-                        signal: this.abortController.signal
                     }
                 )
             }
@@ -136,6 +125,7 @@ export class NodePlay {
     }
 
     async run(): Promise<NodeMeasurements> {
+        // Run the NodePlay, returning a Promise which resolves when a Sensor fires and the corresponding Reinforcer has completed.
         if (!this.prepared) {
             // Prepare the NodePlay
             await this.prepare();
@@ -191,7 +181,7 @@ export class NodePlay {
         const reinforcer = this.getReinforcer(action);
 
         // Set up the Reinforcer phase:
-        const reinforcerScheduler = new EventScheduler();
+        const reinforcerScheduler = new EventScheduler(this.abortController.signal);
         let maxTimeMsec = 0;
 
         // Add Reinforcer cards
