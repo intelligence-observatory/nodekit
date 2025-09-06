@@ -7,8 +7,8 @@ import type {PressableKey} from "../../types/fields.ts";
 
 // Generic contract:
 export interface SensorBinding {
-    // Represents a Sensor that is bound to a Target, which emits Actions. An Action Listener may be attached to the SensorBinding.
-    // A Sensor must be armed before it emits Actions.
+    // Represents a Sensor that is bound to a Target. When a Sensor is triggered, it emits an Action.
+    // A Sensor must be armed before it can be triggered.
     arm(): void;
 
     disarm(): void;
@@ -28,7 +28,7 @@ export class ClickSensorBinding implements SensorBinding {
         boardView: BoardView,
     ) {
         this.cardView = cardView;
-        // Attach the click sensor to the card
+        // Bind the ClickSensor to the Card:
         cardView.addClickCallback(
             (e) => {
                 if (!this.tArmed) {
@@ -164,7 +164,6 @@ export class KeyPressSensorBinding implements SensorBinding {
     private readonly onSensorFired: (action: Action) => void
     private tArmed: number | null = null;
     private readonly keys: PressableKey[];
-    private readonly onKeyPressCallback: (e: KeyboardEvent) => void;
 
     constructor(
         sensorId: SensorId,
@@ -174,17 +173,12 @@ export class KeyPressSensorBinding implements SensorBinding {
         this.sensorId = sensorId;
         this.onSensorFired = onSensorFired;
 
-        // It would be better for `this.keys` to be `Set<PressableKey>`.
-        // Unfortunately, the Typescript generator will turn that into an array, not a set,
-        // and therefore `this.keys.has(key)` won't work.
-        // So, `keys` is converted to an array, which appeases the generator.
         this.keys = [...keys];
 
-        // This event must be added to document, and not BoardView.root because
-        // this is the only way to ensure that KeyboardEvents are heard, due to how focus works.
+        // This listener must be added to document (and not the BoardView.root) because
+        // it is not guaranteed that the BoardView will have focus.
         // See: https://stackoverflow.com/a/12828055
-        this.onKeyPressCallback = this.onKeyPress.bind(this);
-        document.addEventListener('keydown', this.onKeyPressCallback);
+        document.addEventListener('keydown', this.onKeyPress);
     }
 
     arm() {
@@ -193,31 +187,36 @@ export class KeyPressSensorBinding implements SensorBinding {
 
     disarm() {
         this.tArmed = null;
-
-        // Manually remove the listener.
-        document.removeEventListener('keydown', this.onKeyPressCallback);
+        document.removeEventListener('keydown', this.onKeyPress);
     }
 
-    private onKeyPress(e: KeyboardEvent) {
+    private onKeyPress = (e: KeyboardEvent) => {
         if (!this.tArmed) {
             return;
         }
+
         e.preventDefault();
+
         let key = e.key as PressableKey;
-        if (this.keys.includes(key)) {
-                const reactionTimeMsec = Math.round(performance.now() - this.tArmed) as TimePointMsec;
-                // Create the action to be fired
-                const action: KeyPressAction = {
-                    sensor_id: this.sensorId,
-                    action_type: "KeyPressAction",
-                    action_value: {
-                        key: key
-                    },
-                    reaction_time_msec: reactionTimeMsec as TimePointMsec
-                };
-                document.removeEventListener('keydown', this.onKeyPressCallback);
-                this.onSensorFired(action);
-            }
+        if (!this.keys.includes(key)) {
+            return
+        }
+
+        const reactionTimeMsec = Math.round(performance.now() - this.tArmed) as TimePointMsec;
+        // Create the action to be fired:
+        const action: KeyPressAction = {
+            sensor_id: this.sensorId,
+            action_type: "KeyPressAction",
+            action_value: {
+                key: key
+            },
+            reaction_time_msec: reactionTimeMsec as TimePointMsec
+        };
+
+        // Disarm the sensor after a key press:
+        this.disarm();
+
+        this.onSensorFired(action);
     }
 }
 

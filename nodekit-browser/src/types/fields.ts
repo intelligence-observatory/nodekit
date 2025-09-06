@@ -7,6 +7,9 @@ export type TimeDurationMsec = number & { __brand: 'TimeDurationMsec' };
 export type MarkdownString = string & { __brand: 'MarkdownString'}
 export type ColorHexString = string & { __brand: 'ColorHexString' };
 
+export type MonetaryAmountUsd = string & { __brand: 'MonetaryAmountUsd' };
+export type PayableMonetaryAmountUsd = string & { __brand: 'PayableMonetaryAmountUsd' };
+
 export type CardId = string & { __brand: 'CardId' };
 export type SensorId = string & { __brand: 'SensorId' };
 export type NodePlayId = string & { __brand: 'NodePlayId' };

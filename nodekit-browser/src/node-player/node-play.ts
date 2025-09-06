@@ -4,7 +4,7 @@ import type {Reinforcer} from "../types/reinforcer-maps/reinforcers/reinforcers.
 import type {RuntimeMetrics} from "../types/runtime-metrics.ts";
 import {BoardView} from "../board-view/board-view.ts";
 import {evaluateReinforcerMap, makeNullReinforcer} from "../types/reinforcer-maps/evaluate.ts";
-import {type EventScheduler, RAFScheduler} from "./event-scheduler.ts";
+import {EventScheduler} from "./event-scheduler.ts";
 import {type EffectBinding, HideCursorEffectBinding} from "../board-view/effect-bindings/effect-bindings.ts";
 import {dateToISO8601} from "../types/fields.ts";
 
@@ -15,10 +15,8 @@ export class NodePlay {
     private prepared: boolean = false;
     private terminated: boolean = false;
 
-    // Event queues:
-    private mainScheduler: EventScheduler
-
-    // Abort:
+    // Event scheduler:
+    private scheduler: EventScheduler
     private abortController: AbortController = new AbortController();
 
     // Resolvers
@@ -30,17 +28,14 @@ export class NodePlay {
     ) {
         this.boardView = boardView;
         this.nodeParameters = nodeParameters;
-
-        // Instantiate
-        this.mainScheduler = new RAFScheduler();
+        this.scheduler = new EventScheduler(this.abortController.signal);
     }
 
     public async prepare() {
-        // Reset the board
+        // Prepare the NodePlay by setting up the BoardView, Cards, Sensors, and scheduling their events.
         this.boardView.reset();
 
-
-        // Instantiate cards:
+        // Instantiate Cards:
         let setupPromises: Promise<void>[] = [];
         for (const card of this.nodeParameters.cards) {
             // Place Card onto Board:
@@ -51,31 +46,25 @@ export class NodePlay {
         // Schedule Card events:
         for (const card of this.nodeParameters.cards) {
             // Schedule CardView display event:
-            this.mainScheduler.scheduleEvent(
+            this.scheduler.scheduleEvent(
                 {
-                    offsetMsec: card.card_timespan.start_time_msec,
-                    triggerEventFunc: () => {
-                        this.boardView.showCard(card.card_id);
-                    }
+                    triggerTimeMsec: card.card_timespan.start_time_msec,
+                    triggerFunc: () => {this.boardView.showCard(card.card_id)}
                 }
             )
 
-            // Schedule hiding of the Card, if not open-ended:
+            // Schedule hiding of the Card, if not open-ended Timespan:
             if (card.card_timespan.end_time_msec !== null) {
-
-                this.mainScheduler.scheduleEvent(
+                this.scheduler.scheduleEvent(
                     {
-                        offsetMsec: card.card_timespan.end_time_msec,
-                        triggerEventFunc: () => {
-                            this.boardView.hideCard(card.card_id);
-                        },
-                        signal: this.abortController.signal
+                        triggerTimeMsec: card.card_timespan.end_time_msec,
+                        triggerFunc: () => {this.boardView.hideCard(card.card_id)},
                     }
                 )
             }
         }
 
-        // Then, mount and schedule any Sensors:
+        // Then, mount and schedule Sensors:
         for (const sensor of this.nodeParameters.sensors) {
             // First, mount an unarmed sensor now:
             this.boardView.placeSensorUnarmed(
@@ -84,26 +73,19 @@ export class NodePlay {
             )
 
             // Schedule arming of the Sensor:
-            this.mainScheduler.scheduleEvent(
+            this.scheduler.scheduleEvent(
                 {
-                    offsetMsec: sensor.sensor_timespan.start_time_msec,
-                    triggerEventFunc: () => {
-                        this.boardView.armSensor(sensor.sensor_id);
-                    },
-                    signal: this.abortController.signal
+                    triggerTimeMsec: sensor.sensor_timespan.start_time_msec,
+                    triggerFunc: () => {this.boardView.armSensor(sensor.sensor_id)},
                 }
             )
 
-
-            // Schedule disarming of the Sensor:
+            // Schedule disarming of the Sensor, if not an open-ended Timespan:
             if (sensor.sensor_timespan.end_time_msec !== null) {
-                this.mainScheduler.scheduleEvent(
+                this.scheduler.scheduleEvent(
                     {
-                        offsetMsec: sensor.sensor_timespan.end_time_msec,
-                        triggerEventFunc: () => {
-                            this.boardView.disarmSensor(sensor.sensor_id);
-                        },
-                        signal: this.abortController.signal
+                        triggerTimeMsec: sensor.sensor_timespan.end_time_msec,
+                        triggerFunc: () => {this.boardView.disarmSensor(sensor.sensor_id)},
                     }
                 )
             }
@@ -115,25 +97,23 @@ export class NodePlay {
             // There is only one EffectBinding type for now, so just instantiate it directly:
             const effectBinding: EffectBinding = new HideCursorEffectBinding(this.boardView)
             // Schedule the effect start
-            this.mainScheduler.scheduleEvent(
+            this.scheduler.scheduleEvent(
                 {
-                    offsetMsec: effect.effect_timespan.start_time_msec,
-                    triggerEventFunc: () => {
+                    triggerTimeMsec: effect.effect_timespan.start_time_msec,
+                    triggerFunc: () => {
                         effectBinding.start();
                     },
-                    signal: this.abortController.signal
                 }
             )
 
             // Schedule the effect end, if applicable
             if (effect.effect_timespan.end_time_msec !== null) {
-                this.mainScheduler.scheduleEvent(
+                this.scheduler.scheduleEvent(
                     {
-                        offsetMsec: effect.effect_timespan.end_time_msec,
-                        triggerEventFunc: () => {
+                        triggerTimeMsec: effect.effect_timespan.end_time_msec,
+                        triggerFunc: () => {
                             effectBinding.stop();
                         },
-                        signal: this.abortController.signal
                     }
                 )
             }
@@ -144,6 +124,7 @@ export class NodePlay {
     }
 
     async run(): Promise<NodeMeasurements> {
+        // Run the NodePlay, returning a Promise which resolves when a Sensor fires and the corresponding Reinforcer has completed.
         if (!this.prepared) {
             // Prepare the NodePlay
             await this.prepare();
@@ -165,7 +146,7 @@ export class NodePlay {
 
         // Kick off scheduler:
         const timestampStarted = new Date();
-        this.mainScheduler.start()
+        this.scheduler.start()
         const result = await donePromise;
 
         // Package result:
@@ -190,7 +171,7 @@ export class NodePlay {
         // Guard against double fires:
         if (this.terminated) return;
         this.terminated = true;
-        this.abortController.abort(); // Stop future Events from being triggered
+        this.abortController.abort(); // Emit the abort signal; will immediately stop any pending scheduled events
 
         // Reset board
         this.boardView.reset();
@@ -199,7 +180,7 @@ export class NodePlay {
         const reinforcer = this.getReinforcer(action);
 
         // Set up the Reinforcer phase:
-        const reinforcerScheduler = new RAFScheduler();
+        const reinforcerScheduler = new EventScheduler(this.abortController.signal);
         let maxTimeMsec = 0;
 
         // Add Reinforcer cards
@@ -215,8 +196,8 @@ export class NodePlay {
                 for (const card of reinforcer.reinforcer_cards) {
                     reinforcerScheduler.scheduleEvent(
                         {
-                            offsetMsec: card.card_timespan.start_time_msec,
-                            triggerEventFunc: () => {
+                            triggerTimeMsec: card.card_timespan.start_time_msec,
+                            triggerFunc: () => {
                                 this.boardView.showCard(card.card_id);
                             }
                         }
@@ -226,8 +207,8 @@ export class NodePlay {
                     if (card.card_timespan.end_time_msec !== null) {
                         reinforcerScheduler.scheduleEvent(
                             {
-                                offsetMsec: card.card_timespan.end_time_msec,
-                                triggerEventFunc: () => {
+                                triggerTimeMsec: card.card_timespan.end_time_msec,
+                                triggerFunc: () => {
                                     this.boardView.hideCard(card.card_id);
                                 }
                             }
@@ -243,8 +224,8 @@ export class NodePlay {
                 // Schedule an Event which resolves the play with the Action and Reinforcer:
                 reinforcerScheduler.scheduleEvent(
                     {
-                        offsetMsec: maxTimeMsec,
-                        triggerEventFunc: () => {
+                        triggerTimeMsec: maxTimeMsec,
+                        triggerFunc: () => {
                             this.resolvePlay(
                                 [
                                     action,
@@ -258,7 +239,6 @@ export class NodePlay {
             }
         )
     }
-
 
     private getReinforcer(action: Action): Reinforcer {
         // Lookup reinforcer
