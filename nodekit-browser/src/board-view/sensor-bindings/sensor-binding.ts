@@ -350,6 +350,24 @@ export class KeyHoldSensorBinding implements SensorBinding {
             }
         }
         return holds
+        if (!this.keys.includes(key)) {
+            return
+        }
+
+        // Create the action to be fired:
+        const action: KeyPressAction = {
+            sensor_id: this.sensorId,
+            action_type: "KeyPressAction",
+            action_value: {
+                key: key
+            },
+            timestamp_action: performanceNowToISO8601(performance.now())
+        };
+
+        // Disarm the sensor after a key press:
+        this.disarm();
+
+        this.onSensorFired(action);
     }
 }
 
