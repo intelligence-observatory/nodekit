@@ -4,7 +4,7 @@ __all__ = [
     "VideoLink",
 ]
 
-from nodekit._internal.models.assets.base import (
+from nodekit._internal.types.assets.base import (
     AssetLink,
     ImageLink,
     VideoLink,

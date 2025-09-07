@@ -1,37 +1,11 @@
-import {NodePlayer} from "./node-player.ts";
-import type {
-    Event,
-    StartEvent,
-    LeaveEvent,
-    ReturnEvent,
-    EndEvent,
-    NodeResultEvent,
-    UUID
-} from "./events.ts";
-import type {BonusRule} from "./types/bonus_rules/bonus_policy.ts";
-import {type ISO8601, type MonetaryAmountUsd, performanceNowToISO8601} from "./types/fields.ts";
-import {computeBonusUsd} from "./bonus-engine.ts";
-import type {Board} from "./types/board.ts";
-import type {Card} from "./types/cards/cards.ts";
-import type {Sensor} from "./types/sensors/sensors.ts";
-import type {ReinforcerMap} from "./types/reinforcer-maps/reinforcer-maps.ts";
-import type {Effect} from "./types/effects/base.ts";
+import {NodePlayer} from "./node-player/node-player.ts";
+import type {EndEvent, Event, LeaveEvent, NodeResultEvent, ReturnEvent, StartEvent, UUID} from "./types/events";
+import {type ISO8601, type MonetaryAmountUsd} from "./types/common.ts";
+import {computeBonusUsd} from "./ops/calculate-bonus.ts";
+import type {NodeGraph} from "./types/node-graph.ts";
+import {performanceNowToISO8601} from "./utils.ts";
 
-export interface Node {
-    node_id: UUID;
-    board: Board;
-    cards: Card[];
-    sensors: Sensor[];
-    reinforcer_maps: ReinforcerMap[];
-    effects: Effect[];
-}
-
-export interface NodeGraph {
-    nodes: Node[];
-    bonus_rules: BonusRule[];
-}
-
-type OnEventCallback = (event: Event) => void;
+export type OnEventCallback = (event: Event) => void;
 
 
 function generateEventId(): UUID {
@@ -115,9 +89,9 @@ export async function play(
             event_type: "NodeResultEvent",
             event_payload: {
                 node_id: node.node_id,
-                timestamp_start: nodeMeasurements.timestamp_node_started,
-                timestamp_end: nodeMeasurements.timestamp_node_completed,
                 node_execution_index: i,
+                timestamp_start: nodeMeasurements.timestamp_start,
+                timestamp_end: nodeMeasurements.timestamp_end,
                 action: nodeMeasurements.action,
                 runtime_metrics: nodeMeasurements.runtime_metrics,
             }

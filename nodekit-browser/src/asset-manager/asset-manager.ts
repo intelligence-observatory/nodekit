@@ -1,8 +1,7 @@
 import type {ImageLink, VideoLink} from "../types/assets/link.ts";
 
 
-/** * AssetManager is responsible for managing assets in the Node Engine.
- * It provides methods to retrieve asset URLs, cache assets, and preload assets.
+/** * AssetManager provides methods to retrieve asset URLs, cache assets, and preload assets.
  */
 export class AssetManager {
     async loadImageAsset(imageLink: ImageLink): Promise<HTMLImageElement> {

@@ -1,10 +1,10 @@
-declare type Action = ClickAction | DoneAction | TimeoutAction | KeyPressAction;
+declare type Action = ClickAction | DoneAction | TimeoutAction | KeyPressAction | KeyHoldsAction;
 
 declare interface BaseAction<T> {
     sensor_id: SensorId;
     action_type: string;
     action_value: T;
-    reaction_time_msec: TimePointMsec;
+    timestamp_action: ISO8601_2;
 }
 
 declare interface BaseAssetLink<MT = string> {
@@ -147,6 +147,32 @@ declare type ISO8601 = string & {
     __brand: 'ISO8601';
 };
 
+declare type ISO8601_2 = string & {
+    __brand: 'ISO8601';
+};
+
+declare interface KeyHold {
+    key: PressableKey;
+    timestamp_start: ISO8601_2 | null;
+    timestamp_end: ISO8601_2 | null;
+}
+
+declare interface KeyHoldsAction extends BaseAction<KeyHoldsActionValue> {
+    action_type: "KeyHoldsAction";
+}
+
+declare interface KeyHoldsActionValue {
+    key_holds: KeyHold[];
+}
+
+declare interface KeyHoldsSensor extends BaseSensor<'KeyHoldsSensor', KeyHoldsSensorParameters> {
+    card_id: null;
+}
+
+declare interface KeyHoldsSensorParameters {
+    keys: Set<PressableKey>;
+}
+
 declare interface KeyPressAction extends BaseAction<KeyPressActionValue> {
     action_type: "KeyPressAction";
 }
@@ -181,22 +207,25 @@ declare type MonetaryAmountUsd = string & {
 };
 
 declare interface Node_2 {
-    node_id: UUID;
+    node_id: NodeId;
     board: Board;
     cards: Card[];
     sensors: Sensor[];
     reinforcer_maps: ReinforcerMap[];
     effects: Effect[];
 }
-export { Node_2 as Node }
 
-export declare interface NodeGraph {
+declare interface NodeGraph {
     nodes: Node_2[];
     bonus_rules: BonusRule[];
 }
 
+declare type NodeId = string & {
+    __brand: 'NodeId';
+};
+
 declare type NodeResult = {
-    node_id: UUID;
+    node_id: NodeId;
     timestamp_start: ISO8601;
     timestamp_end: ISO8601;
     node_execution_index: number;
@@ -215,7 +244,7 @@ declare interface NullReinforcerMap extends BaseReinforcerMap<'NullReinforcerMap
 declare interface NullValue {
 }
 
-declare type OnEventCallback = (event: Event_2) => void;
+export declare type OnEventCallback = (event: Event_2) => void;
 
 declare interface PixelArea {
     width_px: number;
@@ -241,7 +270,7 @@ declare interface RuntimeMetrics {
     user_agent: string;
 }
 
-declare type Sensor = TimeoutSensor | DoneSensor | ClickSensor | KeyPressSensor;
+declare type Sensor = TimeoutSensor | DoneSensor | ClickSensor | KeyPressSensor | KeyHoldsSensor;
 
 declare type SensorId = string & {
     __brand: 'SensorId';
@@ -307,7 +336,6 @@ declare interface VideoCard extends BaseCard<'VideoCard', VideoCardParameters> {
 
 declare interface VideoCardParameters {
     video_link: VideoLink;
-    play_audio: boolean;
 }
 
 declare interface VideoLink extends BaseAssetLink<"video/mp4"> {
