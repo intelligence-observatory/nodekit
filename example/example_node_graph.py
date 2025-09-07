@@ -1,8 +1,6 @@
 import nodekit as nk
 import random
-from pathlib import Path
 
-import nodekit._internal.types.common
 
 # %% Assemble a simple NodeGraph:
 nodes = []
@@ -16,21 +14,21 @@ def make_keypress_node(
     assert len(key_to_press) == 1
     text_card = nk.cards.TextCard(
         card_parameters=nk.cards.TextCard.Parameters(
-            content=nodekit._internal.types.common.TextContent(
+            content=nk.common.TextContent(
                 text=f'Press the "{key_to_press}" key to continue.',
                 justification_horizontal='center',
                 justification_vertical='center'
             )
         ),
-        card_shape=nodekit._internal.types.common.BoardRectangle(
+        card_shape=nk.common.BoardRectangle(
             width=0.5,
             height=0.2,
         ),
-        card_location=nodekit._internal.types.common.BoardLocation(
+        card_location=nk.common.BoardLocation(
             x=0,
             y=0
         ),
-        card_timespan=nodekit._internal.types.common.Timespan(
+        card_timespan=nk.common.Timespan(
             start_time_msec=0,
         ),
     )
@@ -39,7 +37,7 @@ def make_keypress_node(
         sensor_parameters=nk.sensors.KeyPressSensor.KeyPressSensorParameters(
             keys={key_to_press},
         ),
-        sensor_timespan=nodekit._internal.types.common.Timespan(
+        sensor_timespan=nk.common.Timespan(
             start_time_msec=0,
         )
     )
@@ -59,15 +57,15 @@ def make_basic_fixation_node(
     """
 
     fixation_card = nk.cards.FixationPointCard(
-        card_shape=nodekit._internal.types.common.BoardRectangle(
+        card_shape=nk.common.BoardRectangle(
             width=0.05,
             height=0.05,
         ),
-        card_location=nodekit._internal.types.common.BoardLocation(
+        card_location=nk.common.BoardLocation(
             x=fixation_x,
             y=fixation_y
         ),
-        card_timespan=nodekit._internal.types.common.Timespan(
+        card_timespan=nk.common.Timespan(
             start_time_msec=0,
         ),
     )
@@ -117,10 +115,3 @@ node_graph = nk.NodeGraph(
     max_duration_sec=600,
     base_payment_usd='0.01',
 )
-
-# %%
-string = nk.browser.to_html(
-    node_graph=node_graph,
-)
-
-Path('test.html').write_text(string)

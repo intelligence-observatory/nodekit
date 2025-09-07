@@ -3,6 +3,10 @@ __all__ = [
     'Board',
     'RuntimeMetrics',
     'PixelArea',
+    'TextContent',
+    'BoardRectangle',
+    'BoardLocation',
+    'Timespan',
 ]
 
 from nodekit._internal.types.common import TextContent, BoardRectangle, BoardLocation, Timespan

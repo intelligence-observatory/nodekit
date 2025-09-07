@@ -2,7 +2,7 @@ import type {Node} from "../types/node-graph.ts";
 import type {Action} from "../types/actions/";
 import type {RuntimeMetrics} from "../types/events/runtime-metrics.ts";
 import {BoardView} from "../board-view/board-view.ts";
-import {evaluateReinforcerMap, makeNullReinforcer} from "../rule-engines/evaluate-reinforcer-map.ts";
+import {evaluateReinforcerMap, makeNullReinforcer} from "../ops/evaluate-reinforcer-map.ts";
 import {EventScheduler} from "./event-scheduler.ts";
 import {type EffectBinding, HideCursorEffectBinding} from "../board-view/effect-bindings/effect-bindings.ts";
 

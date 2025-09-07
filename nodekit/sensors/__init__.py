@@ -6,7 +6,7 @@ __all__ = [
     'KeyHoldsSensor',
 ]
 
-from nodekit._internal.types.sensors import (
+from nodekit._internal.types.sensors.sensors import (
     TimeoutSensor,
     DoneSensor,
     ClickSensor,

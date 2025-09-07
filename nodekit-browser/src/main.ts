@@ -1,7 +1,7 @@
 import {NodePlayer} from "./node-player/node-player.ts";
 import type {EndEvent, Event, LeaveEvent, NodeResultEvent, ReturnEvent, StartEvent, UUID} from "./types/events";
 import {type ISO8601, type MonetaryAmountUsd} from "./types/common.ts";
-import {computeBonusUsd} from "./rule-engines/calculate-bonus.ts";
+import {computeBonusUsd} from "./ops/calculate-bonus.ts";
 import type {NodeGraph} from "./types/node-graph.ts";
 import {performanceNowToISO8601} from "./utils.ts";
 
