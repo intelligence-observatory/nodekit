@@ -1,10 +1,10 @@
 __all__ = [
-    'html',
-    'CompileHtmlOptions',
+    'to_html',
+    'load_assets',
 ]
 
 from nodekit._internal.compilers.html_rendering import (
-    html,
-    CompileHtmlOptions,
+    to_html,
+    load_assets,
 )
 

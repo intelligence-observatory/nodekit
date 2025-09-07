@@ -3,8 +3,11 @@ from typing import Any
 
 import pydantic
 
+from nodekit._internal.models.fields import (
+    DatetimeUTC
+)
 from nodekit._internal.models.node_engine.base import DslModel
-from nodekit._internal.models.node_engine.fields import TimePointMsec, SensorId
+from nodekit._internal.models.node_engine.fields import SensorId
 
 
 class BaseAction(DslModel, ABC):
@@ -13,6 +16,6 @@ class BaseAction(DslModel, ABC):
     )
     action_type: str
     action_value: Any
-    reaction_time_msec: TimePointMsec = pydantic.Field(
-        description='Measured from the onset of the earliest possible time the Action could be emitted.'
+    timestamp_action: DatetimeUTC = pydantic.Field(
+        description='The timestamp when the Sensor for this Action was triggered.'
     )

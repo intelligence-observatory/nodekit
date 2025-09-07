@@ -1,8 +1,8 @@
-import type {SensorId, TimePointMsec} from "../../fields.ts";
+import type {ISO8601, SensorId} from "../../fields.ts";
 
 export interface BaseAction<T>{
     sensor_id: SensorId
     action_type: string
     action_value: T
-    reaction_time_msec: TimePointMsec // Msec elapsed relative to the start of the Sensor arming
+    timestamp_action: ISO8601 // Fully-qualified timestamp when the Sensor was triggered
 }

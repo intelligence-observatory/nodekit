@@ -21,8 +21,8 @@ __all__ = [
     # Types:
     'types',
 
-    # Runtime API:
-    'compile',
+    # Runtime APIs:
+    'browser',
 ]
 
 # Incoming models:
@@ -40,7 +40,7 @@ import nodekit.sensors as sensors
 import nodekit.actions as actions
 import nodekit.bonus_rules as bonus_rules
 import nodekit.types as types
-import nodekit.compile as compile
+import nodekit.browser as browser
 import nodekit.events as events
 
 VERSION = '0.0.1a2'
