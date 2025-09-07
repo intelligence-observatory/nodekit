@@ -1,9 +1,9 @@
 import type {Action, ClickAction, DoneAction, KeyPressAction} from "../../types/sensors/actions/actions.ts";
-import type {SensorId, TimePointMsec} from "../../types/fields.ts";
+import type {PressableKey} from "../../types/fields.ts";
+import {performanceNowToISO8601, type SensorId} from "../../types/fields.ts";
 import type {BoardView} from "../board-view.ts";
 import type {ClickableCardView, DoneableCardView} from "../card-views/card-view.ts";
 import {CardView} from "../card-views/card-view.ts";
-import type {PressableKey} from "../../types/fields.ts";
 
 // Generic contract:
 export interface SensorBinding {
@@ -34,9 +34,6 @@ export class ClickSensorBinding implements SensorBinding {
                 if (!this.tArmed) {
                     return;
                 }
-                // Get timing
-                const reactionTimeMsec = Math.round(performance.now() - this.tArmed);
-
                 // Get the click coordinates in board units (center is 0, 0; extends -0.5 to 0.5)
                 const boardRect = boardView.root.getBoundingClientRect();
                 const clickX = (e.clientX - boardRect.left) / boardRect.width - 0.5;
@@ -50,7 +47,7 @@ export class ClickSensorBinding implements SensorBinding {
                         click_x: clickX,
                         click_y: clickY,
                     },
-                    reaction_time_msec: reactionTimeMsec as TimePointMsec
+                    timestamp_action: performanceNowToISO8601(performance.now())
                 };
                 // Call the onSensorFired callback with the action
                 onSensorFired(action);
@@ -89,13 +86,12 @@ export class DoneSensorBinding implements SensorBinding {
                 if (!this.tArmed) {
                     return;
                 }
-                const reactionTimeMsec = Math.round(performance.now() - this.tArmed);
                 // Create the action to be fired
                 const action: DoneAction = {
                     sensor_id: sensorId,
                     action_type: "DoneAction",
                     action_value: {},
-                    reaction_time_msec: reactionTimeMsec as TimePointMsec
+                    timestamp_action: performanceNowToISO8601(performance.now())
                 };
                 // Call the onSensorFired callback with the action
                 onSensorFired(action);
@@ -133,16 +129,14 @@ export class TimeoutSensorBinding implements SensorBinding {
 
     arm(): void {
         // Start the timer
-        const startTime = performance.now();
         this.timeoutId = window.setTimeout(
             () => {
-                const reactionTimeMsec = Math.round(performance.now() - startTime);
                 // Create the action to be fired
                 const action: Action = {
                     sensor_id: this.sensorId,
                     action_type: "TimeoutAction",
                     action_value: {},
-                    reaction_time_msec: reactionTimeMsec as TimePointMsec
+                    timestamp_action: performanceNowToISO8601(performance.now())
                 };
                 // Call the onSensorFired callback with the action
                 this.onSensorFired(action);
@@ -202,7 +196,6 @@ export class KeyPressSensorBinding implements SensorBinding {
             return
         }
 
-        const reactionTimeMsec = Math.round(performance.now() - this.tArmed) as TimePointMsec;
         // Create the action to be fired:
         const action: KeyPressAction = {
             sensor_id: this.sensorId,
@@ -210,7 +203,7 @@ export class KeyPressSensorBinding implements SensorBinding {
             action_value: {
                 key: key
             },
-            reaction_time_msec: reactionTimeMsec as TimePointMsec
+            timestamp_action: performanceNowToISO8601(performance.now())
         };
 
         // Disarm the sensor after a key press:

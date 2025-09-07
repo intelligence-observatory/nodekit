@@ -9,7 +9,7 @@ import type {
     UUID
 } from "./events.ts";
 import type {BonusRule} from "./types/bonus_rules/bonus_policy.ts";
-import type {ISO8601, MonetaryAmountUsd} from "./types/fields.ts";
+import {type ISO8601, type MonetaryAmountUsd, performanceNowToISO8601} from "./types/fields.ts";
 import {computeBonusUsd} from "./bonus-engine.ts";
 import type {Board} from "./types/board.ts";
 import type {Card} from "./types/cards/cards.ts";
@@ -39,7 +39,7 @@ function generateEventId(): UUID {
 }
 
 function getCurrentTimestamp(): ISO8601 {
-    return new Date().toISOString() as ISO8601;
+    return performanceNowToISO8601(performance.now())
 }
 
 export async function play(
@@ -57,8 +57,7 @@ export async function play(
 
     // If no onEventCallback is provided, use a no-op function:
     if (!onEventCallback) {
-        onEventCallback = (_event: Event) => {
-        };
+        onEventCallback = (_event: Event) => {};
     }
 
     // Add a listener for the LeaveEvent:
@@ -87,6 +86,7 @@ export async function play(
 
     document.addEventListener("visibilitychange", onVisibilityChange)
 
+    // Todo: always have a "start" button to gain focus and ensure the user is ready; emit the StartEvent after that.
     // Generate the StartEvent
     const startEvent: StartEvent = {
         event_id: generateEventId(),
@@ -136,11 +136,9 @@ export async function play(
     if (bonusComputed > 0) {
         bonusMessage = `Bonus: ${bonusComputed} USD (pending validation)`;
     }
-    await nodePlayer.playEndScreen(
-        bonusMessage,
-    )
+    await nodePlayer.playEndScreen(bonusMessage)
 
-    // Emit the BonusDisclosureEvent:
+    // Emit the BonusDisclosureEvent (if applicable):
     if (bonusMessage !== '') {
         const bonusDisclosureEvent: Event = {
             event_id: generateEventId(),
