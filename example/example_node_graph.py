@@ -11,7 +11,6 @@ nodes = []
 def make_keypress_node(
         key_to_press: str,
 ):
-
     assert len(key_to_press) == 1
     text_card = nk.cards.TextCard(
         card_parameters=nk.cards.TextCard.Parameters(
@@ -46,6 +45,7 @@ def make_keypress_node(
         cards=[text_card],
         sensors=[sensor],
     )
+
 
 def make_basic_fixation_node(
         fixation_x: float,
@@ -100,7 +100,6 @@ for _ in range(2):
     )
 
     bonus_rules.append(bonus_rule)
-
 
 nodes.append(
     make_keypress_node('a')
