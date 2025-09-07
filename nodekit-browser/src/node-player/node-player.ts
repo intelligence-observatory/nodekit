@@ -1,12 +1,12 @@
-import type {Node} from "./types/node-graph.ts";
+import type {Node} from "../types/node-graph.ts";
 
-import type {PlayNodeResult} from "./node-player/node-play.ts";
-import {DeviceGate} from "./user-gates/device-gate.ts";
-import {buildUIs} from "./ui/ui-builder.ts";
-import type {ShellUI} from "./ui/shell-ui/shell-ui.ts";
-import type {BoardViewsUI} from "./ui/board-views-ui/board-views-ui.ts";
-import {NodePlay} from "./node-player/node-play.ts";
-import {type NodePlayId} from "./types/common.ts";
+import type {PlayNodeResult} from "./node-play.ts";
+import {DeviceGate} from "../user-gates/device-gate.ts";
+import {buildUIs} from "../ui/ui-builder.ts";
+import type {ShellUI} from "../ui/shell-ui/shell-ui.ts";
+import type {BoardViewsUI} from "../ui/board-views-ui/board-views-ui.ts";
+import {NodePlay} from "./node-play.ts";
+import {type NodePlayId} from "../types/common.ts";
 
 
 export class NodePlayer {
