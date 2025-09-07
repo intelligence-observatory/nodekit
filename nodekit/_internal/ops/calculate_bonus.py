@@ -6,7 +6,7 @@ from nodekit._internal.types.node_graph import NodeResult
 
 
 # %% BonusPolicy Rule Engine
-def compute_bonus(
+def compute_bonus_usd(
         bonus_rules: List[BonusRule],
         node_results: List[NodeResult]
 ) -> Decimal:

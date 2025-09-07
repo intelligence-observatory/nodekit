@@ -1,14 +1,14 @@
-# This module exposes the public API for the psykit package.
+VERSION = '0.0.1a2'
 
 __all__ = [
     'VERSION',
 
-    # Top-level models:
+    # Top-level types:
     'NodeGraph',
     'Node',
     'NodeResult',
 
-    # Namespaced models:
+    # Namespaced types:
     'actions',
     'assets',
     'cards',
@@ -18,6 +18,16 @@ __all__ = [
     'bonus_rules',
     'events',
     'common',
+
+    # Operations namespace:
+    'ops',
+
+    # Local Play API: (future)
+    #'play',
+    #'list_events',
+
+    # Static resource getters:
+    'get_browser_bundle',
 ]
 
 # Incoming models:
@@ -36,5 +46,9 @@ import nodekit.actions as actions
 import nodekit.bonus_rules as bonus_rules
 import nodekit.common as common
 import nodekit.events as events
+import nodekit.ops as ops
 
-VERSION = '0.0.1a2'
+# Local Play API
+
+# Static resources:
+from nodekit._internal.compilers.html_rendering import get_browser_bundle as get_browser_bundle
