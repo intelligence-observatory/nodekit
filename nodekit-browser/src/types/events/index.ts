@@ -1,13 +1,14 @@
+import type {NodeId} from "../node-graph.ts";
 export type ISO8601 = string & { __brand: 'ISO8601' };
 export type UUID = string & { __brand: 'UUID' };
 
-import type {MonetaryAmountUsd} from "./types/fields.ts";
-import type {Action} from "./types/sensors/actions/actions.ts";
-import type {RuntimeMetrics} from "./types/runtime-metrics.ts";
+import type {MonetaryAmountUsd} from "../common.ts";
+import type {Action} from "../actions";
+import type {RuntimeMetrics} from "./runtime-metrics.ts";
 
 // NodeResult:
 export type NodeResult = {
-    node_id: UUID,
+    node_id: NodeId,
     timestamp_start: ISO8601,
     timestamp_end: ISO8601,
     node_execution_index: number, // 0 for first execution, 1 for second, etc.

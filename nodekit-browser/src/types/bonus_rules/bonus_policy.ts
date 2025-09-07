@@ -2,7 +2,7 @@ interface BaseBonusRule<T extends string, P>{
     bonus_rule_type: T;
     bonus_rule_parameters: P;
 }
-import type {SensorId, MonetaryAmountUsd} from "../fields.ts";
+import type {SensorId, MonetaryAmountUsd} from "../common.ts";
 
 
 interface ConstantBonusRuleParameters {

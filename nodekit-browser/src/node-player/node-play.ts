@@ -1,16 +1,25 @@
-import type {NodeMeasurements, NodeParameters} from "../types/models.ts";
-import type {Action} from "../types/sensors/actions/actions.ts";
-import type {Reinforcer} from "../types/reinforcer-maps/reinforcers/reinforcers.ts";
-import type {RuntimeMetrics} from "../types/runtime-metrics.ts";
+import type {Node} from "../types/node-graph.ts";
+import type {Action} from "../types/actions/";
+import type {RuntimeMetrics} from "../types/events/runtime-metrics.ts";
 import {BoardView} from "../board-view/board-view.ts";
-import {evaluateReinforcerMap, makeNullReinforcer} from "../types/reinforcer-maps/evaluate.ts";
+import {evaluateReinforcerMap, makeNullReinforcer} from "../rule-engines/reinforcer-map-engine.ts";
 import {EventScheduler} from "./event-scheduler.ts";
 import {type EffectBinding, HideCursorEffectBinding} from "../board-view/effect-bindings/effect-bindings.ts";
-import {performanceNowToISO8601} from "../types/fields.ts";
+
+import {performanceNowToISO8601} from "../utils.ts";
+import type {ISO8601} from "../types/common.ts";
+import type {Reinforcer} from "../types/reinforcer-maps/reinforcer-maps.ts";
+
+export interface PlayNodeResult {
+    timestamp_start: ISO8601;
+    timestamp_end: ISO8601;
+    action: Action;
+    runtime_metrics: RuntimeMetrics;
+}
 
 export class NodePlay {
     public boardView: BoardView
-    public nodeParameters: NodeParameters;
+    public node: Node;
     private prepared: boolean = false;
     private started: boolean = false;
     private terminated: boolean = false;
@@ -23,11 +32,11 @@ export class NodePlay {
     private resolvePlay!: (result: [Action, Reinforcer]) => void;
 
     constructor(
-        nodeParameters: NodeParameters,
+        node: Node,
         boardView: BoardView,
     ) {
         this.boardView = boardView;
-        this.nodeParameters = nodeParameters;
+        this.node = node;
         this.scheduler = new EventScheduler(this.abortController.signal);
     }
 
@@ -36,14 +45,14 @@ export class NodePlay {
 
         // Instantiate Cards:
         let setupPromises: Promise<void>[] = [];
-        for (const card of this.nodeParameters.cards) {
+        for (const card of this.node.cards) {
             // Place Card onto Board:
             setupPromises.push(this.boardView.placeCardHidden(card));
         }
         await Promise.all(setupPromises);
 
         // Schedule Card events:
-        for (const card of this.nodeParameters.cards) {
+        for (const card of this.node.cards) {
             // Schedule CardView display event:
             this.scheduler.scheduleEvent(
                 {
@@ -64,7 +73,7 @@ export class NodePlay {
         }
 
         // Then, mount and schedule Sensors:
-        for (const sensor of this.nodeParameters.sensors) {
+        for (const sensor of this.node.sensors) {
             // First, mount an unarmed sensor now:
             this.boardView.placeSensorUnarmed(
                 sensor,
@@ -91,7 +100,7 @@ export class NodePlay {
         }
 
         // Schedule any effects:
-        for (const effect of this.nodeParameters.effects){
+        for (const effect of this.node.effects){
             // Initialize the Effect binding
             // There is only one EffectBinding type for now, so just instantiate it directly:
             const effectBinding: EffectBinding = new HideCursorEffectBinding(this.boardView)
@@ -122,7 +131,7 @@ export class NodePlay {
         this.prepared = true;
     }
 
-    async run(): Promise<NodeMeasurements> {
+    async run(): Promise<PlayNodeResult> {
         // Run the NodePlay, returning a Promise which resolves when a Sensor fires and the corresponding Reinforcer has completed.
         if (!this.prepared) {
             // Prepare the NodePlay
@@ -153,8 +162,8 @@ export class NodePlay {
         return {
             action: action,
             runtime_metrics: this.getRuntimeMetrics(),
-            timestamp_node_started: performanceNowToISO8601(timestampStart),
-            timestamp_node_completed: performanceNowToISO8601(timestampEnd),
+            timestamp_start: performanceNowToISO8601(timestampStart),
+            timestamp_end: performanceNowToISO8601(timestampEnd),
         }
     }
 
@@ -238,7 +247,7 @@ export class NodePlay {
         const originatingSensorId = action.sensor_id;
 
         // Try to find the first matching reinforcer map:
-        for (const reinforcerMap of this.nodeParameters.reinforcer_maps) {
+        for (const reinforcerMap of this.node.reinforcer_maps) {
             if (reinforcerMap.sensor_id === originatingSensorId) {
                 return evaluateReinforcerMap(reinforcerMap, action)
             }

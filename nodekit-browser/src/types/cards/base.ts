@@ -1,4 +1,4 @@
-import type {BoardLocation, BoardRectangle, CardId, Timespan} from "../fields.ts";
+import type {BoardLocation, BoardRectangle, CardId, Timespan} from "../common.ts";
 
 export interface BaseCard<T extends string, P> {
     card_id: CardId

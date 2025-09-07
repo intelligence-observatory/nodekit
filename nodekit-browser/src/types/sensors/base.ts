@@ -1,4 +1,4 @@
-import type {Timespan, SensorId, CardId} from "../fields.ts";
+import type {Timespan, SensorId, CardId} from "../common.ts";
 
 export interface BaseSensor<T extends string, P> {
     sensor_id: SensorId

@@ -1,5 +1,4 @@
-import type {Timespan} from "../fields.ts";
-import type {NullParameters} from "../base.ts";
+import type {NullParameters, Timespan} from "../common.ts";
 
 export interface BaseEffect<T extends string, P>{
     effect_type: T;

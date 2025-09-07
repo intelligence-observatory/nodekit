@@ -1,6 +1,5 @@
-import type {ReinforcerMap} from "./reinforcer-maps.ts";
-import type {Action} from "../sensors/actions/actions.ts";
-import type {Reinforcer} from "./reinforcers/reinforcers.ts";
+import type {Reinforcer, ReinforcerMap} from "../types/reinforcer-maps/reinforcer-maps.ts";
+import type {Action} from "../types/actions";
 
 export function evaluateReinforcerMap(reinforcerMap: ReinforcerMap, _action:Action): Reinforcer {
 

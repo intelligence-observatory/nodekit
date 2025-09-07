@@ -41,15 +41,10 @@ export interface Timespan {
 }
 
 
-/*
-Utility functions:
- */
-export function performanceNowToISO8601(
-    performanceNowMsec: DOMHighResTimeStamp // as returned by performance.now()
-): ISO8601 {
-    const timestampMsec = performance.timeOrigin + performanceNowMsec;
-    return new Date(timestampMsec).toISOString() as ISO8601;
+export type PressableKey = "Enter" | " " | "ArrowDown" | "ArrowLeft" | "ArrowRight" | "ArrowUp" | "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z" | "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
+
+export interface NullParameters {
 }
 
-
-export type PressableKey = "Enter" | " " | "ArrowDown" | "ArrowLeft" | "ArrowRight" | "ArrowUp" | "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z" | "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
+export interface NullValue {
+}

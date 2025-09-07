@@ -1,6 +1,5 @@
 import type {BaseCard} from "./base.ts";
-import type {NullParameters} from "../base.ts";
-import type {ColorHexString, TextContent} from "../fields.ts";
+import type {ColorHexString, NullParameters, TextContent} from "../common.ts";
 import type {ImageLink, VideoLink} from "../assets/link.ts";
 
 // FixationPointCard

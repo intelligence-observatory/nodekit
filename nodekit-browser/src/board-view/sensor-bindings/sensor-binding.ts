@@ -1,11 +1,11 @@
-import type {Action, ClickAction, DoneAction, KeyPressAction} from "../../types/sensors/actions/actions.ts";
-import type {PressableKey} from "../../types/fields.ts";
-import {performanceNowToISO8601, type SensorId} from "../../types/fields.ts";
+import type {Action, ClickAction, DoneAction, KeyHold, KeyHoldsAction, KeyPressAction} from "../../types/actions";
+import type {PressableKey} from "../../types/common.ts";
+import {type SensorId} from "../../types/common.ts";
 import type {BoardView} from "../board-view.ts";
 import type {ClickableCardView, DoneableCardView} from "../card-views/card-view.ts";
 import {CardView} from "../card-views/card-view.ts";
-import type {KeyHoldsAction} from "../../types/sensors/actions/actions.ts";
-import type {KeyHold} from "../../types/sensors/actions/actions.ts";
+
+import {performanceNowToISO8601} from "../../utils.ts";
 
 // Generic contract:
 export interface SensorBinding {

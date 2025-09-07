@@ -1,11 +1,12 @@
+import type {Node} from "./types/node-graph.ts";
 
-import type {NodeMeasurements, NodeParameters} from "./types/models.ts";
+import type {PlayNodeResult} from "./node-player/node-play.ts";
 import {DeviceGate} from "./user-gates/device-gate.ts";
 import {buildUIs} from "./ui/ui-builder.ts";
 import type {ShellUI} from "./ui/shell-ui/shell-ui.ts";
 import type {BoardViewsUI} from "./ui/board-views-ui/board-views-ui.ts";
 import {NodePlay} from "./node-player/node-play.ts";
-import {type NodePlayId} from "./types/fields.ts";
+import {type NodePlayId} from "./types/common.ts";
 
 
 export class NodePlayer {
@@ -30,7 +31,7 @@ export class NodePlayer {
         }
     }
 
-    async prepare(nodeParameters: NodeParameters): Promise<NodePlayId> {
+    async prepare(node: Node): Promise<NodePlayId> {
         /*
         Prepares a NodePlay instance and returns its ID.
          */
@@ -38,9 +39,9 @@ export class NodePlayer {
         try{
             // Create a new BoardView on which the NodePlay will be rendered::
             const nodePlayId: NodePlayId = crypto.randomUUID() as NodePlayId;
-            const boardView = this.boardViewsUI.createBoardView(nodePlayId, nodeParameters.board);
+            const boardView = this.boardViewsUI.createBoardView(nodePlayId, node.board);
             const nodePlay = new NodePlay(
-                nodeParameters,
+                node,
                 boardView,
             )
             await nodePlay.prepare()
@@ -57,7 +58,7 @@ export class NodePlayer {
         }
     }
 
-    async play(nodePlayId: NodePlayId): Promise<NodeMeasurements>{
+    async play(nodePlayId: NodePlayId): Promise<PlayNodeResult>{
         /*
         Executes the NodePlay instance with the given ID.
         Returns a NodeMeasurements upon completion.

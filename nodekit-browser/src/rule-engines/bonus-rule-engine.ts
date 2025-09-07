@@ -1,6 +1,6 @@
-import type {Event, NodeResult} from "./events.ts";
-import type {BonusRule} from "./types/bonus_rules/bonus_policy.ts";
-import type {Action} from "./types/sensors/actions/actions.ts";
+import type {Event} from "../types/events";
+import type {BonusRule} from "../types/bonus_rules/bonus_policy.ts";
+import type {Action} from "../types/actions";
 
 export function computeBonusUsd(
     events: Event[],
@@ -18,7 +18,7 @@ export function computeBonusUsd(
         if (eventCur.event_type !== 'NodeResultEvent') {
             continue;
         }
-        const nodeResult: NodeResult = eventCur.event_payload;
+        const nodeResult = eventCur.event_payload;
         const action: Action = nodeResult.action;
 
         // Run bonus rule engine on this NodeResult:
