@@ -53,6 +53,7 @@ export async function play(
 
     let events: Event[] = previousEvents;
 
+    // Todo: always have a "start" button to gain focus and ensure the user is ready; emit the StartEvent after that.
     // Todo: the previousEvents can be processed to obtain the current state of the task. Otherwise, we always start from scratch.
 
     // If no onEventCallback is provided, use a no-op function:
