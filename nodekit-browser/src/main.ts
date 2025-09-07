@@ -53,13 +53,11 @@ export async function play(
 
     let events: Event[] = previousEvents;
 
-    // Todo: always have a "start" button to gain focus and ensure the user is ready; emit the StartEvent after that.
     // Todo: the previousEvents can be processed to obtain the current state of the task. Otherwise, we always start from scratch.
 
     // If no onEventCallback is provided, use a no-op function:
     if (!onEventCallback) {
-        onEventCallback = (_event: Event) => {
-        };
+        onEventCallback = (_event: Event) => {};
     }
 
     // Add a listener for the LeaveEvent:
@@ -88,6 +86,7 @@ export async function play(
 
     document.addEventListener("visibilitychange", onVisibilityChange)
 
+    // Todo: always have a "start" button to gain focus and ensure the user is ready; emit the StartEvent after that.
     // Generate the StartEvent
     const startEvent: StartEvent = {
         event_id: generateEventId(),
@@ -137,11 +136,9 @@ export async function play(
     if (bonusComputed > 0) {
         bonusMessage = `Bonus: ${bonusComputed} USD (pending validation)`;
     }
-    await nodePlayer.playEndScreen(
-        bonusMessage,
-    )
+    await nodePlayer.playEndScreen(bonusMessage)
 
-    // Emit the BonusDisclosureEvent:
+    // Emit the BonusDisclosureEvent (if applicable):
     if (bonusMessage !== '') {
         const bonusDisclosureEvent: Event = {
             event_id: generateEventId(),
