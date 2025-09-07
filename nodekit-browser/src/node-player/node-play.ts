@@ -6,13 +6,13 @@ import {BoardView} from "../board-view/board-view.ts";
 import {evaluateReinforcerMap, makeNullReinforcer} from "../types/reinforcer-maps/evaluate.ts";
 import {EventScheduler} from "./event-scheduler.ts";
 import {type EffectBinding, HideCursorEffectBinding} from "../board-view/effect-bindings/effect-bindings.ts";
-import {dateToISO8601} from "../types/fields.ts";
+import {performanceNowToISO8601} from "../types/fields.ts";
 
 export class NodePlay {
     public boardView: BoardView
     public nodeParameters: NodeParameters;
-    private startTime: number = 0;
     private prepared: boolean = false;
+    private started: boolean = false;
     private terminated: boolean = false;
 
     // Event scheduler:
@@ -33,7 +33,6 @@ export class NodePlay {
 
     public async prepare() {
         // Prepare the NodePlay by setting up the BoardView, Cards, Sensors, and scheduling their events.
-        this.boardView.reset();
 
         // Instantiate Cards:
         let setupPromises: Promise<void>[] = [];
@@ -130,14 +129,11 @@ export class NodePlay {
             await this.prepare();
         }
 
-        if (this.startTime > 0) {
+        if (this.started) {
             throw new Error('NodePlay already started');
         }
 
-        this.startTime = Math.max(0, performance.now());
-
-        // Activate the board UI:
-        this.boardView.setState(true, true)
+        this.started = true;
 
         // Create Promise to capture Sensor and Reinforcer events:
         const donePromise = new Promise(
@@ -145,23 +141,20 @@ export class NodePlay {
         );
 
         // Kick off scheduler:
-        const timestampStarted = new Date();
+        const timestampStart = performance.now();
         this.scheduler.start()
         const result = await donePromise;
+        const timestampEnd = performance.now();
 
         // Package result:
-        const timestampCompleted = new Date();
         const [action, _reinforcer] = result;
-
-        // Reset the board
-        this.boardView.reset();
 
         // Package return
         return {
             action: action,
             runtime_metrics: this.getRuntimeMetrics(),
-            timestamp_node_started: dateToISO8601(timestampStarted),
-            timestamp_node_completed: dateToISO8601(timestampCompleted),
+            timestamp_node_started: performanceNowToISO8601(timestampStart),
+            timestamp_node_completed: performanceNowToISO8601(timestampEnd),
         }
     }
 

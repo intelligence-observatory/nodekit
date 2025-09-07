@@ -44,6 +44,13 @@ export interface Timespan {
 /*
 Utility functions:
  */
+export function performanceNowToISO8601(
+    performanceNowMsec: DOMHighResTimeStamp // as returned by performance.now()
+): ISO8601 {
+    const timestampMsec = performance.timeOrigin + performanceNowMsec;
+    return new Date(timestampMsec).toISOString() as ISO8601;
+}
+
 export function dateToISO8601(date: Date): ISO8601 {
     /**
      * Converts a native JS Date into an ISO8601-compliant string (e.g. "2024-05-27T17:52:00.123Z").
