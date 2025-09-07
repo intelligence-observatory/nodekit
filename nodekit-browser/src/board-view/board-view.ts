@@ -12,6 +12,7 @@ import {
     assertDoneable,
     ClickSensorBinding,
     DoneSensorBinding,
+    KeyHoldSensorBinding,
     KeyPressSensorBinding,
     type SensorBinding,
     TimeoutSensorBinding
@@ -230,6 +231,16 @@ export function placeSensorUnarmedDispatch(
         }
         else if (sensor.sensor_type === 'KeyPressSensor') {
             return new KeyPressSensorBinding(
+                sensor.sensor_id,
+                onSensorFired,
+                sensor.sensor_parameters.keys,
+            );
+        }
+        else if (sensor.sensor_type == 'KeyHoldsSensor') {
+            if (!sensor.sensor_timespan.end_time_msec) {
+                throw new Error(`${sensor.sensor_type} must have a defined end_time_msec`);
+            }
+            return new KeyHoldSensorBinding(
                 sensor.sensor_id,
                 onSensorFired,
                 sensor.sensor_parameters.keys,

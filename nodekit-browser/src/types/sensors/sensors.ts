@@ -9,7 +9,12 @@ interface TimeoutSensorParameters {
 }
 
 interface KeyPressSensorParameters {
-    // Listen to these key-down event.
+    // Listen to these key-down events:
+    keys: Set<PressableKey>;
+}
+
+interface KeyHoldsSensorParameters {
+    // Listen to these key-hold events:
     keys: Set<PressableKey>;
 }
 
@@ -29,4 +34,8 @@ export interface KeyPressSensor extends BaseSensor<'KeyPressSensor', KeyPressSen
     card_id: null;
 }
 
-export type Sensor = TimeoutSensor | DoneSensor | ClickSensor | KeyPressSensor;
+export interface KeyHoldsSensor extends BaseSensor<'KeyHoldsSensor', KeyHoldsSensorParameters> {
+    card_id: null;
+}
+
+export type Sensor = TimeoutSensor | DoneSensor | ClickSensor | KeyPressSensor | KeyHoldsSensor;

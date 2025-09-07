@@ -1,12 +1,14 @@
-from typing import Literal, Union, Annotated
+from typing import List, Literal, Union, Annotated
 
 import pydantic
 
 from nodekit._internal.models.node_engine.base import DslModel, NullValue
+from nodekit._internal.models.node_engine.fields import PressableKey
+from nodekit._internal.models.fields import DatetimeUTC
+
 from nodekit._internal.models.node_engine.sensors.actions.base import BaseAction
-from nodekit._internal.models.fields import (
-    DatetimeUTC
-)
+
+
 # %%
 
 class ClickAction(BaseAction):
@@ -36,6 +38,35 @@ class TimeoutAction(BaseAction):
     action_type: Literal['TimeoutAction'] = 'TimeoutAction'
     action_value: NullValue = pydantic.Field(default_factory=NullValue, frozen=True)
 
+# %%
+class KeyPressAction(BaseAction):
+    class Value(DslModel):
+        key: PressableKey
+
+    action_type: Literal['KeyPressAction'] = 'KeyPressAction'
+    action_value: Value
+
+
+# %%
+class KeyHold(pydantic.BaseModel):
+    key: PressableKey = pydantic.Field(
+        description="The key that was pressed."
+    )
+    timestamp_start: DatetimeUTC | None = pydantic.Field(
+        description="The timestamp when the key was pressed down. This is None if the key was already being held down at the start of the Sensor Timespan."
+    )
+    timestamp_end: DatetimeUTC | None = pydantic.Field(
+        description="The timestamp when the key was released. This is None if the key is still being held down at the end of the Sensor Timespan."
+    )
+
+
+class KeyHoldsAction(BaseAction):
+
+    class Value(DslModel):
+        key_holds: List[KeyHold]
+
+    action_type: Literal['KeyHoldsAction'] = 'KeyHoldsAction'
+    action_value: Value
 
 # %%
 Action = Annotated[
@@ -43,6 +74,8 @@ Action = Annotated[
         ClickAction,
         DoneAction,
         TimeoutAction,
+        KeyPressAction,
+        KeyHoldsAction,
         # Add other Action types here as needed
     ],
     pydantic.Field(discriminator='action_type')

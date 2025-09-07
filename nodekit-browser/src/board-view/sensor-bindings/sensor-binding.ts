@@ -4,6 +4,8 @@ import {performanceNowToISO8601, type SensorId} from "../../types/fields.ts";
 import type {BoardView} from "../board-view.ts";
 import type {ClickableCardView, DoneableCardView} from "../card-views/card-view.ts";
 import {CardView} from "../card-views/card-view.ts";
+import type {KeyHoldsAction} from "../../types/sensors/actions/actions.ts";
+import type {KeyHold} from "../../types/sensors/actions/actions.ts";
 
 // Generic contract:
 export interface SensorBinding {
@@ -210,6 +212,143 @@ export class KeyPressSensorBinding implements SensorBinding {
         this.disarm();
 
         this.onSensorFired(action);
+    }
+}
+
+// A raw keyboard event with some extra metadata.
+interface KeyEvent {
+    event: KeyboardEvent,
+    t: DOMHighResTimeStamp, // The timestamp returned by `performance.now()`.
+}
+
+export class KeyHoldSensorBinding implements SensorBinding {
+    private readonly sensorId: SensorId;
+    private readonly onSensorFired: (action: Action) => void
+    private readonly keyToKeyEvents:  Record<PressableKey, KeyEvent[]>; // Dictionary of key to KeyEvent[]
+    private tArmed: number | null = null;
+
+    constructor(
+        sensorId: SensorId,
+        onSensorFired: (action: Action) => void,
+        keys: Set<PressableKey>,
+    ) {
+        this.sensorId = sensorId;
+        this.onSensorFired = onSensorFired;
+
+        // Initialize keyToKeyEvents:
+        this.keyToKeyEvents = {} as Record<PressableKey, KeyEvent[]>;
+        keys.forEach(key => {
+            this.keyToKeyEvents[key] = [];
+        })
+
+        // These events must be added to document, and not BoardView.root because
+        // it is not guaranteed that the BoardView.root element will have focus.
+        document.addEventListener('keydown', this.onKeyboardEvent);
+        document.addEventListener('keyup', this.onKeyboardEvent);
+    }
+
+    arm() {
+        this.tArmed = performance.now();
+    }
+
+    disarm() {
+
+        // Manually remove the listeners:
+        document.removeEventListener('keydown', this.onKeyboardEvent);
+        document.removeEventListener('keyup', this.onKeyboardEvent);
+        this.tArmed = null;
+
+        // Package the Action:
+        const tEnd = performance.now();
+        let keyHolds = this.deriveKeyHolds();
+
+        let action: KeyHoldsAction = {
+            sensor_id: this.sensorId,
+            action_type: "KeyHoldsAction",
+            action_value: {
+                key_holds: keyHolds
+            },
+            timestamp_action: performanceNowToISO8601(tEnd)
+        };
+        this.onSensorFired(action);
+    }
+
+    private onKeyboardEvent = (event: KeyboardEvent)=> {
+        // Ignore the event if the sensor isn't armed yet:
+        if (!this.tArmed) {
+            return;
+        }
+
+        const key: PressableKey = event.key as PressableKey;
+        // Ignore the event if it isn't on a legal key:
+        if (!(key in this.keyToKeyEvents)) {
+            return;
+        }
+
+        // Prevent default behavior (e.g., scrolling the page with arrow keys):
+        event.preventDefault();
+
+        // If this is a repeat event and at least one event for this key is already recorded, ignore it.
+        // This correctly records the case where the first keydown event observed by the armed Sensor is a repeat event,
+        // and ignores any subsequent repeat events.
+        if (event.repeat && this.keyToKeyEvents[key].length > 0) {
+            return;
+        }
+
+        // Log the event:
+        this.keyToKeyEvents[key].push({
+            event: event,
+            t: performance.now()
+        });
+    }
+
+    private deriveKeyHolds() : KeyHold[] {
+        // Maps the raw keydown and keyup events to KeyHold objects.
+
+        const holds: KeyHold[] = [];
+
+        for (const key of Object.keys(this.keyToKeyEvents) as PressableKey[]) {
+
+            // Get time-sorted KeyEvents for this key:
+            const events = [...this.keyToKeyEvents[key]].sort((a, b) => a.t - b.t);
+
+            let downT: DOMHighResTimeStamp | null = null;
+
+            for (const { event, t } of events) {
+                if (event.type === "keydown") {
+                    // Ignore auto-repeat or duplicate downs while already down
+                    if (downT !== null) continue;
+                    // Start a new hold
+                    downT = t;
+                } else if (event.type === "keyup") {
+                    if (downT === null) {
+                        // Sensor was armed while key was already down; start_time is unknown
+                        holds.push({
+                            key,
+                            timestamp_start: null,
+                            timestamp_end: performanceNowToISO8601(t),
+                        });
+                    } else {
+                        holds.push({
+                            key,
+                            timestamp_start: performanceNowToISO8601(downT),
+                            timestamp_end: performanceNowToISO8601(t),
+                        });
+                        downT = null;
+                    }
+                }
+            }
+
+            // If still down at disarm: open-ended hold
+            if (downT !== null) {
+                holds.push({
+                    key,
+                    timestamp_start: performanceNowToISO8601(downT),
+                    timestamp_end: null,
+                });
+            }
+        }
+        return holds
     }
 }
 
