@@ -2,6 +2,8 @@ import nodekit as nk
 import random
 from pathlib import Path
 
+import nodekit._internal.types.common
+
 # %% Assemble a simple NodeGraph:
 nodes = []
 
@@ -14,21 +16,21 @@ def make_keypress_node(
     assert len(key_to_press) == 1
     text_card = nk.cards.TextCard(
         card_parameters=nk.cards.TextCard.Parameters(
-            content=nk.types.TextContent(
+            content=nodekit._internal.types.common.TextContent(
                 text=f'Press the "{key_to_press}" key to continue.',
                 justification_horizontal='center',
                 justification_vertical='center'
             )
         ),
-        card_shape=nk.types.BoardRectangle(
+        card_shape=nodekit._internal.types.common.BoardRectangle(
             width=0.5,
             height=0.2,
         ),
-        card_location=nk.types.BoardLocation(
+        card_location=nodekit._internal.types.common.BoardLocation(
             x=0,
             y=0
         ),
-        card_timespan=nk.types.Timespan(
+        card_timespan=nodekit._internal.types.common.Timespan(
             start_time_msec=0,
         ),
     )
@@ -37,7 +39,7 @@ def make_keypress_node(
         sensor_parameters=nk.sensors.KeyPressSensor.KeyPressSensorParameters(
             keys={key_to_press},
         ),
-        sensor_timespan=nk.types.Timespan(
+        sensor_timespan=nodekit._internal.types.common.Timespan(
             start_time_msec=0,
         )
     )
@@ -57,15 +59,15 @@ def make_basic_fixation_node(
     """
 
     fixation_card = nk.cards.FixationPointCard(
-        card_shape=nk.types.BoardRectangle(
+        card_shape=nodekit._internal.types.common.BoardRectangle(
             width=0.05,
             height=0.05,
         ),
-        card_location=nk.types.BoardLocation(
+        card_location=nodekit._internal.types.common.BoardLocation(
             x=fixation_x,
             y=fixation_y
         ),
-        card_timespan=nk.types.Timespan(
+        card_timespan=nodekit._internal.types.common.Timespan(
             start_time_msec=0,
         ),
     )

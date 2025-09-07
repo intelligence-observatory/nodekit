@@ -3,8 +3,8 @@ from typing import Any
 
 import pydantic
 
-from nodekit._internal.models.node_engine.base import DslModel
-from nodekit._internal.models.node_engine.fields import Timespan, SensorId, CardId
+from nodekit._internal.types.base import DslModel
+from nodekit._internal.types.common import CardId, SensorId, Timespan
 from uuid import uuid4
 
 

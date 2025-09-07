@@ -1,8 +1,8 @@
 from abc import ABC
 from typing import Any
 
-from nodekit._internal.models.node_engine.base import DslModel
-from nodekit._internal.models.node_engine.fields import SensorId
+from nodekit._internal.types.base import DslModel
+from nodekit._internal.types.common import SensorId
 
 
 class BaseReinforcerMap(DslModel, ABC):

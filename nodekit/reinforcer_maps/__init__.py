@@ -3,7 +3,7 @@ __all__ = [
     'Reinforcer',
 ]
 
-from nodekit._internal.models.node_engine.reinforcer_maps.reinforcer_maps import (
+from nodekit._internal.types.reinforcer_maps.reinforcer_maps import (
     ConstantReinforcerMap,
     Reinforcer,
 )

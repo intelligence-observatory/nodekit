@@ -1,8 +1,8 @@
 from decimal import Decimal
 from typing import List
 
-from nodekit._internal.models.node_engine.bonus_policy import BonusRule, ConstantBonusRule
-from nodekit._internal.models.node_engine.node_graph import NodeResult
+from nodekit._internal.types.bonus_policy import BonusRule, ConstantBonusRule
+from nodekit._internal.types.node_graph import NodeResult
 
 
 # %% BonusPolicy Rule Engine

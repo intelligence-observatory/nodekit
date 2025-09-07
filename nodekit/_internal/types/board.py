@@ -1,6 +1,6 @@
 import pydantic
 
-from nodekit._internal.models.node_engine.base import DslModel
+from nodekit._internal.types.base import DslModel
 
 
 # %% Board

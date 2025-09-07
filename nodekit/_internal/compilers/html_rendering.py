@@ -2,7 +2,7 @@ from pathlib import Path
 
 import jinja2
 
-from nodekit._internal.models.node_engine.node_graph import NodeGraph
+from nodekit._internal.types.node_graph import NodeGraph
 import pydantic
 import importlib.resources
 

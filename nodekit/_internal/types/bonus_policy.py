@@ -3,9 +3,8 @@ from typing import Dict, Any, Annotated, Union, List, Literal
 
 import pydantic
 
-from nodekit._internal.models.node_engine.fields import SensorId
-from nodekit._internal.models.fields import (
-    MonetaryAmountUsd,
+from nodekit._internal.types.common import (
+    MonetaryAmountUsd, SensorId,
 )
 
 

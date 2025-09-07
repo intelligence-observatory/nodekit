@@ -2,11 +2,10 @@ from typing import List, Literal, Union, Annotated
 
 import pydantic
 
-from nodekit._internal.models.node_engine.base import DslModel, NullValue
-from nodekit._internal.models.node_engine.fields import PressableKey
-from nodekit._internal.models.fields import DatetimeUTC
+from nodekit._internal.types.base import DslModel, NullValue
+from nodekit._internal.types.common import DatetimeUTC, PressableKey
 
-from nodekit._internal.models.node_engine.sensors.actions.base import BaseAction
+from nodekit._internal.types.actions.base import BaseAction
 
 
 # %%

@@ -1,5 +1,5 @@
-from nodekit._internal.models.node_engine.fields import Timespan
-from nodekit._internal.models.node_engine.base import NullParameters
+from nodekit._internal.types.common import Timespan
+from nodekit._internal.types.base import NullParameters
 from abc import ABC
 import pydantic
 from typing import TypeVar, Literal, Any, Annotated, Union

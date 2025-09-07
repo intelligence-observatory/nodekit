@@ -4,7 +4,7 @@ from typing import Self, Annotated, Union, Literal
 
 import pydantic
 
-from nodekit._internal.models.fields import SHA256, MimeType
+from nodekit._internal.types.common import SHA256, MimeType
 
 
 # %%

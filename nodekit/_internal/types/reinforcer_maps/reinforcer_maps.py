@@ -1,8 +1,8 @@
 from typing import Literal
 
-from nodekit._internal.models.node_engine.base import DslModel, NullParameters
-from nodekit._internal.models.node_engine.reinforcer_maps.base import BaseReinforcerMap
-from nodekit._internal.models.node_engine.reinforcer_maps.reinforcer.reinforcer import Reinforcer
+from nodekit._internal.types.base import DslModel, NullParameters
+from nodekit._internal.types.reinforcer_maps.base import BaseReinforcerMap
+from nodekit._internal.types.reinforcer_maps.reinforcer import Reinforcer
 
 from typing import Annotated, Union
 

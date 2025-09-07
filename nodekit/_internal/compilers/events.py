@@ -2,9 +2,9 @@ from typing import Literal, Annotated, Union
 
 import pydantic
 
-from nodekit._internal.models.fields import DatetimeUTC
-from nodekit._internal.models.node_engine.base import NullValue
-from nodekit._internal.models.node_engine.node_graph import NodeResult
+from nodekit._internal.types.common import DatetimeUTC
+from nodekit._internal.types.base import NullValue
+from nodekit._internal.types.node_graph import NodeResult
 
 from uuid import UUID
 

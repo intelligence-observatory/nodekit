@@ -7,7 +7,7 @@ __all__ = [
     "KeyHoldsAction",
 ]
 
-from nodekit._internal.models.node_engine.sensors.actions.actions import (
+from nodekit._internal.types.actions import (
     Action,
     ClickAction,
     DoneAction,

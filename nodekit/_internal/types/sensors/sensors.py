@@ -2,9 +2,9 @@ from typing import Literal, Union, Annotated, Set
 
 import pydantic
 
-from nodekit._internal.models.node_engine.base import DslModel, NullParameters
-from nodekit._internal.models.node_engine.fields import TimeDurationMsec, CardId, PressableKey
-from nodekit._internal.models.node_engine.sensors.base import BaseSensor
+from nodekit._internal.types.base import DslModel, NullParameters
+from nodekit._internal.types.common import TimeDurationMsec, CardId, PressableKey
+from nodekit._internal.types.sensors.base import BaseSensor
 
 
 # %%

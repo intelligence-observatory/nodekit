@@ -3,11 +3,10 @@ from typing import Any
 
 import pydantic
 
-from nodekit._internal.models.fields import (
-    DatetimeUTC
+from nodekit._internal.types.common import (
+    DatetimeUTC, SensorId
 )
-from nodekit._internal.models.node_engine.base import DslModel
-from nodekit._internal.models.node_engine.fields import SensorId
+from nodekit._internal.types.base import DslModel
 
 
 class BaseAction(DslModel, ABC):

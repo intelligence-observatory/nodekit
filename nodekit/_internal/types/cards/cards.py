@@ -2,10 +2,10 @@ from typing import Literal, Annotated, Union, List
 
 import pydantic
 
-from nodekit._internal.models.node_engine.base import NullParameters, DslModel
-from nodekit._internal.models.node_engine.cards.base import BaseCard
-from nodekit._internal.models.node_engine.fields import TextContent, ColorHexString
-from nodekit._internal.models.assets.base import ImageLink, VideoLink
+from nodekit._internal.types.base import NullParameters, DslModel
+from nodekit._internal.types.cards.base import BaseCard
+from nodekit._internal.types.common import ColorHexString, TextContent
+from nodekit._internal.types.assets.base import ImageLink, VideoLink
 
 
 # %% Concrete card classes

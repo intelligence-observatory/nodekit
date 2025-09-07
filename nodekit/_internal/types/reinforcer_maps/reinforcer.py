@@ -3,8 +3,8 @@ from typing import List
 
 import pydantic
 
-from nodekit._internal.models.node_engine.base import DslModel
-from nodekit._internal.models.node_engine.cards.cards import Card
+from nodekit._internal.types.base import DslModel
+from nodekit._internal.types.cards.cards import Card
 
 
 class Reinforcer(DslModel):
