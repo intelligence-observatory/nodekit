@@ -91,16 +91,3 @@ PressableKey = Literal[
     '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
 ]
 
-
-class KeyHold(pydantic.BaseModel):
-    key: PressableKey = pydantic.Field(
-        description="The key that was pressed."
-    )
-    start_time_msec: int | None = pydantic.Field(
-        description="The time delta from the node's start time at which the key was pressed. "
-                    "This is null if the key was pressed before the sensor armed."
-    )
-    tend_msec: int | None = pydantic.Field(
-        description="The time delta from the node's end time at which the key was released. "
-                    "This is null if the key wasn't released."
-    )

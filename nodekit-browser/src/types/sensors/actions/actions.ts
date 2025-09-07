@@ -12,7 +12,7 @@ export interface KeyHold {
     key: PressableKey,
     // The timestamp when the key was first pressed down: it is null if the key was being held down before the Sensor was armed.
     timestamp_start:  ISO8601 | null;
-    // The timestamp when the key was released. it is null if the key was still being held down after the Sensor was disarmed:
+    // The timestamp when the key was released. It is null if the key was still being held down after the Sensor was disarmed:
     timestamp_end:  ISO8601 | null;
 }
 
