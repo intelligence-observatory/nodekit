@@ -7,16 +7,14 @@ import type {BoardViewsUI} from "./ui/board-views-ui/board-views-ui.ts";
 import {NodePlay} from "./node-player/node-play.ts";
 import {type NodePlayId} from "./types/fields.ts";
 
+
 export class NodePlayer {
     private boardViewsUI: BoardViewsUI;
     private shellUI: ShellUI;
+    private bufferedNodePlays: Map<NodePlayId, NodePlay> = new Map();
 
-    // NodePlay lookups:
-    private nodePlays: Map<string, NodePlay> = new Map();
-
-    constructor(
-    ){
-        // Create all DIVs needed for the NodeEngine in a centralized call:
+    constructor(){
+        // Create all DIVs needed for the NodePlayer in a centralized call:
         const {shellUI, boardViewsUI} = buildUIs();
         this.shellUI = shellUI;
         this.boardViewsUI = boardViewsUI;
@@ -32,12 +30,14 @@ export class NodePlayer {
         }
     }
 
-    async prepare(
-        nodeParameters: NodeParameters
-    ): Promise<NodePlayId> {
+    async prepare(nodeParameters: NodeParameters): Promise<NodePlayId> {
+        /*
+        Prepares a NodePlay instance and returns its ID.
+         */
+
         try{
-            // Generate random UUID4:
-            const nodePlayId = crypto.randomUUID();
+            // Create a new BoardView on which the NodePlay will be rendered::
+            const nodePlayId: NodePlayId = crypto.randomUUID() as NodePlayId;
             const boardView = this.boardViewsUI.createBoardView(nodePlayId, nodeParameters.board);
             const nodePlay = new NodePlay(
                 nodeParameters,
@@ -45,8 +45,8 @@ export class NodePlayer {
             )
             await nodePlay.prepare()
 
-            // Attach
-            this.nodePlays.set(nodePlayId, nodePlay);
+            // Add the prepared NodePlay to buffer
+            this.bufferedNodePlays.set(nodePlayId, nodePlay);
 
             return nodePlayId as NodePlayId;
         }
@@ -58,21 +58,24 @@ export class NodePlayer {
     }
 
     async play(nodePlayId: NodePlayId): Promise<NodeMeasurements>{
+        /*
+        Executes the NodePlay instance with the given ID.
+        Returns a NodeMeasurements upon completion.
+         */
         try{
-            // Check if the node has been prepared:
-            const nodePlay = this.nodePlays.get(nodePlayId);
+            const nodePlay = this.bufferedNodePlays.get(nodePlayId);
             if (!nodePlay) {
                 throw new Error(`NodePlay ${nodePlayId} does not exist. `);
             }
 
-            // Set active board
+            // Set active board:
             this.boardViewsUI.setActiveBoard(nodePlayId);
 
             const nodeMeasurements = await nodePlay.run()
 
-            // Deprovision:
+            // Remove the NodePlay instance and its BoardView from the buffer:
             this.boardViewsUI.destroyBoardView(nodePlayId);
-            this.nodePlays.delete(nodePlayId);
+            this.bufferedNodePlays.delete(nodePlayId);
 
             return nodeMeasurements
         }

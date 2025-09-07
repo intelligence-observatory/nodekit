@@ -30,7 +30,6 @@ export interface TextCard extends BaseCard<'TextCard', TextCardParameters>{}
 // VideoCard
 interface VideoCardParameters {
     video_link: VideoLink;
-    play_audio: boolean;
 }
 
 export interface VideoCard extends BaseCard<'VideoCard', VideoCardParameters>{}

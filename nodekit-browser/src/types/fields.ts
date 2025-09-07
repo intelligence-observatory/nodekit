@@ -7,6 +7,9 @@ export type TimeDurationMsec = number & { __brand: 'TimeDurationMsec' };
 export type MarkdownString = string & { __brand: 'MarkdownString'}
 export type ColorHexString = string & { __brand: 'ColorHexString' };
 
+export type MonetaryAmountUsd = string & { __brand: 'MonetaryAmountUsd' };
+export type PayableMonetaryAmountUsd = string & { __brand: 'PayableMonetaryAmountUsd' };
+
 export type CardId = string & { __brand: 'CardId' };
 export type SensorId = string & { __brand: 'SensorId' };
 export type NodePlayId = string & { __brand: 'NodePlayId' };
@@ -41,16 +44,12 @@ export interface Timespan {
 /*
 Utility functions:
  */
-export function dateToISO8601(date: Date): ISO8601 {
-    /**
-     * Converts a native JS Date into an ISO8601-compliant string (e.g. "2024-05-27T17:52:00.123Z").
-     */
-
-    if (isNaN(date.getTime())) {
-        throw new Error(`Invalid Date object: ${date}`);
-    }
-
-    return date.toISOString() as ISO8601;
+export function performanceNowToISO8601(
+    performanceNowMsec: DOMHighResTimeStamp // as returned by performance.now()
+): ISO8601 {
+    const timestampMsec = performance.timeOrigin + performanceNowMsec;
+    return new Date(timestampMsec).toISOString() as ISO8601;
 }
+
 
 export type PressableKey = "Enter" | " " | "ArrowDown" | "ArrowLeft" | "ArrowRight" | "ArrowUp" | "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z" | "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";

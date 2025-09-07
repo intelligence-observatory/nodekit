@@ -148,7 +148,6 @@ export class BoardView {
     }
 
     // Cards
-
     async placeCardHidden(card: Card) {
         const cardView = await placeCardHiddenDispatch(
             card,
@@ -220,7 +219,6 @@ export function placeSensorUnarmedDispatch(
     const cardId = sensor.card_id;
     if (!cardId) {
         // This is a Board Sensor.
-
         if (sensor.sensor_type === 'TimeoutSensor') {
             if (sensor.sensor_timespan.end_time_msec !== null) {
                 throw new Error(`${sensor.sensor_type} must not have a defined end_time_msec`);
@@ -232,9 +230,6 @@ export function placeSensorUnarmedDispatch(
             );
         }
         else if (sensor.sensor_type === 'KeyPressSensor') {
-            if (sensor.sensor_timespan.end_time_msec !== null) {
-                throw new Error(`${sensor.sensor_type} must not have a defined end_time_msec`);
-            }
             return new KeyPressSensorBinding(
                 sensor.sensor_id,
                 onSensorFired,

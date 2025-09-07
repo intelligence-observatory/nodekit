@@ -1,58 +1,73 @@
-/*
-Contract
- */
 export type ScheduleToken = number;
-interface ScheduleEventParams {
-    offsetMsec: number,
-    triggerEventFunc: () => void,
-    signal?: AbortSignal
-}
-export interface EventScheduler {
-    /** Schedule a callback `cb` to run `offsetMs` after `start()`. */
-    scheduleEvent(
-        parameters: ScheduleEventParams
-    ): ScheduleToken;
 
-    /** Cancel a previously scheduled Event. */
-    cancel(token: ScheduleToken): void;
-
-    /** Remove *all* pending callbacks and stop the timing loop. */
-    clearAll(): void;
-
-    /** Start the timing loop (idempotent). */
-    start(): void;
-
-    /** Stop the timing loop (idempotent). Pending Events are dropped. */
-    stop(): void;
+interface ScheduleEventParameters {
+    triggerTimeMsec: number, // Msec elapsed from .t0 when this Event should occur
+    triggerFunc: () => void, // The function that is called when the event triggers
 }
 
-/*
-RAF-based implementation
- */
 interface TimedEvent {
-    due: number;              // absolute timestamp, relative to start() timestamp
-    cb: () => void;
+    triggerTimeMsec: number;  // Msec elapsed relative to .t0 when this event should trigger
+    triggerFunc: () => void;
     token: ScheduleToken;
-    cancelled: boolean;
 }
 
-export class RAFScheduler implements EventScheduler {
+export class EventScheduler {
     private events: TimedEvent[] = [];
     private nextToken = 1;
     private running = false;
     private rafId: number | null = null;
-    private t0 = 0;           // time at start()
 
-    /* --- EventScheduler API --- */
-    start(): void {
-        if (this.running) return;
-        this.running = true;
-        this.t0 = performance.now();
-        this.loop();            // kick-off
+    private t0: number = 0; // The `performance.now()` time when the scheduler was started; initialized in start()
+    private abortSignal: AbortSignal;
+
+    constructor(
+        abortSignal: AbortSignal, // If the abortSignal is triggered, the scheduler stops
+    ){
+        this.abortSignal = abortSignal;
+
+        // If the abortSignal is triggered, stop the scheduler:
+        const abortHandler = () => {
+            this.stop();
+            this.abortSignal.removeEventListener('abort', abortHandler);
+        };
+        this.abortSignal.addEventListener('abort', abortHandler, { once: true });
     }
 
-    stop(): void {
-        if (!this.running) return;
+    scheduleEvent(
+        parameters: ScheduleEventParameters
+    ): void {
+        if (!this.running) this.start();
+
+        const token = this.nextToken++;
+        const ev: TimedEvent = {
+            triggerTimeMsec: parameters.triggerTimeMsec,
+            triggerFunc: parameters.triggerFunc,
+            token,
+        };
+
+        // Insert Event in time-sorted order to this.events:
+        const i = this.events.findIndex(e => e.triggerTimeMsec > ev.triggerTimeMsec);
+        if (i === -1) {
+            this.events.push(ev);
+        } else {
+            this.events.splice(i, 0, ev);
+        }
+    }
+
+    start(): void {
+        if (this.running) {
+            return;
+        }
+        this.running = true;
+        this.t0 = performance.now();
+        this.loop(this.t0);
+    }
+
+    private stop(): void {
+        if (!this.running) {
+            return;
+        }
+
         this.running = false;
         if (this.rafId !== null) {
             cancelAnimationFrame(this.rafId);
@@ -60,72 +75,24 @@ export class RAFScheduler implements EventScheduler {
         }
     }
 
-    scheduleEvent(
-        parameters: ScheduleEventParams
-    ): ScheduleToken {
-        if (!this.running) this.start();
-
-        const token = this.nextToken++;
-        const ev: TimedEvent = {
-            due: this.t0 + parameters.offsetMsec,
-            cb: parameters.triggerEventFunc,
-            token,
-            cancelled: false
-        };
-        this.insertEvent(ev);
-
-        /* Optional cancellation via AbortSignal */
-        const signal = parameters.signal;
-        if (signal) {
-            const abortHandler = () => {
-                this.cancel(token);
-                signal.removeEventListener('abort', abortHandler);
-            };
-            signal.addEventListener('abort', abortHandler, { once: true });
+    private loop = (timestamp: DOMHighResTimeStamp): void => {
+        if (!this.running) {
+            return;
         }
-        return token;
-    }
 
-    cancel(token: ScheduleToken): void {
-        const idx = this.events.findIndex(e => e.token === token);
-        if (idx !== -1) this.events[idx].cancelled = true;
-    }
+        const timeElapsedSinceStart = timestamp - this.t0;
 
-    clearAll(): void {
-        this.events = [];
-    }
-
-    /* --- Internal loop --- */
-    private loop = (): void => {
-        if (!this.running) return;
-
-        const now = performance.now();
-
-        // Fire all events that are due *now*
-        while (this.events.length && this.events[0].due <= now) {
+        // Fire all events that are due *now*:
+        while (this.events.length > 0 && this.events[0].triggerTimeMsec <= timeElapsedSinceStart) {
             const ev = this.events.shift()!;
-            if (!ev.cancelled) {
-                ev.cb();
-            }
+            ev.triggerFunc();
         }
 
-        // Keep ticking if anything remains
-        if (this.events.length) {
+        // Keep ticking if anything remains:
+        if (this.events.length > 0) {
             this.rafId = requestAnimationFrame(this.loop);
         } else {
-            this.stop();          // auto-stop when empty (optional)
+            this.stop();
         }
     };
-
-    /* --- Helpers --- */
-
-    /** Maintain events sorted by `due` (O(N) insert; sufficient for small queues). */
-    private insertEvent(ev: TimedEvent): void {
-        const i = this.events.findIndex(e => e.due > ev.due);
-        if (i === -1) {
-            this.events.push(ev);
-        } else {
-            this.events.splice(i, 0, ev);
-        }
-    }
 }
