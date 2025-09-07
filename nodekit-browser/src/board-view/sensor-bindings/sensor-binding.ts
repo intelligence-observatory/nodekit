@@ -256,10 +256,10 @@ export class KeyHoldSensorBinding implements SensorBinding {
         // Manually remove the listeners:
         document.removeEventListener('keydown', this.onKeyboardEvent);
         document.removeEventListener('keyup', this.onKeyboardEvent);
-        const tEnd = performance.now();
         this.tArmed = null;
 
-        // This Sensor triggers when its timespan has elapsed:
+        // Package the Action:
+        const tEnd = performance.now();
         let keyHolds = this.deriveKeyHolds();
 
         let action: KeyHoldsAction = {
@@ -296,7 +296,6 @@ export class KeyHoldSensorBinding implements SensorBinding {
         }
 
         // Log the event:
-        console.log('Key event:', event.type, event.key);
         this.keyToKeyEvents[key].push({
             event: event,
             t: performance.now()
@@ -350,24 +349,6 @@ export class KeyHoldSensorBinding implements SensorBinding {
             }
         }
         return holds
-        if (!this.keys.includes(key)) {
-            return
-        }
-
-        // Create the action to be fired:
-        const action: KeyPressAction = {
-            sensor_id: this.sensorId,
-            action_type: "KeyPressAction",
-            action_value: {
-                key: key
-            },
-            timestamp_action: performanceNowToISO8601(performance.now())
-        };
-
-        // Disarm the sensor after a key press:
-        this.disarm();
-
-        this.onSensorFired(action);
     }
 }
 
