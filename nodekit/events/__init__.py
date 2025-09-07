@@ -11,7 +11,7 @@ __all__ = [
     "BonusDisclosureEvent",
 ]
 
-from nodekit._internal.compilers.events import (
+from nodekit._internal.types.events.events import (
     Event,
     EventTypeEnum,
     StartEvent,
