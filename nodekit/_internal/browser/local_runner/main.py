@@ -176,6 +176,10 @@ class PlaySession:
     url: str
 
     def list_events(self) -> List[Event]:
+        """
+        Returns the Events for the current Runner's NodeGraph session.
+        Todo: this might diverge from the NodeGraph if `nodekit.play` is called again.
+        """
         runner = _get_runner()
         return runner.list_events()
 

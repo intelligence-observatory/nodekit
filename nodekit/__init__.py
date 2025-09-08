@@ -27,7 +27,6 @@ __all__ = [
 
     # Static resource getters:
     'get_browser_bundle',
-
 ]
 
 # Incoming models:
