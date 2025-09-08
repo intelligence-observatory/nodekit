@@ -1,18 +1,18 @@
-from nodekit._internal.types.common import Timespan, NullParameters
 from abc import ABC
-import pydantic
-from typing import TypeVar, Literal, Any, Annotated, Union
+from typing import Literal, Any, Annotated, Union
 
-T = TypeVar('T', bound=str)
-P = TypeVar('P', bound=pydantic.BaseModel)
+import pydantic
+
+from nodekit._internal.types.common import Timespan, NullParameters
 
 
 class BaseEffect(pydantic.BaseModel, ABC):
-    effect_type: T
+    effect_type: str
     effect_parameters: Any
     effect_timespan: Timespan = pydantic.Field(default_factory=lambda: Timespan(start_time_msec=0, end_time_msec=None))
 
 
+# %%
 class HidePointerEffect(BaseEffect):
     """
     Effect to hide the pointer during a timespan.

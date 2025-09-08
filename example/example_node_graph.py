@@ -5,7 +5,6 @@ import time
 # %% Assemble a simple NodeGraph:
 nodes = []
 
-
 # %% Create a sequence of simple Nodes in which the Participant must click on a fixation point
 def make_keypress_node(
         key_to_press: str,
@@ -15,8 +14,6 @@ def make_keypress_node(
         card_parameters=nk.cards.TextCard.Parameters(
             content=nk.common.TextContent(
                 text=f'Press the "{key_to_press}" key to continue.',
-                justification_horizontal='center',
-                justification_vertical='center'
             )
         ),
         card_shape=nk.common.BoardRectangle(
@@ -70,8 +67,10 @@ def make_basic_fixation_node(
     )
 
     click_sensor = nk.sensors.ClickSensor(
-        card_id=fixation_card.card_id,
-        sensor_timespan=fixation_card.card_timespan
+        sensor_timespan=fixation_card.card_timespan,
+        sensor_parameters=nk.sensors.ClickSensor.Parameters(
+            card_id=fixation_card.card_id,
+        )
     )
 
     return nk.Node(
@@ -132,3 +131,4 @@ bonus_usd = nk.ops.calculate_bonus_usd(
     bonus_rules=node_graph.bonus_rules,
 )
 print(f"Computed bonus: ${bonus_usd}")
+

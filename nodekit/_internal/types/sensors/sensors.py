@@ -5,7 +5,7 @@ from uuid import uuid4
 import pydantic
 
 from nodekit._internal.types.common import CardId, PressableKey, NullParameters, SensorId, Timespan
-
+from nodekit._internal.types.reinforcer_maps.reinforcer_maps import ReinforcerMap, NullReinforcerMap
 
 # %%
 class BaseSensor(pydantic.BaseModel, ABC):
@@ -21,6 +21,9 @@ class BaseSensor(pydantic.BaseModel, ABC):
         'If an open-ended timespan, the Sensor is armed indefinitely until it triggers'))
     sensor_type: str
     sensor_parameters: NullParameters
+
+    # ReinforcerMap:
+    reinforcer_map: ReinforcerMap = pydantic.Field(default_factory=NullReinforcerMap)
 
 
 # %%
