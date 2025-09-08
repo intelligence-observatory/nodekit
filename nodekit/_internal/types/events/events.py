@@ -7,8 +7,7 @@ import pydantic
 
 from nodekit._internal.types.actions.actions import Action
 from nodekit._internal.types.base import NullValue
-from nodekit._internal.types.common import DatetimeUTC
-from nodekit._internal.types.runtime_metrics import RuntimeMetrics
+from nodekit._internal.types.common import DatetimeUTC, NodeId
 
 # %%
 class EventTypeEnum(str, enum.Enum):
@@ -18,14 +17,15 @@ class EventTypeEnum(str, enum.Enum):
     ReturnEvent = 'ReturnEvent'
     EndEvent = 'EndEvent'
     BonusDisclosureEvent = 'BonusDisclosureEvent'
+    BrowserContextEvent = 'BrowserContextEvent'
 
 
 # %%
 class BaseEvent(pydantic.BaseModel):
     event_id: UUID
+    event_timestamp: DatetimeUTC
     event_type: EventTypeEnum
     event_payload: NullValue
-    event_timestamp: DatetimeUTC
 
 
 # %%
@@ -70,19 +70,40 @@ class NodeResult(pydantic.BaseModel):
     Describes the result of a NodePlay.
     """
 
-    node_id: str = pydantic.Field(description='The ID of the Node from which this NodeResult was produced.')
+    node_id: NodeId = pydantic.Field(description='The ID of the Node from which this NodeResult was produced.')
     node_execution_index: int = pydantic.Field(description='The index of the Node execution in the NodeGraph. This is used to identify the order of Node executions in a TaskRun.')
 
     timestamp_start: DatetimeUTC
     timestamp_end: DatetimeUTC
 
     action: Action
-    runtime_metrics: RuntimeMetrics
 
 
 class NodeResultEvent(BaseEvent):
     event_type: Literal[EventTypeEnum.NodeResultEvent] = EventTypeEnum.NodeResultEvent
     event_payload: NodeResult
+
+
+# %%
+class BrowserContext(pydantic.BaseModel):
+    class PixelArea(pydantic.BaseModel):
+        width_px: int = pydantic.Field(description="Width of the area in pixels.", ge=0)
+        height_px: int = pydantic.Field(description="Height of the area in pixels.", ge=0)
+
+    # Board
+    display_area: PixelArea = pydantic.Field(description="Metrics of the display area in which the board is rendered.")
+    viewport_area: PixelArea = pydantic.Field(description="Metrics of the viewport in which the board is rendered.")
+
+    # User agent string
+    user_agent: str = pydantic.Field(description="User agent string of the browser or application rendering the board.")
+
+
+class BrowserContextEvent(BaseEvent):
+    """
+    Emitted to capture browser context information, such as user agent and viewport size.
+    """
+    event_type: Literal[EventTypeEnum.BrowserContextEvent] = EventTypeEnum.BrowserContextEvent
+    event_payload: BrowserContext
 
 
 # %%
@@ -94,6 +115,7 @@ Event = Annotated[
         LeaveEvent,
         ReturnEvent,
         BonusDisclosureEvent,
+        BrowserContextEvent,
     ],
     pydantic.Field(discriminator='event_type')
 ]

@@ -9,6 +9,7 @@ __all__ = [
     "LeaveEvent",
     "ReturnEvent",
     "BonusDisclosureEvent",
+    "BrowserContextEvent",
 ]
 
 from nodekit._internal.types.events.events import (
@@ -20,4 +21,5 @@ from nodekit._internal.types.events.events import (
     LeaveEvent,
     ReturnEvent,
     BonusDisclosureEvent,
+    BrowserContextEvent,
 )

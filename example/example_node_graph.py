@@ -7,7 +7,6 @@ nodes = []
 
 
 # %% Create a sequence of simple Nodes in which the Participant must click on a fixation point
-
 def make_keypress_node(
         key_to_press: str,
 ):
@@ -125,6 +124,7 @@ while True:
     if any(isinstance(event, nk.events.EndEvent) for event in events):
         break
     time.sleep(5)
+
 
 # %% Can compute authoritative bonus based on the events and the bonus rules:
 bonus_usd = nk.ops.calculate_bonus_usd(
