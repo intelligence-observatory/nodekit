@@ -33,7 +33,7 @@ def make_keypress_node(
     )
 
     sensor = nk.sensors.KeyPressSensor(
-        sensor_parameters=nk.sensors.KeyPressSensor.KeyPressSensorParameters(
+        sensor_parameters=nk.sensors.KeyPressSensor.Parameters(
             keys={key_to_press},
         ),
         sensor_timespan=nk.common.Timespan(

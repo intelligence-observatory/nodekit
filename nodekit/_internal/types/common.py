@@ -1,6 +1,6 @@
 import datetime
 from decimal import Decimal
-from typing import Literal, Annotated
+from typing import Literal, Annotated, Self
 from uuid import UUID
 
 import pydantic
@@ -120,6 +120,12 @@ class Timespan(pydantic.BaseModel):
         default=None,
     )
 
+    @pydantic.model_validator(mode='after')
+    def validate_timespan(self) -> Self:
+        if self.end_time_msec is not None and self.end_time_msec < self.start_time_msec:
+            raise ValueError('end_time_msec must be greater than or equal to start_time_msec, or None for an open-ended timespan.')
+        return self
+
     def check_if_subset_of_other(self, timespan_other: 'Timespan'):
         """
         Check if this Timespan is a subset of another Timespan.
@@ -138,10 +144,13 @@ class Timespan(pydantic.BaseModel):
         """
         return self.end_time_msec is not None
 
-# Enter, spacebar, arrow keys, and alphanumeric keys.
 
+
+# Enter, spacebar, arrow keys, and alphanumeric keys:
 PressableKey = Literal[
-    'Enter', ' ', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowUp',
+    'Enter',
+    ' ',
+    'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowUp',
     'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
     '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
 ]

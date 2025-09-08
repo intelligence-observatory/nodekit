@@ -63,7 +63,6 @@ Card = Annotated[
         VideoCard,
         TextCard,
         MarkdownPagesCard,
-        # Add other Card types here as needed
     ],
     pydantic.Field(discriminator='card_type')
 ]

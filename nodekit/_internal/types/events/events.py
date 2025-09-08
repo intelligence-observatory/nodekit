@@ -72,21 +72,21 @@ class BonusDisclosureEvent(BaseEvent):
 
 
 # %%
-class NodeResult(pydantic.BaseModel):
-    """
-    Describes the result of a NodePlay.
-    """
-
-    node_id: NodeId = pydantic.Field(description='The ID of the Node from which this NodeResult was produced.')
-    node_execution_index: int = pydantic.Field(description='The index of the Node execution in the NodeGraph. This is used to identify the order of Node executions in a TaskRun.')
-
-    timestamp_start: DatetimeUTC
-    timestamp_end: DatetimeUTC
-
-    action: Action
-
-
 class NodeResultEvent(BaseEvent):
+
+    class NodeResult(pydantic.BaseModel):
+        """
+        Describes the result of a NodePlay.
+        """
+
+        node_id: NodeId = pydantic.Field(description='The ID of the Node from which this NodeResult was produced.')
+        node_execution_index: int = pydantic.Field(description='The index of the Node execution in the NodeGraph. This is used to identify the order of Node executions in a TaskRun.')
+
+        timestamp_start: DatetimeUTC
+        timestamp_end: DatetimeUTC
+
+        action: Action
+
     event_type: Literal[EventTypeEnum.NodeResultEvent] = EventTypeEnum.NodeResultEvent
     event_payload: NodeResult
 
