@@ -117,5 +117,6 @@ node_graph = nk.NodeGraph(
 
 # %% Play the NodeGraph locally
 play_session = nk.play(node_graph)
-print(play_session.url)
+
+# %% After interacting with the task, print out the events that were recorded
 print(play_session.list_events())
