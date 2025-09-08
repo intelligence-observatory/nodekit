@@ -59,11 +59,17 @@ class ReturnEvent(BaseEvent):
     event_type: Literal[EventTypeEnum.ReturnEvent] = EventTypeEnum.ReturnEvent
 
 
+
 class BonusDisclosureEvent(BaseEvent):
     """
     Emitted when a Participant is shown a bonus disclosure.
     """
+
+    class BonusDisclosure(pydantic.BaseModel):
+        bonus_amount_usd: str
+
     event_type: Literal[EventTypeEnum.BonusDisclosureEvent] = EventTypeEnum.BonusDisclosureEvent
+    event_payload: BonusDisclosure
 
 
 # %%
