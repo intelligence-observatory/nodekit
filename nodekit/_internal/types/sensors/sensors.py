@@ -3,22 +3,9 @@ from typing import Literal, Union, Annotated, Set
 import pydantic
 
 from nodekit._internal.types.base import DslModel, NullParameters
-from nodekit._internal.types.common import TimeDurationMsec, CardId, PressableKey
+from nodekit._internal.types.common import CardId, PressableKey
 from nodekit._internal.types.sensors.base import BaseSensor
 
-
-# %%
-class TimeoutSensor(BaseSensor):
-    """
-    Attaches to the Board and triggers an Action after a specified timeout period.
-    """
-
-    class TimeoutSensorParameters(DslModel):
-        timeout_msec: TimeDurationMsec
-
-    sensor_type: Literal['TimeoutSensor'] = 'TimeoutSensor'
-    sensor_parameters: TimeoutSensorParameters
-    card_id: None = pydantic.Field(default=None, frozen=True)  # Only binds to Board
 
 
 # %%
@@ -56,7 +43,6 @@ class KeyHoldsSensor(BaseSensor):
 # %%
 Sensor = Annotated[
     Union[
-        TimeoutSensor,
         DoneSensor,
         ClickSensor,
         KeyPressSensor,

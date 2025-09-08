@@ -25,10 +25,14 @@ class Node(pydantic.BaseModel):
     )
 
     cards: List[Card] = pydantic.Field(
-        description="List of Cards that will be placed on the Board, in back-to-front order (i.e. the first Card is at the bottom of the Board, in the z-direction)",
+        description=(
+            "List of Cards placed on the Board, in back-to-front order "
+            "(i.e. the first Card in this list is at the \"bottom\" of the Board, in the z-direction)"),
     )
 
-    sensors: List[Sensor] = pydantic.Field(min_length=1)
+    sensors: List[Sensor] = pydantic.Field(
+        min_length=1,
+    )
     reinforcer_maps: List[ReinforcerMap] = pydantic.Field(default_factory=list)
     effects: List[Effect] = pydantic.Field(default_factory=list)
 
