@@ -12,3 +12,5 @@ class Reinforcer(DslModel):
     reinforcer_cards: List[Card] = pydantic.Field(
         description='Cards which configure the (noninteractive) Reinforcer delivery phase.'
     )
+
+    # Todo: ensure finite timespan

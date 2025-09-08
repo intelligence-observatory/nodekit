@@ -1,20 +1,26 @@
-from typing import List, Literal, Union, Annotated
+from abc import ABC
+from typing import List, Literal, Union, Annotated, Any
 
 import pydantic
 
 from nodekit._internal.types.base import DslModel, NullValue
-from nodekit._internal.types.common import DatetimeUTC, PressableKey
-
-from nodekit._internal.types.actions.base import BaseAction
+from nodekit._internal.types.common import DatetimeUTC, PressableKey, SensorId
 
 
 # %%
+class BaseAction(DslModel, ABC):
+    sensor_id: SensorId = pydantic.Field(
+        description='Identifier of the Sensor that emitted this Action.'
+    )
+    action_type: str
+    action_value: Any
+    timestamp_action: DatetimeUTC = pydantic.Field(
+        description='The timestamp when the Sensor for this Action was triggered.'
+    )
 
+
+# %%
 class ClickAction(BaseAction):
-    """
-    A fully-qualified description of a Sensor emission.
-    """
-
     class Value(DslModel):
         """
         A fully-qualified description of a Sensor emission.
@@ -36,6 +42,7 @@ class DoneAction(BaseAction):
 class TimeoutAction(BaseAction):
     action_type: Literal['TimeoutAction'] = 'TimeoutAction'
     action_value: NullValue = pydantic.Field(default_factory=NullValue, frozen=True)
+
 
 # %%
 class KeyPressAction(BaseAction):
