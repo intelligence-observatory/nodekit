@@ -3,12 +3,11 @@ from typing import Any
 
 import pydantic
 
-from nodekit._internal.types.base import DslModel
 from nodekit._internal.types.common import CardId, BoardRectangle, BoardLocation, Timespan
 from uuid import uuid4
 
 
-class BaseCard(DslModel, ABC):
+class BaseCard(pydantic.BaseModel, ABC):
     """
     Cards are the atomic elements which constitute a single Node.
     Cards are spatially and temporally bound on the Board.

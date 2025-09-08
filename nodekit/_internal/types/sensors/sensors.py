@@ -2,8 +2,7 @@ from typing import Literal, Union, Annotated, Set
 
 import pydantic
 
-from nodekit._internal.types.base import DslModel, NullParameters
-from nodekit._internal.types.common import CardId, PressableKey
+from nodekit._internal.types.common import CardId, PressableKey, NullParameters
 from nodekit._internal.types.sensors.base import BaseSensor
 
 
@@ -24,7 +23,7 @@ class ClickSensor(BaseSensor):
 
 # %%
 class KeyPressSensor(BaseSensor):
-    class KeyPressSensorParameters(DslModel):
+    class KeyPressSensorParameters(pydantic.BaseModel):
         keys: Set[PressableKey]
 
     sensor_type: Literal['KeyPressSensor'] = 'KeyPressSensor'
@@ -33,7 +32,7 @@ class KeyPressSensor(BaseSensor):
 
 
 class KeyHoldsSensor(BaseSensor):
-    class KeyHoldsSensorParameters(DslModel):
+    class KeyHoldsSensorParameters(pydantic.BaseModel):
         keys: Set[PressableKey]
 
     sensor_type: Literal['KeyHoldsSensor'] = 'KeyHoldsSensor'

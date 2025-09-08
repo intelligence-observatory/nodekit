@@ -2,9 +2,8 @@ from typing import Literal, Annotated, Union, List
 
 import pydantic
 
-from nodekit._internal.types.base import NullParameters, DslModel
 from nodekit._internal.types.cards.base import BaseCard
-from nodekit._internal.types.common import ColorHexString, TextContent
+from nodekit._internal.types.common import ColorHexString, TextContent, NullParameters
 from nodekit._internal.types.assets.base import ImageLink, VideoLink
 
 
@@ -16,7 +15,7 @@ class FixationPointCard(BaseCard):
 
 # %%
 class MarkdownPagesCard(BaseCard):
-    class Parameters(DslModel):
+    class Parameters(pydantic.BaseModel):
         pages: List[TextContent] = pydantic.Field(
             description='A list of MarkdownContent objects representing the text content on the pages to be displayed.'
         )
@@ -27,7 +26,7 @@ class MarkdownPagesCard(BaseCard):
 
 # %%
 class ImageCard(BaseCard):
-    class Parameters(DslModel):
+    class Parameters(pydantic.BaseModel):
         image_link: ImageLink
 
     card_type: Literal['ImageCard'] = 'ImageCard'
@@ -36,7 +35,7 @@ class ImageCard(BaseCard):
 
 # %%
 class VideoCard(BaseCard):
-    class Parameters(DslModel):
+    class Parameters(pydantic.BaseModel):
         video_link: VideoLink
 
     card_type: Literal['VideoCard'] = 'VideoCard'
@@ -45,7 +44,7 @@ class VideoCard(BaseCard):
 
 # %%
 class TextCard(BaseCard):
-    class Parameters(DslModel):
+    class Parameters(pydantic.BaseModel):
         content: TextContent
         background_color: ColorHexString = pydantic.Field(
             default='#E6E6E6',

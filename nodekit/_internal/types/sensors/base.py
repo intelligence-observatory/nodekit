@@ -3,12 +3,11 @@ from typing import Any
 
 import pydantic
 
-from nodekit._internal.types.base import DslModel
 from nodekit._internal.types.common import CardId, SensorId, Timespan
 from uuid import uuid4
 
 
-class BaseSensor(DslModel, ABC):
+class BaseSensor(pydantic.BaseModel, ABC):
     """
     A Sensor represents a listener for Participant behavior. Sensors are bound to a specific Card, or to the Board.
     When a Sensor is triggered, it emits a fully qualified Action.

@@ -1,8 +1,7 @@
 from abc import ABC
 from typing import Literal, Any
 
-from nodekit._internal.types.base import DslModel, NullParameters
-from nodekit._internal.types.common import SensorId
+from nodekit._internal.types.common import SensorId, NullParameters
 from nodekit._internal.types.reinforcer_maps.reinforcer import Reinforcer
 
 from typing import Annotated, Union
@@ -11,7 +10,7 @@ import pydantic
 
 
 # %%
-class BaseReinforcerMap(DslModel, ABC):
+class BaseReinforcerMap(pydantic.BaseModel, ABC):
     """
     Represents a map from a fully qualified Action emitted by a particular Sensor to an Outcome.
     """
@@ -22,7 +21,7 @@ class BaseReinforcerMap(DslModel, ABC):
 
 # %%
 class ConstantReinforcerMap(BaseReinforcerMap):
-    class Parameters(DslModel):
+    class Parameters(pydantic.BaseModel):
         reinforcer: Reinforcer = pydantic.Field(description='The Outcome to return for any Action emitted by the Sensor it is attached to.')
 
     """

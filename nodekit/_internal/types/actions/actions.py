@@ -3,12 +3,11 @@ from typing import List, Literal, Union, Annotated, Any
 
 import pydantic
 
-from nodekit._internal.types.base import DslModel, NullValue
-from nodekit._internal.types.common import DatetimeUTC, PressableKey, SensorId
+from nodekit._internal.types.common import DatetimeUTC, PressableKey, SensorId, NullValue
 
 
 # %%
-class BaseAction(DslModel, ABC):
+class BaseAction(pydantic.BaseModel, ABC):
     sensor_id: SensorId = pydantic.Field(
         description='Identifier of the Sensor that emitted this Action.'
     )
@@ -21,7 +20,7 @@ class BaseAction(DslModel, ABC):
 
 # %%
 class ClickAction(BaseAction):
-    class Value(DslModel):
+    class Value(pydantic.BaseModel):
         """
         A fully-qualified description of a Sensor emission.
         """
@@ -46,7 +45,7 @@ class TimeoutAction(BaseAction):
 
 # %%
 class KeyPressAction(BaseAction):
-    class Value(DslModel):
+    class Value(pydantic.BaseModel):
         key: PressableKey
 
     action_type: Literal['KeyPressAction'] = 'KeyPressAction'
@@ -68,7 +67,7 @@ class KeyHold(pydantic.BaseModel):
 
 class KeyHoldsAction(BaseAction):
 
-    class Value(DslModel):
+    class Value(pydantic.BaseModel):
         key_holds: List[KeyHold]
 
     action_type: Literal['KeyHoldsAction'] = 'KeyHoldsAction'

@@ -6,8 +6,7 @@ from uuid import UUID
 import pydantic
 
 from nodekit._internal.types.actions.actions import Action
-from nodekit._internal.types.base import NullValue
-from nodekit._internal.types.common import DatetimeUTC, NodeId
+from nodekit._internal.types.common import DatetimeUTC, NodeId, NullValue
 from nodekit._internal.version import VERSION
 
 # %%
