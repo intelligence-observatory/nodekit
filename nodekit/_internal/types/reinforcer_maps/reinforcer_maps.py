@@ -33,22 +33,9 @@ class ConstantReinforcerMap(BaseReinforcerMap):
 
 
 # %%
-class NullReinforcerMap(BaseReinforcerMap):
-    """
-    A convenience class which represents an ReinforcerMap which yields a NullReinforcer.
-    """
-    reinforcer_map_type: Literal['NullReinforcerMap'] = 'NullReinforcerMap'
-    reinforcer_map_parameters: NullParameters = pydantic.Field(
-        default_factory=NullParameters, frozen=True
-    )
-
-
-# %%
 ReinforcerMap = Annotated[
     Union[
-        NullReinforcerMap,
         ConstantReinforcerMap,
-        # Add other OutcomeMap types here as needed
     ],
     pydantic.Field(discriminator='reinforcer_map_type')
 ]
