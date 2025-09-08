@@ -6,9 +6,9 @@ from nodekit._internal.types.events.events import Event, EventTypeEnum
 
 
 # %% BonusPolicy Rule Engine
-def compute_bonus_usd(
+def calculate_bonus_usd(
+        events: List[Event],
         bonus_rules: List[BonusRule],
-        events: List[Event]
 ) -> Decimal:
 
     calculated_amount = Decimal('0')

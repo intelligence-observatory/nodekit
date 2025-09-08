@@ -6,7 +6,6 @@ __all__ = [
     # Top-level types:
     'NodeGraph',
     'Node',
-    'NodeResult',
 
     # Namespaced types:
     'actions',
@@ -34,7 +33,6 @@ __all__ = [
 from nodekit._internal.types.node_graph import (
     NodeGraph,
     Node,
-    NodeResult
 )
 
 import nodekit.cards as cards
