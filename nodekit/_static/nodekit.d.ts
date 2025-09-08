@@ -38,6 +38,7 @@ declare type BaseEvent<T extends string, P> = {
     event_type: T;
     event_payload: P;
     event_timestamp: ISO8601;
+    nodekit_version: string;
 };
 
 declare interface BaseReinforcerMap<T extends string, P> {
@@ -74,6 +75,16 @@ declare type BonusDisclosureEvent = BaseEvent<'BonusDisclosureEvent', {
 }>;
 
 declare type BonusRule = ConstantBonusRule;
+
+declare interface BrowserContext {
+    user_agent: string;
+    viewport_width_px: number;
+    viewport_height_px: number;
+    display_width_px: number;
+    display_height_px: number;
+}
+
+declare type BrowserContextEvent = BaseEvent<'BrowserContextEvent', BrowserContext>;
 
 declare type Card = FixationPointCard | ImageCard | TextCard | MarkdownPagesCard | VideoCard;
 
@@ -125,7 +136,7 @@ declare type Effect = HidePointerEffect;
 
 declare type EndEvent = BaseEvent<'EndEvent', {}>;
 
-declare type Event_2 = StartEvent | EndEvent | NodeResultEvent | LeaveEvent | ReturnEvent | BonusDisclosureEvent;
+declare type Event_2 = StartEvent | EndEvent | NodeResultEvent | LeaveEvent | ReturnEvent | BonusDisclosureEvent | BrowserContextEvent;
 
 declare interface FixationPointCard extends BaseCard<'FixationPointCard', NullParameters> {
 }
@@ -218,22 +229,20 @@ declare interface Node_2 {
 declare interface NodeGraph {
     nodes: Node_2[];
     bonus_rules: BonusRule[];
+    nodekit_version: string;
 }
 
 declare type NodeId = string & {
     __brand: 'NodeId';
 };
 
-declare type NodeResult = {
+declare type NodeResultEvent = BaseEvent<'NodeResultEvent', {
     node_id: NodeId;
     timestamp_start: ISO8601;
     timestamp_end: ISO8601;
     node_execution_index: number;
     action: Action;
-    runtime_metrics: RuntimeMetrics;
-};
-
-declare type NodeResultEvent = BaseEvent<'NodeResultEvent', NodeResult>;
+}>;
 
 declare interface NullParameters {
 }
@@ -246,11 +255,6 @@ declare interface NullValue {
 
 export declare type OnEventCallback = (event: Event_2) => void;
 
-declare interface PixelArea {
-    width_px: number;
-    height_px: number;
-}
-
 export declare function play(nodeGraph: NodeGraph, onEventCallback?: OnEventCallback | null, previousEvents?: Event_2[]): Promise<Event_2[]>;
 
 declare type PressableKey = "Enter" | " " | "ArrowDown" | "ArrowLeft" | "ArrowRight" | "ArrowUp" | "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z" | "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
@@ -262,13 +266,6 @@ declare interface Reinforcer {
 declare type ReinforcerMap = ConstantReinforcerMap | NullReinforcerMap;
 
 declare type ReturnEvent = BaseEvent<'ReturnEvent', {}>;
-
-declare interface RuntimeMetrics {
-    display_area: PixelArea;
-    viewport_area: PixelArea;
-    board_area: PixelArea;
-    user_agent: string;
-}
 
 declare type Sensor = TimeoutSensor | DoneSensor | ClickSensor | KeyPressSensor | KeyHoldsSensor;
 

@@ -1,12 +1,12 @@
 import nodekit as nk
 import random
+import time
 
 # %% Assemble a simple NodeGraph:
 nodes = []
 
 
 # %% Create a sequence of simple Nodes in which the Participant must click on a fixation point
-
 def make_keypress_node(
         key_to_press: str,
 ):
@@ -118,5 +118,17 @@ node_graph = nk.NodeGraph(
 # %% Play the NodeGraph locally
 play_session = nk.play(node_graph)
 
-# %% After interacting with the task, print out the events that were recorded
-print(play_session.list_events())
+# %% Wait until the end event is observed:
+while True:
+    events = play_session.list_events()
+    if any(isinstance(event, nk.events.EndEvent) for event in events):
+        break
+    time.sleep(5)
+
+
+# %% Can compute authoritative bonus based on the events and the bonus rules:
+bonus_usd = nk.ops.calculate_bonus_usd(
+    events = events,
+    bonus_rules=node_graph.bonus_rules,
+)
+print(f"Computed bonus: ${bonus_usd}")

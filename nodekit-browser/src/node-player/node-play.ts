@@ -1,6 +1,5 @@
 import type {Node} from "../types/node-graph.ts";
 import type {Action} from "../types/actions/";
-import type {RuntimeMetrics} from "../types/events/runtime-metrics.ts";
 import {BoardView} from "../board-view/board-view.ts";
 import {evaluateReinforcerMap, makeNullReinforcer} from "../ops/evaluate-reinforcer-map.ts";
 import {EventScheduler} from "./event-scheduler.ts";
@@ -14,7 +13,6 @@ export interface PlayNodeResult {
     timestamp_start: ISO8601;
     timestamp_end: ISO8601;
     action: Action;
-    runtime_metrics: RuntimeMetrics;
 }
 
 export class NodePlay {
@@ -161,7 +159,6 @@ export class NodePlay {
         // Package return
         return {
             action: action,
-            runtime_metrics: this.getRuntimeMetrics(),
             timestamp_start: performanceNowToISO8601(timestampStart),
             timestamp_end: performanceNowToISO8601(timestampEnd),
         }
@@ -255,20 +252,5 @@ export class NodePlay {
 
         // Return null Reinforcer, if there is no matching reinforcer map:
         return makeNullReinforcer();
-    }
-
-    private getRuntimeMetrics(): RuntimeMetrics {
-        return {
-            display_area: {
-                width_px: screen.width,
-                height_px: screen.height,
-            },
-            viewport_area: {
-                width_px: window.innerWidth,
-                height_px: window.innerHeight,
-            },
-            board_area: this.boardView.getArea(),
-            user_agent: navigator.userAgent,
-        };
     }
 }

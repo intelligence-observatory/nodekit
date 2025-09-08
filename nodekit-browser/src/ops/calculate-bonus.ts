@@ -2,7 +2,7 @@ import type {Event} from "../types/events";
 import type {BonusRule} from "../types/bonus_rules/bonus_policy.ts";
 import type {Action} from "../types/actions";
 
-export function computeBonusUsd(
+export function calculateBonusUsd(
     events: Event[],
     bonusRules: BonusRule[],
 ): number {

@@ -1,12 +1,9 @@
-VERSION = '0.0.1a2'
-
 __all__ = [
     'VERSION',
 
     # Top-level types:
     'NodeGraph',
     'Node',
-    'NodeResult',
 
     # Namespaced types:
     'actions',
@@ -29,11 +26,13 @@ __all__ = [
     'get_browser_bundle',
 ]
 
+# Version
+from nodekit._internal.version import VERSION
+
 # Incoming models:
 from nodekit._internal.types.node_graph import (
     NodeGraph,
     Node,
-    NodeResult
 )
 
 import nodekit.cards as cards

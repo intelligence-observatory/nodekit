@@ -1,9 +1,10 @@
 import {NodePlayer} from "./node-player/node-player.ts";
 import type {EndEvent, Event, LeaveEvent, NodeResultEvent, ReturnEvent, StartEvent, UUID} from "./types/events";
 import {type ISO8601, type MonetaryAmountUsd} from "./types/common.ts";
-import {computeBonusUsd} from "./ops/calculate-bonus.ts";
+import {calculateBonusUsd} from "./ops/calculate-bonus.ts";
 import type {NodeGraph} from "./types/node-graph.ts";
 import {performanceNowToISO8601} from "./utils.ts";
+import {getBrowserContext} from "./user-gates/browser-context.ts";
 
 export type OnEventCallback = (event: Event) => void;
 
@@ -25,14 +26,19 @@ export async function play(
     Executes a run through the NodeGraph. Events are returned as an array.
     */
 
-    let events: Event[] = previousEvents;
-
-    // Todo: the previousEvents can be processed to obtain the current state of the task. Otherwise, we always start from scratch.
 
     // If no onEventCallback is provided, use a no-op function:
     if (!onEventCallback) {
         onEventCallback = (_event: Event) => {};
     }
+
+    let events: Event[] = previousEvents;
+
+    // Todo: the previousEvents can be processed to obtain the current state of the task. Otherwise, we always start from scratch.
+
+
+    // Todo: version gating
+    const nodekitVersion = nodeGraph.nodekit_version;
 
     // Add a listener for the LeaveEvent:
     function onVisibilityChange() {
@@ -42,6 +48,7 @@ export async function play(
                 event_timestamp: getCurrentTimestamp(),
                 event_type: "LeaveEvent",
                 event_payload: {},
+                nodekit_version: nodekitVersion,
             };
             events.push(leaveEvent);
             onEventCallback!(leaveEvent);
@@ -52,6 +59,7 @@ export async function play(
                 event_timestamp: getCurrentTimestamp(),
                 event_type: "ReturnEvent",
                 event_payload: {},
+                nodekit_version: nodekitVersion,
             };
             events.push(returnEvent);
             onEventCallback!(returnEvent);
@@ -67,9 +75,22 @@ export async function play(
         event_timestamp: getCurrentTimestamp(),
         event_type: "StartEvent",
         event_payload: {},
+        nodekit_version: nodekitVersion,
     }
     events.push(startEvent);
     onEventCallback(startEvent);
+
+    // Emit the BrowserContextEvent:
+    const browserContext = getBrowserContext();
+    const browserContextEvent: Event = {
+        event_id: generateEventId(),
+        event_timestamp: getCurrentTimestamp(),
+        event_type: "BrowserContextEvent",
+        event_payload: browserContext,
+        nodekit_version: nodekitVersion,
+    }
+    events.push(browserContextEvent);
+    onEventCallback(browserContextEvent);
 
     // Play the Nodes in the NodeGraph:
     const nodes = nodeGraph.nodes;
@@ -93,15 +114,15 @@ export async function play(
                 timestamp_start: nodeMeasurements.timestamp_start,
                 timestamp_end: nodeMeasurements.timestamp_end,
                 action: nodeMeasurements.action,
-                runtime_metrics: nodeMeasurements.runtime_metrics,
-            }
+            },
+            nodekit_version: nodekitVersion,
         }
         events.push(nodeResultEvent);
         onEventCallback(nodeResultEvent);
     }
 
     // Bonus disclosure + end button phase:
-    const bonusComputed = computeBonusUsd(
+    const bonusComputed = calculateBonusUsd(
         events,
         nodeGraph.bonus_rules,
     )
@@ -120,7 +141,8 @@ export async function play(
             event_type: "BonusDisclosureEvent",
             event_payload: {
                 bonus_amount_usd: bonusComputed.toFixed(2) as MonetaryAmountUsd,
-            }
+            },
+            nodekit_version: nodekitVersion,
         }
         events.push(bonusDisclosureEvent);
         onEventCallback(bonusDisclosureEvent);
@@ -132,6 +154,7 @@ export async function play(
         event_timestamp: getCurrentTimestamp(),
         event_type: "EndEvent",
         event_payload: {},
+        nodekit_version: nodekitVersion,
     }
     events.push(endEvent);
     onEventCallback(endEvent);

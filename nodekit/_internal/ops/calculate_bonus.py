@@ -2,19 +2,23 @@ from decimal import Decimal
 from typing import List
 
 from nodekit._internal.types.bonus_policy import BonusRule, ConstantBonusRule
-from nodekit._internal.types.node_graph import NodeResult
+from nodekit._internal.types.events.events import Event, EventTypeEnum
 
 
 # %% BonusPolicy Rule Engine
-def compute_bonus_usd(
+def calculate_bonus_usd(
+        events: List[Event],
         bonus_rules: List[BonusRule],
-        node_results: List[NodeResult]
 ) -> Decimal:
 
     calculated_amount = Decimal('0')
 
-    for node_result in node_results:
-        action = node_result.action
+    for ev in events:
+
+        if ev.event_type != EventTypeEnum.NodeResultEvent:
+            continue
+
+        action = ev.event_payload.action
 
         # Perform scan through rules
         for rule in bonus_rules:
