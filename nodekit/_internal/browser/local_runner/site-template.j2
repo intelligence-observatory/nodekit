@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>NodeGraph Preview Page</title>
+
+    <!-- NodeKit runtime assets -->
+    <script src="{{ nodekit_javascript_link }}"></script>
+    <link href="{{ nodekit_css_link }}" rel="stylesheet">
+
+    <script>
+        // NodeGraph payload rendered from server
+        const nodeGraph = {{ node_graph | tojson(indent=4) | indent(8, first=False) }};
+
+        // Submit URL injected from FastAPI
+        const submitUrl = "{{ submit_event_url }}";
+
+        async function sendEvent(ev) {
+            console.log(ev)
+            try {
+                await fetch(submitUrl, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(ev),
+                });
+            } catch (err) {
+                console.error("Failed to send event", err);
+            }
+        }
+
+        window.onload = async () => {
+            // Start NodeKit playback
+            await NodeKit.play(
+                nodeGraph,
+                sendEvent
+            );
+        };
+    </script>
+</head>
+<body></body>
+</html>

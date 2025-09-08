@@ -115,3 +115,8 @@ node_graph = nk.NodeGraph(
     max_duration_sec=600,
     base_payment_usd='0.01',
 )
+
+# %% Play the NodeGraph locally
+play_session = nk.play(node_graph)
+print(play_session.url)
+print(play_session.list_events())

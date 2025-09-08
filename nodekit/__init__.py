@@ -22,9 +22,8 @@ __all__ = [
     # Operations namespace:
     'ops',
 
-    # Local Play API: (future)
-    # 'play',
-    # 'list_events',
+    # Local play function:
+    'play',
 
     # Static resource getters:
     'get_browser_bundle',
@@ -49,7 +48,9 @@ import nodekit.common as common
 import nodekit.events as events
 import nodekit.ops as ops
 
-# Local Play API
+
+# Local play function:
+from nodekit._internal.browser.local_runner.main import play as play
 
 # Static resources:
 from nodekit._internal.browser.html_rendering import get_browser_bundle as get_browser_bundle
