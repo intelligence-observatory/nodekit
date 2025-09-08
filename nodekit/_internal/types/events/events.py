@@ -86,16 +86,14 @@ class NodeResultEvent(BaseEvent):
 
 # %%
 class BrowserContext(pydantic.BaseModel):
-    class PixelArea(pydantic.BaseModel):
-        width_px: int = pydantic.Field(description="Width of the area in pixels.", ge=0)
-        height_px: int = pydantic.Field(description="Height of the area in pixels.", ge=0)
-
-    # Board
-    display_area: PixelArea = pydantic.Field(description="Metrics of the display area in which the board is rendered.")
-    viewport_area: PixelArea = pydantic.Field(description="Metrics of the viewport in which the board is rendered.")
-
     # User agent string
     user_agent: str = pydantic.Field(description="User agent string of the browser or application rendering the board.")
+
+    display_width_px: int
+    display_height_px: int
+
+    viewport_width_px: int
+    viewport_height_px: int
 
 
 class BrowserContextEvent(BaseEvent):

@@ -4,6 +4,7 @@ import {type ISO8601, type MonetaryAmountUsd} from "./types/common.ts";
 import {calculateBonusUsd} from "./ops/calculate-bonus.ts";
 import type {NodeGraph} from "./types/node-graph.ts";
 import {performanceNowToISO8601} from "./utils.ts";
+import {getBrowserContext} from "./user-gates/browser-context.ts";
 
 export type OnEventCallback = (event: Event) => void;
 
@@ -71,6 +72,17 @@ export async function play(
     events.push(startEvent);
     onEventCallback(startEvent);
 
+    // Emit the BrowserContextEvent:
+    const browserContext = getBrowserContext();
+    const browserContextEvent: Event = {
+        event_id: generateEventId(),
+        event_timestamp: getCurrentTimestamp(),
+        event_type: "BrowserContextEvent",
+        event_payload: browserContext,
+    }
+    events.push(browserContextEvent);
+    onEventCallback(browserContextEvent);
+
     // Play the Nodes in the NodeGraph:
     const nodes = nodeGraph.nodes;
     let nodePlayer = new NodePlayer();
@@ -93,7 +105,6 @@ export async function play(
                 timestamp_start: nodeMeasurements.timestamp_start,
                 timestamp_end: nodeMeasurements.timestamp_end,
                 action: nodeMeasurements.action,
-                runtime_metrics: nodeMeasurements.runtime_metrics,
             }
         }
         events.push(nodeResultEvent);

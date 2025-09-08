@@ -6,3 +6,4 @@ export function performanceNowToISO8601(
     const timestampMsec = performance.timeOrigin + performanceNowMsec;
     return new Date(timestampMsec).toISOString() as ISO8601;
 }
+
