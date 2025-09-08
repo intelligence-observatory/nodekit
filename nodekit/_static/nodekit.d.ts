@@ -38,6 +38,7 @@ declare type BaseEvent<T extends string, P> = {
     event_type: T;
     event_payload: P;
     event_timestamp: ISO8601;
+    nodekit_version: string;
 };
 
 declare interface BaseReinforcerMap<T extends string, P> {
@@ -228,6 +229,7 @@ declare interface Node_2 {
 declare interface NodeGraph {
     nodes: Node_2[];
     bonus_rules: BonusRule[];
+    nodekit_version: string;
 }
 
 declare type NodeId = string & {

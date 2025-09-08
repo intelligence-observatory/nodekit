@@ -12,6 +12,7 @@ export type BaseEvent<T extends string, P> = {
     event_type: T,
     event_payload: P,
     event_timestamp: ISO8601,
+    nodekit_version: string
 }
 
 // NodeGraph start and end events:

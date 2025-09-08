@@ -20,4 +20,5 @@ export interface Node {
 export interface NodeGraph {
     nodes: Node[];
     bonus_rules: BonusRule[];
+    nodekit_version: string;
 }
