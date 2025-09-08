@@ -1,7 +1,6 @@
 import nodekit as nk
 import random
 
-
 # %% Assemble a simple NodeGraph:
 nodes = []
 
@@ -115,3 +114,9 @@ node_graph = nk.NodeGraph(
     max_duration_sec=600,
     base_payment_usd='0.01',
 )
+
+# %% Play the NodeGraph locally
+play_session = nk.play(node_graph)
+
+# %% After interacting with the task, print out the events that were recorded
+print(play_session.list_events())

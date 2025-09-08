@@ -16,6 +16,7 @@ dependencies = [
     "pillow>=10.4",
     "pydantic>=2.9.2",
     "Jinja2>=3.1.4",
+    "fastapi[standard]>=0.116.1",
 ]
 
 [project.urls]
