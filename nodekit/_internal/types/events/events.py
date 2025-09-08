@@ -1,17 +1,16 @@
+# %%
+import enum
 from typing import Literal, Annotated, Union
+from uuid import UUID
 
 import pydantic
 
-from nodekit._internal.types.common import DatetimeUTC
+from nodekit._internal.types.actions.actions import Action
 from nodekit._internal.types.base import NullValue
-from nodekit._internal.types.node_graph import NodeResult
-
-from uuid import UUID
+from nodekit._internal.types.common import DatetimeUTC
+from nodekit._internal.types.runtime_metrics import RuntimeMetrics
 
 # %%
-import enum
-
-
 class EventTypeEnum(str, enum.Enum):
     StartEvent = 'StartEvent'
     NodeResultEvent = 'NodeResultEvent'
@@ -66,6 +65,21 @@ class BonusDisclosureEvent(BaseEvent):
 
 
 # %%
+class NodeResult(pydantic.BaseModel):
+    """
+    Describes the result of a NodePlay.
+    """
+
+    node_id: str = pydantic.Field(description='The ID of the Node from which this NodeResult was produced.')
+    node_execution_index: int = pydantic.Field(description='The index of the Node execution in the NodeGraph. This is used to identify the order of Node executions in a TaskRun.')
+
+    timestamp_start: DatetimeUTC
+    timestamp_end: DatetimeUTC
+
+    action: Action
+    runtime_metrics: RuntimeMetrics
+
+
 class NodeResultEvent(BaseEvent):
     event_type: Literal[EventTypeEnum.NodeResultEvent] = EventTypeEnum.NodeResultEvent
     event_payload: NodeResult

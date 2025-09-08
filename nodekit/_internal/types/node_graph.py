@@ -3,16 +3,15 @@ from uuid import uuid4
 
 import pydantic
 
-from nodekit._internal.types.common import (
-    PayableMonetaryAmountUsd, DatetimeUTC, NodeId
-)
 from nodekit._internal.types.board import Board
 from nodekit._internal.types.bonus_policy import BonusRule
 from nodekit._internal.types.cards.cards import Card
+from nodekit._internal.types.common import (
+    PayableMonetaryAmountUsd,
+    NodeId
+)
 from nodekit._internal.types.effects.base import Effect
 from nodekit._internal.types.reinforcer_maps.reinforcer_maps import ReinforcerMap
-from nodekit._internal.types.runtime_metrics import RuntimeMetrics
-from nodekit._internal.types.actions.actions import Action
 from nodekit._internal.types.sensors.sensors import Sensor
 
 
@@ -68,6 +67,7 @@ class Node(pydantic.BaseModel):
 
 # %% NodeGraph
 class NodeGraph(pydantic.BaseModel):
+
     nodes: List[Node]
 
     # Payment information
@@ -100,18 +100,3 @@ class NodeGraph(pydantic.BaseModel):
     )
 
 
-
-# %%
-class NodeResult(pydantic.BaseModel):
-    """
-    Describes the result of a NodePlay.
-    """
-
-    node_id: str = pydantic.Field(description='The ID of the Node from which this NodeResult was produced.')
-    node_execution_index: int = pydantic.Field(description='The index of the Node execution in the NodeGraph. This is used to identify the order of Node executions in a TaskRun.')
-
-    timestamp_start: DatetimeUTC
-    timestamp_end: DatetimeUTC
-
-    action: Action
-    runtime_metrics: RuntimeMetrics
