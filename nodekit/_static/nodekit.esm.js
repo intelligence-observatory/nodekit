@@ -5825,8 +5825,8 @@ function ya() {
     user_agent: navigator.userAgent,
     display_width_px: screen.width,
     display_height_px: screen.height,
-    viewport_height_px: window.innerHeight,
-    viewport_width_px: window.innerWidth
+    viewport_width_px: window.innerWidth,
+    viewport_height_px: window.innerHeight
   };
 }
 function vt() {
