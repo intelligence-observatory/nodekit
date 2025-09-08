@@ -120,3 +120,11 @@ play_session = nk.play(node_graph)
 
 # %% After interacting with the task, print out the events that were recorded
 print(play_session.list_events())
+
+# %% Can compute authoritative bonus based on the events and the bonus rules:
+print(
+    nk.ops.calculate_bonus_usd(
+        events = play_session.list_events(),
+        bonus_rules=node_graph.bonus_rules,
+    )
+)

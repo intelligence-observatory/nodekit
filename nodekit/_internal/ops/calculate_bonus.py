@@ -18,7 +18,7 @@ def calculate_bonus_usd(
         if ev.event_type != EventTypeEnum.NodeResultEvent:
             continue
 
-        action = ev.action
+        action = ev.event_payload.action
 
         # Perform scan through rules
         for rule in bonus_rules:
