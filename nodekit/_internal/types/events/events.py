@@ -8,6 +8,7 @@ import pydantic
 from nodekit._internal.types.actions.actions import Action
 from nodekit._internal.types.base import NullValue
 from nodekit._internal.types.common import DatetimeUTC, NodeId
+from nodekit._internal.version import VERSION
 
 # %%
 class EventTypeEnum(str, enum.Enum):
@@ -26,6 +27,7 @@ class BaseEvent(pydantic.BaseModel):
     event_timestamp: DatetimeUTC
     event_type: EventTypeEnum
     event_payload: NullValue
+    nodekit_version: str = pydantic.Field(default=VERSION)
 
 
 # %%

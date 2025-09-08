@@ -2,6 +2,7 @@ from typing import List, Self
 from uuid import uuid4
 
 import pydantic
+from nodekit._internal.version import VERSION
 
 from nodekit._internal.types.board import Board
 from nodekit._internal.types.bonus_policy import BonusRule
@@ -99,4 +100,5 @@ class NodeGraph(pydantic.BaseModel):
         description='Keywords that Participants may use to discover this task on the Recruitment Platform.'
     )
 
-
+    # NodeKit version:
+    nodekit_version: str = pydantic.Field(default=VERSION)

@@ -1,5 +1,3 @@
-VERSION = '0.1.0'
-
 __all__ = [
     'VERSION',
 
@@ -28,6 +26,8 @@ __all__ = [
     'get_browser_bundle',
 ]
 
+# Version
+from nodekit._internal.version import VERSION
 
 # Incoming models:
 from nodekit._internal.types.node_graph import (
