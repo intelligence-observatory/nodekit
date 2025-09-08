@@ -53,4 +53,4 @@ import nodekit.ops as ops
 from nodekit._internal.browser.local_runner.main import play as play
 
 # Static resources:
-from nodekit._internal.browser.html_rendering import get_browser_bundle as get_browser_bundle
+from nodekit._internal.browser.browser_bundle import get_browser_bundle as get_browser_bundle

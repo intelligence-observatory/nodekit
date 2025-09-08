@@ -1,7 +1,6 @@
 import nodekit as nk
 import random
 
-
 # %% Assemble a simple NodeGraph:
 nodes = []
 

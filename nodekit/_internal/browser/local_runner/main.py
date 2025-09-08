@@ -10,7 +10,7 @@ import fastapi.templating
 import pydantic
 import uvicorn
 
-from nodekit._internal.browser.html_rendering import get_browser_bundle
+from nodekit._internal.browser.browser_bundle import get_browser_bundle
 from nodekit._internal.types.events.events import Event
 from nodekit._internal.types.node_graph import NodeGraph
 
