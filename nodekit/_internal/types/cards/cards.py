@@ -4,7 +4,7 @@ from typing import Literal, Annotated, Union, List
 import pydantic
 
 from nodekit._internal.types.assets.links import ImageLink, VideoLink
-from nodekit._internal.types.common import ColorHexString, TextContent, SpatialPoint, SpatialSize, TimePointMsec, CardId
+from nodekit._internal.types.common import ColorHexString, MarkdownString, SpatialPoint, SpatialSize, TimePointMsec, CardId
 from uuid import uuid4
 
 # %% Concrete card classes
@@ -43,6 +43,14 @@ class FixationPointCard(BaseCard):
 
 
 # %%
+class TextContent(pydantic.BaseModel):
+    text: MarkdownString
+    text_color: ColorHexString = '#000000'
+    font_size: SpatialSize = 0.0175
+    justification_horizontal: Literal['left', 'center', 'right'] = 'center'
+    justification_vertical: Literal['top', 'center', 'bottom'] = 'center'
+
+
 class MarkdownPagesCard(BaseCard):
     card_type: Literal['MarkdownPagesCard'] = 'MarkdownPagesCard'
     pages: List[TextContent] = pydantic.Field(
@@ -71,6 +79,17 @@ class TextCard(BaseCard, TextContent):
     )
 
 # %%
+class BlankCard(BaseCard):
+    """
+    A rectangular card with a solid background color and no content.
+    """
+    card_type: Literal['BlankCard'] = 'BlankCard'
+    background_color: ColorHexString = pydantic.Field(
+        default='#808080',
+        description='The background color of the BlankCard in hexadecimal format.'
+    )
+
+# %%
 Card = Annotated[
     Union[
         FixationPointCard,
@@ -78,6 +97,7 @@ Card = Annotated[
         VideoCard,
         TextCard,
         MarkdownPagesCard,
+        BlankCard,
     ],
     pydantic.Field(discriminator='card_type')
 ]

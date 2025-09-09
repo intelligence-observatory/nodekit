@@ -6,7 +6,7 @@ from uuid import UUID
 import pydantic
 
 from nodekit._internal.types.actions.actions import Action
-from nodekit._internal.types.common import DatetimeUTC, NodeId, NullValue
+from nodekit._internal.types.common import DatetimeUTC, NodeId
 from nodekit._internal.version import VERSION
 
 # %%
@@ -21,11 +21,18 @@ class EventTypeEnum(str, enum.Enum):
 
 
 # %%
+class NullPayload(pydantic.BaseModel):
+    """
+    A sentinel model for *_value fields which do not require specification.
+    """
+    pass
+
+
 class BaseEvent(pydantic.BaseModel):
     event_id: UUID
     event_timestamp: DatetimeUTC
     event_type: EventTypeEnum
-    event_payload: NullValue
+    event_payload: NullPayload
     nodekit_version: str = pydantic.Field(default=VERSION)
 
 
@@ -80,11 +87,9 @@ class NodeResultEvent(BaseEvent):
         """
 
         node_id: NodeId = pydantic.Field(description='The ID of the Node from which this NodeResult was produced.')
-        node_execution_index: int = pydantic.Field(description='The index of the Node execution in the NodeGraph. This is used to identify the order of Node executions in a TaskRun.')
-
+        node_execution_index: int = pydantic.Field(description='The index of the Node execution in the NodeGraph.', ge=0)
         timestamp_start: DatetimeUTC
         timestamp_end: DatetimeUTC
-
         action: Action
 
     event_type: Literal[EventTypeEnum.NodeResultEvent] = EventTypeEnum.NodeResultEvent

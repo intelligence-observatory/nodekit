@@ -1,24 +1,20 @@
-from typing import List, Self, Dict
+from typing import List, Self
 from uuid import uuid4
 
 import pydantic
-from nodekit._internal.version import VERSION
 
 from nodekit._internal.types.board.board import Board
-from nodekit._internal.types.bonus_rules.bonus_rules import BonusRule
 from nodekit._internal.types.cards.cards import Card
-from nodekit._internal.types.common import (
-    PayableMonetaryAmountUsd,
-    NodeId
-)
+from nodekit._internal.types.common import PayableMonetaryAmountUsd, NodeId
+from nodekit._internal.types.consequence import Consequence
 from nodekit._internal.types.effects.effects import Effect
 from nodekit._internal.types.sensors.sensors import Sensor
+from nodekit._internal.version import VERSION
 
-from nodekit._internal.types.common import DatetimeUTC, PressableKey, SensorId, NodeId,CardId, NullValue, SpatialPoint
 
 # %% Node
 class Node(pydantic.BaseModel):
-    node_id: NodeId = pydantic.Field(default_factory=uuid4),
+    node_id: NodeId = pydantic.Field(default_factory=uuid4)
 
     cards: List[Card] = pydantic.Field(
         description=(
@@ -28,10 +24,8 @@ class Node(pydantic.BaseModel):
         min_length=1,
     )
 
-    sensors: List[Sensor] = pydantic.Field(
-        min_length=1,
-    )
-
+    sensors: List[Sensor] = pydantic.Field(min_length=1)
+    consequences: List[Consequence] = pydantic.Field(default_factory=list)
     effects: List[Effect] = pydantic.Field(default_factory=list)
 
     @pydantic.model_validator(mode='after')
@@ -59,12 +53,6 @@ class NodeGraph(pydantic.BaseModel):
     # Payment information
     base_payment_usd: PayableMonetaryAmountUsd = pydantic.Field(
         description="The base payment (in USD) that a Participant receives upon successfully completing a run. Should be explicitly disclosed to the Participant ahead of time.",
-    )
-    bonus_rules: List[BonusRule] = pydantic.Field(
-        description=(
-            'A list of bonus rules that are used to compute a bonus reward based on Participant behavior during the run. A summary of these rules '
-            'may be disclosed indirectly to the Participant ahead of time (e.g., "You will receive a bonus for every target you click").'
-        )
     )
 
     # Duration

@@ -1,6 +1,6 @@
 import datetime
 from decimal import Decimal
-from typing import Literal, Annotated, Self
+from typing import Literal, Annotated
 from uuid import UUID
 
 import pydantic
@@ -84,15 +84,6 @@ ColorHexString = Annotated[
 ]
 
 
-class TextContent(pydantic.BaseModel):
-    text: MarkdownString
-    text_color: ColorHexString = '#000000'
-    font_size: SpatialSize = 0.0175
-    justification_horizontal: Literal['left', 'center', 'right'] = 'center'
-    justification_vertical: Literal['top', 'center', 'bottom'] = 'center'
-
-
-
 # Enter, spacebar, arrow keys, and alphanumeric keys:
 PressableKey = Literal[
     'Enter',
@@ -103,15 +94,3 @@ PressableKey = Literal[
 ]
 
 
-class NullParameters(pydantic.BaseModel):
-    """
-    A sentinel model for *_parameter fields which do not require specification.
-    """
-    pass
-
-
-class NullValue(pydantic.BaseModel):
-    """
-    A sentinel model for *_value fields which do not require specification.
-    """
-    pass

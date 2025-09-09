@@ -26,6 +26,8 @@ class HidePointerEffect(BaseEffect):
     """
     effect_type: Literal['HidePointerEffect'] = 'HidePointerEffect'
 
+    t_end: TimePointMsec # Must be specified for this effect
+
 
 Effect = Annotated[
     Union[HidePointerEffect],

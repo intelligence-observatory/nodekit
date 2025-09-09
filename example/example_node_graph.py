@@ -2,29 +2,8 @@ import nodekit as nk
 import random
 import time
 
-# %% Assemble a simple NodeGraph:
-nodes = []
-
-
+random.seed(42)
 # %% Create a sequence of simple Nodes in which the Participant must click on a fixation point:
-def make_keypress_node(
-        key_to_press: str,
-):
-    assert len(key_to_press) == 1
-    text_card = nk.cards.TextCard(
-        text=f'Press the "{key_to_press}" key to continue.',
-        x=0, y=0, w=0.5, h=0.2,
-    )
-
-    sensor = nk.sensors.KeySensor(
-        key=key_to_press,  # noqa
-    )
-    return nk.Node(
-        cards=[text_card],
-        sensors=[sensor],
-    )
-
-
 def make_basic_fixation_node(
         fixation_x: float,
         fixation_y: float,
@@ -44,34 +23,43 @@ def make_basic_fixation_node(
 
     # Define your Sensors, which will detect an Action from the Participant:
     clicked_fixation_dot_sensor = nk.sensors.ClickSensor(card_id=fixation_card.card_id)
-    spacebar_sensor = nk.sensors.KeySensor(key=' ')
+    spacebar_sensor = nk.sensors.KeySensor(key=' ', t_end=5000)
 
     # Set up your ConsequenceMap, which maps Actions to Consequences
     positive_card = nk.cards.TextCard(
         text='Yay',
-        x=0, y=0, w=0.5, h=0.5
+        x=0, y=0, w=0.5, h=0.5,
+        t_end=200,
     )
 
     negative_card = nk.cards.TextCard(
         text='Boo',
-        x=0, y=0, w=0.5, h=0.5
+        x=0, y=0, w=0.5, h=0.5,
+        t_end=400,
     )
 
-    consequence_map = {
-        click_sensor.sensor_id: [positive_card],
-        spacebar_sensor.sensor_id: [negative_card],
-        'timeout': [negative_card],
-    }
+    consequences = [
+        nk.Consequence(
+            sensor_id=clicked_fixation_dot_sensor.sensor_id,
+            cards=[positive_card],
+            bonus_amount_usd='0.01'
+        ),
+        nk.Consequence(
+            sensor_id=spacebar_sensor.sensor_id,
+            cards=[negative_card],
+            bonus_amount_usd='-0.01'
+        ),
+    ]
 
     return nk.Node(
         cards=[fixation_card],
         sensors=[clicked_fixation_dot_sensor, spacebar_sensor],
-        consequences=consequence_map
+        consequences=consequences,
     )
 
 
-random.seed(42)
-bonus_rules = []
+# %%
+nodes = []
 for _ in range(2):
     # Randomly sample fixation points:
     node = make_basic_fixation_node(
@@ -79,19 +67,6 @@ for _ in range(2):
         fixation_y=round(random.uniform(-0.3, 0.3), 2)
     )
     nodes.append(node)
-
-    # Attach a bonus rule to each node:
-    bonus_rule = nk.bonus_rules.ConstantBonusRule(
-        node_id=node.node_id,
-        sensor_id=node.sensors[0].sensor_id,
-        bonus_amount_usd='0.01',
-    )
-
-    bonus_rules.append(bonus_rule)
-
-nodes.append(
-    make_keypress_node('a')
-)
 
 # Generate preview of NodeGraph webpage:
 node_graph = nk.NodeGraph(
@@ -101,8 +76,10 @@ node_graph = nk.NodeGraph(
     keywords=['test', 'example'],
     max_duration_sec=600,
     base_payment_usd='0.01',
-    bonus_rules=bonus_rules,
 )
+
+
+raise Exception
 
 # %% Play the NodeGraph locally:
 play_session = nk.play(node_graph)
@@ -117,6 +94,6 @@ while True:
 # %% Can compute authoritative bonus based on the events and the bonus rules:
 bonus_usd = nk.ops.calculate_bonus_usd(
     events=events,
-    bonus_rules=node_graph.bonus_rules,
+    node_graph=node_graph,
 )
 print(f"Computed bonus: ${bonus_usd}")

@@ -1,9 +1,9 @@
 from abc import ABC
-from typing import List, Literal, Union, Annotated
+from typing import Literal, Union, Annotated
 
 import pydantic
 
-from nodekit._internal.types.common import DatetimeUTC, PressableKey, SensorId, NullValue, SpatialPoint
+from nodekit._internal.types.common import DatetimeUTC, PressableKey, SensorId, SpatialPoint
 
 
 # %%

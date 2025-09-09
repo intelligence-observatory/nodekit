@@ -4,6 +4,7 @@ __all__ = [
     # Top-level types:
     'NodeGraph',
     'Node',
+    'Consequence',
 
     # Namespaced types:
     'actions',
@@ -11,9 +12,7 @@ __all__ = [
     'cards',
     'sensors',
     'effects',
-    'bonus_rules',
     'events',
-    'common',
 
     # Operations namespace:
     'ops',
@@ -34,16 +33,15 @@ from nodekit._internal.types.node_graph import (
     Node,
 )
 
+from nodekit._internal.types.consequence import Consequence
+
 import nodekit.cards as cards
 import nodekit.assets as assets
 import nodekit.effects as effects
 import nodekit.sensors as sensors
 import nodekit.actions as actions
-import nodekit.bonus_rules as bonus_rules
-import nodekit.common as common
 import nodekit.events as events
 import nodekit.ops as ops
-
 
 # Local play function:
 from nodekit._internal.browser.local_runner.main import play as play
