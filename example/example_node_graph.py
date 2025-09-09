@@ -5,7 +5,8 @@ import time
 # %% Assemble a simple NodeGraph:
 nodes = []
 
-# %% Create a sequence of simple Nodes in which the Participant must click on a fixation point
+
+# %% Create a sequence of simple Nodes in which the Participant must click on a fixation point:
 def make_keypress_node(
         key_to_press: str,
 ):
@@ -19,12 +20,7 @@ def make_keypress_node(
     )
 
     sensor = nk.sensors.KeyPressSensor(
-        sensor_parameters=nk.sensors.KeyPressSensor.Parameters(
-            keys={key_to_press},
-        ),
-        sensor_timespan=nk.common.Timespan(
-            start_time_msec=0,
-        )
+        keys={key_to_press}, # noqa
     )
     return nk.Node(
         cards=[text_card],
@@ -42,24 +38,14 @@ def make_basic_fixation_node(
     """
 
     fixation_card = nk.cards.FixationPointCard(
-        card_shape=nk.common.BoardRectangle(
-            width=0.05,
-            height=0.05,
-        ),
-        card_location=nk.common.BoardLocation(
-            x=fixation_x,
-            y=fixation_y
-        ),
-        card_timespan=nk.common.Timespan(
-            start_time_msec=0,
-        ),
+        w=0.05,
+        h=0.05,
+        x=fixation_x,
+        y=fixation_y,
     )
 
     click_sensor = nk.sensors.ClickSensor(
-        sensor_timespan=fixation_card.card_timespan,
-        sensor_parameters=nk.sensors.ClickSensor.Parameters(
-            card_id=fixation_card.card_id,
-        )
+        card_id=fixation_card.card_id,
     )
 
     return nk.Node(
@@ -71,16 +57,17 @@ def make_basic_fixation_node(
 random.seed(42)
 bonus_rules = []
 for _ in range(2):
-    # Randomly sample fixation points
+    # Randomly sample fixation points:
     node = make_basic_fixation_node(
         fixation_x=round(random.uniform(-0.3, 0.3), 2),
         fixation_y=round(random.uniform(-0.3, 0.3), 2)
     )
     nodes.append(node)
 
-    # Attach a bonus rule to each node
+    # Attach a bonus rule to each node:
     bonus_rule = nk.bonus_rules.ConstantBonusRule(
         bonus_rule_parameters=nk.bonus_rules.ConstantBonusRule.Parameters(
+            node_id=node.node_id,
             sensor_id=node.sensors[0].sensor_id,
             bonus_amount_usd='0.01',
         )
@@ -103,7 +90,7 @@ node_graph = nk.NodeGraph(
     base_payment_usd='0.01',
 )
 
-# %% Play the NodeGraph locally
+# %% Play the NodeGraph locally:
 play_session = nk.play(node_graph)
 
 # %% Wait until the end event is observed:
@@ -113,11 +100,9 @@ while True:
         break
     time.sleep(5)
 
-
 # %% Can compute authoritative bonus based on the events and the bonus rules:
 bonus_usd = nk.ops.calculate_bonus_usd(
-    events = events,
+    events=events,
     bonus_rules=node_graph.bonus_rules,
 )
 print(f"Computed bonus: ${bonus_usd}")
-

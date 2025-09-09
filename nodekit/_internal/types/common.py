@@ -92,62 +92,6 @@ class TextContent(pydantic.BaseModel):
     justification_vertical: Literal['top', 'center', 'bottom'] = 'center'
 
 
-class BoardRectangle(pydantic.BaseModel):
-    """
-    Describes a rectangle on the Board, in Board units.
-    """
-    width: SpatialSize
-    height: SpatialSize
-
-
-class BoardLocation(pydantic.BaseModel):
-    """
-    Describes the location of a point on the Board. The coordinates of that location are given under a
-     coordinate system where:
-    - (0,0) is the center of the Board.
-    - A unit of 1 corresponds to the *smaller* extent of the Board (the full width of the Board or the full height of the Board; whichever is smaller.).
-    - A positive increase in the x-dimension is rightwards.
-    - A positive increase in the y-dimension is upwards.
-    """
-    x: SpatialPoint
-    y: SpatialPoint
-
-
-class Timespan(pydantic.BaseModel):
-    start_time_msec: TimePointMsec = pydantic.Field(
-        description="The start time of this Timespan relative to the NodePlay start, in milliseconds."
-    )
-
-    end_time_msec: TimePointMsec | None = pydantic.Field(
-        description="The time, relative to NodePlay start, when the time span ends, in milliseconds. If None, the time span is open-ended and continues until the end of NodePlay.",
-        default=None,
-    )
-
-    @pydantic.model_validator(mode='after')
-    def validate_timespan(self) -> Self:
-        if self.end_time_msec is not None and self.end_time_msec < self.start_time_msec:
-            raise ValueError('end_time_msec must be greater than or equal to start_time_msec, or None for an open-ended timespan.')
-        return self
-
-    def check_if_subset_of_other(self, timespan_other: 'Timespan'):
-        """
-        Check if this Timespan is a subset of another Timespan.
-        """
-        if self.start_time_msec < timespan_other.start_time_msec:
-            return False
-
-        if self.end_time_msec is not None and timespan_other.end_time_msec is not None:
-            if self.end_time_msec > timespan_other.end_time_msec:
-                return False
-        return True
-
-    def is_finite(self) -> bool:
-        """
-        Check if the Timespan is finite (i.e., has a defined end time).
-        """
-        return self.end_time_msec is not None
-
-
 
 # Enter, spacebar, arrow keys, and alphanumeric keys:
 PressableKey = Literal[

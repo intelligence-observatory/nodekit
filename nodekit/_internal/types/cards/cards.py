@@ -5,7 +5,7 @@ from uuid import uuid4
 import pydantic
 
 from nodekit._internal.types.assets.links import ImageLink, VideoLink
-from nodekit._internal.types.common import ColorHexString, TextContent, CardId, BoardRectangle, BoardLocation, Timespan, SpatialPoint, SpatialSize, TimePointMsec
+from nodekit._internal.types.common import ColorHexString, TextContent, CardId, SpatialPoint, SpatialSize, TimePointMsec
 
 
 # %% Concrete card classes
@@ -13,14 +13,15 @@ class BaseCard(pydantic.BaseModel, ABC):
     """
     Cards are visual elements which are placed on the Board.
     They are defined by their type, position, size, and the time range during which they are visible.
+    A Board unit of 1 corresponds to the *smaller* extent of the Board (the full width of the Board or the full height of the Board; whichever is smaller.
     """
     # Identifiers
     card_id: CardId = pydantic.Field(default_factory=uuid4)
     card_type: str
 
     # Position:
-    x: SpatialPoint = pydantic.Field(description='The x-coordinate of the Card center on the Board.')
-    y: SpatialPoint = pydantic.Field(description='The y-coordinate of the Card center on the Board.')
+    x: SpatialPoint = pydantic.Field(description='The x-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in x moves right.')
+    y: SpatialPoint = pydantic.Field(description='The y-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in y moves up.')
 
     # Shape:
     w: SpatialSize = pydantic.Field(description='The width of the Card, in Board units.')
@@ -28,11 +29,11 @@ class BaseCard(pydantic.BaseModel, ABC):
 
     # Time:
     t_start: TimePointMsec = pydantic.Field(
-        description='The time (in milliseconds) relative to Node start when the Card becomes visible.',
+        description='The time (in milliseconds) relative to Node start when the Card is placed on the Board.',
         default=0,
     )
     t_end: TimePointMsec | None = pydantic.Field(
-        description='The time (in milliseconds) relative to Node start when the Card is hidden.',
+        description='The time (in milliseconds) relative to Node start when the Card is removed from the Board.',
         default=None,
     )
 

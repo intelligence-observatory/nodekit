@@ -1,15 +1,22 @@
 from abc import ABC
-from typing import Literal, Any, Annotated, Union
+from typing import Literal, Annotated, Union
 
 import pydantic
 
-from nodekit._internal.types.common import Timespan, NullParameters
+from nodekit._internal.types.common import TimePointMsec
 
 
 class BaseEffect(pydantic.BaseModel, ABC):
     effect_type: str
-    effect_parameters: Any
-    effect_timespan: Timespan = pydantic.Field(default_factory=lambda: Timespan(start_time_msec=0, end_time_msec=None))
+
+    t_start: TimePointMsec = pydantic.Field(
+        description='The time (in milliseconds) relative to Node start when the Effect begins.',
+        default=0,
+    )
+    t_end: TimePointMsec | None = pydantic.Field(
+        description='The time (in milliseconds) relative to Node start when the Effect ends. If None, the Effect continues until the Node ends.',
+        default=None,
+    )
 
 
 # %%
@@ -18,7 +25,6 @@ class HidePointerEffect(BaseEffect):
     Effect to hide the pointer during a timespan.
     """
     effect_type: Literal['HidePointerEffect'] = 'HidePointerEffect'
-    effect_parameters: NullParameters = pydantic.Field(default_factory=NullParameters)
 
 
 Effect = Annotated[
