@@ -1,57 +1,60 @@
 from abc import ABC
-from typing import Literal, Annotated, Union, List
+from typing import Literal, Annotated, Union, List, Self
 
 import pydantic
 
 from nodekit._internal.types.cards.cards import Card
 
 # %%
-
-class Reinforcer(pydantic.BaseModel):
+class Consequence(pydantic.BaseModel):
     """
-    A Reinforcer describes a set of Cards to be presented to the user as a reward (or punishment) for taking a particular Action.
+    A Consequence describes a set of Cards to be presented to the Participant as a reinforcer (or punisher)
+    for taking a particular Action.
     """
 
-    reinforcer_cards: List[Card] = pydantic.Field(
-        description='Cards which constitute the Reinforcer.'
+    cards: List[Card] = pydantic.Field(
+        description='Cards which constitute the Reinforcer.',
     )
 
-    # Todo: ensure finite timespan
+    @pydantic.model_validator(mode='after')
+    def check_finite_timespans(self) -> Self:
+        # Ensure all the cards have a finite timespan
+        for card in self.reinforcer_cards:
+            if card.t_end is None:
+                raise ValueError(f'Reinforcer card {card.card_id} must have a finite t_end.')
+        return self
 
 
 # %%
-class BaseReinforcerMap(pydantic.BaseModel, ABC):
+class BaseOutcome(pydantic.BaseModel, ABC):
     """
     A ReinforcerMap represents a function mapping an Action emitted from a Sensor to a Reinforcer.
     """
-    reinforcer_map_type: str
+    outcome_type: str
 
 
 # %%
-class ConstantReinforcerMap(BaseReinforcerMap):
+class ConstantReinforcerMap(BaseOutcome):
     """
-    A ReinforcerMap that always returns the same Reinforcer, regardless of the Action's value.
-    Works on all Sensors.
+    A ReinforcerMap that always returns the same Reinforcer, regardless of the Action.
     """
 
-    reinforcer_map_type: Literal['ConstantReinforcerMap'] = 'ConstantReinforcerMap'
-    reinforcer: Reinforcer = pydantic.Field(description='The Reinforcer to return for any Action emitted by the Sensor it is attached to.')
+    outcome_type: Literal['ConstantReinforcerMap'] = 'ConstantReinforcerMap'
+    cards: List[Card] = pydantic.Field(description='The list of Cards to show as the Reinforcer.')
 
 
 class NullReinforcerMap(BaseReinforcerMap):
     """
     A ReinforcerMap that returns no Reinforcer, regardless of the Action's value.
-    Works on all Sensors.
     """
 
     reinforcer_map_type: Literal['NullReinforcerMap'] = 'NullReinforcerMap'
 
 # %%
-ReinforcerMap = Annotated[
+Outcome = Annotated[
     Union[
-        ConstantReinforcerMap,
-        NullReinforcerMap
+        ConstantOutcome,
     ],
-    pydantic.Field(discriminator='reinforcer_map_type')
+    pydantic.Field(discriminator='outcome_type')
 ]
 

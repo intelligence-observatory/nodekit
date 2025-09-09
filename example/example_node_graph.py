@@ -13,14 +13,14 @@ def make_keypress_node(
     assert len(key_to_press) == 1
     text_card = nk.cards.TextCard(
         text=f'Press the "{key_to_press}" key to continue.',
-        w=0.5,
-        h=0.2,
         x=0,
         y=0,
+        w=0.5,
+        h=0.2,
     )
 
     sensor = nk.sensors.KeyPressSensor(
-        keys={key_to_press}, # noqa
+        key=key_to_press, # noqa
     )
     return nk.Node(
         cards=[text_card],
@@ -38,10 +38,10 @@ def make_basic_fixation_node(
     """
 
     fixation_card = nk.cards.FixationPointCard(
-        w=0.05,
-        h=0.05,
         x=fixation_x,
         y=fixation_y,
+        w=0.05,
+        h=0.05,
     )
 
     click_sensor = nk.sensors.ClickSensor(

@@ -9,9 +9,8 @@ __all__ = [
     'actions',
     'assets',
     'cards',
-    'effects',
-    'reinforcer_maps',
     'sensors',
+    'effects',
     'bonus_rules',
     'events',
     'common',
@@ -38,7 +37,6 @@ from nodekit._internal.types.node_graph import (
 import nodekit.cards as cards
 import nodekit.assets as assets
 import nodekit.effects as effects
-import nodekit.reinforcer_maps as reinforcer_maps
 import nodekit.sensors as sensors
 import nodekit.actions as actions
 import nodekit.bonus_rules as bonus_rules

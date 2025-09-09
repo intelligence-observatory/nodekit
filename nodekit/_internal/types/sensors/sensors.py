@@ -1,11 +1,11 @@
 from abc import ABC
-from typing import Literal, Union, Annotated, Set, Self
+from typing import Literal, Union, Annotated, Set, Self ,List
 from uuid import uuid4
 
 import pydantic
 
 from nodekit._internal.types.common import CardId, PressableKey, SensorId, TimePointMsec
-from nodekit._internal.types.reinforcer_maps.reinforcer_maps import ReinforcerMap, NullReinforcerMap
+from nodekit._internal.types.cards.cards import Card
 
 
 # %%
@@ -29,11 +29,11 @@ class BaseSensor(pydantic.BaseModel, ABC):
         default=None,
     )
 
-    # ReinforcerMap:
-    reinforcer_map: ReinforcerMap = pydantic.Field(
-        default_factory=NullReinforcerMap
+    # Consequence for triggering this Sensor:
+    consequence: List[Card] = pydantic.Field(
+        description='The Consequence is a list of Cards that will be presented to the Participant on a fresh Board if this Sensor is triggered.',
+        default_factory=list,
     )
-
 
 # %%
 class TimeoutSensor(BaseSensor):
@@ -64,12 +64,13 @@ class ClickSensor(BaseSensor):
 # %%
 class KeyPressSensor(BaseSensor):
     sensor_type: Literal['KeyPressSensor'] = 'KeyPressSensor'
-    keys: Set[PressableKey] = pydantic.Field(description='The set of keys that will trigger this KeyPressSensor when pressed.')
+    key: PressableKey = pydantic.Field(description='The key that triggers this KeyPressSensor when pressed down.')
 
 
+# %%
 class KeyHoldsSensor(BaseSensor):
     sensor_type: Literal['KeyHoldsSensor'] = 'KeyHoldsSensor'
-    keys: Set[PressableKey] = pydantic.Field(description='The set of keys that will be tracked by this KeyHoldsSensor when pressed.')
+    key: PressableKey = pydantic.Field(description='The key tracked by this KeyHoldsSensor when held.')
 
 
 # %%
