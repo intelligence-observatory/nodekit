@@ -57,7 +57,7 @@ class DoneSensor(BaseSensor):
 
 # %%
 class ClickSensor(BaseSensor):
-    sensor_type: Literal['ClickSensor'] = pydantic.Field(default='ClickSensor', frozen=True)
+    sensor_type: Literal['ClickSensor'] = 'ClickSensor'
     card_id: CardId = pydantic.Field(description='The ID of the click-able Card to which this ClickSensor is attached.')
 
 

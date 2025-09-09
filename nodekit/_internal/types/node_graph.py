@@ -18,7 +18,7 @@ from nodekit._internal.types.sensors.sensors import Sensor
 # %% Node
 class Node(pydantic.BaseModel):
     node_id: NodeId = pydantic.Field(default_factory=uuid4)
-    board: Board = pydantic.Field(default_factory=Board)
+
 
     cards: List[Card] = pydantic.Field(
         description=(
@@ -60,6 +60,8 @@ class Node(pydantic.BaseModel):
 
 # %% NodeGraph
 class NodeGraph(pydantic.BaseModel):
+
+    board: Board = pydantic.Field(default_factory=Board)
 
     nodes: List[Node]
 
