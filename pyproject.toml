@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "nodekit"
-version = "0.0.1a2"
+version = "0.1.0"
 authors = [
     { name = "Michael J. Lee", email = "mil@mit.edu" }
 ]
@@ -16,6 +16,7 @@ dependencies = [
     "pillow>=10.4",
     "pydantic>=2.9.2",
     "Jinja2>=3.1.4",
+    "fastapi[standard]>=0.116.1",
 ]
 
 [project.urls]
@@ -27,7 +28,10 @@ where = ["."]
 namespaces = false
 
 [tool.setuptools.package-data]
-nodekit = ["**/*.j2"]
+nodekit = [
+    "**/*.j2",
+    "_static/**"
+]
 
 [dependency-groups]
 dev = [

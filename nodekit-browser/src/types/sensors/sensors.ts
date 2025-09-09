@@ -1,7 +1,6 @@
-import type {NullParameters} from "../base.ts";
 import type {BaseSensor} from "./base.ts";
-import type {CardId, TimeDurationMsec} from "../fields.ts";
-import type {PressableKey} from "../fields.ts";
+import type {CardId, NullParameters, TimeDurationMsec} from "../common.ts";
+import type {PressableKey} from "../common.ts";
 
 
 interface TimeoutSensorParameters {
@@ -9,7 +8,12 @@ interface TimeoutSensorParameters {
 }
 
 interface KeyPressSensorParameters {
-    // Listen to these key-down event.
+    // Listen to these key-down events:
+    keys: Set<PressableKey>;
+}
+
+interface KeyHoldsSensorParameters {
+    // Listen to these key-hold events:
     keys: Set<PressableKey>;
 }
 
@@ -29,4 +33,8 @@ export interface KeyPressSensor extends BaseSensor<'KeyPressSensor', KeyPressSen
     card_id: null;
 }
 
-export type Sensor = TimeoutSensor | DoneSensor | ClickSensor | KeyPressSensor;
+export interface KeyHoldsSensor extends BaseSensor<'KeyHoldsSensor', KeyHoldsSensorParameters> {
+    card_id: null;
+}
+
+export type Sensor = TimeoutSensor | DoneSensor | ClickSensor | KeyPressSensor | KeyHoldsSensor;

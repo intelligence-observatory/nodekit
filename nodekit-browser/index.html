@@ -3,16 +3,40 @@
 <html lang="en">
 <head>
     <link rel="icon" href="data:,">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>NodeKit Browser</title>
-  </head>
-  <body>
-    <div id="app"></div>
-    <script type="module" src="src/main.ts"></script>
-    <script type="module">
-        const nodes = [{
-            "node_id": "acee5f9b-996c-448d-9d3d-f9fc8e4b0c8d",
-            "node_parameters": {
+</head>
+<body>
+<div id="app"></div>
+<script type="module" src="src/main.ts"></script>
+<script type="module">
+    let nodeGraph = {
+        "base_payment_usd": "0.01",
+        "bonus_rules": [
+            {
+                "bonus_rule_parameters": {
+                    "bonus_amount_usd": "0.01",
+                    "sensor_id": "37525a0e-c0c2-4223-a65a-198bd0fe2de9"
+                },
+                "bonus_rule_type": "ConstantBonusRule"
+            },
+            {
+                "bonus_rule_parameters": {
+                    "bonus_amount_usd": "0.01",
+                    "sensor_id": "feb6db52-229b-47f8-921c-613735b6e2c1"
+                },
+                "bonus_rule_type": "ConstantBonusRule"
+            }
+        ],
+        "description": "Test task",
+        "keywords": [
+            "test",
+            "example"
+        ],
+        "max_duration_sec": 600,
+        "nodes": [
+            {
+                "node_id": "acee5f9b-996c-448d-9d3d-f9fc8e4b0c8d",
                 "board": {"board_width_px": 768, "board_height_px": 768},
                 "cards": [
                     {
@@ -37,161 +61,185 @@
                     "sensor_parameters": {},
                     "sensor_timespan": {"start_time_msec": 0, "end_time_msec": null},
                     "card_id": "3b6f3e51-437b-495f-b1bf-9437e8dcdb25"
-                }],
-                "reinforcer_maps": [],
-                "effects": []
-            }
-        }, {
-            "node_id": "01988636-b4f7-7901-95de-43599d57a440",
-            "node_parameters": {
-                "board": {"board_width_px": 768, "board_height_px": 768},
-                "cards": [
-                    {
-                        "card_id": "01988636-b4f7-7901-95de-433ee4055620",
-                        "card_type": "FixationPointCard",
-                        "card_parameters": {},
-                        "card_shape": {"width": 0.05, "height": 0.05},
-                        "card_location": {"x": -0.5, "y": -0.5},
-                        "card_timespan": {"start_time_msec": 0, "end_time_msec": null}
-                    }],
-                "sensors": [{
-                    "sensor_id": "01988636-b4f7-7901-95de-43492b583ae6",
-                    "sensor_type": "ClickSensor",
-                    "sensor_parameters": {},
-                    "sensor_timespan": {"start_time_msec": 0, "end_time_msec": null},
-                    "card_id": "01988636-b4f7-7901-95de-433ee4055620"
                 },
                     {
-                        "sensor_id": "01988636-b4f7-7901-95de-43492b583fff",
-                        "sensor_type": "KeyPressSensor",
-                        "sensor_parameters": {"keys": ["a"]},
-                        "sensor_timespan": {"start_time_msec": 0, "end_time_msec": null},
+                        "sensor_id": "89c1e6cf-f690-43de-ae02-869cf087976f",
+                        "sensor_type": "KeyHoldsSensor",
+                        "sensor_parameters": {
+                            keys: ['a', 's', 'd']
+                        },
+                        "sensor_timespan": {"start_time_msec": 0, "end_time_msec": 5000},
                     }],
                 "reinforcer_maps": [],
                 "effects": []
-            }
-        }, {
-            "node_id": "01988636-b4f7-7901-95de-43850b690ddb",
-            "node_parameters": {
-                "board": {"board_width_px": 768, "board_height_px": 768},
-                "cards": [{
-                    "card_id": "01988636-b4f7-7901-95de-436a4430541a",
-                    "card_type": "FixationPointCard",
-                    "card_parameters": {},
-                    "card_shape": {"width": 0.05, "height": 0.05},
-                    "card_location": {"x": -0.13, "y": -0.17},
-                    "card_timespan": {"start_time_msec": 0, "end_time_msec": null}
-                }],
-                "sensors": [{
-                    "sensor_id": "01988636-b4f7-7901-95de-437647df550c",
-                    "sensor_type": "ClickSensor",
-                    "sensor_parameters": {},
-                    "sensor_timespan": {"start_time_msec": 0, "end_time_msec": null},
-                    "card_id": "01988636-b4f7-7901-95de-436a4430541a"
-                }],
+
+            },
+            {
+                "board": {
+                    "board_height_px": 768,
+                    "board_width_px": 768
+                },
+                "cards": [
+                    {
+                        "card_id": "dcad9dab-1386-4adb-be4f-d125ac192651",
+                        "card_location": {
+                            "x": 0.08,
+                            "y": -0.28
+                        },
+                        "card_parameters": {},
+                        "card_shape": {
+                            "height": 0.05,
+                            "width": 0.05
+                        },
+                        "card_timespan": {
+                            "end_time_msec": null,
+                            "start_time_msec": 0
+                        },
+                        "card_type": "FixationPointCard"
+                    }
+                ],
+                "effects": [],
+                "node_id": "cc4bc3e9-cd8f-4050-a7c4-850667299f2d",
                 "reinforcer_maps": [],
-                "effects": []
-            }
-        }, {
-            "node_id": "01988636-b4f7-7901-95de-43bf5190eaea",
-            "node_parameters": {
-                "board": {"board_width_px": 768, "board_height_px": 768},
-                "cards": [{
-                    "card_id": "01988636-b4f7-7901-95de-43965ea757b9",
-                    "card_type": "FixationPointCard",
-                    "card_parameters": {},
-                    "card_shape": {"width": 0.05, "height": 0.05},
-                    "card_location": {"x": 0.14, "y": 0.11},
-                    "card_timespan": {"start_time_msec": 0, "end_time_msec": null}
-                }],
-                "sensors": [{
-                    "sensor_id": "01988636-b4f7-7901-95de-43a6ec1a041e",
-                    "sensor_type": "ClickSensor",
-                    "sensor_parameters": {},
-                    "sensor_timespan": {"start_time_msec": 0, "end_time_msec": null},
-                    "card_id": "01988636-b4f7-7901-95de-43965ea757b9"
-                }],
+                "sensors": [
+                    {
+                        "card_id": "dcad9dab-1386-4adb-be4f-d125ac192651",
+                        "sensor_id": "37525a0e-c0c2-4223-a65a-198bd0fe2de9",
+                        "sensor_parameters": {},
+                        "sensor_timespan": {
+                            "end_time_msec": null,
+                            "start_time_msec": 0
+                        },
+                        "sensor_type": "ClickSensor"
+                    },
+                    {
+                        "card_id": null,
+                        "sensor_id": "750f6859-9207-4b2e-968b-75845bac12a6",
+                        "sensor_parameters": {
+                            "keys": [
+                                "a"
+                            ]
+                        },
+                        "sensor_timespan": {
+                            "end_time_msec": null,
+                            "start_time_msec": 0
+                        },
+                        "sensor_type": "KeyPressSensor"
+                    }
+                ]
+            },
+            {
+                "board": {
+                    "board_height_px": 768,
+                    "board_width_px": 768
+                },
+                "cards": [
+                    {
+                        "card_id": "31d1af64-83d0-4fa4-87ec-b6752215b1d3",
+                        "card_location": {
+                            "x": -0.13,
+                            "y": -0.17
+                        },
+                        "card_parameters": {},
+                        "card_shape": {
+                            "height": 0.05,
+                            "width": 0.05
+                        },
+                        "card_timespan": {
+                            "end_time_msec": null,
+                            "start_time_msec": 0
+                        },
+                        "card_type": "FixationPointCard"
+                    }
+                ],
+                "effects": [],
+                "node_id": "a4e48f5a-042f-4cb1-be38-876bea0347a8",
                 "reinforcer_maps": [],
-                "effects": []
-            }
-        }, {
-            "node_id": "01988636-b4f7-7901-95de-43e1f2b45f47",
-            "node_parameters": {
-                "board": {"board_width_px": 768, "board_height_px": 768},
-                "cards": [{
-                    "card_id": "01988636-b4f7-7901-95de-43ce2d7c4f5b",
-                    "card_type": "FixationPointCard",
-                    "card_parameters": {},
-                    "card_shape": {"width": 0.05, "height": 0.05},
-                    "card_location": {"x": 0.24, "y": -0.25},
-                    "card_timespan": {"start_time_msec": 0, "end_time_msec": null}
-                }],
-                "sensors": [{
-                    "sensor_id": "01988636-b4f7-7901-95de-43d88e0e545e",
-                    "sensor_type": "ClickSensor",
-                    "sensor_parameters": {},
-                    "sensor_timespan": {"start_time_msec": 0, "end_time_msec": null},
-                    "card_id": "01988636-b4f7-7901-95de-43ce2d7c4f5b"
-                }],
+                "sensors": [
+                    {
+                        "card_id": "31d1af64-83d0-4fa4-87ec-b6752215b1d3",
+                        "sensor_id": "feb6db52-229b-47f8-921c-613735b6e2c1",
+                        "sensor_parameters": {},
+                        "sensor_timespan": {
+                            "end_time_msec": null,
+                            "start_time_msec": 0
+                        },
+                        "sensor_type": "ClickSensor"
+                    }
+                ]
+            },
+            {
+                "board": {
+                    "board_height_px": 768,
+                    "board_width_px": 768
+                },
+                "cards": [
+                    {
+                        "card_id": "6b758064-7758-4e89-bae1-d1fa28aaf536",
+                        "card_location": {
+                            "x": 0.0,
+                            "y": 0.0
+                        },
+                        "card_parameters": {
+                            "background_color": "#E6E6E6",
+                            "content": {
+                                "font_size": 0.0175,
+                                "justification_horizontal": "center",
+                                "justification_vertical": "center",
+                                "text": "Press the \"a\" key to continue.",
+                                "text_color": "#000000"
+                            }
+                        },
+                        "card_shape": {
+                            "height": 0.2,
+                            "width": 0.5
+                        },
+                        "card_timespan": {
+                            "end_time_msec": null,
+                            "start_time_msec": 0
+                        },
+                        "card_type": "TextCard"
+                    }
+                ],
+                "effects": [],
+                "node_id": "6cc5a87b-578d-42cb-8e9f-79e739aa9e3c",
                 "reinforcer_maps": [],
-                "effects": []
+                "sensors": [
+                    {
+                        "card_id": null,
+                        "sensor_id": "750f6859-9207-4b2e-968b-75845bac12a6",
+                        "sensor_parameters": {
+                            "keys": [
+                                "a"
+                            ]
+                        },
+                        "sensor_timespan": {
+                            "end_time_msec": null,
+                            "start_time_msec": 0
+                        },
+                        "sensor_type": "KeyPressSensor"
+                    }
+                ]
             }
-        }, {
-            "node_id": "01988636-b4f7-7901-95de-4419268a31a5",
-            "node_parameters": {
-                "board": {"board_width_px": 768, "board_height_px": 768},
-                "cards": [{
-                    "card_id": "01988636-b4f7-7901-95de-43fbcfa63faf",
-                    "card_type": "FixationPointCard",
-                    "card_parameters": {},
-                    "card_shape": {"width": 0.05, "height": 0.05},
-                    "card_location": {"x": -0.05, "y": -0.28},
-                    "card_timespan": {"start_time_msec": 0, "end_time_msec": null}
-                }],
-                "sensors": [{
-                    "sensor_id": "01988636-b4f7-7901-95de-440c6c163be9",
-                    "sensor_type": "ClickSensor",
-                    "sensor_parameters": {},
-                    "sensor_timespan": {"start_time_msec": 0, "end_time_msec": null},
-                    "card_id": "01988636-b4f7-7901-95de-43fbcfa63faf"
-                }],
-                "reinforcer_maps": [],
-                "effects": []
+        ],
+        "title": "Test task (sandbox)"
+    };
+
+    import {play} from '/src/main.ts';
+
+    window.focus();
+
+    window.onload = async () => {
+        // Add focus
+        let events = await play(
+            nodeGraph,
+            (event) => {
+                console.log(event);
             }
-        }]
+        )
+        console.log(events)
+    };
+</script>
 
-        import { EventClient, NodePlayer } from '/src/main.ts'; // or from your package once published/linked
-        window.onload = async () => {
-
-            console.log(NodePlayer)
-            console.log(EventClient)
-
-            let nodePlayer = new NodePlayer();
-            const nodeMeasurements = [];
-            for (let i = 0; i < nodes.length; i++) {
-                const node = nodes[i];
-                console.log("Preparing node " + (i + 1) + " of " + nodes.length);
-                const nodePlayId = await nodePlayer.prepare(node.node_parameters);
-
-                console.log("Playing node " + (i + 1) + " of " + nodes.length);
-                let nodeResult = await nodePlayer.play(nodePlayId);
-                console.log("Done playing node " + (i + 1) + " of " + nodes.length);
-                nodeMeasurements.push(nodeResult)
-
-                // Update pbar
-                nodePlayer.setProgressBar((i + 1) / nodes.length * 100);
-            }
-
-            await nodePlayer.playEndScreen(
-                'No bonus',
-            )
-
-            nodePlayer.showConsoleMessageOverlay(
-                'NodeMeasurements',
-                nodeMeasurements,
-            )
-        };
-    </script>
-
-  </body>
+</body>
 </html>

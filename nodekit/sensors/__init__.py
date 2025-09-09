@@ -3,12 +3,14 @@ __all__ = [
     'DoneSensor',
     'ClickSensor',
     'KeyPressSensor',
+    'KeyHoldsSensor',
 ]
 
-from nodekit._internal.models.node_engine.sensors.sensors import (
+from nodekit._internal.types.sensors.sensors import (
     TimeoutSensor,
     DoneSensor,
     ClickSensor,
     KeyPressSensor,
+    KeyHoldsSensor,
 )
 

@@ -6,7 +6,7 @@ __all__ = [
     'TextCard',
 ]
 
-from nodekit._internal.models.node_engine.cards.cards import (
+from nodekit._internal.types.cards.cards import (
     FixationPointCard,
     MarkdownPagesCard,
     ImageCard,

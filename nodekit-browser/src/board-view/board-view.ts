@@ -1,10 +1,10 @@
 import type {AssetManager} from "../asset-manager/asset-manager.ts";
-import type {Board} from "../types/board.ts";
-import type {PixelArea} from "../types/runtime-metrics.ts";
+import type {Board} from "../types/board";
+import type {PixelArea} from "../types/events/runtime-metrics.ts";
 import type {Card} from "../types/cards/cards.ts";
-import type {BoardLocation, BoardRectangle, CardId, SensorId, SpatialSize} from "../types/fields.ts";
+import type {BoardLocation, BoardRectangle, CardId, SensorId, SpatialSize} from "../types/common.ts";
 import type {Sensor} from "../types/sensors/sensors.ts";
-import type {Action} from "../types/sensors/actions/actions.ts";
+import type {Action} from "../types/actions";
 import './board-view.css'
 import type {CardView, ClickableCardView, DoneableCardView} from "./card-views/card-view.ts";
 import {
@@ -12,6 +12,7 @@ import {
     assertDoneable,
     ClickSensorBinding,
     DoneSensorBinding,
+    KeyHoldSensorBinding,
     KeyPressSensorBinding,
     type SensorBinding,
     TimeoutSensorBinding
@@ -147,7 +148,6 @@ export class BoardView {
     }
 
     // Cards
-
     async placeCardHidden(card: Card) {
         const cardView = await placeCardHiddenDispatch(
             card,
@@ -219,8 +219,10 @@ export function placeSensorUnarmedDispatch(
     const cardId = sensor.card_id;
     if (!cardId) {
         // This is a Board Sensor.
-
         if (sensor.sensor_type === 'TimeoutSensor') {
+            if (sensor.sensor_timespan.end_time_msec !== null) {
+                throw new Error(`${sensor.sensor_type} must not have a defined end_time_msec`);
+            }
             return new TimeoutSensorBinding(
                 sensor.sensor_id,
                 onSensorFired,
@@ -228,10 +230,17 @@ export function placeSensorUnarmedDispatch(
             );
         }
         else if (sensor.sensor_type === 'KeyPressSensor') {
-            if (sensor.sensor_timespan.end_time_msec !== null) {
-                throw new Error(`${sensor.sensor_type} must not have a defined end_time_msec`);
-            }
             return new KeyPressSensorBinding(
+                sensor.sensor_id,
+                onSensorFired,
+                sensor.sensor_parameters.keys,
+            );
+        }
+        else if (sensor.sensor_type == 'KeyHoldsSensor') {
+            if (!sensor.sensor_timespan.end_time_msec) {
+                throw new Error(`${sensor.sensor_type} must have a defined end_time_msec`);
+            }
+            return new KeyHoldSensorBinding(
                 sensor.sensor_id,
                 onSensorFired,
                 sensor.sensor_parameters.keys,

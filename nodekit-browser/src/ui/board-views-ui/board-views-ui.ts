@@ -1,5 +1,5 @@
 import "./board-views-ui.css";
-import type {Board} from "../../types/board.ts";
+import type {Board} from "../../types/board";
 import type {AssetManager} from "../../asset-manager/asset-manager.ts";
 import {BoardView} from "../../board-view/board-view.ts";
 

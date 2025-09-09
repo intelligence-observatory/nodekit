@@ -1,6 +1,6 @@
 import {marked} from 'marked';
 import DOMPurify from 'dompurify';
-import type {SpatialSize, TextContent} from "../../../types/fields.ts";
+import type {SpatialSize, TextContent} from "../../../types/common.ts";
 
 import './text-card-view.css'
 import {CardView, type ClickableCardView} from "../card-view.ts";

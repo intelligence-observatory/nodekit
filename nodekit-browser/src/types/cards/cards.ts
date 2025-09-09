@@ -1,6 +1,5 @@
 import type {BaseCard} from "./base.ts";
-import type {NullParameters} from "../base.ts";
-import type {ColorHexString, TextContent} from "../fields.ts";
+import type {ColorHexString, NullParameters, TextContent} from "../common.ts";
 import type {ImageLink, VideoLink} from "../assets/link.ts";
 
 // FixationPointCard
@@ -30,7 +29,6 @@ export interface TextCard extends BaseCard<'TextCard', TextCardParameters>{}
 // VideoCard
 interface VideoCardParameters {
     video_link: VideoLink;
-    play_audio: boolean;
 }
 
 export interface VideoCard extends BaseCard<'VideoCard', VideoCardParameters>{}
