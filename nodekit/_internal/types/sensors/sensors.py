@@ -1,10 +1,10 @@
 from abc import ABC
-from typing import Literal, Union, Annotated
 
 import pydantic
 
-from nodekit._internal.types.common import CardId, PressableKey, TimePointMsec
-from nodekit._internal.types.reinforcer_maps.reinforcer_maps import Consequence
+from nodekit._internal.types.common import CardId, PressableKey, TimePointMsec, SensorId
+from typing import Literal, Annotated, Union
+from uuid import uuid4
 
 # %%
 class BaseSensor(pydantic.BaseModel, ABC):
@@ -13,7 +13,8 @@ class BaseSensor(pydantic.BaseModel, ABC):
     When a Sensor is triggered, it emits an Action.
     """
 
-    # Sensor
+    # Sensor identifiers
+    sensor_id: SensorId = pydantic.Field(description='The unique identifier for this Sensor.', default_factory=uuid4)
     sensor_type: str
 
     # Time:
@@ -26,11 +27,6 @@ class BaseSensor(pydantic.BaseModel, ABC):
         default=None,
     )
 
-    # Consequence
-    consequence: Consequence | None = pydantic.Field(
-        description='The immediate Consequence that is realized when this Sensor is triggered, which may serve as an operant reinforcer or punisher.' ,
-        default=None,
-    )
 
 # %%
 class DoneSensor(BaseSensor):
@@ -45,9 +41,9 @@ class ClickSensor(BaseSensor):
 
 
 # %%
-class KeyPressSensor(BaseSensor):
-    sensor_type: Literal['KeyPressSensor'] = 'KeyPressSensor'
-    key: PressableKey = pydantic.Field(description='The key that triggers this KeyPressSensor when pressed down.')
+class KeySensor(BaseSensor):
+    sensor_type: Literal['KeySensor'] = 'KeySensor'
+    key: PressableKey = pydantic.Field(description='The key that triggers this KeySensor when pressed down.')
 
 
 # %%
@@ -55,7 +51,7 @@ Sensor = Annotated[
     Union[
         DoneSensor,
         ClickSensor,
-        KeyPressSensor,
+        KeySensor,
         # Add other Sensor types here as needed
     ],
     pydantic.Field(discriminator='sensor_type')

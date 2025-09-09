@@ -18,6 +18,8 @@ from nodekit._internal.types.common import DatetimeUTC, PressableKey, SensorId, 
 
 # %% Node
 class Node(pydantic.BaseModel):
+    node_id: NodeId = pydantic.Field(default_factory=uuid4),
+
     cards: List[Card] = pydantic.Field(
         description=(
             "List of Cards placed on the Board, in back-to-front order."
@@ -56,10 +58,13 @@ class NodeGraph(pydantic.BaseModel):
 
     # Payment information
     base_payment_usd: PayableMonetaryAmountUsd = pydantic.Field(
-        description="The base payment (in USD) that a Participant receives upon successfully completing a run. Disclosed to the Participant ahead of time.",
+        description="The base payment (in USD) that a Participant receives upon successfully completing a run. Should be explicitly disclosed to the Participant ahead of time.",
     )
     bonus_rules: List[BonusRule] = pydantic.Field(
-        description='A list of bonus rules that are used to compute a bonus reward based on Participant behavior during the run.'
+        description=(
+            'A list of bonus rules that are used to compute a bonus reward based on Participant behavior during the run. A summary of these rules '
+            'may be disclosed indirectly to the Participant ahead of time (e.g., "You will receive a bonus for every target you click").'
+        )
     )
 
     # Duration

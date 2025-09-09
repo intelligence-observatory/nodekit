@@ -1,12 +1,11 @@
 from abc import ABC
 from typing import Literal, Annotated, Union, List
-from uuid import uuid4
 
 import pydantic
 
 from nodekit._internal.types.assets.links import ImageLink, VideoLink
-from nodekit._internal.types.common import ColorHexString, TextContent, CardId, SpatialPoint, SpatialSize, TimePointMsec
-
+from nodekit._internal.types.common import ColorHexString, TextContent, SpatialPoint, SpatialSize, TimePointMsec, CardId
+from uuid import uuid4
 
 # %% Concrete card classes
 class BaseCard(pydantic.BaseModel, ABC):
@@ -17,6 +16,7 @@ class BaseCard(pydantic.BaseModel, ABC):
     """
     # Identifiers
     card_type: str
+    card_id: CardId = pydantic.Field(description='A unique identifier for the Card within the Node.', default_factory=uuid4)
 
     # Position:
     x: SpatialPoint = pydantic.Field(description='The x-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in x moves right.')

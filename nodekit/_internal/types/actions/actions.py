@@ -8,6 +8,7 @@ from nodekit._internal.types.common import DatetimeUTC, PressableKey, SensorId, 
 
 # %%
 class BaseAction(pydantic.BaseModel, ABC):
+    sensor_id: SensorId = pydantic.Field(description='Identifier of the Sensor that emitted this Action.')
     action_type: str
     timestamp_action: DatetimeUTC = pydantic.Field(description='The timestamp when the Sensor for this Action was triggered.')
 
@@ -39,32 +40,11 @@ class KeyPressAction(BaseAction):
 
 
 # %%
-class KeyHoldsAction(BaseAction):
-    action_type: Literal['KeyHoldsAction'] = 'KeyHoldsAction'
-
-    class KeyHold(pydantic.BaseModel):
-        key: PressableKey = pydantic.Field(
-            description="The key that was pressed."
-        )
-        timestamp_start: DatetimeUTC | None = pydantic.Field(
-            description="The timestamp when the key was pressed down. This is None if the key was already being held down at the start of the Sensor timespan."
-        )
-        timestamp_end: DatetimeUTC | None = pydantic.Field(
-            description="The timestamp when the key was released. This is None if the key is still being held down at the end of the Sensor timespan."
-        )
-
-    keyholds: List[KeyHold] = pydantic.Field(
-        description="A list of keys that were held down during the Sensor timespan, along with their press and release timestamps."
-    )
-
-
-# %%
 Action = Annotated[
     Union[
         ClickAction,
         DoneAction,
         KeyPressAction,
-        KeyHoldsAction,
         TimeoutAction,
     ],
     pydantic.Field(discriminator='action_type')
