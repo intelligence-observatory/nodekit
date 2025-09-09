@@ -55,7 +55,8 @@ export class NodePlay {
                 {
                     offsetMsec: card.card_timespan.start_time_msec,
                     triggerEventFunc: () => {
-                        this.boardView.showCard(card.card_id);
+                        // Block until the card is shown and starts.
+                        this.boardView.showCard(card.card_id).then();
                     }
                 }
             )

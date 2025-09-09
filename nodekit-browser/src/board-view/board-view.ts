@@ -166,10 +166,10 @@ export class BoardView {
         return cardView;
     }
 
-    showCard(cardId: CardId) {
+    async showCard(cardId: CardId) {
         const cardView = this.getCardView(cardId);
         cardView.setVisibility(true);
-        cardView.start();
+        await cardView.start();
     }
 
     hideCard(cardId: CardId) {

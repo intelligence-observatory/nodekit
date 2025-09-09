@@ -60,9 +60,9 @@ export class VideoCardView extends CardView implements ClickableCardView {
         this.video.controls = false;
         // Timeout after two frames.
         let timeout = new Promise((_, reject) => {
-            setTimeout(() => {
+            this.video.onerror = () => {
                 reject(new Error("Video failed to play!"))
-            }, 33);
+            }
         });
         // Check if the video is playing.
         let playing = new Promise((resolve, _) => {
