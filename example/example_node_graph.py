@@ -45,12 +45,18 @@ def make_basic_fixation_node(
     )
 
     click_sensor = nk.sensors.ClickSensor(
-        card_id=fixation_card.card_id,
+        target=fixation_card,
+        consequence=positive_feedback,
+    )
+
+    key_sensor = nk.sensors.KeyPressSensor(
+        key=' ',
+        consequence=negative_feedback,
     )
 
     return nk.Node(
         cards=[fixation_card],
-        sensors=[click_sensor]
+        sensors=[click_sensor, key_sensor],
     )
 
 

@@ -1,12 +1,10 @@
 from abc import ABC
-from typing import Literal, Union, Annotated, Set, Self ,List
-from uuid import uuid4
+from typing import Literal, Union, Annotated
 
 import pydantic
 
-from nodekit._internal.types.common import CardId, PressableKey, SensorId, TimePointMsec
-from nodekit._internal.types.cards.cards import Card
-
+from nodekit._internal.types.common import CardId, PressableKey, TimePointMsec
+from nodekit._internal.types.reinforcer_maps.reinforcer_maps import Consequence
 
 # %%
 class BaseSensor(pydantic.BaseModel, ABC):
@@ -25,6 +23,12 @@ class BaseSensor(pydantic.BaseModel, ABC):
     )
     t_end: TimePointMsec | None = pydantic.Field(
         description='The time (in milliseconds) relative to Node start when the Sensor is disarmed.',
+        default=None,
+    )
+
+    # Consequence
+    consequence: Consequence | None = pydantic.Field(
+        description='The immediate Consequence that is realized when this Sensor is triggered, which may serve as an operant reinforcer or punisher.' ,
         default=None,
     )
 
@@ -47,18 +51,11 @@ class KeyPressSensor(BaseSensor):
 
 
 # %%
-class KeyHoldsSensor(BaseSensor):
-    sensor_type: Literal['KeyHoldsSensor'] = 'KeyHoldsSensor'
-    key: PressableKey = pydantic.Field(description='The key tracked by this KeyHoldsSensor when held.')
-
-
-# %%
 Sensor = Annotated[
     Union[
         DoneSensor,
         ClickSensor,
         KeyPressSensor,
-        KeyHoldsSensor,
         # Add other Sensor types here as needed
     ],
     pydantic.Field(discriminator='sensor_type')

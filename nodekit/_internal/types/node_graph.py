@@ -1,4 +1,4 @@
-from typing import List, Self
+from typing import List, Self, Dict
 from uuid import uuid4
 
 import pydantic
@@ -14,12 +14,10 @@ from nodekit._internal.types.common import (
 from nodekit._internal.types.effects.effects import Effect
 from nodekit._internal.types.sensors.sensors import Sensor
 
+from nodekit._internal.types.common import DatetimeUTC, PressableKey, SensorId, NodeId,CardId, NullValue, SpatialPoint
 
 # %% Node
 class Node(pydantic.BaseModel):
-    node_id: NodeId = pydantic.Field(default_factory=uuid4)
-
-
     cards: List[Card] = pydantic.Field(
         description=(
             "List of Cards placed on the Board, in back-to-front order."
@@ -32,22 +30,11 @@ class Node(pydantic.BaseModel):
         min_length=1,
     )
 
-
-
     effects: List[Effect] = pydantic.Field(default_factory=list)
 
     @pydantic.model_validator(mode='after')
     def check_node_is_well_formed(self) -> Self:
 
-        # Check Card IDs are unique within the Node
-        card_id_to_card = {card.card_id: card for card in self.cards}
-        if len(card_id_to_card) != len(self.cards):
-            raise ValueError("Cards in a Node must each have a unique ID.")
-
-        # Check Sensor IDs are unique within the Node:
-        sensor_id_to_sensor = {sensor.sensor_id: sensor for sensor in self.sensors}
-        if len(sensor_id_to_sensor) != len(self.sensors):
-            raise ValueError("Sensors in a Node must each have a unique ID.")
         for sensor in self.sensors:
             # Todo: if the Sensor references a Card, ensure the Card exists in this node.
             # Todo: check that the Sensor and Target type are compatible:
