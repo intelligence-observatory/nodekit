@@ -4,8 +4,8 @@ from uuid import uuid4
 import pydantic
 from nodekit._internal.version import VERSION
 
-from nodekit._internal.types.board import Board
-from nodekit._internal.types.bonus_policy import BonusRule
+from nodekit._internal.types.board.board import Board
+from nodekit._internal.types.bonus_rules.bonus_rules import BonusRule
 from nodekit._internal.types.cards.cards import Card
 from nodekit._internal.types.common import (
     PayableMonetaryAmountUsd,
@@ -18,19 +18,20 @@ from nodekit._internal.types.sensors.sensors import Sensor
 # %% Node
 class Node(pydantic.BaseModel):
     node_id: NodeId = pydantic.Field(default_factory=uuid4)
-
-    board: Board = pydantic.Field(
-        default_factory=Board
-    )
+    board: Board = pydantic.Field(default_factory=Board)
 
     cards: List[Card] = pydantic.Field(
         description=(
             "List of Cards placed on the Board, in back-to-front order."
-            "The first Card in this list is at the \"bottom\" of the Board, in the z-direction."),
+            "The first Card in this list is at the \"bottom\" of the Board, in the z-direction."
+        ),
+        min_length=1,
     )
+
     sensors: List[Sensor] = pydantic.Field(
         min_length=1,
     )
+
     effects: List[Effect] = pydantic.Field(default_factory=list)
 
     @pydantic.model_validator(mode='after')

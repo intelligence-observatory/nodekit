@@ -92,21 +92,22 @@ class NodeResultEvent(BaseEvent):
 
 
 # %%
-class BrowserContext(pydantic.BaseModel):
-    # User agent string
-    user_agent: str = pydantic.Field(description="User agent string of the browser or application rendering the board.")
-
-    display_width_px: int
-    display_height_px: int
-
-    viewport_width_px: int
-    viewport_height_px: int
-
 
 class BrowserContextEvent(BaseEvent):
     """
     Emitted to capture browser context information, such as user agent and viewport size.
     """
+
+    class BrowserContext(pydantic.BaseModel):
+        # User agent string
+        user_agent: str = pydantic.Field(description="User agent string of the browser or application rendering the board.")
+
+        display_width_px: int
+        display_height_px: int
+
+        viewport_width_px: int
+        viewport_height_px: int
+
     event_type: Literal[EventTypeEnum.BrowserContextEvent] = EventTypeEnum.BrowserContextEvent
     event_payload: BrowserContext
 

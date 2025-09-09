@@ -3,7 +3,7 @@ __all__ = [
     'calculate_bonus_usd',
 ]
 
-from nodekit._internal.types.bonus_policy import (
+from nodekit._internal.types.bonus_rules import (
     ConstantBonusRule,
 )
 
