@@ -16,7 +16,6 @@ class BaseCard(pydantic.BaseModel, ABC):
     A Board unit of 1 corresponds to the *smaller* extent of the Board (the full width of the Board or the full height of the Board; whichever is smaller.
     """
     # Identifiers
-    card_id: CardId = pydantic.Field(default_factory=uuid4)
     card_type: str
 
     # Position:

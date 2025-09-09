@@ -16,7 +16,6 @@ class BaseSensor(pydantic.BaseModel, ABC):
     """
 
     # Sensor
-    sensor_id: SensorId = pydantic.Field(default_factory=uuid4)
     sensor_type: str
 
     # Time:
@@ -28,26 +27,6 @@ class BaseSensor(pydantic.BaseModel, ABC):
         description='The time (in milliseconds) relative to Node start when the Sensor is disarmed.',
         default=None,
     )
-
-    # Consequence for triggering this Sensor:
-    consequence: List[Card] = pydantic.Field(
-        description='The Consequence is a list of Cards that will be presented to the Participant on a fresh Board if this Sensor is triggered.',
-        default_factory=list,
-    )
-
-# %%
-class TimeoutSensor(BaseSensor):
-    """
-    The TimeoutSensor triggers itself as soon as it is armed.
-    Its Timespan should have zero duration.
-    """
-    sensor_type: Literal['TimeoutSensor'] = 'TimeoutSensor'
-
-    @pydantic.model_validator(mode='after')
-    def validate_timespan(self) -> Self:
-        if self.t_start != self.t_end:
-            raise ValueError('The TimeoutSensor must have t_start equal to t_end (i.e., zero duration).')
-        return self
 
 # %%
 class DoneSensor(BaseSensor):
@@ -80,7 +59,6 @@ Sensor = Annotated[
         ClickSensor,
         KeyPressSensor,
         KeyHoldsSensor,
-        TimeoutSensor,
         # Add other Sensor types here as needed
     ],
     pydantic.Field(discriminator='sensor_type')

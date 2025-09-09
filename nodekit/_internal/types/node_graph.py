@@ -32,6 +32,8 @@ class Node(pydantic.BaseModel):
         min_length=1,
     )
 
+
+
     effects: List[Effect] = pydantic.Field(default_factory=list)
 
     @pydantic.model_validator(mode='after')
