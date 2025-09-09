@@ -9,7 +9,7 @@ __all__ = [
 
 from nodekit._internal.types.common import TextContent, BoardRectangle, BoardLocation, Timespan
 
-from nodekit._internal.types.board import Board
+from nodekit._internal.types.board.board import Board
 
 
 

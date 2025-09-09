@@ -1,7 +1,7 @@
 from decimal import Decimal
 from typing import List
 
-from nodekit._internal.types.bonus_rules import BonusRule, ConstantBonusRule
+from nodekit._internal.types.bonus_rules.bonus_rules import BonusRule, ConstantBonusRule
 from nodekit._internal.types.events.events import Event, EventTypeEnum
 
 

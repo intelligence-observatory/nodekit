@@ -1,5 +1,5 @@
 from abc import ABC
-from typing import Annotated, Union, List, Literal
+from typing import Annotated, Union, Literal
 
 import pydantic
 

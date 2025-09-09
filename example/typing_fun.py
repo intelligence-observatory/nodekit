@@ -23,3 +23,15 @@ x = MyMod(
 
 schema = MyMod.model_json_schema()
 print(schema)
+
+
+# %%
+from typing import Generic, TypeVar, Literal
+
+T = TypeVar('T')
+class Base(pydantic.BaseModel, Generic[T]):
+    name: T
+
+
+class Concrete1(Base[Literal['yo']]):
+    ...

@@ -11,22 +11,11 @@ def make_keypress_node(
 ):
     assert len(key_to_press) == 1
     text_card = nk.cards.TextCard(
-        card_parameters=nk.cards.TextCard.Parameters(
-            content=nk.common.TextContent(
-                text=f'Press the "{key_to_press}" key to continue.',
-            )
-        ),
-        card_shape=nk.common.BoardRectangle(
-            width=0.5,
-            height=0.2,
-        ),
-        card_location=nk.common.BoardLocation(
-            x=0,
-            y=0
-        ),
-        card_timespan=nk.common.Timespan(
-            start_time_msec=0,
-        ),
+        text=f'Press the "{key_to_press}" key to continue.',
+        w=0.5,
+        h=0.2,
+        x=0,
+        y=0,
     )
 
     sensor = nk.sensors.KeyPressSensor(
