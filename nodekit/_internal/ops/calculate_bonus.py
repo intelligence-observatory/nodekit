@@ -1,19 +1,32 @@
 from decimal import Decimal
-from typing import List
+from typing import List, Dict
 
 from nodekit._internal.types.events.events import Event, EventTypeEnum
 from nodekit._internal.types.node_graph import NodeGraph
+from nodekit._internal.types.common import NodeId
+from nodekit._internal.types.consequence import Consequence
+
+import warnings
 
 # %% BonusPolicy Rule Engine
 def calculate_bonus_usd(
         events: List[Event],
         node_graph: NodeGraph,
 ) -> Decimal:
+    """
+    Calculates the current bonus USD earned based on the provided events and NodeGraph
+    """
 
     calculated_amount = Decimal('0')
 
-    for ev in events:
+    node_id_to_consequences: Dict[NodeId, List[Consequence]] = {}
+    for node in node_graph.nodes:
+        node_id_to_consequences[node.node_id] = node.consequences
 
+    # Sort events by timestamp
+    events = sorted(events, key=lambda ev: ev.event_timestamp)
+    observed_node_ids = set()
+    for ev in events:
         if ev.event_type != EventTypeEnum.NodeResultEvent:
             continue
 
@@ -21,16 +34,19 @@ def calculate_bonus_usd(
         action = ev.event_payload.action
         sensor_id = action.sensor_id
 
-        # Todo: skip if this Node was already exhausted
+        # Skip if there was already an Event observed for this Node
+        if node_id in observed_node_ids:
+            warnings.warn(f"Multiple NodeResultEvents observed for Node ID {node_id}. Only the first will be considered for bonus calculation.")
+            continue
 
-        # Perform scan through rules
-        for rule in bonus_rules:
-            # Dynamic dispatch
-            if isinstance(rule, ConstantBonusRule):
-                rule: ConstantBonusRule
-                if action.sensor_id == rule.bonus_rule_parameters.sensor_id:
-                    # Check currency match
-                    calculated_amount += Decimal(rule.bonus_rule_parameters.bonus_amount_usd)
+        consequences = node_id_to_consequences[node_id]
+
+        # Perform scan through consequences
+        for consequence in consequences:
+            if consequence.sensor_id == sensor_id:
+                calculated_amount += Decimal(consequence.bonus_amount_usd)
+
+        observed_node_ids.add(node_id)
 
     # Clip at minimum of 0:
     if calculated_amount < Decimal('0'):
