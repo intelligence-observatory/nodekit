@@ -1,7 +1,7 @@
 import type {Board} from "./board";
 import type {Card} from "./cards";
 import type {Sensor} from "./sensors";
-import type {Consequence} from "./reinforcer-maps/reinforcer-maps.ts";
+import type {Consequence} from "./consequences";
 import type {Effect} from "./effects/base.ts";
 
 

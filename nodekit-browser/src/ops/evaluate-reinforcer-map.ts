@@ -1,4 +1,4 @@
-import type {Reinforcer, ReinforcerMap} from "../types/reinforcer-maps/reinforcer-maps.ts";
+import type {Reinforcer, ReinforcerMap} from "../types/consequences";
 import type {Action} from "../types/actions";
 
 export function evaluateReinforcerMap(reinforcerMap: ReinforcerMap, _action:Action): Reinforcer {

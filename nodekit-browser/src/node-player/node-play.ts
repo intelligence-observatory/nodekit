@@ -7,7 +7,7 @@ import {type EffectBinding, HideCursorEffectBinding} from "../board-view/effect-
 
 import {performanceNowToISO8601} from "../utils.ts";
 import type {ISO8601} from "../types/common.ts";
-import type {Reinforcer} from "../types/reinforcer-maps/reinforcer-maps.ts";
+import type {Reinforcer} from "../types/consequences";
 
 export interface PlayNodeResult {
     timestamp_start: ISO8601;
