@@ -12,7 +12,7 @@ export interface ClickAction extends BaseAction<"ClickAction"> {
     click_y: number;
 }
 
-export interface KeyPressAction extends BaseAction<"KeyPressAction"> {
+export interface KeyAction extends BaseAction<"KeyAction"> {
     key: PressableKey;
 }
 
@@ -23,4 +23,4 @@ export interface TimeoutAction extends BaseAction<"TimeoutAction"> {}
 
 export interface KeyHoldsAction extends BaseAction<"KeyHoldsAction"> {}
 
-export type Action = ClickAction | DoneAction | TimeoutAction | KeyPressAction | KeyHoldsAction;
+export type Action = ClickAction | DoneAction | TimeoutAction | KeyAction | KeyHoldsAction;

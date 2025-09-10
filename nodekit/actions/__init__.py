@@ -3,7 +3,7 @@ __all__ = [
     "ClickAction",
     "DoneAction",
     "TimeoutAction",
-    "KeyPressAction",
+    "KeyAction",
 ]
 
 from nodekit._internal.types.actions.actions import (
@@ -11,5 +11,5 @@ from nodekit._internal.types.actions.actions import (
     ClickAction,
     DoneAction,
     TimeoutAction,
-    KeyPressAction,
+    KeyAction,
 )

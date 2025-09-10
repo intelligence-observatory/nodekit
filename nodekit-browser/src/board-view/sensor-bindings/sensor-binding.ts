@@ -1,4 +1,4 @@
-import type {Action, ClickAction, DoneAction, KeyHoldsAction, KeyPressAction} from "../../types/actions";
+import type {Action, ClickAction, DoneAction, KeyHoldsAction, KeyAction} from "../../types/actions";
 import type {PressableKey} from "../../types/common.ts";
 import {type SensorId} from "../../types/common.ts";
 import type {BoardView} from "../board-view.ts";
@@ -195,7 +195,7 @@ export class KeySensorBinding implements SensorBinding {
         }
 
         // Create the action to be fired:
-        const action: KeyPressAction = {
+        const action: KeyAction = {
             sensor_id: this.sensorId,
             action_type: "KeyPressAction",
             key: key,

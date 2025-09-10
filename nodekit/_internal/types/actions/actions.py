@@ -31,7 +31,7 @@ class TimeoutAction(BaseAction):
 
 
 # %%
-class KeyPressAction(BaseAction):
+class KeyAction(BaseAction):
     action_type: Literal['KeyPressAction'] = 'KeyPressAction'
     key: PressableKey = pydantic.Field(description='The key that was pressed.')
 
@@ -41,7 +41,7 @@ Action = Annotated[
     Union[
         ClickAction,
         DoneAction,
-        KeyPressAction,
+        KeyAction,
         TimeoutAction,
     ],
     pydantic.Field(discriminator='action_type')
