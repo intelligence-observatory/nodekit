@@ -23,7 +23,6 @@ class Node(pydantic.BaseModel):
         ),
         min_length=1,
     )
-
     sensors: List[Sensor] = pydantic.Field(min_length=1)
     consequences: List[Consequence] = pydantic.Field(default_factory=list)
     effects: List[Effect] = pydantic.Field(default_factory=list)

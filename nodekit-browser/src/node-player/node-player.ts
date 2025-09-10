@@ -1,7 +1,6 @@
 import type {Node} from "../types/node-graph.ts";
 
 import type {PlayNodeResult} from "./node-play.ts";
-import {DeviceGate} from "../user-gates/device-gate.ts";
 import {buildUIs} from "../ui/ui-builder.ts";
 import type {ShellUI} from "../ui/shell-ui/shell-ui.ts";
 import type {BoardViewsUI} from "../ui/board-views-ui/board-views-ui.ts";
@@ -24,23 +23,12 @@ export class NodePlayer {
         this.shellUI = shellUI;
         this.boardViewsUI = boardViewsUI;
         this._boardShape = board;
-
-        try {
-            if (!DeviceGate.isValidDevice()){
-                throw new Error('Unsupported device. Please use a desktop browser.');
-            }
-        }
-        catch (error) {
-            this.showErrorMessageOverlay(error as Error);
-            throw new Error('NodePlayer initialization failed: ' + (error as Error).message);
-        }
     }
 
     async prepare(node: Node): Promise<NodePlayId> {
         /*
         Prepares a NodePlay instance and returns its ID.
          */
-
         try{
             // Create a new BoardView on which the NodePlay will be rendered::
             const nodePlayId: NodePlayId = crypto.randomUUID() as NodePlayId;
@@ -82,7 +70,6 @@ export class NodePlayer {
             // Remove the NodePlay instance and its BoardView from the buffer:
             this.boardViewsUI.destroyBoardView(nodePlayId);
             this.bufferedNodePlays.delete(nodePlayId);
-
             return nodeMeasurements
         }
         catch(error) {
@@ -114,7 +101,7 @@ export class NodePlayer {
         await this.shellUI.playEndScreen(message, endScreenTimeoutMsec)
     }
 
-    private showErrorMessageOverlay(error: Error){
+    showErrorMessageOverlay(error: Error){
         console.error('An error occurred:', error);
         this.shellUI.showConsoleMessageOverlay(
             'The following error occurred:',

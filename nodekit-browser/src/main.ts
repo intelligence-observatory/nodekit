@@ -5,6 +5,7 @@ import {calculateBonusUsd} from "./ops/calculate-bonus.ts";
 import type {NodeGraph} from "./types/node-graph.ts";
 import {performanceNowToISO8601} from "./utils.ts";
 import {getBrowserContext} from "./user-gates/browser-context.ts";
+import {DeviceGate} from "./user-gates/device-gate.ts";
 
 export type OnEventCallback = (event: Event) => void;
 
@@ -32,11 +33,22 @@ export async function play(
     }
 
     let events: Event[] = previousEvents;
-
     // Todo: the previousEvents can be processed to obtain the current state of the task. Otherwise, we always start from scratch.
 
     // Todo: version gating
     const nodekitVersion = nodeGraph.nodekit_version;
+
+    // Device gating:
+    let nodePlayer = new NodePlayer(nodeGraph.board);
+    try {
+        if (!DeviceGate.isValidDevice()){
+            throw new Error('Unsupported device. Please use a desktop browser.');
+        }
+    }
+    catch (error) {
+        nodePlayer.showErrorMessageOverlay(error as Error);
+        throw new Error('NodePlayer initialization failed: ' + (error as Error).message);
+    }
 
     // Add a listener for the LeaveEvent:
     function onVisibilityChange() {
@@ -92,7 +104,9 @@ export async function play(
 
     // Play the Nodes in the NodeGraph:
     const nodes = nodeGraph.nodes;
-    let nodePlayer = new NodePlayer(nodeGraph.board);
+
+
+
     for (let i = 0; i < nodes.length; i++) {
         const node = nodes[i];
         const nodePlayId = await nodePlayer.prepare(node);
