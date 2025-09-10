@@ -14,15 +14,6 @@ export type CardId = string & { __brand: 'CardId' };
 export type SensorId = string & { __brand: 'SensorId' };
 export type NodePlayId = string & { __brand: 'NodePlayId' };
 
-export interface TextContent {
-    text: MarkdownString;
-    text_color: ColorHexString;
-
-    font_size: SpatialSize; // The height of the em-box, in Board units
-
-    justification_horizontal: 'left' | 'center' | 'right';
-    justification_vertical: 'top' | 'center' | 'bottom';
-}
 
 
 export interface BoardRectangle {
@@ -46,5 +37,4 @@ export type PressableKey = "Enter" | " " | "ArrowDown" | "ArrowLeft" | "ArrowRig
 export interface NullParameters {
 }
 
-export interface NullValue {
-}
+export interface NullValue {}

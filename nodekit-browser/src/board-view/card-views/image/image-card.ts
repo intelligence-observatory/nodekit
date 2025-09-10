@@ -1,6 +1,6 @@
 import './image-card.css'
 import {CardView, type ClickableCardView} from "../card-view.ts";
-import type {ImageCard} from "../../../types/cards/cards.ts";
+import type {ImageCard} from "../../../types/cards";
 import type {BoardView} from "../../board-view.ts";
 
 /**

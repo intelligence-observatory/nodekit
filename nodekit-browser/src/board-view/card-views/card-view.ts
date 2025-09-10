@@ -1,7 +1,7 @@
 import {BoardView} from "../board-view.ts";
 import './card-view.css';
 
-import type {Card} from "../../types/cards/cards.ts";
+import type {Card} from "../../types/cards";
 
 
 export abstract class CardView {

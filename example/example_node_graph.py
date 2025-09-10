@@ -84,8 +84,7 @@ node_graph = nk.NodeGraph(
     base_payment_usd='0.01',
 )
 
-
-raise Exception
+raise
 
 # %% Play the NodeGraph locally:
 play_session = nk.play(node_graph)

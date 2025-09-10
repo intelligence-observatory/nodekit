@@ -2,7 +2,7 @@ import "./markdown-pages-card-view.css"
 
 import {UIElementBase} from "../../../ui/shell-ui/base.ts";
 import {CardView, type DoneableCardView} from "../card-view.ts";
-import type {MarkdownPagesCard} from "../../../types/cards/cards.ts";
+import type {MarkdownPagesCard} from "../../../types/cards";
 import type {SpatialSize} from "../../../types/common.ts";
 import {renderTextContent} from "../text/text-card-view.ts";
 import {BoardView} from "../../board-view.ts";

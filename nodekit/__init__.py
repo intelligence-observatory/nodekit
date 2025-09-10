@@ -4,9 +4,9 @@ __all__ = [
     # Top-level types:
     'NodeGraph',
     'Node',
-    'Consequence',
 
     # Namespaced types:
+    'Consequence', # a singleton in v1; alias for a ConstantConsequence
     'actions',
     'assets',
     'cards',
@@ -44,7 +44,7 @@ import nodekit.events as events
 import nodekit.ops as ops
 
 # Local play function:
-from nodekit._internal.browser.local_runner.main import play as play
+from nodekit._internal.browser.local_runner.main import play
 
 # Static resources:
-from nodekit._internal.browser.browser_bundle import get_browser_bundle as get_browser_bundle
+from nodekit._internal.browser.browser_bundle import get_browser_bundle

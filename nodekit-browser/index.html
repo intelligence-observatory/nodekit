@@ -10,7 +10,7 @@
 <div id="app"></div>
 <script type="module" src="src/main.ts"></script>
 <script type="module">
-    let nodeGraph = {
+    let nodeGraphOld = {
         "base_payment_usd": "0.01",
         "bonus_rules": [
             {
@@ -224,6 +224,153 @@
         ],
         "title": "Test task (sandbox)"
     };
+
+    let nodeGraph = {
+        "board": {"board_width_px": 768, "board_height_px": 768}, "nodes": [{
+            "node_id": "fd33a815-eb15-4ede-b03c-00dcb25957cc",
+            "cards": [
+                {"card_type": "FixationPointCard", "card_id": "5f07a129-521d-456e-9c1c-b4a72a27135d", "x": 0.08, "y": -0.28, "w": 0.05, "h": 0.05, "t_start": 0, "t_end": null}
+            ],
+            "sensors": [
+                {"sensor_id": "43322293-9d0f-4652-85c0-501e258db23c", "sensor_type": "ClickSensor", "t_armed": 2000, "card_id": "5f07a129-521d-456e-9c1c-b4a72a27135d"}, {
+                    "sensor_id": "ce830216-9bbd-48b4-98b3-f08d296a454b",
+                    "sensor_type": "KeySensor",
+                    "t_armed": 0,
+                    "key": " "
+                }
+            ],
+            "consequences": [
+                {
+                    "sensor_id": "43322293-9d0f-4652-85c0-501e258db23c",
+                    "cards": [{
+                        "text": "Yay",
+                        "text_color": "#000000",
+                        "font_size": 0.0175,
+                        "justification_horizontal": "center",
+                        "justification_vertical": "center",
+                        "card_type": "TextCard",
+                        "card_id": "5f270778-3dd5-4a42-9559-d83cfb958b0d",
+                        "x": 0.0,
+                        "y": 0.0,
+                        "w": 0.5,
+                        "h": 0.5,
+                        "t_start": 0,
+                        "t_end": 200,
+                        "background_color": "#E6E6E6"
+                    }
+                    ],
+                    "bonus_amount_usd": "0.01"
+                }, {
+                    "sensor_id": "ce830216-9bbd-48b4-98b3-f08d296a454b",
+                    "cards": [{
+                        "text": "Boo",
+                        "text_color": "#000000",
+                        "font_size": 0.0175,
+                        "justification_horizontal": "center",
+                        "justification_vertical": "center",
+                        "card_type": "TextCard",
+                        "card_id": "ececf859-99d7-4d70-9252-bf1a400d7b91",
+                        "x": 0.0,
+                        "y": 0.0,
+                        "w": 0.5,
+                        "h": 0.5,
+                        "t_start": 0,
+                        "t_end": 400,
+                        "background_color": "#E6E6E6"
+                    }],
+                    "bonus_amount_usd": "-0.01"
+                }, {
+                    "sensor_id": "2156f495-305d-4261-ab93-b6eba22afbd7",
+                    "cards": [{
+                        "text": "Boo",
+                        "text_color": "#000000",
+                        "font_size": 0.0175,
+                        "justification_horizontal": "center",
+                        "justification_vertical": "center",
+                        "card_type": "TextCard",
+                        "card_id": "ececf859-99d7-4d70-9252-bf1a400d7b91",
+                        "x": 0.0,
+                        "y": 0.0,
+                        "w": 0.5,
+                        "h": 0.5,
+                        "t_start": 0,
+                        "t_end": 400,
+                        "background_color": "#E6E6E6"
+                    }],
+                    "bonus_amount_usd": "-0.05"
+                }],
+            "effects": []
+        }, {
+            "node_id": "d75ba897-3fe0-4600-9358-7be723f9d32d",
+            "cards": [{"card_type": "FixationPointCard", "card_id": "29ab1ce2-9132-433c-927c-bbd7984a34b9", "x": -0.13, "y": -0.17, "w": 0.05, "h": 0.05, "t_start": 0, "t_end": null}],
+            "sensors": [{"sensor_id": "edf25de2-4cce-414e-89a3-dc147e74da27", "sensor_type": "ClickSensor", "t_armed": 2000, "card_id": "29ab1ce2-9132-433c-927c-bbd7984a34b9"}, {
+                "sensor_id": "1664da26-e461-4bcb-9728-6091af328a92",
+                "sensor_type": "KeySensor",
+                "t_armed": 0,
+                "key": " "
+            }],
+            "consequences": [{
+                "sensor_id": "edf25de2-4cce-414e-89a3-dc147e74da27",
+                "cards": [{
+                    "text": "Yay",
+                    "text_color": "#000000",
+                    "font_size": 0.0175,
+                    "justification_horizontal": "center",
+                    "justification_vertical": "center",
+                    "card_type": "TextCard",
+                    "card_id": "e254d7c5-a658-4ab4-939c-11b1660bc833",
+                    "x": 0.0,
+                    "y": 0.0,
+                    "w": 0.5,
+                    "h": 0.5,
+                    "t_start": 0,
+                    "t_end": 200,
+                    "background_color": "#E6E6E6"
+                }],
+                "bonus_amount_usd": "0.01"
+            }, {
+                "sensor_id": "1664da26-e461-4bcb-9728-6091af328a92",
+                "cards": [{
+                    "text": "Boo",
+                    "text_color": "#000000",
+                    "font_size": 0.0175,
+                    "justification_horizontal": "center",
+                    "justification_vertical": "center",
+                    "card_type": "TextCard",
+                    "card_id": "e360a8e4-d493-494f-934c-e810ffd24db5",
+                    "x": 0.0,
+                    "y": 0.0,
+                    "w": 0.5,
+                    "h": 0.5,
+                    "t_start": 0,
+                    "t_end": 400,
+                    "background_color": "#E6E6E6"
+                }],
+                "bonus_amount_usd": "-0.01"
+            }, {
+                "sensor_id": "b07dad4d-f2ac-4157-826d-814f86dcd853",
+                "cards": [{
+                    "text": "Boo",
+                    "text_color": "#000000",
+                    "font_size": 0.0175,
+                    "justification_horizontal": "center",
+                    "justification_vertical": "center",
+                    "card_type": "TextCard",
+                    "card_id": "e360a8e4-d493-494f-934c-e810ffd24db5",
+                    "x": 0.0,
+                    "y": 0.0,
+                    "w": 0.5,
+                    "h": 0.5,
+                    "t_start": 0,
+                    "t_end": 400,
+                    "background_color": "#E6E6E6"
+                }],
+                "bonus_amount_usd": "-0.05"
+            }],
+            "effects": []
+        }], "base_payment_usd": "0.01", "max_duration_sec": 600, "title": "Test task (sandbox)", "description": "Test task", "keywords": ["test", "example"], "nodekit_version": "0.1.0"
+    }
+
 
     import {play} from '/src/main.ts';
 

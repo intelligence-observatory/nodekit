@@ -15,8 +15,8 @@ class BaseCard(pydantic.BaseModel, ABC):
     A Board unit of 1 corresponds to the *smaller* extent of the Board (the full width of the Board or the full height of the Board; whichever is smaller.
     """
     # Identifiers
-    card_type: str
     card_id: CardId = pydantic.Field(description='A unique identifier for the Card within the Node.', default_factory=uuid4)
+    card_type: str
 
     # Position:
     x: SpatialPoint = pydantic.Field(description='The x-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in x moves right.')
@@ -44,7 +44,7 @@ class FixationPointCard(BaseCard):
 
 # %%
 class TextContent(pydantic.BaseModel):
-    text: MarkdownString
+    text: MarkdownString = pydantic.Field(min_length=1)
     text_color: ColorHexString = '#000000'
     font_size: SpatialSize = 0.0175
     justification_horizontal: Literal['left', 'center', 'right'] = 'center'
@@ -65,18 +65,19 @@ class ImageCard(BaseCard):
 
 
 # %%
-class VideoCard(BaseCard):
-    card_type: Literal['VideoCard'] = 'VideoCard'
-    video_link: VideoLink
-
-
-# %%
 class TextCard(BaseCard, TextContent):
     card_type: Literal['TextCard'] = 'TextCard'
     background_color: ColorHexString = pydantic.Field(
         default='#E6E6E6',
         description='The background color of the TextCard in hexadecimal format.'
     )
+
+# %%
+class VideoCard(BaseCard):
+    card_type: Literal['VideoCard'] = 'VideoCard'
+    video_link: VideoLink
+
+
 
 # %%
 class BlankCard(BaseCard):

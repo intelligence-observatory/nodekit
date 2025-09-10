@@ -4,7 +4,7 @@ import type {SpatialSize, TextContent} from "../../../types/common.ts";
 
 import './text-card-view.css'
 import {CardView, type ClickableCardView} from "../card-view.ts";
-import type {TextCard} from "../../../types/cards/cards.ts";
+import type {TextCard} from "../../../types/cards";
 import {BoardView} from "../../board-view.ts";
 
 /**

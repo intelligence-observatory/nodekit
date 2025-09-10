@@ -2,7 +2,7 @@ import './fixation-point-card-view.css'
 import {CardView} from "../card-view.ts";
 import type {ClickableCardView} from "../card-view.ts";
 
-import type {FixationPointCard} from "../../../types/cards/cards.ts";
+import type {FixationPointCard} from "../../../types/cards";
 import {BoardView} from "../../board-view.ts";
 
 export class FixationPointCardView extends CardView implements ClickableCardView{
