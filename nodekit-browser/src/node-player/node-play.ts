@@ -197,7 +197,7 @@ export class NodePlay {
                         {
                             triggerTimeMsec: card.card_timespan.start_time_msec,
                             triggerFunc: () => {
-                                this.boardView.showCard(card.card_id).then();
+                                this.boardView.showCard(card.card_id);
                             }
                         }
                     )
