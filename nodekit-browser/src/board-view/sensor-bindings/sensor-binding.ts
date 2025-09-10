@@ -1,4 +1,4 @@
-import type {Action, ClickAction, DoneAction, KeyPressAction} from "../../types/actions";
+import type {Action, ClickAction, DoneAction, KeyHoldsAction, KeyPressAction} from "../../types/actions";
 import type {PressableKey} from "../../types/common.ts";
 import {type SensorId} from "../../types/common.ts";
 import type {BoardView} from "../board-view.ts";
@@ -255,18 +255,14 @@ export class KeyHoldSensorBinding implements SensorBinding {
 
         // Package the Action:
         const tEnd = performance.now();
-        let keyHolds = this.deriveKeyHolds();
+        //let _keyHolds = this.deriveKeyHolds();
 
-        let _action = {
+        let action: KeyHoldsAction = {
             sensor_id: this.sensorId,
             action_type: "KeyHoldsAction",
-            action_value: {
-                key_holds: keyHolds
-            },
             timestamp_action: performanceNowToISO8601(tEnd)
         };
-        throw new Error('KeyHoldsSensor is not supported yet.')
-        // this.onSensorFired(action); // KeyHoldsSensor is not supported yet.
+        this.onSensorFired(action);
     }
 
     private onKeyboardEvent = (event: KeyboardEvent)=> {
@@ -298,7 +294,8 @@ export class KeyHoldSensorBinding implements SensorBinding {
         });
     }
 
-    private deriveKeyHolds() : any[] {
+    // @ts-ignore // Todo
+    private _deriveKeyHolds() : any[] {
         // Maps the raw keydown and keyup events to KeyHold objects.
 
         const holds: any[] = [];
