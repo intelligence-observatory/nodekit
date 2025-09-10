@@ -26,7 +26,6 @@ export async function play(
     Executes a run through the NodeGraph. Events are returned as an array.
     */
 
-
     // If no onEventCallback is provided, use a no-op function:
     if (!onEventCallback) {
         onEventCallback = (_event: Event) => {};
@@ -35,7 +34,6 @@ export async function play(
     let events: Event[] = previousEvents;
 
     // Todo: the previousEvents can be processed to obtain the current state of the task. Otherwise, we always start from scratch.
-
 
     // Todo: version gating
     const nodekitVersion = nodeGraph.nodekit_version;

@@ -3,6 +3,7 @@ import random
 import time
 
 random.seed(42)
+
 # %% Create a sequence of simple Nodes in which the Participant must click on a fixation point:
 def make_basic_fixation_node(
         fixation_x: float,
