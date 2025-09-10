@@ -1,4 +1,4 @@
-import type {Action, ClickAction, DoneAction, KeyHold, KeyHoldsAction, KeyPressAction} from "../../types/actions";
+import type {Action, ClickAction, DoneAction, KeyPressAction} from "../../types/actions";
 import type {PressableKey} from "../../types/common.ts";
 import {type SensorId} from "../../types/common.ts";
 import type {BoardView} from "../board-view.ts";
@@ -45,10 +45,8 @@ export class ClickSensorBinding implements SensorBinding {
                 const action: ClickAction = {
                     sensor_id: sensorId,
                     action_type: "ClickAction",
-                    action_value: {
-                        click_x: clickX,
-                        click_y: clickY,
-                    },
+                    click_x: clickX,
+                    click_y: clickY,
                     timestamp_action: performanceNowToISO8601(performance.now())
                 };
                 // Call the onSensorFired callback with the action
@@ -92,7 +90,6 @@ export class DoneSensorBinding implements SensorBinding {
                 const action: DoneAction = {
                     sensor_id: sensorId,
                     action_type: "DoneAction",
-                    action_value: {},
                     timestamp_action: performanceNowToISO8601(performance.now())
                 };
                 // Call the onSensorFired callback with the action
@@ -137,7 +134,6 @@ export class TimeoutSensorBinding implements SensorBinding {
                 const action: Action = {
                     sensor_id: this.sensorId,
                     action_type: "TimeoutAction",
-                    action_value: {},
                     timestamp_action: performanceNowToISO8601(performance.now())
                 };
                 // Call the onSensorFired callback with the action
@@ -155,7 +151,7 @@ export class TimeoutSensorBinding implements SensorBinding {
     }
 }
 
-export class KeyPressSensorBinding implements SensorBinding {
+export class KeySensorBinding implements SensorBinding {
     private readonly sensorId: SensorId;
     private readonly onSensorFired: (action: Action) => void
     private tArmed: number | null = null;
@@ -164,12 +160,12 @@ export class KeyPressSensorBinding implements SensorBinding {
     constructor(
         sensorId: SensorId,
         onSensorFired: (action: Action) => void,
-        keys: Set<PressableKey>
+        key: PressableKey
     ) {
         this.sensorId = sensorId;
         this.onSensorFired = onSensorFired;
 
-        this.keys = [...keys];
+        this.keys = [key];
 
         // This listener must be added to document (and not the BoardView.root) because
         // it is not guaranteed that the BoardView will have focus.
@@ -202,9 +198,7 @@ export class KeyPressSensorBinding implements SensorBinding {
         const action: KeyPressAction = {
             sensor_id: this.sensorId,
             action_type: "KeyPressAction",
-            action_value: {
-                key: key
-            },
+            key: key,
             timestamp_action: performanceNowToISO8601(performance.now())
         };
 
@@ -232,6 +226,7 @@ export class KeyHoldSensorBinding implements SensorBinding {
         onSensorFired: (action: Action) => void,
         keys: Set<PressableKey>,
     ) {
+
         this.sensorId = sensorId;
         this.onSensorFired = onSensorFired;
 
@@ -262,7 +257,7 @@ export class KeyHoldSensorBinding implements SensorBinding {
         const tEnd = performance.now();
         let keyHolds = this.deriveKeyHolds();
 
-        let action: KeyHoldsAction = {
+        let _action = {
             sensor_id: this.sensorId,
             action_type: "KeyHoldsAction",
             action_value: {
@@ -270,7 +265,8 @@ export class KeyHoldSensorBinding implements SensorBinding {
             },
             timestamp_action: performanceNowToISO8601(tEnd)
         };
-        this.onSensorFired(action);
+        throw new Error('KeyHoldsSensor is not supported yet.')
+        // this.onSensorFired(action); // KeyHoldsSensor is not supported yet.
     }
 
     private onKeyboardEvent = (event: KeyboardEvent)=> {
@@ -302,10 +298,10 @@ export class KeyHoldSensorBinding implements SensorBinding {
         });
     }
 
-    private deriveKeyHolds() : KeyHold[] {
+    private deriveKeyHolds() : any[] {
         // Maps the raw keydown and keyup events to KeyHold objects.
 
-        const holds: KeyHold[] = [];
+        const holds: any[] = [];
 
         for (const key of Object.keys(this.keyToKeyEvents) as PressableKey[]) {
 

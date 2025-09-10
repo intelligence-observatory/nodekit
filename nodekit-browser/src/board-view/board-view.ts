@@ -2,21 +2,12 @@ import type {AssetManager} from "../asset-manager/asset-manager.ts";
 import type {Board} from "../types/board";
 import type {PixelArea} from "../types/events/runtime-metrics.ts";
 import type {Card} from "../types/cards";
-import type {BoardLocation, BoardRectangle, CardId, SensorId, SpatialSize} from "../types/common.ts";
+import type {CardId, SensorId, SpatialPoint, SpatialSize} from "../types/common.ts";
 import type {Sensor} from "../types/sensors";
 import type {Action} from "../types/actions";
 import './board-view.css'
 import type {CardView, ClickableCardView, DoneableCardView} from "./card-views/card-view.ts";
-import {
-    assertClickable,
-    assertDoneable,
-    ClickSensorBinding,
-    DoneSensorBinding,
-    KeyHoldSensorBinding,
-    KeyPressSensorBinding,
-    type SensorBinding,
-    TimeoutSensorBinding
-} from "./sensor-bindings/sensor-binding.ts";
+import {assertClickable, assertDoneable, ClickSensorBinding, DoneSensorBinding, KeySensorBinding, type SensorBinding, TimeoutSensorBinding} from "./sensor-bindings/sensor-binding.ts";
 import {FixationPointCardView} from "./card-views/fixation-point/fixation-point-card-view.ts";
 import {MarkdownPagesCardView} from "./card-views/markdown-pages/markdown-pages-card-view.ts";
 import {ImageCardView} from "./card-views/image/image-card.ts";
@@ -42,15 +33,17 @@ export class BoardCoordinateSystem {
     }
 
     getBoardLocationPx(
-        location: BoardLocation,
-        rectangle: BoardRectangle,
+        x: SpatialPoint,
+        y: SpatialPoint,
+        w: SpatialSize,
+        h: SpatialSize,
     ) {
         // Returns the (left, top) coordinates of the given Board rectangle of size boardRectangle, with centroid located at boardLocation
         const unit = this.getUnitPx();
         const widthBoard = this.boardWidthPx / unit;
         const heightBoard = this.boardHeightPx / unit;
-        const leftPx = unit * (location.x - rectangle.width / 2 + widthBoard / 2);
-        const topPx = unit * (-location.y - rectangle.height / 2 + heightBoard / 2);
+        const leftPx = unit * (x - w / 2 + widthBoard / 2);
+        const topPx = unit * (-y - h / 2 + heightBoard / 2);
 
         return {
             leftPx: leftPx,
@@ -59,12 +52,13 @@ export class BoardCoordinateSystem {
     }
 
     getBoardRectanglePx(
-        boardRectangle: BoardRectangle,
+        width: SpatialSize,
+        height: SpatialSize,
     ) {
         // Returns the (width, height) of the given Board rectangle in pixels
         return {
-            widthPx: this.getSizePx(boardRectangle.width),
-            heightPx: this.getSizePx(boardRectangle.height),
+            widthPx: this.getSizePx(width),
+            heightPx: this.getSizePx(height),
         }
     }
 
@@ -215,65 +209,43 @@ export function placeSensorUnarmedDispatch(
     boardView: BoardView,
 ): SensorBinding {
 
-    // Dynamic dispatch for binding sensors to their targets
-    const cardId = sensor.card_id;
-    if (!cardId) {
-        // This is a Board Sensor.
-        if (sensor.sensor_type === 'TimeoutSensor') {
-            if (sensor.sensor_timespan.end_time_msec !== null) {
-                throw new Error(`${sensor.sensor_type} must not have a defined end_time_msec`);
-            }
-            return new TimeoutSensorBinding(
-                sensor.sensor_id,
-                onSensorFired,
-                sensor.sensor_parameters.timeout_msec,
-            );
-        }
-        else if (sensor.sensor_type === 'KeyPressSensor') {
-            return new KeyPressSensorBinding(
-                sensor.sensor_id,
-                onSensorFired,
-                sensor.sensor_parameters.keys,
-            );
-        }
-        else if (sensor.sensor_type == 'KeyHoldsSensor') {
-            if (!sensor.sensor_timespan.end_time_msec) {
-                throw new Error(`${sensor.sensor_type} must have a defined end_time_msec`);
-            }
-            return new KeyHoldSensorBinding(
-                sensor.sensor_id,
-                onSensorFired,
-                sensor.sensor_parameters.keys,
-            );
-        }
-        else {
-            throw new Error(`${sensor.sensor_type} can't be bound to the board.`);
-        }
+    // Dynamic dispatch for initializing SensorBinding from Sensor
+    if (sensor.sensor_type === 'TimeoutSensor') {
+        return new TimeoutSensorBinding(
+            sensor.sensor_id,
+            onSensorFired,
+            sensor.t_armed,
+        );
     }
+    else if (sensor.sensor_type === 'KeySensor') {
+        return new KeySensorBinding(
+            sensor.sensor_id,
+            onSensorFired,
+            sensor.key,
+        );
+    }
+    else if (sensor.sensor_type == "ClickSensor"){
+        let cardView = boardView.getCardView(sensor.card_id);
+        assertClickable(cardView); // Defensive runtime check
+        return new ClickSensorBinding(
+            sensor.sensor_id,
+            onSensorFired,
+            cardView as ClickableCardView,
+            boardView,
+        )
+    }
+    else if (sensor.sensor_type == "DoneSensor"){
+        let cardView = boardView.getCardView(sensor.card_id);
+        assertDoneable(cardView); // Defensive runtime check
+        return new DoneSensorBinding(
+            sensor.sensor_id,
+            onSensorFired,
+            cardView as DoneableCardView,
+        )
 
-    // Sensor binds to a Card:
-    const cardView = boardView.getCardView(cardId);
-
-    switch (sensor.sensor_type) {
-        case "ClickSensor":
-            assertClickable(cardView); // Defensive runtime check
-            return new ClickSensorBinding(
-                sensor.sensor_id,
-                onSensorFired,
-                cardView as ClickableCardView,
-                boardView,
-            )
-        case 'DoneSensor':
-            assertDoneable(cardView); // Defensive runtime check
-
-            return new DoneSensorBinding(
-                sensor.sensor_id,
-                onSensorFired,
-                cardView as DoneableCardView,
-            )
-        default:
-            const _never: never = sensor;
-            throw new Error(`Unknown sensor type: ${_never}`);
+    }
+    else {
+        throw new Error(`Unknown Sensor of type ${sensor.sensor_type}`);
     }
 }
 

@@ -7,18 +7,23 @@ import type {ShellUI} from "../ui/shell-ui/shell-ui.ts";
 import type {BoardViewsUI} from "../ui/board-views-ui/board-views-ui.ts";
 import {NodePlay} from "./node-play.ts";
 import {type NodePlayId} from "../types/common.ts";
+import type {Board} from "../types/board";
 
 
 export class NodePlayer {
     private boardViewsUI: BoardViewsUI;
     private shellUI: ShellUI;
     private bufferedNodePlays: Map<NodePlayId, NodePlay> = new Map();
+    private _boardShape: Board;
 
-    constructor(){
+    constructor(
+        board: Board
+    ){
         // Create all DIVs needed for the NodePlayer in a centralized call:
         const {shellUI, boardViewsUI} = buildUIs();
         this.shellUI = shellUI;
         this.boardViewsUI = boardViewsUI;
+        this._boardShape = board;
 
         try {
             if (!DeviceGate.isValidDevice()){
@@ -39,7 +44,7 @@ export class NodePlayer {
         try{
             // Create a new BoardView on which the NodePlay will be rendered::
             const nodePlayId: NodePlayId = crypto.randomUUID() as NodePlayId;
-            const boardView = this.boardViewsUI.createBoardView(nodePlayId, node.board);
+            const boardView = this.boardViewsUI.createBoardView(nodePlayId, this._boardShape);
             const nodePlay = new NodePlay(
                 node,
                 boardView,

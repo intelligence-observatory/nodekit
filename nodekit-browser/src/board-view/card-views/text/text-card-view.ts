@@ -1,8 +1,9 @@
 import {marked} from 'marked';
 import DOMPurify from 'dompurify';
-import type {SpatialSize, TextContent} from "../../../types/common.ts";
+import type {SpatialSize,} from "../../../types/common.ts";
 
 import './text-card-view.css'
+import type {TextContent} from "../../../types/cards";
 import {CardView, type ClickableCardView} from "../card-view.ts";
 import type {TextCard} from "../../../types/cards";
 import {BoardView} from "../../board-view.ts";
@@ -26,11 +27,11 @@ export class TextCardView extends CardView implements ClickableCardView {
 
 
         // Set styles based on card parameters:
-        this.textContainer.style.backgroundColor = card.card_parameters.background_color;
+        this.textContainer.style.backgroundColor = card.background_color;
 
         // Mount text content
         const textContentDiv = renderTextContent(
-            card.card_parameters.content,
+            card,
             (fontSize:SpatialSize) =>{
                 const boardCoords = boardView.getCoordinateSystem()
                 const sizePx = boardCoords.getSizePx(fontSize)

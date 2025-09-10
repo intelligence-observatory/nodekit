@@ -33,12 +33,15 @@ export abstract class CardView {
     private place(boardView: BoardView): void {
         const boardCoords = boardView.getCoordinateSystem();
         const {leftPx, topPx} = boardCoords.getBoardLocationPx(
-            this.card.card_location,
-            this.card.card_shape
+            this.card.x,
+            this.card.y,
+            this.card.w,
+            this.card.h
         )
 
         const {widthPx, heightPx} = boardCoords.getBoardRectanglePx(
-            this.card.card_shape
+            this.card.w,
+            this.card.h
         );
 
         this.root.style.left = `${leftPx}px`;
@@ -72,14 +75,10 @@ export abstract class CardView {
         }
     }
 
-    async load(){
-
-    }
+    async load(){}
 
     // Override this to unload assets.
-    unload() {
-
-    }
+    unload() {}
 
     // Do something when the card starts.
     async start() {

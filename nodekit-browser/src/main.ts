@@ -94,7 +94,7 @@ export async function play(
 
     // Play the Nodes in the NodeGraph:
     const nodes = nodeGraph.nodes;
-    let nodePlayer = new NodePlayer();
+    let nodePlayer = new NodePlayer(nodeGraph.board);
     for (let i = 0; i < nodes.length; i++) {
         const node = nodes[i];
         const nodePlayId = await nodePlayer.prepare(node);
@@ -124,7 +124,7 @@ export async function play(
     // Bonus disclosure + end button phase:
     const bonusComputed = calculateBonusUsd(
         events,
-        nodeGraph.bonus_rules,
+        nodeGraph,
     )
 
     let bonusMessage = '';

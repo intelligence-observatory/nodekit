@@ -1,14 +1,14 @@
 import type {Node} from "../types/node-graph.ts";
 import type {Action} from "../types/actions/";
 import {BoardView} from "../board-view/board-view.ts";
-import {evaluateReinforcerMap, makeNullReinforcer} from "../ops/evaluate-reinforcer-map.ts";
 import {EventScheduler} from "./event-scheduler.ts";
 import {type EffectBinding, HideCursorEffectBinding} from "../board-view/effect-bindings/effect-bindings.ts";
 
 import {performanceNowToISO8601} from "../utils.ts";
 import type {ISO8601} from "../types/common.ts";
-import type {Reinforcer} from "../types/consequences";
+import type {Card} from "../types/cards";
 
+//
 export interface PlayNodeResult {
     timestamp_start: ISO8601;
     timestamp_end: ISO8601;
@@ -27,7 +27,7 @@ export class NodePlay {
     private abortController: AbortController = new AbortController();
 
     // Resolvers
-    private resolvePlay!: (result: [Action, Reinforcer]) => void;
+    private resolvePlay!: (result: Action) => void;
 
     constructor(
         node: Node,
@@ -54,16 +54,16 @@ export class NodePlay {
             // Schedule CardView display event:
             this.scheduler.scheduleEvent(
                 {
-                    triggerTimeMsec: card.card_timespan.start_time_msec,
+                    triggerTimeMsec: card.t_start,
                     triggerFunc: () => {this.boardView.showCard(card.card_id)}
                 }
             )
 
             // Schedule hiding of the Card, if not open-ended Timespan:
-            if (card.card_timespan.end_time_msec !== null) {
+            if (card.t_end !== null) {
                 this.scheduler.scheduleEvent(
                     {
-                        triggerTimeMsec: card.card_timespan.end_time_msec,
+                        triggerTimeMsec: card.t_end,
                         triggerFunc: () => {this.boardView.hideCard(card.card_id)},
                     }
                 )
@@ -81,20 +81,10 @@ export class NodePlay {
             // Schedule arming of the Sensor:
             this.scheduler.scheduleEvent(
                 {
-                    triggerTimeMsec: sensor.sensor_timespan.start_time_msec,
+                    triggerTimeMsec: sensor.t_armed,
                     triggerFunc: () => {this.boardView.armSensor(sensor.sensor_id)},
                 }
             )
-
-            // Schedule disarming of the Sensor, if not an open-ended Timespan:
-            if (sensor.sensor_timespan.end_time_msec !== null) {
-                this.scheduler.scheduleEvent(
-                    {
-                        triggerTimeMsec: sensor.sensor_timespan.end_time_msec,
-                        triggerFunc: () => {this.boardView.disarmSensor(sensor.sensor_id)},
-                    }
-                )
-            }
         }
 
         // Schedule any effects:
@@ -105,7 +95,7 @@ export class NodePlay {
             // Schedule the effect start
             this.scheduler.scheduleEvent(
                 {
-                    triggerTimeMsec: effect.effect_timespan.start_time_msec,
+                    triggerTimeMsec: effect.t_start,
                     triggerFunc: () => {
                         effectBinding.start();
                     },
@@ -113,10 +103,10 @@ export class NodePlay {
             )
 
             // Schedule the effect end, if applicable
-            if (effect.effect_timespan.end_time_msec !== null) {
+            if (effect.t_end !== null) {
                 this.scheduler.scheduleEvent(
                     {
-                        triggerTimeMsec: effect.effect_timespan.end_time_msec,
+                        triggerTimeMsec: effect.t_end,
                         triggerFunc: () => {
                             effectBinding.stop();
                         },
@@ -144,7 +134,7 @@ export class NodePlay {
 
         // Create Promise to capture Sensor and Reinforcer events:
         const donePromise = new Promise(
-            (res: (result: [Action, Reinforcer]) => void, _rej) => (this.resolvePlay = res)
+            (res: (result: Action) => void, _rej) => (this.resolvePlay = res)
         );
 
         // Kick off scheduler:
@@ -153,19 +143,16 @@ export class NodePlay {
         const result = await donePromise;
         const timestampEnd = performance.now();
 
-        // Package result:
-        const [action, _reinforcer] = result;
-
         // Package return
         return {
-            action: action,
+            action: result,
             timestamp_start: performanceNowToISO8601(timestampStart),
             timestamp_end: performanceNowToISO8601(timestampEnd),
         }
     }
 
     private reportSensorFired(
-        action: Action,
+        action: Action
     ) {
         // Guard against double fires:
         if (this.terminated) return;
@@ -175,16 +162,21 @@ export class NodePlay {
         // Reset board
         this.boardView.reset();
 
-        // Get the Reinforcer for this Action:
-        const reinforcer = this.getReinforcer(action);
+        // Get the Consequence Cards for this Action:
+        let consequenceCards: Card[] = []
+        for (const consequence of this.node.consequences) {
+            if(action.sensor_id === consequence.sensor_id){
+                consequenceCards = consequence.cards;
+            }
+        }
 
-        // Set up the Reinforcer phase:
-        const reinforcerScheduler = new EventScheduler(this.abortController.signal);
+        // Set up the Consequence phase:
+        const consequenceScheduler = new EventScheduler(this.abortController.signal);
         let maxTimeMsec = 0;
 
-        // Add Reinforcer cards
+        // Add Consequence cards
         let setupPromises = [];
-        for (const card of reinforcer.reinforcer_cards) {
+        for (const card of consequenceCards) {
             setupPromises.push(this.boardView.placeCardHidden(card))
         }
 
@@ -192,10 +184,10 @@ export class NodePlay {
         Promise.all(setupPromises).then(() => {
 
                 // Schedule events
-                for (const card of reinforcer.reinforcer_cards) {
-                    reinforcerScheduler.scheduleEvent(
+                for (const card of consequenceCards) {
+                    consequenceScheduler.scheduleEvent(
                         {
-                            triggerTimeMsec: card.card_timespan.start_time_msec,
+                            triggerTimeMsec: card.t_start,
                             triggerFunc: () => {
                                 this.boardView.showCard(card.card_id);
                             }
@@ -203,54 +195,34 @@ export class NodePlay {
                     )
 
                     // Schedule hiding of the Card, if not open-ended:
-                    if (card.card_timespan.end_time_msec !== null) {
-                        reinforcerScheduler.scheduleEvent(
+                    if (card.t_end !== null) {
+                        consequenceScheduler.scheduleEvent(
                             {
-                                triggerTimeMsec: card.card_timespan.end_time_msec,
+                                triggerTimeMsec: card.t_end,
                                 triggerFunc: () => {
                                     this.boardView.hideCard(card.card_id);
                                 }
                             }
                         )
-                        if (card.card_timespan.end_time_msec > maxTimeMsec) {
-                            maxTimeMsec = card.card_timespan.end_time_msec;
+                        if (card.t_end > maxTimeMsec) {
+                            maxTimeMsec = card.t_end;
                         }
                     } else {
-                        throw new Error(`ReinforcerCard must have an end time: ${card.card_id} `);
+                        throw new Error(`Consequence Cards must have an end time: ${card.card_id} `);
                     }
                 }
 
-                // Schedule an Event which resolves the play with the Action and Reinforcer:
-                reinforcerScheduler.scheduleEvent(
+                // Schedule an Event which resolves the play with the Action:
+                consequenceScheduler.scheduleEvent(
                     {
                         triggerTimeMsec: maxTimeMsec,
                         triggerFunc: () => {
-                            this.resolvePlay(
-                                [
-                                    action,
-                                    reinforcer,
-                                ]
-                            )
+                            this.resolvePlay(action)
                         }
                     }
                 )
-                reinforcerScheduler.start()
+                consequenceScheduler.start()
             }
         )
-    }
-
-    private getReinforcer(action: Action): Reinforcer {
-        // Lookup reinforcer
-        const originatingSensorId = action.sensor_id;
-
-        // Try to find the first matching reinforcer map:
-        for (const reinforcerMap of this.node.reinforcer_maps) {
-            if (reinforcerMap.sensor_id === originatingSensorId) {
-                return evaluateReinforcerMap(reinforcerMap, action)
-            }
-        }
-
-        // Return null Reinforcer, if there is no matching reinforcer map:
-        return makeNullReinforcer();
     }
 }

@@ -24,7 +24,7 @@ export class MarkdownPagesCardView extends CardView implements DoneableCardView 
     ) {
         super(card, boardView);
 
-        if (card.card_parameters.pages.length === 0) {
+        if (card.pages.length === 0) {
             throw new Error("No markdown pages provided to MarkdownPagesViewer");
         }
 
@@ -38,7 +38,7 @@ export class MarkdownPagesCardView extends CardView implements DoneableCardView 
 
         // Assemble all content pages:
         this.contentPages = [];
-        for (const page of card.card_parameters.pages) {
+        for (const page of card.pages) {
             const divCur = renderTextContent(
                 page,
                 (fontSize: SpatialSize) => {

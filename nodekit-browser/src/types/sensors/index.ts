@@ -17,12 +17,12 @@ export interface ClickSensor extends BaseSensor<'ClickSensor'>{
     card_id: CardId
 }
 
-export interface KeyPressSensor extends BaseSensor<'KeyPressSensor'> {
+export interface KeySensor extends BaseSensor<'KeySensor'> {
     key: PressableKey
 }
 
 export interface KeyHoldsSensor extends BaseSensor<'KeyHoldsSensor'> {
-    keys: PressableKey[];
+    key: PressableKey;
 }
 
-export type Sensor = TimeoutSensor | DoneSensor | ClickSensor | KeyPressSensor | KeyHoldsSensor;
+export type Sensor = TimeoutSensor | DoneSensor | ClickSensor | KeySensor | KeyHoldsSensor;

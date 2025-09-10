@@ -28,9 +28,9 @@ export type NodeResultEvent = BaseEvent<
     'NodeResultEvent',
     {
         node_id: NodeId,
+        node_execution_index: number, // 0 for first execution, 1 for second, etc.
         timestamp_start: ISO8601,
         timestamp_end: ISO8601,
-        node_execution_index: number, // 0 for first execution, 1 for second, etc.
         action: Action,
     }
 >
