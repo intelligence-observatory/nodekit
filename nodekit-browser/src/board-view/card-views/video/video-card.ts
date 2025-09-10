@@ -54,10 +54,6 @@ export class VideoCardView extends CardView implements ClickableCardView {
 
     async start() {
         await super.start();
-        // Start playing the video now.
-        this.video.autoplay = true;
-        // Disable all video controls.
-        this.video.controls = false;
         // Timeout after two frames.
         let timeout = new Promise((_, reject) => {
             setTimeout(() => {
@@ -70,6 +66,8 @@ export class VideoCardView extends CardView implements ClickableCardView {
                resolve(null)
            }
         });
+        // Start playing the video now.
+        this.video.autoplay = true;
         await Promise.race([playing, timeout]);
     }
 }
