@@ -18,13 +18,19 @@ class BaseSensor(pydantic.BaseModel, ABC):
     sensor_type: str
 
     # Time:
-    t_start: TimePointMsec = pydantic.Field(
-        description='The time (in milliseconds) relative to Node start when the Sensor is armed.',
+    t_armed: TimePointMsec = pydantic.Field(
         default=0,
+        description='The time (in milliseconds) relative to Node start when the Sensor is armed.',
     )
-    t_end: TimePointMsec | None = pydantic.Field(
-        description='The time (in milliseconds) relative to Node start when the Sensor is disarmed.',
-        default=None,
+
+# %%
+class TimeoutSensor(BaseSensor):
+    """
+    A Sensor that triggers immediately after it is armed.
+    """
+    sensor_type: Literal['TimeoutSensor'] = 'TimeoutSensor'
+    t_armed: TimePointMsec = pydantic.Field(
+        description = 'The time (in milliseconds) relative to Node start when the TimeoutAction is emitted.',
     )
 
 
@@ -32,7 +38,6 @@ class BaseSensor(pydantic.BaseModel, ABC):
 class DoneSensor(BaseSensor):
     sensor_type: Literal['DoneSensor'] = 'DoneSensor'
     card_id: CardId = pydantic.Field(description='The ID of the done-able Card to which this DoneSensor is attached.')
-
 
 # %%
 class ClickSensor(BaseSensor):
@@ -52,6 +57,7 @@ Sensor = Annotated[
         DoneSensor,
         ClickSensor,
         KeySensor,
+        TimeoutSensor,
         # Add other Sensor types here as needed
     ],
     pydantic.Field(discriminator='sensor_type')

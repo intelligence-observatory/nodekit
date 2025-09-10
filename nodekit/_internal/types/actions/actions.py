@@ -27,9 +27,6 @@ class DoneAction(BaseAction):
 
 # %%
 class TimeoutAction(BaseAction):
-    """
-    Emitted if all Sensors are disarmed.
-    """
     action_type: Literal['TimeoutAction'] = 'TimeoutAction'
 
 

@@ -6,7 +6,7 @@ from uuid import UUID
 import pydantic
 
 
-# %%
+# %% Money
 def _ensure_monetary_amount_precision(value: str) -> str:
     SubcentMonetaryAmountAdapter = pydantic.TypeAdapter(
         Annotated[Decimal, pydantic.Field(decimal_places=5)]
@@ -22,7 +22,7 @@ MonetaryAmountUsd = Annotated[
 ]
 
 
-# %%
+# %% Money
 def _ensure_payable_monetary_amount(value: str) -> str:
     PayableMonetaryAmountAdapter = pydantic.TypeAdapter(
         Annotated[Decimal, pydantic.Field(decimal_places=5)]
@@ -38,7 +38,27 @@ PayableMonetaryAmountUsd = Annotated[
 ]
 
 
-# %% Timestamps
+# %% Assets
+SHA256 = Annotated[str, pydantic.Field(pattern=r'^[a-f0-9]{64}$')]
+
+MimeType = Literal[
+    'image/png',
+    'video/mp4'
+]
+
+# %% Space
+SpatialSize = Annotated[float, pydantic.Field(
+    strict=True,
+    ge=0,
+    le=1,
+    description='A spatial size relative to the smaller extent of the board (width or height, whichever is smaller). For example, a value of 0.5 corresponds to half the smaller extent of the board.'
+)]
+SpatialPoint = Annotated[float, pydantic.Field(strict=True, ge=-0.5, le=0.5)]
+
+# %% Time
+TimeDurationMsec = Annotated[int, pydantic.Field(strict=True, ge=0, description='A duration of time in milliseconds.')]
+TimePointMsec = Annotated[int, pydantic.Field(strict=True, ge=0, description='A point in time relative to some start time in milliseconds.')]
+
 def ensure_utc(t: datetime.datetime) -> datetime.datetime:
     # Ensures that a datetime is timezone-aware and in UTC.
     if t.tzinfo is None:
@@ -52,28 +72,8 @@ DatetimeUTC = Annotated[
     pydantic.AfterValidator(ensure_utc)
 ]
 
-# %%
-SHA256 = Annotated[str, pydantic.Field(pattern=r'^[a-f0-9]{64}$')]
-
-MimeType = Literal[
-    'image/png',
-    'video/mp4'
-    # Add other supported mime types here as needed
-]
-SpatialSize = Annotated[float, pydantic.Field(
-    strict=True,
-    ge=0,
-    le=1,
-    description='A spatial size relative to the smaller extent of the board (width or height, whichever is smaller). For example, a value of 0.5 corresponds to half the smaller extent of the board.'
-)]
-SpatialPoint = Annotated[float, pydantic.Field(strict=True, ge=-0.5, le=0.5)]
-TimeDurationMsec = Annotated[int, pydantic.Field(strict=True, ge=0, description='A duration of time in milliseconds.')]
-TimePointMsec = Annotated[int, pydantic.Field(strict=True, ge=0, description='A point in time relative to some start time in milliseconds.')]
-CurrencyCode = Literal['USD']
+# %% Text
 MarkdownString = str
-CardId = UUID
-SensorId = UUID
-NodeId = UUID
 ColorHexString = Annotated[
     str,
     pydantic.Field(
@@ -83,7 +83,7 @@ ColorHexString = Annotated[
     )
 ]
 
-
+# %% Keyboard
 # Enter, spacebar, arrow keys, and alphanumeric keys:
 PressableKey = Literal[
     'Enter',
@@ -94,3 +94,7 @@ PressableKey = Literal[
 ]
 
 
+# %% Identifiers
+NodeId = UUID
+CardId = UUID
+SensorId = UUID

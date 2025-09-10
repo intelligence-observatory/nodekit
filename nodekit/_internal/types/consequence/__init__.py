@@ -3,11 +3,9 @@ from typing import List, Self
 import pydantic
 
 from nodekit._internal.types.cards.cards import Card
-from nodekit._internal.types.common import (
-    MonetaryAmountUsd, SensorId
-)
+from nodekit._internal.types.common import MonetaryAmountUsd, SensorId
 
-
+# %%
 class Consequence(pydantic.BaseModel):
     """
     A Consequence is a set of Cards that are displayed on a fresh Board following a specific Sensor being triggered.
@@ -16,7 +14,10 @@ class Consequence(pydantic.BaseModel):
     """
 
     sensor_id: SensorId = pydantic.Field(
-        description='The ID of the Sensor that triggers this Consequence when activated. Any Action from this Sensor will trigger the Consequence.'
+        description=(
+            'The ID of the Sensor that triggers this Consequence when activated. '
+            'Any Action from this Sensor will trigger the Consequence.'
+        )
     )
 
     cards: List[Card] = pydantic.Field(
