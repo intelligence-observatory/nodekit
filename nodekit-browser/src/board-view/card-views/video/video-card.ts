@@ -68,8 +68,6 @@ export class VideoCardView extends CardView implements ClickableCardView {
         });
         // Start playing the video now.
         this.video.autoplay = true;
-        // Disable all video controls.
-        this.video.controls = false;
         await Promise.race([playing, timeout]);
     }
 }

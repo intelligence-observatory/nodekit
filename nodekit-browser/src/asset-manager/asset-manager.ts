@@ -18,6 +18,8 @@ export class AssetManager {
     async loadVideoAsset(videoLink: VideoLink): Promise<HTMLVideoElement> {
         // Preload the video asset and return the HTMLVideoElement.
         let element = document.createElement("video");
+        // Disable all video controls.
+        element.controls = false;
         // Subscribe to events prior to assign the source URL to prevent events from triggering prior to assignment:
         let promise: Promise<HTMLVideoElement> = new Promise((resolve, reject) => {
             element.oncanplaythrough = () => {
