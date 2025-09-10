@@ -53,7 +53,7 @@ export interface TextCard extends BaseCard<'TextCard'>, TextContent{
 
 // BlankCard
 export interface BlankCard extends BaseCard<'BlankCard'>{
-    background_color: ColorHexString
+    color: ColorHexString
 }
 
 // Union type for all card types

@@ -32,7 +32,7 @@ class TimeoutAction(BaseAction):
 
 # %%
 class KeyAction(BaseAction):
-    action_type: Literal['KeyPressAction'] = 'KeyPressAction'
+    action_type: Literal['KeyAction'] = 'KeyAction'
     key: PressableKey = pydantic.Field(description='The key that was pressed.')
 
 

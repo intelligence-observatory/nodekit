@@ -197,7 +197,7 @@ export class KeySensorBinding implements SensorBinding {
         // Create the action to be fired:
         const action: KeyAction = {
             sensor_id: this.sensorId,
-            action_type: "KeyPressAction",
+            action_type: "KeyAction",
             key: key,
             timestamp_action: performanceNowToISO8601(performance.now())
         };

@@ -1,4 +1,4 @@
-declare type Action = ClickAction | DoneAction | TimeoutAction | KeyPressAction | KeyHoldsAction;
+declare type Action = ClickAction | DoneAction | TimeoutAction | KeyAction | KeyHoldsAction;
 
 declare interface BaseAction<T extends string> {
     sensor_id: SensorId;
@@ -44,7 +44,7 @@ declare interface BaseSensor<T extends string> {
 }
 
 declare interface BlankCard extends BaseCard<'BlankCard'> {
-    background_color: ColorHexString;
+    color: ColorHexString;
 }
 
 declare interface Board {
@@ -126,14 +126,14 @@ declare type ISO8601_2 = string & {
     __brand: 'ISO8601';
 };
 
+declare interface KeyAction extends BaseAction<"KeyAction"> {
+    key: PressableKey;
+}
+
 declare interface KeyHoldsAction extends BaseAction<"KeyHoldsAction"> {
 }
 
 declare interface KeyHoldsSensor extends BaseSensor<'KeyHoldsSensor'> {
-    key: PressableKey;
-}
-
-declare interface KeyPressAction extends BaseAction<"KeyPressAction"> {
     key: PressableKey;
 }
 

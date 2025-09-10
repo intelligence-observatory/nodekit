@@ -85,9 +85,9 @@ class BlankCard(BaseCard):
     A rectangular card with a solid background color and no content.
     """
     card_type: Literal['BlankCard'] = 'BlankCard'
-    background_color: ColorHexString = pydantic.Field(
+    color: ColorHexString = pydantic.Field(
         default='#808080',
-        description='The background color of the BlankCard in hexadecimal format.'
+        description='The color of the BlankCard in hexadecimal format.'
     )
 
 # %%
