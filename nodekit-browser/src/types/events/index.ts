@@ -9,8 +9,7 @@ import type {Action} from "../actions";
 // Base event type
 export type BaseEvent<T extends string, P> = {
     event_id: UUID
-    event_index: number, // Monotonically increasing index of the event in the session.
-    event_timestamp: ISO8601,
+    timestamp_event: ISO8601,
 
     event_type: T,
     event_payload: P,
@@ -31,8 +30,8 @@ export type NodeResultEvent = BaseEvent<
     'NodeResultEvent',
     {
         node_id: NodeId,
-        timestamp_start: ISO8601,
-        timestamp_end: ISO8601,
+        timestamp_node_start: ISO8601,
+        timestamp_node_end: ISO8601,
         action: Action,
     }
 >

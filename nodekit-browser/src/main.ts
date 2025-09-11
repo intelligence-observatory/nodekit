@@ -54,7 +54,7 @@ export async function play(
     // Emit the StartEvent
     const startEvent: StartEvent = {
         event_id: generateEventId(),
-        event_timestamp: getCurrentTimestamp(),
+        timestamp_event: getCurrentTimestamp(),
         event_type: "StartEvent",
         event_payload: {},
         nodekit_version: nodekitVersion,
@@ -67,7 +67,7 @@ export async function play(
         if (document.visibilityState === "hidden") {
             const leaveEvent: LeaveEvent = {
                 event_id: generateEventId(),
-                event_timestamp: getCurrentTimestamp(),
+                timestamp_event: getCurrentTimestamp(),
                 event_type: "LeaveEvent",
                 event_payload: {},
                 nodekit_version: nodekitVersion,
@@ -78,7 +78,7 @@ export async function play(
             // Optionally handle when the document becomes visible again
             const returnEvent: ReturnEvent = {
                 event_id: generateEventId(),
-                event_timestamp: getCurrentTimestamp(),
+                timestamp_event: getCurrentTimestamp(),
                 event_type: "ReturnEvent",
                 event_payload: {},
                 nodekit_version: nodekitVersion,
@@ -94,7 +94,7 @@ export async function play(
     const browserContext = getBrowserContext();
     const browserContextEvent: Event = {
         event_id: generateEventId(),
-        event_timestamp: getCurrentTimestamp(),
+        timestamp_event: getCurrentTimestamp(),
         event_type: "BrowserContextEvent",
         event_payload: browserContext,
         nodekit_version: nodekitVersion,
@@ -117,13 +117,12 @@ export async function play(
         // Package the NodeResultEvent:
         const nodeResultEvent: NodeResultEvent = {
             event_id: generateEventId(),
-            event_timestamp: getCurrentTimestamp(),
+            timestamp_event: getCurrentTimestamp(),
             event_type: "NodeResultEvent",
             event_payload: {
                 node_id: node.node_id,
-                node_execution_index: i,
-                timestamp_start: result.timestamp_start,
-                timestamp_end: result.timestamp_end,
+                timestamp_node_start: result.timestamp_start,
+                timestamp_node_end: result.timestamp_end,
                 action: result.action,
             },
             nodekit_version: nodekitVersion,
@@ -151,7 +150,7 @@ export async function play(
     if (bonusMessage !== '') {
         const bonusDisclosureEvent: Event = {
             event_id: generateEventId(),
-            event_timestamp: getCurrentTimestamp(),
+            timestamp_event: getCurrentTimestamp(),
             event_type: "BonusDisclosureEvent",
             event_payload: {
                 bonus_amount_usd: bonusComputed.toFixed(2) as MonetaryAmountUsd,
@@ -165,7 +164,7 @@ export async function play(
     // Generate the EndEvent:
     const endEvent: EndEvent = {
         event_id: generateEventId(),
-        event_timestamp: getCurrentTimestamp(),
+        timestamp_event: getCurrentTimestamp(),
         event_type: "EndEvent",
         event_payload: {},
         nodekit_version: nodekitVersion,

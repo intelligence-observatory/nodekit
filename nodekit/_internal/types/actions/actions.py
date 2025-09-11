@@ -3,7 +3,13 @@ from typing import Literal, Union, Annotated
 
 import pydantic
 
-from nodekit._internal.types.common import DatetimeUTC, PressableKey, SensorId, SpatialPoint, NodeId
+from nodekit._internal.types.common import (
+    DatetimeUTC,
+    PressableKey,
+    SensorId,
+    SpatialPoint,
+    NodeId
+)
 
 
 # %%

@@ -30,8 +30,7 @@ class NullPayload(pydantic.BaseModel):
 
 class BaseEvent(pydantic.BaseModel):
     event_id: UUID
-    event_timestamp: DatetimeUTC
-    event_index: int = pydantic.Field(description='The index of this event within the run, starting from 0.', ge=0)
+    timestamp_event: DatetimeUTC
 
     event_type: EventTypeEnum
     event_payload: NullPayload
@@ -87,10 +86,9 @@ class NodeResultEvent(BaseEvent):
         """
         Describes the result of a NodePlay.
         """
-
         node_id: NodeId = pydantic.Field(description='The ID of the Node from which this NodeResult was produced.')
-        timestamp_start: DatetimeUTC
-        timestamp_end: DatetimeUTC
+        timestamp_node_start: DatetimeUTC
+        timestamp_node_end: DatetimeUTC
         action: Action
 
     event_type: Literal[EventTypeEnum.NodeResultEvent] = EventTypeEnum.NodeResultEvent

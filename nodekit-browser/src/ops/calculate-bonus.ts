@@ -21,7 +21,7 @@ export function calculateBonusUsd(
 
     // Sort events by timestamp to ensure correct order of processing
     // Note that event_timestamp is an ISO8601 string:
-    events.sort((a, b) => a.event_timestamp.localeCompare(b.event_timestamp));
+    events.sort((a, b) => a.timestamp_event.localeCompare(b.timestamp_event));
 
     let observedNodeIds = new Set<NodeId>();
     for (let i = 0; i < events.length; i++) {
