@@ -31,9 +31,9 @@ declare interface BaseEffect<T extends string> {
 
 declare type BaseEvent<T extends string, P> = {
     event_id: UUID;
+    timestamp_event: ISO8601;
     event_type: T;
     event_payload: P;
-    event_timestamp: ISO8601;
     nodekit_version: string;
 };
 
@@ -84,12 +84,6 @@ declare interface ClickSensor extends BaseSensor<'ClickSensor'> {
 declare type ColorHexString = string & {
     __brand: 'ColorHexString';
 };
-
-declare interface Consequence {
-    sensor_id: SensorId;
-    cards: Card[];
-    bonus_amount_usd: MonetaryAmountUsd;
-}
 
 declare interface DoneAction extends BaseAction<"DoneAction"> {
 }
@@ -159,7 +153,7 @@ declare interface Node_2 {
     node_id: NodeId;
     cards: Card[];
     sensors: Sensor[];
-    consequences: Consequence[];
+    outcomes: Outcome[];
     effects: Effect[];
 }
 
@@ -175,13 +169,18 @@ declare type NodeId = string & {
 
 declare type NodeResultEvent = BaseEvent<'NodeResultEvent', {
     node_id: NodeId;
-    node_execution_index: number;
-    timestamp_start: ISO8601;
-    timestamp_end: ISO8601;
+    timestamp_node_start: ISO8601;
+    timestamp_node_end: ISO8601;
     action: Action;
 }>;
 
 export declare type OnEventCallback = (event: Event_2) => void;
+
+declare interface Outcome {
+    sensor_id: SensorId;
+    cards: Card[];
+    bonus_amount_usd: MonetaryAmountUsd;
+}
 
 export declare function play(nodeGraph: NodeGraph, onEventCallback?: OnEventCallback | null, previousEvents?: Event_2[]): Promise<Event_2[]>;
 

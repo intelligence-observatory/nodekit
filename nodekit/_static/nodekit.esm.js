@@ -1,1535 +1,6 @@
 var gr = Object.defineProperty;
 var mr = (n, e, t) => e in n ? gr(n, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : n[e] = t;
 var X = (n, e, t) => mr(n, typeof e != "symbol" ? e + "" : e, t);
-var wr = "2.0.4", Di = 500, cs = "user-agent", zt = "", us = "?", Qn = "function", ut = "undefined", Ht = "object", Ni = "string", we = "browser", Ye = "cpu", Fe = "device", Pe = "engine", Ae = "os", Bt = "result", b = "name", f = "type", m = "vendor", x = "version", be = "architecture", kn = "major", g = "model", xn = "console", P = "mobile", G = "tablet", ie = "smarttv", ze = "wearable", Fn = "xr", _n = "embedded", rn = "inapp", Gi = "brands", yt = "formFactors", Wi = "fullVersionList", Ut = "platform", qi = "platformVersion", si = "bitness", ht = "sec-ch-ua", br = ht + "-full-version-list", xr = ht + "-arch", _r = ht + "-" + si, vr = ht + "-form-factors", kr = ht + "-" + P, yr = ht + "-" + g, $s = ht + "-" + Ut, Er = $s + "-version", Fs = [Gi, Wi, P, g, Ut, qi, be, yt, si], Vn = "Amazon", Dt = "Apple", hs = "ASUS", ds = "BlackBerry", _t = "Google", ps = "Huawei", wi = "Lenovo", fs = "Honor", jn = "LG", bi = "Microsoft", xi = "Motorola", _i = "Nvidia", gs = "OnePlus", vi = "OPPO", on = "Samsung", ms = "Sharp", an = "Sony", ki = "Xiaomi", yi = "Zebra", ws = "Chrome", bs = "Chromium", lt = "Chromecast", Yn = "Edge", ln = "Firefox", cn = "Opera", Ei = "Facebook", xs = "Sogou", Nt = "Mobile ", un = " Browser", Bi = "Windows", Sr = typeof window !== ut, xe = Sr && window.navigator ? window.navigator : void 0, ct = xe && xe.userAgentData ? xe.userAgentData : void 0, Tr = function(n, e) {
-  var t = {}, i = e;
-  if (!Jn(e)) {
-    i = {};
-    for (var s in e)
-      for (var r in e[s])
-        i[r] = e[s][r].concat(i[r] ? i[r] : []);
-  }
-  for (var a in n)
-    t[a] = i[a] && i[a].length % 2 === 0 ? i[a].concat(n[a]) : n[a];
-  return t;
-}, ri = function(n) {
-  for (var e = {}, t = 0; t < n.length; t++)
-    e[n[t].toUpperCase()] = n[t];
-  return e;
-}, Ui = function(n, e) {
-  if (typeof n === Ht && n.length > 0) {
-    for (var t in n)
-      if (Ze(e) == Ze(n[t])) return !0;
-    return !1;
-  }
-  return Ft(n) ? Ze(e) == Ze(n) : !1;
-}, Jn = function(n, e) {
-  for (var t in n)
-    return /^(browser|cpu|device|engine|os)$/.test(t) || (e ? Jn(n[t]) : !1);
-}, Ft = function(n) {
-  return typeof n === Ni;
-}, Si = function(n) {
-  if (n) {
-    for (var e = [], t = $t(/\\?\"/g, n).split(","), i = 0; i < t.length; i++)
-      if (t[i].indexOf(";") > -1) {
-        var s = ei(t[i]).split(";v=");
-        e[i] = { brand: s[0], version: s[1] };
-      } else
-        e[i] = ei(t[i]);
-    return e;
-  }
-}, Ze = function(n) {
-  return Ft(n) ? n.toLowerCase() : n;
-}, Ti = function(n) {
-  return Ft(n) ? $t(/[^\d\.]/g, n).split(".")[0] : void 0;
-}, Ke = function(n) {
-  for (var e in n) {
-    var t = n[e];
-    typeof t == Ht && t.length == 2 ? this[t[0]] = t[1] : this[t] = void 0;
-  }
-  return this;
-}, $t = function(n, e) {
-  return Ft(e) ? e.replace(n, zt) : e;
-}, hn = function(n) {
-  return $t(/\\?\"/g, n);
-}, ei = function(n, e) {
-  if (Ft(n))
-    return n = $t(/^\s\s*/, n), typeof e === ut ? n : n.substring(0, Di);
-}, Ai = function(n, e) {
-  if (!(!n || !e))
-    for (var t = 0, i, s, r, a, c, h; t < e.length && !c; ) {
-      var u = e[t], p = e[t + 1];
-      for (i = s = 0; i < u.length && !c && u[i]; )
-        if (c = u[i++].exec(n), c)
-          for (r = 0; r < p.length; r++)
-            h = c[++s], a = p[r], typeof a === Ht && a.length > 0 ? a.length === 2 ? typeof a[1] == Qn ? this[a[0]] = a[1].call(this, h) : this[a[0]] = a[1] : a.length >= 3 && (typeof a[1] === Qn && !(a[1].exec && a[1].test) ? a.length > 3 ? this[a[0]] = h ? a[1].apply(this, a.slice(2)) : void 0 : this[a[0]] = h ? a[1].call(this, h, a[2]) : void 0 : a.length == 3 ? this[a[0]] = h ? h.replace(a[1], a[2]) : void 0 : a.length == 4 ? this[a[0]] = h ? a[3].call(this, h.replace(a[1], a[2])) : void 0 : a.length > 4 && (this[a[0]] = h ? a[3].apply(this, [h.replace(a[1], a[2])].concat(a.slice(4))) : void 0)) : this[a] = h || void 0;
-      t += 2;
-    }
-}, $e = function(n, e) {
-  for (var t in e)
-    if (typeof e[t] === Ht && e[t].length > 0) {
-      for (var i = 0; i < e[t].length; i++)
-        if (Ui(e[t][i], n))
-          return t === us ? void 0 : t;
-    } else if (Ui(e[t], n))
-      return t === us ? void 0 : t;
-  return e.hasOwnProperty("*") ? e["*"] : n;
-}, _s = {
-  ME: "4.90",
-  "NT 3.51": "3.51",
-  "NT 4.0": "4.0",
-  2e3: ["5.0", "5.01"],
-  XP: ["5.1", "5.2"],
-  Vista: "6.0",
-  7: "6.1",
-  8: "6.2",
-  "8.1": "6.3",
-  10: ["6.4", "10.0"],
-  NT: ""
-}, vs = {
-  embedded: "Automotive",
-  mobile: "Mobile",
-  tablet: ["Tablet", "EInk"],
-  smarttv: "TV",
-  wearable: "Watch",
-  xr: ["VR", "XR"],
-  "?": ["Desktop", "Unknown"],
-  "*": void 0
-}, Ar = {
-  Chrome: "Google Chrome",
-  Edge: "Microsoft Edge",
-  "Edge WebView2": "Microsoft Edge WebView2",
-  "Chrome WebView": "Android WebView",
-  "Chrome Headless": "HeadlessChrome",
-  "Huawei Browser": "HuaweiBrowser",
-  "MIUI Browser": "Miui Browser",
-  "Opera Mobi": "OperaMobile",
-  Yandex: "YaBrowser"
-}, ks = {
-  browser: [
-    [
-      // Most common regardless engine
-      /\b(?:crmo|crios)\/([\w\.]+)/i
-      // Chrome for Android/iOS
-    ],
-    [x, [b, Nt + "Chrome"]],
-    [
-      /webview.+edge\/([\w\.]+)/i
-      // Microsoft Edge
-    ],
-    [x, [b, Yn + " WebView"]],
-    [
-      /edg(?:e|ios|a)?\/([\w\.]+)/i
-    ],
-    [x, [b, "Edge"]],
-    [
-      // Presto based
-      /(opera mini)\/([-\w\.]+)/i,
-      // Opera Mini
-      /(opera [mobiletab]{3,6})\b.+version\/([-\w\.]+)/i,
-      // Opera Mobi/Tablet
-      /(opera)(?:.+version\/|[\/ ]+)([\w\.]+)/i
-      // Opera
-    ],
-    [b, x],
-    [
-      /opios[\/ ]+([\w\.]+)/i
-      // Opera mini on iphone >= 8.0
-    ],
-    [x, [b, cn + " Mini"]],
-    [
-      /\bop(?:rg)?x\/([\w\.]+)/i
-      // Opera GX
-    ],
-    [x, [b, cn + " GX"]],
-    [
-      /\bopr\/([\w\.]+)/i
-      // Opera Webkit
-    ],
-    [x, [b, cn]],
-    [
-      // Mixed
-      /\bb[ai]*d(?:uhd|[ub]*[aekoprswx]{5,6})[\/ ]?([\w\.]+)/i
-      // Baidu
-    ],
-    [x, [b, "Baidu"]],
-    [
-      /\b(?:mxbrowser|mxios|myie2)\/?([-\w\.]*)\b/i
-      // Maxthon
-    ],
-    [x, [b, "Maxthon"]],
-    [
-      /(kindle)\/([\w\.]+)/i,
-      // Kindle
-      /(lunascape|maxthon|netfront|jasmine|blazer|sleipnir)[\/ ]?([\w\.]*)/i,
-      // Lunascape/Maxthon/Netfront/Jasmine/Blazer/Sleipnir
-      // Trident based
-      /(avant|iemobile|slim(?:browser|boat|jet))[\/ ]?([\d\.]*)/i,
-      // Avant/IEMobile/SlimBrowser/SlimBoat/Slimjet
-      /(?:ms|\()(ie) ([\w\.]+)/i,
-      // Internet Explorer
-      // Blink/Webkit/KHTML based                                         // Flock/RockMelt/Midori/Epiphany/Silk/Skyfire/Bolt/Iron/Iridium/PhantomJS/Bowser/QupZilla/Falkon/LG Browser/Otter/qutebrowser/Dooble
-      /(flock|rockmelt|midori|epiphany|silk|skyfire|ovibrowser|bolt|iron|vivaldi|iridium|phantomjs|bowser|qupzilla|falkon|rekonq|puffin|brave|whale(?!.+naver)|qqbrowserlite|duckduckgo|klar|helio|(?=comodo_)?dragon|otter|dooble|(?:lg |qute)browser)\/([-\w\.]+)/i,
-      // Rekonq/Puffin/Brave/Whale/QQBrowserLite/QQ//Vivaldi/DuckDuckGo/Klar/Helio/Dragon
-      /(heytap|ovi|115|surf)browser\/([\d\.]+)/i,
-      // HeyTap/Ovi/115/Surf
-      /(ecosia|weibo)(?:__| \w+@)([\d\.]+)/i
-      // Ecosia/Weibo
-    ],
-    [b, x],
-    [
-      /quark(?:pc)?\/([-\w\.]+)/i
-      // Quark
-    ],
-    [x, [b, "Quark"]],
-    [
-      /\bddg\/([\w\.]+)/i
-      // DuckDuckGo
-    ],
-    [x, [b, "DuckDuckGo"]],
-    [
-      /(?:\buc? ?browser|(?:juc.+)ucweb)[\/ ]?([\w\.]+)/i
-      // UCBrowser
-    ],
-    [x, [b, "UCBrowser"]],
-    [
-      /microm.+\bqbcore\/([\w\.]+)/i,
-      // WeChat Desktop for Windows Built-in Browser
-      /\bqbcore\/([\w\.]+).+microm/i,
-      /micromessenger\/([\w\.]+)/i
-      // WeChat
-    ],
-    [x, [b, "WeChat"]],
-    [
-      /konqueror\/([\w\.]+)/i
-      // Konqueror
-    ],
-    [x, [b, "Konqueror"]],
-    [
-      /trident.+rv[: ]([\w\.]{1,9})\b.+like gecko/i
-      // IE11
-    ],
-    [x, [b, "IE"]],
-    [
-      /ya(?:search)?browser\/([\w\.]+)/i
-      // Yandex
-    ],
-    [x, [b, "Yandex"]],
-    [
-      /slbrowser\/([\w\.]+)/i
-      // Smart Lenovo Browser
-    ],
-    [x, [b, "Smart " + wi + un]],
-    [
-      /(avast|avg)\/([\w\.]+)/i
-      // Avast/AVG Secure Browser
-    ],
-    [[b, /(.+)/, "$1 Secure" + un], x],
-    [
-      /\bfocus\/([\w\.]+)/i
-      // Firefox Focus
-    ],
-    [x, [b, ln + " Focus"]],
-    [
-      /\bopt\/([\w\.]+)/i
-      // Opera Touch
-    ],
-    [x, [b, cn + " Touch"]],
-    [
-      /coc_coc\w+\/([\w\.]+)/i
-      // Coc Coc Browser
-    ],
-    [x, [b, "Coc Coc"]],
-    [
-      /dolfin\/([\w\.]+)/i
-      // Dolphin
-    ],
-    [x, [b, "Dolphin"]],
-    [
-      /coast\/([\w\.]+)/i
-      // Opera Coast
-    ],
-    [x, [b, cn + " Coast"]],
-    [
-      /miuibrowser\/([\w\.]+)/i
-      // MIUI Browser
-    ],
-    [x, [b, "MIUI" + un]],
-    [
-      /fxios\/([\w\.-]+)/i
-      // Firefox for iOS
-    ],
-    [x, [b, Nt + ln]],
-    [
-      /\bqihoobrowser\/?([\w\.]*)/i
-      // 360
-    ],
-    [x, [b, "360"]],
-    [
-      /\b(qq)\/([\w\.]+)/i
-      // QQ
-    ],
-    [[b, /(.+)/, "$1Browser"], x],
-    [
-      /(oculus|sailfish|huawei|vivo|pico)browser\/([\w\.]+)/i
-    ],
-    [[b, /(.+)/, "$1" + un], x],
-    [
-      // Oculus/Sailfish/HuaweiBrowser/VivoBrowser/PicoBrowser
-      /samsungbrowser\/([\w\.]+)/i
-      // Samsung Internet
-    ],
-    [x, [b, on + " Internet"]],
-    [
-      /metasr[\/ ]?([\d\.]+)/i
-      // Sogou Explorer
-    ],
-    [x, [b, xs + " Explorer"]],
-    [
-      /(sogou)mo\w+\/([\d\.]+)/i
-      // Sogou Mobile
-    ],
-    [[b, xs + " Mobile"], x],
-    [
-      /(electron)\/([\w\.]+) safari/i,
-      // Electron-based App
-      /(tesla)(?: qtcarbrowser|\/(20\d\d\.[-\w\.]+))/i,
-      // Tesla
-      /m?(qqbrowser|2345(?=browser|chrome|explorer))\w*[\/ ]?v?([\w\.]+)/i
-      // QQ/2345
-    ],
-    [b, x],
-    [
-      /(lbbrowser|rekonq)/i
-      // LieBao Browser/Rekonq
-    ],
-    [b],
-    [
-      /ome\/([\w\.]+) \w* ?(iron) saf/i,
-      // Iron
-      /ome\/([\w\.]+).+qihu (360)[es]e/i
-      // 360
-    ],
-    [x, b],
-    [
-      // WebView
-      /((?:fban\/fbios|fb_iab\/fb4a)(?!.+fbav)|;fbav\/([\w\.]+);)/i
-      // Facebook App for iOS & Android
-    ],
-    [[b, Ei], x, [f, rn]],
-    [
-      /(kakao(?:talk|story))[\/ ]([\w\.]+)/i,
-      // Kakao App
-      /(naver)\(.*?(\d+\.[\w\.]+).*\)/i,
-      // Naver InApp
-      /(daum)apps[\/ ]([\w\.]+)/i,
-      // Daum App
-      /safari (line)\/([\w\.]+)/i,
-      // Line App for iOS
-      /\b(line)\/([\w\.]+)\/iab/i,
-      // Line App for Android
-      /(alipay)client\/([\w\.]+)/i,
-      // Alipay
-      /(twitter)(?:and| f.+e\/([\w\.]+))/i,
-      // Twitter
-      /(instagram|snapchat|klarna)[\/ ]([-\w\.]+)/i
-      // Instagram/Snapchat/Klarna
-    ],
-    [b, x, [f, rn]],
-    [
-      /\bgsa\/([\w\.]+) .*safari\//i
-      // Google Search Appliance on iOS
-    ],
-    [x, [b, "GSA"], [f, rn]],
-    [
-      /musical_ly(?:.+app_?version\/|_)([\w\.]+)/i
-      // TikTok
-    ],
-    [x, [b, "TikTok"], [f, rn]],
-    [
-      /\[(linkedin)app\]/i
-      // LinkedIn App for iOS & Android
-    ],
-    [b, [f, rn]],
-    [
-      /(chromium)[\/ ]([-\w\.]+)/i
-      // Chromium
-    ],
-    [b, x],
-    [
-      /headlesschrome(?:\/([\w\.]+)| )/i
-      // Chrome Headless
-    ],
-    [x, [b, ws + " Headless"]],
-    [
-      /wv\).+chrome\/([\w\.]+).+edgw\//i
-      // Edge WebView2
-    ],
-    [x, [b, Yn + " WebView2"]],
-    [
-      / wv\).+(chrome)\/([\w\.]+)/i
-      // Chrome WebView
-    ],
-    [[b, ws + " WebView"], x],
-    [
-      /droid.+ version\/([\w\.]+)\b.+(?:mobile safari|safari)/i
-      // Android Browser
-    ],
-    [x, [b, "Android" + un]],
-    [
-      /chrome\/([\w\.]+) mobile/i
-      // Chrome Mobile
-    ],
-    [x, [b, Nt + "Chrome"]],
-    [
-      /(chrome|omniweb|arora|[tizenoka]{5} ?browser)\/v?([\w\.]+)/i
-      // Chrome/OmniWeb/Arora/Tizen/Nokia
-    ],
-    [b, x],
-    [
-      /version\/([\w\.\,]+) .*mobile(?:\/\w+ | ?)safari/i
-      // Safari Mobile
-    ],
-    [x, [b, Nt + "Safari"]],
-    [
-      /iphone .*mobile(?:\/\w+ | ?)safari/i
-    ],
-    [[b, Nt + "Safari"]],
-    [
-      /version\/([\w\.\,]+) .*(safari)/i
-      // Safari
-    ],
-    [x, b],
-    [
-      /webkit.+?(mobile ?safari|safari)(\/[\w\.]+)/i
-      // Safari < 3.0
-    ],
-    [b, [x, "1"]],
-    [
-      /(webkit|khtml)\/([\w\.]+)/i
-    ],
-    [b, x],
-    [
-      // Gecko based
-      /(?:mobile|tablet);.*(firefox)\/([\w\.-]+)/i
-      // Firefox Mobile
-    ],
-    [[b, Nt + ln], x],
-    [
-      /(navigator|netscape\d?)\/([-\w\.]+)/i
-      // Netscape
-    ],
-    [[b, "Netscape"], x],
-    [
-      /(wolvic|librewolf)\/([\w\.]+)/i
-      // Wolvic/LibreWolf
-    ],
-    [b, x],
-    [
-      /mobile vr; rv:([\w\.]+)\).+firefox/i
-      // Firefox Reality
-    ],
-    [x, [b, ln + " Reality"]],
-    [
-      /ekiohf.+(flow)\/([\w\.]+)/i,
-      // Flow
-      /(swiftfox)/i,
-      // Swiftfox
-      /(icedragon|iceweasel|camino|chimera|fennec|maemo browser|minimo|conkeror)[\/ ]?([\w\.\+]+)/i,
-      // IceDragon/Iceweasel/Camino/Chimera/Fennec/Maemo/Minimo/Conkeror
-      /(seamonkey|k-meleon|icecat|iceape|firebird|phoenix|palemoon|basilisk|waterfox)\/([-\w\.]+)$/i,
-      // Firefox/SeaMonkey/K-Meleon/IceCat/IceApe/Firebird/Phoenix
-      /(firefox)\/([\w\.]+)/i,
-      // Other Firefox-based
-      /(mozilla)\/([\w\.]+) .+rv\:.+gecko\/\d+/i,
-      // Mozilla
-      // Other
-      /(amaya|dillo|doris|icab|ladybird|lynx|mosaic|netsurf|obigo|polaris|w3m|(?:go|ice|up)[\. ]?browser)[-\/ ]?v?([\w\.]+)/i,
-      // Polaris/Lynx/Dillo/iCab/Doris/Amaya/w3m/NetSurf/Obigo/Mosaic/Go/ICE/UP.Browser/Ladybird
-      /\b(links) \(([\w\.]+)/i
-      // Links
-    ],
-    [b, [x, /_/g, "."]],
-    [
-      /(cobalt)\/([\w\.]+)/i
-      // Cobalt
-    ],
-    [b, [x, /[^\d\.]+./, zt]]
-  ],
-  cpu: [
-    [
-      /\b((amd|x|x86[-_]?|wow|win)64)\b/i
-      // AMD64 (x64)
-    ],
-    [[be, "amd64"]],
-    [
-      /(ia32(?=;))/i,
-      // IA32 (quicktime)
-      /\b((i[346]|x)86)(pc)?\b/i
-      // IA32 (x86)
-    ],
-    [[be, "ia32"]],
-    [
-      /\b(aarch64|arm(v?[89]e?l?|_?64))\b/i
-      // ARM64
-    ],
-    [[be, "arm64"]],
-    [
-      /\b(arm(v[67])?ht?n?[fl]p?)\b/i
-      // ARMHF
-    ],
-    [[be, "armhf"]],
-    [
-      // PocketPC mistakenly identified as PowerPC
-      /( (ce|mobile); ppc;|\/[\w\.]+arm\b)/i
-    ],
-    [[be, "arm"]],
-    [
-      /((ppc|powerpc)(64)?)( mac|;|\))/i
-      // PowerPC
-    ],
-    [[be, /ower/, zt, Ze]],
-    [
-      / sun4\w[;\)]/i
-      // SPARC
-    ],
-    [[be, "sparc"]],
-    [
-      /\b(avr32|ia64(?=;)|68k(?=\))|\barm(?=v([1-7]|[5-7]1)l?|;|eabi)|(irix|mips|sparc)(64)?\b|pa-risc)/i
-      // IA64, 68K, ARM/64, AVR/32, IRIX/64, MIPS/64, SPARC/64, PA-RISC
-    ],
-    [[be, Ze]]
-  ],
-  device: [
-    [
-      //////////////////////////
-      // MOBILES & TABLETS
-      /////////////////////////
-      // Samsung
-      /\b(sch-i[89]0\d|shw-m380s|sm-[ptx]\w{2,4}|gt-[pn]\d{2,4}|sgh-t8[56]9|nexus 10)/i
-    ],
-    [g, [m, on], [f, G]],
-    [
-      /\b((?:s[cgp]h|gt|sm)-(?![lr])\w+|sc[g-]?[\d]+a?|galaxy nexus)/i,
-      /samsung[- ]((?!sm-[lr]|browser)[-\w]+)/i,
-      /sec-(sgh\w+)/i
-    ],
-    [g, [m, on], [f, P]],
-    [
-      // Apple
-      /(?:\/|\()(ip(?:hone|od)[\w, ]*)(?:\/|;)/i
-      // iPod/iPhone
-    ],
-    [g, [m, Dt], [f, P]],
-    [
-      /\((ipad);[-\w\),; ]+apple/i,
-      // iPad
-      /applecoremedia\/[\w\.]+ \((ipad)/i,
-      /\b(ipad)\d\d?,\d\d?[;\]].+ios/i
-    ],
-    [g, [m, Dt], [f, G]],
-    [
-      /(macintosh);/i
-    ],
-    [g, [m, Dt]],
-    [
-      // Sharp
-      /\b(sh-?[altvz]?\d\d[a-ekm]?)/i
-    ],
-    [g, [m, ms], [f, P]],
-    [
-      // Honor
-      /\b((?:brt|eln|hey2?|gdi|jdn)-a?[lnw]09|(?:ag[rm]3?|jdn2|kob2)-a?[lw]0[09]hn)(?: bui|\)|;)/i
-    ],
-    [g, [m, fs], [f, G]],
-    [
-      /honor([-\w ]+)[;\)]/i
-    ],
-    [g, [m, fs], [f, P]],
-    [
-      // Huawei
-      /\b((?:ag[rs][2356]?k?|bah[234]?|bg[2o]|bt[kv]|cmr|cpn|db[ry]2?|jdn2|got|kob2?k?|mon|pce|scm|sht?|[tw]gr|vrd)-[ad]?[lw][0125][09]b?|605hw|bg2-u03|(?:gem|fdr|m2|ple|t1)-[7a]0[1-4][lu]|t1-a2[13][lw]|mediapad[\w\. ]*(?= bui|\)))\b(?!.+d\/s)/i
-    ],
-    [g, [m, ps], [f, G]],
-    [
-      /(?:huawei)([-\w ]+)[;\)]/i,
-      /\b(nexus 6p|\w{2,4}e?-[atu]?[ln][\dx][012359c][adn]?)\b(?!.+d\/s)/i
-    ],
-    [g, [m, ps], [f, P]],
-    [
-      // Xiaomi
-      /oid[^\)]+; (2[\dbc]{4}(182|283|rp\w{2})[cgl]|m2105k81a?c)(?: bui|\))/i,
-      /\b((?:red)?mi[-_ ]?pad[\w- ]*)(?: bui|\))/i
-      // Mi Pad tablets
-    ],
-    [[g, /_/g, " "], [m, ki], [f, G]],
-    [
-      /\b(poco[\w ]+|m2\d{3}j\d\d[a-z]{2})(?: bui|\))/i,
-      // Xiaomi POCO
-      /\b; (\w+) build\/hm\1/i,
-      // Xiaomi Hongmi 'numeric' models
-      /\b(hm[-_ ]?note?[_ ]?(?:\d\w)?) bui/i,
-      // Xiaomi Hongmi
-      /\b(redmi[\-_ ]?(?:note|k)?[\w_ ]+)(?: bui|\))/i,
-      // Xiaomi Redmi
-      /oid[^\)]+; (m?[12][0-389][01]\w{3,6}[c-y])( bui|; wv|\))/i,
-      // Xiaomi Redmi 'numeric' models
-      /\b(mi[-_ ]?(?:a\d|one|one[_ ]plus|note lte|max|cc)?[_ ]?(?:\d?\w?)[_ ]?(?:plus|se|lite|pro)?)(?: bui|\))/i,
-      // Xiaomi Mi
-      / ([\w ]+) miui\/v?\d/i
-    ],
-    [[g, /_/g, " "], [m, ki], [f, P]],
-    [
-      // OnePlus
-      /droid.+; (cph2[3-6]\d[13579]|((gm|hd)19|(ac|be|in|kb)20|(d[en]|eb|le|mt)21|ne22)[0-2]\d|p[g-k]\w[1m]10)\b/i,
-      /(?:one)?(?:plus)? (a\d0\d\d)(?: b|\))/i
-    ],
-    [g, [m, gs], [f, P]],
-    [
-      // OPPO
-      /; (\w+) bui.+ oppo/i,
-      /\b(cph[12]\d{3}|p(?:af|c[al]|d\w|e[ar])[mt]\d0|x9007|a101op)\b/i
-    ],
-    [g, [m, vi], [f, P]],
-    [
-      /\b(opd2(\d{3}a?))(?: bui|\))/i
-    ],
-    [g, [m, $e, { OnePlus: ["203", "304", "403", "404", "413", "415"], "*": vi }], [f, G]],
-    [
-      // BLU
-      /(vivo (5r?|6|8l?|go|one|s|x[il]?[2-4]?)[\w\+ ]*)(?: bui|\))/i
-      // Vivo series
-    ],
-    [g, [m, "BLU"], [f, P]],
-    [
-      // Vivo
-      /; vivo (\w+)(?: bui|\))/i,
-      /\b(v[12]\d{3}\w?[at])(?: bui|;)/i
-    ],
-    [g, [m, "Vivo"], [f, P]],
-    [
-      // Realme
-      /\b(rmx[1-3]\d{3})(?: bui|;|\))/i
-    ],
-    [g, [m, "Realme"], [f, P]],
-    [
-      // Lenovo
-      /(ideatab[-\w ]+|602lv|d-42a|a101lv|a2109a|a3500-hv|s[56]000|pb-6505[my]|tb-?x?\d{3,4}(?:f[cu]|xu|[av])|yt\d?-[jx]?\d+[lfmx])( bui|;|\)|\/)/i,
-      /lenovo ?(b[68]0[08]0-?[hf]?|tab(?:[\w- ]+?)|tb[\w-]{6,7})( bui|;|\)|\/)/i
-    ],
-    [g, [m, wi], [f, G]],
-    [
-      /lenovo[-_ ]?([-\w ]+?)(?: bui|\)|\/)/i
-    ],
-    [g, [m, wi], [f, P]],
-    [
-      // Motorola
-      /\b(milestone|droid(?:[2-4x]| (?:bionic|x2|pro|razr))?:?( 4g)?)\b[\w ]+build\//i,
-      /\bmot(?:orola)?[- ]([\w\s]+)(\)| bui)/i,
-      /((?:moto(?! 360)[-\w\(\) ]+|xt\d{3,4}[cgkosw\+]?[-\d]*|nexus 6)(?= bui|\)))/i
-    ],
-    [g, [m, xi], [f, P]],
-    [
-      /\b(mz60\d|xoom[2 ]{0,2}) build\//i
-    ],
-    [g, [m, xi], [f, G]],
-    [
-      // LG
-      /((?=lg)?[vl]k\-?\d{3}) bui| 3\.[-\w; ]{10}lg?-([06cv9]{3,4})/i
-    ],
-    [g, [m, jn], [f, G]],
-    [
-      /(lm(?:-?f100[nv]?|-[\w\.]+)(?= bui|\))|nexus [45])/i,
-      /\blg[-e;\/ ]+(?!.*(?:browser|netcast|android tv|watch|webos))(\w+)/i,
-      /\blg-?([\d\w]+) bui/i
-    ],
-    [g, [m, jn], [f, P]],
-    [
-      // Nokia
-      /(nokia) (t[12][01])/i
-    ],
-    [m, g, [f, G]],
-    [
-      /(?:maemo|nokia).*(n900|lumia \d+|rm-\d+)/i,
-      /nokia[-_ ]?(([-\w\. ]*))/i
-    ],
-    [[g, /_/g, " "], [f, P], [m, "Nokia"]],
-    [
-      // Google
-      /(pixel (c|tablet))\b/i
-      // Google Pixel C/Tablet
-    ],
-    [g, [m, _t], [f, G]],
-    [
-      // Google Pixel
-      /droid.+;(?: google)? (g(01[13]a|020[aem]|025[jn]|1b60|1f8f|2ybb|4s1m|576d|5nz6|8hhn|8vou|a02099|c15s|d1yq|e2ae|ec77|gh2x|kv4x|p4bc|pj41|r83y|tt9q|ur25|wvk6)|pixel[\d ]*a?( pro)?( xl)?( fold)?( \(5g\))?)( bui|\))/i
-    ],
-    [g, [m, _t], [f, P]],
-    [
-      /(google) (pixelbook( go)?)/i
-    ],
-    [m, g],
-    [
-      // Sony
-      /droid.+; (a?\d[0-2]{2}so|[c-g]\d{4}|so[-gl]\w+|xq-\w\w\d\d)(?= bui|\).+chrome\/(?![1-6]{0,1}\d\.))/i
-    ],
-    [g, [m, an], [f, P]],
-    [
-      /sony tablet [ps]/i,
-      /\b(?:sony)?sgp\w+(?: bui|\))/i
-    ],
-    [[g, "Xperia Tablet"], [m, an], [f, G]],
-    [
-      // Amazon
-      /(alexa)webm/i,
-      /(kf[a-z]{2}wi|aeo(?!bc)\w\w)( bui|\))/i,
-      // Kindle Fire without Silk / Echo Show
-      /(kf[a-z]+)( bui|\)).+silk\//i
-      // Kindle Fire HD
-    ],
-    [g, [m, Vn], [f, G]],
-    [
-      /((?:sd|kf)[0349hijorstuw]+)( bui|\)).+silk\//i
-      // Fire Phone
-    ],
-    [[g, /(.+)/g, "Fire Phone $1"], [m, Vn], [f, P]],
-    [
-      // BlackBerry
-      /(playbook);[-\w\),; ]+(rim)/i
-      // BlackBerry PlayBook
-    ],
-    [g, m, [f, G]],
-    [
-      /\b((?:bb[a-f]|st[hv])100-\d)/i,
-      /\(bb10; (\w+)/i
-      // BlackBerry 10
-    ],
-    [g, [m, ds], [f, P]],
-    [
-      // Asus
-      /(?:\b|asus_)(transfo[prime ]{4,10} \w+|eeepc|slider \w+|nexus 7|padfone|p00[cj])/i
-    ],
-    [g, [m, hs], [f, G]],
-    [
-      / (z[bes]6[027][012][km][ls]|zenfone \d\w?)\b/i
-    ],
-    [g, [m, hs], [f, P]],
-    [
-      // HTC
-      /(nexus 9)/i
-      // HTC Nexus 9
-    ],
-    [g, [m, "HTC"], [f, G]],
-    [
-      /(htc)[-;_ ]{1,2}([\w ]+(?=\)| bui)|\w+)/i,
-      // HTC
-      // ZTE
-      /(zte)[- ]([\w ]+?)(?: bui|\/|\))/i,
-      /(alcatel|geeksphone|nexian|panasonic(?!(?:;|\.))|sony(?!-bra))[-_ ]?([-\w]*)/i
-      // Alcatel/GeeksPhone/Nexian/Panasonic/Sony
-    ],
-    [m, [g, /_/g, " "], [f, P]],
-    [
-      // TCL
-      /tcl (xess p17aa)/i,
-      /droid [\w\.]+; ((?:8[14]9[16]|9(?:0(?:48|60|8[01])|1(?:3[27]|66)|2(?:6[69]|9[56])|466))[gqswx])(_\w(\w|\w\w))?(\)| bui)/i
-    ],
-    [g, [m, "TCL"], [f, G]],
-    [
-      /droid [\w\.]+; (418(?:7d|8v)|5087z|5102l|61(?:02[dh]|25[adfh]|27[ai]|56[dh]|59k|65[ah])|a509dl|t(?:43(?:0w|1[adepqu])|50(?:6d|7[adju])|6(?:09dl|10k|12b|71[efho]|76[hjk])|7(?:66[ahju]|67[hw]|7[045][bh]|71[hk]|73o|76[ho]|79w|81[hks]?|82h|90[bhsy]|99b)|810[hs]))(_\w(\w|\w\w))?(\)| bui)/i
-    ],
-    [g, [m, "TCL"], [f, P]],
-    [
-      // itel
-      /(itel) ((\w+))/i
-    ],
-    [[m, Ze], g, [f, $e, { tablet: ["p10001l", "w7001"], "*": "mobile" }]],
-    [
-      // Acer
-      /droid.+; ([ab][1-7]-?[0178a]\d\d?)/i
-    ],
-    [g, [m, "Acer"], [f, G]],
-    [
-      // Meizu
-      /droid.+; (m[1-5] note) bui/i,
-      /\bmz-([-\w]{2,})/i
-    ],
-    [g, [m, "Meizu"], [f, P]],
-    [
-      // Ulefone
-      /; ((?:power )?armor(?:[\w ]{0,8}))(?: bui|\))/i
-    ],
-    [g, [m, "Ulefone"], [f, P]],
-    [
-      // Energizer
-      /; (energy ?\w+)(?: bui|\))/i,
-      /; energizer ([\w ]+)(?: bui|\))/i
-    ],
-    [g, [m, "Energizer"], [f, P]],
-    [
-      // Cat
-      /; cat (b35);/i,
-      /; (b15q?|s22 flip|s48c|s62 pro)(?: bui|\))/i
-    ],
-    [g, [m, "Cat"], [f, P]],
-    [
-      // Smartfren
-      /((?:new )?andromax[\w- ]+)(?: bui|\))/i
-    ],
-    [g, [m, "Smartfren"], [f, P]],
-    [
-      // Nothing
-      /droid.+; (a(in)?(0(15|59|6[35])|142)p?)/i
-    ],
-    [g, [m, "Nothing"], [f, P]],
-    [
-      // Archos
-      /; (x67 5g|tikeasy \w+|ac[1789]\d\w+)( b|\))/i,
-      /archos ?(5|gamepad2?|([\w ]*[t1789]|hello) ?\d+[\w ]*)( b|\))/i
-    ],
-    [g, [m, "Archos"], [f, G]],
-    [
-      /archos ([\w ]+)( b|\))/i,
-      /; (ac[3-6]\d\w{2,8})( b|\))/i
-    ],
-    [g, [m, "Archos"], [f, P]],
-    [
-      // HMD
-      /; (n159v)/i
-    ],
-    [g, [m, "HMD"], [f, P]],
-    [
-      // MIXED
-      /(imo) (tab \w+)/i,
-      // IMO
-      /(infinix|tecno) (x1101b?|p904|dp(7c|8d|10a)( pro)?|p70[1-3]a?|p904|t1101)/i
-      // Infinix XPad / Tecno
-    ],
-    [m, g, [f, G]],
-    [
-      /(blackberry|benq|palm(?=\-)|sonyericsson|acer|asus(?! zenw)|dell|jolla|meizu|motorola|polytron|tecno|micromax|advan)[-_ ]?([-\w]*)/i,
-      // BlackBerry/BenQ/Palm/Sony-Ericsson/Acer/Asus/Dell/Meizu/Motorola/Polytron/Tecno/Micromax/Advan
-      /; (blu|hmd|imo|infinix|lava|oneplus|tcl)[_ ]([\w\+ ]+?)(?: bui|\)|; r)/i,
-      // BLU/HMD/IMO/Infinix/Lava/OnePlus/TCL
-      /(hp) ([\w ]+\w)/i,
-      // HP iPAQ
-      /(microsoft); (lumia[\w ]+)/i,
-      // Microsoft Lumia
-      /(oppo) ?([\w ]+) bui/i
-      // OPPO
-    ],
-    [m, g, [f, P]],
-    [
-      /(kobo)\s(ereader|touch)/i,
-      // Kobo
-      /(hp).+(touchpad(?!.+tablet)|tablet)/i,
-      // HP TouchPad
-      /(kindle)\/([\w\.]+)/i
-      // Kindle
-    ],
-    [m, g, [f, G]],
-    [
-      /(surface duo)/i
-      // Surface Duo
-    ],
-    [g, [m, bi], [f, G]],
-    [
-      /droid [\d\.]+; (fp\du?)(?: b|\))/i
-      // Fairphone
-    ],
-    [g, [m, "Fairphone"], [f, P]],
-    [
-      /((?:tegranote|shield t(?!.+d tv))[\w- ]*?)(?: b|\))/i
-      // Nvidia Tablets
-    ],
-    [g, [m, _i], [f, G]],
-    [
-      /(sprint) (\w+)/i
-      // Sprint Phones
-    ],
-    [m, g, [f, P]],
-    [
-      /(kin\.[onetw]{3})/i
-      // Microsoft Kin
-    ],
-    [[g, /\./g, " "], [m, bi], [f, P]],
-    [
-      /droid.+; ([c6]+|et5[16]|mc[239][23]x?|vc8[03]x?)\)/i
-      // Zebra
-    ],
-    [g, [m, yi], [f, G]],
-    [
-      /droid.+; (ec30|ps20|tc[2-8]\d[kx])\)/i
-    ],
-    [g, [m, yi], [f, P]],
-    [
-      ///////////////////
-      // SMARTTVS
-      ///////////////////
-      /smart-tv.+(samsung)/i
-      // Samsung
-    ],
-    [m, [f, ie]],
-    [
-      /hbbtv.+maple;(\d+)/i
-    ],
-    [[g, /^/, "SmartTV"], [m, on], [f, ie]],
-    [
-      /(vizio)(?: |.+model\/)(\w+-\w+)/i,
-      // Vizio
-      /tcast.+(lg)e?. ([-\w]+)/i
-      // LG SmartTV
-    ],
-    [m, g, [f, ie]],
-    [
-      /(nux; netcast.+smarttv|lg (netcast\.tv-201\d|android tv))/i
-    ],
-    [[m, jn], [f, ie]],
-    [
-      /(apple) ?tv/i
-      // Apple TV
-    ],
-    [m, [g, Dt + " TV"], [f, ie]],
-    [
-      /crkey.*devicetype\/chromecast/i
-      // Google Chromecast Third Generation
-    ],
-    [[g, lt + " Third Generation"], [m, _t], [f, ie]],
-    [
-      /crkey.*devicetype\/([^/]*)/i
-      // Google Chromecast with specific device type
-    ],
-    [[g, /^/, "Chromecast "], [m, _t], [f, ie]],
-    [
-      /fuchsia.*crkey/i
-      // Google Chromecast Nest Hub
-    ],
-    [[g, lt + " Nest Hub"], [m, _t], [f, ie]],
-    [
-      /crkey/i
-      // Google Chromecast, Linux-based or unknown
-    ],
-    [[g, lt], [m, _t], [f, ie]],
-    [
-      /(portaltv)/i
-      // Facebook Portal TV
-    ],
-    [g, [m, Ei], [f, ie]],
-    [
-      /droid.+aft(\w+)( bui|\))/i
-      // Fire TV
-    ],
-    [g, [m, Vn], [f, ie]],
-    [
-      /(shield \w+ tv)/i
-      // Nvidia Shield TV
-    ],
-    [g, [m, _i], [f, ie]],
-    [
-      /\(dtv[\);].+(aquos)/i,
-      /(aquos-tv[\w ]+)\)/i
-      // Sharp
-    ],
-    [g, [m, ms], [f, ie]],
-    [
-      /(bravia[\w ]+)( bui|\))/i
-      // Sony
-    ],
-    [g, [m, an], [f, ie]],
-    [
-      /(mi(tv|box)-?\w+) bui/i
-      // Xiaomi
-    ],
-    [g, [m, ki], [f, ie]],
-    [
-      /Hbbtv.*(technisat) (.*);/i
-      // TechniSAT
-    ],
-    [m, g, [f, ie]],
-    [
-      /\b(roku)[\dx]*[\)\/]((?:dvp-)?[\d\.]*)/i,
-      // Roku
-      /hbbtv\/\d+\.\d+\.\d+ +\([\w\+ ]*; *([\w\d][^;]*);([^;]*)/i
-      // HbbTV devices
-    ],
-    [[m, /.+\/(\w+)/, "$1", $e, { LG: "lge" }], [g, ei], [f, ie]],
-    [
-      // SmartTV from Unidentified Vendors
-      /droid.+; ([\w- ]+) (?:android tv|smart[- ]?tv)/i
-    ],
-    [g, [f, ie]],
-    [
-      /\b(android tv|smart[- ]?tv|opera tv|tv; rv:|large screen[\w ]+safari)\b/i
-    ],
-    [[f, ie]],
-    [
-      ///////////////////
-      // CONSOLES
-      ///////////////////
-      /(playstation \w+)/i
-      // Playstation
-    ],
-    [g, [m, an], [f, xn]],
-    [
-      /\b(xbox(?: one)?(?!; xbox))[\); ]/i
-      // Microsoft Xbox
-    ],
-    [g, [m, bi], [f, xn]],
-    [
-      /(ouya)/i,
-      // Ouya
-      /(nintendo) (\w+)/i,
-      // Nintendo
-      /(retroid) (pocket ([^\)]+))/i
-      // Retroid Pocket
-    ],
-    [m, g, [f, xn]],
-    [
-      /droid.+; (shield)( bui|\))/i
-      // Nvidia Portable
-    ],
-    [g, [m, _i], [f, xn]],
-    [
-      ///////////////////
-      // WEARABLES
-      ///////////////////
-      /\b(sm-[lr]\d\d[0156][fnuw]?s?|gear live)\b/i
-      // Samsung Galaxy Watch
-    ],
-    [g, [m, on], [f, ze]],
-    [
-      /((pebble))app/i,
-      // Pebble
-      /(asus|google|lg|oppo) ((pixel |zen)?watch[\w ]*)( bui|\))/i
-      // Asus ZenWatch / LG Watch / Pixel Watch
-    ],
-    [m, g, [f, ze]],
-    [
-      /(ow(?:19|20)?we?[1-3]{1,3})/i
-      // Oppo Watch
-    ],
-    [g, [m, vi], [f, ze]],
-    [
-      /(watch)(?: ?os[,\/]|\d,\d\/)[\d\.]+/i
-      // Apple Watch
-    ],
-    [g, [m, Dt], [f, ze]],
-    [
-      /(opwwe\d{3})/i
-      // OnePlus Watch
-    ],
-    [g, [m, gs], [f, ze]],
-    [
-      /(moto 360)/i
-      // Motorola 360
-    ],
-    [g, [m, xi], [f, ze]],
-    [
-      /(smartwatch 3)/i
-      // Sony SmartWatch
-    ],
-    [g, [m, an], [f, ze]],
-    [
-      /(g watch r)/i
-      // LG G Watch R
-    ],
-    [g, [m, jn], [f, ze]],
-    [
-      /droid.+; (wt63?0{2,3})\)/i
-    ],
-    [g, [m, yi], [f, ze]],
-    [
-      ///////////////////
-      // XR
-      ///////////////////
-      /droid.+; (glass) \d/i
-      // Google Glass
-    ],
-    [g, [m, _t], [f, Fn]],
-    [
-      /(pico) (4|neo3(?: link|pro)?)/i
-      // Pico
-    ],
-    [m, g, [f, Fn]],
-    [
-      /(quest( \d| pro)?s?).+vr/i
-      // Meta Quest
-    ],
-    [g, [m, Ei], [f, Fn]],
-    [
-      /mobile vr; rv.+firefox/i
-      // Unidentifiable VR device using Firefox Reality / Wolvic
-    ],
-    [[f, Fn]],
-    [
-      ///////////////////
-      // EMBEDDED
-      ///////////////////
-      /(tesla)(?: qtcarbrowser|\/[-\w\.]+)/i
-      // Tesla
-    ],
-    [m, [f, _n]],
-    [
-      /(aeobc)\b/i
-      // Echo Dot
-    ],
-    [g, [m, Vn], [f, _n]],
-    [
-      /(homepod).+mac os/i
-      // Apple HomePod
-    ],
-    [g, [m, Dt], [f, _n]],
-    [
-      /windows iot/i
-      // Unidentifiable embedded device using Windows IoT
-    ],
-    [[f, _n]],
-    [
-      ////////////////////
-      // MIXED (GENERIC)
-      ///////////////////
-      /droid .+?; ([^;]+?)(?: bui|; wv\)|\) applew).+?(mobile|vr|\d) safari/i
-    ],
-    [g, [f, $e, { mobile: "Mobile", xr: "VR", "*": G }]],
-    [
-      /\b((tablet|tab)[;\/]|focus\/\d(?!.+mobile))/i
-      // Unidentifiable Tablet
-    ],
-    [[f, G]],
-    [
-      /(phone|mobile(?:[;\/]| [ \w\/\.]*safari)|pda(?=.+windows ce))/i
-      // Unidentifiable Mobile
-    ],
-    [[f, P]],
-    [
-      /droid .+?; ([\w\. -]+)( bui|\))/i
-      // Generic Android Device
-    ],
-    [g, [m, "Generic"]]
-  ],
-  engine: [
-    [
-      /windows.+ edge\/([\w\.]+)/i
-      // EdgeHTML
-    ],
-    [x, [b, Yn + "HTML"]],
-    [
-      /(arkweb)\/([\w\.]+)/i
-      // ArkWeb
-    ],
-    [b, x],
-    [
-      /webkit\/537\.36.+chrome\/(?!27)([\w\.]+)/i
-      // Blink
-    ],
-    [x, [b, "Blink"]],
-    [
-      /(presto)\/([\w\.]+)/i,
-      // Presto
-      /(webkit|trident|netfront|netsurf|amaya|lynx|w3m|goanna|servo)\/([\w\.]+)/i,
-      // WebKit/Trident/NetFront/NetSurf/Amaya/Lynx/w3m/Goanna/Servo
-      /ekioh(flow)\/([\w\.]+)/i,
-      // Flow
-      /(khtml|tasman|links)[\/ ]\(?([\w\.]+)/i,
-      // KHTML/Tasman/Links
-      /(icab)[\/ ]([23]\.[\d\.]+)/i,
-      // iCab
-      /\b(libweb)/i
-      // LibWeb
-    ],
-    [b, x],
-    [
-      /ladybird\//i
-    ],
-    [[b, "LibWeb"]],
-    [
-      /rv\:([\w\.]{1,9})\b.+(gecko)/i
-      // Gecko
-    ],
-    [x, b]
-  ],
-  os: [
-    [
-      // Windows
-      /(windows nt) (6\.[23]); arm/i
-      // Windows RT
-    ],
-    [[b, /N/, "R"], [x, $e, _s]],
-    [
-      /(windows (?:phone|mobile|iot))(?: os)?[\/ ]?([\d\.]*( se)?)/i,
-      // Windows IoT/Mobile/Phone
-      // Windows NT/3.1/95/98/ME/2000/XP/Vista/7/8/8.1/10/11
-      /(windows)[\/ ](1[01]|2000|3\.1|7|8(\.1)?|9[58]|me|server 20\d\d( r2)?|vista|xp)/i
-    ],
-    [b, x],
-    [
-      /windows nt ?([\d\.\)]*)(?!.+xbox)/i,
-      /\bwin(?=3| ?9|n)(?:nt| 9x )?([\d\.;]*)/i
-    ],
-    [[x, /(;|\))/g, "", $e, _s], [b, Bi]],
-    [
-      /(windows ce)\/?([\d\.]*)/i
-      // Windows CE
-    ],
-    [b, x],
-    [
-      // iOS/macOS
-      /[adehimnop]{4,7}\b(?:.*os ([\w]+) like mac|; opera)/i,
-      // iOS
-      /(?:ios;fbsv\/|iphone.+ios[\/ ])([\d\.]+)/i,
-      /cfnetwork\/.+darwin/i
-    ],
-    [[x, /_/g, "."], [b, "iOS"]],
-    [
-      /(mac os x) ?([\w\. ]*)/i,
-      /(macintosh|mac_powerpc\b)(?!.+(haiku|morphos))/i
-      // Mac OS
-    ],
-    [[b, "macOS"], [x, /_/g, "."]],
-    [
-      // Google Chromecast
-      /android ([\d\.]+).*crkey/i
-      // Google Chromecast, Android-based
-    ],
-    [x, [b, lt + " Android"]],
-    [
-      /fuchsia.*crkey\/([\d\.]+)/i
-      // Google Chromecast, Fuchsia-based
-    ],
-    [x, [b, lt + " Fuchsia"]],
-    [
-      /crkey\/([\d\.]+).*devicetype\/smartspeaker/i
-      // Google Chromecast, Linux-based Smart Speaker
-    ],
-    [x, [b, lt + " SmartSpeaker"]],
-    [
-      /linux.*crkey\/([\d\.]+)/i
-      // Google Chromecast, Legacy Linux-based
-    ],
-    [x, [b, lt + " Linux"]],
-    [
-      /crkey\/([\d\.]+)/i
-      // Google Chromecast, unknown
-    ],
-    [x, [b, lt]],
-    [
-      // Mobile OSes
-      /droid ([\w\.]+)\b.+(android[- ]x86)/i
-      // Android-x86
-    ],
-    [x, b],
-    [
-      /(ubuntu) ([\w\.]+) like android/i
-      // Ubuntu Touch
-    ],
-    [[b, /(.+)/, "$1 Touch"], x],
-    [
-      /(harmonyos)[\/ ]?([\d\.]*)/i,
-      // HarmonyOS
-      // Android/Blackberry/WebOS/QNX/Bada/RIM/KaiOS/Maemo/MeeGo/S40/Sailfish OS/OpenHarmony/Tizen
-      /(android|bada|blackberry|kaios|maemo|meego|openharmony|qnx|rim tablet os|sailfish|series40|symbian|tizen)\w*[-\/\.; ]?([\d\.]*)/i
-    ],
-    [b, x],
-    [
-      /\(bb(10);/i
-      // BlackBerry 10
-    ],
-    [x, [b, ds]],
-    [
-      /(?:symbian ?os|symbos|s60(?=;)|series ?60)[-\/ ]?([\w\.]*)/i
-      // Symbian
-    ],
-    [x, [b, "Symbian"]],
-    [
-      /mozilla\/[\d\.]+ \((?:mobile|tablet|tv|mobile; [\w ]+); rv:.+ gecko\/([\w\.]+)/i
-      // Firefox OS
-    ],
-    [x, [b, ln + " OS"]],
-    [
-      /\b(?:hp)?wos(?:browser)?\/([\w\.]+)/i,
-      // WebOS
-      /webos(?:[ \/]?|\.tv-20(?=2[2-9]))(\d[\d\.]*)/i
-    ],
-    [x, [b, "webOS"]],
-    [
-      /web0s;.+?(?:chr[o0]me|safari)\/(\d+)/i
-      // https://webostv.developer.lge.com/develop/specifications/web-api-and-web-engine
-    ],
-    [[x, $e, { 25: "120", 24: "108", 23: "94", 22: "87", 6: "79", 5: "68", 4: "53", 3: "38", 2: "538", 1: "537", "*": "TV" }], [b, "webOS"]],
-    [
-      /watch(?: ?os[,\/]|\d,\d\/)([\d\.]+)/i
-      // watchOS
-    ],
-    [x, [b, "watchOS"]],
-    [
-      // Google ChromeOS
-      /(cros) [\w]+(?:\)| ([\w\.]+)\b)/i
-      // Chromium OS
-    ],
-    [[b, "Chrome OS"], x],
-    [
-      // Smart TVs
-      /panasonic;(viera)/i,
-      // Panasonic Viera
-      /(netrange)mmh/i,
-      // Netrange
-      /(nettv)\/(\d+\.[\w\.]+)/i,
-      // NetTV
-      // Console
-      /(nintendo|playstation) (\w+)/i,
-      // Nintendo/Playstation
-      /(xbox); +xbox ([^\);]+)/i,
-      // Microsoft Xbox (360, One, X, S, Series X, Series S)
-      /(pico) .+os([\w\.]+)/i,
-      // Pico
-      // Other
-      /\b(joli|palm)\b ?(?:os)?\/?([\w\.]*)/i,
-      // Joli/Palm
-      /linux.+(mint)[\/\(\) ]?([\w\.]*)/i,
-      // Mint
-      /(mageia|vectorlinux|fuchsia|arcaos|arch(?= ?linux))[;l ]([\d\.]*)/i,
-      // Mageia/VectorLinux/Fuchsia/ArcaOS/Arch
-      /([kxln]?ubuntu|debian|suse|opensuse|gentoo|slackware|fedora|mandriva|centos|pclinuxos|red ?hat|zenwalk|linpus|raspbian|plan 9|minix|risc os|contiki|deepin|manjaro|elementary os|sabayon|linspire|knoppix)(?: gnu[\/ ]linux)?(?: enterprise)?(?:[- ]linux)?(?:-gnu)?[-\/ ]?(?!chrom|package)([-\w\.]*)/i,
-      // Ubuntu/Debian/SUSE/Gentoo/Slackware/Fedora/Mandriva/CentOS/PCLinuxOS/RedHat/Zenwalk/Linpus/Raspbian/Plan9/Minix/RISCOS/Contiki/Deepin/Manjaro/elementary/Sabayon/Linspire/Knoppix
-      /((?:open)?solaris)[-\/ ]?([\w\.]*)/i,
-      // Solaris
-      /\b(aix)[; ]([1-9\.]{0,4})/i,
-      // AIX
-      /(hurd|linux|morphos)(?: (?:arm|x86|ppc)\w*| ?)([\w\.]*)/i,
-      // Hurd/Linux/MorphOS
-      /(gnu) ?([\w\.]*)/i,
-      // GNU
-      /\b([-frentopcghs]{0,5}bsd|dragonfly)[\/ ]?(?!amd|[ix346]{1,2}86)([\w\.]*)/i,
-      // FreeBSD/NetBSD/OpenBSD/PC-BSD/GhostBSD/DragonFly
-      /(haiku) ?(r\d)?/i
-      // Haiku
-    ],
-    [b, x],
-    [
-      /(sunos) ?([\d\.]*)/i
-      // Solaris
-    ],
-    [[b, "Solaris"], x],
-    [
-      /\b(beos|os\/2|amigaos|openvms|hp-ux|serenityos)/i,
-      // BeOS/OS2/AmigaOS/OpenVMS/HP-UX/SerenityOS
-      /(unix) ?([\w\.]*)/i
-      // UNIX
-    ],
-    [b, x]
-  ]
-}, Gn = (function() {
-  var n = { init: {}, isIgnore: {}, isIgnoreRgx: {}, toString: {} };
-  return Ke.call(n.init, [
-    [we, [b, x, kn, f]],
-    [Ye, [be]],
-    [Fe, [f, g, m]],
-    [Pe, [b, x]],
-    [Ae, [b, x]]
-  ]), Ke.call(n.isIgnore, [
-    [we, [x, kn]],
-    [Pe, [x]],
-    [Ae, [x]]
-  ]), Ke.call(n.isIgnoreRgx, [
-    [we, / ?browser$/i],
-    [Ae, / ?os$/i]
-  ]), Ke.call(n.toString, [
-    [we, [b, x]],
-    [Ye, [be]],
-    [Fe, [m, g]],
-    [Pe, [b, x]],
-    [Ae, [b, x]]
-  ]), n;
-})(), Cr = function(n, e) {
-  var t = Gn.init[e], i = Gn.isIgnore[e] || 0, s = Gn.isIgnoreRgx[e] || 0, r = Gn.toString[e] || 0;
-  function a() {
-    Ke.call(this, t);
-  }
-  return a.prototype.getItem = function() {
-    return n;
-  }, a.prototype.withClientHints = function() {
-    return ct ? ct.getHighEntropyValues(Fs).then(function(c) {
-      return n.setCH(new Vs(c, !1)).parseCH().get();
-    }) : n.parseCH().get();
-  }, a.prototype.withFeatureCheck = function() {
-    return n.detectFeature().get();
-  }, e != Bt && (a.prototype.is = function(c) {
-    var h = !1;
-    for (var u in this)
-      if (this.hasOwnProperty(u) && !Ui(i, u) && Ze(s ? $t(s, this[u]) : this[u]) == Ze(s ? $t(s, c) : c)) {
-        if (h = !0, c != ut) break;
-      } else if (c == ut && h) {
-        h = !h;
-        break;
-      }
-    return h;
-  }, a.prototype.toString = function() {
-    var c = zt;
-    for (var h in r)
-      typeof this[r[h]] !== ut && (c += (c ? " " : zt) + this[r[h]]);
-    return c || ut;
-  }), ct || (a.prototype.then = function(c) {
-    var h = this, u = function() {
-      for (var M in h)
-        h.hasOwnProperty(M) && (this[M] = h[M]);
-    };
-    u.prototype = {
-      is: a.prototype.is,
-      toString: a.prototype.toString
-    };
-    var p = new u();
-    return c(p), p;
-  }), new a();
-};
-function Vs(n, e) {
-  if (n = n || {}, Ke.call(this, Fs), e)
-    Ke.call(this, [
-      [Gi, Si(n[ht])],
-      [Wi, Si(n[br])],
-      [P, /\?1/.test(n[kr])],
-      [g, hn(n[yr])],
-      [Ut, hn(n[$s])],
-      [qi, hn(n[Er])],
-      [be, hn(n[xr])],
-      [yt, Si(n[vr])],
-      [si, hn(n[_r])]
-    ]);
-  else
-    for (var t in n)
-      this.hasOwnProperty(t) && typeof n[t] !== ut && (this[t] = n[t]);
-}
-function ys(n, e, t, i) {
-  return this.get = function(s) {
-    return s ? this.data.hasOwnProperty(s) ? this.data[s] : void 0 : this.data;
-  }, this.set = function(s, r) {
-    return this.data[s] = r, this;
-  }, this.setCH = function(s) {
-    return this.uaCH = s, this;
-  }, this.detectFeature = function() {
-    if (xe && xe.userAgent == this.ua)
-      switch (this.itemType) {
-        case we:
-          xe.brave && typeof xe.brave.isBrave == Qn && this.set(b, "Brave");
-          break;
-        case Fe:
-          !this.get(f) && ct && ct[P] && this.set(f, P), this.get(g) == "Macintosh" && xe && typeof xe.standalone !== ut && xe.maxTouchPoints && xe.maxTouchPoints > 2 && this.set(g, "iPad").set(f, G);
-          break;
-        case Ae:
-          !this.get(b) && ct && ct[Ut] && this.set(b, ct[Ut]);
-          break;
-        case Bt:
-          var s = this.data, r = function(a) {
-            return s[a].getItem().detectFeature().get();
-          };
-          this.set(we, r(we)).set(Ye, r(Ye)).set(Fe, r(Fe)).set(Pe, r(Pe)).set(Ae, r(Ae));
-      }
-    return this;
-  }, this.parseUA = function() {
-    return this.itemType != Bt && Ai.call(this.data, this.ua, this.rgxMap), this.itemType == we && this.set(kn, Ti(this.get(x))), this;
-  }, this.parseCH = function() {
-    var s = this.uaCH, r = this.rgxMap;
-    switch (this.itemType) {
-      case we:
-      case Pe:
-        var a = s[Wi] || s[Gi], c;
-        if (a)
-          for (var h in a) {
-            var u = a[h].brand || a[h], p = a[h].version;
-            this.itemType == we && !/not.a.brand/i.test(u) && (!c || /Chrom/.test(c) && u != bs || c == Yn && /WebView2/.test(u)) && (u = $e(u, Ar), c = this.get(b), c && !/Chrom/.test(c) && /Chrom/.test(u) || this.set(b, u).set(x, p).set(kn, Ti(p)), c = u), this.itemType == Pe && u == bs && this.set(x, p);
-          }
-        break;
-      case Ye:
-        var M = s[be];
-        M && (M && s[si] == "64" && (M += "64"), Ai.call(this.data, M + ";", r));
-        break;
-      case Fe:
-        if (s[P] && this.set(f, P), s[g] && (this.set(g, s[g]), !this.get(f) || !this.get(m))) {
-          var k = {};
-          Ai.call(k, "droid 9; " + s[g] + ")", r), !this.get(f) && k.type && this.set(f, k.type), !this.get(m) && k.vendor && this.set(m, k.vendor);
-        }
-        if (s[yt]) {
-          var z;
-          if (typeof s[yt] != "string")
-            for (var O = 0; !z && O < s[yt].length; )
-              z = $e(s[yt][O++], vs);
-          else
-            z = $e(s[yt], vs);
-          this.set(f, z);
-        }
-        break;
-      case Ae:
-        var H = s[Ut];
-        if (H) {
-          var Se = s[qi];
-          H == Bi && (Se = parseInt(Ti(Se), 10) >= 13 ? "11" : "10"), this.set(b, H).set(x, Se);
-        }
-        this.get(b) == Bi && s[g] == "Xbox" && this.set(b, "Xbox").set(x, void 0);
-        break;
-      case Bt:
-        var de = this.data, ce = function(Re) {
-          return de[Re].getItem().setCH(s).parseCH().get();
-        };
-        this.set(we, ce(we)).set(Ye, ce(Ye)).set(Fe, ce(Fe)).set(Pe, ce(Pe)).set(Ae, ce(Ae));
-    }
-    return this;
-  }, Ke.call(this, [
-    ["itemType", n],
-    ["ua", e],
-    ["uaCH", i],
-    ["rgxMap", t],
-    ["data", Cr(this, n)]
-  ]), this;
-}
-function et(n, e, t) {
-  if (typeof n === Ht ? (Jn(n, !0) ? (typeof e === Ht && (t = e), e = n) : (t = n, e = void 0), n = void 0) : typeof n === Ni && !Jn(e, !0) && (t = e, e = void 0), t && typeof t.append === Qn) {
-    var i = {};
-    t.forEach(function(h, u) {
-      i[u] = h;
-    }), t = i;
-  }
-  if (!(this instanceof et))
-    return new et(n, e, t).getResult();
-  var s = typeof n === Ni ? n : (
-    // Passed user-agent string
-    t && t[cs] ? t[cs] : (
-      // User-Agent from passed headers
-      xe && xe.userAgent ? xe.userAgent : (
-        // navigator.userAgent
-        zt
-      )
-    )
-  ), r = new Vs(t, !0), a = e ? Tr(ks, e) : ks, c = function(h) {
-    return h == Bt ? function() {
-      return new ys(h, s, a, r).set("ua", s).set(we, this.getBrowser()).set(Ye, this.getCPU()).set(Fe, this.getDevice()).set(Pe, this.getEngine()).set(Ae, this.getOS()).get();
-    } : function() {
-      return new ys(h, s, a[h], r).parseUA().get();
-    };
-  };
-  return Ke.call(this, [
-    ["getBrowser", c(we)],
-    ["getCPU", c(Ye)],
-    ["getDevice", c(Fe)],
-    ["getEngine", c(Pe)],
-    ["getOS", c(Ae)],
-    ["getResult", c(Bt)],
-    ["getUA", function() {
-      return s;
-    }],
-    ["setUA", function(h) {
-      return Ft(h) && (s = h.length > Di ? ei(h, Di) : h), this;
-    }]
-  ]).setUA(s), this;
-}
-et.VERSION = wr;
-et.BROWSER = ri([b, x, kn, f]);
-et.CPU = ri([be]);
-et.DEVICE = ri([g, m, f, xn, P, ie, G, ze, _n]);
-et.ENGINE = et.OS = ri([b, x]);
-class Rr {
-  static isValidDevice() {
-    return !new et().getDevice().type;
-  }
-}
 class Ee {
   constructor() {
     this._listenerRegistry = [];
@@ -1577,7 +48,7 @@ class Ee {
       e.removeAllEventListeners();
   }
 }
-class Or extends Ee {
+class wr extends Ee {
   constructor() {
     super(), this.root = document.createElement("div"), this.root.className = "status-dot";
   }
@@ -1592,7 +63,7 @@ class Or extends Ee {
     t.classList.add(`status-dot--${s}`);
   }
 }
-class Mr extends Ee {
+class br extends Ee {
   constructor(e) {
     switch (super(), this.root = document.createElement("div"), this.root.className = "progress-bar", this.progressBarDiv = document.createElement("div"), this.progressBarDiv.className = "progress-bar__inner", this.root.appendChild(this.progressBarDiv), e) {
       case "cognition":
@@ -1610,7 +81,7 @@ class Mr extends Ee {
     this.progressBarDiv.style.width = `${t}%`;
   }
 }
-class Xi extends Ee {
+class Gi extends Ee {
   constructor(e) {
     super(), this.root = document.createElement("div"), this.root.classList.add("overlay"), this.root.id = e;
   }
@@ -1618,7 +89,7 @@ class Xi extends Ee {
     e ? this.root.classList.add("overlay--visible-state") : this.root.classList.remove("overlay--visible-state");
   }
 }
-class Lr extends Ee {
+class xr extends Ee {
   constructor() {
     super(), this.spinnerFrames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"], this.spinnerInterval = null, this.frameIndex = 0, this.root = document.createElement("span"), this.root.style.paddingRight = "0.5rem", this.root.textContent = this.spinnerFrames[this.frameIndex];
   }
@@ -1631,11 +102,11 @@ class Lr extends Ee {
     this.spinnerInterval !== null && (clearInterval(this.spinnerInterval), this.spinnerInterval = null);
   }
 }
-class Ir extends Xi {
+class _r extends Gi {
   constructor() {
     super("session-connecting-overlay"), this.displayTimeout = null;
     const e = document.createElement("div");
-    e.classList.add("connecting-message-box"), this.root.appendChild(e), this.spinner = new Lr(), this.spinner.mount(e);
+    e.classList.add("connecting-message-box"), this.root.appendChild(e), this.spinner = new xr(), this.spinner.mount(e);
     const t = document.createElement("div");
     t.classList.add("connecting-message-box__text"), t.textContent = "Connecting...", e.appendChild(t);
   }
@@ -1651,13 +122,13 @@ class Ir extends Xi {
     this.displayTimeout !== null && (clearTimeout(this.displayTimeout), this.displayTimeout = null), this.spinner.stopSpinning(), super.setVisibility(!1);
   }
 }
-function Pr(n) {
+function vr(n) {
   return n && n.__esModule && Object.prototype.hasOwnProperty.call(n, "default") ? n.default : n;
 }
-var Ci, Es;
-function Dr() {
-  if (Es) return Ci;
-  Es = 1;
+var wi, cs;
+function kr() {
+  if (cs) return wi;
+  cs = 1;
   function n(o) {
     return o instanceof Map ? o.clear = o.delete = o.set = function() {
       throw new Error("map is read-only");
@@ -1811,7 +282,7 @@ function Dr() {
       }));
     }
   }
-  class p extends u {
+  class f extends u {
     /**
      * @param {*} options
      */
@@ -1855,7 +326,7 @@ function Dr() {
   function z(o) {
     return H("(?:", o, ")*");
   }
-  function O(o) {
+  function A(o) {
     return H("(?:", o, ")?");
   }
   function H(...o) {
@@ -2316,25 +787,25 @@ function Dr() {
       languages: null,
       // beta configuration options, subject to change, welcome to discuss
       // https://github.com/highlightjs/highlight.js/issues/1086
-      __emitter: p
+      __emitter: f
     };
     function L(w) {
       return S.noHighlightRe.test(w);
     }
     function F(w) {
-      let C = w.className + " ";
-      C += w.parentNode ? w.parentNode.className : "";
-      const B = S.languageDetectRe.exec(C);
+      let R = w.className + " ";
+      R += w.parentNode ? w.parentNode.className : "";
+      const B = S.languageDetectRe.exec(R);
       if (B) {
         const Y = E(B[1]);
         return Y || (We(K.replace("{}", B[1])), We("Falling back to no-highlight mode for this block.", w)), Y ? B[1] : "no-highlight";
       }
-      return C.split(/\s+/).find((Y) => L(Y) || E(Y));
+      return R.split(/\s+/).find((Y) => L(Y) || E(Y));
     }
-    function W(w, C, B) {
+    function W(w, R, B) {
       let Y = "", oe = "";
-      typeof C == "object" ? (Y = w, B = C.ignoreIllegals, oe = C.language) : (ve("10.7.0", "highlight(lang, code, ...args) has been deprecated."), ve("10.7.0", `Please use highlight(code, options) instead.
-https://github.com/highlightjs/highlight.js/issues/2277`), oe = w, Y = C), B === void 0 && (B = !0);
+      typeof R == "object" ? (Y = w, B = R.ignoreIllegals, oe = R.language) : (ve("10.7.0", "highlight(lang, code, ...args) has been deprecated."), ve("10.7.0", `Please use highlight(code, options) instead.
+https://github.com/highlightjs/highlight.js/issues/2277`), oe = w, Y = R), B === void 0 && (B = !0);
       const Le = {
         code: Y,
         language: oe
@@ -2343,10 +814,10 @@ https://github.com/highlightjs/highlight.js/issues/2277`), oe = w, Y = C), B ===
       const at = Le.result ? Le.result : ot(Le.language, Le.code, B);
       return at.code = Le.code, Ne("after:highlight", at), at;
     }
-    function ot(w, C, B, Y) {
+    function ot(w, R, B, Y) {
       const oe = /* @__PURE__ */ Object.create(null);
-      function Le(y, R) {
-        return y.keywords[R];
+      function Le(y, O) {
+        return y.keywords[O];
       }
       function at() {
         if (!D.keywords) {
@@ -2355,21 +826,21 @@ https://github.com/highlightjs/highlight.js/issues/2277`), oe = w, Y = C), B ===
         }
         let y = 0;
         D.keywordPatternRe.lastIndex = 0;
-        let R = D.keywordPatternRe.exec(Z), N = "";
-        for (; R; ) {
-          N += Z.substring(y, R.index);
-          const V = Ue.case_insensitive ? R[0].toLowerCase() : R[0], he = Le(D, V);
+        let O = D.keywordPatternRe.exec(Z), N = "";
+        for (; O; ) {
+          N += Z.substring(y, O.index);
+          const V = Ue.case_insensitive ? O[0].toLowerCase() : O[0], he = Le(D, V);
           if (he) {
             const [qe, pr] = he;
             if (le.addText(N), N = "", oe[V] = (oe[V] || 0) + 1, oe[V] <= pi && ($n += pr), qe.startsWith("_"))
-              N += R[0];
+              N += O[0];
             else {
               const fr = Ue.classNameAliases[qe] || qe;
-              Be(R[0], fr);
+              Be(O[0], fr);
             }
           } else
-            N += R[0];
-          y = D.keywordPatternRe.lastIndex, R = D.keywordPatternRe.exec(Z);
+            N += O[0];
+          y = D.keywordPatternRe.lastIndex, O = D.keywordPatternRe.exec(Z);
         }
         N += Z.substring(y), le.addText(N);
       }
@@ -2390,30 +861,30 @@ https://github.com/highlightjs/highlight.js/issues/2277`), oe = w, Y = C), B ===
       function ye() {
         D.subLanguage != null ? zn() : at(), Z = "";
       }
-      function Be(y, R) {
-        y !== "" && (le.startScope(R), le.addText(y), le.endScope());
+      function Be(y, O) {
+        y !== "" && (le.startScope(O), le.addText(y), le.endScope());
       }
-      function ss(y, R) {
+      function ss(y, O) {
         let N = 1;
-        const V = R.length - 1;
+        const V = O.length - 1;
         for (; N <= V; ) {
           if (!y._emit[N]) {
             N++;
             continue;
           }
-          const he = Ue.classNameAliases[y[N]] || y[N], qe = R[N];
+          const he = Ue.classNameAliases[y[N]] || y[N], qe = O[N];
           he ? Be(qe, he) : (Z = qe, at(), Z = ""), N++;
         }
       }
-      function rs(y, R) {
-        return y.scope && typeof y.scope == "string" && le.openNode(Ue.classNameAliases[y.scope] || y.scope), y.beginScope && (y.beginScope._wrap ? (Be(Z, Ue.classNameAliases[y.beginScope._wrap] || y.beginScope._wrap), Z = "") : y.beginScope._multi && (ss(y.beginScope, R), Z = "")), D = Object.create(y, { parent: { value: D } }), D;
+      function rs(y, O) {
+        return y.scope && typeof y.scope == "string" && le.openNode(Ue.classNameAliases[y.scope] || y.scope), y.beginScope && (y.beginScope._wrap ? (Be(Z, Ue.classNameAliases[y.beginScope._wrap] || y.beginScope._wrap), Z = "") : y.beginScope._multi && (ss(y.beginScope, O), Z = "")), D = Object.create(y, { parent: { value: D } }), D;
       }
-      function os(y, R, N) {
+      function os(y, O, N) {
         let V = Re(y.endRe, N);
         if (V) {
           if (y["on:end"]) {
             const he = new e(y);
-            y["on:end"](R, he), he.isMatchIgnored && (V = !1);
+            y["on:end"](O, he), he.isMatchIgnored && (V = !1);
           }
           if (V) {
             for (; y.endsParent && y.parent; )
@@ -2422,61 +893,61 @@ https://github.com/highlightjs/highlight.js/issues/2277`), oe = w, Y = C), B ===
           }
         }
         if (y.endsWithParent)
-          return os(y.parent, R, N);
+          return os(y.parent, O, N);
       }
       function lr(y) {
         return D.matcher.regexIndex === 0 ? (Z += y[0], 1) : (mi = !0, 0);
       }
       function cr(y) {
-        const R = y[0], N = y.rule, V = new e(N), he = [N.__beforeBegin, N["on:begin"]];
+        const O = y[0], N = y.rule, V = new e(N), he = [N.__beforeBegin, N["on:begin"]];
         for (const qe of he)
           if (qe && (qe(y, V), V.isMatchIgnored))
-            return lr(R);
-        return N.skip ? Z += R : (N.excludeBegin && (Z += R), ye(), !N.returnBegin && !N.excludeBegin && (Z = R)), rs(N, y), N.returnBegin ? 0 : R.length;
+            return lr(O);
+        return N.skip ? Z += O : (N.excludeBegin && (Z += O), ye(), !N.returnBegin && !N.excludeBegin && (Z = O)), rs(N, y), N.returnBegin ? 0 : O.length;
       }
       function ur(y) {
-        const R = y[0], N = C.substring(y.index), V = os(D, y, N);
+        const O = y[0], N = R.substring(y.index), V = os(D, y, N);
         if (!V)
           return wt;
         const he = D;
-        D.endScope && D.endScope._wrap ? (ye(), Be(R, D.endScope._wrap)) : D.endScope && D.endScope._multi ? (ye(), ss(D.endScope, y)) : he.skip ? Z += R : (he.returnEnd || he.excludeEnd || (Z += R), ye(), he.excludeEnd && (Z = R));
+        D.endScope && D.endScope._wrap ? (ye(), Be(O, D.endScope._wrap)) : D.endScope && D.endScope._multi ? (ye(), ss(D.endScope, y)) : he.skip ? Z += O : (he.returnEnd || he.excludeEnd || (Z += O), ye(), he.excludeEnd && (Z = O));
         do
           D.scope && le.closeNode(), !D.skip && !D.subLanguage && ($n += D.relevance), D = D.parent;
         while (D !== V.parent);
-        return V.starts && rs(V.starts, y), he.returnEnd ? 0 : R.length;
+        return V.starts && rs(V.starts, y), he.returnEnd ? 0 : O.length;
       }
       function hr() {
         const y = [];
-        for (let R = D; R !== Ue; R = R.parent)
-          R.scope && y.unshift(R.scope);
-        y.forEach((R) => le.openNode(R));
+        for (let O = D; O !== Ue; O = O.parent)
+          O.scope && y.unshift(O.scope);
+        y.forEach((O) => le.openNode(O));
       }
       let Hn = {};
-      function as(y, R) {
-        const N = R && R[0];
+      function as(y, O) {
+        const N = O && O[0];
         if (Z += y, N == null)
           return ye(), 0;
-        if (Hn.type === "begin" && R.type === "end" && Hn.index === R.index && N === "") {
-          if (Z += C.slice(R.index, R.index + 1), !Q) {
+        if (Hn.type === "begin" && O.type === "end" && Hn.index === O.index && N === "") {
+          if (Z += R.slice(O.index, O.index + 1), !Q) {
             const V = new Error(`0 width match regex (${w})`);
             throw V.languageName = w, V.badRule = Hn.rule, V;
           }
           return 1;
         }
-        if (Hn = R, R.type === "begin")
-          return cr(R);
-        if (R.type === "illegal" && !B) {
+        if (Hn = O, O.type === "begin")
+          return cr(O);
+        if (O.type === "illegal" && !B) {
           const V = new Error('Illegal lexeme "' + N + '" for mode "' + (D.scope || "<unnamed>") + '"');
           throw V.mode = D, V;
-        } else if (R.type === "end") {
-          const V = ur(R);
+        } else if (O.type === "end") {
+          const V = ur(O);
           if (V !== wt)
             return V;
         }
-        if (R.type === "illegal" && N === "")
+        if (O.type === "illegal" && N === "")
           return Z += `
 `, 1;
-        if (gi > 1e5 && gi > R.index * 3)
+        if (gi > 1e5 && gi > O.index * 3)
           throw new Error("potential infinite loop, way more iterations than matches");
         return Z += N, N.length;
       }
@@ -2490,16 +961,16 @@ https://github.com/highlightjs/highlight.js/issues/2277`), oe = w, Y = C), B ===
       let Z = "", $n = 0, xt = 0, gi = 0, mi = !1;
       try {
         if (Ue.__emitTokens)
-          Ue.__emitTokens(C, le);
+          Ue.__emitTokens(R, le);
         else {
           for (D.matcher.considerAll(); ; ) {
             gi++, mi ? mi = !1 : D.matcher.considerAll(), D.matcher.lastIndex = xt;
-            const y = D.matcher.exec(C);
+            const y = D.matcher.exec(R);
             if (!y) break;
-            const R = C.substring(xt, y.index), N = as(R, y);
+            const O = R.substring(xt, y.index), N = as(O, y);
             xt = y.index + N;
           }
-          as(C.substring(xt));
+          as(R.substring(xt));
         }
         return le.finalize(), fi = le.toHTML(), {
           language: w,
@@ -2513,13 +984,13 @@ https://github.com/highlightjs/highlight.js/issues/2277`), oe = w, Y = C), B ===
         if (y.message && y.message.includes("Illegal"))
           return {
             language: w,
-            value: tn(C),
+            value: tn(R),
             illegal: !0,
             relevance: 0,
             _illegalBy: {
               message: y.message,
               index: xt,
-              context: C.slice(xt - 100, xt + 100),
+              context: R.slice(xt - 100, xt + 100),
               mode: y.mode,
               resultSoFar: fi
             },
@@ -2528,7 +999,7 @@ https://github.com/highlightjs/highlight.js/issues/2277`), oe = w, Y = C), B ===
         if (Q)
           return {
             language: w,
-            value: tn(C),
+            value: tn(R),
             illegal: !1,
             relevance: 0,
             errorRaised: y,
@@ -2539,18 +1010,18 @@ https://github.com/highlightjs/highlight.js/issues/2277`), oe = w, Y = C), B ===
       }
     }
     function It(w) {
-      const C = {
+      const R = {
         value: tn(w),
         illegal: !1,
         relevance: 0,
         _top: T,
         _emitter: new S.__emitter(S)
       };
-      return C._emitter.addText(w), C;
+      return R._emitter.addText(w), R;
     }
-    function bt(w, C) {
-      C = C || S.languages || Object.keys(d);
-      const B = It(w), Y = C.filter(E).filter(re).map(
+    function bt(w, R) {
+      R = R || S.languages || Object.keys(d);
+      const B = It(w), Y = R.filter(E).filter(re).map(
         (ye) => ot(ye, w, !1)
       );
       Y.unshift(B);
@@ -2566,12 +1037,12 @@ https://github.com/highlightjs/highlight.js/issues/2277`), oe = w, Y = C), B ===
       }), [Le, at] = oe, zn = Le;
       return zn.secondBest = at, zn;
     }
-    function Dn(w, C, B) {
-      const Y = C && v[C] || B;
+    function Dn(w, R, B) {
+      const Y = R && v[R] || B;
       w.classList.add("hljs"), w.classList.add(`language-${Y}`);
     }
     function ke(w) {
-      let C = null;
+      let R = null;
       const B = F(w);
       if (L(B)) return;
       if (Ne(
@@ -2586,8 +1057,8 @@ https://github.com/highlightjs/highlight.js/issues/2277`), oe = w, Y = C), B ===
           "One of your code blocks includes unescaped HTML.",
           w.innerHTML
         );
-      C = w;
-      const Y = C.textContent, oe = B ? W(Y, { language: B, ignoreIllegals: !0 }) : bt(Y);
+      R = w;
+      const Y = R.textContent, oe = B ? W(Y, { language: B, ignoreIllegals: !0 }) : bt(Y);
       w.innerHTML = oe.value, w.dataset.highlighted = "yes", Dn(w, B, oe.language), w.result = {
         language: oe.language,
         // TODO: remove with version 11.0
@@ -2618,10 +1089,10 @@ https://github.com/highlightjs/highlight.js/issues/2277`), oe = w, Y = C), B ===
       }
       document.querySelectorAll(S.cssSelector).forEach(ke);
     }
-    function A(w, C) {
+    function C(w, R) {
       let B = null;
       try {
-        B = C(o);
+        B = R(o);
       } catch (Y) {
         if (_e("Language definition for '{}' could not be registered.".replace("{}", w)), Q)
           _e(Y);
@@ -2629,12 +1100,12 @@ https://github.com/highlightjs/highlight.js/issues/2277`), oe = w, Y = C), B ===
           throw Y;
         B = T;
       }
-      B.name || (B.name = w), d[w] = B, B.rawDefinition = C.bind(null, o), B.aliases && q(B.aliases, { languageName: w });
+      B.name || (B.name = w), d[w] = B, B.rawDefinition = R.bind(null, o), B.aliases && q(B.aliases, { languageName: w });
     }
     function l(w) {
       delete d[w];
-      for (const C of Object.keys(v))
-        v[C] === w && delete v[C];
+      for (const R of Object.keys(v))
+        v[R] === w && delete v[R];
     }
     function _() {
       return Object.keys(d);
@@ -2642,23 +1113,23 @@ https://github.com/highlightjs/highlight.js/issues/2277`), oe = w, Y = C), B ===
     function E(w) {
       return w = (w || "").toLowerCase(), d[w] || d[v[w]];
     }
-    function q(w, { languageName: C }) {
+    function q(w, { languageName: R }) {
       typeof w == "string" && (w = [w]), w.forEach((B) => {
-        v[B.toLowerCase()] = C;
+        v[B.toLowerCase()] = R;
       });
     }
     function re(w) {
-      const C = E(w);
-      return C && !C.disableAutodetect;
+      const R = E(w);
+      return R && !R.disableAutodetect;
     }
     function ee(w) {
-      w["before:highlightBlock"] && !w["before:highlightElement"] && (w["before:highlightElement"] = (C) => {
+      w["before:highlightBlock"] && !w["before:highlightElement"] && (w["before:highlightElement"] = (R) => {
         w["before:highlightBlock"](
-          Object.assign({ block: C.el }, C)
+          Object.assign({ block: R.el }, R)
         );
-      }), w["after:highlightBlock"] && !w["after:highlightElement"] && (w["after:highlightElement"] = (C) => {
+      }), w["after:highlightBlock"] && !w["after:highlightElement"] && (w["after:highlightElement"] = (R) => {
         w["after:highlightBlock"](
-          Object.assign({ block: C.el }, C)
+          Object.assign({ block: R.el }, R)
         );
       });
     }
@@ -2666,13 +1137,13 @@ https://github.com/highlightjs/highlight.js/issues/2277`), oe = w, Y = C), B ===
       ee(w), I.push(w);
     }
     function Me(w) {
-      const C = I.indexOf(w);
-      C !== -1 && I.splice(C, 1);
+      const R = I.indexOf(w);
+      R !== -1 && I.splice(R, 1);
     }
-    function Ne(w, C) {
+    function Ne(w, R) {
       const B = w;
       I.forEach(function(Y) {
-        Y[B] && Y[B](C);
+        Y[B] && Y[B](R);
       });
     }
     function sn(w) {
@@ -2688,7 +1159,7 @@ https://github.com/highlightjs/highlight.js/issues/2277`), oe = w, Y = C), B ===
       configure: Nn,
       initHighlighting: Bn,
       initHighlightingOnLoad: Un,
-      registerLanguage: A,
+      registerLanguage: C,
       unregisterLanguage: l,
       listLanguages: _,
       getLanguage: E,
@@ -2705,18 +1176,18 @@ https://github.com/highlightjs/highlight.js/issues/2277`), oe = w, Y = C), B ===
       concat: H,
       lookahead: k,
       either: de,
-      optional: O,
+      optional: A,
       anyNumberOfTimes: z
     };
     for (const w in ft)
       typeof ft[w] == "object" && n(ft[w]);
     return Object.assign(o, ft), o;
   }, rt = st({});
-  return rt.newInstance = () => st({}), Ci = rt, rt.HighlightJS = rt, rt.default = rt, Ci;
+  return rt.newInstance = () => st({}), wi = rt, rt.HighlightJS = rt, rt.default = rt, wi;
 }
-var Nr = /* @__PURE__ */ Dr();
-const js = /* @__PURE__ */ Pr(Nr);
-function Br(n) {
+var yr = /* @__PURE__ */ kr();
+const $s = /* @__PURE__ */ vr(yr);
+function Er(n) {
   const e = {
     className: "attr",
     begin: /"(\\.|[^\\"\r\n])*"(?=\s*:)/,
@@ -2751,25 +1222,25 @@ function Br(n) {
     illegal: "\\S"
   };
 }
-js.registerLanguage("json", Br);
-class Ur extends Ee {
+$s.registerLanguage("json", Er);
+class Sr extends Ee {
   constructor() {
     super(), this.root = document.createElement("div"), this.root.classList.add("json-viewer"), this.jsonViewerContent = document.createElement("div"), this.jsonViewerContent.classList.add("json-viewer__content"), this.root.appendChild(this.jsonViewerContent);
   }
   displayAsJson(e) {
     this.clear();
     const t = document.createElement("pre");
-    t.classList.add("json-viewer__pre"), t.textContent = JSON.stringify(e, null, 2), js.highlightElement(t), t.style.backgroundColor = "transparent", this.jsonViewerContent.appendChild(t);
+    t.classList.add("json-viewer__pre"), t.textContent = JSON.stringify(e, null, 2), $s.highlightElement(t), t.style.backgroundColor = "transparent", this.jsonViewerContent.appendChild(t);
   }
   clear() {
   }
 }
-class zr extends Xi {
+class Tr extends Gi {
   constructor() {
     super("console-message-overlay");
     const e = document.createElement("div");
-    e.classList.add("console-title-box"), this.root.appendChild(e), this.titleTextDiv = document.createElement("div"), this.titleTextDiv.classList.add("console-title-box__text"), e.appendChild(this.titleTextDiv), this.jsonViewer = new Ur(), this.jsonViewer.mount(this.root);
-    const t = new Hr();
+    e.classList.add("console-title-box"), this.root.appendChild(e), this.titleTextDiv = document.createElement("div"), this.titleTextDiv.classList.add("console-title-box__text"), e.appendChild(this.titleTextDiv), this.jsonViewer = new Sr(), this.jsonViewer.mount(this.root);
+    const t = new Ar();
     t.setCopyTarget(this.jsonViewer.root), t.mount(e);
   }
   displayMessage(e, t) {
@@ -2779,7 +1250,7 @@ class zr extends Xi {
     this.titleTextDiv.innerHTML = "", this.jsonViewer.clear(), super.setVisibility(!1);
   }
 }
-class Hr extends Ee {
+class Ar extends Ee {
   constructor() {
     super();
     const e = document.createElement("button");
@@ -2792,9 +1263,9 @@ class Hr extends Ee {
     };
   }
 }
-class $r extends Xi {
+class Cr extends Gi {
   constructor() {
-    super("session-finished-overlay"), this.submitButton = new Fr(), this.submitButton.mount(this.root), this.messageBox = document.createElement("div"), this.messageBox.classList.add("debrief-message-box"), this.root.appendChild(this.messageBox), this.messageSpan = document.createElement("span"), this.messageSpan.classList.add("debrief-message-box__text"), this.messageBox.appendChild(this.messageSpan);
+    super("session-finished-overlay"), this.submitButton = new Rr(), this.submitButton.mount(this.root), this.messageBox = document.createElement("div"), this.messageBox.classList.add("debrief-message-box"), this.root.appendChild(this.messageBox), this.messageSpan = document.createElement("span"), this.messageSpan.classList.add("debrief-message-box__text"), this.messageBox.appendChild(this.messageSpan);
   }
   show(e, t) {
     e.length == 0 ? this.messageBox.style.visibility = "hidden" : this.messageBox.style.visibility = "visible", this.messageSpan.textContent = e, this.submitButton.attachClickListener(t), this.setVisibility(!0);
@@ -2803,7 +1274,7 @@ class $r extends Xi {
     this.messageSpan.textContent = "", super.setVisibility(!1), this.submitButton.removeAllEventListeners();
   }
 }
-class Fr extends Ee {
+class Rr extends Ee {
   constructor() {
     super();
     const e = document.createElement("button");
@@ -2813,9 +1284,9 @@ class Fr extends Ee {
     this._registerEventListener(this.root, "click", e);
   }
 }
-class Vr extends Ee {
+class Or extends Ee {
   constructor() {
-    super(), this.root = document.createElement("div"), this.root.className = "shell-ui", this.progressBar = new Mr("cognition"), this.progressBar.mount(this.root), this.statusDot = new Or(), this.statusDot.mount(this.root), this.sessionConnectingOverlay = new Ir(), this.sessionConnectingOverlay.mount(this.root), this.overlayConsoleMessage = new zr(), this.overlayConsoleMessage.mount(this.root), this.sessionFinishedOverlay = new $r(), this.sessionFinishedOverlay.mount(this.root);
+    super(), this.root = document.createElement("div"), this.root.className = "shell-ui", this.progressBar = new br("cognition"), this.progressBar.mount(this.root), this.statusDot = new wr(), this.statusDot.mount(this.root), this.sessionConnectingOverlay = new _r(), this.sessionConnectingOverlay.mount(this.root), this.overlayConsoleMessage = new Tr(), this.overlayConsoleMessage.mount(this.root), this.sessionFinishedOverlay = new Cr(), this.sessionFinishedOverlay.mount(this.root);
   }
   setProgressBar(e) {
     this.progressBar.setProgress(e);
@@ -2853,7 +1324,7 @@ class Vr extends Ee {
     await Promise.race([i, s]);
   }
 }
-class Vt {
+class Ft {
   constructor(e, t) {
     this.root = document.createElement("div"), this.root.classList.add("card"), this.root.id = e.card_id, this.card = e, this.boardView = t, this.setVisibility(!1), this.setInteractivity(!1), this.place(t);
   }
@@ -2888,7 +1359,7 @@ function Et(n) {
   const e = performance.timeOrigin + n;
   return new Date(e).toISOString();
 }
-class jr {
+class Mr {
   constructor(e, t, i, s) {
     this.tArmed = null, this.cardView = i, i.addClickCallback(
       (r) => {
@@ -2912,7 +1383,7 @@ class jr {
     this.cardView.root.classList.remove("card--clickable"), this.tArmed = null, this.cardView.setInteractivity(!1);
   }
 }
-class Gr {
+class Lr {
   constructor(e, t, i) {
     this.tArmed = null, this.cardView = i, i.addDoneCallback(
       () => {
@@ -2934,7 +1405,7 @@ class Gr {
     this.tArmed = null, this.cardView.setInteractivity(!1);
   }
 }
-class Wr {
+class Ir {
   constructor(e, t, i) {
     this.timeoutId = null, this.sensorId = e, this.onSensorFired = t, this.timeoutMsec = i;
   }
@@ -2955,7 +1426,7 @@ class Wr {
     this.timeoutId !== null && (clearTimeout(this.timeoutId), this.timeoutId = null);
   }
 }
-class qr {
+class Pr {
   constructor(e, t, i) {
     this.tArmed = null, this.onKeyPress = (s) => {
       if (!this.tArmed)
@@ -2980,15 +1451,15 @@ class qr {
     this.tArmed = null, document.removeEventListener("keydown", this.onKeyPress);
   }
 }
-function Xr(n) {
+function Dr(n) {
   if (!("addClickCallback" in n))
     throw new Error("CardView is not clickable");
 }
-function Yr(n) {
+function Nr(n) {
   if (!("addDoneCallback" in n))
     throw new Error("CardView is not doneable");
 }
-class Zr extends Vt {
+class Br extends Ft {
   constructor(e, t) {
     super(e, t), this.button = document.createElement("button"), this.button.classList.add("fixation-point");
     const i = document.createElement("div");
@@ -3002,7 +1473,7 @@ class Zr extends Vt {
     });
   }
 }
-function Yi() {
+function Wi() {
   return {
     async: !1,
     breaks: !1,
@@ -3016,8 +1487,8 @@ function Yi() {
     walkTokens: null
   };
 }
-var Tt = Yi();
-function Gs(n) {
+var Tt = Wi();
+function Fs(n) {
   Tt = n;
 }
 var vn = { exec: () => null };
@@ -3089,109 +1560,109 @@ var fe = {
   fencesBeginRegex: (n) => new RegExp(`^ {0,${Math.min(3, n - 1)}}(?:\`\`\`|~~~)`),
   headingBeginRegex: (n) => new RegExp(`^ {0,${Math.min(3, n - 1)}}#`),
   htmlBeginRegex: (n) => new RegExp(`^ {0,${Math.min(3, n - 1)}}<(?:[a-z].*>|!--)`, "i")
-}, Kr = /^(?:[ \t]*(?:\n|$))+/, Qr = /^((?: {4}| {0,3}\t)[^\n]+(?:\n(?:[ \t]*(?:\n|$))*)?)+/, Jr = /^ {0,3}(`{3,}(?=[^`\n]*(?:\n|$))|~{3,})([^\n]*)(?:\n|$)(?:|([\s\S]*?)(?:\n|$))(?: {0,3}\1[~`]* *(?=\n|$)|$)/, yn = /^ {0,3}((?:-[\t ]*){3,}|(?:_[ \t]*){3,}|(?:\*[ \t]*){3,})(?:\n+|$)/, eo = /^ {0,3}(#{1,6})(?=\s|$)(.*)(?:\n+|$)/, Zi = /(?:[*+-]|\d{1,9}[.)])/, Ws = /^(?!bull |blockCode|fences|blockquote|heading|html|table)((?:.|\n(?!\s*?\n|bull |blockCode|fences|blockquote|heading|html|table))+?)\n {0,3}(=+|-+) *(?:\n+|$)/, qs = $(Ws).replace(/bull/g, Zi).replace(/blockCode/g, /(?: {4}| {0,3}\t)/).replace(/fences/g, / {0,3}(?:`{3,}|~{3,})/).replace(/blockquote/g, / {0,3}>/).replace(/heading/g, / {0,3}#{1,6}/).replace(/html/g, / {0,3}<[^\n>]+>\n/).replace(/\|table/g, "").getRegex(), to = $(Ws).replace(/bull/g, Zi).replace(/blockCode/g, /(?: {4}| {0,3}\t)/).replace(/fences/g, / {0,3}(?:`{3,}|~{3,})/).replace(/blockquote/g, / {0,3}>/).replace(/heading/g, / {0,3}#{1,6}/).replace(/html/g, / {0,3}<[^\n>]+>\n/).replace(/table/g, / {0,3}\|?(?:[:\- ]*\|)+[\:\- ]*\n/).getRegex(), Ki = /^([^\n]+(?:\n(?!hr|heading|lheading|blockquote|fences|list|html|table| +\n)[^\n]+)*)/, no = /^[^\n]+/, Qi = /(?!\s*\])(?:\\.|[^\[\]\\])+/, io = $(/^ {0,3}\[(label)\]: *(?:\n[ \t]*)?([^<\s][^\s]*|<.*?>)(?:(?: +(?:\n[ \t]*)?| *\n[ \t]*)(title))? *(?:\n+|$)/).replace("label", Qi).replace("title", /(?:"(?:\\"?|[^"\\])*"|'[^'\n]*(?:\n[^'\n]+)*\n?'|\([^()]*\))/).getRegex(), so = $(/^( {0,3}bull)([ \t][^\n]+?)?(?:\n|$)/).replace(/bull/g, Zi).getRegex(), oi = "address|article|aside|base|basefont|blockquote|body|caption|center|col|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption|figure|footer|form|frame|frameset|h[1-6]|head|header|hr|html|iframe|legend|li|link|main|menu|menuitem|meta|nav|noframes|ol|optgroup|option|p|param|search|section|summary|table|tbody|td|tfoot|th|thead|title|tr|track|ul", Ji = /<!--(?:-?>|[\s\S]*?(?:-->|$))/, ro = $(
+}, Ur = /^(?:[ \t]*(?:\n|$))+/, zr = /^((?: {4}| {0,3}\t)[^\n]+(?:\n(?:[ \t]*(?:\n|$))*)?)+/, Hr = /^ {0,3}(`{3,}(?=[^`\n]*(?:\n|$))|~{3,})([^\n]*)(?:\n|$)(?:|([\s\S]*?)(?:\n|$))(?: {0,3}\1[~`]* *(?=\n|$)|$)/, yn = /^ {0,3}((?:-[\t ]*){3,}|(?:_[ \t]*){3,}|(?:\*[ \t]*){3,})(?:\n+|$)/, $r = /^ {0,3}(#{1,6})(?=\s|$)(.*)(?:\n+|$)/, qi = /(?:[*+-]|\d{1,9}[.)])/, Vs = /^(?!bull |blockCode|fences|blockquote|heading|html|table)((?:.|\n(?!\s*?\n|bull |blockCode|fences|blockquote|heading|html|table))+?)\n {0,3}(=+|-+) *(?:\n+|$)/, js = $(Vs).replace(/bull/g, qi).replace(/blockCode/g, /(?: {4}| {0,3}\t)/).replace(/fences/g, / {0,3}(?:`{3,}|~{3,})/).replace(/blockquote/g, / {0,3}>/).replace(/heading/g, / {0,3}#{1,6}/).replace(/html/g, / {0,3}<[^\n>]+>\n/).replace(/\|table/g, "").getRegex(), Fr = $(Vs).replace(/bull/g, qi).replace(/blockCode/g, /(?: {4}| {0,3}\t)/).replace(/fences/g, / {0,3}(?:`{3,}|~{3,})/).replace(/blockquote/g, / {0,3}>/).replace(/heading/g, / {0,3}#{1,6}/).replace(/html/g, / {0,3}<[^\n>]+>\n/).replace(/table/g, / {0,3}\|?(?:[:\- ]*\|)+[\:\- ]*\n/).getRegex(), Xi = /^([^\n]+(?:\n(?!hr|heading|lheading|blockquote|fences|list|html|table| +\n)[^\n]+)*)/, Vr = /^[^\n]+/, Yi = /(?!\s*\])(?:\\.|[^\[\]\\])+/, jr = $(/^ {0,3}\[(label)\]: *(?:\n[ \t]*)?([^<\s][^\s]*|<.*?>)(?:(?: +(?:\n[ \t]*)?| *\n[ \t]*)(title))? *(?:\n+|$)/).replace("label", Yi).replace("title", /(?:"(?:\\"?|[^"\\])*"|'[^'\n]*(?:\n[^'\n]+)*\n?'|\([^()]*\))/).getRegex(), Gr = $(/^( {0,3}bull)([ \t][^\n]+?)?(?:\n|$)/).replace(/bull/g, qi).getRegex(), si = "address|article|aside|base|basefont|blockquote|body|caption|center|col|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption|figure|footer|form|frame|frameset|h[1-6]|head|header|hr|html|iframe|legend|li|link|main|menu|menuitem|meta|nav|noframes|ol|optgroup|option|p|param|search|section|summary|table|tbody|td|tfoot|th|thead|title|tr|track|ul", Zi = /<!--(?:-?>|[\s\S]*?(?:-->|$))/, Wr = $(
   "^ {0,3}(?:<(script|pre|style|textarea)[\\s>][\\s\\S]*?(?:</\\1>[^\\n]*\\n+|$)|comment[^\\n]*(\\n+|$)|<\\?[\\s\\S]*?(?:\\?>\\n*|$)|<![A-Z][\\s\\S]*?(?:>\\n*|$)|<!\\[CDATA\\[[\\s\\S]*?(?:\\]\\]>\\n*|$)|</?(tag)(?: +|\\n|/?>)[\\s\\S]*?(?:(?:\\n[ 	]*)+\\n|$)|<(?!script|pre|style|textarea)([a-z][\\w-]*)(?:attribute)*? */?>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n[ 	]*)+\\n|$)|</(?!script|pre|style|textarea)[a-z][\\w-]*\\s*>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n[ 	]*)+\\n|$))",
   "i"
-).replace("comment", Ji).replace("tag", oi).replace("attribute", / +[a-zA-Z:_][\w.:-]*(?: *= *"[^"\n]*"| *= *'[^'\n]*'| *= *[^\s"'=<>`]+)?/).getRegex(), Xs = $(Ki).replace("hr", yn).replace("heading", " {0,3}#{1,6}(?:\\s|$)").replace("|lheading", "").replace("|table", "").replace("blockquote", " {0,3}>").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)]) ").replace("html", "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag", oi).getRegex(), oo = $(/^( {0,3}> ?(paragraph|[^\n]*)(?:\n|$))+/).replace("paragraph", Xs).getRegex(), es = {
-  blockquote: oo,
-  code: Qr,
-  def: io,
-  fences: Jr,
-  heading: eo,
+).replace("comment", Zi).replace("tag", si).replace("attribute", / +[a-zA-Z:_][\w.:-]*(?: *= *"[^"\n]*"| *= *'[^'\n]*'| *= *[^\s"'=<>`]+)?/).getRegex(), Gs = $(Xi).replace("hr", yn).replace("heading", " {0,3}#{1,6}(?:\\s|$)").replace("|lheading", "").replace("|table", "").replace("blockquote", " {0,3}>").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)]) ").replace("html", "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag", si).getRegex(), qr = $(/^( {0,3}> ?(paragraph|[^\n]*)(?:\n|$))+/).replace("paragraph", Gs).getRegex(), Ki = {
+  blockquote: qr,
+  code: zr,
+  def: jr,
+  fences: Hr,
+  heading: $r,
   hr: yn,
-  html: ro,
-  lheading: qs,
-  list: so,
-  newline: Kr,
-  paragraph: Xs,
+  html: Wr,
+  lheading: js,
+  list: Gr,
+  newline: Ur,
+  paragraph: Gs,
   table: vn,
-  text: no
-}, Ss = $(
+  text: Vr
+}, us = $(
   "^ *([^\\n ].*)\\n {0,3}((?:\\| *)?:?-+:? *(?:\\| *:?-+:? *)*(?:\\| *)?)(?:\\n((?:(?! *\\n|hr|heading|blockquote|code|fences|list|html).*(?:\\n|$))*)\\n*|$)"
-).replace("hr", yn).replace("heading", " {0,3}#{1,6}(?:\\s|$)").replace("blockquote", " {0,3}>").replace("code", "(?: {4}| {0,3}	)[^\\n]").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)]) ").replace("html", "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag", oi).getRegex(), ao = {
-  ...es,
-  lheading: to,
-  table: Ss,
-  paragraph: $(Ki).replace("hr", yn).replace("heading", " {0,3}#{1,6}(?:\\s|$)").replace("|lheading", "").replace("table", Ss).replace("blockquote", " {0,3}>").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)]) ").replace("html", "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag", oi).getRegex()
-}, lo = {
-  ...es,
+).replace("hr", yn).replace("heading", " {0,3}#{1,6}(?:\\s|$)").replace("blockquote", " {0,3}>").replace("code", "(?: {4}| {0,3}	)[^\\n]").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)]) ").replace("html", "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag", si).getRegex(), Xr = {
+  ...Ki,
+  lheading: Fr,
+  table: us,
+  paragraph: $(Xi).replace("hr", yn).replace("heading", " {0,3}#{1,6}(?:\\s|$)").replace("|lheading", "").replace("table", us).replace("blockquote", " {0,3}>").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)]) ").replace("html", "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag", si).getRegex()
+}, Yr = {
+  ...Ki,
   html: $(
     `^ *(?:comment *(?:\\n|\\s*$)|<(tag)[\\s\\S]+?</\\1> *(?:\\n{2,}|\\s*$)|<tag(?:"[^"]*"|'[^']*'|\\s[^'"/>\\s]*)*?/?> *(?:\\n{2,}|\\s*$))`
-  ).replace("comment", Ji).replace(/tag/g, "(?!(?:a|em|strong|small|s|cite|q|dfn|abbr|data|time|code|var|samp|kbd|sub|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo|span|br|wbr|ins|del|img)\\b)\\w+(?!:|[^\\w\\s@]*@)\\b").getRegex(),
+  ).replace("comment", Zi).replace(/tag/g, "(?!(?:a|em|strong|small|s|cite|q|dfn|abbr|data|time|code|var|samp|kbd|sub|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo|span|br|wbr|ins|del|img)\\b)\\w+(?!:|[^\\w\\s@]*@)\\b").getRegex(),
   def: /^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +(["(][^\n]+[")]))? *(?:\n+|$)/,
   heading: /^(#{1,6})(.*)(?:\n+|$)/,
   fences: vn,
   // fences not supported
   lheading: /^(.+?)\n {0,3}(=+|-+) *(?:\n+|$)/,
-  paragraph: $(Ki).replace("hr", yn).replace("heading", ` *#{1,6} *[^
-]`).replace("lheading", qs).replace("|table", "").replace("blockquote", " {0,3}>").replace("|fences", "").replace("|list", "").replace("|html", "").replace("|tag", "").getRegex()
-}, co = /^\\([!"#$%&'()*+,\-./:;<=>?@\[\]\\^_`{|}~])/, uo = /^(`+)([^`]|[^`][\s\S]*?[^`])\1(?!`)/, Ys = /^( {2,}|\\)\n(?!\s*$)/, ho = /^(`+|[^`])(?:(?= {2,}\n)|[\s\S]*?(?:(?=[\\<!\[`*_]|\b_|$)|[^ ](?= {2,}\n)))/, ai = /[\p{P}\p{S}]/u, ts = /[\s\p{P}\p{S}]/u, Zs = /[^\s\p{P}\p{S}]/u, po = $(/^((?![*_])punctSpace)/, "u").replace(/punctSpace/g, ts).getRegex(), Ks = /(?!~)[\p{P}\p{S}]/u, fo = /(?!~)[\s\p{P}\p{S}]/u, go = /(?:[^\s\p{P}\p{S}]|~)/u, mo = /\[[^[\]]*?\]\((?:\\.|[^\\\(\)]|\((?:\\.|[^\\\(\)])*\))*\)|`[^`]*?`|<[^<>]*?>/g, Qs = /^(?:\*+(?:((?!\*)punct)|[^\s*]))|^_+(?:((?!_)punct)|([^\s_]))/, wo = $(Qs, "u").replace(/punct/g, ai).getRegex(), bo = $(Qs, "u").replace(/punct/g, Ks).getRegex(), Js = "^[^_*]*?__[^_*]*?\\*[^_*]*?(?=__)|[^*]+(?=[^*])|(?!\\*)punct(\\*+)(?=[\\s]|$)|notPunctSpace(\\*+)(?!\\*)(?=punctSpace|$)|(?!\\*)punctSpace(\\*+)(?=notPunctSpace)|[\\s](\\*+)(?!\\*)(?=punct)|(?!\\*)punct(\\*+)(?!\\*)(?=punct)|notPunctSpace(\\*+)(?=notPunctSpace)", xo = $(Js, "gu").replace(/notPunctSpace/g, Zs).replace(/punctSpace/g, ts).replace(/punct/g, ai).getRegex(), _o = $(Js, "gu").replace(/notPunctSpace/g, go).replace(/punctSpace/g, fo).replace(/punct/g, Ks).getRegex(), vo = $(
+  paragraph: $(Xi).replace("hr", yn).replace("heading", ` *#{1,6} *[^
+]`).replace("lheading", js).replace("|table", "").replace("blockquote", " {0,3}>").replace("|fences", "").replace("|list", "").replace("|html", "").replace("|tag", "").getRegex()
+}, Zr = /^\\([!"#$%&'()*+,\-./:;<=>?@\[\]\\^_`{|}~])/, Kr = /^(`+)([^`]|[^`][\s\S]*?[^`])\1(?!`)/, Ws = /^( {2,}|\\)\n(?!\s*$)/, Qr = /^(`+|[^`])(?:(?= {2,}\n)|[\s\S]*?(?:(?=[\\<!\[`*_]|\b_|$)|[^ ](?= {2,}\n)))/, ri = /[\p{P}\p{S}]/u, Qi = /[\s\p{P}\p{S}]/u, qs = /[^\s\p{P}\p{S}]/u, Jr = $(/^((?![*_])punctSpace)/, "u").replace(/punctSpace/g, Qi).getRegex(), Xs = /(?!~)[\p{P}\p{S}]/u, eo = /(?!~)[\s\p{P}\p{S}]/u, to = /(?:[^\s\p{P}\p{S}]|~)/u, no = /\[[^[\]]*?\]\((?:\\.|[^\\\(\)]|\((?:\\.|[^\\\(\)])*\))*\)|`[^`]*?`|<[^<>]*?>/g, Ys = /^(?:\*+(?:((?!\*)punct)|[^\s*]))|^_+(?:((?!_)punct)|([^\s_]))/, io = $(Ys, "u").replace(/punct/g, ri).getRegex(), so = $(Ys, "u").replace(/punct/g, Xs).getRegex(), Zs = "^[^_*]*?__[^_*]*?\\*[^_*]*?(?=__)|[^*]+(?=[^*])|(?!\\*)punct(\\*+)(?=[\\s]|$)|notPunctSpace(\\*+)(?!\\*)(?=punctSpace|$)|(?!\\*)punctSpace(\\*+)(?=notPunctSpace)|[\\s](\\*+)(?!\\*)(?=punct)|(?!\\*)punct(\\*+)(?!\\*)(?=punct)|notPunctSpace(\\*+)(?=notPunctSpace)", ro = $(Zs, "gu").replace(/notPunctSpace/g, qs).replace(/punctSpace/g, Qi).replace(/punct/g, ri).getRegex(), oo = $(Zs, "gu").replace(/notPunctSpace/g, to).replace(/punctSpace/g, eo).replace(/punct/g, Xs).getRegex(), ao = $(
   "^[^_*]*?\\*\\*[^_*]*?_[^_*]*?(?=\\*\\*)|[^_]+(?=[^_])|(?!_)punct(_+)(?=[\\s]|$)|notPunctSpace(_+)(?!_)(?=punctSpace|$)|(?!_)punctSpace(_+)(?=notPunctSpace)|[\\s](_+)(?!_)(?=punct)|(?!_)punct(_+)(?!_)(?=punct)",
   "gu"
-).replace(/notPunctSpace/g, Zs).replace(/punctSpace/g, ts).replace(/punct/g, ai).getRegex(), ko = $(/\\(punct)/, "gu").replace(/punct/g, ai).getRegex(), yo = $(/^<(scheme:[^\s\x00-\x1f<>]*|email)>/).replace("scheme", /[a-zA-Z][a-zA-Z0-9+.-]{1,31}/).replace("email", /[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+(@)[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+(?![-_])/).getRegex(), Eo = $(Ji).replace("(?:-->|$)", "-->").getRegex(), So = $(
+).replace(/notPunctSpace/g, qs).replace(/punctSpace/g, Qi).replace(/punct/g, ri).getRegex(), lo = $(/\\(punct)/, "gu").replace(/punct/g, ri).getRegex(), co = $(/^<(scheme:[^\s\x00-\x1f<>]*|email)>/).replace("scheme", /[a-zA-Z][a-zA-Z0-9+.-]{1,31}/).replace("email", /[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+(@)[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+(?![-_])/).getRegex(), uo = $(Zi).replace("(?:-->|$)", "-->").getRegex(), ho = $(
   "^comment|^</[a-zA-Z][\\w:-]*\\s*>|^<[a-zA-Z][\\w-]*(?:attribute)*?\\s*/?>|^<\\?[\\s\\S]*?\\?>|^<![a-zA-Z]+\\s[\\s\\S]*?>|^<!\\[CDATA\\[[\\s\\S]*?\\]\\]>"
-).replace("comment", Eo).replace("attribute", /\s+[a-zA-Z:_][\w.:-]*(?:\s*=\s*"[^"]*"|\s*=\s*'[^']*'|\s*=\s*[^\s"'=<>`]+)?/).getRegex(), ti = /(?:\[(?:\\.|[^\[\]\\])*\]|\\.|`[^`]*`|[^\[\]\\`])*?/, To = $(/^!?\[(label)\]\(\s*(href)(?:(?:[ \t]*(?:\n[ \t]*)?)(title))?\s*\)/).replace("label", ti).replace("href", /<(?:\\.|[^\n<>\\])+>|[^ \t\n\x00-\x1f]*/).replace("title", /"(?:\\"?|[^"\\])*"|'(?:\\'?|[^'\\])*'|\((?:\\\)?|[^)\\])*\)/).getRegex(), er = $(/^!?\[(label)\]\[(ref)\]/).replace("label", ti).replace("ref", Qi).getRegex(), tr = $(/^!?\[(ref)\](?:\[\])?/).replace("ref", Qi).getRegex(), Ao = $("reflink|nolink(?!\\()", "g").replace("reflink", er).replace("nolink", tr).getRegex(), ns = {
+).replace("comment", uo).replace("attribute", /\s+[a-zA-Z:_][\w.:-]*(?:\s*=\s*"[^"]*"|\s*=\s*'[^']*'|\s*=\s*[^\s"'=<>`]+)?/).getRegex(), Qn = /(?:\[(?:\\.|[^\[\]\\])*\]|\\.|`[^`]*`|[^\[\]\\`])*?/, po = $(/^!?\[(label)\]\(\s*(href)(?:(?:[ \t]*(?:\n[ \t]*)?)(title))?\s*\)/).replace("label", Qn).replace("href", /<(?:\\.|[^\n<>\\])+>|[^ \t\n\x00-\x1f]*/).replace("title", /"(?:\\"?|[^"\\])*"|'(?:\\'?|[^'\\])*'|\((?:\\\)?|[^)\\])*\)/).getRegex(), Ks = $(/^!?\[(label)\]\[(ref)\]/).replace("label", Qn).replace("ref", Yi).getRegex(), Qs = $(/^!?\[(ref)\](?:\[\])?/).replace("ref", Yi).getRegex(), fo = $("reflink|nolink(?!\\()", "g").replace("reflink", Ks).replace("nolink", Qs).getRegex(), Ji = {
   _backpedal: vn,
   // only used for GFM url
-  anyPunctuation: ko,
-  autolink: yo,
-  blockSkip: mo,
-  br: Ys,
-  code: uo,
+  anyPunctuation: lo,
+  autolink: co,
+  blockSkip: no,
+  br: Ws,
+  code: Kr,
   del: vn,
-  emStrongLDelim: wo,
-  emStrongRDelimAst: xo,
-  emStrongRDelimUnd: vo,
-  escape: co,
-  link: To,
-  nolink: tr,
-  punctuation: po,
-  reflink: er,
-  reflinkSearch: Ao,
-  tag: So,
-  text: ho,
+  emStrongLDelim: io,
+  emStrongRDelimAst: ro,
+  emStrongRDelimUnd: ao,
+  escape: Zr,
+  link: po,
+  nolink: Qs,
+  punctuation: Jr,
+  reflink: Ks,
+  reflinkSearch: fo,
+  tag: ho,
+  text: Qr,
   url: vn
-}, Co = {
-  ...ns,
-  link: $(/^!?\[(label)\]\((.*?)\)/).replace("label", ti).getRegex(),
-  reflink: $(/^!?\[(label)\]\s*\[([^\]]*)\]/).replace("label", ti).getRegex()
-}, zi = {
-  ...ns,
-  emStrongRDelimAst: _o,
-  emStrongLDelim: bo,
+}, go = {
+  ...Ji,
+  link: $(/^!?\[(label)\]\((.*?)\)/).replace("label", Qn).getRegex(),
+  reflink: $(/^!?\[(label)\]\s*\[([^\]]*)\]/).replace("label", Qn).getRegex()
+}, Di = {
+  ...Ji,
+  emStrongRDelimAst: oo,
+  emStrongLDelim: so,
   url: $(/^((?:ftp|https?):\/\/|www\.)(?:[a-zA-Z0-9\-]+\.?)+[^\s<]*|^email/, "i").replace("email", /[A-Za-z0-9._+-]+(@)[a-zA-Z0-9-_]+(?:\.[a-zA-Z0-9-_]*[a-zA-Z0-9])+(?![-_])/).getRegex(),
   _backpedal: /(?:[^?!.,:;*_'"~()&]+|\([^)]*\)|&(?![a-zA-Z0-9]+;$)|[?!.,:;*_'"~)]+(?!$))+/,
   del: /^(~~?)(?=[^\s~])((?:\\.|[^\\])*?(?:\\.|[^\s~\\]))\1(?=[^~]|$)/,
   text: /^([`~]+|[^`~])(?:(?= {2,}\n)|(?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@)|[\s\S]*?(?:(?=[\\<!\[`*~_]|\b_|https?:\/\/|ftp:\/\/|www\.|$)|[^ ](?= {2,}\n)|[^a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-](?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@)))/
-}, Ro = {
-  ...zi,
-  br: $(Ys).replace("{2,}", "*").getRegex(),
-  text: $(zi.text).replace("\\b_", "\\b_| {2,}\\n").replace(/\{2,\}/g, "*").getRegex()
-}, Wn = {
-  normal: es,
-  gfm: ao,
-  pedantic: lo
-}, dn = {
-  normal: ns,
-  gfm: zi,
-  breaks: Ro,
-  pedantic: Co
-}, Oo = {
+}, mo = {
+  ...Di,
+  br: $(Ws).replace("{2,}", "*").getRegex(),
+  text: $(Di.text).replace("\\b_", "\\b_| {2,}\\n").replace(/\{2,\}/g, "*").getRegex()
+}, Fn = {
+  normal: Ki,
+  gfm: Xr,
+  pedantic: Yr
+}, rn = {
+  normal: Ji,
+  gfm: Di,
+  breaks: mo,
+  pedantic: go
+}, wo = {
   "&": "&amp;",
   "<": "&lt;",
   ">": "&gt;",
   '"': "&quot;",
   "'": "&#39;"
-}, Ts = (n) => Oo[n];
-function He(n, e) {
+}, hs = (n) => wo[n];
+function ze(n, e) {
   if (e) {
     if (fe.escapeTest.test(n))
-      return n.replace(fe.escapeReplace, Ts);
+      return n.replace(fe.escapeReplace, hs);
   } else if (fe.escapeTestNoEncode.test(n))
-    return n.replace(fe.escapeReplaceNoEncode, Ts);
+    return n.replace(fe.escapeReplaceNoEncode, hs);
   return n;
 }
-function As(n) {
+function ds(n) {
   try {
     n = encodeURI(n).replace(fe.percentDecode, "%");
   } catch {
@@ -3199,11 +1670,11 @@ function As(n) {
   }
   return n;
 }
-function Cs(n, e) {
+function ps(n, e) {
   var r;
   const t = n.replace(fe.findPipe, (a, c, h) => {
-    let u = !1, p = c;
-    for (; --p >= 0 && h[p] === "\\"; ) u = !u;
+    let u = !1, f = c;
+    for (; --f >= 0 && h[f] === "\\"; ) u = !u;
     return u ? "|" : " |";
   }), i = t.split(fe.splitPipe);
   let s = 0;
@@ -3216,7 +1687,7 @@ function Cs(n, e) {
     i[s] = i[s].trim().replace(fe.slashPipe, "|");
   return i;
 }
-function pn(n, e, t) {
+function on(n, e, t) {
   const i = n.length;
   if (i === 0)
     return "";
@@ -3225,7 +1696,7 @@ function pn(n, e, t) {
     s++;
   return n.slice(0, i - s);
 }
-function Mo(n, e) {
+function bo(n, e) {
   if (n.indexOf(e[1]) === -1)
     return -1;
   let t = 0;
@@ -3238,7 +1709,7 @@ function Mo(n, e) {
       return i;
   return t > 0 ? -2 : -1;
 }
-function Rs(n, e, t, i, s) {
+function fs(n, e, t, i, s) {
   const r = e.href, a = e.title || null, c = n[1].replace(s.other.outputLinkReplace, "$1");
   i.state.inLink = !0;
   const h = {
@@ -3251,7 +1722,7 @@ function Rs(n, e, t, i, s) {
   };
   return i.state.inLink = !1, h;
 }
-function Lo(n, e, t) {
+function xo(n, e, t) {
   const i = n.match(t.other.indentCodeCompensation);
   if (i === null)
     return e;
@@ -3266,7 +1737,7 @@ function Lo(n, e, t) {
   }).join(`
 `);
 }
-var ni = class {
+var Jn = class {
   // set by the lexer
   constructor(n) {
     X(this, "options");
@@ -3291,7 +1762,7 @@ var ni = class {
         type: "code",
         raw: e[0],
         codeBlockStyle: "indented",
-        text: this.options.pedantic ? t : pn(t, `
+        text: this.options.pedantic ? t : on(t, `
 `)
       };
     }
@@ -3299,7 +1770,7 @@ var ni = class {
   fences(n) {
     const e = this.rules.block.fences.exec(n);
     if (e) {
-      const t = e[0], i = Lo(t, e[3] || "", this.rules);
+      const t = e[0], i = xo(t, e[3] || "", this.rules);
       return {
         type: "code",
         raw: t,
@@ -3313,7 +1784,7 @@ var ni = class {
     if (e) {
       let t = e[2].trim();
       if (this.rules.other.endingHash.test(t)) {
-        const i = pn(t, "#");
+        const i = on(t, "#");
         (this.options.pedantic || !i || this.rules.other.endingSpaceChar.test(i)) && (t = i.trim());
       }
       return {
@@ -3330,14 +1801,14 @@ var ni = class {
     if (e)
       return {
         type: "hr",
-        raw: pn(e[0], `
+        raw: on(e[0], `
 `)
       };
   }
   blockquote(n) {
     const e = this.rules.block.blockquote.exec(n);
     if (e) {
-      let t = pn(e[0], `
+      let t = on(e[0], `
 `).split(`
 `), i = "", s = "";
       const r = [];
@@ -3354,28 +1825,28 @@ var ni = class {
             break;
         t = t.slice(h);
         const u = c.join(`
-`), p = u.replace(this.rules.other.blockquoteSetextReplace, `
+`), f = u.replace(this.rules.other.blockquoteSetextReplace, `
     $1`).replace(this.rules.other.blockquoteSetextReplace2, "");
         i = i ? `${i}
 ${u}` : u, s = s ? `${s}
-${p}` : p;
+${f}` : f;
         const M = this.lexer.state.top;
-        if (this.lexer.state.top = !0, this.lexer.blockTokens(p, r, !0), this.lexer.state.top = M, t.length === 0)
+        if (this.lexer.state.top = !0, this.lexer.blockTokens(f, r, !0), this.lexer.state.top = M, t.length === 0)
           break;
         const k = r.at(-1);
         if ((k == null ? void 0 : k.type) === "code")
           break;
         if ((k == null ? void 0 : k.type) === "blockquote") {
-          const z = k, O = z.raw + `
+          const z = k, A = z.raw + `
 ` + t.join(`
-`), H = this.blockquote(O);
+`), H = this.blockquote(A);
           r[r.length - 1] = H, i = i.substring(0, i.length - z.raw.length) + H.raw, s = s.substring(0, s.length - z.text.length) + H.text;
           break;
         } else if ((k == null ? void 0 : k.type) === "list") {
-          const z = k, O = z.raw + `
+          const z = k, A = z.raw + `
 ` + t.join(`
-`), H = this.list(O);
-          r[r.length - 1] = H, i = i.substring(0, i.length - k.raw.length) + H.raw, s = s.substring(0, s.length - z.raw.length) + H.raw, t = O.substring(r.at(-1).raw.length).split(`
+`), H = this.list(A);
+          r[r.length - 1] = H, i = i.substring(0, i.length - k.raw.length) + H.raw, s = s.substring(0, s.length - z.raw.length) + H.raw, t = A.substring(r.at(-1).raw.length).split(`
 `);
           continue;
         }
@@ -3404,44 +1875,44 @@ ${p}` : p;
       const r = this.rules.other.listItemRegex(t);
       let a = !1;
       for (; n; ) {
-        let h = !1, u = "", p = "";
+        let h = !1, u = "", f = "";
         if (!(e = r.exec(n)) || this.rules.block.hr.test(n))
           break;
         u = e[0], n = n.substring(u.length);
         let M = e[2].split(`
 `, 1)[0].replace(this.rules.other.listReplaceTabs, (de) => " ".repeat(3 * de.length)), k = n.split(`
-`, 1)[0], z = !M.trim(), O = 0;
-        if (this.options.pedantic ? (O = 2, p = M.trimStart()) : z ? O = e[1].length + 1 : (O = e[2].search(this.rules.other.nonSpaceChar), O = O > 4 ? 1 : O, p = M.slice(O), O += e[1].length), z && this.rules.other.blankLine.test(k) && (u += k + `
+`, 1)[0], z = !M.trim(), A = 0;
+        if (this.options.pedantic ? (A = 2, f = M.trimStart()) : z ? A = e[1].length + 1 : (A = e[2].search(this.rules.other.nonSpaceChar), A = A > 4 ? 1 : A, f = M.slice(A), A += e[1].length), z && this.rules.other.blankLine.test(k) && (u += k + `
 `, n = n.substring(k.length + 1), h = !0), !h) {
-          const de = this.rules.other.nextBulletRegex(O), ce = this.rules.other.hrRegex(O), Re = this.rules.other.fencesBeginRegex(O), te = this.rules.other.headingBeginRegex(O), Oe = this.rules.other.htmlBeginRegex(O);
+          const de = this.rules.other.nextBulletRegex(A), ce = this.rules.other.hrRegex(A), Re = this.rules.other.fencesBeginRegex(A), te = this.rules.other.headingBeginRegex(A), Oe = this.rules.other.htmlBeginRegex(A);
           for (; n; ) {
             const Ve = n.split(`
 `, 1)[0];
             let De;
             if (k = Ve, this.options.pedantic ? (k = k.replace(this.rules.other.listReplaceNesting, "  "), De = k) : De = k.replace(this.rules.other.tabCharGlobal, "    "), Re.test(k) || te.test(k) || Oe.test(k) || de.test(k) || ce.test(k))
               break;
-            if (De.search(this.rules.other.nonSpaceChar) >= O || !k.trim())
-              p += `
-` + De.slice(O);
+            if (De.search(this.rules.other.nonSpaceChar) >= A || !k.trim())
+              f += `
+` + De.slice(A);
             else {
               if (z || M.replace(this.rules.other.tabCharGlobal, "    ").search(this.rules.other.nonSpaceChar) >= 4 || Re.test(M) || te.test(M) || ce.test(M))
                 break;
-              p += `
+              f += `
 ` + k;
             }
             !z && !k.trim() && (z = !0), u += Ve + `
-`, n = n.substring(Ve.length + 1), M = De.slice(O);
+`, n = n.substring(Ve.length + 1), M = De.slice(A);
           }
         }
         s.loose || (a ? s.loose = !0 : this.rules.other.doubleBlankLine.test(u) && (a = !0));
         let H = null, Se;
-        this.options.gfm && (H = this.rules.other.listIsTask.exec(p), H && (Se = H[0] !== "[ ] ", p = p.replace(this.rules.other.listReplaceTask, ""))), s.items.push({
+        this.options.gfm && (H = this.rules.other.listIsTask.exec(f), H && (Se = H[0] !== "[ ] ", f = f.replace(this.rules.other.listReplaceTask, ""))), s.items.push({
           type: "list_item",
           raw: u,
           task: !!H,
           checked: Se,
           loose: !1,
-          text: p,
+          text: f,
           tokens: []
         }), s.raw += u;
       }
@@ -3453,8 +1924,8 @@ ${p}` : p;
       s.raw = s.raw.trimEnd();
       for (let h = 0; h < s.items.length; h++)
         if (this.lexer.state.top = !1, s.items[h].tokens = this.lexer.blockTokens(s.items[h].text, []), !s.loose) {
-          const u = s.items[h].tokens.filter((M) => M.type === "space"), p = u.length > 0 && u.some((M) => this.rules.other.anyLine.test(M.raw));
-          s.loose = p;
+          const u = s.items[h].tokens.filter((M) => M.type === "space"), f = u.length > 0 && u.some((M) => this.rules.other.anyLine.test(M.raw));
+          s.loose = f;
         }
       if (s.loose)
         for (let h = 0; h < s.items.length; h++)
@@ -3491,7 +1962,7 @@ ${p}` : p;
     const e = this.rules.block.table.exec(n);
     if (!e || !this.rules.other.tableDelimiter.test(e[2]))
       return;
-    const t = Cs(e[1]), i = e[2].replace(this.rules.other.tableAlignChars, "").split("|"), s = (a = e[3]) != null && a.trim() ? e[3].replace(this.rules.other.tableRowBlankLine, "").split(`
+    const t = ps(e[1]), i = e[2].replace(this.rules.other.tableAlignChars, "").split("|"), s = (a = e[3]) != null && a.trim() ? e[3].replace(this.rules.other.tableRowBlankLine, "").split(`
 `) : [], r = {
       type: "table",
       raw: e[0],
@@ -3510,7 +1981,7 @@ ${p}` : p;
           align: r.align[c]
         });
       for (const c of s)
-        r.rows.push(Cs(c, r.header.length).map((h, u) => ({
+        r.rows.push(ps(c, r.header.length).map((h, u) => ({
           text: h,
           tokens: this.lexer.inline(h),
           header: !1,
@@ -3581,11 +2052,11 @@ ${p}` : p;
       if (!this.options.pedantic && this.rules.other.startAngleBracket.test(t)) {
         if (!this.rules.other.endAngleBracket.test(t))
           return;
-        const r = pn(t.slice(0, -1), "\\");
+        const r = on(t.slice(0, -1), "\\");
         if ((t.length - r.length) % 2 === 0)
           return;
       } else {
-        const r = Mo(e[2], "()");
+        const r = bo(e[2], "()");
         if (r === -2)
           return;
         if (r > -1) {
@@ -3599,7 +2070,7 @@ ${p}` : p;
         r && (i = r[1], s = r[3]);
       } else
         s = e[3] ? e[3].slice(1, -1) : "";
-      return i = i.trim(), this.rules.other.startAngleBracket.test(i) && (this.options.pedantic && !this.rules.other.endAngleBracket.test(t) ? i = i.slice(1) : i = i.slice(1, -1)), Rs(e, {
+      return i = i.trim(), this.rules.other.startAngleBracket.test(i) && (this.options.pedantic && !this.rules.other.endAngleBracket.test(t) ? i = i.slice(1) : i = i.slice(1, -1)), fs(e, {
         href: i && i.replace(this.rules.inline.anyPunctuation, "$1"),
         title: s && s.replace(this.rules.inline.anyPunctuation, "$1")
       }, e[0], this.lexer, this.rules);
@@ -3617,7 +2088,7 @@ ${p}` : p;
           text: r
         };
       }
-      return Rs(t, s, t[0], this.lexer, this.rules);
+      return fs(t, s, t[0], this.lexer, this.rules);
     }
   }
   emStrong(n, e, t = "") {
@@ -3626,8 +2097,8 @@ ${p}` : p;
     if (!(i[1] || i[2] || "") || !t || this.rules.inline.punctuation.exec(t)) {
       const r = [...i[0]].length - 1;
       let a, c, h = r, u = 0;
-      const p = i[0][0] === "*" ? this.rules.inline.emStrongRDelimAst : this.rules.inline.emStrongRDelimUnd;
-      for (p.lastIndex = 0, e = e.slice(-1 * n.length + r); (i = p.exec(e)) != null; ) {
+      const f = i[0][0] === "*" ? this.rules.inline.emStrongRDelimAst : this.rules.inline.emStrongRDelimUnd;
+      for (f.lastIndex = 0, e = e.slice(-1 * n.length + r); (i = f.exec(e)) != null; ) {
         if (a = i[1] || i[2] || i[3] || i[4] || i[5] || i[6], !a) continue;
         if (c = [...a].length, i[3] || i[4]) {
           h += c;
@@ -3640,12 +2111,12 @@ ${p}` : p;
         c = Math.min(c, c + h + u);
         const M = [...i[0]][0].length, k = n.slice(0, r + i.index + M + c);
         if (Math.min(r, c) % 2) {
-          const O = k.slice(1, -1);
+          const A = k.slice(1, -1);
           return {
             type: "em",
             raw: k,
-            text: O,
-            tokens: this.lexer.inlineTokens(O)
+            text: A,
+            tokens: this.lexer.inlineTokens(A)
           };
         }
         const z = k.slice(2, -2);
@@ -3748,45 +2219,45 @@ ${p}` : p;
       };
     }
   }
-}, Qe = class Hi {
+}, Ze = class Ni {
   constructor(e) {
     X(this, "tokens");
     X(this, "options");
     X(this, "state");
     X(this, "tokenizer");
     X(this, "inlineQueue");
-    this.tokens = [], this.tokens.links = /* @__PURE__ */ Object.create(null), this.options = e || Tt, this.options.tokenizer = this.options.tokenizer || new ni(), this.tokenizer = this.options.tokenizer, this.tokenizer.options = this.options, this.tokenizer.lexer = this, this.inlineQueue = [], this.state = {
+    this.tokens = [], this.tokens.links = /* @__PURE__ */ Object.create(null), this.options = e || Tt, this.options.tokenizer = this.options.tokenizer || new Jn(), this.tokenizer = this.options.tokenizer, this.tokenizer.options = this.options, this.tokenizer.lexer = this, this.inlineQueue = [], this.state = {
       inLink: !1,
       inRawBlock: !1,
       top: !0
     };
     const t = {
       other: fe,
-      block: Wn.normal,
-      inline: dn.normal
+      block: Fn.normal,
+      inline: rn.normal
     };
-    this.options.pedantic ? (t.block = Wn.pedantic, t.inline = dn.pedantic) : this.options.gfm && (t.block = Wn.gfm, this.options.breaks ? t.inline = dn.breaks : t.inline = dn.gfm), this.tokenizer.rules = t;
+    this.options.pedantic ? (t.block = Fn.pedantic, t.inline = rn.pedantic) : this.options.gfm && (t.block = Fn.gfm, this.options.breaks ? t.inline = rn.breaks : t.inline = rn.gfm), this.tokenizer.rules = t;
   }
   /**
    * Expose Rules
    */
   static get rules() {
     return {
-      block: Wn,
-      inline: dn
+      block: Fn,
+      inline: rn
     };
   }
   /**
    * Static Lex Method
    */
   static lex(e, t) {
-    return new Hi(t).lex(e);
+    return new Ni(t).lex(e);
   }
   /**
    * Static Lex Inline Method
    */
   static lexInline(e, t) {
-    return new Hi(t).inlineTokens(e);
+    return new Ni(t).inlineTokens(e);
   }
   /**
    * Preprocessing
@@ -3867,10 +2338,10 @@ ${p}` : p;
       let h = e;
       if ((a = this.options.extensions) != null && a.startBlock) {
         let u = 1 / 0;
-        const p = e.slice(1);
+        const f = e.slice(1);
         let M;
         this.options.extensions.startBlock.forEach((k) => {
-          M = k.call({ lexer: this }, p), typeof M == "number" && M >= 0 && (u = Math.min(u, M));
+          M = k.call({ lexer: this }, f), typeof M == "number" && M >= 0 && (u = Math.min(u, M));
         }), u < 1 / 0 && u >= 0 && (h = e.substring(0, u + 1));
       }
       if (this.state.top && (c = this.tokenizer.paragraph(h))) {
@@ -3909,10 +2380,10 @@ ${p}` : p;
     var c, h, u;
     let i = e, s = null;
     if (this.tokens.links) {
-      const p = Object.keys(this.tokens.links);
-      if (p.length > 0)
+      const f = Object.keys(this.tokens.links);
+      if (f.length > 0)
         for (; (s = this.tokenizer.rules.inline.reflinkSearch.exec(i)) != null; )
-          p.includes(s[0].slice(s[0].lastIndexOf("[") + 1, -1)) && (i = i.slice(0, s.index) + "[" + "a".repeat(s[0].length - 2) + "]" + i.slice(this.tokenizer.rules.inline.reflinkSearch.lastIndex));
+          f.includes(s[0].slice(s[0].lastIndexOf("[") + 1, -1)) && (i = i.slice(0, s.index) + "[" + "a".repeat(s[0].length - 2) + "]" + i.slice(this.tokenizer.rules.inline.reflinkSearch.lastIndex));
     }
     for (; (s = this.tokenizer.rules.inline.anyPunctuation.exec(i)) != null; )
       i = i.slice(0, s.index) + "++" + i.slice(this.tokenizer.rules.inline.anyPunctuation.lastIndex);
@@ -3921,64 +2392,64 @@ ${p}` : p;
     let r = !1, a = "";
     for (; e; ) {
       r || (a = ""), r = !1;
-      let p;
-      if ((h = (c = this.options.extensions) == null ? void 0 : c.inline) != null && h.some((k) => (p = k.call({ lexer: this }, e, t)) ? (e = e.substring(p.raw.length), t.push(p), !0) : !1))
+      let f;
+      if ((h = (c = this.options.extensions) == null ? void 0 : c.inline) != null && h.some((k) => (f = k.call({ lexer: this }, e, t)) ? (e = e.substring(f.raw.length), t.push(f), !0) : !1))
         continue;
-      if (p = this.tokenizer.escape(e)) {
-        e = e.substring(p.raw.length), t.push(p);
-        continue;
-      }
-      if (p = this.tokenizer.tag(e)) {
-        e = e.substring(p.raw.length), t.push(p);
+      if (f = this.tokenizer.escape(e)) {
+        e = e.substring(f.raw.length), t.push(f);
         continue;
       }
-      if (p = this.tokenizer.link(e)) {
-        e = e.substring(p.raw.length), t.push(p);
+      if (f = this.tokenizer.tag(e)) {
+        e = e.substring(f.raw.length), t.push(f);
         continue;
       }
-      if (p = this.tokenizer.reflink(e, this.tokens.links)) {
-        e = e.substring(p.raw.length);
+      if (f = this.tokenizer.link(e)) {
+        e = e.substring(f.raw.length), t.push(f);
+        continue;
+      }
+      if (f = this.tokenizer.reflink(e, this.tokens.links)) {
+        e = e.substring(f.raw.length);
         const k = t.at(-1);
-        p.type === "text" && (k == null ? void 0 : k.type) === "text" ? (k.raw += p.raw, k.text += p.text) : t.push(p);
+        f.type === "text" && (k == null ? void 0 : k.type) === "text" ? (k.raw += f.raw, k.text += f.text) : t.push(f);
         continue;
       }
-      if (p = this.tokenizer.emStrong(e, i, a)) {
-        e = e.substring(p.raw.length), t.push(p);
+      if (f = this.tokenizer.emStrong(e, i, a)) {
+        e = e.substring(f.raw.length), t.push(f);
         continue;
       }
-      if (p = this.tokenizer.codespan(e)) {
-        e = e.substring(p.raw.length), t.push(p);
+      if (f = this.tokenizer.codespan(e)) {
+        e = e.substring(f.raw.length), t.push(f);
         continue;
       }
-      if (p = this.tokenizer.br(e)) {
-        e = e.substring(p.raw.length), t.push(p);
+      if (f = this.tokenizer.br(e)) {
+        e = e.substring(f.raw.length), t.push(f);
         continue;
       }
-      if (p = this.tokenizer.del(e)) {
-        e = e.substring(p.raw.length), t.push(p);
+      if (f = this.tokenizer.del(e)) {
+        e = e.substring(f.raw.length), t.push(f);
         continue;
       }
-      if (p = this.tokenizer.autolink(e)) {
-        e = e.substring(p.raw.length), t.push(p);
+      if (f = this.tokenizer.autolink(e)) {
+        e = e.substring(f.raw.length), t.push(f);
         continue;
       }
-      if (!this.state.inLink && (p = this.tokenizer.url(e))) {
-        e = e.substring(p.raw.length), t.push(p);
+      if (!this.state.inLink && (f = this.tokenizer.url(e))) {
+        e = e.substring(f.raw.length), t.push(f);
         continue;
       }
       let M = e;
       if ((u = this.options.extensions) != null && u.startInline) {
         let k = 1 / 0;
         const z = e.slice(1);
-        let O;
+        let A;
         this.options.extensions.startInline.forEach((H) => {
-          O = H.call({ lexer: this }, z), typeof O == "number" && O >= 0 && (k = Math.min(k, O));
+          A = H.call({ lexer: this }, z), typeof A == "number" && A >= 0 && (k = Math.min(k, A));
         }), k < 1 / 0 && k >= 0 && (M = e.substring(0, k + 1));
       }
-      if (p = this.tokenizer.inlineText(M)) {
-        e = e.substring(p.raw.length), p.raw.slice(-1) !== "_" && (a = p.raw.slice(-1)), r = !0;
+      if (f = this.tokenizer.inlineText(M)) {
+        e = e.substring(f.raw.length), f.raw.slice(-1) !== "_" && (a = f.raw.slice(-1)), r = !0;
         const k = t.at(-1);
-        (k == null ? void 0 : k.type) === "text" ? (k.raw += p.raw, k.text += p.text) : t.push(p);
+        (k == null ? void 0 : k.type) === "text" ? (k.raw += f.raw, k.text += f.text) : t.push(f);
         continue;
       }
       if (e) {
@@ -3992,7 +2463,7 @@ ${p}` : p;
     }
     return t;
   }
-}, ii = class {
+}, ei = class {
   // set by the parser
   constructor(n) {
     X(this, "options");
@@ -4006,8 +2477,8 @@ ${p}` : p;
     var r;
     const i = (r = (e || "").match(fe.notSpaceStart)) == null ? void 0 : r[0], s = n.replace(fe.endingNewline, "") + `
 `;
-    return i ? '<pre><code class="language-' + He(i) + '">' + (t ? s : He(s, !0)) + `</code></pre>
-` : "<pre><code>" + (t ? s : He(s, !0)) + `</code></pre>
+    return i ? '<pre><code class="language-' + ze(i) + '">' + (t ? s : ze(s, !0)) + `</code></pre>
+` : "<pre><code>" + (t ? s : ze(s, !0)) + `</code></pre>
 `;
   }
   blockquote({ tokens: n }) {
@@ -4043,7 +2514,7 @@ ${this.parser.parse(n)}</blockquote>
     let e = "";
     if (n.task) {
       const i = this.checkbox({ checked: !!n.checked });
-      n.loose ? ((t = n.tokens[0]) == null ? void 0 : t.type) === "paragraph" ? (n.tokens[0].text = i + " " + n.tokens[0].text, n.tokens[0].tokens && n.tokens[0].tokens.length > 0 && n.tokens[0].tokens[0].type === "text" && (n.tokens[0].tokens[0].text = i + " " + He(n.tokens[0].tokens[0].text), n.tokens[0].tokens[0].escaped = !0)) : n.tokens.unshift({
+      n.loose ? ((t = n.tokens[0]) == null ? void 0 : t.type) === "paragraph" ? (n.tokens[0].text = i + " " + n.tokens[0].text, n.tokens[0].tokens && n.tokens[0].tokens.length > 0 && n.tokens[0].tokens[0].type === "text" && (n.tokens[0].tokens[0].text = i + " " + ze(n.tokens[0].tokens[0].text), n.tokens[0].tokens[0].escaped = !0)) : n.tokens.unshift({
         type: "text",
         raw: i + " ",
         text: i + " ",
@@ -4099,7 +2570,7 @@ ${n}</tr>
     return `<em>${this.parser.parseInline(n)}</em>`;
   }
   codespan({ text: n }) {
-    return `<code>${He(n, !0)}</code>`;
+    return `<code>${ze(n, !0)}</code>`;
   }
   br(n) {
     return "<br>";
@@ -4108,26 +2579,26 @@ ${n}</tr>
     return `<del>${this.parser.parseInline(n)}</del>`;
   }
   link({ href: n, title: e, tokens: t }) {
-    const i = this.parser.parseInline(t), s = As(n);
+    const i = this.parser.parseInline(t), s = ds(n);
     if (s === null)
       return i;
     n = s;
     let r = '<a href="' + n + '"';
-    return e && (r += ' title="' + He(e) + '"'), r += ">" + i + "</a>", r;
+    return e && (r += ' title="' + ze(e) + '"'), r += ">" + i + "</a>", r;
   }
   image({ href: n, title: e, text: t, tokens: i }) {
     i && (t = this.parser.parseInline(i, this.parser.textRenderer));
-    const s = As(n);
+    const s = ds(n);
     if (s === null)
-      return He(t);
+      return ze(t);
     n = s;
     let r = `<img src="${n}" alt="${t}"`;
-    return e && (r += ` title="${He(e)}"`), r += ">", r;
+    return e && (r += ` title="${ze(e)}"`), r += ">", r;
   }
   text(n) {
-    return "tokens" in n && n.tokens ? this.parser.parseInline(n.tokens) : "escaped" in n && n.escaped ? n.text : He(n.text);
+    return "tokens" in n && n.tokens ? this.parser.parseInline(n.tokens) : "escaped" in n && n.escaped ? n.text : ze(n.text);
   }
-}, is = class {
+}, es = class {
   // no need for block level renderers
   strong({ text: n }) {
     return n;
@@ -4156,24 +2627,24 @@ ${n}</tr>
   br() {
     return "";
   }
-}, Je = class $i {
+}, Ke = class Bi {
   constructor(e) {
     X(this, "options");
     X(this, "renderer");
     X(this, "textRenderer");
-    this.options = e || Tt, this.options.renderer = this.options.renderer || new ii(), this.renderer = this.options.renderer, this.renderer.options = this.options, this.renderer.parser = this, this.textRenderer = new is();
+    this.options = e || Tt, this.options.renderer = this.options.renderer || new ei(), this.renderer = this.options.renderer, this.renderer.options = this.options, this.renderer.parser = this, this.textRenderer = new es();
   }
   /**
    * Static Parse Method
    */
   static parse(e, t) {
-    return new $i(t).parse(e);
+    return new Bi(t).parse(e);
   }
   /**
    * Static Parse Inline Method
    */
   static parseInline(e, t) {
-    return new $i(t).parseInline(e);
+    return new Bi(t).parseInline(e);
   }
   /**
    * Parse Loop
@@ -4184,9 +2655,9 @@ ${n}</tr>
     for (let a = 0; a < e.length; a++) {
       const c = e[a];
       if ((r = (s = this.options.extensions) == null ? void 0 : s.renderers) != null && r[c.type]) {
-        const u = c, p = this.options.extensions.renderers[u.type].call({ parser: this }, u);
-        if (p !== !1 || !["space", "hr", "heading", "code", "table", "blockquote", "list", "html", "paragraph", "text"].includes(u.type)) {
-          i += p || "";
+        const u = c, f = this.options.extensions.renderers[u.type].call({ parser: this }, u);
+        if (f !== !1 || !["space", "hr", "heading", "code", "table", "blockquote", "list", "html", "paragraph", "text"].includes(u.type)) {
+          i += f || "";
           continue;
         }
       }
@@ -4229,16 +2700,16 @@ ${n}</tr>
           continue;
         }
         case "text": {
-          let u = h, p = this.renderer.text(u);
+          let u = h, f = this.renderer.text(u);
           for (; a + 1 < e.length && e[a + 1].type === "text"; )
-            u = e[++a], p += `
+            u = e[++a], f += `
 ` + this.renderer.text(u);
           t ? i += this.renderer.paragraph({
             type: "paragraph",
-            raw: p,
-            text: p,
-            tokens: [{ type: "text", raw: p, text: p, escaped: !0 }]
-          }) : i += p;
+            raw: f,
+            text: f,
+            tokens: [{ type: "text", raw: f, text: f, escaped: !0 }]
+          }) : i += f;
           continue;
         }
         default: {
@@ -4318,7 +2789,7 @@ ${n}</tr>
     }
     return i;
   }
-}, Pi, Zn = (Pi = class {
+}, Pi, Yn = (Pi = class {
   constructor(n) {
     X(this, "options");
     X(this, "block");
@@ -4346,30 +2817,30 @@ ${n}</tr>
    * Provide function to tokenize markdown
    */
   provideLexer() {
-    return this.block ? Qe.lex : Qe.lexInline;
+    return this.block ? Ze.lex : Ze.lexInline;
   }
   /**
    * Provide function to parse tokens
    */
   provideParser() {
-    return this.block ? Je.parse : Je.parseInline;
+    return this.block ? Ke.parse : Ke.parseInline;
   }
 }, X(Pi, "passThroughHooks", /* @__PURE__ */ new Set([
   "preprocess",
   "postprocess",
   "processAllTokens"
-])), Pi), Io = class {
+])), Pi), _o = class {
   constructor(...n) {
-    X(this, "defaults", Yi());
+    X(this, "defaults", Wi());
     X(this, "options", this.setOptions);
     X(this, "parse", this.parseMarkdown(!0));
     X(this, "parseInline", this.parseMarkdown(!1));
-    X(this, "Parser", Je);
-    X(this, "Renderer", ii);
-    X(this, "TextRenderer", is);
-    X(this, "Lexer", Qe);
-    X(this, "Tokenizer", ni);
-    X(this, "Hooks", Zn);
+    X(this, "Parser", Ke);
+    X(this, "Renderer", ei);
+    X(this, "TextRenderer", es);
+    X(this, "Lexer", Ze);
+    X(this, "Tokenizer", Jn);
+    X(this, "Hooks", Yn);
     this.use(...n);
   }
   /**
@@ -4426,7 +2897,7 @@ ${n}</tr>
         }
         "childTokens" in s && s.childTokens && (e.childTokens[s.name] = s.childTokens);
       }), i.extensions = e), t.renderer) {
-        const s = this.defaults.renderer || new ii(this.defaults);
+        const s = this.defaults.renderer || new ei(this.defaults);
         for (const r in t.renderer) {
           if (!(r in s))
             throw new Error(`renderer '${r}' does not exist`);
@@ -4434,14 +2905,14 @@ ${n}</tr>
             continue;
           const a = r, c = t.renderer[a], h = s[a];
           s[a] = (...u) => {
-            let p = c.apply(s, u);
-            return p === !1 && (p = h.apply(s, u)), p || "";
+            let f = c.apply(s, u);
+            return f === !1 && (f = h.apply(s, u)), f || "";
           };
         }
         i.renderer = s;
       }
       if (t.tokenizer) {
-        const s = this.defaults.tokenizer || new ni(this.defaults);
+        const s = this.defaults.tokenizer || new Jn(this.defaults);
         for (const r in t.tokenizer) {
           if (!(r in s))
             throw new Error(`tokenizer '${r}' does not exist`);
@@ -4449,28 +2920,28 @@ ${n}</tr>
             continue;
           const a = r, c = t.tokenizer[a], h = s[a];
           s[a] = (...u) => {
-            let p = c.apply(s, u);
-            return p === !1 && (p = h.apply(s, u)), p;
+            let f = c.apply(s, u);
+            return f === !1 && (f = h.apply(s, u)), f;
           };
         }
         i.tokenizer = s;
       }
       if (t.hooks) {
-        const s = this.defaults.hooks || new Zn();
+        const s = this.defaults.hooks || new Yn();
         for (const r in t.hooks) {
           if (!(r in s))
             throw new Error(`hook '${r}' does not exist`);
           if (["options", "block"].includes(r))
             continue;
           const a = r, c = t.hooks[a], h = s[a];
-          Zn.passThroughHooks.has(r) ? s[a] = (u) => {
+          Yn.passThroughHooks.has(r) ? s[a] = (u) => {
             if (this.defaults.async)
               return Promise.resolve(c.call(s, u)).then((M) => h.call(s, M));
-            const p = c.call(s, u);
-            return h.call(s, p);
+            const f = c.call(s, u);
+            return h.call(s, f);
           } : s[a] = (...u) => {
-            let p = c.apply(s, u);
-            return p === !1 && (p = h.apply(s, u)), p;
+            let f = c.apply(s, u);
+            return f === !1 && (f = h.apply(s, u)), f;
           };
         }
         i.hooks = s;
@@ -4489,10 +2960,10 @@ ${n}</tr>
     return this.defaults = { ...this.defaults, ...n }, this;
   }
   lexer(n, e) {
-    return Qe.lex(n, e ?? this.defaults);
+    return Ze.lex(n, e ?? this.defaults);
   }
   parser(n, e) {
-    return Je.parse(n, e ?? this.defaults);
+    return Ke.parse(n, e ?? this.defaults);
   }
   parseMarkdown(n) {
     return (t, i) => {
@@ -4504,15 +2975,15 @@ ${n}</tr>
       if (typeof t != "string")
         return a(new Error("marked(): input parameter is of type " + Object.prototype.toString.call(t) + ", string expected"));
       r.hooks && (r.hooks.options = r, r.hooks.block = n);
-      const c = r.hooks ? r.hooks.provideLexer() : n ? Qe.lex : Qe.lexInline, h = r.hooks ? r.hooks.provideParser() : n ? Je.parse : Je.parseInline;
+      const c = r.hooks ? r.hooks.provideLexer() : n ? Ze.lex : Ze.lexInline, h = r.hooks ? r.hooks.provideParser() : n ? Ke.parse : Ke.parseInline;
       if (r.async)
         return Promise.resolve(r.hooks ? r.hooks.preprocess(t) : t).then((u) => c(u, r)).then((u) => r.hooks ? r.hooks.processAllTokens(u) : u).then((u) => r.walkTokens ? Promise.all(this.walkTokens(u, r.walkTokens)).then(() => u) : u).then((u) => h(u, r)).then((u) => r.hooks ? r.hooks.postprocess(u) : u).catch(a);
       try {
         r.hooks && (t = r.hooks.preprocess(t));
         let u = c(t, r);
         r.hooks && (u = r.hooks.processAllTokens(u)), r.walkTokens && this.walkTokens(u, r.walkTokens);
-        let p = h(u, r);
-        return r.hooks && (p = r.hooks.postprocess(p)), p;
+        let f = h(u, r);
+        return r.hooks && (f = r.hooks.postprocess(f)), f;
       } catch (u) {
         return a(u);
       }
@@ -4522,7 +2993,7 @@ ${n}</tr>
     return (t) => {
       if (t.message += `
 Please report this to https://github.com/markedjs/marked.`, n) {
-        const i = "<p>An error occurred:</p><pre>" + He(t.message + "", !0) + "</pre>";
+        const i = "<p>An error occurred:</p><pre>" + ze(t.message + "", !0) + "</pre>";
         return e ? Promise.resolve(i) : i;
       }
       if (e)
@@ -4530,53 +3001,53 @@ Please report this to https://github.com/markedjs/marked.`, n) {
       throw t;
     };
   }
-}, St = new Io();
+}, St = new _o();
 function j(n, e) {
   return St.parse(n, e);
 }
 j.options = j.setOptions = function(n) {
-  return St.setOptions(n), j.defaults = St.defaults, Gs(j.defaults), j;
+  return St.setOptions(n), j.defaults = St.defaults, Fs(j.defaults), j;
 };
-j.getDefaults = Yi;
+j.getDefaults = Wi;
 j.defaults = Tt;
 j.use = function(...n) {
-  return St.use(...n), j.defaults = St.defaults, Gs(j.defaults), j;
+  return St.use(...n), j.defaults = St.defaults, Fs(j.defaults), j;
 };
 j.walkTokens = function(n, e) {
   return St.walkTokens(n, e);
 };
 j.parseInline = St.parseInline;
-j.Parser = Je;
-j.parser = Je.parse;
-j.Renderer = ii;
-j.TextRenderer = is;
-j.Lexer = Qe;
-j.lexer = Qe.lex;
-j.Tokenizer = ni;
-j.Hooks = Zn;
+j.Parser = Ke;
+j.parser = Ke.parse;
+j.Renderer = ei;
+j.TextRenderer = es;
+j.Lexer = Ze;
+j.lexer = Ze.lex;
+j.Tokenizer = Jn;
+j.Hooks = Yn;
 j.parse = j;
 j.options;
 j.setOptions;
 j.use;
 j.walkTokens;
 j.parseInline;
-Je.parse;
-Qe.lex;
+Ke.parse;
+Ze.lex;
 /*! @license DOMPurify 3.2.6 | (c) Cure53 and other contributors | Released under the Apache license 2.0 and Mozilla Public License 2.0 | github.com/cure53/DOMPurify/blob/3.2.6/LICENSE */
 const {
-  entries: nr,
-  setPrototypeOf: Os,
-  isFrozen: Po,
-  getPrototypeOf: Do,
-  getOwnPropertyDescriptor: No
+  entries: Js,
+  setPrototypeOf: gs,
+  isFrozen: vo,
+  getPrototypeOf: ko,
+  getOwnPropertyDescriptor: yo
 } = Object;
 let {
   freeze: ge,
   seal: Ce,
-  create: ir
+  create: er
 } = Object, {
-  apply: Fi,
-  construct: Vi
+  apply: Ui,
+  construct: zi
 } = typeof Reflect < "u" && Reflect;
 ge || (ge = function(e) {
   return e;
@@ -4584,99 +3055,99 @@ ge || (ge = function(e) {
 Ce || (Ce = function(e) {
   return e;
 });
-Fi || (Fi = function(e, t, i) {
+Ui || (Ui = function(e, t, i) {
   return e.apply(t, i);
 });
-Vi || (Vi = function(e, t) {
+zi || (zi = function(e, t) {
   return new e(...t);
 });
-const qn = me(Array.prototype.forEach), Bo = me(Array.prototype.lastIndexOf), Ms = me(Array.prototype.pop), fn = me(Array.prototype.push), Uo = me(Array.prototype.splice), Kn = me(String.prototype.toLowerCase), Ri = me(String.prototype.toString), Ls = me(String.prototype.match), gn = me(String.prototype.replace), zo = me(String.prototype.indexOf), Ho = me(String.prototype.trim), Ie = me(Object.prototype.hasOwnProperty), pe = me(RegExp.prototype.test), mn = $o(TypeError);
+const Vn = me(Array.prototype.forEach), Eo = me(Array.prototype.lastIndexOf), ms = me(Array.prototype.pop), an = me(Array.prototype.push), So = me(Array.prototype.splice), Zn = me(String.prototype.toLowerCase), bi = me(String.prototype.toString), ws = me(String.prototype.match), ln = me(String.prototype.replace), To = me(String.prototype.indexOf), Ao = me(String.prototype.trim), Ie = me(Object.prototype.hasOwnProperty), pe = me(RegExp.prototype.test), cn = Co(TypeError);
 function me(n) {
   return function(e) {
     e instanceof RegExp && (e.lastIndex = 0);
     for (var t = arguments.length, i = new Array(t > 1 ? t - 1 : 0), s = 1; s < t; s++)
       i[s - 1] = arguments[s];
-    return Fi(n, e, i);
+    return Ui(n, e, i);
   };
 }
-function $o(n) {
+function Co(n) {
   return function() {
     for (var e = arguments.length, t = new Array(e), i = 0; i < e; i++)
       t[i] = arguments[i];
-    return Vi(n, t);
+    return zi(n, t);
   };
 }
 function U(n, e) {
-  let t = arguments.length > 2 && arguments[2] !== void 0 ? arguments[2] : Kn;
-  Os && Os(n, null);
+  let t = arguments.length > 2 && arguments[2] !== void 0 ? arguments[2] : Zn;
+  gs && gs(n, null);
   let i = e.length;
   for (; i--; ) {
     let s = e[i];
     if (typeof s == "string") {
       const r = t(s);
-      r !== s && (Po(e) || (e[i] = r), s = r);
+      r !== s && (vo(e) || (e[i] = r), s = r);
     }
     n[s] = !0;
   }
   return n;
 }
-function Fo(n) {
+function Ro(n) {
   for (let e = 0; e < n.length; e++)
     Ie(n, e) || (n[e] = null);
   return n;
 }
 function Xe(n) {
-  const e = ir(null);
-  for (const [t, i] of nr(n))
-    Ie(n, t) && (Array.isArray(i) ? e[t] = Fo(i) : i && typeof i == "object" && i.constructor === Object ? e[t] = Xe(i) : e[t] = i);
+  const e = er(null);
+  for (const [t, i] of Js(n))
+    Ie(n, t) && (Array.isArray(i) ? e[t] = Ro(i) : i && typeof i == "object" && i.constructor === Object ? e[t] = Xe(i) : e[t] = i);
   return e;
 }
-function wn(n, e) {
+function un(n, e) {
   for (; n !== null; ) {
-    const i = No(n, e);
+    const i = yo(n, e);
     if (i) {
       if (i.get)
         return me(i.get);
       if (typeof i.value == "function")
         return me(i.value);
     }
-    n = Do(n);
+    n = ko(n);
   }
   function t() {
     return null;
   }
   return t;
 }
-const Is = ge(["a", "abbr", "acronym", "address", "area", "article", "aside", "audio", "b", "bdi", "bdo", "big", "blink", "blockquote", "body", "br", "button", "canvas", "caption", "center", "cite", "code", "col", "colgroup", "content", "data", "datalist", "dd", "decorator", "del", "details", "dfn", "dialog", "dir", "div", "dl", "dt", "element", "em", "fieldset", "figcaption", "figure", "font", "footer", "form", "h1", "h2", "h3", "h4", "h5", "h6", "head", "header", "hgroup", "hr", "html", "i", "img", "input", "ins", "kbd", "label", "legend", "li", "main", "map", "mark", "marquee", "menu", "menuitem", "meter", "nav", "nobr", "ol", "optgroup", "option", "output", "p", "picture", "pre", "progress", "q", "rp", "rt", "ruby", "s", "samp", "section", "select", "shadow", "small", "source", "spacer", "span", "strike", "strong", "style", "sub", "summary", "sup", "table", "tbody", "td", "template", "textarea", "tfoot", "th", "thead", "time", "tr", "track", "tt", "u", "ul", "var", "video", "wbr"]), Oi = ge(["svg", "a", "altglyph", "altglyphdef", "altglyphitem", "animatecolor", "animatemotion", "animatetransform", "circle", "clippath", "defs", "desc", "ellipse", "filter", "font", "g", "glyph", "glyphref", "hkern", "image", "line", "lineargradient", "marker", "mask", "metadata", "mpath", "path", "pattern", "polygon", "polyline", "radialgradient", "rect", "stop", "style", "switch", "symbol", "text", "textpath", "title", "tref", "tspan", "view", "vkern"]), Mi = ge(["feBlend", "feColorMatrix", "feComponentTransfer", "feComposite", "feConvolveMatrix", "feDiffuseLighting", "feDisplacementMap", "feDistantLight", "feDropShadow", "feFlood", "feFuncA", "feFuncB", "feFuncG", "feFuncR", "feGaussianBlur", "feImage", "feMerge", "feMergeNode", "feMorphology", "feOffset", "fePointLight", "feSpecularLighting", "feSpotLight", "feTile", "feTurbulence"]), Vo = ge(["animate", "color-profile", "cursor", "discard", "font-face", "font-face-format", "font-face-name", "font-face-src", "font-face-uri", "foreignobject", "hatch", "hatchpath", "mesh", "meshgradient", "meshpatch", "meshrow", "missing-glyph", "script", "set", "solidcolor", "unknown", "use"]), Li = ge(["math", "menclose", "merror", "mfenced", "mfrac", "mglyph", "mi", "mlabeledtr", "mmultiscripts", "mn", "mo", "mover", "mpadded", "mphantom", "mroot", "mrow", "ms", "mspace", "msqrt", "mstyle", "msub", "msup", "msubsup", "mtable", "mtd", "mtext", "mtr", "munder", "munderover", "mprescripts"]), jo = ge(["maction", "maligngroup", "malignmark", "mlongdiv", "mscarries", "mscarry", "msgroup", "mstack", "msline", "msrow", "semantics", "annotation", "annotation-xml", "mprescripts", "none"]), Ps = ge(["#text"]), Ds = ge(["accept", "action", "align", "alt", "autocapitalize", "autocomplete", "autopictureinpicture", "autoplay", "background", "bgcolor", "border", "capture", "cellpadding", "cellspacing", "checked", "cite", "class", "clear", "color", "cols", "colspan", "controls", "controlslist", "coords", "crossorigin", "datetime", "decoding", "default", "dir", "disabled", "disablepictureinpicture", "disableremoteplayback", "download", "draggable", "enctype", "enterkeyhint", "face", "for", "headers", "height", "hidden", "high", "href", "hreflang", "id", "inputmode", "integrity", "ismap", "kind", "label", "lang", "list", "loading", "loop", "low", "max", "maxlength", "media", "method", "min", "minlength", "multiple", "muted", "name", "nonce", "noshade", "novalidate", "nowrap", "open", "optimum", "pattern", "placeholder", "playsinline", "popover", "popovertarget", "popovertargetaction", "poster", "preload", "pubdate", "radiogroup", "readonly", "rel", "required", "rev", "reversed", "role", "rows", "rowspan", "spellcheck", "scope", "selected", "shape", "size", "sizes", "span", "srclang", "start", "src", "srcset", "step", "style", "summary", "tabindex", "title", "translate", "type", "usemap", "valign", "value", "width", "wrap", "xmlns", "slot"]), Ii = ge(["accent-height", "accumulate", "additive", "alignment-baseline", "amplitude", "ascent", "attributename", "attributetype", "azimuth", "basefrequency", "baseline-shift", "begin", "bias", "by", "class", "clip", "clippathunits", "clip-path", "clip-rule", "color", "color-interpolation", "color-interpolation-filters", "color-profile", "color-rendering", "cx", "cy", "d", "dx", "dy", "diffuseconstant", "direction", "display", "divisor", "dur", "edgemode", "elevation", "end", "exponent", "fill", "fill-opacity", "fill-rule", "filter", "filterunits", "flood-color", "flood-opacity", "font-family", "font-size", "font-size-adjust", "font-stretch", "font-style", "font-variant", "font-weight", "fx", "fy", "g1", "g2", "glyph-name", "glyphref", "gradientunits", "gradienttransform", "height", "href", "id", "image-rendering", "in", "in2", "intercept", "k", "k1", "k2", "k3", "k4", "kerning", "keypoints", "keysplines", "keytimes", "lang", "lengthadjust", "letter-spacing", "kernelmatrix", "kernelunitlength", "lighting-color", "local", "marker-end", "marker-mid", "marker-start", "markerheight", "markerunits", "markerwidth", "maskcontentunits", "maskunits", "max", "mask", "media", "method", "mode", "min", "name", "numoctaves", "offset", "operator", "opacity", "order", "orient", "orientation", "origin", "overflow", "paint-order", "path", "pathlength", "patterncontentunits", "patterntransform", "patternunits", "points", "preservealpha", "preserveaspectratio", "primitiveunits", "r", "rx", "ry", "radius", "refx", "refy", "repeatcount", "repeatdur", "restart", "result", "rotate", "scale", "seed", "shape-rendering", "slope", "specularconstant", "specularexponent", "spreadmethod", "startoffset", "stddeviation", "stitchtiles", "stop-color", "stop-opacity", "stroke-dasharray", "stroke-dashoffset", "stroke-linecap", "stroke-linejoin", "stroke-miterlimit", "stroke-opacity", "stroke", "stroke-width", "style", "surfacescale", "systemlanguage", "tabindex", "tablevalues", "targetx", "targety", "transform", "transform-origin", "text-anchor", "text-decoration", "text-rendering", "textlength", "type", "u1", "u2", "unicode", "values", "viewbox", "visibility", "version", "vert-adv-y", "vert-origin-x", "vert-origin-y", "width", "word-spacing", "wrap", "writing-mode", "xchannelselector", "ychannelselector", "x", "x1", "x2", "xmlns", "y", "y1", "y2", "z", "zoomandpan"]), Ns = ge(["accent", "accentunder", "align", "bevelled", "close", "columnsalign", "columnlines", "columnspan", "denomalign", "depth", "dir", "display", "displaystyle", "encoding", "fence", "frame", "height", "href", "id", "largeop", "length", "linethickness", "lspace", "lquote", "mathbackground", "mathcolor", "mathsize", "mathvariant", "maxsize", "minsize", "movablelimits", "notation", "numalign", "open", "rowalign", "rowlines", "rowspacing", "rowspan", "rspace", "rquote", "scriptlevel", "scriptminsize", "scriptsizemultiplier", "selection", "separator", "separators", "stretchy", "subscriptshift", "supscriptshift", "symmetric", "voffset", "width", "xmlns"]), Xn = ge(["xlink:href", "xml:id", "xlink:title", "xml:space", "xmlns:xlink"]), Go = Ce(/\{\{[\w\W]*|[\w\W]*\}\}/gm), Wo = Ce(/<%[\w\W]*|[\w\W]*%>/gm), qo = Ce(/\$\{[\w\W]*/gm), Xo = Ce(/^data-[\-\w.\u00B7-\uFFFF]+$/), Yo = Ce(/^aria-[\-\w]+$/), sr = Ce(
+const bs = ge(["a", "abbr", "acronym", "address", "area", "article", "aside", "audio", "b", "bdi", "bdo", "big", "blink", "blockquote", "body", "br", "button", "canvas", "caption", "center", "cite", "code", "col", "colgroup", "content", "data", "datalist", "dd", "decorator", "del", "details", "dfn", "dialog", "dir", "div", "dl", "dt", "element", "em", "fieldset", "figcaption", "figure", "font", "footer", "form", "h1", "h2", "h3", "h4", "h5", "h6", "head", "header", "hgroup", "hr", "html", "i", "img", "input", "ins", "kbd", "label", "legend", "li", "main", "map", "mark", "marquee", "menu", "menuitem", "meter", "nav", "nobr", "ol", "optgroup", "option", "output", "p", "picture", "pre", "progress", "q", "rp", "rt", "ruby", "s", "samp", "section", "select", "shadow", "small", "source", "spacer", "span", "strike", "strong", "style", "sub", "summary", "sup", "table", "tbody", "td", "template", "textarea", "tfoot", "th", "thead", "time", "tr", "track", "tt", "u", "ul", "var", "video", "wbr"]), xi = ge(["svg", "a", "altglyph", "altglyphdef", "altglyphitem", "animatecolor", "animatemotion", "animatetransform", "circle", "clippath", "defs", "desc", "ellipse", "filter", "font", "g", "glyph", "glyphref", "hkern", "image", "line", "lineargradient", "marker", "mask", "metadata", "mpath", "path", "pattern", "polygon", "polyline", "radialgradient", "rect", "stop", "style", "switch", "symbol", "text", "textpath", "title", "tref", "tspan", "view", "vkern"]), _i = ge(["feBlend", "feColorMatrix", "feComponentTransfer", "feComposite", "feConvolveMatrix", "feDiffuseLighting", "feDisplacementMap", "feDistantLight", "feDropShadow", "feFlood", "feFuncA", "feFuncB", "feFuncG", "feFuncR", "feGaussianBlur", "feImage", "feMerge", "feMergeNode", "feMorphology", "feOffset", "fePointLight", "feSpecularLighting", "feSpotLight", "feTile", "feTurbulence"]), Oo = ge(["animate", "color-profile", "cursor", "discard", "font-face", "font-face-format", "font-face-name", "font-face-src", "font-face-uri", "foreignobject", "hatch", "hatchpath", "mesh", "meshgradient", "meshpatch", "meshrow", "missing-glyph", "script", "set", "solidcolor", "unknown", "use"]), vi = ge(["math", "menclose", "merror", "mfenced", "mfrac", "mglyph", "mi", "mlabeledtr", "mmultiscripts", "mn", "mo", "mover", "mpadded", "mphantom", "mroot", "mrow", "ms", "mspace", "msqrt", "mstyle", "msub", "msup", "msubsup", "mtable", "mtd", "mtext", "mtr", "munder", "munderover", "mprescripts"]), Mo = ge(["maction", "maligngroup", "malignmark", "mlongdiv", "mscarries", "mscarry", "msgroup", "mstack", "msline", "msrow", "semantics", "annotation", "annotation-xml", "mprescripts", "none"]), xs = ge(["#text"]), _s = ge(["accept", "action", "align", "alt", "autocapitalize", "autocomplete", "autopictureinpicture", "autoplay", "background", "bgcolor", "border", "capture", "cellpadding", "cellspacing", "checked", "cite", "class", "clear", "color", "cols", "colspan", "controls", "controlslist", "coords", "crossorigin", "datetime", "decoding", "default", "dir", "disabled", "disablepictureinpicture", "disableremoteplayback", "download", "draggable", "enctype", "enterkeyhint", "face", "for", "headers", "height", "hidden", "high", "href", "hreflang", "id", "inputmode", "integrity", "ismap", "kind", "label", "lang", "list", "loading", "loop", "low", "max", "maxlength", "media", "method", "min", "minlength", "multiple", "muted", "name", "nonce", "noshade", "novalidate", "nowrap", "open", "optimum", "pattern", "placeholder", "playsinline", "popover", "popovertarget", "popovertargetaction", "poster", "preload", "pubdate", "radiogroup", "readonly", "rel", "required", "rev", "reversed", "role", "rows", "rowspan", "spellcheck", "scope", "selected", "shape", "size", "sizes", "span", "srclang", "start", "src", "srcset", "step", "style", "summary", "tabindex", "title", "translate", "type", "usemap", "valign", "value", "width", "wrap", "xmlns", "slot"]), ki = ge(["accent-height", "accumulate", "additive", "alignment-baseline", "amplitude", "ascent", "attributename", "attributetype", "azimuth", "basefrequency", "baseline-shift", "begin", "bias", "by", "class", "clip", "clippathunits", "clip-path", "clip-rule", "color", "color-interpolation", "color-interpolation-filters", "color-profile", "color-rendering", "cx", "cy", "d", "dx", "dy", "diffuseconstant", "direction", "display", "divisor", "dur", "edgemode", "elevation", "end", "exponent", "fill", "fill-opacity", "fill-rule", "filter", "filterunits", "flood-color", "flood-opacity", "font-family", "font-size", "font-size-adjust", "font-stretch", "font-style", "font-variant", "font-weight", "fx", "fy", "g1", "g2", "glyph-name", "glyphref", "gradientunits", "gradienttransform", "height", "href", "id", "image-rendering", "in", "in2", "intercept", "k", "k1", "k2", "k3", "k4", "kerning", "keypoints", "keysplines", "keytimes", "lang", "lengthadjust", "letter-spacing", "kernelmatrix", "kernelunitlength", "lighting-color", "local", "marker-end", "marker-mid", "marker-start", "markerheight", "markerunits", "markerwidth", "maskcontentunits", "maskunits", "max", "mask", "media", "method", "mode", "min", "name", "numoctaves", "offset", "operator", "opacity", "order", "orient", "orientation", "origin", "overflow", "paint-order", "path", "pathlength", "patterncontentunits", "patterntransform", "patternunits", "points", "preservealpha", "preserveaspectratio", "primitiveunits", "r", "rx", "ry", "radius", "refx", "refy", "repeatcount", "repeatdur", "restart", "result", "rotate", "scale", "seed", "shape-rendering", "slope", "specularconstant", "specularexponent", "spreadmethod", "startoffset", "stddeviation", "stitchtiles", "stop-color", "stop-opacity", "stroke-dasharray", "stroke-dashoffset", "stroke-linecap", "stroke-linejoin", "stroke-miterlimit", "stroke-opacity", "stroke", "stroke-width", "style", "surfacescale", "systemlanguage", "tabindex", "tablevalues", "targetx", "targety", "transform", "transform-origin", "text-anchor", "text-decoration", "text-rendering", "textlength", "type", "u1", "u2", "unicode", "values", "viewbox", "visibility", "version", "vert-adv-y", "vert-origin-x", "vert-origin-y", "width", "word-spacing", "wrap", "writing-mode", "xchannelselector", "ychannelselector", "x", "x1", "x2", "xmlns", "y", "y1", "y2", "z", "zoomandpan"]), vs = ge(["accent", "accentunder", "align", "bevelled", "close", "columnsalign", "columnlines", "columnspan", "denomalign", "depth", "dir", "display", "displaystyle", "encoding", "fence", "frame", "height", "href", "id", "largeop", "length", "linethickness", "lspace", "lquote", "mathbackground", "mathcolor", "mathsize", "mathvariant", "maxsize", "minsize", "movablelimits", "notation", "numalign", "open", "rowalign", "rowlines", "rowspacing", "rowspan", "rspace", "rquote", "scriptlevel", "scriptminsize", "scriptsizemultiplier", "selection", "separator", "separators", "stretchy", "subscriptshift", "supscriptshift", "symmetric", "voffset", "width", "xmlns"]), jn = ge(["xlink:href", "xml:id", "xlink:title", "xml:space", "xmlns:xlink"]), Lo = Ce(/\{\{[\w\W]*|[\w\W]*\}\}/gm), Io = Ce(/<%[\w\W]*|[\w\W]*%>/gm), Po = Ce(/\$\{[\w\W]*/gm), Do = Ce(/^data-[\-\w.\u00B7-\uFFFF]+$/), No = Ce(/^aria-[\-\w]+$/), tr = Ce(
   /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms|cid|xmpp|matrix):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i
   // eslint-disable-line no-useless-escape
-), Zo = Ce(/^(?:\w+script|data):/i), Ko = Ce(
+), Bo = Ce(/^(?:\w+script|data):/i), Uo = Ce(
   /[\u0000-\u0020\u00A0\u1680\u180E\u2000-\u2029\u205F\u3000]/g
   // eslint-disable-line no-control-regex
-), rr = Ce(/^html$/i), Qo = Ce(/^[a-z][.\w]*(-[.\w]+)+$/i);
-var Bs = /* @__PURE__ */ Object.freeze({
+), nr = Ce(/^html$/i), zo = Ce(/^[a-z][.\w]*(-[.\w]+)+$/i);
+var ks = /* @__PURE__ */ Object.freeze({
   __proto__: null,
-  ARIA_ATTR: Yo,
-  ATTR_WHITESPACE: Ko,
-  CUSTOM_ELEMENT: Qo,
-  DATA_ATTR: Xo,
-  DOCTYPE_NAME: rr,
-  ERB_EXPR: Wo,
-  IS_ALLOWED_URI: sr,
-  IS_SCRIPT_OR_DATA: Zo,
-  MUSTACHE_EXPR: Go,
-  TMPLIT_EXPR: qo
+  ARIA_ATTR: No,
+  ATTR_WHITESPACE: Uo,
+  CUSTOM_ELEMENT: zo,
+  DATA_ATTR: Do,
+  DOCTYPE_NAME: nr,
+  ERB_EXPR: Io,
+  IS_ALLOWED_URI: tr,
+  IS_SCRIPT_OR_DATA: Bo,
+  MUSTACHE_EXPR: Lo,
+  TMPLIT_EXPR: Po
 });
-const bn = {
+const hn = {
   element: 1,
   text: 3,
   // Deprecated
   progressingInstruction: 7,
   comment: 8,
   document: 9
-}, Jo = function() {
+}, Ho = function() {
   return typeof window > "u" ? null : window;
-}, ea = function(e, t) {
+}, $o = function(e, t) {
   if (typeof e != "object" || typeof e.createPolicy != "function")
     return null;
   let i = null;
@@ -4695,7 +3166,7 @@ const bn = {
   } catch {
     return console.warn("TrustedTypes policy " + r + " could not be created."), null;
   }
-}, Us = function() {
+}, ys = function() {
   return {
     afterSanitizeAttributes: [],
     afterSanitizeElements: [],
@@ -4708,10 +3179,10 @@ const bn = {
     uponSanitizeShadowNode: []
   };
 };
-function or() {
-  let n = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : Jo();
-  const e = (A) => or(A);
-  if (e.version = "3.2.6", e.removed = [], !n || !n.document || n.document.nodeType !== bn.document || !n.Element)
+function ir() {
+  let n = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : Ho();
+  const e = (C) => ir(C);
+  if (e.version = "3.2.6", e.removed = [], !n || !n.document || n.document.nodeType !== hn.document || !n.Element)
     return e.isSupported = !1, e;
   let {
     document: t
@@ -4722,14 +3193,14 @@ function or() {
     Node: c,
     Element: h,
     NodeFilter: u,
-    NamedNodeMap: p = n.NamedNodeMap || n.MozNamedAttrMap,
+    NamedNodeMap: f = n.NamedNodeMap || n.MozNamedAttrMap,
     HTMLFormElement: M,
     DOMParser: k,
     trustedTypes: z
-  } = n, O = h.prototype, H = wn(O, "cloneNode"), Se = wn(O, "remove"), de = wn(O, "nextSibling"), ce = wn(O, "childNodes"), Re = wn(O, "parentNode");
+  } = n, A = h.prototype, H = un(A, "cloneNode"), Se = un(A, "remove"), de = un(A, "nextSibling"), ce = un(A, "childNodes"), Re = un(A, "parentNode");
   if (typeof a == "function") {
-    const A = t.createElement("template");
-    A.content && A.content.ownerDocument && (t = A.content.ownerDocument);
+    const C = t.createElement("template");
+    C.content && C.content.ownerDocument && (t = C.content.ownerDocument);
   }
   let te, Oe = "";
   const {
@@ -4740,8 +3211,8 @@ function or() {
   } = t, {
     importNode: Sn
   } = i;
-  let ae = Us();
-  e.isSupported = typeof nr == "function" && typeof Re == "function" && Ve && Ve.createHTMLDocument !== void 0;
+  let ae = ys();
+  e.isSupported = typeof Js == "function" && typeof Re == "function" && Ve && Ve.createHTMLDocument !== void 0;
   const {
     MUSTACHE_EXPR: Gt,
     ERB_EXPR: Wt,
@@ -4751,14 +3222,14 @@ function or() {
     IS_SCRIPT_OR_DATA: ui,
     ATTR_WHITESPACE: dt,
     CUSTOM_ELEMENT: hi
-  } = Bs;
+  } = ks;
   let {
     IS_ALLOWED_URI: Tn
-  } = Bs, ne = null;
-  const An = U({}, [...Is, ...Oi, ...Mi, ...Li, ...Ps]);
+  } = ks, ne = null;
+  const An = U({}, [...bs, ...xi, ..._i, ...vi, ...xs]);
   let se = null;
-  const Cn = U({}, [...Ds, ...Ii, ...Ns, ...Xn]);
-  let J = Object.seal(ir(null, {
+  const Cn = U({}, [..._s, ...ki, ...vs, ...jn]);
+  let J = Object.seal(er(null, {
     tagNameCheck: {
       writable: !0,
       configurable: !1,
@@ -4786,7 +3257,7 @@ function or() {
   let Qt = null;
   const Pn = U({}, ["alt", "class", "for", "id", "label", "name", "pattern", "placeholder", "role", "summary", "title", "value", "style", "xmlns"]), Mt = "http://www.w3.org/1998/Math/MathML", Lt = "http://www.w3.org/2000/svg", Te = "http://www.w3.org/1999/xhtml";
   let it = Te, Jt = !1, en = null;
-  const tn = U({}, [Mt, Lt, Te], Ri);
+  const tn = U({}, [Mt, Lt, Te], bi);
   let mt = U({}, ["mi", "mo", "mn", "ms", "mtext"]), wt = U({}, ["annotation-xml"]);
   const pi = U({}, ["title", "style", "font", "a", "script"]);
   let st = null;
@@ -4798,26 +3269,26 @@ function or() {
     let l = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : {};
     if (!(v && v === l)) {
       if ((!l || typeof l != "object") && (l = {}), l = Xe(l), st = // eslint-disable-next-line unicorn/prefer-includes
-      rt.indexOf(l.PARSER_MEDIA_TYPE) === -1 ? o : l.PARSER_MEDIA_TYPE, d = st === "application/xhtml+xml" ? Ri : Kn, ne = Ie(l, "ALLOWED_TAGS") ? U({}, l.ALLOWED_TAGS, d) : An, se = Ie(l, "ALLOWED_ATTR") ? U({}, l.ALLOWED_ATTR, d) : Cn, en = Ie(l, "ALLOWED_NAMESPACES") ? U({}, l.ALLOWED_NAMESPACES, Ri) : tn, Qt = Ie(l, "ADD_URI_SAFE_ATTR") ? U(Xe(Pn), l.ADD_URI_SAFE_ATTR, d) : Pn, Kt = Ie(l, "ADD_DATA_URI_TAGS") ? U(Xe(In), l.ADD_DATA_URI_TAGS, d) : In, ve = Ie(l, "FORBID_CONTENTS") ? U({}, l.FORBID_CONTENTS, d) : gt, pt = Ie(l, "FORBID_TAGS") ? U({}, l.FORBID_TAGS, d) : Xe({}), qt = Ie(l, "FORBID_ATTR") ? U({}, l.FORBID_ATTR, d) : Xe({}), We = Ie(l, "USE_PROFILES") ? l.USE_PROFILES : !1, Rn = l.ALLOW_ARIA_ATTR !== !1, On = l.ALLOW_DATA_ATTR !== !1, ft = l.ALLOW_UNKNOWN_PROTOCOLS || !1, Mn = l.ALLOW_SELF_CLOSE_IN_ATTR !== !1, tt = l.SAFE_FOR_TEMPLATES || !1, At = l.SAFE_FOR_XML !== !1, Ge = l.WHOLE_DOCUMENT || !1, nt = l.RETURN_DOM || !1, Ct = l.RETURN_DOM_FRAGMENT || !1, Rt = l.RETURN_TRUSTED_TYPE || !1, Yt = l.FORCE_BODY || !1, Zt = l.SANITIZE_DOM !== !1, Ln = l.SANITIZE_NAMED_PROPS || !1, Ot = l.KEEP_CONTENT !== !1, _e = l.IN_PLACE || !1, Tn = l.ALLOWED_URI_REGEXP || sr, it = l.NAMESPACE || Te, mt = l.MATHML_TEXT_INTEGRATION_POINTS || mt, wt = l.HTML_INTEGRATION_POINTS || wt, J = l.CUSTOM_ELEMENT_HANDLING || {}, l.CUSTOM_ELEMENT_HANDLING && Q(l.CUSTOM_ELEMENT_HANDLING.tagNameCheck) && (J.tagNameCheck = l.CUSTOM_ELEMENT_HANDLING.tagNameCheck), l.CUSTOM_ELEMENT_HANDLING && Q(l.CUSTOM_ELEMENT_HANDLING.attributeNameCheck) && (J.attributeNameCheck = l.CUSTOM_ELEMENT_HANDLING.attributeNameCheck), l.CUSTOM_ELEMENT_HANDLING && typeof l.CUSTOM_ELEMENT_HANDLING.allowCustomizedBuiltInElements == "boolean" && (J.allowCustomizedBuiltInElements = l.CUSTOM_ELEMENT_HANDLING.allowCustomizedBuiltInElements), tt && (On = !1), Ct && (nt = !0), We && (ne = U({}, Ps), se = [], We.html === !0 && (U(ne, Is), U(se, Ds)), We.svg === !0 && (U(ne, Oi), U(se, Ii), U(se, Xn)), We.svgFilters === !0 && (U(ne, Mi), U(se, Ii), U(se, Xn)), We.mathMl === !0 && (U(ne, Li), U(se, Ns), U(se, Xn))), l.ADD_TAGS && (ne === An && (ne = Xe(ne)), U(ne, l.ADD_TAGS, d)), l.ADD_ATTR && (se === Cn && (se = Xe(se)), U(se, l.ADD_ATTR, d)), l.ADD_URI_SAFE_ATTR && U(Qt, l.ADD_URI_SAFE_ATTR, d), l.FORBID_CONTENTS && (ve === gt && (ve = Xe(ve)), U(ve, l.FORBID_CONTENTS, d)), Ot && (ne["#text"] = !0), Ge && U(ne, ["html", "head", "body"]), ne.table && (U(ne, ["tbody"]), delete pt.tbody), l.TRUSTED_TYPES_POLICY) {
+      rt.indexOf(l.PARSER_MEDIA_TYPE) === -1 ? o : l.PARSER_MEDIA_TYPE, d = st === "application/xhtml+xml" ? bi : Zn, ne = Ie(l, "ALLOWED_TAGS") ? U({}, l.ALLOWED_TAGS, d) : An, se = Ie(l, "ALLOWED_ATTR") ? U({}, l.ALLOWED_ATTR, d) : Cn, en = Ie(l, "ALLOWED_NAMESPACES") ? U({}, l.ALLOWED_NAMESPACES, bi) : tn, Qt = Ie(l, "ADD_URI_SAFE_ATTR") ? U(Xe(Pn), l.ADD_URI_SAFE_ATTR, d) : Pn, Kt = Ie(l, "ADD_DATA_URI_TAGS") ? U(Xe(In), l.ADD_DATA_URI_TAGS, d) : In, ve = Ie(l, "FORBID_CONTENTS") ? U({}, l.FORBID_CONTENTS, d) : gt, pt = Ie(l, "FORBID_TAGS") ? U({}, l.FORBID_TAGS, d) : Xe({}), qt = Ie(l, "FORBID_ATTR") ? U({}, l.FORBID_ATTR, d) : Xe({}), We = Ie(l, "USE_PROFILES") ? l.USE_PROFILES : !1, Rn = l.ALLOW_ARIA_ATTR !== !1, On = l.ALLOW_DATA_ATTR !== !1, ft = l.ALLOW_UNKNOWN_PROTOCOLS || !1, Mn = l.ALLOW_SELF_CLOSE_IN_ATTR !== !1, tt = l.SAFE_FOR_TEMPLATES || !1, At = l.SAFE_FOR_XML !== !1, Ge = l.WHOLE_DOCUMENT || !1, nt = l.RETURN_DOM || !1, Ct = l.RETURN_DOM_FRAGMENT || !1, Rt = l.RETURN_TRUSTED_TYPE || !1, Yt = l.FORCE_BODY || !1, Zt = l.SANITIZE_DOM !== !1, Ln = l.SANITIZE_NAMED_PROPS || !1, Ot = l.KEEP_CONTENT !== !1, _e = l.IN_PLACE || !1, Tn = l.ALLOWED_URI_REGEXP || tr, it = l.NAMESPACE || Te, mt = l.MATHML_TEXT_INTEGRATION_POINTS || mt, wt = l.HTML_INTEGRATION_POINTS || wt, J = l.CUSTOM_ELEMENT_HANDLING || {}, l.CUSTOM_ELEMENT_HANDLING && Q(l.CUSTOM_ELEMENT_HANDLING.tagNameCheck) && (J.tagNameCheck = l.CUSTOM_ELEMENT_HANDLING.tagNameCheck), l.CUSTOM_ELEMENT_HANDLING && Q(l.CUSTOM_ELEMENT_HANDLING.attributeNameCheck) && (J.attributeNameCheck = l.CUSTOM_ELEMENT_HANDLING.attributeNameCheck), l.CUSTOM_ELEMENT_HANDLING && typeof l.CUSTOM_ELEMENT_HANDLING.allowCustomizedBuiltInElements == "boolean" && (J.allowCustomizedBuiltInElements = l.CUSTOM_ELEMENT_HANDLING.allowCustomizedBuiltInElements), tt && (On = !1), Ct && (nt = !0), We && (ne = U({}, xs), se = [], We.html === !0 && (U(ne, bs), U(se, _s)), We.svg === !0 && (U(ne, xi), U(se, ki), U(se, jn)), We.svgFilters === !0 && (U(ne, _i), U(se, ki), U(se, jn)), We.mathMl === !0 && (U(ne, vi), U(se, vs), U(se, jn))), l.ADD_TAGS && (ne === An && (ne = Xe(ne)), U(ne, l.ADD_TAGS, d)), l.ADD_ATTR && (se === Cn && (se = Xe(se)), U(se, l.ADD_ATTR, d)), l.ADD_URI_SAFE_ATTR && U(Qt, l.ADD_URI_SAFE_ATTR, d), l.FORBID_CONTENTS && (ve === gt && (ve = Xe(ve)), U(ve, l.FORBID_CONTENTS, d)), Ot && (ne["#text"] = !0), Ge && U(ne, ["html", "head", "body"]), ne.table && (U(ne, ["tbody"]), delete pt.tbody), l.TRUSTED_TYPES_POLICY) {
         if (typeof l.TRUSTED_TYPES_POLICY.createHTML != "function")
-          throw mn('TRUSTED_TYPES_POLICY configuration option must provide a "createHTML" hook.');
+          throw cn('TRUSTED_TYPES_POLICY configuration option must provide a "createHTML" hook.');
         if (typeof l.TRUSTED_TYPES_POLICY.createScriptURL != "function")
-          throw mn('TRUSTED_TYPES_POLICY configuration option must provide a "createScriptURL" hook.');
+          throw cn('TRUSTED_TYPES_POLICY configuration option must provide a "createScriptURL" hook.');
         te = l.TRUSTED_TYPES_POLICY, Oe = te.createHTML("");
       } else
-        te === void 0 && (te = ea(z, s)), te !== null && typeof Oe == "string" && (Oe = te.createHTML(""));
+        te === void 0 && (te = $o(z, s)), te !== null && typeof Oe == "string" && (Oe = te.createHTML(""));
       ge && ge(l), v = l;
     }
-  }, T = U({}, [...Oi, ...Mi, ...Vo]), S = U({}, [...Li, ...jo]), L = function(l) {
+  }, T = U({}, [...xi, ..._i, ...Oo]), S = U({}, [...vi, ...Mo]), L = function(l) {
     let _ = Re(l);
     (!_ || !_.tagName) && (_ = {
       namespaceURI: it,
       tagName: "template"
     });
-    const E = Kn(l.tagName), q = Kn(_.tagName);
+    const E = Zn(l.tagName), q = Zn(_.tagName);
     return en[l.namespaceURI] ? l.namespaceURI === Lt ? _.namespaceURI === Te ? E === "svg" : _.namespaceURI === Mt ? E === "svg" && (q === "annotation-xml" || mt[q]) : !!T[E] : l.namespaceURI === Mt ? _.namespaceURI === Te ? E === "math" : _.namespaceURI === Lt ? E === "math" && wt[q] : !!S[E] : l.namespaceURI === Te ? _.namespaceURI === Lt && !wt[q] || _.namespaceURI === Mt && !mt[q] ? !1 : !S[E] && (pi[E] || !T[E]) : !!(st === "application/xhtml+xml" && en[l.namespaceURI]) : !1;
   }, F = function(l) {
-    fn(e.removed, {
+    an(e.removed, {
       element: l
     });
     try {
@@ -4827,12 +3298,12 @@ function or() {
     }
   }, W = function(l, _) {
     try {
-      fn(e.removed, {
+      an(e.removed, {
         attribute: _.getAttributeNode(l),
         from: _
       });
     } catch {
-      fn(e.removed, {
+      an(e.removed, {
         attribute: null,
         from: _
       });
@@ -4853,7 +3324,7 @@ function or() {
     if (Yt)
       l = "<remove></remove>" + l;
     else {
-      const ee = Ls(l, /^[\r\n\t ]+/);
+      const ee = ws(l, /^[\r\n\t ]+/);
       E = ee && ee[0];
     }
     st === "application/xhtml+xml" && it === Te && (l = '<html xmlns="http://www.w3.org/1999/xhtml"><head></head><body>' + l + "</body></html>");
@@ -4881,12 +3352,12 @@ function or() {
       null
     );
   }, bt = function(l) {
-    return l instanceof M && (typeof l.nodeName != "string" || typeof l.textContent != "string" || typeof l.removeChild != "function" || !(l.attributes instanceof p) || typeof l.removeAttribute != "function" || typeof l.setAttribute != "function" || typeof l.namespaceURI != "string" || typeof l.insertBefore != "function" || typeof l.hasChildNodes != "function");
+    return l instanceof M && (typeof l.nodeName != "string" || typeof l.textContent != "string" || typeof l.removeChild != "function" || !(l.attributes instanceof f) || typeof l.removeAttribute != "function" || typeof l.setAttribute != "function" || typeof l.namespaceURI != "string" || typeof l.insertBefore != "function" || typeof l.hasChildNodes != "function");
   }, Dn = function(l) {
     return typeof c == "function" && l instanceof c;
   };
-  function ke(A, l, _) {
-    qn(A, (E) => {
+  function ke(C, l, _) {
+    Vn(C, (E) => {
       E.call(e, l, _, v);
     });
   }
@@ -4898,7 +3369,7 @@ function or() {
     if (ke(ae.uponSanitizeElement, l, {
       tagName: E,
       allowedTags: ne
-    }), At && l.hasChildNodes() && !Dn(l.firstElementChild) && pe(/<[/\w!]/g, l.innerHTML) && pe(/<[/\w!]/g, l.textContent) || l.nodeType === bn.progressingInstruction || At && l.nodeType === bn.comment && pe(/<[/\w]/g, l.data))
+    }), At && l.hasChildNodes() && !Dn(l.firstElementChild) && pe(/<[/\w!]/g, l.innerHTML) && pe(/<[/\w!]/g, l.textContent) || l.nodeType === hn.progressingInstruction || At && l.nodeType === hn.comment && pe(/<[/\w]/g, l.data))
       return F(l), !0;
     if (!ne[E] || pt[E]) {
       if (!pt[E] && Un(E) && (J.tagNameCheck instanceof RegExp && pe(J.tagNameCheck, E) || J.tagNameCheck instanceof Function && J.tagNameCheck(E)))
@@ -4915,9 +3386,9 @@ function or() {
       }
       return F(l), !0;
     }
-    return l instanceof h && !L(l) || (E === "noscript" || E === "noembed" || E === "noframes") && pe(/<\/no(script|embed|frames)/i, l.innerHTML) ? (F(l), !0) : (tt && l.nodeType === bn.text && (_ = l.textContent, qn([Gt, Wt, je], (q) => {
-      _ = gn(_, q, " ");
-    }), l.textContent !== _ && (fn(e.removed, {
+    return l instanceof h && !L(l) || (E === "noscript" || E === "noembed" || E === "noframes") && pe(/<\/no(script|embed|frames)/i, l.innerHTML) ? (F(l), !0) : (tt && l.nodeType === hn.text && (_ = l.textContent, Vn([Gt, Wt, je], (q) => {
+      _ = ln(_, q, " ");
+    }), l.textContent !== _ && (an(e.removed, {
       element: l.cloneNode()
     }), l.textContent = _)), ke(ae.afterSanitizeElements, l, null), !1);
   }, Bn = function(l, _, E) {
@@ -4935,9 +3406,9 @@ function or() {
             _ === "is" && J.allowCustomizedBuiltInElements && (J.tagNameCheck instanceof RegExp && pe(J.tagNameCheck, E) || J.tagNameCheck instanceof Function && J.tagNameCheck(E)))
           ) return !1;
         } else if (!Qt[_]) {
-          if (!pe(Tn, gn(E, dt, ""))) {
-            if (!((_ === "src" || _ === "xlink:href" || _ === "href") && l !== "script" && zo(E, "data:") === 0 && Kt[l])) {
-              if (!(ft && !pe(ui, gn(E, dt, "")))) {
+          if (!pe(Tn, ln(E, dt, ""))) {
+            if (!((_ === "src" || _ === "xlink:href" || _ === "href") && l !== "script" && To(E, "data:") === 0 && Kt[l])) {
+              if (!(ft && !pe(ui, ln(E, dt, "")))) {
                 if (E)
                   return !1;
               }
@@ -4948,7 +3419,7 @@ function or() {
     }
     return !0;
   }, Un = function(l) {
-    return l !== "annotation-xml" && Ls(l, hi);
+    return l !== "annotation-xml" && ws(l, hi);
   }, nn = function(l) {
     ke(ae.beforeSanitizeAttributes, l, null);
     const {
@@ -4970,7 +3441,7 @@ function or() {
         namespaceURI: ue,
         value: Me
       } = re, Ne = d(ee), sn = Me;
-      let w = ee === "value" ? sn : Ho(sn);
+      let w = ee === "value" ? sn : Ao(sn);
       if (E.attrName = Ne, E.attrValue = w, E.keepAttr = !0, E.forceKeepAttr = void 0, ke(ae.uponSanitizeAttribute, l, E), w = E.attrValue, Ln && (Ne === "id" || Ne === "name") && (W(ee, l), w = di + w), At && pe(/((--!?|])>)|<\/(style|title)/i, w)) {
         W(ee, l);
         continue;
@@ -4985,16 +3456,16 @@ function or() {
         W(ee, l);
         continue;
       }
-      tt && qn([Gt, Wt, je], (B) => {
-        w = gn(w, B, " ");
+      tt && Vn([Gt, Wt, je], (B) => {
+        w = ln(w, B, " ");
       });
-      const C = d(l.nodeName);
-      if (!Bn(C, Ne, w)) {
+      const R = d(l.nodeName);
+      if (!Bn(R, Ne, w)) {
         W(ee, l);
         continue;
       }
       if (te && typeof z == "object" && typeof z.getAttributeType == "function" && !ue)
-        switch (z.getAttributeType(C, Ne)) {
+        switch (z.getAttributeType(R, Ne)) {
           case "TrustedHTML": {
             w = te.createHTML(w);
             break;
@@ -5006,50 +3477,50 @@ function or() {
         }
       if (w !== sn)
         try {
-          ue ? l.setAttributeNS(ue, ee, w) : l.setAttribute(ee, w), bt(l) ? F(l) : Ms(e.removed);
+          ue ? l.setAttributeNS(ue, ee, w) : l.setAttribute(ee, w), bt(l) ? F(l) : ms(e.removed);
         } catch {
           W(ee, l);
         }
     }
     ke(ae.afterSanitizeAttributes, l, null);
-  }, Pt = function A(l) {
+  }, Pt = function C(l) {
     let _ = null;
     const E = It(l);
     for (ke(ae.beforeSanitizeShadowDOM, l, null); _ = E.nextNode(); )
-      ke(ae.uponSanitizeShadowNode, _, null), Nn(_), nn(_), _.content instanceof r && A(_.content);
+      ke(ae.uponSanitizeShadowNode, _, null), Nn(_), nn(_), _.content instanceof r && C(_.content);
     ke(ae.afterSanitizeShadowDOM, l, null);
   };
-  return e.sanitize = function(A) {
+  return e.sanitize = function(C) {
     let l = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : {}, _ = null, E = null, q = null, re = null;
-    if (Jt = !A, Jt && (A = "<!-->"), typeof A != "string" && !Dn(A))
-      if (typeof A.toString == "function") {
-        if (A = A.toString(), typeof A != "string")
-          throw mn("dirty is not a string, aborting");
+    if (Jt = !C, Jt && (C = "<!-->"), typeof C != "string" && !Dn(C))
+      if (typeof C.toString == "function") {
+        if (C = C.toString(), typeof C != "string")
+          throw cn("dirty is not a string, aborting");
       } else
-        throw mn("toString is not a function");
+        throw cn("toString is not a function");
     if (!e.isSupported)
-      return A;
-    if (Xt || K(l), e.removed = [], typeof A == "string" && (_e = !1), _e) {
-      if (A.nodeName) {
-        const Me = d(A.nodeName);
+      return C;
+    if (Xt || K(l), e.removed = [], typeof C == "string" && (_e = !1), _e) {
+      if (C.nodeName) {
+        const Me = d(C.nodeName);
         if (!ne[Me] || pt[Me])
-          throw mn("root node is forbidden and cannot be sanitized in-place");
+          throw cn("root node is forbidden and cannot be sanitized in-place");
       }
-    } else if (A instanceof c)
-      _ = ot("<!---->"), E = _.ownerDocument.importNode(A, !0), E.nodeType === bn.element && E.nodeName === "BODY" || E.nodeName === "HTML" ? _ = E : _.appendChild(E);
+    } else if (C instanceof c)
+      _ = ot("<!---->"), E = _.ownerDocument.importNode(C, !0), E.nodeType === hn.element && E.nodeName === "BODY" || E.nodeName === "HTML" ? _ = E : _.appendChild(E);
     else {
       if (!nt && !tt && !Ge && // eslint-disable-next-line unicorn/prefer-includes
-      A.indexOf("<") === -1)
-        return te && Rt ? te.createHTML(A) : A;
-      if (_ = ot(A), !_)
+      C.indexOf("<") === -1)
+        return te && Rt ? te.createHTML(C) : C;
+      if (_ = ot(C), !_)
         return nt ? null : Rt ? Oe : "";
     }
     _ && Yt && F(_.firstChild);
-    const ee = It(_e ? A : _);
+    const ee = It(_e ? C : _);
     for (; q = ee.nextNode(); )
       Nn(q), nn(q), q.content instanceof r && Pt(q.content);
     if (_e)
-      return A;
+      return C;
     if (nt) {
       if (Ct)
         for (re = jt.call(_.ownerDocument); _.firstChild; )
@@ -5059,38 +3530,38 @@ function or() {
       return (se.shadowroot || se.shadowrootmode) && (re = Sn.call(i, re, !0)), re;
     }
     let ue = Ge ? _.outerHTML : _.innerHTML;
-    return Ge && ne["!doctype"] && _.ownerDocument && _.ownerDocument.doctype && _.ownerDocument.doctype.name && pe(rr, _.ownerDocument.doctype.name) && (ue = "<!DOCTYPE " + _.ownerDocument.doctype.name + `>
-` + ue), tt && qn([Gt, Wt, je], (Me) => {
-      ue = gn(ue, Me, " ");
+    return Ge && ne["!doctype"] && _.ownerDocument && _.ownerDocument.doctype && _.ownerDocument.doctype.name && pe(nr, _.ownerDocument.doctype.name) && (ue = "<!DOCTYPE " + _.ownerDocument.doctype.name + `>
+` + ue), tt && Vn([Gt, Wt, je], (Me) => {
+      ue = ln(ue, Me, " ");
     }), te && Rt ? te.createHTML(ue) : ue;
   }, e.setConfig = function() {
-    let A = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : {};
-    K(A), Xt = !0;
+    let C = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : {};
+    K(C), Xt = !0;
   }, e.clearConfig = function() {
     v = null, Xt = !1;
-  }, e.isValidAttribute = function(A, l, _) {
+  }, e.isValidAttribute = function(C, l, _) {
     v || K({});
-    const E = d(A), q = d(l);
+    const E = d(C), q = d(l);
     return Bn(E, q, _);
-  }, e.addHook = function(A, l) {
-    typeof l == "function" && fn(ae[A], l);
-  }, e.removeHook = function(A, l) {
+  }, e.addHook = function(C, l) {
+    typeof l == "function" && an(ae[C], l);
+  }, e.removeHook = function(C, l) {
     if (l !== void 0) {
-      const _ = Bo(ae[A], l);
-      return _ === -1 ? void 0 : Uo(ae[A], _, 1)[0];
+      const _ = Eo(ae[C], l);
+      return _ === -1 ? void 0 : So(ae[C], _, 1)[0];
     }
-    return Ms(ae[A]);
-  }, e.removeHooks = function(A) {
-    ae[A] = [];
+    return ms(ae[C]);
+  }, e.removeHooks = function(C) {
+    ae[C] = [];
   }, e.removeAllHooks = function() {
-    ae = Us();
+    ae = ys();
   }, e;
 }
-var zs = or();
-class ta extends Vt {
+var Es = ir();
+class Fo extends Ft {
   constructor(e, t) {
     super(e, t), this.textContainer = document.createElement("div"), this.textContainer.classList.add("text-card"), this.root.appendChild(this.textContainer), this.textContainer.style.backgroundColor = e.background_color;
-    const i = ar(
+    const i = sr(
       e,
       (s) => t.getCoordinateSystem().getSizePx(s) + "px"
     );
@@ -5102,7 +3573,7 @@ class ta extends Vt {
     });
   }
 }
-function ar(n, e) {
+function sr(n, e) {
   const t = document.createElement("div");
   switch (t.classList.add("text-content"), t.style.color = n.text_color, t.style.textAlign = n.justification_horizontal, n.justification_vertical) {
     case "top":
@@ -5121,24 +3592,24 @@ function ar(n, e) {
   t.style.fontSize = i;
   let s = j.parse(n.text);
   return s instanceof Promise ? s.then((r) => {
-    t.innerHTML = zs.sanitize(r);
-  }) : t.innerHTML = zs.sanitize(s), t;
+    t.innerHTML = Es.sanitize(r);
+  }) : t.innerHTML = Es.sanitize(s), t;
 }
-class na extends Vt {
+class Vo extends Ft {
   constructor(e, t) {
     if (super(e, t), this.pageIndex = 0, this.onPressDone = null, e.pages.length === 0)
       throw new Error("No markdown pages provided to MarkdownPagesViewer");
     const i = document.createElement("div");
     i.classList.add("markdown-pages-viewer"), this.root.appendChild(i), this.viewerDiv = document.createElement("div"), this.viewerDiv.classList.add("markdown-pages-viewer__window"), i.appendChild(this.viewerDiv), this.contentPages = [];
     for (const r of e.pages) {
-      const a = ar(
+      const a = sr(
         r,
         (c) => this.boardView.getCoordinateSystem().getSizePx(c) + "px"
       );
       this.contentPages.push(a);
     }
     let s = document.createElement("div");
-    s.classList.add("nav-tray"), i.appendChild(s), this.navButtons = new ia(), this.navButtons.mount(s), this.doneButton = new ji("Done"), this.doneButton.mount(s), this.goToPage(0), this.navButtons.addButtonPressListeners(
+    s.classList.add("nav-tray"), i.appendChild(s), this.navButtons = new jo(), this.navButtons.mount(s), this.doneButton = new Hi("Done"), this.doneButton.mount(s), this.goToPage(0), this.navButtons.addButtonPressListeners(
       () => this.handleBack(),
       () => this.handleNext()
     ), this.doneButton.addButtonPressListener(() => this.handleDone());
@@ -5178,9 +3649,9 @@ class na extends Vt {
     };
   }
 }
-class ia extends Ee {
+class jo extends Ee {
   constructor() {
-    super(), this.root = document.createElement("div"), this.lastButton = new ji("←"), this.lastButton.mount(this.root), this.nextButton = new ji("→"), this.nextButton.mount(this.root);
+    super(), this.root = document.createElement("div"), this.lastButton = new Hi("←"), this.lastButton.mount(this.root), this.nextButton = new Hi("→"), this.nextButton.mount(this.root);
   }
   addButtonPressListeners(e, t) {
     if (!this.nextButton || !this.lastButton)
@@ -5191,7 +3662,7 @@ class ia extends Ee {
     e ? this.lastButton.enable() : this.lastButton.disable(), t ? this.nextButton.enable() : this.nextButton.disable();
   }
 }
-class ji extends Ee {
+class Hi extends Ee {
   constructor(e) {
     super();
     const t = document.createElement("button");
@@ -5201,7 +3672,7 @@ class ji extends Ee {
     this._registerEventListener(this.root, "click", e);
   }
 }
-class sa extends Vt {
+class Go extends Ft {
   constructor(e, t) {
     super(e, t), this.imageContainer = document.createElement("div"), this.imageContainer.classList.add("image-card"), this.root.appendChild(this.imageContainer), this.imageLoadedPromise = (async () => {
       this.image = await t.assetManager.loadImageAsset(
@@ -5218,7 +3689,7 @@ class sa extends Vt {
     return this.imageLoadedPromise;
   }
 }
-class ra extends Vt {
+class Wo extends Ft {
   constructor(e, t) {
     super(e, t), this.videoContainer = document.createElement("div"), this.videoContainer.classList.add("video-card"), this.root.appendChild(this.videoContainer), this.videoLoadedPromise = (async () => {
       this.video = await t.assetManager.loadVideoAsset(
@@ -5251,7 +3722,7 @@ class ra extends Vt {
     await Promise.race([t, e]);
   }
 }
-class oa extends Vt {
+class qo extends Ft {
   constructor(e, t) {
     super(e, t), this.root.style.backgroundColor = e.color;
   }
@@ -5261,7 +3732,7 @@ class oa extends Vt {
     });
   }
 }
-class aa {
+class Xo {
   // Height of the board in pixels
   constructor(e, t) {
     this.boardWidthPx = e, this.boardHeightPx = t;
@@ -5286,14 +3757,14 @@ class aa {
     return this.getUnitPx() * e;
   }
 }
-class la {
+class Yo {
   // Map of sensor ID to SensorBinding
   constructor(e, t, i) {
     this.cardViews = /* @__PURE__ */ new Map(), this.sensorBindings = /* @__PURE__ */ new Map(), this.root = document.createElement("div"), this.root.className = "board-view", this.root.id = `${e}`, this.root.style.width = t.board_width_px + "px", this.root.style.height = t.board_height_px + "px", this.assetManager = i, this.reset(), this.setState(!1, !1);
   }
   getCoordinateSystem() {
     const { width: e, height: t } = this.root.getBoundingClientRect();
-    return new aa(e, t);
+    return new Xo(e, t);
   }
   reset() {
     for (this.cardViews.forEach((e) => {
@@ -5312,7 +3783,7 @@ class la {
   }
   // Cards
   async placeCardHidden(e) {
-    const t = await ua(
+    const t = await Ko(
       e,
       this
     );
@@ -5333,7 +3804,7 @@ class la {
   }
   // Sensors
   placeSensorUnarmed(e, t) {
-    const i = ca(e, t, this);
+    const i = Zo(e, t, this);
     this.sensorBindings.set(e.sensor_id, i);
   }
   getSensorBinding(e) {
@@ -5349,22 +3820,22 @@ class la {
     this.getSensorBinding(e).disarm();
   }
 }
-function ca(n, e, t) {
+function Zo(n, e, t) {
   if (n.sensor_type === "TimeoutSensor")
-    return new Wr(
+    return new Ir(
       n.sensor_id,
       e,
       n.t_armed
     );
   if (n.sensor_type === "KeySensor")
-    return new qr(
+    return new Pr(
       n.sensor_id,
       e,
       n.key
     );
   if (n.sensor_type == "ClickSensor") {
     let i = t.getCardView(n.card_id);
-    return Xr(i), new jr(
+    return Dr(i), new Mr(
       n.sensor_id,
       e,
       i,
@@ -5372,7 +3843,7 @@ function ca(n, e, t) {
     );
   } else if (n.sensor_type == "DoneSensor") {
     let i = t.getCardView(n.card_id);
-    return Yr(i), new Gr(
+    return Nr(i), new Lr(
       n.sensor_id,
       e,
       i
@@ -5380,41 +3851,41 @@ function ca(n, e, t) {
   } else
     throw new Error(`Unknown Sensor of type ${n.sensor_type}`);
 }
-async function ua(n, e) {
+async function Ko(n, e) {
   let t = null;
   switch (n.card_type) {
     case "FixationPointCard":
-      t = new Zr(
+      t = new Br(
         n,
         e
       );
       break;
     case "MarkdownPagesCard":
-      t = new na(
+      t = new Vo(
         n,
         e
       );
       break;
     case "ImageCard":
-      t = new sa(
+      t = new Go(
         n,
         e
       );
       break;
     case "VideoCard":
-      t = new ra(
+      t = new Wo(
         n,
         e
       );
       break;
     case "TextCard":
-      t = new ta(
+      t = new Fo(
         n,
         e
       );
       break;
     case "BlankCard":
-      t = new oa(
+      t = new qo(
         n,
         e
       );
@@ -5424,14 +3895,14 @@ async function ua(n, e) {
   }
   return await t.load(), t;
 }
-class ha {
+class Qo {
   constructor(e) {
     this.boardViews = /* @__PURE__ */ new Map(), this.activeBoardId = null, this.root = document.createElement("div"), this.root.className = "board-views-ui", this.assetManager = e;
   }
   createBoardView(e, t) {
     if (this.boardViews.has(e))
       return this.getBoardView(e);
-    const i = new la(e, t, this.assetManager);
+    const i = new Yo(e, t, this.assetManager);
     return this.boardViews.set(e, i), this.root.appendChild(i.root), i;
   }
   getBoardView(e) {
@@ -5453,7 +3924,7 @@ class ha {
     t && (t.reset(), this.root.removeChild(t.root), this.boardViews.delete(e), this.activeBoardId === e && (this.activeBoardId = null));
   }
 }
-class da {
+class Jo {
   async loadImageAsset(e) {
     let t = new Image();
     return t.src = e.asset_url, new Promise(
@@ -5469,25 +3940,25 @@ class da {
     });
   }
 }
-function pa() {
+function ea() {
   const n = document.createElement("div");
   document.body.appendChild(n);
   const e = document.createElement("div");
   e.classList.add("node-engine-container"), n.appendChild(e);
   const t = document.createElement("div");
   t.classList.add("node-engine-content"), e.appendChild(t);
-  const i = new da(), s = new ha(
+  const i = new Jo(), s = new Qo(
     i
   );
   t.appendChild(s.root);
-  const r = new Vr();
+  const r = new Or();
   return r.mount(t), {
     boardViewsUI: s,
     shellUI: r,
     assetManager: i
   };
 }
-class Hs {
+class Ss {
   constructor(e) {
     this.events = [], this.nextToken = 1, this.running = !1, this.rafId = null, this.t0 = 0, this.loop = (i) => {
       if (!this.running)
@@ -5518,7 +3989,7 @@ class Hs {
     this.running && (this.running = !1, this.rafId !== null && (cancelAnimationFrame(this.rafId), this.rafId = null));
   }
 }
-class fa {
+class ta {
   constructor(e) {
     this.boardView = e;
   }
@@ -5529,9 +4000,9 @@ class fa {
     this.boardView.root.style.cursor = "";
   }
 }
-class ga {
+class na {
   constructor(e, t) {
-    this.prepared = !1, this.started = !1, this.terminated = !1, this.abortController = new AbortController(), this.boardView = t, this.node = e, this.scheduler = new Hs(this.abortController.signal);
+    this.prepared = !1, this.started = !1, this.terminated = !1, this.abortController = new AbortController(), this.boardView = t, this.node = e, this.scheduler = new Ss(this.abortController.signal);
   }
   async prepare() {
     let e = [];
@@ -5567,7 +4038,7 @@ class ga {
         }
       );
     for (const t of this.node.effects) {
-      const i = new fa(this.boardView);
+      const i = new ta(this.boardView);
       this.scheduler.scheduleEvent(
         {
           triggerTimeMsec: t.t_start,
@@ -5605,9 +4076,9 @@ class ga {
     if (this.terminated) return;
     this.terminated = !0, this.abortController.abort(), this.boardView.reset();
     let t = [];
-    for (const a of this.node.consequences)
+    for (const a of this.node.outcomes)
       e.sensor_id === a.sensor_id && (t = a.cards);
-    const i = new Hs(this.abortController.signal);
+    const i = new Ss(this.abortController.signal);
     let s = 0, r = [];
     for (const a of t)
       r.push(this.boardView.placeCardHidden(a));
@@ -5644,21 +4115,15 @@ class ga {
     );
   }
 }
-class ma {
+class ia {
   constructor(e) {
     this.bufferedNodePlays = /* @__PURE__ */ new Map();
-    const { shellUI: t, boardViewsUI: i } = pa();
+    const { shellUI: t, boardViewsUI: i } = ea();
     this.shellUI = t, this.boardViewsUI = i, this._boardShape = e;
-    try {
-      if (!Rr.isValidDevice())
-        throw new Error("Unsupported device. Please use a desktop browser.");
-    } catch (s) {
-      throw this.showErrorMessageOverlay(s), new Error("NodePlayer initialization failed: " + s.message);
-    }
   }
   async prepare(e) {
     try {
-      const t = crypto.randomUUID(), i = this.boardViewsUI.createBoardView(t, this._boardShape), s = new ga(
+      const t = crypto.randomUUID(), i = this.boardViewsUI.createBoardView(t, this._boardShape), s = new na(
         e,
         i
       );
@@ -5668,16 +4133,14 @@ class ma {
     }
   }
   async play(e) {
-    try {
-      const t = this.bufferedNodePlays.get(e);
-      if (!t)
-        throw new Error(`NodePlay ${e} does not exist. `);
-      this.boardViewsUI.setActiveBoard(e);
-      const i = await t.run();
-      return this.boardViewsUI.destroyBoardView(e), this.bufferedNodePlays.delete(e), i;
-    } catch (t) {
-      throw this.showErrorMessageOverlay(t), t;
+    const t = this.bufferedNodePlays.get(e);
+    if (!t) {
+      const s = new Error(`NodePlay ${e} does not exist. `);
+      throw this.showErrorMessageOverlay(s), s;
     }
+    this.boardViewsUI.setActiveBoard(e);
+    const i = await t.run();
+    return this.boardViewsUI.destroyBoardView(e), this.bufferedNodePlays.delete(e), i;
   }
   setProgressBar(e) {
     this.shellUI.setProgressBar(e);
@@ -5709,11 +4172,11 @@ class ma {
     );
   }
 }
-function wa(n, e) {
+function sa(n, e) {
   let t = 0, i = {};
   for (const r of e.nodes)
-    i[r.node_id] = r.consequences;
-  n.sort((r, a) => r.event_timestamp.localeCompare(a.event_timestamp));
+    i[r.node_id] = r.outcomes;
+  n.sort((r, a) => r.timestamp_event.localeCompare(a.timestamp_event));
   let s = /* @__PURE__ */ new Set();
   for (let r = 0; r < n.length; r++) {
     const a = n[r];
@@ -5722,16 +4185,16 @@ function wa(n, e) {
     const c = a.event_payload, u = c.action.sensor_id;
     if (!s.has(c.node_id)) {
       s.add(c.node_id);
-      for (const p of i[c.node_id] || [])
-        if (p.sensor_id === u) {
-          let M = parseFloat(p.bonus_amount_usd);
+      for (const f of i[c.node_id] || [])
+        if (f.sensor_id === u) {
+          let M = parseFloat(f.bonus_amount_usd);
           !isNaN(M) && M > 0 && (t += M);
         }
     }
   }
   return t = Math.max(0, t), t = Math.round(t * 100) / 100, t;
 }
-function ba() {
+function ra() {
   return {
     user_agent: navigator.userAgent,
     display_width_px: screen.width,
@@ -5740,6 +4203,1535 @@ function ba() {
     viewport_height_px: window.innerHeight
   };
 }
+var oa = "2.0.4", $i = 500, Ts = "user-agent", zt = "", As = "?", ti = "function", ut = "undefined", Ht = "object", Fi = "string", we = "browser", Ye = "cpu", Fe = "device", Pe = "engine", Ae = "os", Bt = "result", b = "name", p = "type", m = "vendor", x = "version", be = "architecture", kn = "major", g = "model", xn = "console", P = "mobile", G = "tablet", ie = "smarttv", He = "wearable", Gn = "xr", _n = "embedded", dn = "inapp", ts = "brands", yt = "formFactors", ns = "fullVersionList", Ut = "platform", is = "platformVersion", oi = "bitness", ht = "sec-ch-ua", aa = ht + "-full-version-list", la = ht + "-arch", ca = ht + "-" + oi, ua = ht + "-form-factors", ha = ht + "-" + P, da = ht + "-" + g, rr = ht + "-" + Ut, pa = rr + "-version", or = [ts, ns, P, g, Ut, is, be, yt, oi], Wn = "Amazon", Dt = "Apple", Cs = "ASUS", Rs = "BlackBerry", _t = "Google", Os = "Huawei", yi = "Lenovo", Ms = "Honor", qn = "LG", Ei = "Microsoft", Si = "Motorola", Ti = "Nvidia", Ls = "OnePlus", Ai = "OPPO", pn = "Samsung", Is = "Sharp", fn = "Sony", Ci = "Xiaomi", Ri = "Zebra", Ps = "Chrome", Ds = "Chromium", lt = "Chromecast", Kn = "Edge", gn = "Firefox", mn = "Opera", Oi = "Facebook", Ns = "Sogou", Nt = "Mobile ", wn = " Browser", Vi = "Windows", fa = typeof window !== ut, xe = fa && window.navigator ? window.navigator : void 0, ct = xe && xe.userAgentData ? xe.userAgentData : void 0, ga = function(n, e) {
+  var t = {}, i = e;
+  if (!ni(e)) {
+    i = {};
+    for (var s in e)
+      for (var r in e[s])
+        i[r] = e[s][r].concat(i[r] ? i[r] : []);
+  }
+  for (var a in n)
+    t[a] = i[a] && i[a].length % 2 === 0 ? i[a].concat(n[a]) : n[a];
+  return t;
+}, ai = function(n) {
+  for (var e = {}, t = 0; t < n.length; t++)
+    e[n[t].toUpperCase()] = n[t];
+  return e;
+}, ji = function(n, e) {
+  if (typeof n === Ht && n.length > 0) {
+    for (var t in n)
+      if (Qe(e) == Qe(n[t])) return !0;
+    return !1;
+  }
+  return Vt(n) ? Qe(e) == Qe(n) : !1;
+}, ni = function(n, e) {
+  for (var t in n)
+    return /^(browser|cpu|device|engine|os)$/.test(t) || (e ? ni(n[t]) : !1);
+}, Vt = function(n) {
+  return typeof n === Fi;
+}, Mi = function(n) {
+  if (n) {
+    for (var e = [], t = $t(/\\?\"/g, n).split(","), i = 0; i < t.length; i++)
+      if (t[i].indexOf(";") > -1) {
+        var s = ii(t[i]).split(";v=");
+        e[i] = { brand: s[0], version: s[1] };
+      } else
+        e[i] = ii(t[i]);
+    return e;
+  }
+}, Qe = function(n) {
+  return Vt(n) ? n.toLowerCase() : n;
+}, Li = function(n) {
+  return Vt(n) ? $t(/[^\d\.]/g, n).split(".")[0] : void 0;
+}, Je = function(n) {
+  for (var e in n) {
+    var t = n[e];
+    typeof t == Ht && t.length == 2 ? this[t[0]] = t[1] : this[t] = void 0;
+  }
+  return this;
+}, $t = function(n, e) {
+  return Vt(e) ? e.replace(n, zt) : e;
+}, bn = function(n) {
+  return $t(/\\?\"/g, n);
+}, ii = function(n, e) {
+  if (Vt(n))
+    return n = $t(/^\s\s*/, n), typeof e === ut ? n : n.substring(0, $i);
+}, Ii = function(n, e) {
+  if (!(!n || !e))
+    for (var t = 0, i, s, r, a, c, h; t < e.length && !c; ) {
+      var u = e[t], f = e[t + 1];
+      for (i = s = 0; i < u.length && !c && u[i]; )
+        if (c = u[i++].exec(n), c)
+          for (r = 0; r < f.length; r++)
+            h = c[++s], a = f[r], typeof a === Ht && a.length > 0 ? a.length === 2 ? typeof a[1] == ti ? this[a[0]] = a[1].call(this, h) : this[a[0]] = a[1] : a.length >= 3 && (typeof a[1] === ti && !(a[1].exec && a[1].test) ? a.length > 3 ? this[a[0]] = h ? a[1].apply(this, a.slice(2)) : void 0 : this[a[0]] = h ? a[1].call(this, h, a[2]) : void 0 : a.length == 3 ? this[a[0]] = h ? h.replace(a[1], a[2]) : void 0 : a.length == 4 ? this[a[0]] = h ? a[3].call(this, h.replace(a[1], a[2])) : void 0 : a.length > 4 && (this[a[0]] = h ? a[3].apply(this, [h.replace(a[1], a[2])].concat(a.slice(4))) : void 0)) : this[a] = h || void 0;
+      t += 2;
+    }
+}, $e = function(n, e) {
+  for (var t in e)
+    if (typeof e[t] === Ht && e[t].length > 0) {
+      for (var i = 0; i < e[t].length; i++)
+        if (ji(e[t][i], n))
+          return t === As ? void 0 : t;
+    } else if (ji(e[t], n))
+      return t === As ? void 0 : t;
+  return e.hasOwnProperty("*") ? e["*"] : n;
+}, Bs = {
+  ME: "4.90",
+  "NT 3.51": "3.51",
+  "NT 4.0": "4.0",
+  2e3: ["5.0", "5.01"],
+  XP: ["5.1", "5.2"],
+  Vista: "6.0",
+  7: "6.1",
+  8: "6.2",
+  "8.1": "6.3",
+  10: ["6.4", "10.0"],
+  NT: ""
+}, Us = {
+  embedded: "Automotive",
+  mobile: "Mobile",
+  tablet: ["Tablet", "EInk"],
+  smarttv: "TV",
+  wearable: "Watch",
+  xr: ["VR", "XR"],
+  "?": ["Desktop", "Unknown"],
+  "*": void 0
+}, ma = {
+  Chrome: "Google Chrome",
+  Edge: "Microsoft Edge",
+  "Edge WebView2": "Microsoft Edge WebView2",
+  "Chrome WebView": "Android WebView",
+  "Chrome Headless": "HeadlessChrome",
+  "Huawei Browser": "HuaweiBrowser",
+  "MIUI Browser": "Miui Browser",
+  "Opera Mobi": "OperaMobile",
+  Yandex: "YaBrowser"
+}, zs = {
+  browser: [
+    [
+      // Most common regardless engine
+      /\b(?:crmo|crios)\/([\w\.]+)/i
+      // Chrome for Android/iOS
+    ],
+    [x, [b, Nt + "Chrome"]],
+    [
+      /webview.+edge\/([\w\.]+)/i
+      // Microsoft Edge
+    ],
+    [x, [b, Kn + " WebView"]],
+    [
+      /edg(?:e|ios|a)?\/([\w\.]+)/i
+    ],
+    [x, [b, "Edge"]],
+    [
+      // Presto based
+      /(opera mini)\/([-\w\.]+)/i,
+      // Opera Mini
+      /(opera [mobiletab]{3,6})\b.+version\/([-\w\.]+)/i,
+      // Opera Mobi/Tablet
+      /(opera)(?:.+version\/|[\/ ]+)([\w\.]+)/i
+      // Opera
+    ],
+    [b, x],
+    [
+      /opios[\/ ]+([\w\.]+)/i
+      // Opera mini on iphone >= 8.0
+    ],
+    [x, [b, mn + " Mini"]],
+    [
+      /\bop(?:rg)?x\/([\w\.]+)/i
+      // Opera GX
+    ],
+    [x, [b, mn + " GX"]],
+    [
+      /\bopr\/([\w\.]+)/i
+      // Opera Webkit
+    ],
+    [x, [b, mn]],
+    [
+      // Mixed
+      /\bb[ai]*d(?:uhd|[ub]*[aekoprswx]{5,6})[\/ ]?([\w\.]+)/i
+      // Baidu
+    ],
+    [x, [b, "Baidu"]],
+    [
+      /\b(?:mxbrowser|mxios|myie2)\/?([-\w\.]*)\b/i
+      // Maxthon
+    ],
+    [x, [b, "Maxthon"]],
+    [
+      /(kindle)\/([\w\.]+)/i,
+      // Kindle
+      /(lunascape|maxthon|netfront|jasmine|blazer|sleipnir)[\/ ]?([\w\.]*)/i,
+      // Lunascape/Maxthon/Netfront/Jasmine/Blazer/Sleipnir
+      // Trident based
+      /(avant|iemobile|slim(?:browser|boat|jet))[\/ ]?([\d\.]*)/i,
+      // Avant/IEMobile/SlimBrowser/SlimBoat/Slimjet
+      /(?:ms|\()(ie) ([\w\.]+)/i,
+      // Internet Explorer
+      // Blink/Webkit/KHTML based                                         // Flock/RockMelt/Midori/Epiphany/Silk/Skyfire/Bolt/Iron/Iridium/PhantomJS/Bowser/QupZilla/Falkon/LG Browser/Otter/qutebrowser/Dooble
+      /(flock|rockmelt|midori|epiphany|silk|skyfire|ovibrowser|bolt|iron|vivaldi|iridium|phantomjs|bowser|qupzilla|falkon|rekonq|puffin|brave|whale(?!.+naver)|qqbrowserlite|duckduckgo|klar|helio|(?=comodo_)?dragon|otter|dooble|(?:lg |qute)browser)\/([-\w\.]+)/i,
+      // Rekonq/Puffin/Brave/Whale/QQBrowserLite/QQ//Vivaldi/DuckDuckGo/Klar/Helio/Dragon
+      /(heytap|ovi|115|surf)browser\/([\d\.]+)/i,
+      // HeyTap/Ovi/115/Surf
+      /(ecosia|weibo)(?:__| \w+@)([\d\.]+)/i
+      // Ecosia/Weibo
+    ],
+    [b, x],
+    [
+      /quark(?:pc)?\/([-\w\.]+)/i
+      // Quark
+    ],
+    [x, [b, "Quark"]],
+    [
+      /\bddg\/([\w\.]+)/i
+      // DuckDuckGo
+    ],
+    [x, [b, "DuckDuckGo"]],
+    [
+      /(?:\buc? ?browser|(?:juc.+)ucweb)[\/ ]?([\w\.]+)/i
+      // UCBrowser
+    ],
+    [x, [b, "UCBrowser"]],
+    [
+      /microm.+\bqbcore\/([\w\.]+)/i,
+      // WeChat Desktop for Windows Built-in Browser
+      /\bqbcore\/([\w\.]+).+microm/i,
+      /micromessenger\/([\w\.]+)/i
+      // WeChat
+    ],
+    [x, [b, "WeChat"]],
+    [
+      /konqueror\/([\w\.]+)/i
+      // Konqueror
+    ],
+    [x, [b, "Konqueror"]],
+    [
+      /trident.+rv[: ]([\w\.]{1,9})\b.+like gecko/i
+      // IE11
+    ],
+    [x, [b, "IE"]],
+    [
+      /ya(?:search)?browser\/([\w\.]+)/i
+      // Yandex
+    ],
+    [x, [b, "Yandex"]],
+    [
+      /slbrowser\/([\w\.]+)/i
+      // Smart Lenovo Browser
+    ],
+    [x, [b, "Smart " + yi + wn]],
+    [
+      /(avast|avg)\/([\w\.]+)/i
+      // Avast/AVG Secure Browser
+    ],
+    [[b, /(.+)/, "$1 Secure" + wn], x],
+    [
+      /\bfocus\/([\w\.]+)/i
+      // Firefox Focus
+    ],
+    [x, [b, gn + " Focus"]],
+    [
+      /\bopt\/([\w\.]+)/i
+      // Opera Touch
+    ],
+    [x, [b, mn + " Touch"]],
+    [
+      /coc_coc\w+\/([\w\.]+)/i
+      // Coc Coc Browser
+    ],
+    [x, [b, "Coc Coc"]],
+    [
+      /dolfin\/([\w\.]+)/i
+      // Dolphin
+    ],
+    [x, [b, "Dolphin"]],
+    [
+      /coast\/([\w\.]+)/i
+      // Opera Coast
+    ],
+    [x, [b, mn + " Coast"]],
+    [
+      /miuibrowser\/([\w\.]+)/i
+      // MIUI Browser
+    ],
+    [x, [b, "MIUI" + wn]],
+    [
+      /fxios\/([\w\.-]+)/i
+      // Firefox for iOS
+    ],
+    [x, [b, Nt + gn]],
+    [
+      /\bqihoobrowser\/?([\w\.]*)/i
+      // 360
+    ],
+    [x, [b, "360"]],
+    [
+      /\b(qq)\/([\w\.]+)/i
+      // QQ
+    ],
+    [[b, /(.+)/, "$1Browser"], x],
+    [
+      /(oculus|sailfish|huawei|vivo|pico)browser\/([\w\.]+)/i
+    ],
+    [[b, /(.+)/, "$1" + wn], x],
+    [
+      // Oculus/Sailfish/HuaweiBrowser/VivoBrowser/PicoBrowser
+      /samsungbrowser\/([\w\.]+)/i
+      // Samsung Internet
+    ],
+    [x, [b, pn + " Internet"]],
+    [
+      /metasr[\/ ]?([\d\.]+)/i
+      // Sogou Explorer
+    ],
+    [x, [b, Ns + " Explorer"]],
+    [
+      /(sogou)mo\w+\/([\d\.]+)/i
+      // Sogou Mobile
+    ],
+    [[b, Ns + " Mobile"], x],
+    [
+      /(electron)\/([\w\.]+) safari/i,
+      // Electron-based App
+      /(tesla)(?: qtcarbrowser|\/(20\d\d\.[-\w\.]+))/i,
+      // Tesla
+      /m?(qqbrowser|2345(?=browser|chrome|explorer))\w*[\/ ]?v?([\w\.]+)/i
+      // QQ/2345
+    ],
+    [b, x],
+    [
+      /(lbbrowser|rekonq)/i
+      // LieBao Browser/Rekonq
+    ],
+    [b],
+    [
+      /ome\/([\w\.]+) \w* ?(iron) saf/i,
+      // Iron
+      /ome\/([\w\.]+).+qihu (360)[es]e/i
+      // 360
+    ],
+    [x, b],
+    [
+      // WebView
+      /((?:fban\/fbios|fb_iab\/fb4a)(?!.+fbav)|;fbav\/([\w\.]+);)/i
+      // Facebook App for iOS & Android
+    ],
+    [[b, Oi], x, [p, dn]],
+    [
+      /(kakao(?:talk|story))[\/ ]([\w\.]+)/i,
+      // Kakao App
+      /(naver)\(.*?(\d+\.[\w\.]+).*\)/i,
+      // Naver InApp
+      /(daum)apps[\/ ]([\w\.]+)/i,
+      // Daum App
+      /safari (line)\/([\w\.]+)/i,
+      // Line App for iOS
+      /\b(line)\/([\w\.]+)\/iab/i,
+      // Line App for Android
+      /(alipay)client\/([\w\.]+)/i,
+      // Alipay
+      /(twitter)(?:and| f.+e\/([\w\.]+))/i,
+      // Twitter
+      /(instagram|snapchat|klarna)[\/ ]([-\w\.]+)/i
+      // Instagram/Snapchat/Klarna
+    ],
+    [b, x, [p, dn]],
+    [
+      /\bgsa\/([\w\.]+) .*safari\//i
+      // Google Search Appliance on iOS
+    ],
+    [x, [b, "GSA"], [p, dn]],
+    [
+      /musical_ly(?:.+app_?version\/|_)([\w\.]+)/i
+      // TikTok
+    ],
+    [x, [b, "TikTok"], [p, dn]],
+    [
+      /\[(linkedin)app\]/i
+      // LinkedIn App for iOS & Android
+    ],
+    [b, [p, dn]],
+    [
+      /(chromium)[\/ ]([-\w\.]+)/i
+      // Chromium
+    ],
+    [b, x],
+    [
+      /headlesschrome(?:\/([\w\.]+)| )/i
+      // Chrome Headless
+    ],
+    [x, [b, Ps + " Headless"]],
+    [
+      /wv\).+chrome\/([\w\.]+).+edgw\//i
+      // Edge WebView2
+    ],
+    [x, [b, Kn + " WebView2"]],
+    [
+      / wv\).+(chrome)\/([\w\.]+)/i
+      // Chrome WebView
+    ],
+    [[b, Ps + " WebView"], x],
+    [
+      /droid.+ version\/([\w\.]+)\b.+(?:mobile safari|safari)/i
+      // Android Browser
+    ],
+    [x, [b, "Android" + wn]],
+    [
+      /chrome\/([\w\.]+) mobile/i
+      // Chrome Mobile
+    ],
+    [x, [b, Nt + "Chrome"]],
+    [
+      /(chrome|omniweb|arora|[tizenoka]{5} ?browser)\/v?([\w\.]+)/i
+      // Chrome/OmniWeb/Arora/Tizen/Nokia
+    ],
+    [b, x],
+    [
+      /version\/([\w\.\,]+) .*mobile(?:\/\w+ | ?)safari/i
+      // Safari Mobile
+    ],
+    [x, [b, Nt + "Safari"]],
+    [
+      /iphone .*mobile(?:\/\w+ | ?)safari/i
+    ],
+    [[b, Nt + "Safari"]],
+    [
+      /version\/([\w\.\,]+) .*(safari)/i
+      // Safari
+    ],
+    [x, b],
+    [
+      /webkit.+?(mobile ?safari|safari)(\/[\w\.]+)/i
+      // Safari < 3.0
+    ],
+    [b, [x, "1"]],
+    [
+      /(webkit|khtml)\/([\w\.]+)/i
+    ],
+    [b, x],
+    [
+      // Gecko based
+      /(?:mobile|tablet);.*(firefox)\/([\w\.-]+)/i
+      // Firefox Mobile
+    ],
+    [[b, Nt + gn], x],
+    [
+      /(navigator|netscape\d?)\/([-\w\.]+)/i
+      // Netscape
+    ],
+    [[b, "Netscape"], x],
+    [
+      /(wolvic|librewolf)\/([\w\.]+)/i
+      // Wolvic/LibreWolf
+    ],
+    [b, x],
+    [
+      /mobile vr; rv:([\w\.]+)\).+firefox/i
+      // Firefox Reality
+    ],
+    [x, [b, gn + " Reality"]],
+    [
+      /ekiohf.+(flow)\/([\w\.]+)/i,
+      // Flow
+      /(swiftfox)/i,
+      // Swiftfox
+      /(icedragon|iceweasel|camino|chimera|fennec|maemo browser|minimo|conkeror)[\/ ]?([\w\.\+]+)/i,
+      // IceDragon/Iceweasel/Camino/Chimera/Fennec/Maemo/Minimo/Conkeror
+      /(seamonkey|k-meleon|icecat|iceape|firebird|phoenix|palemoon|basilisk|waterfox)\/([-\w\.]+)$/i,
+      // Firefox/SeaMonkey/K-Meleon/IceCat/IceApe/Firebird/Phoenix
+      /(firefox)\/([\w\.]+)/i,
+      // Other Firefox-based
+      /(mozilla)\/([\w\.]+) .+rv\:.+gecko\/\d+/i,
+      // Mozilla
+      // Other
+      /(amaya|dillo|doris|icab|ladybird|lynx|mosaic|netsurf|obigo|polaris|w3m|(?:go|ice|up)[\. ]?browser)[-\/ ]?v?([\w\.]+)/i,
+      // Polaris/Lynx/Dillo/iCab/Doris/Amaya/w3m/NetSurf/Obigo/Mosaic/Go/ICE/UP.Browser/Ladybird
+      /\b(links) \(([\w\.]+)/i
+      // Links
+    ],
+    [b, [x, /_/g, "."]],
+    [
+      /(cobalt)\/([\w\.]+)/i
+      // Cobalt
+    ],
+    [b, [x, /[^\d\.]+./, zt]]
+  ],
+  cpu: [
+    [
+      /\b((amd|x|x86[-_]?|wow|win)64)\b/i
+      // AMD64 (x64)
+    ],
+    [[be, "amd64"]],
+    [
+      /(ia32(?=;))/i,
+      // IA32 (quicktime)
+      /\b((i[346]|x)86)(pc)?\b/i
+      // IA32 (x86)
+    ],
+    [[be, "ia32"]],
+    [
+      /\b(aarch64|arm(v?[89]e?l?|_?64))\b/i
+      // ARM64
+    ],
+    [[be, "arm64"]],
+    [
+      /\b(arm(v[67])?ht?n?[fl]p?)\b/i
+      // ARMHF
+    ],
+    [[be, "armhf"]],
+    [
+      // PocketPC mistakenly identified as PowerPC
+      /( (ce|mobile); ppc;|\/[\w\.]+arm\b)/i
+    ],
+    [[be, "arm"]],
+    [
+      /((ppc|powerpc)(64)?)( mac|;|\))/i
+      // PowerPC
+    ],
+    [[be, /ower/, zt, Qe]],
+    [
+      / sun4\w[;\)]/i
+      // SPARC
+    ],
+    [[be, "sparc"]],
+    [
+      /\b(avr32|ia64(?=;)|68k(?=\))|\barm(?=v([1-7]|[5-7]1)l?|;|eabi)|(irix|mips|sparc)(64)?\b|pa-risc)/i
+      // IA64, 68K, ARM/64, AVR/32, IRIX/64, MIPS/64, SPARC/64, PA-RISC
+    ],
+    [[be, Qe]]
+  ],
+  device: [
+    [
+      //////////////////////////
+      // MOBILES & TABLETS
+      /////////////////////////
+      // Samsung
+      /\b(sch-i[89]0\d|shw-m380s|sm-[ptx]\w{2,4}|gt-[pn]\d{2,4}|sgh-t8[56]9|nexus 10)/i
+    ],
+    [g, [m, pn], [p, G]],
+    [
+      /\b((?:s[cgp]h|gt|sm)-(?![lr])\w+|sc[g-]?[\d]+a?|galaxy nexus)/i,
+      /samsung[- ]((?!sm-[lr]|browser)[-\w]+)/i,
+      /sec-(sgh\w+)/i
+    ],
+    [g, [m, pn], [p, P]],
+    [
+      // Apple
+      /(?:\/|\()(ip(?:hone|od)[\w, ]*)(?:\/|;)/i
+      // iPod/iPhone
+    ],
+    [g, [m, Dt], [p, P]],
+    [
+      /\((ipad);[-\w\),; ]+apple/i,
+      // iPad
+      /applecoremedia\/[\w\.]+ \((ipad)/i,
+      /\b(ipad)\d\d?,\d\d?[;\]].+ios/i
+    ],
+    [g, [m, Dt], [p, G]],
+    [
+      /(macintosh);/i
+    ],
+    [g, [m, Dt]],
+    [
+      // Sharp
+      /\b(sh-?[altvz]?\d\d[a-ekm]?)/i
+    ],
+    [g, [m, Is], [p, P]],
+    [
+      // Honor
+      /\b((?:brt|eln|hey2?|gdi|jdn)-a?[lnw]09|(?:ag[rm]3?|jdn2|kob2)-a?[lw]0[09]hn)(?: bui|\)|;)/i
+    ],
+    [g, [m, Ms], [p, G]],
+    [
+      /honor([-\w ]+)[;\)]/i
+    ],
+    [g, [m, Ms], [p, P]],
+    [
+      // Huawei
+      /\b((?:ag[rs][2356]?k?|bah[234]?|bg[2o]|bt[kv]|cmr|cpn|db[ry]2?|jdn2|got|kob2?k?|mon|pce|scm|sht?|[tw]gr|vrd)-[ad]?[lw][0125][09]b?|605hw|bg2-u03|(?:gem|fdr|m2|ple|t1)-[7a]0[1-4][lu]|t1-a2[13][lw]|mediapad[\w\. ]*(?= bui|\)))\b(?!.+d\/s)/i
+    ],
+    [g, [m, Os], [p, G]],
+    [
+      /(?:huawei)([-\w ]+)[;\)]/i,
+      /\b(nexus 6p|\w{2,4}e?-[atu]?[ln][\dx][012359c][adn]?)\b(?!.+d\/s)/i
+    ],
+    [g, [m, Os], [p, P]],
+    [
+      // Xiaomi
+      /oid[^\)]+; (2[\dbc]{4}(182|283|rp\w{2})[cgl]|m2105k81a?c)(?: bui|\))/i,
+      /\b((?:red)?mi[-_ ]?pad[\w- ]*)(?: bui|\))/i
+      // Mi Pad tablets
+    ],
+    [[g, /_/g, " "], [m, Ci], [p, G]],
+    [
+      /\b(poco[\w ]+|m2\d{3}j\d\d[a-z]{2})(?: bui|\))/i,
+      // Xiaomi POCO
+      /\b; (\w+) build\/hm\1/i,
+      // Xiaomi Hongmi 'numeric' models
+      /\b(hm[-_ ]?note?[_ ]?(?:\d\w)?) bui/i,
+      // Xiaomi Hongmi
+      /\b(redmi[\-_ ]?(?:note|k)?[\w_ ]+)(?: bui|\))/i,
+      // Xiaomi Redmi
+      /oid[^\)]+; (m?[12][0-389][01]\w{3,6}[c-y])( bui|; wv|\))/i,
+      // Xiaomi Redmi 'numeric' models
+      /\b(mi[-_ ]?(?:a\d|one|one[_ ]plus|note lte|max|cc)?[_ ]?(?:\d?\w?)[_ ]?(?:plus|se|lite|pro)?)(?: bui|\))/i,
+      // Xiaomi Mi
+      / ([\w ]+) miui\/v?\d/i
+    ],
+    [[g, /_/g, " "], [m, Ci], [p, P]],
+    [
+      // OnePlus
+      /droid.+; (cph2[3-6]\d[13579]|((gm|hd)19|(ac|be|in|kb)20|(d[en]|eb|le|mt)21|ne22)[0-2]\d|p[g-k]\w[1m]10)\b/i,
+      /(?:one)?(?:plus)? (a\d0\d\d)(?: b|\))/i
+    ],
+    [g, [m, Ls], [p, P]],
+    [
+      // OPPO
+      /; (\w+) bui.+ oppo/i,
+      /\b(cph[12]\d{3}|p(?:af|c[al]|d\w|e[ar])[mt]\d0|x9007|a101op)\b/i
+    ],
+    [g, [m, Ai], [p, P]],
+    [
+      /\b(opd2(\d{3}a?))(?: bui|\))/i
+    ],
+    [g, [m, $e, { OnePlus: ["203", "304", "403", "404", "413", "415"], "*": Ai }], [p, G]],
+    [
+      // BLU
+      /(vivo (5r?|6|8l?|go|one|s|x[il]?[2-4]?)[\w\+ ]*)(?: bui|\))/i
+      // Vivo series
+    ],
+    [g, [m, "BLU"], [p, P]],
+    [
+      // Vivo
+      /; vivo (\w+)(?: bui|\))/i,
+      /\b(v[12]\d{3}\w?[at])(?: bui|;)/i
+    ],
+    [g, [m, "Vivo"], [p, P]],
+    [
+      // Realme
+      /\b(rmx[1-3]\d{3})(?: bui|;|\))/i
+    ],
+    [g, [m, "Realme"], [p, P]],
+    [
+      // Lenovo
+      /(ideatab[-\w ]+|602lv|d-42a|a101lv|a2109a|a3500-hv|s[56]000|pb-6505[my]|tb-?x?\d{3,4}(?:f[cu]|xu|[av])|yt\d?-[jx]?\d+[lfmx])( bui|;|\)|\/)/i,
+      /lenovo ?(b[68]0[08]0-?[hf]?|tab(?:[\w- ]+?)|tb[\w-]{6,7})( bui|;|\)|\/)/i
+    ],
+    [g, [m, yi], [p, G]],
+    [
+      /lenovo[-_ ]?([-\w ]+?)(?: bui|\)|\/)/i
+    ],
+    [g, [m, yi], [p, P]],
+    [
+      // Motorola
+      /\b(milestone|droid(?:[2-4x]| (?:bionic|x2|pro|razr))?:?( 4g)?)\b[\w ]+build\//i,
+      /\bmot(?:orola)?[- ]([\w\s]+)(\)| bui)/i,
+      /((?:moto(?! 360)[-\w\(\) ]+|xt\d{3,4}[cgkosw\+]?[-\d]*|nexus 6)(?= bui|\)))/i
+    ],
+    [g, [m, Si], [p, P]],
+    [
+      /\b(mz60\d|xoom[2 ]{0,2}) build\//i
+    ],
+    [g, [m, Si], [p, G]],
+    [
+      // LG
+      /((?=lg)?[vl]k\-?\d{3}) bui| 3\.[-\w; ]{10}lg?-([06cv9]{3,4})/i
+    ],
+    [g, [m, qn], [p, G]],
+    [
+      /(lm(?:-?f100[nv]?|-[\w\.]+)(?= bui|\))|nexus [45])/i,
+      /\blg[-e;\/ ]+(?!.*(?:browser|netcast|android tv|watch|webos))(\w+)/i,
+      /\blg-?([\d\w]+) bui/i
+    ],
+    [g, [m, qn], [p, P]],
+    [
+      // Nokia
+      /(nokia) (t[12][01])/i
+    ],
+    [m, g, [p, G]],
+    [
+      /(?:maemo|nokia).*(n900|lumia \d+|rm-\d+)/i,
+      /nokia[-_ ]?(([-\w\. ]*))/i
+    ],
+    [[g, /_/g, " "], [p, P], [m, "Nokia"]],
+    [
+      // Google
+      /(pixel (c|tablet))\b/i
+      // Google Pixel C/Tablet
+    ],
+    [g, [m, _t], [p, G]],
+    [
+      // Google Pixel
+      /droid.+;(?: google)? (g(01[13]a|020[aem]|025[jn]|1b60|1f8f|2ybb|4s1m|576d|5nz6|8hhn|8vou|a02099|c15s|d1yq|e2ae|ec77|gh2x|kv4x|p4bc|pj41|r83y|tt9q|ur25|wvk6)|pixel[\d ]*a?( pro)?( xl)?( fold)?( \(5g\))?)( bui|\))/i
+    ],
+    [g, [m, _t], [p, P]],
+    [
+      /(google) (pixelbook( go)?)/i
+    ],
+    [m, g],
+    [
+      // Sony
+      /droid.+; (a?\d[0-2]{2}so|[c-g]\d{4}|so[-gl]\w+|xq-\w\w\d\d)(?= bui|\).+chrome\/(?![1-6]{0,1}\d\.))/i
+    ],
+    [g, [m, fn], [p, P]],
+    [
+      /sony tablet [ps]/i,
+      /\b(?:sony)?sgp\w+(?: bui|\))/i
+    ],
+    [[g, "Xperia Tablet"], [m, fn], [p, G]],
+    [
+      // Amazon
+      /(alexa)webm/i,
+      /(kf[a-z]{2}wi|aeo(?!bc)\w\w)( bui|\))/i,
+      // Kindle Fire without Silk / Echo Show
+      /(kf[a-z]+)( bui|\)).+silk\//i
+      // Kindle Fire HD
+    ],
+    [g, [m, Wn], [p, G]],
+    [
+      /((?:sd|kf)[0349hijorstuw]+)( bui|\)).+silk\//i
+      // Fire Phone
+    ],
+    [[g, /(.+)/g, "Fire Phone $1"], [m, Wn], [p, P]],
+    [
+      // BlackBerry
+      /(playbook);[-\w\),; ]+(rim)/i
+      // BlackBerry PlayBook
+    ],
+    [g, m, [p, G]],
+    [
+      /\b((?:bb[a-f]|st[hv])100-\d)/i,
+      /\(bb10; (\w+)/i
+      // BlackBerry 10
+    ],
+    [g, [m, Rs], [p, P]],
+    [
+      // Asus
+      /(?:\b|asus_)(transfo[prime ]{4,10} \w+|eeepc|slider \w+|nexus 7|padfone|p00[cj])/i
+    ],
+    [g, [m, Cs], [p, G]],
+    [
+      / (z[bes]6[027][012][km][ls]|zenfone \d\w?)\b/i
+    ],
+    [g, [m, Cs], [p, P]],
+    [
+      // HTC
+      /(nexus 9)/i
+      // HTC Nexus 9
+    ],
+    [g, [m, "HTC"], [p, G]],
+    [
+      /(htc)[-;_ ]{1,2}([\w ]+(?=\)| bui)|\w+)/i,
+      // HTC
+      // ZTE
+      /(zte)[- ]([\w ]+?)(?: bui|\/|\))/i,
+      /(alcatel|geeksphone|nexian|panasonic(?!(?:;|\.))|sony(?!-bra))[-_ ]?([-\w]*)/i
+      // Alcatel/GeeksPhone/Nexian/Panasonic/Sony
+    ],
+    [m, [g, /_/g, " "], [p, P]],
+    [
+      // TCL
+      /tcl (xess p17aa)/i,
+      /droid [\w\.]+; ((?:8[14]9[16]|9(?:0(?:48|60|8[01])|1(?:3[27]|66)|2(?:6[69]|9[56])|466))[gqswx])(_\w(\w|\w\w))?(\)| bui)/i
+    ],
+    [g, [m, "TCL"], [p, G]],
+    [
+      /droid [\w\.]+; (418(?:7d|8v)|5087z|5102l|61(?:02[dh]|25[adfh]|27[ai]|56[dh]|59k|65[ah])|a509dl|t(?:43(?:0w|1[adepqu])|50(?:6d|7[adju])|6(?:09dl|10k|12b|71[efho]|76[hjk])|7(?:66[ahju]|67[hw]|7[045][bh]|71[hk]|73o|76[ho]|79w|81[hks]?|82h|90[bhsy]|99b)|810[hs]))(_\w(\w|\w\w))?(\)| bui)/i
+    ],
+    [g, [m, "TCL"], [p, P]],
+    [
+      // itel
+      /(itel) ((\w+))/i
+    ],
+    [[m, Qe], g, [p, $e, { tablet: ["p10001l", "w7001"], "*": "mobile" }]],
+    [
+      // Acer
+      /droid.+; ([ab][1-7]-?[0178a]\d\d?)/i
+    ],
+    [g, [m, "Acer"], [p, G]],
+    [
+      // Meizu
+      /droid.+; (m[1-5] note) bui/i,
+      /\bmz-([-\w]{2,})/i
+    ],
+    [g, [m, "Meizu"], [p, P]],
+    [
+      // Ulefone
+      /; ((?:power )?armor(?:[\w ]{0,8}))(?: bui|\))/i
+    ],
+    [g, [m, "Ulefone"], [p, P]],
+    [
+      // Energizer
+      /; (energy ?\w+)(?: bui|\))/i,
+      /; energizer ([\w ]+)(?: bui|\))/i
+    ],
+    [g, [m, "Energizer"], [p, P]],
+    [
+      // Cat
+      /; cat (b35);/i,
+      /; (b15q?|s22 flip|s48c|s62 pro)(?: bui|\))/i
+    ],
+    [g, [m, "Cat"], [p, P]],
+    [
+      // Smartfren
+      /((?:new )?andromax[\w- ]+)(?: bui|\))/i
+    ],
+    [g, [m, "Smartfren"], [p, P]],
+    [
+      // Nothing
+      /droid.+; (a(in)?(0(15|59|6[35])|142)p?)/i
+    ],
+    [g, [m, "Nothing"], [p, P]],
+    [
+      // Archos
+      /; (x67 5g|tikeasy \w+|ac[1789]\d\w+)( b|\))/i,
+      /archos ?(5|gamepad2?|([\w ]*[t1789]|hello) ?\d+[\w ]*)( b|\))/i
+    ],
+    [g, [m, "Archos"], [p, G]],
+    [
+      /archos ([\w ]+)( b|\))/i,
+      /; (ac[3-6]\d\w{2,8})( b|\))/i
+    ],
+    [g, [m, "Archos"], [p, P]],
+    [
+      // HMD
+      /; (n159v)/i
+    ],
+    [g, [m, "HMD"], [p, P]],
+    [
+      // MIXED
+      /(imo) (tab \w+)/i,
+      // IMO
+      /(infinix|tecno) (x1101b?|p904|dp(7c|8d|10a)( pro)?|p70[1-3]a?|p904|t1101)/i
+      // Infinix XPad / Tecno
+    ],
+    [m, g, [p, G]],
+    [
+      /(blackberry|benq|palm(?=\-)|sonyericsson|acer|asus(?! zenw)|dell|jolla|meizu|motorola|polytron|tecno|micromax|advan)[-_ ]?([-\w]*)/i,
+      // BlackBerry/BenQ/Palm/Sony-Ericsson/Acer/Asus/Dell/Meizu/Motorola/Polytron/Tecno/Micromax/Advan
+      /; (blu|hmd|imo|infinix|lava|oneplus|tcl)[_ ]([\w\+ ]+?)(?: bui|\)|; r)/i,
+      // BLU/HMD/IMO/Infinix/Lava/OnePlus/TCL
+      /(hp) ([\w ]+\w)/i,
+      // HP iPAQ
+      /(microsoft); (lumia[\w ]+)/i,
+      // Microsoft Lumia
+      /(oppo) ?([\w ]+) bui/i
+      // OPPO
+    ],
+    [m, g, [p, P]],
+    [
+      /(kobo)\s(ereader|touch)/i,
+      // Kobo
+      /(hp).+(touchpad(?!.+tablet)|tablet)/i,
+      // HP TouchPad
+      /(kindle)\/([\w\.]+)/i
+      // Kindle
+    ],
+    [m, g, [p, G]],
+    [
+      /(surface duo)/i
+      // Surface Duo
+    ],
+    [g, [m, Ei], [p, G]],
+    [
+      /droid [\d\.]+; (fp\du?)(?: b|\))/i
+      // Fairphone
+    ],
+    [g, [m, "Fairphone"], [p, P]],
+    [
+      /((?:tegranote|shield t(?!.+d tv))[\w- ]*?)(?: b|\))/i
+      // Nvidia Tablets
+    ],
+    [g, [m, Ti], [p, G]],
+    [
+      /(sprint) (\w+)/i
+      // Sprint Phones
+    ],
+    [m, g, [p, P]],
+    [
+      /(kin\.[onetw]{3})/i
+      // Microsoft Kin
+    ],
+    [[g, /\./g, " "], [m, Ei], [p, P]],
+    [
+      /droid.+; ([c6]+|et5[16]|mc[239][23]x?|vc8[03]x?)\)/i
+      // Zebra
+    ],
+    [g, [m, Ri], [p, G]],
+    [
+      /droid.+; (ec30|ps20|tc[2-8]\d[kx])\)/i
+    ],
+    [g, [m, Ri], [p, P]],
+    [
+      ///////////////////
+      // SMARTTVS
+      ///////////////////
+      /smart-tv.+(samsung)/i
+      // Samsung
+    ],
+    [m, [p, ie]],
+    [
+      /hbbtv.+maple;(\d+)/i
+    ],
+    [[g, /^/, "SmartTV"], [m, pn], [p, ie]],
+    [
+      /(vizio)(?: |.+model\/)(\w+-\w+)/i,
+      // Vizio
+      /tcast.+(lg)e?. ([-\w]+)/i
+      // LG SmartTV
+    ],
+    [m, g, [p, ie]],
+    [
+      /(nux; netcast.+smarttv|lg (netcast\.tv-201\d|android tv))/i
+    ],
+    [[m, qn], [p, ie]],
+    [
+      /(apple) ?tv/i
+      // Apple TV
+    ],
+    [m, [g, Dt + " TV"], [p, ie]],
+    [
+      /crkey.*devicetype\/chromecast/i
+      // Google Chromecast Third Generation
+    ],
+    [[g, lt + " Third Generation"], [m, _t], [p, ie]],
+    [
+      /crkey.*devicetype\/([^/]*)/i
+      // Google Chromecast with specific device type
+    ],
+    [[g, /^/, "Chromecast "], [m, _t], [p, ie]],
+    [
+      /fuchsia.*crkey/i
+      // Google Chromecast Nest Hub
+    ],
+    [[g, lt + " Nest Hub"], [m, _t], [p, ie]],
+    [
+      /crkey/i
+      // Google Chromecast, Linux-based or unknown
+    ],
+    [[g, lt], [m, _t], [p, ie]],
+    [
+      /(portaltv)/i
+      // Facebook Portal TV
+    ],
+    [g, [m, Oi], [p, ie]],
+    [
+      /droid.+aft(\w+)( bui|\))/i
+      // Fire TV
+    ],
+    [g, [m, Wn], [p, ie]],
+    [
+      /(shield \w+ tv)/i
+      // Nvidia Shield TV
+    ],
+    [g, [m, Ti], [p, ie]],
+    [
+      /\(dtv[\);].+(aquos)/i,
+      /(aquos-tv[\w ]+)\)/i
+      // Sharp
+    ],
+    [g, [m, Is], [p, ie]],
+    [
+      /(bravia[\w ]+)( bui|\))/i
+      // Sony
+    ],
+    [g, [m, fn], [p, ie]],
+    [
+      /(mi(tv|box)-?\w+) bui/i
+      // Xiaomi
+    ],
+    [g, [m, Ci], [p, ie]],
+    [
+      /Hbbtv.*(technisat) (.*);/i
+      // TechniSAT
+    ],
+    [m, g, [p, ie]],
+    [
+      /\b(roku)[\dx]*[\)\/]((?:dvp-)?[\d\.]*)/i,
+      // Roku
+      /hbbtv\/\d+\.\d+\.\d+ +\([\w\+ ]*; *([\w\d][^;]*);([^;]*)/i
+      // HbbTV devices
+    ],
+    [[m, /.+\/(\w+)/, "$1", $e, { LG: "lge" }], [g, ii], [p, ie]],
+    [
+      // SmartTV from Unidentified Vendors
+      /droid.+; ([\w- ]+) (?:android tv|smart[- ]?tv)/i
+    ],
+    [g, [p, ie]],
+    [
+      /\b(android tv|smart[- ]?tv|opera tv|tv; rv:|large screen[\w ]+safari)\b/i
+    ],
+    [[p, ie]],
+    [
+      ///////////////////
+      // CONSOLES
+      ///////////////////
+      /(playstation \w+)/i
+      // Playstation
+    ],
+    [g, [m, fn], [p, xn]],
+    [
+      /\b(xbox(?: one)?(?!; xbox))[\); ]/i
+      // Microsoft Xbox
+    ],
+    [g, [m, Ei], [p, xn]],
+    [
+      /(ouya)/i,
+      // Ouya
+      /(nintendo) (\w+)/i,
+      // Nintendo
+      /(retroid) (pocket ([^\)]+))/i
+      // Retroid Pocket
+    ],
+    [m, g, [p, xn]],
+    [
+      /droid.+; (shield)( bui|\))/i
+      // Nvidia Portable
+    ],
+    [g, [m, Ti], [p, xn]],
+    [
+      ///////////////////
+      // WEARABLES
+      ///////////////////
+      /\b(sm-[lr]\d\d[0156][fnuw]?s?|gear live)\b/i
+      // Samsung Galaxy Watch
+    ],
+    [g, [m, pn], [p, He]],
+    [
+      /((pebble))app/i,
+      // Pebble
+      /(asus|google|lg|oppo) ((pixel |zen)?watch[\w ]*)( bui|\))/i
+      // Asus ZenWatch / LG Watch / Pixel Watch
+    ],
+    [m, g, [p, He]],
+    [
+      /(ow(?:19|20)?we?[1-3]{1,3})/i
+      // Oppo Watch
+    ],
+    [g, [m, Ai], [p, He]],
+    [
+      /(watch)(?: ?os[,\/]|\d,\d\/)[\d\.]+/i
+      // Apple Watch
+    ],
+    [g, [m, Dt], [p, He]],
+    [
+      /(opwwe\d{3})/i
+      // OnePlus Watch
+    ],
+    [g, [m, Ls], [p, He]],
+    [
+      /(moto 360)/i
+      // Motorola 360
+    ],
+    [g, [m, Si], [p, He]],
+    [
+      /(smartwatch 3)/i
+      // Sony SmartWatch
+    ],
+    [g, [m, fn], [p, He]],
+    [
+      /(g watch r)/i
+      // LG G Watch R
+    ],
+    [g, [m, qn], [p, He]],
+    [
+      /droid.+; (wt63?0{2,3})\)/i
+    ],
+    [g, [m, Ri], [p, He]],
+    [
+      ///////////////////
+      // XR
+      ///////////////////
+      /droid.+; (glass) \d/i
+      // Google Glass
+    ],
+    [g, [m, _t], [p, Gn]],
+    [
+      /(pico) (4|neo3(?: link|pro)?)/i
+      // Pico
+    ],
+    [m, g, [p, Gn]],
+    [
+      /(quest( \d| pro)?s?).+vr/i
+      // Meta Quest
+    ],
+    [g, [m, Oi], [p, Gn]],
+    [
+      /mobile vr; rv.+firefox/i
+      // Unidentifiable VR device using Firefox Reality / Wolvic
+    ],
+    [[p, Gn]],
+    [
+      ///////////////////
+      // EMBEDDED
+      ///////////////////
+      /(tesla)(?: qtcarbrowser|\/[-\w\.]+)/i
+      // Tesla
+    ],
+    [m, [p, _n]],
+    [
+      /(aeobc)\b/i
+      // Echo Dot
+    ],
+    [g, [m, Wn], [p, _n]],
+    [
+      /(homepod).+mac os/i
+      // Apple HomePod
+    ],
+    [g, [m, Dt], [p, _n]],
+    [
+      /windows iot/i
+      // Unidentifiable embedded device using Windows IoT
+    ],
+    [[p, _n]],
+    [
+      ////////////////////
+      // MIXED (GENERIC)
+      ///////////////////
+      /droid .+?; ([^;]+?)(?: bui|; wv\)|\) applew).+?(mobile|vr|\d) safari/i
+    ],
+    [g, [p, $e, { mobile: "Mobile", xr: "VR", "*": G }]],
+    [
+      /\b((tablet|tab)[;\/]|focus\/\d(?!.+mobile))/i
+      // Unidentifiable Tablet
+    ],
+    [[p, G]],
+    [
+      /(phone|mobile(?:[;\/]| [ \w\/\.]*safari)|pda(?=.+windows ce))/i
+      // Unidentifiable Mobile
+    ],
+    [[p, P]],
+    [
+      /droid .+?; ([\w\. -]+)( bui|\))/i
+      // Generic Android Device
+    ],
+    [g, [m, "Generic"]]
+  ],
+  engine: [
+    [
+      /windows.+ edge\/([\w\.]+)/i
+      // EdgeHTML
+    ],
+    [x, [b, Kn + "HTML"]],
+    [
+      /(arkweb)\/([\w\.]+)/i
+      // ArkWeb
+    ],
+    [b, x],
+    [
+      /webkit\/537\.36.+chrome\/(?!27)([\w\.]+)/i
+      // Blink
+    ],
+    [x, [b, "Blink"]],
+    [
+      /(presto)\/([\w\.]+)/i,
+      // Presto
+      /(webkit|trident|netfront|netsurf|amaya|lynx|w3m|goanna|servo)\/([\w\.]+)/i,
+      // WebKit/Trident/NetFront/NetSurf/Amaya/Lynx/w3m/Goanna/Servo
+      /ekioh(flow)\/([\w\.]+)/i,
+      // Flow
+      /(khtml|tasman|links)[\/ ]\(?([\w\.]+)/i,
+      // KHTML/Tasman/Links
+      /(icab)[\/ ]([23]\.[\d\.]+)/i,
+      // iCab
+      /\b(libweb)/i
+      // LibWeb
+    ],
+    [b, x],
+    [
+      /ladybird\//i
+    ],
+    [[b, "LibWeb"]],
+    [
+      /rv\:([\w\.]{1,9})\b.+(gecko)/i
+      // Gecko
+    ],
+    [x, b]
+  ],
+  os: [
+    [
+      // Windows
+      /(windows nt) (6\.[23]); arm/i
+      // Windows RT
+    ],
+    [[b, /N/, "R"], [x, $e, Bs]],
+    [
+      /(windows (?:phone|mobile|iot))(?: os)?[\/ ]?([\d\.]*( se)?)/i,
+      // Windows IoT/Mobile/Phone
+      // Windows NT/3.1/95/98/ME/2000/XP/Vista/7/8/8.1/10/11
+      /(windows)[\/ ](1[01]|2000|3\.1|7|8(\.1)?|9[58]|me|server 20\d\d( r2)?|vista|xp)/i
+    ],
+    [b, x],
+    [
+      /windows nt ?([\d\.\)]*)(?!.+xbox)/i,
+      /\bwin(?=3| ?9|n)(?:nt| 9x )?([\d\.;]*)/i
+    ],
+    [[x, /(;|\))/g, "", $e, Bs], [b, Vi]],
+    [
+      /(windows ce)\/?([\d\.]*)/i
+      // Windows CE
+    ],
+    [b, x],
+    [
+      // iOS/macOS
+      /[adehimnop]{4,7}\b(?:.*os ([\w]+) like mac|; opera)/i,
+      // iOS
+      /(?:ios;fbsv\/|iphone.+ios[\/ ])([\d\.]+)/i,
+      /cfnetwork\/.+darwin/i
+    ],
+    [[x, /_/g, "."], [b, "iOS"]],
+    [
+      /(mac os x) ?([\w\. ]*)/i,
+      /(macintosh|mac_powerpc\b)(?!.+(haiku|morphos))/i
+      // Mac OS
+    ],
+    [[b, "macOS"], [x, /_/g, "."]],
+    [
+      // Google Chromecast
+      /android ([\d\.]+).*crkey/i
+      // Google Chromecast, Android-based
+    ],
+    [x, [b, lt + " Android"]],
+    [
+      /fuchsia.*crkey\/([\d\.]+)/i
+      // Google Chromecast, Fuchsia-based
+    ],
+    [x, [b, lt + " Fuchsia"]],
+    [
+      /crkey\/([\d\.]+).*devicetype\/smartspeaker/i
+      // Google Chromecast, Linux-based Smart Speaker
+    ],
+    [x, [b, lt + " SmartSpeaker"]],
+    [
+      /linux.*crkey\/([\d\.]+)/i
+      // Google Chromecast, Legacy Linux-based
+    ],
+    [x, [b, lt + " Linux"]],
+    [
+      /crkey\/([\d\.]+)/i
+      // Google Chromecast, unknown
+    ],
+    [x, [b, lt]],
+    [
+      // Mobile OSes
+      /droid ([\w\.]+)\b.+(android[- ]x86)/i
+      // Android-x86
+    ],
+    [x, b],
+    [
+      /(ubuntu) ([\w\.]+) like android/i
+      // Ubuntu Touch
+    ],
+    [[b, /(.+)/, "$1 Touch"], x],
+    [
+      /(harmonyos)[\/ ]?([\d\.]*)/i,
+      // HarmonyOS
+      // Android/Blackberry/WebOS/QNX/Bada/RIM/KaiOS/Maemo/MeeGo/S40/Sailfish OS/OpenHarmony/Tizen
+      /(android|bada|blackberry|kaios|maemo|meego|openharmony|qnx|rim tablet os|sailfish|series40|symbian|tizen)\w*[-\/\.; ]?([\d\.]*)/i
+    ],
+    [b, x],
+    [
+      /\(bb(10);/i
+      // BlackBerry 10
+    ],
+    [x, [b, Rs]],
+    [
+      /(?:symbian ?os|symbos|s60(?=;)|series ?60)[-\/ ]?([\w\.]*)/i
+      // Symbian
+    ],
+    [x, [b, "Symbian"]],
+    [
+      /mozilla\/[\d\.]+ \((?:mobile|tablet|tv|mobile; [\w ]+); rv:.+ gecko\/([\w\.]+)/i
+      // Firefox OS
+    ],
+    [x, [b, gn + " OS"]],
+    [
+      /\b(?:hp)?wos(?:browser)?\/([\w\.]+)/i,
+      // WebOS
+      /webos(?:[ \/]?|\.tv-20(?=2[2-9]))(\d[\d\.]*)/i
+    ],
+    [x, [b, "webOS"]],
+    [
+      /web0s;.+?(?:chr[o0]me|safari)\/(\d+)/i
+      // https://webostv.developer.lge.com/develop/specifications/web-api-and-web-engine
+    ],
+    [[x, $e, { 25: "120", 24: "108", 23: "94", 22: "87", 6: "79", 5: "68", 4: "53", 3: "38", 2: "538", 1: "537", "*": "TV" }], [b, "webOS"]],
+    [
+      /watch(?: ?os[,\/]|\d,\d\/)([\d\.]+)/i
+      // watchOS
+    ],
+    [x, [b, "watchOS"]],
+    [
+      // Google ChromeOS
+      /(cros) [\w]+(?:\)| ([\w\.]+)\b)/i
+      // Chromium OS
+    ],
+    [[b, "Chrome OS"], x],
+    [
+      // Smart TVs
+      /panasonic;(viera)/i,
+      // Panasonic Viera
+      /(netrange)mmh/i,
+      // Netrange
+      /(nettv)\/(\d+\.[\w\.]+)/i,
+      // NetTV
+      // Console
+      /(nintendo|playstation) (\w+)/i,
+      // Nintendo/Playstation
+      /(xbox); +xbox ([^\);]+)/i,
+      // Microsoft Xbox (360, One, X, S, Series X, Series S)
+      /(pico) .+os([\w\.]+)/i,
+      // Pico
+      // Other
+      /\b(joli|palm)\b ?(?:os)?\/?([\w\.]*)/i,
+      // Joli/Palm
+      /linux.+(mint)[\/\(\) ]?([\w\.]*)/i,
+      // Mint
+      /(mageia|vectorlinux|fuchsia|arcaos|arch(?= ?linux))[;l ]([\d\.]*)/i,
+      // Mageia/VectorLinux/Fuchsia/ArcaOS/Arch
+      /([kxln]?ubuntu|debian|suse|opensuse|gentoo|slackware|fedora|mandriva|centos|pclinuxos|red ?hat|zenwalk|linpus|raspbian|plan 9|minix|risc os|contiki|deepin|manjaro|elementary os|sabayon|linspire|knoppix)(?: gnu[\/ ]linux)?(?: enterprise)?(?:[- ]linux)?(?:-gnu)?[-\/ ]?(?!chrom|package)([-\w\.]*)/i,
+      // Ubuntu/Debian/SUSE/Gentoo/Slackware/Fedora/Mandriva/CentOS/PCLinuxOS/RedHat/Zenwalk/Linpus/Raspbian/Plan9/Minix/RISCOS/Contiki/Deepin/Manjaro/elementary/Sabayon/Linspire/Knoppix
+      /((?:open)?solaris)[-\/ ]?([\w\.]*)/i,
+      // Solaris
+      /\b(aix)[; ]([1-9\.]{0,4})/i,
+      // AIX
+      /(hurd|linux|morphos)(?: (?:arm|x86|ppc)\w*| ?)([\w\.]*)/i,
+      // Hurd/Linux/MorphOS
+      /(gnu) ?([\w\.]*)/i,
+      // GNU
+      /\b([-frentopcghs]{0,5}bsd|dragonfly)[\/ ]?(?!amd|[ix346]{1,2}86)([\w\.]*)/i,
+      // FreeBSD/NetBSD/OpenBSD/PC-BSD/GhostBSD/DragonFly
+      /(haiku) ?(r\d)?/i
+      // Haiku
+    ],
+    [b, x],
+    [
+      /(sunos) ?([\d\.]*)/i
+      // Solaris
+    ],
+    [[b, "Solaris"], x],
+    [
+      /\b(beos|os\/2|amigaos|openvms|hp-ux|serenityos)/i,
+      // BeOS/OS2/AmigaOS/OpenVMS/HP-UX/SerenityOS
+      /(unix) ?([\w\.]*)/i
+      // UNIX
+    ],
+    [b, x]
+  ]
+}, Xn = (function() {
+  var n = { init: {}, isIgnore: {}, isIgnoreRgx: {}, toString: {} };
+  return Je.call(n.init, [
+    [we, [b, x, kn, p]],
+    [Ye, [be]],
+    [Fe, [p, g, m]],
+    [Pe, [b, x]],
+    [Ae, [b, x]]
+  ]), Je.call(n.isIgnore, [
+    [we, [x, kn]],
+    [Pe, [x]],
+    [Ae, [x]]
+  ]), Je.call(n.isIgnoreRgx, [
+    [we, / ?browser$/i],
+    [Ae, / ?os$/i]
+  ]), Je.call(n.toString, [
+    [we, [b, x]],
+    [Ye, [be]],
+    [Fe, [m, g]],
+    [Pe, [b, x]],
+    [Ae, [b, x]]
+  ]), n;
+})(), wa = function(n, e) {
+  var t = Xn.init[e], i = Xn.isIgnore[e] || 0, s = Xn.isIgnoreRgx[e] || 0, r = Xn.toString[e] || 0;
+  function a() {
+    Je.call(this, t);
+  }
+  return a.prototype.getItem = function() {
+    return n;
+  }, a.prototype.withClientHints = function() {
+    return ct ? ct.getHighEntropyValues(or).then(function(c) {
+      return n.setCH(new ar(c, !1)).parseCH().get();
+    }) : n.parseCH().get();
+  }, a.prototype.withFeatureCheck = function() {
+    return n.detectFeature().get();
+  }, e != Bt && (a.prototype.is = function(c) {
+    var h = !1;
+    for (var u in this)
+      if (this.hasOwnProperty(u) && !ji(i, u) && Qe(s ? $t(s, this[u]) : this[u]) == Qe(s ? $t(s, c) : c)) {
+        if (h = !0, c != ut) break;
+      } else if (c == ut && h) {
+        h = !h;
+        break;
+      }
+    return h;
+  }, a.prototype.toString = function() {
+    var c = zt;
+    for (var h in r)
+      typeof this[r[h]] !== ut && (c += (c ? " " : zt) + this[r[h]]);
+    return c || ut;
+  }), ct || (a.prototype.then = function(c) {
+    var h = this, u = function() {
+      for (var M in h)
+        h.hasOwnProperty(M) && (this[M] = h[M]);
+    };
+    u.prototype = {
+      is: a.prototype.is,
+      toString: a.prototype.toString
+    };
+    var f = new u();
+    return c(f), f;
+  }), new a();
+};
+function ar(n, e) {
+  if (n = n || {}, Je.call(this, or), e)
+    Je.call(this, [
+      [ts, Mi(n[ht])],
+      [ns, Mi(n[aa])],
+      [P, /\?1/.test(n[ha])],
+      [g, bn(n[da])],
+      [Ut, bn(n[rr])],
+      [is, bn(n[pa])],
+      [be, bn(n[la])],
+      [yt, Mi(n[ua])],
+      [oi, bn(n[ca])]
+    ]);
+  else
+    for (var t in n)
+      this.hasOwnProperty(t) && typeof n[t] !== ut && (this[t] = n[t]);
+}
+function Hs(n, e, t, i) {
+  return this.get = function(s) {
+    return s ? this.data.hasOwnProperty(s) ? this.data[s] : void 0 : this.data;
+  }, this.set = function(s, r) {
+    return this.data[s] = r, this;
+  }, this.setCH = function(s) {
+    return this.uaCH = s, this;
+  }, this.detectFeature = function() {
+    if (xe && xe.userAgent == this.ua)
+      switch (this.itemType) {
+        case we:
+          xe.brave && typeof xe.brave.isBrave == ti && this.set(b, "Brave");
+          break;
+        case Fe:
+          !this.get(p) && ct && ct[P] && this.set(p, P), this.get(g) == "Macintosh" && xe && typeof xe.standalone !== ut && xe.maxTouchPoints && xe.maxTouchPoints > 2 && this.set(g, "iPad").set(p, G);
+          break;
+        case Ae:
+          !this.get(b) && ct && ct[Ut] && this.set(b, ct[Ut]);
+          break;
+        case Bt:
+          var s = this.data, r = function(a) {
+            return s[a].getItem().detectFeature().get();
+          };
+          this.set(we, r(we)).set(Ye, r(Ye)).set(Fe, r(Fe)).set(Pe, r(Pe)).set(Ae, r(Ae));
+      }
+    return this;
+  }, this.parseUA = function() {
+    return this.itemType != Bt && Ii.call(this.data, this.ua, this.rgxMap), this.itemType == we && this.set(kn, Li(this.get(x))), this;
+  }, this.parseCH = function() {
+    var s = this.uaCH, r = this.rgxMap;
+    switch (this.itemType) {
+      case we:
+      case Pe:
+        var a = s[ns] || s[ts], c;
+        if (a)
+          for (var h in a) {
+            var u = a[h].brand || a[h], f = a[h].version;
+            this.itemType == we && !/not.a.brand/i.test(u) && (!c || /Chrom/.test(c) && u != Ds || c == Kn && /WebView2/.test(u)) && (u = $e(u, ma), c = this.get(b), c && !/Chrom/.test(c) && /Chrom/.test(u) || this.set(b, u).set(x, f).set(kn, Li(f)), c = u), this.itemType == Pe && u == Ds && this.set(x, f);
+          }
+        break;
+      case Ye:
+        var M = s[be];
+        M && (M && s[oi] == "64" && (M += "64"), Ii.call(this.data, M + ";", r));
+        break;
+      case Fe:
+        if (s[P] && this.set(p, P), s[g] && (this.set(g, s[g]), !this.get(p) || !this.get(m))) {
+          var k = {};
+          Ii.call(k, "droid 9; " + s[g] + ")", r), !this.get(p) && k.type && this.set(p, k.type), !this.get(m) && k.vendor && this.set(m, k.vendor);
+        }
+        if (s[yt]) {
+          var z;
+          if (typeof s[yt] != "string")
+            for (var A = 0; !z && A < s[yt].length; )
+              z = $e(s[yt][A++], Us);
+          else
+            z = $e(s[yt], Us);
+          this.set(p, z);
+        }
+        break;
+      case Ae:
+        var H = s[Ut];
+        if (H) {
+          var Se = s[is];
+          H == Vi && (Se = parseInt(Li(Se), 10) >= 13 ? "11" : "10"), this.set(b, H).set(x, Se);
+        }
+        this.get(b) == Vi && s[g] == "Xbox" && this.set(b, "Xbox").set(x, void 0);
+        break;
+      case Bt:
+        var de = this.data, ce = function(Re) {
+          return de[Re].getItem().setCH(s).parseCH().get();
+        };
+        this.set(we, ce(we)).set(Ye, ce(Ye)).set(Fe, ce(Fe)).set(Pe, ce(Pe)).set(Ae, ce(Ae));
+    }
+    return this;
+  }, Je.call(this, [
+    ["itemType", n],
+    ["ua", e],
+    ["uaCH", i],
+    ["rgxMap", t],
+    ["data", wa(this, n)]
+  ]), this;
+}
+function et(n, e, t) {
+  if (typeof n === Ht ? (ni(n, !0) ? (typeof e === Ht && (t = e), e = n) : (t = n, e = void 0), n = void 0) : typeof n === Fi && !ni(e, !0) && (t = e, e = void 0), t && typeof t.append === ti) {
+    var i = {};
+    t.forEach(function(h, u) {
+      i[u] = h;
+    }), t = i;
+  }
+  if (!(this instanceof et))
+    return new et(n, e, t).getResult();
+  var s = typeof n === Fi ? n : (
+    // Passed user-agent string
+    t && t[Ts] ? t[Ts] : (
+      // User-Agent from passed headers
+      xe && xe.userAgent ? xe.userAgent : (
+        // navigator.userAgent
+        zt
+      )
+    )
+  ), r = new ar(t, !0), a = e ? ga(zs, e) : zs, c = function(h) {
+    return h == Bt ? function() {
+      return new Hs(h, s, a, r).set("ua", s).set(we, this.getBrowser()).set(Ye, this.getCPU()).set(Fe, this.getDevice()).set(Pe, this.getEngine()).set(Ae, this.getOS()).get();
+    } : function() {
+      return new Hs(h, s, a[h], r).parseUA().get();
+    };
+  };
+  return Je.call(this, [
+    ["getBrowser", c(we)],
+    ["getCPU", c(Ye)],
+    ["getDevice", c(Fe)],
+    ["getEngine", c(Pe)],
+    ["getOS", c(Ae)],
+    ["getResult", c(Bt)],
+    ["getUA", function() {
+      return s;
+    }],
+    ["setUA", function(h) {
+      return Vt(h) && (s = h.length > $i ? ii(h, $i) : h), this;
+    }]
+  ]).setUA(s), this;
+}
+et.VERSION = oa;
+et.BROWSER = ai([b, x, kn, p]);
+et.CPU = ai([be]);
+et.DEVICE = ai([g, m, p, xn, P, ie, G, He, _n]);
+et.ENGINE = et.OS = ai([b, x]);
+class ba {
+  static isValidDevice() {
+    return !new et().getDevice().type;
+  }
+}
 function vt() {
   return crypto.randomUUID();
 }
@@ -5747,94 +5739,96 @@ function kt() {
   return Et(performance.now());
 }
 async function _a(n, e = null, t = []) {
-  e || (e = (O) => {
+  e || (e = (A) => {
   });
   let i = t;
   const s = n.nodekit_version;
-  function r() {
-    if (document.visibilityState === "hidden") {
-      const O = {
-        event_id: vt(),
-        event_timestamp: kt(),
-        event_type: "LeaveEvent",
-        event_payload: {},
-        nodekit_version: s
-      };
-      i.push(O), e(O);
-    } else if (document.visibilityState === "visible") {
-      const O = {
-        event_id: vt(),
-        event_timestamp: kt(),
-        event_type: "ReturnEvent",
-        event_payload: {},
-        nodekit_version: s
-      };
-      i.push(O), e(O);
-    }
+  let r = new ia(n.board);
+  if (!ba.isValidDevice()) {
+    const A = new Error("Unsupported device. Please use a desktop browser.");
+    throw r.showErrorMessageOverlay(A), A;
   }
-  document.addEventListener("visibilitychange", r);
   const a = {
     event_id: vt(),
-    event_timestamp: kt(),
+    timestamp_event: kt(),
     event_type: "StartEvent",
     event_payload: {},
     nodekit_version: s
   };
   i.push(a), e(a);
-  const c = ba(), h = {
+  function c() {
+    if (document.visibilityState === "hidden") {
+      const A = {
+        event_id: vt(),
+        timestamp_event: kt(),
+        event_type: "LeaveEvent",
+        event_payload: {},
+        nodekit_version: s
+      };
+      i.push(A), e(A);
+    } else if (document.visibilityState === "visible") {
+      const A = {
+        event_id: vt(),
+        timestamp_event: kt(),
+        event_type: "ReturnEvent",
+        event_payload: {},
+        nodekit_version: s
+      };
+      i.push(A), e(A);
+    }
+  }
+  document.addEventListener("visibilitychange", c);
+  const h = ra(), u = {
     event_id: vt(),
-    event_timestamp: kt(),
+    timestamp_event: kt(),
     event_type: "BrowserContextEvent",
-    event_payload: c,
+    event_payload: h,
     nodekit_version: s
   };
-  i.push(h), e(h);
-  const u = n.nodes;
-  let p = new ma(n.board);
-  for (let O = 0; O < u.length; O++) {
-    const H = u[O], Se = await p.prepare(H);
-    let de = await p.play(Se);
-    p.setProgressBar((O + 1) / u.length * 100);
+  i.push(u), e(u);
+  const f = n.nodes;
+  for (let A = 0; A < f.length; A++) {
+    const H = f[A], Se = await r.prepare(H);
+    let de = await r.play(Se);
     const ce = {
       event_id: vt(),
-      event_timestamp: kt(),
+      timestamp_event: kt(),
       event_type: "NodeResultEvent",
       event_payload: {
         node_id: H.node_id,
-        node_execution_index: O,
-        timestamp_start: de.timestamp_start,
-        timestamp_end: de.timestamp_end,
+        timestamp_node_start: de.timestamp_start,
+        timestamp_node_end: de.timestamp_end,
         action: de.action
       },
       nodekit_version: s
     };
-    i.push(ce), e(ce);
+    i.push(ce), e(ce), r.setProgressBar((A + 1) / f.length * 100);
   }
-  const M = wa(
+  const M = sa(
     i,
     n
   );
   let k = "";
-  if (M > 0 && (k = `Bonus: ${M} USD (pending validation)`), await p.playEndScreen(k), k !== "") {
-    const O = {
+  if (M > 0 && (k = `Bonus: ${M} USD (pending validation)`), await r.playEndScreen(k), k !== "") {
+    const A = {
       event_id: vt(),
-      event_timestamp: kt(),
+      timestamp_event: kt(),
       event_type: "BonusDisclosureEvent",
       event_payload: {
         bonus_amount_usd: M.toFixed(2)
       },
       nodekit_version: s
     };
-    i.push(O), e(O);
+    i.push(A), e(A);
   }
   const z = {
     event_id: vt(),
-    event_timestamp: kt(),
+    timestamp_event: kt(),
     event_type: "EndEvent",
     event_payload: {},
     nodekit_version: s
   };
-  return i.push(z), e(z), document.removeEventListener("visibilitychange", r), p.showConsoleMessageOverlay(
+  return i.push(z), e(z), document.removeEventListener("visibilitychange", c), r.showConsoleMessageOverlay(
     "Events",
     i
   ), i;

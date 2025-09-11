@@ -19,12 +19,12 @@ def calculate_bonus_usd(
 
     calculated_amount = Decimal('0')
 
-    node_id_to_consequences: Dict[NodeId, List[Outcome]] = {}
+    node_id_to_outcomes: Dict[NodeId, List[Outcome]] = {}
     for node in node_graph.nodes:
-        node_id_to_consequences[node.node_id] = node.outcomes
+        node_id_to_outcomes[node.node_id] = node.outcomes
 
     # Sort events by timestamp
-    events = sorted(events, key=lambda ev: ev.event_timestamp)
+    events = sorted(events, key=lambda ev: ev.timestamp_event)
     observed_node_ids = set()
     for ev in events:
         if ev.event_type != EventTypeEnum.NodeResultEvent:
@@ -39,7 +39,7 @@ def calculate_bonus_usd(
             warnings.warn(f"Multiple NodeResultEvents observed for Node ID {node_id}. Only the first will be considered for bonus calculation.")
             continue
 
-        consequences = node_id_to_consequences[node_id]
+        consequences = node_id_to_outcomes[node_id]
 
         # Perform scan through consequences
         for consequence in consequences:

@@ -1,6 +1,7 @@
 import nodekit as nk
 import random
 import time
+from pathlib import Path
 
 random.seed(42)
 
@@ -88,7 +89,6 @@ node_graph = nk.NodeGraph(
     max_duration_sec=600,
     base_payment_usd='0.01',
 )
-from pathlib import Path
 Path('tmp.json').write_text(node_graph.model_dump_json(indent=4))
 
 # %% Play the NodeGraph locally:
