@@ -1,12 +1,12 @@
 import type {NodeId} from "../node-graph.ts";
+import type {MonetaryAmountUsd} from "../common.ts";
+import type {Action} from "../actions";
+import type {BrowserContext} from "../../user-gates/browser-context.ts";
 
 export type ISO8601 = string & { __brand: 'ISO8601' };
 export type UUID = string & { __brand: 'UUID' };
 
-import type {MonetaryAmountUsd} from "../common.ts";
-import type {Action} from "../actions";
-
-// Base event type
+// Base Event:
 export type BaseEvent<T extends string, P> = {
     event_id: UUID
     timestamp_event: ISO8601,
@@ -17,15 +17,12 @@ export type BaseEvent<T extends string, P> = {
     nodekit_version: string
 }
 
-// NodeGraph start and end events:
+// Concrete Event types:
 export type StartEvent = BaseEvent<'StartEvent', {}>
 export type EndEvent = BaseEvent<'EndEvent', {}>
-
-// User engagement events:
 export type LeaveEvent = BaseEvent<'LeaveEvent', {}>
 export type ReturnEvent = BaseEvent<'ReturnEvent', {}>
-
-// NodeResultEvent:
+export type BrowserContextEvent = BaseEvent<'BrowserContextEvent', BrowserContext>
 export type NodeResultEvent = BaseEvent<
     'NodeResultEvent',
     {
@@ -35,21 +32,18 @@ export type NodeResultEvent = BaseEvent<
         action: Action,
     }
 >
+export type BonusDisclosureEvent = BaseEvent<
+    'BonusDisclosureEvent',
+    { bonus_amount_usd: MonetaryAmountUsd }
+>
 
-// BonusDisclosureEvent:
-export type BonusDisclosureEvent = BaseEvent<'BonusDisclosureEvent', { bonus_amount_usd: MonetaryAmountUsd }>
 
-
-// BrowserContextEvent:
-export interface BrowserContext {
-    user_agent: string,
-    viewport_width_px: number,
-    viewport_height_px: number,
-    display_width_px: number,
-    display_height_px: number
-}
-
-export type BrowserContextEvent = BaseEvent<'BrowserContextEvent', BrowserContext>
-
-// Union type:
-export type Event = StartEvent | EndEvent | NodeResultEvent | LeaveEvent | ReturnEvent | BonusDisclosureEvent | BrowserContextEvent;
+// Union:
+export type Event =
+    StartEvent |
+    EndEvent |
+    NodeResultEvent |
+    LeaveEvent |
+    ReturnEvent |
+    BonusDisclosureEvent |
+    BrowserContextEvent;

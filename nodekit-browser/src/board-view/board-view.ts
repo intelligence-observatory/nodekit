@@ -1,6 +1,5 @@
 import type {AssetManager} from "../asset-manager/asset-manager.ts";
 import type {Board} from "../types/board";
-import type {PixelArea} from "../types/events/runtime-metrics.ts";
 import type {Card} from "../types/cards";
 import type {CardId, SensorId, SpatialPoint, SpatialSize} from "../types/common.ts";
 import type {Sensor} from "../types/sensors";
@@ -14,6 +13,12 @@ import {ImageCardView} from "./card-views/image/image-card.ts";
 import {TextCardView} from "./card-views/text/text-card-view.ts";
 import {VideoCardView} from "./card-views/video/video-card.ts";
 import {BlankCardView} from "./card-views/blank/blank-card-view.ts";
+
+export interface PixelArea {
+    width_px: number; // Width in pixels
+    height_px: number; // Height in pixels
+}
+
 
 export class BoardCoordinateSystem {
     public boardWidthPx: number; // Width of the board in pixels

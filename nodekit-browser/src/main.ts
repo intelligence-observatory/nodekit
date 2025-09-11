@@ -1,5 +1,5 @@
 import {NodePlayer} from "./node-player/node-player.ts";
-import type {EndEvent, Event, LeaveEvent, NodeResultEvent, ReturnEvent, StartEvent, UUID} from "./types/events";
+import type {BonusDisclosureEvent, BrowserContextEvent, EndEvent, Event, LeaveEvent, NodeResultEvent, ReturnEvent, StartEvent, UUID} from "./types/events";
 import {type ISO8601, type MonetaryAmountUsd} from "./types/common.ts";
 import {calculateBonusUsd} from "./ops/calculate-bonus.ts";
 import type {NodeGraph} from "./types/node-graph.ts";
@@ -92,7 +92,7 @@ export async function play(
 
     // Emit the BrowserContextEvent:
     const browserContext = getBrowserContext();
-    const browserContextEvent: Event = {
+    const browserContextEvent: BrowserContextEvent = {
         event_id: generateEventId(),
         timestamp_event: getCurrentTimestamp(),
         event_type: "BrowserContextEvent",
@@ -148,7 +148,7 @@ export async function play(
 
     // Emit the BonusDisclosureEvent (if applicable):
     if (bonusMessage !== '') {
-        const bonusDisclosureEvent: Event = {
+        const bonusDisclosureEvent: BonusDisclosureEvent = {
             event_id: generateEventId(),
             timestamp_event: getCurrentTimestamp(),
             event_type: "BonusDisclosureEvent",

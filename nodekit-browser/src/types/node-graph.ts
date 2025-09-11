@@ -4,7 +4,6 @@ import type {Sensor} from "./sensors";
 import type {Consequence} from "./consequences";
 import type {Effect} from "./effects/base.ts";
 
-
 export type NodeId = string & { __brand: 'NodeId' };
 
 export interface Node {
