@@ -56,27 +56,22 @@ export class NodePlayer {
         Executes the NodePlay instance with the given ID.
         Returns a NodeMeasurements upon completion.
          */
-        try{
-            const nodePlay = this.bufferedNodePlays.get(nodePlayId);
-            if (!nodePlay) {
-                throw new Error(`NodePlay ${nodePlayId} does not exist. `);
-            }
+        const nodePlay = this.bufferedNodePlays.get(nodePlayId);
 
-            // Set active board:
-            this.boardViewsUI.setActiveBoard(nodePlayId);
-
-            const nodeMeasurements = await nodePlay.run()
-
-            // Remove the NodePlay instance and its BoardView from the buffer:
-            this.boardViewsUI.destroyBoardView(nodePlayId);
-            this.bufferedNodePlays.delete(nodePlayId);
-            return nodeMeasurements
+        if (!nodePlay) {
+            const error = new Error(`NodePlay ${nodePlayId} does not exist. `);
+            this.showErrorMessageOverlay(error as Error)
+            throw error;
         }
-        catch(error) {
-            // Show error message overlay
-            this.showErrorMessageOverlay(error as Error);
-            throw error; // Re-throw the error after showing the overlay
-        }
+
+        // Set active board:
+        this.boardViewsUI.setActiveBoard(nodePlayId);
+        const playNodeResult = await nodePlay.run()
+
+        // Remove the NodePlay instance and its BoardView from the buffer:
+        this.boardViewsUI.destroyBoardView(nodePlayId);
+        this.bufferedNodePlays.delete(nodePlayId);
+        return playNodeResult;
     }
 
     setProgressBar(percent: number) {

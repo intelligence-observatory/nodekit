@@ -25,6 +25,7 @@ export async function play(
 ): Promise<Event[]> {
     /*
     Executes a run through the NodeGraph. Events are returned as an array.
+    Events emitted from a previous, interrupted run of the NodeGraph can be provided to continue from the point of interruption.
     */
 
     // If no onEventCallback is provided, use a no-op function:
@@ -38,17 +39,28 @@ export async function play(
     // Todo: version gating
     const nodekitVersion = nodeGraph.nodekit_version;
 
-    // Device gating:
+    // Initialize the NodePlayer:
     let nodePlayer = new NodePlayer(nodeGraph.board);
-    try {
-        if (!DeviceGate.isValidDevice()){
-            throw new Error('Unsupported device. Please use a desktop browser.');
-        }
+
+    // Device gating:
+    if (!DeviceGate.isValidDevice()){
+        const error = new Error('Unsupported device. Please use a desktop browser.');
+        nodePlayer.showErrorMessageOverlay(error);
+        throw error;
     }
-    catch (error) {
-        nodePlayer.showErrorMessageOverlay(error as Error);
-        throw new Error('NodePlayer initialization failed: ' + (error as Error).message);
+
+
+    // Todo: always have a "start" button to gain focus and ensure the user is ready; emit the StartEvent after that.
+    // Emit the StartEvent
+    const startEvent: StartEvent = {
+        event_id: generateEventId(),
+        event_timestamp: getCurrentTimestamp(),
+        event_type: "StartEvent",
+        event_payload: {},
+        nodekit_version: nodekitVersion,
     }
+    events.push(startEvent);
+    onEventCallback(startEvent);
 
     // Add a listener for the LeaveEvent:
     function onVisibilityChange() {
@@ -78,18 +90,6 @@ export async function play(
 
     document.addEventListener("visibilitychange", onVisibilityChange)
 
-    // Todo: always have a "start" button to gain focus and ensure the user is ready; emit the StartEvent after that.
-    // Generate the StartEvent
-    const startEvent: StartEvent = {
-        event_id: generateEventId(),
-        event_timestamp: getCurrentTimestamp(),
-        event_type: "StartEvent",
-        event_payload: {},
-        nodekit_version: nodekitVersion,
-    }
-    events.push(startEvent);
-    onEventCallback(startEvent);
-
     // Emit the BrowserContextEvent:
     const browserContext = getBrowserContext();
     const browserContextEvent: Event = {
@@ -102,18 +102,17 @@ export async function play(
     events.push(browserContextEvent);
     onEventCallback(browserContextEvent);
 
+    // Todo: buffer assets for the next N nodes
+
     // Play the Nodes in the NodeGraph:
     const nodes = nodeGraph.nodes;
-
-
-
     for (let i = 0; i < nodes.length; i++) {
+        // Prepare the Node:
         const node = nodes[i];
         const nodePlayId = await nodePlayer.prepare(node);
-        let nodeMeasurements = await nodePlayer.play(nodePlayId);
 
-        // Update the progress bar:
-        nodePlayer.setProgressBar((i + 1) / nodes.length * 100);
+        // Play the Node:
+        let result = await nodePlayer.play(nodePlayId);
 
         // Package the NodeResultEvent:
         const nodeResultEvent: NodeResultEvent = {
@@ -123,14 +122,17 @@ export async function play(
             event_payload: {
                 node_id: node.node_id,
                 node_execution_index: i,
-                timestamp_start: nodeMeasurements.timestamp_start,
-                timestamp_end: nodeMeasurements.timestamp_end,
-                action: nodeMeasurements.action,
+                timestamp_start: result.timestamp_start,
+                timestamp_end: result.timestamp_end,
+                action: result.action,
             },
             nodekit_version: nodekitVersion,
         }
         events.push(nodeResultEvent);
         onEventCallback(nodeResultEvent);
+
+        // Update the progress bar:
+        nodePlayer.setProgressBar((i + 1) / nodes.length * 100);
     }
 
     // Bonus disclosure + end button phase:

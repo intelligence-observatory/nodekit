@@ -31,10 +31,12 @@ class NullPayload(pydantic.BaseModel):
 class BaseEvent(pydantic.BaseModel):
     event_id: UUID
     event_timestamp: DatetimeUTC
+    event_index: int = pydantic.Field(description='The index of this event within the run, starting from 0.', ge=0)
+
     event_type: EventTypeEnum
     event_payload: NullPayload
-    nodekit_version: str = pydantic.Field(default=VERSION)
 
+    nodekit_version: str = pydantic.Field(default=VERSION)
 
 # %%
 class StartEvent(BaseEvent):
@@ -87,7 +89,6 @@ class NodeResultEvent(BaseEvent):
         """
 
         node_id: NodeId = pydantic.Field(description='The ID of the Node from which this NodeResult was produced.')
-        node_execution_index: int = pydantic.Field(description='The index of the Node execution in the NodeGraph.', ge=0)
         timestamp_start: DatetimeUTC
         timestamp_end: DatetimeUTC
         action: Action
