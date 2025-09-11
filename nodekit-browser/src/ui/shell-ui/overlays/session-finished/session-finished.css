@@ -26,7 +26,7 @@ A fixed-width <div> which is not selectable.
 }
 
 
-.start-button {
+.submit-button {
     background-color: var(--cognition-faint-color);
     color: var(--system-text-muted-color-on-light);
     border: none;
@@ -41,11 +41,11 @@ A fixed-width <div> which is not selectable.
     transition: background-color 100ms ease-in-out, box-shadow 100ms ease-in-out;
 }
 
-.start-button:hover {
+.submit-button:hover {
     background-color: var(--cognition-standard-color);
     box-shadow: 0 0 2px 2px var(--cognition-standard-color);
 }
 
-.start-button:active {
+.submit-button:active {
     background-color: var(--cognition-strong-color);
 }

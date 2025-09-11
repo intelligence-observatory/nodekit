@@ -49,6 +49,10 @@ export async function play(
         throw error;
     }
 
+    nodePlayer.showConnectingOverlay()
+    // Todo: await preload assets
+    nodePlayer.hideConnectingOverlay()
+
 
     // Todo: always have a "start" button to gain focus and ensure the user is ready; emit the StartEvent after that.
     await nodePlayer.playStartScreen()
@@ -103,7 +107,6 @@ export async function play(
     events.push(browserContextEvent);
     onEventCallback(browserContextEvent);
 
-    // Todo: buffer assets for the next N nodes
 
     // Play the Nodes in the NodeGraph:
     const nodes = nodeGraph.nodes;
