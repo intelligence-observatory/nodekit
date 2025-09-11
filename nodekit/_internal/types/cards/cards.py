@@ -78,7 +78,6 @@ class VideoCard(BaseCard):
     video_link: VideoLink
 
 
-
 # %%
 class BlankCard(BaseCard):
     """
