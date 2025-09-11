@@ -12,7 +12,8 @@
   "scripts": {
     "dev": "node_modules/.bin/vite",
     "build": "node_modules/.bin/tsc && vite build",
-    "preview": "node_modules/.bin/vite preview"
+    "preview": "node_modules/.bin/vite preview",
+    "test": "./test.sh"
   },
   "dependencies": {
     "@fontsource/inter": "^5.2.5",
