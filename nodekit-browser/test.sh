@@ -12,7 +12,7 @@ npm run build
 # Only test if nodekit was built:
 if [ $? -eq 0 ]; then
   # Test local html files without exposing their absolute file paths:
-  NODEKIT_INDEX_HTML=$(pwd)/index.html npx playwright test
+  NODEKIT_INDEX_HTML=$(pwd)/tests/index.html npx playwright test
 fi
 # Always cleanup:
 rm -r dist/

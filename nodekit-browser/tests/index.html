@@ -1,0 +1,245 @@
+<!-- example.html -->
+<!doctype html>
+<html lang="en">
+<head>
+    <link rel="icon" href="data:,">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>NodeKit Browser</title>
+</head>
+<body>
+<div id="app"></div>
+<script type="module" src="src/main.ts"></script>
+<script type="module">
+    let nodeGraph = {
+        "base_payment_usd": "0.01",
+        "bonus_rules": [
+            {
+                "bonus_rule_parameters": {
+                    "bonus_amount_usd": "0.01",
+                    "sensor_id": "37525a0e-c0c2-4223-a65a-198bd0fe2de9"
+                },
+                "bonus_rule_type": "ConstantBonusRule"
+            },
+            {
+                "bonus_rule_parameters": {
+                    "bonus_amount_usd": "0.01",
+                    "sensor_id": "feb6db52-229b-47f8-921c-613735b6e2c1"
+                },
+                "bonus_rule_type": "ConstantBonusRule"
+            }
+        ],
+        "description": "Test task",
+        "keywords": [
+            "test",
+            "example"
+        ],
+        "max_duration_sec": 600,
+        "nodes": [
+            {
+                "node_id": "acee5f9b-996c-448d-9d3d-f9fc8e4b0c8d",
+                "board": {"board_width_px": 768, "board_height_px": 768},
+                "cards": [
+                    {
+                        "card_id": "3b6f3e51-437b-495f-b1bf-9437e8dcdb25",
+                        "card_type": "VideoCard",
+                        "card_parameters": {
+                            "video_link": {
+                                "mime_type": "video/mp4",
+                                "sha256": "44abfe9cd09734aa445799fb98653f855ea2af0d6d7de0fff1e61a36da358b4e",
+                                "asset_url": "https://ia803409.us.archive.org/18/items/mp4_20210502/mp4.ia.mp4"
+                            },
+                            "play_audio": true
+                        },
+                        "card_shape": {"width": 0.5, "height": 0.5},
+                        "card_location": {"x": 0, "y": 0},
+                        "card_timespan": {"start_time_msec": 0, "end_time_msec": null}
+                    }
+                ],
+                "sensors": [{
+                    "sensor_id": "60f7ce63-0e0e-431c-945b-07570e98d7e4",
+                    "sensor_type": "ClickSensor",
+                    "sensor_parameters": {},
+                    "sensor_timespan": {"start_time_msec": 0, "end_time_msec": null},
+                    "card_id": "3b6f3e51-437b-495f-b1bf-9437e8dcdb25"
+                },
+                    {
+                        "sensor_id": "89c1e6cf-f690-43de-ae02-869cf087976f",
+                        "sensor_type": "KeyHoldsSensor",
+                        "sensor_parameters": {
+                            keys: ['a', 's', 'd']
+                        },
+                        "sensor_timespan": {"start_time_msec": 0, "end_time_msec": 5000},
+                    }],
+                "reinforcer_maps": [],
+                "effects": []
+
+            },
+            {
+                "board": {
+                    "board_height_px": 768,
+                    "board_width_px": 768
+                },
+                "cards": [
+                    {
+                        "card_id": "dcad9dab-1386-4adb-be4f-d125ac192651",
+                        "card_location": {
+                            "x": 0.08,
+                            "y": -0.28
+                        },
+                        "card_parameters": {},
+                        "card_shape": {
+                            "height": 0.05,
+                            "width": 0.05
+                        },
+                        "card_timespan": {
+                            "end_time_msec": null,
+                            "start_time_msec": 0
+                        },
+                        "card_type": "FixationPointCard"
+                    }
+                ],
+                "effects": [],
+                "node_id": "cc4bc3e9-cd8f-4050-a7c4-850667299f2d",
+                "reinforcer_maps": [],
+                "sensors": [
+                    {
+                        "card_id": "dcad9dab-1386-4adb-be4f-d125ac192651",
+                        "sensor_id": "37525a0e-c0c2-4223-a65a-198bd0fe2de9",
+                        "sensor_parameters": {},
+                        "sensor_timespan": {
+                            "end_time_msec": null,
+                            "start_time_msec": 0
+                        },
+                        "sensor_type": "ClickSensor"
+                    },
+                    {
+                        "card_id": null,
+                        "sensor_id": "750f6859-9207-4b2e-968b-75845bac12a6",
+                        "sensor_parameters": {
+                            "keys": [
+                                "a"
+                            ]
+                        },
+                        "sensor_timespan": {
+                            "end_time_msec": null,
+                            "start_time_msec": 0
+                        },
+                        "sensor_type": "KeyPressSensor"
+                    }
+                ]
+            },
+            {
+                "board": {
+                    "board_height_px": 768,
+                    "board_width_px": 768
+                },
+                "cards": [
+                    {
+                        "card_id": "31d1af64-83d0-4fa4-87ec-b6752215b1d3",
+                        "card_location": {
+                            "x": -0.13,
+                            "y": -0.17
+                        },
+                        "card_parameters": {},
+                        "card_shape": {
+                            "height": 0.05,
+                            "width": 0.05
+                        },
+                        "card_timespan": {
+                            "end_time_msec": null,
+                            "start_time_msec": 0
+                        },
+                        "card_type": "FixationPointCard"
+                    }
+                ],
+                "effects": [],
+                "node_id": "a4e48f5a-042f-4cb1-be38-876bea0347a8",
+                "reinforcer_maps": [],
+                "sensors": [
+                    {
+                        "card_id": "31d1af64-83d0-4fa4-87ec-b6752215b1d3",
+                        "sensor_id": "feb6db52-229b-47f8-921c-613735b6e2c1",
+                        "sensor_parameters": {},
+                        "sensor_timespan": {
+                            "end_time_msec": null,
+                            "start_time_msec": 0
+                        },
+                        "sensor_type": "ClickSensor"
+                    }
+                ]
+            },
+            {
+                "board": {
+                    "board_height_px": 768,
+                    "board_width_px": 768
+                },
+                "cards": [
+                    {
+                        "card_id": "6b758064-7758-4e89-bae1-d1fa28aaf536",
+                        "card_location": {
+                            "x": 0.0,
+                            "y": 0.0
+                        },
+                        "card_parameters": {
+                            "background_color": "#E6E6E6",
+                            "content": {
+                                "font_size": 0.0175,
+                                "justification_horizontal": "center",
+                                "justification_vertical": "center",
+                                "text": "Press the \"a\" key to continue.",
+                                "text_color": "#000000"
+                            }
+                        },
+                        "card_shape": {
+                            "height": 0.2,
+                            "width": 0.5
+                        },
+                        "card_timespan": {
+                            "end_time_msec": null,
+                            "start_time_msec": 0
+                        },
+                        "card_type": "TextCard"
+                    }
+                ],
+                "effects": [],
+                "node_id": "6cc5a87b-578d-42cb-8e9f-79e739aa9e3c",
+                "reinforcer_maps": [],
+                "sensors": [
+                    {
+                        "card_id": null,
+                        "sensor_id": "750f6859-9207-4b2e-968b-75845bac12a6",
+                        "sensor_parameters": {
+                            "keys": [
+                                "a"
+                            ]
+                        },
+                        "sensor_timespan": {
+                            "end_time_msec": null,
+                            "start_time_msec": 0
+                        },
+                        "sensor_type": "KeyPressSensor"
+                    }
+                ]
+            }
+        ],
+        "title": "Test task (sandbox)"
+    };
+
+    import {play} from '/src/main.ts';
+
+    window.focus();
+
+    window.onload = async () => {
+        // Add focus
+        let events = await play(
+            nodeGraph,
+            (event) => {
+                console.log(event);
+            }
+        )
+        console.log(events)
+    };
+</script>
+
+</body>
+</html>
