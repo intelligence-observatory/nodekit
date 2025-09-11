@@ -51,6 +51,7 @@ export async function play(
 
 
     // Todo: always have a "start" button to gain focus and ensure the user is ready; emit the StartEvent after that.
+    await nodePlayer.playStartScreen()
     // Emit the StartEvent
     const startEvent: StartEvent = {
         event_id: generateEventId(),
