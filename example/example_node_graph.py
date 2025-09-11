@@ -44,18 +44,18 @@ def make_basic_fixation_node(
         t_end=400,
     )
 
-    consequences = [
-        nk.Consequence(
+    outcomes = [
+        nk.Outcome(
             sensor_id=clicked_fixation_dot_sensor.sensor_id,
             cards=[positive_card],
             bonus_amount_usd='0.01'
         ),
-        nk.Consequence(
+        nk.Outcome(
             sensor_id=spacebar_sensor.sensor_id,
             cards=[negative_card],
             bonus_amount_usd='-0.01'
         ),
-        nk.Consequence(
+        nk.Outcome(
             sensor_id=timeout_sensor.sensor_id,
             cards=[negative_card],
             bonus_amount_usd='-0.05'
@@ -65,7 +65,7 @@ def make_basic_fixation_node(
     return nk.Node(
         cards=[color_card, fixation_card],
         sensors=[clicked_fixation_dot_sensor, spacebar_sensor],
-        consequences=consequences,
+        outcomes=outcomes,
     )
 
 
@@ -88,7 +88,8 @@ node_graph = nk.NodeGraph(
     max_duration_sec=600,
     base_payment_usd='0.01',
 )
-
+from pathlib import Path
+Path('tmp.json').write_text(node_graph.model_dump_json(indent=4))
 
 # %% Play the NodeGraph locally:
 play_session = nk.play(node_graph)

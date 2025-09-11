@@ -6,7 +6,7 @@ import type {BrowserContext} from "../../user-gates/browser-context.ts";
 export type ISO8601 = string & { __brand: 'ISO8601' };
 export type UUID = string & { __brand: 'UUID' };
 
-// Base Event:
+// Base:
 export type BaseEvent<T extends string, P> = {
     event_id: UUID
     timestamp_event: ISO8601,
@@ -17,14 +17,13 @@ export type BaseEvent<T extends string, P> = {
     nodekit_version: string
 }
 
-// Concrete Event types:
+// Concrete types:
 export type StartEvent = BaseEvent<'StartEvent', {}>
 export type EndEvent = BaseEvent<'EndEvent', {}>
 export type LeaveEvent = BaseEvent<'LeaveEvent', {}>
 export type ReturnEvent = BaseEvent<'ReturnEvent', {}>
 export type BrowserContextEvent = BaseEvent<'BrowserContextEvent', BrowserContext>
-export type NodeResultEvent = BaseEvent<
-    'NodeResultEvent',
+export type NodeResultEvent = BaseEvent<'NodeResultEvent',
     {
         node_id: NodeId,
         timestamp_node_start: ISO8601,
@@ -32,13 +31,12 @@ export type NodeResultEvent = BaseEvent<
         action: Action,
     }
 >
-export type BonusDisclosureEvent = BaseEvent<
-    'BonusDisclosureEvent',
+export type BonusDisclosureEvent = BaseEvent<'BonusDisclosureEvent',
     { bonus_amount_usd: MonetaryAmountUsd }
 >
 
 
-// Union:
+// Union type:
 export type Event =
     StartEvent |
     EndEvent |

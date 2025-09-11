@@ -4,7 +4,7 @@ from typing import List, Dict
 from nodekit._internal.types.events.events import Event, EventTypeEnum
 from nodekit._internal.types.node_graph import NodeGraph
 from nodekit._internal.types.common import NodeId
-from nodekit._internal.types.consequence import Consequence
+from nodekit._internal.types.outcome import Outcome
 
 import warnings
 
@@ -19,9 +19,9 @@ def calculate_bonus_usd(
 
     calculated_amount = Decimal('0')
 
-    node_id_to_consequences: Dict[NodeId, List[Consequence]] = {}
+    node_id_to_consequences: Dict[NodeId, List[Outcome]] = {}
     for node in node_graph.nodes:
-        node_id_to_consequences[node.node_id] = node.consequences
+        node_id_to_consequences[node.node_id] = node.outcomes
 
     # Sort events by timestamp
     events = sorted(events, key=lambda ev: ev.event_timestamp)

@@ -6,7 +6,7 @@ import pydantic
 from nodekit._internal.types.board.board import Board
 from nodekit._internal.types.cards.cards import Card
 from nodekit._internal.types.common import PayableMonetaryAmountUsd, NodeId
-from nodekit._internal.types.consequence import Consequence
+from nodekit._internal.types.outcome import Outcome
 from nodekit._internal.types.effects.effects import Effect
 from nodekit._internal.types.sensors.sensors import Sensor
 from nodekit._internal.version import VERSION
@@ -24,7 +24,7 @@ class Node(pydantic.BaseModel):
         min_length=1,
     )
     sensors: List[Sensor] = pydantic.Field(min_length=1)
-    consequences: List[Consequence] = pydantic.Field(default_factory=list)
+    outcomes: List[Outcome] = pydantic.Field(default_factory=list)
     effects: List[Effect] = pydantic.Field(default_factory=list)
 
     @pydantic.model_validator(mode='after')

@@ -2,7 +2,7 @@ import type {Event} from "../types/events";
 import type {Action} from "../types/actions";
 import type {NodeGraph} from "../types/node-graph.ts";
 import type {NodeId} from "../types/node-graph.ts";
-import type {Consequence} from "../types/consequences";
+import type {Outcome} from "../types/outcomes";
 
 export function calculateBonusUsd(
     events: Event[],
@@ -14,9 +14,9 @@ export function calculateBonusUsd(
 
     let bonusComputed = 0;
 
-    let nodeIdToConsequences: Record<NodeId, Consequence[]> = {}
+    let nodeIdToConsequences: Record<NodeId, Outcome[]> = {}
     for (const node of nodeGraph.nodes) {
-        nodeIdToConsequences[node.node_id] = node.consequences;
+        nodeIdToConsequences[node.node_id] = node.outcomes;
     }
 
     // Sort events by timestamp to ensure correct order of processing

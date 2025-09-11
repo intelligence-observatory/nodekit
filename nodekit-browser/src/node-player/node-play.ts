@@ -164,7 +164,7 @@ export class NodePlay {
 
         // Get the Consequence Cards for this Action:
         let consequenceCards: Card[] = []
-        for (const consequence of this.node.consequences) {
+        for (const consequence of this.node.outcomes) {
             if(action.sensor_id === consequence.sensor_id){
                 consequenceCards = consequence.cards;
             }

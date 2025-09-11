@@ -78,8 +78,8 @@ ColorHexString = Annotated[
     str,
     pydantic.Field(
         pattern=r'^#(?:[0-9a-fA-F]{3}){1,2}$',
-        min_length=7,
-        max_length=9,
+        min_length=7, # e.g., #RRGGBB
+        max_length=9, # e.g., #RRGGBBAA
     )
 ]
 

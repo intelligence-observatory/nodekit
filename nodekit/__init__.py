@@ -4,14 +4,14 @@ __all__ = [
     # Top-level types:
     'NodeGraph',
     'Node',
+    'Outcome',
 
     # Namespaced types:
-    'Consequence', # a singleton in v1; alias for a ConstantConsequence
-    'actions',
     'assets',
     'cards',
     'sensors',
     'effects',
+    'actions',
     'events',
 
     # Operations namespace:
@@ -33,7 +33,7 @@ from nodekit._internal.types.node_graph import (
     Node,
 )
 
-from nodekit._internal.types.consequence import Consequence
+from nodekit._internal.types.outcome import Outcome
 
 import nodekit.cards as cards
 import nodekit.assets as assets
