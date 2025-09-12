@@ -1,4 +1,5 @@
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig, devices } from '@playwright/experimental-ct-react';
+import babel from 'vite-plugin-babel';
 
 /**
  * Read environment variables from file.
@@ -33,6 +34,22 @@ export default defineConfig({
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
+    ctViteConfig: {
+      plugins: [
+          babel({
+                babelConfig: {
+                    babelrc: false,
+                    configFile: false,
+                    plugins: [
+                        '@babel/plugin-proposal-decorators',
+                        {
+                            "decoratorsBeforeExport": true
+                        }
+                    ]
+                }
+            })
+      ]
+    }
   },
 
   /* Configure projects for major browsers */
