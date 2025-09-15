@@ -40,6 +40,7 @@ export interface ImageCard extends BaseCard<'ImageCard'>{
 // VideoCard
 export interface VideoCard extends BaseCard<'VideoCard'>{
     video_identifier: VideoIdentifier;
+    muted: boolean;
 }
 
 // TextCard

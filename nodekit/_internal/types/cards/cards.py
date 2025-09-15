@@ -79,6 +79,7 @@ class TextCard(BaseCard, TextFormattingOptions):
 class VideoCard(BaseCard):
     card_type: Literal['VideoCard'] = 'VideoCard'
     video_identifier: VideoIdentifier
+    muted: bool = pydantic.Field(description='Whether to mute the video audio.', default=True)
 
 # %%
 class BlankCard(BaseCard):

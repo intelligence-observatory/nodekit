@@ -27,10 +27,13 @@ export class VideoCardView extends CardView implements ClickableCardView {
             );
             this.video.classList.add('video-card__content');
             this.videoContainer.appendChild(this.video);
-            // Prevent dragging the video in the browser.
+
+            // Mute the video:
+            this.video.muted = card.muted;
+
+            // Prevent dragging the video in the browser:
             this.video.draggable = false;
-            // This allows the video to autoplay.
-            this.video.muted = true;
+
         })();
     }
 
@@ -67,7 +70,7 @@ export class VideoCardView extends CardView implements ClickableCardView {
            }
         });
         // Start playing the video now.
-        this.video.autoplay = true;
+        await this.video.play()
         await Promise.race([playing, timeout]);
     }
 }

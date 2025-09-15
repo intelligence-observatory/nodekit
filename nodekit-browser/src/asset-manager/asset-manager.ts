@@ -9,7 +9,6 @@ type AssetKey = `${SHA256}|${string}`; // string is the mime type
 export class AssetManager {
     private urlLookup: Record<AssetKey, AssetUrl> = {};
 
-
     private getKey(sha256: SHA256, mimeType: string): AssetKey {
         return `${sha256}|${mimeType}`;
     }
@@ -56,6 +55,7 @@ export class AssetManager {
         // Subscribe to events prior to assign the source URL to prevent events from triggering prior to assignment:
         let promise: Promise<HTMLVideoElement> = new Promise((resolve, reject) => {
             element.oncanplaythrough = () => {
+                console.log('oncanplaythrough fired')
                 resolve(element)
             };
             element.onerror = (error) => reject(error);
