@@ -13,6 +13,7 @@ import uvicorn
 from nodekit._internal.browser.browser_bundle import get_browser_bundle
 from nodekit._internal.types.events.events import Event
 from nodekit._internal.types.node_graph import NodeGraph
+from nodekit._internal.types.assets import AssetFile
 
 
 # %%
@@ -185,11 +186,15 @@ class PlaySession:
 
 def play(
         node_graph: NodeGraph,
+        asset_files: List[AssetFile] | None = None,
 ) -> PlaySession:
     """
     Runs the NodeGraph at http://localhost:{port}.
+    If the NodeGraph references Assets, they must be provided via the `asset_files` argument.
+
     Returns the link to the running instance.
     """
+
     runner = _get_runner()
     runner.ensure_running()
     runner.set_node_graph(node_graph)

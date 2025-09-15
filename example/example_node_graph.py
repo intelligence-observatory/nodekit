@@ -28,7 +28,7 @@ def make_basic_fixation_node(
     )
 
     # Define your Sensors, which will detect an Action from the Participant:
-    clicked_fixation_dot_sensor = nk.sensors.ClickSensor(card_id=fixation_card.card_id, t_armed=2000)
+    clicked_fixation_dot_sensor = nk.sensors.ClickSensor(card_id=fixation_card.card_id)
     spacebar_sensor = nk.sensors.KeySensor(key=' ')
     timeout_sensor = nk.sensors.TimeoutSensor(t_armed=5000)
 
@@ -69,6 +69,16 @@ def make_basic_fixation_node(
         outcomes=outcomes,
     )
 
+def make_image_node(
+):
+    image_card = nk.cards.ImageCard(
+        x=0, y = 0, w=0.5, h=0.5,
+    )
+
+    return nk.Node(
+        cards=[image_card],
+        sensors=[nk.sensors.KeySensor(key=' ')],
+    )
 
 # %%
 nodes = []
@@ -92,7 +102,9 @@ node_graph = nk.NodeGraph(
 Path('tmp.json').write_text(node_graph.model_dump_json(indent=4))
 
 # %% Play the NodeGraph locally:
-play_session = nk.play(node_graph)
+play_session = nk.play(
+    node_graph
+)
 
 # %% Wait until the end event is observed:
 while True:

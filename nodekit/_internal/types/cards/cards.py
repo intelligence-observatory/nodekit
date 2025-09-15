@@ -3,7 +3,7 @@ from typing import Literal, Annotated, Union, List
 
 import pydantic
 
-from nodekit._internal.types.assets.links import ImageLink, VideoLink
+from nodekit._internal.types.assets import ImageIdentifier, VideoIdentifier
 from nodekit._internal.types.common import ColorHexString, MarkdownString, SpatialPoint, SpatialSize, TimePointMsec, CardId
 from uuid import uuid4
 
@@ -61,22 +61,21 @@ class MarkdownPagesCard(BaseCard):
 # %%
 class ImageCard(BaseCard):
     card_type: Literal['ImageCard'] = 'ImageCard'
-    image_link: ImageLink
+    image_identifier: ImageIdentifier
 
 
 # %%
 class TextCard(BaseCard, TextContent):
     card_type: Literal['TextCard'] = 'TextCard'
     background_color: ColorHexString = pydantic.Field(
-        default='#E6E6E6',
+        default='#E6E6E600',
         description='The background color of the TextCard in hexadecimal format.'
     )
 
 # %%
 class VideoCard(BaseCard):
     card_type: Literal['VideoCard'] = 'VideoCard'
-    video_link: VideoLink
-
+    video_identifier: VideoIdentifier
 
 # %%
 class BlankCard(BaseCard):
