@@ -247,6 +247,7 @@
         "nodekit_version": "0.1.0"
     }
 
+    const assetUrls = [];
 
     import {play} from '/src/main.ts';
 
@@ -256,6 +257,7 @@
         // Add focus
         let events = await play(
             nodeGraph,
+            assetUrls,
             (event) => {
                 console.log(event);
             }
