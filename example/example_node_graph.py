@@ -88,6 +88,26 @@ def make_image_node(
         sensors=[nk.sensors.KeySensor(key=' ')],
     )
 
+def make_video_node(
+        video_file: nk.assets.VideoFile
+) -> nk.Node:
+
+    video_card = nk.cards.VideoCard(
+        x=0, y=0, w=0.5, h=0.5,
+        video_identifier=video_file.identifier,
+    )
+
+    text_card = nk.cards.TextCard(
+        text='Press space to continue',
+        x=0, y=-0.4, w=0.5, h=0.1,
+    )
+
+    return nk.Node(
+        cards=[video_card, text_card],
+        sensors=[nk.sensors.KeySensor(key=' ')],
+    )
+
+
 def make_instructions_node() -> nk.Node:
 
     markdown_pages_card = nk.cards.MarkdownPagesCard(
@@ -107,11 +127,18 @@ def make_instructions_node() -> nk.Node:
 
 
 # %% Load ImageFiles
-paths = sorted(glob.glob('./example_images/*.png'))
 image_files =[]
-for path in paths:
+for path in sorted(glob.glob('./example_images/*.png')):
     image_file = nk.assets.ImageFile.from_path(Path(path))
     image_files.append(image_file)
+
+
+video_files = []
+
+for path in sorted(glob.glob('./example_videos/*.mp4')):
+    video_file = nk.assets.VideoFile.from_path(Path(path))
+    video_files.append(video_file)
+
 
 # %%
 nodes = []
@@ -120,12 +147,17 @@ nodes.append(
     make_instructions_node()
 )
 
+for video_file in video_files:
+    node = make_video_node(
+        video_file=video_file
+    )
+    nodes.append(node)
+
 for image_file in image_files:
     node = make_image_node(
         image_file=image_file
     )
     nodes.append(node)
-
 
 for _ in range(2):
     # Randomly sample fixation points:
@@ -149,7 +181,7 @@ Path('tmp.json').write_text(node_graph.model_dump_json(indent=4))
 # %% Play the NodeGraph locally:
 play_session = nk.play(
     node_graph,
-    asset_files=image_files
+    asset_files=image_files + video_files,
 )
 
 # %% Wait until the end event is observed:
