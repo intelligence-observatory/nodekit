@@ -9,7 +9,7 @@ __all__ = [
 from nodekit._internal.types.actions.actions import (
     Action,
     ClickAction,
+    KeyAction,
     DoneAction,
     TimeoutAction,
-    KeyAction,
 )

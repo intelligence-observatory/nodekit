@@ -43,19 +43,20 @@ class FixationPointCard(BaseCard):
 
 
 # %%
-class TextContent(pydantic.BaseModel):
-    text: MarkdownString = pydantic.Field(min_length=1)
+class TextFormattingOptions(pydantic.BaseModel):
     text_color: ColorHexString = '#000000'
-    font_size: SpatialSize = 0.0175
+    font_size: SpatialSize = pydantic.Field(default=0.0175, description='The height of the em-box, in Board units.')
     justification_horizontal: Literal['left', 'center', 'right'] = 'center'
     justification_vertical: Literal['top', 'center', 'bottom'] = 'center'
 
 
-class MarkdownPagesCard(BaseCard):
+class MarkdownPagesCard(BaseCard, TextFormattingOptions):
     card_type: Literal['MarkdownPagesCard'] = 'MarkdownPagesCard'
-    pages: List[TextContent] = pydantic.Field(
-        description='A list of MarkdownContent objects representing the text content on the pages to be displayed.'
+    pages: List[MarkdownString] = pydantic.Field(
+        description='A list of Markdown-formatted strings representing the text content on each page.'
     )
+    justification_horizontal: Literal['left', 'center', 'right'] = 'left'
+    justification_vertical: Literal['top', 'center', 'bottom'] = 'top'
 
 
 # %%
@@ -65,10 +66,12 @@ class ImageCard(BaseCard):
 
 
 # %%
-class TextCard(BaseCard, TextContent):
+class TextCard(BaseCard, TextFormattingOptions):
     card_type: Literal['TextCard'] = 'TextCard'
+
+    text: MarkdownString = pydantic.Field(min_length=1)
     background_color: ColorHexString = pydantic.Field(
-        default='#E6E6E600',
+        default='#E6E6E600', # Transparent by default
         description='The background color of the TextCard in hexadecimal format.'
     )
 

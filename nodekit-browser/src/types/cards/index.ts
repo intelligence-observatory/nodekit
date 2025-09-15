@@ -17,12 +17,9 @@ export interface BaseCard<T extends string> {
 }
 
 //
-export interface TextContent {
-    text: MarkdownString;
+export interface TextFormattingOptions {
     text_color: ColorHexString;
-
-    font_size: SpatialSize; // The height of the em-box, in Board units
-
+    font_size: SpatialSize; // The height of the em-box (in Board units)
     justification_horizontal: 'left' | 'center' | 'right';
     justification_vertical: 'top' | 'center' | 'bottom';
 }
@@ -31,8 +28,8 @@ export interface TextContent {
 export interface FixationPointCard extends BaseCard<'FixationPointCard'>{}
 
 // PagesViewCard
-export interface MarkdownPagesCard extends BaseCard<'MarkdownPagesCard'>{
-    pages: TextContent[]
+export interface MarkdownPagesCard extends BaseCard<'MarkdownPagesCard'>, TextFormattingOptions{
+    pages: MarkdownString[]
 }
 
 // ImageCard
@@ -46,7 +43,8 @@ export interface VideoCard extends BaseCard<'VideoCard'>{
 }
 
 // TextCard
-export interface TextCard extends BaseCard<'TextCard'>, TextContent{
+export interface TextCard extends BaseCard<'TextCard'>, TextFormattingOptions{
+    text: MarkdownString
     background_color: ColorHexString
 }
 

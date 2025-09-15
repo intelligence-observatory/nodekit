@@ -71,7 +71,7 @@ def make_basic_fixation_node(
 
 def make_image_node(
         image_file: nk.assets.ImageFile
-):
+) -> nk.Node:
 
     image_card = nk.cards.ImageCard(
         x=0, y = 0, w=0.5, h=0.5,
@@ -88,6 +88,24 @@ def make_image_node(
         sensors=[nk.sensors.KeySensor(key=' ')],
     )
 
+def make_instructions_node() -> nk.Node:
+
+    markdown_pages_card = nk.cards.MarkdownPagesCard(
+        pages=[
+            "# Welcome!\n\nThis is a test task.",
+            "## Instructions\n\nBla bla bla.",
+            "### More Instructions\n\nBla bla bla again.",
+            "#### Final Instructions\n\nThis is the last page.",
+        ],
+        x=0, y=0, w=0.8, h=0.8,
+    )
+
+    return nk.Node(
+        cards=[markdown_pages_card],
+        sensors=[nk.sensors.DoneSensor(card_id=markdown_pages_card.card_id)],
+    )
+
+
 # %% Load ImageFiles
 paths = sorted(glob.glob('./example_images/*.png'))
 image_files =[]
@@ -97,6 +115,10 @@ for path in paths:
 
 # %%
 nodes = []
+
+nodes.append(
+    make_instructions_node()
+)
 
 for image_file in image_files:
     node = make_image_node(

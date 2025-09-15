@@ -143,8 +143,8 @@ declare interface KeySensor extends BaseSensor<'KeySensor'> {
 
 declare type LeaveEvent = BaseEvent<'LeaveEvent', {}>;
 
-declare interface MarkdownPagesCard extends BaseCard<'MarkdownPagesCard'> {
-    pages: TextContent[];
+declare interface MarkdownPagesCard extends BaseCard<'MarkdownPagesCard'>, TextFormattingOptions {
+    pages: MarkdownString[];
 }
 
 declare type MarkdownString = string & {
@@ -214,12 +214,12 @@ declare type SpatialSize = number & {
 
 declare type StartEvent = BaseEvent<'StartEvent', {}>;
 
-declare interface TextCard extends BaseCard<'TextCard'>, TextContent {
+declare interface TextCard extends BaseCard<'TextCard'>, TextFormattingOptions {
+    text: MarkdownString;
     background_color: ColorHexString;
 }
 
-declare interface TextContent {
-    text: MarkdownString;
+declare interface TextFormattingOptions {
     text_color: ColorHexString;
     font_size: SpatialSize;
     justification_horizontal: 'left' | 'center' | 'right';

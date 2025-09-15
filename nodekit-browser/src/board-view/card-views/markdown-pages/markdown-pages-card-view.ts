@@ -4,8 +4,8 @@ import {UIElementBase} from "../../../ui/shell-ui/base.ts";
 import {CardView, type DoneableCardView} from "../card-view.ts";
 import type {MarkdownPagesCard} from "../../../types/cards";
 import type {SpatialSize} from "../../../types/common.ts";
-import {renderTextContent} from "../text/text-card-view.ts";
 import {BoardView} from "../../board-view.ts";
+import {renderTextContent, type TextContentParameters} from "../../../utils.ts";
 
 
 export class MarkdownPagesCardView extends CardView implements DoneableCardView {
@@ -25,7 +25,7 @@ export class MarkdownPagesCardView extends CardView implements DoneableCardView 
         super(card, boardView);
 
         if (card.pages.length === 0) {
-            throw new Error("No markdown pages provided to MarkdownPagesViewer");
+            throw new Error("No pages provided to MarkdownPagesViewer");
         }
 
         // Create root
@@ -39,8 +39,15 @@ export class MarkdownPagesCardView extends CardView implements DoneableCardView 
         // Assemble all content pages:
         this.contentPages = [];
         for (const page of card.pages) {
+            const textContentParametersCur: TextContentParameters = {
+                text: page,
+                textColor: card.text_color,
+                fontSize: card.font_size,
+                justificationHorizontal: card.justification_horizontal,
+                justificationVertical: card.justification_vertical,
+            }
             const divCur = renderTextContent(
-                page,
+                textContentParametersCur,
                 (fontSize: SpatialSize) => {
                     const boardCoords = this.boardView.getCoordinateSystem()
                     const sizePx = boardCoords.getSizePx(fontSize)
