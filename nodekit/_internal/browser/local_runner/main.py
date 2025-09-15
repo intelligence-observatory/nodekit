@@ -139,7 +139,6 @@ class LocalRunner:
                 media_type=asset_file.identifier.mime_type
             )
 
-
         @app.get("/play")
         def site(
                 request: fastapi.Request,

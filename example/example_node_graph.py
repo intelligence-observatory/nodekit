@@ -78,8 +78,13 @@ def make_image_node(
         image_identifier=image_file.identifier,
     )
 
+    text_card = nk.cards.TextCard(
+        text='Press space to continue',
+        x=0, y=-0.4, w=0.5, h=0.1,
+    )
+
     return nk.Node(
-        cards=[image_card],
+        cards=[image_card, text_card],
         sensors=[nk.sensors.KeySensor(key=' ')],
     )
 
@@ -92,17 +97,19 @@ for path in paths:
 
 # %%
 nodes = []
+
+for image_file in image_files:
+    node = make_image_node(
+        image_file=image_file
+    )
+    nodes.append(node)
+
+
 for _ in range(2):
     # Randomly sample fixation points:
     node = make_basic_fixation_node(
         fixation_x=round(random.uniform(-0.3, 0.3), 2),
         fixation_y=round(random.uniform(-0.3, 0.3), 2)
-    )
-    nodes.append(node)
-
-for image_file in image_files:
-    node = make_image_node(
-        image_file=image_file
     )
     nodes.append(node)
 
