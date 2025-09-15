@@ -28,12 +28,14 @@ export class VideoCardView extends CardView implements ClickableCardView {
             this.video.classList.add('video-card__content');
             this.videoContainer.appendChild(this.video);
 
-            // Mute the video:
+            // Set audio:
             this.video.muted = card.muted;
 
-            // Prevent dragging the video in the browser:
-            this.video.draggable = false;
+            // Set looping
+            this.video.loop = card.loop;
 
+            // Prevent dragging the video in the browser:
+            this.video.draggable = true;
         })();
     }
 

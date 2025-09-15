@@ -80,6 +80,7 @@ class VideoCard(BaseCard):
     card_type: Literal['VideoCard'] = 'VideoCard'
     video_identifier: VideoIdentifier
     muted: bool = pydantic.Field(description='Whether to mute the video audio.', default=True)
+    loop: bool = pydantic.Field(description='Whether to loop the video when it ends.', default=False)
 
 # %%
 class BlankCard(BaseCard):
