@@ -95,7 +95,7 @@ AssetFile = Annotated[
 # %%
 class AssetUrl(pydantic.BaseModel):
     identifier: AssetIdentifier = pydantic.Field(description='The claimed identifier for the asset, including its SHA-256 hash and mime type.')
-    url: pydantic.AnyHttpUrl
+    url: pydantic.AnyUrl
     @pydantic.model_validator(mode='after')
     def check_url(self) -> Self:
         """

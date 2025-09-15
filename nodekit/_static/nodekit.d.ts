@@ -1,15 +1,21 @@
 declare type Action = ClickAction | DoneAction | TimeoutAction | KeyAction | KeyHoldsAction;
 
+declare type AssetIdentifier = ImageIdentifier | VideoIdentifier;
+
+declare interface AssetUrl {
+    identifier: AssetIdentifier;
+    url: string;
+}
+
 declare interface BaseAction<T extends string> {
     sensor_id: SensorId;
     action_type: T;
     timestamp_action: ISO8601_2;
 }
 
-declare interface BaseAssetLink<MT = string> {
+declare interface BaseAssetIdentifier<MT extends string> {
+    sha256: SHA256;
     mime_type: MT;
-    sha256: string;
-    asset_url: string;
 }
 
 declare interface BaseCard<T extends string> {
@@ -106,10 +112,10 @@ declare interface HidePointerEffect extends BaseEffect<'HidePointerEffect'> {
 }
 
 declare interface ImageCard extends BaseCard<'ImageCard'> {
-    image_link: ImageLink;
+    image_identifier: ImageIdentifier;
 }
 
-declare interface ImageLink extends BaseAssetLink<"image/png"> {
+declare interface ImageIdentifier extends BaseAssetIdentifier<"image/png"> {
 }
 
 declare type ISO8601 = string & {
@@ -182,7 +188,7 @@ declare interface Outcome {
     bonus_amount_usd: MonetaryAmountUsd;
 }
 
-export declare function play(nodeGraph: NodeGraph, onEventCallback?: OnEventCallback | null, previousEvents?: Event_2[]): Promise<Event_2[]>;
+export declare function play(nodeGraph: NodeGraph, assetUrls: AssetUrl[], onEventCallback?: OnEventCallback | null, previousEvents?: Event_2[]): Promise<Event_2[]>;
 
 declare type PressableKey = "Enter" | " " | "ArrowDown" | "ArrowLeft" | "ArrowRight" | "ArrowUp" | "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z" | "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
 
@@ -192,6 +198,10 @@ declare type Sensor = TimeoutSensor | DoneSensor | ClickSensor | KeySensor | Key
 
 declare type SensorId = string & {
     __brand: 'SensorId';
+};
+
+declare type SHA256 = string & {
+    __brand: 'SHA256';
 };
 
 declare type SpatialPoint = number & {
@@ -231,10 +241,10 @@ declare type UUID = string & {
 };
 
 declare interface VideoCard extends BaseCard<'VideoCard'> {
-    video_link: VideoLink;
+    video_identifier: VideoIdentifier;
 }
 
-declare interface VideoLink extends BaseAssetLink<"video/mp4"> {
+declare interface VideoIdentifier extends BaseAssetIdentifier<"video/mp4"> {
 }
 
 export { }
