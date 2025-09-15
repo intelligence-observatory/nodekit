@@ -10,7 +10,7 @@ import type {Board} from "../types/board";
 
 
 export class NodePlayer {
-    private boardViewsUI: BoardViewsUI;
+    public boardViewsUI: BoardViewsUI;
     private shellUI: ShellUI;
     private bufferedNodePlays: Map<NodePlayId, NodePlay> = new Map();
     private _boardShape: Board;

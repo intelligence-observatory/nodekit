@@ -14,7 +14,7 @@ export class AssetManager {
         return `${sha256}|${mimeType}`;
     }
 
-    async registerAsset(assetUrl: AssetUrl): Promise<void> {
+    registerAsset(assetUrl: AssetUrl): void {
         let sha256 = assetUrl.identifier.sha256;
         let mimeType = assetUrl.identifier.mime_type;
         // Create the lookup key.
