@@ -117,7 +117,6 @@ node_graph = nk.NodeGraph(
 )
 Path('tmp.json').write_text(node_graph.model_dump_json(indent=4))
 
-raise Exception
 # %% Play the NodeGraph locally:
 play_session = nk.play(
     node_graph,

@@ -64,9 +64,9 @@ class LocalRunner:
         Mounts AssetFiles to the FastAPI app to be served by the LocalRunner.
         Calling this function sets self._asset_urls to the URLs of the provided AssetFiles.
         """
-        ...
+        with self._lock:
+            self.asset_id_to_file = {asset_file.identifier.sha256: asset_file for asset_file in asset_files}
 
-        raise NotImplementedError
 
 
 
@@ -164,7 +164,7 @@ class LocalRunner:
                 name='site-template.j2',
                 context={
                     "node_graph": self._node_graph.model_dump(mode='json'),
-                    "asset_urls": asset_urls,
+                    "asset_urls": [a.model_dump(mode='json') for a in asset_urls],
                     "nodekit_javascript_link": request.url_for(
                         "get_nodekit_javascript",
                         js_hash=NODEKIT_JS_HASH,

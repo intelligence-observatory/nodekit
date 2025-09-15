@@ -96,16 +96,3 @@ AssetFile = Annotated[
 class AssetUrl(pydantic.BaseModel):
     identifier: AssetIdentifier = pydantic.Field(description='The claimed identifier for the asset, including its SHA-256 hash and mime type.')
     url: pydantic.AnyUrl
-    @pydantic.model_validator(mode='after')
-    def check_url(self) -> Self:
-        """
-        Validate that the URL ends with the expected file extension
-        """
-        extension = mimetypes.guess_extension(type=self.identifier.mime_type, strict=True)
-        if not extension:
-            raise ValueError(f"Could not determine file extension for mime type {self.identifier.mime_type}.")
-
-        if not str(self.url).endswith(extension):
-            raise ValueError(f"AssetLink URL {self.url} does not end with the expected file extension {extension}.")
-
-        return self
