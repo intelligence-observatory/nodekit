@@ -4,7 +4,7 @@ import type {CardId, PressableKey, SensorId, TimePointMsec} from "../common.ts";
 export interface BaseSensor<T extends string> {
     sensor_id: SensorId
     sensor_type: T
-    t_armed: TimePointMsec
+    t_start: TimePointMsec
 }
 
 export interface TimeoutSensor extends BaseSensor<'TimeoutSensor'>{}

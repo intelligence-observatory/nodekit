@@ -220,7 +220,7 @@ export function placeSensorUnarmedDispatch(
         return new TimeoutSensorBinding(
             sensor.sensor_id,
             onSensorFired,
-            sensor.t_armed,
+            sensor.t_start,
         );
     }
     else if (sensor.sensor_type === 'KeySensor') {

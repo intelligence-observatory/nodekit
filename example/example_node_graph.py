@@ -30,7 +30,7 @@ def make_basic_fixation_node(
     # Define your Sensors, which will detect an Action from the Participant:
     clicked_fixation_dot_sensor = nk.sensors.ClickSensor(card_id=fixation_card.card_id)
     spacebar_sensor = nk.sensors.KeySensor(key=' ')
-    timeout_sensor = nk.sensors.TimeoutSensor(t_armed=5000)
+    timeout_sensor = nk.sensors.TimeoutSensor(t_start=5000)
 
     # Set up your ConsequenceMap, which maps Actions to Consequences
     positive_card = nk.cards.TextCard(

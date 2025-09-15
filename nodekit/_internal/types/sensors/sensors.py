@@ -18,7 +18,7 @@ class BaseSensor(pydantic.BaseModel, ABC):
     sensor_type: str
 
     # Time:
-    t_armed: TimePointMsec = pydantic.Field(
+    t_start: TimePointMsec = pydantic.Field(
         default=0,
         description='The time (in milliseconds) relative to Node start when the Sensor is armed.',
     )
@@ -29,7 +29,7 @@ class TimeoutSensor(BaseSensor):
     A Sensor that triggers immediately after it is armed.
     """
     sensor_type: Literal['TimeoutSensor'] = 'TimeoutSensor'
-    t_armed: TimePointMsec = pydantic.Field(
+    t_start: TimePointMsec = pydantic.Field(
         description = 'The time (in milliseconds) relative to Node start when the TimeoutAction is emitted.',
     )
 
