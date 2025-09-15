@@ -2,7 +2,7 @@ import nodekit as nk
 import random
 import time
 from pathlib import Path
-
+import glob
 random.seed(42)
 
 # %% Create a sequence of simple Nodes in which the Participant must click on a fixation point:
@@ -70,15 +70,25 @@ def make_basic_fixation_node(
     )
 
 def make_image_node(
+        image_file: nk.assets.ImageFile
 ):
+
     image_card = nk.cards.ImageCard(
         x=0, y = 0, w=0.5, h=0.5,
+        image_identifier=image_file.identifier,
     )
 
     return nk.Node(
         cards=[image_card],
         sensors=[nk.sensors.KeySensor(key=' ')],
     )
+
+# %% Load ImageFiles
+paths = sorted(glob.glob('./example_images/*.png'))
+image_files =[]
+for path in paths:
+    image_file = nk.assets.ImageFile.from_path(Path(path))
+    image_files.append(image_file)
 
 # %%
 nodes = []
@@ -87,6 +97,12 @@ for _ in range(2):
     node = make_basic_fixation_node(
         fixation_x=round(random.uniform(-0.3, 0.3), 2),
         fixation_y=round(random.uniform(-0.3, 0.3), 2)
+    )
+    nodes.append(node)
+
+for image_file in image_files:
+    node = make_image_node(
+        image_file=image_file
     )
     nodes.append(node)
 
@@ -101,9 +117,11 @@ node_graph = nk.NodeGraph(
 )
 Path('tmp.json').write_text(node_graph.model_dump_json(indent=4))
 
+raise Exception
 # %% Play the NodeGraph locally:
 play_session = nk.play(
-    node_graph
+    node_graph,
+    asset_files=image_files
 )
 
 # %% Wait until the end event is observed:

@@ -22,8 +22,8 @@ export class VideoCardView extends CardView implements ClickableCardView {
 
         //
         this.videoLoadedPromise = (async () => {
-            this.video = await boardView.assetManager.loadVideoAsset(
-                card.video_link
+            this.video = await boardView.assetManager.getVideo(
+                card.video_identifier
             );
             this.video.classList.add('video-card__content');
             this.videoContainer.appendChild(this.video);

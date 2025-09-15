@@ -1,6 +1,5 @@
-import type {ColorHexString, MarkdownString} from "../common.ts";
-import type {ImageLink, VideoLink} from "../assets/link.ts";
-import type {CardId, SpatialPoint, SpatialSize, TimePointMsec} from "../common.ts";
+import type {CardId, ColorHexString, MarkdownString, SpatialPoint, SpatialSize, TimePointMsec} from "../common.ts";
+import type {ImageIdentifier, VideoIdentifier} from "../assets";
 
 
 export interface BaseCard<T extends string> {
@@ -38,12 +37,12 @@ export interface MarkdownPagesCard extends BaseCard<'MarkdownPagesCard'>{
 
 // ImageCard
 export interface ImageCard extends BaseCard<'ImageCard'>{
-    image_link: ImageLink;
+    image_identifier: ImageIdentifier;
 }
 
 // VideoCard
 export interface VideoCard extends BaseCard<'VideoCard'>{
-    video_link: VideoLink;
+    video_identifier: VideoIdentifier;
 }
 
 // TextCard

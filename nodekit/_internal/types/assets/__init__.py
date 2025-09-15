@@ -10,27 +10,6 @@ from nodekit._internal.types.common import MimeType, SHA256
 from abc import ABC
 
 # %%
-class AssetLink(pydantic.BaseModel):
-    mime_type: MimeType
-    sha256: SHA256
-
-    url: pydantic.AnyHttpUrl
-
-    @pydantic.model_validator(mode='after')
-    def check_url(self) -> Self:
-        """
-        Validate that the URL ends with the expected file extension
-        """
-        extension = mimetypes.guess_extension(type=self.mime_type, strict=True)
-        if not extension:
-            raise ValueError(f"Could not determine file extension for mime type {self.mime_type}.")
-
-        if not str(self.url).endswith(extension):
-            raise ValueError(f"AssetLink URL {self.url} does not end with the expected file extension {extension}.")
-
-        return self
-
-
 class BaseAssetIdentifier(pydantic.BaseModel):
     sha256: SHA256
     mime_type: MimeType
@@ -82,7 +61,7 @@ class BaseAssetFile(pydantic.BaseModel, ABC):
         This is I/O intensive, as it computes the SHA-256 hash of the file.
         """
         sha256 = hash_asset_file(path)
-        guessed_mime_type, _ = mimetypes.guess_type(path.as_posix(), strict=True)
+        guessed_mime_type, _ = mimetypes.guess_type(path, strict=True)
         if not guessed_mime_type:
             raise ValueError(f"Could not determine mime_type for file at path {path}.")
 
@@ -95,7 +74,7 @@ class BaseAssetFile(pydantic.BaseModel, ABC):
         })
         return cls(
             identifier=asset_identifier,
-            path=path
+            path=path.resolve()
         )
 
 class ImageFile(BaseAssetFile):
@@ -111,3 +90,22 @@ AssetFile = Annotated[
     ],
     pydantic.Field(discriminator='identifier')
 ]
+
+
+# %%
+class AssetUrl(pydantic.BaseModel):
+    identifier: AssetIdentifier = pydantic.Field(description='The claimed identifier for the asset, including its SHA-256 hash and mime type.')
+    url: pydantic.AnyHttpUrl
+    @pydantic.model_validator(mode='after')
+    def check_url(self) -> Self:
+        """
+        Validate that the URL ends with the expected file extension
+        """
+        extension = mimetypes.guess_extension(type=self.identifier.mime_type, strict=True)
+        if not extension:
+            raise ValueError(f"Could not determine file extension for mime type {self.identifier.mime_type}.")
+
+        if not str(self.url).endswith(extension):
+            raise ValueError(f"AssetLink URL {self.url} does not end with the expected file extension {extension}.")
+
+        return self
