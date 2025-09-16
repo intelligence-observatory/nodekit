@@ -17,14 +17,20 @@ import {BlankCardView} from "./card-views/blank/blank-card-view.ts";
 export class BoardCoordinateSystem {
     public boardWidthPx: number; // Width of the board in pixels
     public boardHeightPx: number; // Height of the board in pixels
+    public boardLeftPx: number;
+    public boardTopPx: number;
 
     constructor(
         boardWidthPx: number,
         boardHeightPx: number,
+        boardLeftPx: number,
+        boardTopPx: number,
     ) {
         // Initialize the board coordinate system with the given width and height in pixels
         this.boardWidthPx = boardWidthPx;
         this.boardHeightPx = boardHeightPx;
+        this.boardLeftPx = boardLeftPx;
+        this.boardTopPx = boardTopPx;
     }
 
     getUnitPx(): number {
@@ -66,6 +72,21 @@ export class BoardCoordinateSystem {
         // Returns the size of the given Board size in pixels
         return this.getUnitPx() * boardSize;
     }
+
+    getBoardLocationFromMouseEvent(e: MouseEvent):{
+        x: SpatialPoint,
+        y: SpatialPoint,
+    }{
+        // Converts a MouseEvent's (clientX, clientY) to Board coordinates (x, y)
+
+        const clickX = (e.clientX - this.boardLeftPx) / this.boardWidthPx - 0.5;
+        const clickY = -((e.clientY - this.boardTopPx) / this.boardHeightPx - 0.5);
+
+        return {
+            x:clickX as SpatialPoint,
+            y:clickY as SpatialPoint
+        };
+    }
 }
 
 export class BoardView {
@@ -91,8 +112,8 @@ export class BoardView {
     }
 
     getCoordinateSystem(): BoardCoordinateSystem {
-        const {width, height} = this.root.getBoundingClientRect();
-        return new BoardCoordinateSystem(width, height);
+        const {width, height, left, top} = this.root.getBoundingClientRect();
+        return new BoardCoordinateSystem(width, height, left, top);
     }
 
     reset() {
@@ -213,6 +234,14 @@ export class BoardView {
     }
 
     // Sensors
+    private getSensorBinding(sensorId: SensorId): SensorBinding {
+        const sensorBinding = this.sensorBindings.get(sensorId);
+        if (!sensorBinding) {
+            throw new Error(`SensorBinding with ID ${sensorId} not found.`);
+        }
+        return sensorBinding;
+    }
+
     prepareSensor(
         sensor: Sensor,
         onSensorFired: (action: Action) => void,
@@ -241,7 +270,7 @@ export class BoardView {
                 sensor.sensor_id,
                 onSensorFired,
                 cardView as ClickableCardView,
-                this,
+                this.getCoordinateSystem(),
             )
         }
         else if (sensor.sensor_type == "DoneSensor"){
@@ -252,21 +281,12 @@ export class BoardView {
                 onSensorFired,
                 cardView as DoneableCardView,
             )
-
         }
         else {
             throw new Error(`Unknown Sensor of type ${sensor.sensor_type}`);
         }
 
         this.sensorBindings.set(sensor.sensor_id, sensorBinding);
-    }
-
-    private getSensorBinding(sensorId: SensorId): SensorBinding {
-        const sensorBinding = this.sensorBindings.get(sensorId);
-        if (!sensorBinding) {
-            throw new Error(`SensorBinding with ID ${sensorId} not found.`);
-        }
-        return sensorBinding;
     }
 
     armSensor(

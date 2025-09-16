@@ -1,7 +1,7 @@
 import type {Action, ClickAction, DoneAction, KeyHoldsAction, KeyAction} from "../../types/actions";
 import type {PressableKey} from "../../types/common.ts";
 import {type SensorId} from "../../types/common.ts";
-import type {BoardView} from "../board-view.ts";
+import type {BoardCoordinateSystem} from "../board-view.ts";
 import type {ClickableCardView, DoneableCardView} from "../card-views/card-view.ts";
 import {CardView} from "../card-views/card-view.ts";
 
@@ -29,29 +29,26 @@ export class ClickSensorBinding implements SensorBinding {
         sensorId: SensorId,
         onSensorFired: (action: ClickAction) => void,
         cardView: ClickableCardView,
-        boardView: BoardView,
+        boardCoords: BoardCoordinateSystem,
     ) {
         this.cardView = cardView;
-        // Bind the ClickSensor to the Card:
+
         cardView.addClickCallback(
             (e) => {
                 if (!this.tArmed) {
                     return;
                 }
-                // Get the click coordinates in board units (center is 0, 0; extends -0.5 to 0.5)
-                const boardRect = boardView.root.getBoundingClientRect();
-                const clickX = (e.clientX - boardRect.left) / boardRect.width - 0.5;
-                const clickY = (e.clientY - boardRect.top) / boardRect.height - 0.5;
 
-                // Create the action to be fired
+                const location = boardCoords.getBoardLocationFromMouseEvent(e)
+
                 const action: ClickAction = {
                     sensor_id: sensorId,
                     action_type: "ClickAction",
-                    click_x: clickX,
-                    click_y: clickY,
+                    click_x: location.x,
+                    click_y: location.y,
                     timestamp_action: performanceNowToISO8601(performance.now())
                 };
-                // Call the onSensorFired callback with the action
+
                 onSensorFired(action);
             }
         )

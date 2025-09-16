@@ -29,7 +29,7 @@ export class BoardViewsUI {
         }
 
 
-        const newBoardView = new BoardView(boardId, board, this.assetManager);
+        const newBoardView = new BoardView(boardId, board);
         this.boardViews.set(boardId, newBoardView);
 
         // Mount the new board view to the root element
