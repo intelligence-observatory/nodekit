@@ -35,9 +35,7 @@ export class NodePlayer {
             node,
             boardView,
         )
-        console.log('instantiated ')
         await nodePlay.prepare()
-        console.log('prepared')
 
         // Add the prepared NodePlay to buffer
         this.bufferedNodePlays.set(nodePlayId, nodePlay);
@@ -50,7 +48,6 @@ export class NodePlayer {
         Executes the NodePlay instance with the given ID.
         Returns a NodeMeasurements upon completion.
          */
-        console.log('playing')
         const nodePlay = this.bufferedNodePlays.get(nodePlayId);
 
         if (!nodePlay) {

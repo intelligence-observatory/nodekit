@@ -20,7 +20,6 @@ export class VideoCardView extends CardView implements ClickableCardView {
         this.videoContainer.classList.add('video-card');
         this.root.appendChild(this.videoContainer);
 
-        //
         this.videoLoadedPromise = (async () => {
             this.video = await boardView.assetManager.getVideo(
                 card.video_identifier
@@ -58,7 +57,6 @@ export class VideoCardView extends CardView implements ClickableCardView {
     }
 
     async start() {
-        await super.start();
         // Timeout after two frames.
         let timeout = new Promise((_, reject) => {
             setTimeout(() => {

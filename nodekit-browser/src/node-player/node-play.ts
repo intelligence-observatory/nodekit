@@ -39,6 +39,7 @@ export class NodePlay {
     }
 
     public async prepare() {
+
         // Prepare and schedule Cards:
         let setupPromises: Promise<void>[] = [];
         for (const card of this.node.cards) {
@@ -65,9 +66,7 @@ export class NodePlay {
                 )
             }
         }
-
         await Promise.all(setupPromises);
-        console.log('done preparing')
 
         // Prepare and schedule Sensors:
         for (const sensor of this.node.sensors) {

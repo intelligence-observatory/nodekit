@@ -76,14 +76,8 @@ export abstract class CardView {
     }
 
     async load(){}
-
-    // Override this to unload assets.
     unload() {}
-
-    // Do something when the card starts.
-    async start() {
-
-    }
+    async start() {}
 }
 
 export interface ClickableCardView extends CardView {

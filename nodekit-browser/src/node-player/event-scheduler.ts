@@ -54,7 +54,6 @@ export class EventScheduler {
     }
 
     start(): void {
-        console.log('Called start?!')
         if (this.running) {
             return;
         }

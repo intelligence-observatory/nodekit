@@ -176,6 +176,7 @@ export class BoardView {
                 throw new Error(`Unsupported Card type: ${card}`);
         }
 
+        // Load all Card resources:
         await cardView.load();
 
         // Register:
@@ -191,15 +192,18 @@ export class BoardView {
     }
 
     showCard(cardId: CardId) {
+        // Show and start the CardView
         const cardView = this.getCardView(cardId);
         cardView.setVisibility(true);
         cardView.start();
     }
 
     hideCard(cardId: CardId) {
+        // Hide and stop the CardView
         const cardView = this.getCardView(cardId);
         cardView.setVisibility(false);
     }
+
 
     // Sensors
     prepareSensor(

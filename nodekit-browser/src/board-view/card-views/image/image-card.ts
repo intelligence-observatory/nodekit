@@ -23,7 +23,6 @@ export class ImageCardView extends CardView implements ClickableCardView {
         this.imageContainer.classList.add('image-card');
         this.root.appendChild(this.imageContainer);
 
-        //
         this.imageLoadedPromise = (async () => {
             this.image = await boardView.assetManager.getImage(
                 card.image_identifier
