@@ -1,6 +1,5 @@
 import type {ISO8601, PressableKey, SensorId, SpatialPoint} from "../common.ts";
 
-
 export interface BaseAction<T extends string> {
     sensor_id: SensorId
     action_type: T
@@ -16,9 +15,8 @@ export interface KeyAction extends BaseAction<"KeyAction"> {
     key: PressableKey;
 }
 
-
 export interface DoneAction extends BaseAction<"DoneAction"> {}
 
 export interface TimeoutAction extends BaseAction<"TimeoutAction"> {}
 
-export type Action = ClickAction | DoneAction | TimeoutAction | KeyAction | KeyHoldsAction;
+export type Action = ClickAction | DoneAction | TimeoutAction | KeyAction;

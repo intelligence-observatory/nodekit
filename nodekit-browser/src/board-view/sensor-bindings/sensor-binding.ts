@@ -1,4 +1,4 @@
-import type {Action, ClickAction, DoneAction, KeyAction} from "../../types/actions";
+import type {Action, ClickAction, DoneAction, KeyAction, TimeoutAction} from "../../types/actions";
 import type {PressableKey} from "../../types/common.ts";
 import {type SensorId} from "../../types/common.ts";
 import type {BoardCoordinateSystem} from "../board-view.ts";
@@ -9,8 +9,6 @@ import {performanceNowToISO8601} from "../../utils.ts";
 
 // Generic contract:
 export interface SensorBinding {
-    // Represents a Sensor that is bound to a Target. When a Sensor is triggered, it emits an Action.
-    // A Sensor must be armed before it can be triggered.
     arm(): void;
 
     destroy(): void;
@@ -106,46 +104,31 @@ export class DoneSensorBinding implements SensorBinding {
 }
 
 // TimeoutSensor
+/**
+A sensor which fires immediately when armed and yields a TimeoutAction.
+ */
 export class TimeoutSensorBinding implements SensorBinding {
-    private timeoutId: number | null = null;
     private sensorId: SensorId;
     private onSensorFired: (action: Action) => void
-    private timeoutMsec: number;
 
     constructor(
         sensorId: SensorId,
         onSensorFired: (action: Action) => void,
-        timeoutMsec: number,
     ) {
         this.sensorId = sensorId;
         this.onSensorFired = onSensorFired;
-        this.timeoutMsec = timeoutMsec;
     }
 
     arm(): void {
-        // Start the timer
-        this.timeoutId = window.setTimeout(
-            () => {
-                // Create the action to be fired
-                const action: Action = {
-                    sensor_id: this.sensorId,
-                    action_type: "TimeoutAction",
-                    timestamp_action: performanceNowToISO8601(performance.now())
-                };
-                // Call the onSensorFired callback with the action
-                this.onSensorFired(action);
-            },
-            this.timeoutMsec
-        );
+        const action: TimeoutAction = {
+            sensor_id: this.sensorId,
+            action_type: "TimeoutAction",
+            timestamp_action: performanceNowToISO8601(performance.now())
+        };
+        this.onSensorFired(action)
     }
 
-    destroy(): void {
-        if (this.timeoutId !== null) {
-            clearTimeout(this.timeoutId);
-            this.timeoutId = null;
-        }
-    }
-
+    destroy(): void {}
 }
 
 export class KeySensorBinding implements SensorBinding {

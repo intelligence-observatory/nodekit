@@ -249,7 +249,6 @@ export class BoardView {
             sensorBinding = new TimeoutSensorBinding(
                 sensor.sensor_id,
                 onSensorFired,
-                sensor.t_start,
             );
         }
         else if (sensor.sensor_type === 'KeySensor') {
