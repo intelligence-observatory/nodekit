@@ -148,7 +148,7 @@ export class BoardView {
     }
 
     // Cards
-    async placeCardHidden(card: Card) {
+    async prepareCard(card: Card) {
         const cardView = await placeCardHiddenDispatch(
             card,
             this,
@@ -178,7 +178,7 @@ export class BoardView {
     }
 
     // Sensors
-    placeSensorUnarmed(
+    prepareSensor(
         sensor: Sensor,
         onSensorFired: (action: Action) => void,
     ) {

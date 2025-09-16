@@ -41,16 +41,14 @@ export class NodePlay {
     public async prepare() {
         // Prepare the NodePlay by setting up the BoardView, Cards, Sensors, and scheduling their events.
 
-        // Instantiate Cards:
+        // Prepare and schedule Cards:
         let setupPromises: Promise<void>[] = [];
         for (const card of this.node.cards) {
-            // Place Card onto Board:
-            setupPromises.push(this.boardView.placeCardHidden(card));
-        }
-        await Promise.all(setupPromises);
+            // Prepare Cards:
+            setupPromises.push(
+                this.boardView.prepareCard(card)
+            );
 
-        // Schedule Card events:
-        for (const card of this.node.cards) {
             // Schedule CardView display event:
             this.scheduler.scheduleEvent(
                 {
@@ -70,10 +68,12 @@ export class NodePlay {
             }
         }
 
-        // Then, mount and schedule Sensors:
+        await Promise.all(setupPromises);
+
+        // Prepare and schedule Sensors:
         for (const sensor of this.node.sensors) {
             // First, mount an unarmed sensor now:
-            this.boardView.placeSensorUnarmed(
+            this.boardView.prepareSensor(
                 sensor,
                 action => this.reportSensorFired(action)
             )
@@ -87,9 +87,9 @@ export class NodePlay {
             )
         }
 
-        // Schedule any effects:
+        // Prepare and schedule Effects:
         for (const effect of this.node.effects){
-            // Initialize the Effect binding
+            // Initialize the Effect binding // todo
             // There is only one EffectBinding type for now, so just instantiate it directly:
             const effectBinding: EffectBinding = new HideCursorEffectBinding(this.boardView)
             // Schedule the effect start
@@ -115,7 +115,10 @@ export class NodePlay {
             }
         }
 
-        // Mark:
+        // Todo: prepare and schedule Outcome Boards
+
+        // Todo: schedule destruction of Cards, Sensors, Effects, Outcome Boards
+
         this.prepared = true;
     }
 
@@ -132,15 +135,15 @@ export class NodePlay {
 
         this.started = true;
 
-        // Create Promise to capture Sensor and Reinforcer events:
-        const donePromise = new Promise(
+        // Create Promise to capture Sensor trigger:
+        const actionDetectedPromise = new Promise(
             (res: (result: Action) => void, _rej) => (this.resolvePlay = res)
         );
 
         // Kick off scheduler:
         const timestampStart = performance.now();
         this.scheduler.start()
-        const result = await donePromise;
+        const result = await actionDetectedPromise;
         const timestampEnd = performance.now();
 
         // Package return
@@ -177,7 +180,7 @@ export class NodePlay {
         // Add Consequence cards
         let setupPromises = [];
         for (const card of consequenceCards) {
-            setupPromises.push(this.boardView.placeCardHidden(card))
+            setupPromises.push(this.boardView.prepareCard(card))
         }
 
         // Play Reinforcer
