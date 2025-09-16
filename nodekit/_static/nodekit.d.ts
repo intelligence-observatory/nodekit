@@ -1,4 +1,4 @@
-declare type Action = ClickAction | DoneAction | TimeoutAction | KeyAction | KeyHoldsAction;
+declare type Action = ClickAction | DoneAction | TimeoutAction | KeyAction;
 
 declare type AssetIdentifier = ImageIdentifier | VideoIdentifier;
 
@@ -46,7 +46,7 @@ declare type BaseEvent<T extends string, P> = {
 declare interface BaseSensor<T extends string> {
     sensor_id: SensorId;
     sensor_type: T;
-    t_armed: TimePointMsec;
+    t_start: TimePointMsec;
 }
 
 declare interface BlankCard extends BaseCard<'BlankCard'> {
@@ -79,8 +79,8 @@ declare type CardId = string & {
 };
 
 declare interface ClickAction extends BaseAction<"ClickAction"> {
-    click_x: number;
-    click_y: number;
+    click_x: SpatialPoint;
+    click_y: SpatialPoint;
 }
 
 declare interface ClickSensor extends BaseSensor<'ClickSensor'> {
@@ -128,9 +128,6 @@ declare type ISO8601_2 = string & {
 
 declare interface KeyAction extends BaseAction<"KeyAction"> {
     key: PressableKey;
-}
-
-declare interface KeyHoldsAction extends BaseAction<"KeyHoldsAction"> {
 }
 
 declare interface KeyHoldsSensor extends BaseSensor<'KeyHoldsSensor'> {
@@ -242,6 +239,8 @@ declare type UUID = string & {
 
 declare interface VideoCard extends BaseCard<'VideoCard'> {
     video_identifier: VideoIdentifier;
+    muted: boolean;
+    loop: boolean;
 }
 
 declare interface VideoIdentifier extends BaseAssetIdentifier<"video/mp4"> {
