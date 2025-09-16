@@ -112,7 +112,7 @@ export class NodePlay {
             this.scheduler.scheduleEvent(
                 {
                     triggerTimeMsec: sensor.t_start,
-                    triggerFunc: () => {this.boardView.armSensor(sensor.sensor_id)},
+                    triggerFunc: () => {this.boardView.startSensor(sensor.sensor_id)},
                 }
             )
 

@@ -104,11 +104,7 @@ export class BoardView {
         this.root.style.width = board.board_width_px + 'px';
         this.root.style.height = board.board_height_px + 'px';
 
-        // Clear and set
-        this.reset()
-
-        // Keep state off
-        this.setState(false, false);
+        this.setBoardState(false, false);
     }
 
     getCoordinateSystem(): BoardCoordinateSystem {
@@ -123,7 +119,7 @@ export class BoardView {
         }
     }
 
-    setState(
+    setBoardState(
         visible: boolean,
         interactivity: boolean
     ) {
@@ -289,16 +285,11 @@ export class BoardView {
         this.sensorBindings.set(sensor.sensor_id, sensorBinding);
     }
 
-    armSensor(
+    startSensor(
         sensorId: SensorId,
     ) {
         const sensorBinding = this.getSensorBinding(sensorId);
         sensorBinding.arm()
-    }
-
-    disarmSensor(sensorId: SensorId) {
-        const sensorBinding = this.getSensorBinding(sensorId);
-        sensorBinding.disarm();
     }
 
     destroySensor(sensorId: SensorId) {

@@ -1,4 +1,4 @@
-import type {Action, ClickAction, DoneAction, KeyHoldsAction, KeyAction} from "../../types/actions";
+import type {Action, ClickAction, DoneAction, KeyAction} from "../../types/actions";
 import type {PressableKey} from "../../types/common.ts";
 import {type SensorId} from "../../types/common.ts";
 import type {BoardCoordinateSystem} from "../board-view.ts";
@@ -12,8 +12,6 @@ export interface SensorBinding {
     // Represents a Sensor that is bound to a Target. When a Sensor is triggered, it emits an Action.
     // A Sensor must be armed before it can be triggered.
     arm(): void;
-
-    disarm(): void;
 
     destroy(): void;
 }
@@ -33,25 +31,24 @@ export class ClickSensorBinding implements SensorBinding {
     ) {
         this.cardView = cardView;
 
-        cardView.addClickCallback(
-            (e) => {
-                if (!this.tArmed) {
-                    return;
-                }
-
-                const location = boardCoords.getBoardLocationFromMouseEvent(e)
-
-                const action: ClickAction = {
-                    sensor_id: sensorId,
-                    action_type: "ClickAction",
-                    click_x: location.x,
-                    click_y: location.y,
-                    timestamp_action: performanceNowToISO8601(performance.now())
-                };
-
-                onSensorFired(action);
+        const clickCallback = (e: MouseEvent) => {
+            if (!this.tArmed) {
+                return;
             }
-        )
+
+            const location = boardCoords.getBoardLocationFromMouseEvent(e)
+
+            const action: ClickAction = {
+                sensor_id: sensorId,
+                action_type: "ClickAction",
+                click_x: location.x,
+                click_y: location.y,
+                timestamp_action: performanceNowToISO8601(performance.now())
+            };
+            onSensorFired(action);
+        }
+
+        cardView.addClickCallback(clickCallback);
     }
 
     arm(): void {
@@ -60,16 +57,10 @@ export class ClickSensorBinding implements SensorBinding {
         this.cardView.setInteractivity(true);
     }
 
-    disarm(): void {
-
+    destroy(): void {
         this.cardView.root.classList.remove('card--clickable');
         this.tArmed = null;
         this.cardView.setInteractivity(false);
-    }
-
-    destroy(): void {
-        this.disarm();
-        // todo
     }
 }
 
@@ -107,13 +98,9 @@ export class DoneSensorBinding implements SensorBinding {
         this.cardView.setInteractivity(true);
     }
 
-    disarm(): void {
+    destroy(): void {
         this.tArmed = null;
         this.cardView.setInteractivity(false);
-    }
-    destroy(): void {
-        this.disarm();
-        // todo
     }
 
 }
@@ -152,15 +139,11 @@ export class TimeoutSensorBinding implements SensorBinding {
         );
     }
 
-    disarm(): void {
+    destroy(): void {
         if (this.timeoutId !== null) {
             clearTimeout(this.timeoutId);
             this.timeoutId = null;
         }
-    }
-    destroy(): void {
-        this.disarm();
-        // todo
     }
 
 }
@@ -191,15 +174,10 @@ export class KeySensorBinding implements SensorBinding {
         this.tArmed = performance.now();
     }
 
-    disarm() {
+    destroy(): void {
         this.tArmed = null;
         document.removeEventListener('keydown', this.onKeyPress);
     }
-    destroy(): void {
-        this.disarm();
-        // todo
-    }
-
 
     private onKeyPress = (e: KeyboardEvent) => {
         if (!this.tArmed) {
@@ -221,153 +199,10 @@ export class KeySensorBinding implements SensorBinding {
             timestamp_action: performanceNowToISO8601(performance.now())
         };
 
-        // Disarm the sensor after a key press:
-        this.disarm();
-
         this.onSensorFired(action);
     }
 }
 
-// A raw keyboard event with some extra metadata.
-interface KeyEvent {
-    event: KeyboardEvent,
-    t: DOMHighResTimeStamp, // The timestamp returned by `performance.now()`.
-}
-
-export class KeyHoldSensorBinding implements SensorBinding {
-    private readonly sensorId: SensorId;
-    private readonly onSensorFired: (action: Action) => void
-    private readonly keyToKeyEvents:  Record<PressableKey, KeyEvent[]>; // Dictionary of key to KeyEvent[]
-    private tArmed: number | null = null;
-
-    constructor(
-        sensorId: SensorId,
-        onSensorFired: (action: Action) => void,
-        keys: Set<PressableKey>,
-    ) {
-
-        this.sensorId = sensorId;
-        this.onSensorFired = onSensorFired;
-
-        // Initialize keyToKeyEvents:
-        this.keyToKeyEvents = {} as Record<PressableKey, KeyEvent[]>;
-        keys.forEach(key => {
-            this.keyToKeyEvents[key] = [];
-        })
-
-        // These events must be added to document, and not BoardView.root because
-        // it is not guaranteed that the BoardView.root element will have focus.
-        document.addEventListener('keydown', this.onKeyboardEvent);
-        document.addEventListener('keyup', this.onKeyboardEvent);
-    }
-
-    arm() {
-        this.tArmed = performance.now();
-    }
-
-    disarm() {
-
-        // Manually remove the listeners:
-        document.removeEventListener('keydown', this.onKeyboardEvent);
-        document.removeEventListener('keyup', this.onKeyboardEvent);
-        this.tArmed = null;
-
-        // Package the Action:
-        const tEnd = performance.now();
-        //let _keyHolds = this.deriveKeyHolds();
-
-        let action: KeyHoldsAction = {
-            sensor_id: this.sensorId,
-            action_type: "KeyHoldsAction",
-            timestamp_action: performanceNowToISO8601(tEnd)
-        };
-        this.onSensorFired(action);
-    }
-    destroy(): void {
-        this.disarm();
-        // todo
-    }
-
-
-    private onKeyboardEvent = (event: KeyboardEvent)=> {
-        // Ignore the event if the sensor isn't armed yet:
-        if (!this.tArmed) {
-            return;
-        }
-
-        const key: PressableKey = event.key as PressableKey;
-        // Ignore the event if it isn't on a legal key:
-        if (!(key in this.keyToKeyEvents)) {
-            return;
-        }
-
-        // Prevent default behavior (e.g., scrolling the page with arrow keys):
-        event.preventDefault();
-
-        // If this is a repeat event and at least one event for this key is already recorded, ignore it.
-        // This correctly records the case where the first keydown event observed by the armed Sensor is a repeat event,
-        // and ignores any subsequent repeat events.
-        if (event.repeat && this.keyToKeyEvents[key].length > 0) {
-            return;
-        }
-
-        // Log the event:
-        this.keyToKeyEvents[key].push({
-            event: event,
-            t: performance.now()
-        });
-    }
-
-    // @ts-ignore // Todo
-    private _deriveKeyHolds() : any[] {
-        // Maps the raw keydown and keyup events to KeyHold objects.
-
-        const holds: any[] = [];
-
-        for (const key of Object.keys(this.keyToKeyEvents) as PressableKey[]) {
-
-            // Get time-sorted KeyEvents for this key:
-            const events = [...this.keyToKeyEvents[key]].sort((a, b) => a.t - b.t);
-
-            let downT: DOMHighResTimeStamp | null = null;
-
-            for (const { event, t } of events) {
-                if (event.type === "keydown") {
-                    // Ignore auto-repeat or duplicate downs while already down
-                    if (downT !== null) continue;
-                    // Start a new hold
-                    downT = t;
-                } else if (event.type === "keyup") {
-                    if (downT === null) {
-                        // Sensor was armed while key was already down; start_time is unknown
-                        holds.push({
-                            key,
-                            timestamp_start: null,
-                            timestamp_end: performanceNowToISO8601(t),
-                        });
-                    } else {
-                        holds.push({
-                            key,
-                            timestamp_start: performanceNowToISO8601(downT),
-                            timestamp_end: performanceNowToISO8601(t),
-                        });
-                        downT = null;
-                    }
-                }
-            }
-
-            // If still down at disarm: open-ended hold
-            if (downT !== null) {
-                holds.push({
-                    key,
-                    timestamp_start: performanceNowToISO8601(downT),
-                    timestamp_end: null,
-                });
-            }
-        }
-        return holds
-    }
-}
 
 // Type Guards
 export function assertClickable(cardView: CardView): asserts cardView is ClickableCardView {
