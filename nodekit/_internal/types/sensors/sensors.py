@@ -33,7 +33,6 @@ class TimeoutSensor(BaseSensor):
         description = 'The time (in milliseconds) relative to Node start when the TimeoutAction is emitted.',
     )
 
-
 # %%
 class DoneSensor(BaseSensor):
     sensor_type: Literal['DoneSensor'] = 'DoneSensor'
