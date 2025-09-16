@@ -1,5 +1,4 @@
 import {expect, test} from '@playwright/test';
-import type {ConsoleMessage} from '@playwright/test';
 
 test('video', async ({ page }) => {
    // Get page errors.
