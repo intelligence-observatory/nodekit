@@ -39,8 +39,6 @@ export class NodePlay {
     }
 
     public async prepare() {
-        // Prepare the NodePlay by setting up the BoardView, Cards, Sensors, and scheduling their events.
-
         // Prepare and schedule Cards:
         let setupPromises: Promise<void>[] = [];
         for (const card of this.node.cards) {
@@ -57,7 +55,7 @@ export class NodePlay {
                 }
             )
 
-            // Schedule hiding of the Card, if not open-ended Timespan:
+            // Schedule hiding of the Card, if it has non-null t_end:
             if (card.t_end !== null) {
                 this.scheduler.scheduleEvent(
                     {
@@ -69,6 +67,7 @@ export class NodePlay {
         }
 
         await Promise.all(setupPromises);
+        console.log('done preparing')
 
         // Prepare and schedule Sensors:
         for (const sensor of this.node.sensors) {

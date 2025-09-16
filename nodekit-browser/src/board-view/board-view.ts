@@ -14,12 +14,6 @@ import {TextCardView} from "./card-views/text/text-card-view.ts";
 import {VideoCardView} from "./card-views/video/video-card.ts";
 import {BlankCardView} from "./card-views/blank/blank-card-view.ts";
 
-export interface PixelArea {
-    width_px: number; // Width in pixels
-    height_px: number; // Height in pixels
-}
-
-
 export class BoardCoordinateSystem {
     public boardWidthPx: number; // Width of the board in pixels
     public boardHeightPx: number; // Height of the board in pixels
@@ -140,19 +134,49 @@ export class BoardView {
         }
     }
 
-    getArea(): PixelArea {
-        return {
-            width_px: this.root.offsetWidth,
-            height_px: this.root.offsetHeight
-        }
-    }
-
     // Cards
     async prepareCard(card: Card) {
-        const cardView = await placeCardHiddenDispatch(
-            card,
-            this,
-        );
+        // Dynamic dispatch
+        const boardView = this;
+        let cardView: CardView | null = null;
+        switch (card.card_type) {
+            case "FixationPointCard":
+                cardView = new FixationPointCardView(
+                    card, boardView
+                )
+                break
+            case "MarkdownPagesCard":
+                cardView = new MarkdownPagesCardView(
+                    card, boardView
+                )
+                break
+            case "ImageCard":
+                cardView = new ImageCardView(
+                    card,
+                    boardView,
+                )
+                break
+            case "VideoCard":
+                cardView = new VideoCardView(
+                    card,
+                    boardView
+                );
+                break
+            case "TextCard":
+                cardView = new TextCardView(
+                    card, boardView
+                )
+                break
+            case "BlankCard":
+                cardView = new BlankCardView(
+                    card, boardView
+                )
+                break
+            default:
+                throw new Error(`Unsupported Card type: ${card}`);
+        }
+
+        await cardView.load();
 
         // Register:
         this.cardViews.set(card.card_id, cardView);
@@ -253,52 +277,4 @@ export function placeSensorUnarmedDispatch(
     else {
         throw new Error(`Unknown Sensor of type ${sensor.sensor_type}`);
     }
-}
-
-
-export async function placeCardHiddenDispatch(
-    card: Card,
-    boardView: BoardView,
-): Promise<CardView> {
-    // Dynamic dispatch
-    let cardView: CardView | null = null;
-    switch (card.card_type) {
-        case "FixationPointCard":
-            cardView = new FixationPointCardView(
-                card, boardView
-            )
-            break
-        case "MarkdownPagesCard":
-            cardView = new MarkdownPagesCardView(
-                card, boardView
-            )
-            break
-        case "ImageCard":
-            cardView = new ImageCardView(
-                card,
-                boardView,
-            )
-            break
-        case "VideoCard":
-            cardView = new VideoCardView(
-                card,
-                boardView
-            );
-            break
-        case "TextCard":
-            cardView = new TextCardView(
-                card, boardView
-            )
-            break
-        case "BlankCard":
-            cardView = new BlankCardView(
-                card, boardView
-            )
-            break
-        default:
-            throw new Error(`Unsupported Card type: ${card}`);
-    }
-
-    await cardView.load();
-    return cardView;
 }

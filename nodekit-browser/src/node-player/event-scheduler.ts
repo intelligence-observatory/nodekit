@@ -36,7 +36,6 @@ export class EventScheduler {
     scheduleEvent(
         parameters: ScheduleEventParameters
     ): void {
-        if (!this.running) this.start();
 
         const token = this.nextToken++;
         const ev: TimedEvent = {
@@ -55,6 +54,7 @@ export class EventScheduler {
     }
 
     start(): void {
+        console.log('Called start?!')
         if (this.running) {
             return;
         }

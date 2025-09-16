@@ -29,26 +29,20 @@ export class NodePlayer {
         /*
         Prepares a NodePlay instance and returns its ID.
          */
-        try{
-            // Create a new BoardView on which the NodePlay will be rendered::
-            const nodePlayId: NodePlayId = crypto.randomUUID() as NodePlayId;
-            const boardView = this.boardViewsUI.createBoardView(nodePlayId, this._boardShape);
-            const nodePlay = new NodePlay(
-                node,
-                boardView,
-            )
-            await nodePlay.prepare()
+        const nodePlayId: NodePlayId = crypto.randomUUID() as NodePlayId;
+        const boardView = this.boardViewsUI.createBoardView(nodePlayId, this._boardShape);
+        const nodePlay = new NodePlay(
+            node,
+            boardView,
+        )
+        console.log('instantiated ')
+        await nodePlay.prepare()
+        console.log('prepared')
 
-            // Add the prepared NodePlay to buffer
-            this.bufferedNodePlays.set(nodePlayId, nodePlay);
+        // Add the prepared NodePlay to buffer
+        this.bufferedNodePlays.set(nodePlayId, nodePlay);
 
-            return nodePlayId as NodePlayId;
-        }
-        catch(error) {
-            // Show error message overlay
-            this.showErrorMessageOverlay(error as Error);
-            throw new Error('NodePlayer preparation failed: ' + (error as Error).message);
-        }
+        return nodePlayId as NodePlayId;
     }
 
     async play(nodePlayId: NodePlayId): Promise<PlayNodeResult>{
@@ -56,6 +50,7 @@ export class NodePlayer {
         Executes the NodePlay instance with the given ID.
         Returns a NodeMeasurements upon completion.
          */
+        console.log('playing')
         const nodePlay = this.bufferedNodePlays.get(nodePlayId);
 
         if (!nodePlay) {
