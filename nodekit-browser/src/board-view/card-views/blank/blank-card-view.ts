@@ -7,7 +7,7 @@ import {CardView, type ClickableCardView} from "../card-view.ts";
  */
 export class BlankCardView extends CardView<BlankCard> implements ClickableCardView {
 
-    async load(){
+    async prepare(){
         this.root.style.backgroundColor = this.card.color;
     }
 

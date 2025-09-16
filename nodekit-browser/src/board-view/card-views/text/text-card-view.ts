@@ -12,7 +12,7 @@ import {renderTextContent, type TextContentParameters} from "../../../utils.ts";
 export class TextCardView extends CardView<TextCard> implements ClickableCardView {
     textContainer: HTMLDivElement | undefined;
 
-    async load(
+    async prepare(
     ) {
         this.textContainer = document.createElement('div');
         this.textContainer.classList.add('text-card');

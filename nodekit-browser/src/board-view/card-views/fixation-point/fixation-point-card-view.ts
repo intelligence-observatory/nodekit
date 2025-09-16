@@ -7,7 +7,7 @@ import type {FixationPointCard} from "../../../types/cards";
 export class FixationPointCardView extends CardView<FixationPointCard> implements ClickableCardView{
     private button: HTMLButtonElement | undefined;
 
-    async load(){
+    async prepare(){
         this.button = document.createElement('button');
         this.button.classList.add('fixation-point');
 

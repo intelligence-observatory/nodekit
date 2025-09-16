@@ -17,7 +17,7 @@ export class MarkdownPagesCardView extends CardView<MarkdownPagesCard> implement
 
     contentPages: HTMLDivElement[] = [];
 
-    async load () {
+    async prepare () {
         const card = this.card;
         const boardCoords = this.boardCoords;
 

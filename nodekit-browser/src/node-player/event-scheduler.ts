@@ -74,7 +74,6 @@ export class EventScheduler {
         }
 
         // Run any onStop callbacks:
-        console.log(`EventScheduler: running ${this.onStopQueue.length} onStop callbacks`);
         while (this.onStopQueue.length > 0) {
             const cb = this.onStopQueue.shift()!;
             cb();

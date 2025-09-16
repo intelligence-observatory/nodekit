@@ -44,7 +44,7 @@ export abstract class CardView<C extends Card = Card> {
         this.setInteractivity(false);
     }
 
-    async load(_assetManager:AssetManager){
+    async prepare(_assetManager:AssetManager){
         // Any Card-specific loading logic should go here
     }
 
@@ -69,8 +69,15 @@ export abstract class CardView<C extends Card = Card> {
         }
     }
 
-    unload() {}
-    async start() {}
+    onStart() {
+        // Called when the Card is started
+    }
+    onStop() {
+        // Called when the Card is stopped
+    }
+    onDestroy() {
+        // Called when the Card is destroyed
+    }
 }
 
 export interface ClickableCardView extends CardView {

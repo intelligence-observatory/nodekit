@@ -22,7 +22,7 @@ export class ImageCardView extends CardView<ImageCard> implements ClickableCardV
         });
     }
 
-    async load(assetManager:AssetManager) {
+    async prepare(assetManager:AssetManager) {
         this.imageContainer = document.createElement('div');
         this.imageContainer.classList.add('image-card');
         this.root.appendChild(this.imageContainer);

@@ -176,7 +176,7 @@ export class BoardView {
         }
 
         // Load all Card resources:
-        await cardView.load(assetManager);
+        await cardView.prepare(assetManager);
 
         // Mount CardView to BoardView:
         this.root.appendChild(cardView.root);
@@ -197,19 +197,20 @@ export class BoardView {
         // Show and start the CardView
         const cardView = this.getCardView(cardId);
         cardView.setVisibility(true);
-        cardView.start();
+        cardView.onStart();
     }
 
     stopCard(cardId: CardId) {
         // Hide and stop the CardView
         const cardView = this.getCardView(cardId);
         cardView.setVisibility(false);
+        cardView.onStop();
     }
 
     destroyCard(cardId: CardId) {
         // Unload and remove the CardView
         const cardView = this.getCardView(cardId);
-        cardView.unload();
+        cardView.onDestroy();
         this.root.removeChild(cardView.root);
         this.cardViews.delete(cardId);
     }

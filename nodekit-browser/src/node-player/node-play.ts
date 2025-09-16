@@ -28,7 +28,7 @@ class Deferred<T> {
     }
     resolve(value: T){
         if (this.alreadyCalled) {
-            console.log("Warning: DeferredValue.resolve called multiple times; ignoring subsequent calls.", value);
+            console.warn("Warning: DeferredValue.resolve called multiple times; ignoring subsequent calls.", value);
             return
         }
         this.alreadyCalled = true;
