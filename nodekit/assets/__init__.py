@@ -1,10 +1,10 @@
 __all__ = [
     'ImageIdentifier',
     'VideoIdentifier',
-    #'AssetIdentifier',
     'AssetFile',
     'ImageFile',
     'VideoFile',
+    'AssetUrl',
 ]
 
 from nodekit._internal.types.assets import (
@@ -13,4 +13,5 @@ from nodekit._internal.types.assets import (
     AssetFile,
     ImageFile,
     VideoFile,
+    AssetUrl,
 )
