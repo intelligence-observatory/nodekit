@@ -55,7 +55,6 @@ export class AssetManager {
         // Subscribe to events prior to assign the source URL to prevent events from triggering prior to assignment:
         let promise: Promise<HTMLVideoElement> = new Promise((resolve, reject) => {
             element.oncanplaythrough = () => {
-                console.log('oncanplaythrough fired')
                 resolve(element)
             };
             element.onerror = (error) => reject(error);

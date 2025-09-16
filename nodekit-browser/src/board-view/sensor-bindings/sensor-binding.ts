@@ -14,6 +14,8 @@ export interface SensorBinding {
     arm(): void;
 
     disarm(): void;
+
+    destroy(): void;
 }
 
 
@@ -67,6 +69,11 @@ export class ClickSensorBinding implements SensorBinding {
         this.tArmed = null;
         this.cardView.setInteractivity(false);
     }
+
+    destroy(): void {
+        this.disarm();
+        // todo
+    }
 }
 
 // Done sensor
@@ -107,6 +114,11 @@ export class DoneSensorBinding implements SensorBinding {
         this.tArmed = null;
         this.cardView.setInteractivity(false);
     }
+    destroy(): void {
+        this.disarm();
+        // todo
+    }
+
 }
 
 // TimeoutSensor
@@ -149,6 +161,11 @@ export class TimeoutSensorBinding implements SensorBinding {
             this.timeoutId = null;
         }
     }
+    destroy(): void {
+        this.disarm();
+        // todo
+    }
+
 }
 
 export class KeySensorBinding implements SensorBinding {
@@ -181,6 +198,11 @@ export class KeySensorBinding implements SensorBinding {
         this.tArmed = null;
         document.removeEventListener('keydown', this.onKeyPress);
     }
+    destroy(): void {
+        this.disarm();
+        // todo
+    }
+
 
     private onKeyPress = (e: KeyboardEvent) => {
         if (!this.tArmed) {
@@ -264,6 +286,11 @@ export class KeyHoldSensorBinding implements SensorBinding {
         };
         this.onSensorFired(action);
     }
+    destroy(): void {
+        this.disarm();
+        // todo
+    }
+
 
     private onKeyboardEvent = (event: KeyboardEvent)=> {
         // Ignore the event if the sensor isn't armed yet:

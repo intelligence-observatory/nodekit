@@ -44,7 +44,9 @@ export abstract class CardView<C extends Card = Card> {
         this.setInteractivity(false);
     }
 
-    async load(_assetManager:AssetManager){}
+    async load(_assetManager:AssetManager){
+        // Any Card-specific loading logic should go here
+    }
 
     setVisibility(
         visible: boolean

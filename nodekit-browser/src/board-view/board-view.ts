@@ -70,22 +70,18 @@ export class BoardCoordinateSystem {
 
 export class BoardView {
     root: HTMLDivElement
-    assetManager: AssetManager;
-
     cardViews: Map<CardId, CardView> = new Map(); // Map of card ID to CardView
     sensorBindings: Map<SensorId, SensorBinding> = new Map(); // Map of sensor ID to SensorBinding
 
     constructor(
         boardId: string,
         board: Board,
-        assetManager: AssetManager,
     ) {
         this.root = document.createElement("div")
         this.root.className = 'board-view'
         this.root.id = `${boardId}`;
         this.root.style.width = board.board_width_px + 'px';
         this.root.style.height = board.board_height_px + 'px';
-        this.assetManager = assetManager;
 
         // Clear and set
         this.reset()
@@ -100,10 +96,9 @@ export class BoardView {
     }
 
     reset() {
-        // Perform unload operations for each card.
-        this.cardViews.forEach(card => {
-            card.unload();
-        })
+        // Destroy all existing CardViews
+
+
         // Removes all child elements on the boardDiv
         while (this.root.firstChild) {
             this.root.removeChild(this.root.firstChild);
@@ -135,7 +130,10 @@ export class BoardView {
     }
 
     // Cards
-    async prepareCard(card: Card) {
+    async prepareCard(
+        card: Card,
+        assetManager: AssetManager,
+    ) {
         // Dynamic dispatch
         const boardCoords = this.getCoordinateSystem();
         let cardView: CardView | null = null;
@@ -169,7 +167,8 @@ export class BoardView {
                 break
             case "BlankCard":
                 cardView = new BlankCardView(
-                    card, boardCoords
+                    card,
+                    boardCoords
                 )
                 break
             default:
@@ -177,7 +176,7 @@ export class BoardView {
         }
 
         // Load all Card resources:
-        await cardView.load(this.assetManager);
+        await cardView.load(assetManager);
 
         // Mount CardView to BoardView:
         this.root.appendChild(cardView.root);
@@ -194,26 +193,33 @@ export class BoardView {
         return cardView;
     }
 
-    showCard(cardId: CardId) {
+    startCard(cardId: CardId) {
         // Show and start the CardView
         const cardView = this.getCardView(cardId);
         cardView.setVisibility(true);
         cardView.start();
     }
 
-    hideCard(cardId: CardId) {
+    stopCard(cardId: CardId) {
         // Hide and stop the CardView
         const cardView = this.getCardView(cardId);
         cardView.setVisibility(false);
     }
 
+    destroyCard(cardId: CardId) {
+        // Unload and remove the CardView
+        const cardView = this.getCardView(cardId);
+        cardView.unload();
+        this.root.removeChild(cardView.root);
+        this.cardViews.delete(cardId);
+    }
 
     // Sensors
     prepareSensor(
         sensor: Sensor,
         onSensorFired: (action: Action) => void,
     ) {
-        const sensorBinding = placeSensorUnarmedDispatch(sensor, onSensorFired, this);
+        const sensorBinding = prepareSensorDispatched(sensor, onSensorFired, this);
         // Attach the sensor binding to the board view
         this.sensorBindings.set(sensor.sensor_id, sensorBinding);
     }
@@ -237,10 +243,16 @@ export class BoardView {
         const sensorBinding = this.getSensorBinding(sensorId);
         sensorBinding.disarm();
     }
+
+    destroySensor(sensorId: SensorId) {
+        const sensorBinding = this.getSensorBinding(sensorId);
+        sensorBinding.destroy();
+        this.sensorBindings.delete(sensorId);
+    }
 }
 
 // Dynamic dispatch:
-export function placeSensorUnarmedDispatch(
+export function prepareSensorDispatched(
     sensor: Sensor,
     onSensorFired: (action: Action) => void,
     boardView: BoardView,

@@ -5,8 +5,8 @@ import {EventScheduler} from "./event-scheduler.ts";
 import {type EffectBinding, HideCursorEffectBinding} from "../board-view/effect-bindings/effect-bindings.ts";
 
 import {performanceNowToISO8601} from "../utils.ts";
-import type {ISO8601} from "../types/common.ts";
-import type {Card} from "../types/cards";
+import type {ISO8601, SensorId} from "../types/common.ts";
+import type {AssetManager} from "../asset-manager/asset-manager.ts";
 
 //
 export interface PlayNodeResult {
@@ -15,19 +15,41 @@ export interface PlayNodeResult {
     action: Action;
 }
 
+class Deferred<T> {
+    public readonly promise: Promise<T>
+    private resolveFunc!: (value: T) => void;
+    private alreadyCalled: boolean = false;
+    constructor(){
+        this.promise = new Promise<T>(
+            res => {
+                this.resolveFunc = res;
+            }
+        )
+    }
+    resolve(value: T){
+        if (this.alreadyCalled) {
+            console.log("Warning: DeferredValue.resolve called multiple times; ignoring subsequent calls.", value);
+            return
+        }
+        this.alreadyCalled = true;
+        this.resolveFunc(value);
+    }
+}
+
 export class NodePlay {
     public boardView: BoardView
     public node: Node;
     private prepared: boolean = false;
     private started: boolean = false;
-    private terminated: boolean = false;
 
-    // Event scheduler:
+    // Event schedules:
     private scheduler: EventScheduler
-    private abortController: AbortController = new AbortController();
+    private outcomeSchedulers: Record<SensorId, EventScheduler>
 
     // Resolvers
-    private resolvePlay!: (result: Action) => void;
+    private deferredAction = new Deferred<Action>();
+    private deferredOutcomeDone = new Deferred<void>();
+
 
     constructor(
         node: Node,
@@ -35,53 +57,68 @@ export class NodePlay {
     ) {
         this.boardView = boardView;
         this.node = node;
-        this.scheduler = new EventScheduler(this.abortController.signal);
+        this.scheduler = new EventScheduler();
+        this.outcomeSchedulers = {};
     }
 
-    public async prepare() {
+    public async prepare(assetManager: AssetManager) {
+        let setupPromises: Promise<void>[] = [];
 
         // Prepare and schedule Cards:
-        let setupPromises: Promise<void>[] = [];
         for (const card of this.node.cards) {
             // Prepare Cards:
             setupPromises.push(
-                this.boardView.prepareCard(card)
+                this.boardView.prepareCard(
+                    card,
+                    assetManager,
+                )
             );
 
-            // Schedule CardView display event:
+            // Schedule CardView start:
             this.scheduler.scheduleEvent(
                 {
                     triggerTimeMsec: card.t_start,
-                    triggerFunc: () => {this.boardView.showCard(card.card_id)}
+                    triggerFunc: () => {this.boardView.startCard(card.card_id)}
                 }
             )
 
-            // Schedule hiding of the Card, if it has non-null t_end:
+            // Schedule CardView stop:
             if (card.t_end !== null) {
                 this.scheduler.scheduleEvent(
                     {
                         triggerTimeMsec: card.t_end,
-                        triggerFunc: () => {this.boardView.hideCard(card.card_id)},
+                        triggerFunc: () => {this.boardView.stopCard(card.card_id)},
                     }
                 )
             }
+
+            // Schedule Card destruction:
+            this.scheduler.scheduleOnStop(
+                () => {this.boardView.destroyCard(card.card_id)}
+            )
         }
+        // Await all Card preparations, as some Sensors may depend on Cards being ready:
         await Promise.all(setupPromises);
 
         // Prepare and schedule Sensors:
         for (const sensor of this.node.sensors) {
-            // First, mount an unarmed sensor now:
+            // Prepare Sensor:
             this.boardView.prepareSensor(
                 sensor,
-                action => this.reportSensorFired(action)
+                action => this.deferredAction.resolve(action)
             )
 
-            // Schedule arming of the Sensor:
+            // Schedule Sensor start:
             this.scheduler.scheduleEvent(
                 {
                     triggerTimeMsec: sensor.t_start,
                     triggerFunc: () => {this.boardView.armSensor(sensor.sensor_id)},
                 }
+            )
+
+            // Schedule Sensor destruction:
+            this.scheduler.scheduleOnStop(
+                () => {this.boardView.destroySensor(sensor.sensor_id)}
             )
         }
 
@@ -111,11 +148,65 @@ export class NodePlay {
                     }
                 )
             }
+
+            // Schedule effects always end
+            this.scheduler.scheduleOnStop(
+                () => {
+                    effectBinding.stop();
+                }
+            )
         }
 
-        // Todo: prepare and schedule Outcome Boards
+        // Buffer and prepare ALL potential Outcomes ahead of time:
+        let outcomeSetupPromises: Promise<void>[] = [];
+        for (const outcome of this.node.outcomes) {
+            const outcomeEventScheduleCur = new EventScheduler()
 
-        // Todo: schedule destruction of Cards, Sensors, Effects, Outcome Boards
+            // Prepare and schedule outcome.Cards:
+            let maxEndTime: number = 0;
+            for (const card of outcome.cards) {
+                // Prepare Cards:
+                outcomeSetupPromises.push(
+                    this.boardView.prepareCard(
+                        card,
+                        assetManager,
+                    )
+                );
+                // Schedule:
+                outcomeEventScheduleCur.scheduleEvent(
+                    {
+                        triggerTimeMsec: card.t_start,
+                        triggerFunc: () => {this.boardView.startCard(card.card_id)}
+                    }
+                )
+                if (card.t_end !== null) {
+                    outcomeEventScheduleCur.scheduleEvent(
+                        {
+                            triggerTimeMsec: card.t_end,
+                            triggerFunc: () => {this.boardView.stopCard(card.card_id)},
+                        }
+                    )
+                    if (card.t_end > maxEndTime) {
+                        maxEndTime = card.t_end;
+                    }
+                } else {
+                    throw new Error(`Consequence Cards must have an end time: ${card.card_id} `);
+                }
+            }
+            // Schedule outcome resolver:
+            outcomeEventScheduleCur.scheduleEvent(
+                {
+                    triggerTimeMsec: maxEndTime,
+                    triggerFunc: () => {this.deferredOutcomeDone.resolve()},
+                }
+            )
+
+            // Attach:
+            this.outcomeSchedulers[outcome.sensor_id] = outcomeEventScheduleCur;
+        }
+        // Await all outcome preparations:
+        await Promise.all(outcomeSetupPromises);
+
 
         this.prepared = true;
     }
@@ -124,7 +215,7 @@ export class NodePlay {
         // Run the NodePlay, returning a Promise which resolves when a Sensor fires and the corresponding Reinforcer has completed.
         if (!this.prepared) {
             // Prepare the NodePlay
-            await this.prepare();
+            throw new Error('NodePlay not prepared');
         }
 
         if (this.started) {
@@ -133,97 +224,27 @@ export class NodePlay {
 
         this.started = true;
 
-        // Create Promise to capture Sensor trigger:
-        const actionDetectedPromise = new Promise(
-            (res: (result: Action) => void, _rej) => (this.resolvePlay = res)
-        );
-
         // Kick off scheduler:
         const timestampStart = performance.now();
         this.scheduler.start()
-        const result = await actionDetectedPromise;
-        const timestampEnd = performance.now();
 
-        // Package return
+        // Wait for a Sensor to fire:
+        const action = await this.deferredAction.promise;
+        this.scheduler.stop();
+
+        // Run an outcome, if one is provided for the given sensorId:
+        const sensorId = action.sensor_id;
+        if (sensorId in this.outcomeSchedulers) {
+            const outcomeSchedule = this.outcomeSchedulers[sensorId];
+            outcomeSchedule.start();
+            // Wait for the outcome to finish:
+            await this.deferredOutcomeDone.promise;
+            outcomeSchedule.stop();
+        }
         return {
-            action: result,
+            action: action,
             timestamp_start: performanceNowToISO8601(timestampStart),
-            timestamp_end: performanceNowToISO8601(timestampEnd),
+            timestamp_end: performanceNowToISO8601(performance.now()),
         }
-    }
-
-    private reportSensorFired(
-        action: Action
-    ) {
-        // Guard against double fires:
-        if (this.terminated) return;
-        this.terminated = true;
-        this.abortController.abort(); // Emit the abort signal; will immediately stop any pending scheduled events
-
-        // Reset board
-        this.boardView.reset();
-
-        // Get the Consequence Cards for this Action:
-        let consequenceCards: Card[] = []
-        for (const consequence of this.node.outcomes) {
-            if(action.sensor_id === consequence.sensor_id){
-                consequenceCards = consequence.cards;
-            }
-        }
-
-        // Set up the Consequence phase:
-        const consequenceScheduler = new EventScheduler(this.abortController.signal);
-        let maxTimeMsec = 0;
-
-        // Add Consequence cards
-        let setupPromises = [];
-        for (const card of consequenceCards) {
-            setupPromises.push(this.boardView.prepareCard(card))
-        }
-
-        // Play Reinforcer
-        Promise.all(setupPromises).then(() => {
-
-                // Schedule events
-                for (const card of consequenceCards) {
-                    consequenceScheduler.scheduleEvent(
-                        {
-                            triggerTimeMsec: card.t_start,
-                            triggerFunc: () => {
-                                this.boardView.showCard(card.card_id);
-                            }
-                        }
-                    )
-
-                    // Schedule hiding of the Card, if not open-ended:
-                    if (card.t_end !== null) {
-                        consequenceScheduler.scheduleEvent(
-                            {
-                                triggerTimeMsec: card.t_end,
-                                triggerFunc: () => {
-                                    this.boardView.hideCard(card.card_id);
-                                }
-                            }
-                        )
-                        if (card.t_end > maxTimeMsec) {
-                            maxTimeMsec = card.t_end;
-                        }
-                    } else {
-                        throw new Error(`Consequence Cards must have an end time: ${card.card_id} `);
-                    }
-                }
-
-                // Schedule an Event which resolves the play with the Action:
-                consequenceScheduler.scheduleEvent(
-                    {
-                        triggerTimeMsec: maxTimeMsec,
-                        triggerFunc: () => {
-                            this.resolvePlay(action)
-                        }
-                    }
-                )
-                consequenceScheduler.start()
-            }
-        )
     }
 }

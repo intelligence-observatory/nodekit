@@ -35,7 +35,7 @@ export class NodePlayer {
             node,
             boardView,
         )
-        await nodePlay.prepare()
+        await nodePlay.prepare(this.boardViewsUI.assetManager)
 
         // Add the prepared NodePlay to buffer
         this.bufferedNodePlays.set(nodePlayId, nodePlay);
@@ -56,7 +56,7 @@ export class NodePlayer {
             throw error;
         }
 
-        // Set active board:
+        // Set active Board:
         this.boardViewsUI.setActiveBoard(nodePlayId);
         const playNodeResult = await nodePlay.run()
 
