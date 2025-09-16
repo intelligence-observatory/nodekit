@@ -179,6 +179,9 @@ export class BoardView {
         // Load all Card resources:
         await cardView.load();
 
+        // Mount CardView to BoardView:
+        this.root.appendChild(cardView.root);
+
         // Register:
         this.cardViews.set(card.card_id, cardView);
     }

@@ -49,8 +49,6 @@ export abstract class CardView {
         this.root.style.width = `${widthPx}px`;
         this.root.style.height = `${heightPx}px`;
 
-        // Place the Card on the Board:
-        boardView.root.appendChild(this.root);
     }
 
 
