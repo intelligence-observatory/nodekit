@@ -96,9 +96,6 @@ export class BoardView {
     }
 
     reset() {
-        // Destroy all existing CardViews
-
-
         // Removes all child elements on the boardDiv
         while (this.root.firstChild) {
             this.root.removeChild(this.root.firstChild);
@@ -130,6 +127,14 @@ export class BoardView {
     }
 
     // Cards
+    private getCardView(cardId: CardId): CardView {
+        const cardView = this.cardViews.get(cardId);
+        if (!cardView) {
+            throw new Error(`CardView with ID ${cardId} not found.`);
+        }
+        return cardView;
+    }
+
     async prepareCard(
         card: Card,
         assetManager: AssetManager,
@@ -185,14 +190,6 @@ export class BoardView {
         this.cardViews.set(card.card_id, cardView);
     }
 
-    public getCardView(cardId: CardId): CardView {
-        const cardView = this.cardViews.get(cardId);
-        if (!cardView) {
-            throw new Error(`CardView with ID ${cardId} not found.`);
-        }
-        return cardView;
-    }
-
     startCard(cardId: CardId) {
         // Show and start the CardView
         const cardView = this.getCardView(cardId);
@@ -220,8 +217,47 @@ export class BoardView {
         sensor: Sensor,
         onSensorFired: (action: Action) => void,
     ) {
-        const sensorBinding = prepareSensorDispatched(sensor, onSensorFired, this);
-        // Attach the sensor binding to the board view
+
+        // Dynamic dispatch for initializing SensorBinding from Sensor
+        let sensorBinding: SensorBinding | null = null;
+        if (sensor.sensor_type === 'TimeoutSensor') {
+            sensorBinding = new TimeoutSensorBinding(
+                sensor.sensor_id,
+                onSensorFired,
+                sensor.t_start,
+            );
+        }
+        else if (sensor.sensor_type === 'KeySensor') {
+            sensorBinding = new KeySensorBinding(
+                sensor.sensor_id,
+                onSensorFired,
+                sensor.key,
+            );
+        }
+        else if (sensor.sensor_type == "ClickSensor"){
+            let cardView = this.getCardView(sensor.card_id);
+            assertClickable(cardView); // Defensive runtime check
+            sensorBinding = new ClickSensorBinding(
+                sensor.sensor_id,
+                onSensorFired,
+                cardView as ClickableCardView,
+                this,
+            )
+        }
+        else if (sensor.sensor_type == "DoneSensor"){
+            let cardView = this.getCardView(sensor.card_id);
+            assertDoneable(cardView); // Defensive runtime check
+            sensorBinding = new DoneSensorBinding(
+                sensor.sensor_id,
+                onSensorFired,
+                cardView as DoneableCardView,
+            )
+
+        }
+        else {
+            throw new Error(`Unknown Sensor of type ${sensor.sensor_type}`);
+        }
+
         this.sensorBindings.set(sensor.sensor_id, sensorBinding);
     }
 
@@ -249,52 +285,5 @@ export class BoardView {
         const sensorBinding = this.getSensorBinding(sensorId);
         sensorBinding.destroy();
         this.sensorBindings.delete(sensorId);
-    }
-}
-
-// Dynamic dispatch:
-export function prepareSensorDispatched(
-    sensor: Sensor,
-    onSensorFired: (action: Action) => void,
-    boardView: BoardView,
-): SensorBinding {
-
-    // Dynamic dispatch for initializing SensorBinding from Sensor
-    if (sensor.sensor_type === 'TimeoutSensor') {
-        return new TimeoutSensorBinding(
-            sensor.sensor_id,
-            onSensorFired,
-            sensor.t_start,
-        );
-    }
-    else if (sensor.sensor_type === 'KeySensor') {
-        return new KeySensorBinding(
-            sensor.sensor_id,
-            onSensorFired,
-            sensor.key,
-        );
-    }
-    else if (sensor.sensor_type == "ClickSensor"){
-        let cardView = boardView.getCardView(sensor.card_id);
-        assertClickable(cardView); // Defensive runtime check
-        return new ClickSensorBinding(
-            sensor.sensor_id,
-            onSensorFired,
-            cardView as ClickableCardView,
-            boardView,
-        )
-    }
-    else if (sensor.sensor_type == "DoneSensor"){
-        let cardView = boardView.getCardView(sensor.card_id);
-        assertDoneable(cardView); // Defensive runtime check
-        return new DoneSensorBinding(
-            sensor.sensor_id,
-            onSensorFired,
-            cardView as DoneableCardView,
-        )
-
-    }
-    else {
-        throw new Error(`Unknown Sensor of type ${sensor.sensor_type}`);
     }
 }
