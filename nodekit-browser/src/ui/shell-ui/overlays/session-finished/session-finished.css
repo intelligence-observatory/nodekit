@@ -43,7 +43,6 @@ A fixed-width <div> which is not selectable.
 
 .submit-button:hover {
     background-color: var(--cognition-standard-color);
-    box-shadow: 0 0 2px 2px var(--cognition-standard-color);
 }
 
 .submit-button:active {

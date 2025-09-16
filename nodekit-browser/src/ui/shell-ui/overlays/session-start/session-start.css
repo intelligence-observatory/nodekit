@@ -1,0 +1,22 @@
+.start-button {
+    background-color: var(--cognition-faint-color);
+    color: var(--system-text-muted-color-on-light);
+    border: none;
+    font-weight: 700;
+    font-size: 1.5rem;
+    border-radius: calc(2*var(--system-border-radius));
+    width: calc(0.5*var(--overlay-console-width));
+    aspect-ratio: 1.3;
+    cursor: pointer;
+
+    /* Transition for smooth hover effects */
+    transition: background-color 100ms ease-in-out, box-shadow 100ms ease-in-out;
+}
+
+.start-button:hover {
+    background-color: var(--cognition-standard-color);
+}
+
+.start-button:active {
+    background-color: var(--cognition-strong-color);
+}

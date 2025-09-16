@@ -1,12 +1,14 @@
-import type {NullParameters, Timespan} from "../common.ts";
+import type {TimePointMsec} from "../common.ts";
 
-export interface BaseEffect<T extends string, P>{
+export interface BaseEffect<T extends string>{
     effect_type: T;
-    effect_parameters: P;
-    effect_timespan: Timespan;
+    t_start: TimePointMsec;
+    t_end: TimePointMsec | null
 }
 
-export interface HidePointerEffect extends BaseEffect<'HidePointerEffect', NullParameters> {}
+export interface HidePointerEffect extends BaseEffect<'HidePointerEffect'> {
+    t_end: TimePointMsec; // Must have an end time.
+}
 
 // Union type for all effects
 export type Effect = HidePointerEffect;

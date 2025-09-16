@@ -2,30 +2,27 @@ import "./markdown-pages-card-view.css"
 
 import {UIElementBase} from "../../../ui/shell-ui/base.ts";
 import {CardView, type DoneableCardView} from "../card-view.ts";
-import type {MarkdownPagesCard} from "../../../types/cards/cards.ts";
+import type {MarkdownPagesCard} from "../../../types/cards";
 import type {SpatialSize} from "../../../types/common.ts";
-import {renderTextContent} from "../text/text-card-view.ts";
-import {BoardView} from "../../board-view.ts";
+import {renderTextContent, type TextContentParameters} from "../../../utils.ts";
 
 
-export class MarkdownPagesCardView extends CardView implements DoneableCardView {
-    viewerDiv: HTMLDivElement
-    navButtons: NavButtonsTray;
-    doneButton: Button;
+export class MarkdownPagesCardView extends CardView<MarkdownPagesCard> implements DoneableCardView {
+    viewerDiv: HTMLDivElement | undefined;
+    navButtons: NavButtonsTray | undefined;
+    doneButton: Button | undefined;
     pageIndex: number = 0;
 
     onPressDone: (() => void) | null = null;
 
-    contentPages: HTMLDivElement[]
+    contentPages: HTMLDivElement[] = [];
 
-    constructor(
-        card: MarkdownPagesCard,
-        boardView: BoardView,
-    ) {
-        super(card, boardView);
+    async prepare () {
+        const card = this.card;
+        const boardCoords = this.boardCoords;
 
-        if (card.card_parameters.pages.length === 0) {
-            throw new Error("No markdown pages provided to MarkdownPagesViewer");
+        if (card.pages.length === 0) {
+            throw new Error("No pages provided to MarkdownPagesViewer");
         }
 
         // Create root
@@ -38,11 +35,17 @@ export class MarkdownPagesCardView extends CardView implements DoneableCardView 
 
         // Assemble all content pages:
         this.contentPages = [];
-        for (const page of card.card_parameters.pages) {
+        for (const page of card.pages) {
+            const textContentParametersCur: TextContentParameters = {
+                text: page,
+                textColor: card.text_color,
+                fontSize: card.font_size,
+                justificationHorizontal: card.justification_horizontal,
+                justificationVertical: card.justification_vertical,
+            }
             const divCur = renderTextContent(
-                page,
+                textContentParametersCur,
                 (fontSize: SpatialSize) => {
-                    const boardCoords = this.boardView.getCoordinateSystem()
                     const sizePx = boardCoords.getSizePx(fontSize)
                     return sizePx + 'px';
                 }
@@ -83,6 +86,10 @@ export class MarkdownPagesCardView extends CardView implements DoneableCardView 
             throw new Error(`goToPage: index ${pageIndex} outside [0, ${numPages - 1}]`);
         }
 
+        if (!this.viewerDiv) {
+            throw new Error("Viewer div not initialized. Did you forget to call load()?");
+        }
+
         // Lazily attach any pages that are not yet in the DOM.
         for (const pageDiv of this.contentPages) {
             if (!pageDiv.isConnected) {
@@ -119,6 +126,9 @@ export class MarkdownPagesCardView extends CardView implements DoneableCardView 
     }
 
     private setButtonStates() {
+        if (!this.navButtons || !this.doneButton) {
+            throw new Error("Navigation buttons or Done button not initialized. Did you forget to call load()?");
+        }
         // Enables / disables navigation buttons based on current page index
         const numPages = this.contentPages.length;
         this.navButtons.setButtonStates(

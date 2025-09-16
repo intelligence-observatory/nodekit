@@ -1,5 +1,3 @@
-export type ScheduleToken = number;
-
 interface ScheduleEventParameters {
     triggerTimeMsec: number, // Msec elapsed from .t0 when this Event should occur
     triggerFunc: () => void, // The function that is called when the event triggers
@@ -8,41 +6,32 @@ interface ScheduleEventParameters {
 interface TimedEvent {
     triggerTimeMsec: number;  // Msec elapsed relative to .t0 when this event should trigger
     triggerFunc: () => void;
-    token: ScheduleToken;
 }
+
+type EventSchedulerState = 'OPEN' | 'RUNNING' | 'CLOSED';
 
 export class EventScheduler {
     private events: TimedEvent[] = [];
-    private nextToken = 1;
-    private running = false;
     private rafId: number | null = null;
 
     private t0: number = 0; // The `performance.now()` time when the scheduler was started; initialized in start()
-    private abortSignal: AbortSignal;
 
-    constructor(
-        abortSignal: AbortSignal, // If the abortSignal is triggered, the scheduler stops
-    ){
-        this.abortSignal = abortSignal;
+    private state : EventSchedulerState = 'OPEN';
 
-        // If the abortSignal is triggered, stop the scheduler:
-        const abortHandler = () => {
-            this.stop();
-            this.abortSignal.removeEventListener('abort', abortHandler);
-        };
-        this.abortSignal.addEventListener('abort', abortHandler, { once: true });
-    }
+    // Teardown:
+    private onStopQueue: (() => void)[] = [];
+
 
     scheduleEvent(
         parameters: ScheduleEventParameters
     ): void {
-        if (!this.running) this.start();
+        if (this.state !== 'OPEN') {
+            throw new Error(`Cannot schedule event; scheduler state is ${this.state}`);
+        }
 
-        const token = this.nextToken++;
         const ev: TimedEvent = {
             triggerTimeMsec: parameters.triggerTimeMsec,
             triggerFunc: parameters.triggerFunc,
-            token,
         };
 
         // Insert Event in time-sorted order to this.events:
@@ -54,29 +43,45 @@ export class EventScheduler {
         }
     }
 
+    scheduleOnStop(onStopCallback: () => void): void {
+        if (this.state !== 'OPEN') {
+            throw new Error(`Cannot schedule onStop callback; scheduler state is ${this.state}`);
+        }
+        // FIFO order
+        this.onStopQueue.push(onStopCallback);
+    }
+
     start(): void {
-        if (this.running) {
+        if (this.state !== 'OPEN') {
             return;
         }
-        this.running = true;
+        // Transition from OPEN to RUNNING:
+        this.state = 'RUNNING';
         this.t0 = performance.now();
         this.loop(this.t0);
     }
 
-    private stop(): void {
-        if (!this.running) {
+    stop(): void {
+        if (this.state !== 'RUNNING') {
             return;
         }
+        // Transition from RUNNING to CLOSED:
+        this.state = 'CLOSED';
 
-        this.running = false;
         if (this.rafId !== null) {
             cancelAnimationFrame(this.rafId);
             this.rafId = null;
         }
+
+        // Run any onStop callbacks:
+        while (this.onStopQueue.length > 0) {
+            const cb = this.onStopQueue.shift()!;
+            cb();
+        }
     }
 
     private loop = (timestamp: DOMHighResTimeStamp): void => {
-        if (!this.running) {
+        if (this.state !== 'RUNNING') {
             return;
         }
 
@@ -91,8 +96,6 @@ export class EventScheduler {
         // Keep ticking if anything remains:
         if (this.events.length > 0) {
             this.rafId = requestAnimationFrame(this.loop);
-        } else {
-            this.stop();
         }
     };
 }

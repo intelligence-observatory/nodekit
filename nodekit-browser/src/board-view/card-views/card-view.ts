@@ -1,44 +1,37 @@
-import {BoardView} from "../board-view.ts";
 import './card-view.css';
 
-import type {Card} from "../../types/cards/cards.ts";
+import type {Card} from "../../types/cards";
+import type {BoardCoordinateSystem} from "../board-view.ts";
+import type {AssetManager} from "../../asset-manager/asset-manager.ts";
 
-
-export abstract class CardView {
+export abstract class CardView<C extends Card = Card> {
     root: HTMLElement;
-    public card: Card
-    protected boardView: BoardView
+    public card: C
+    boardCoords: BoardCoordinateSystem;
 
     constructor(
-        card: Card,
-        boardView: BoardView,
+        card: C,
+        boardCoords: BoardCoordinateSystem,
     ) {
+        this.card = card;
+        this.boardCoords = boardCoords;
+
         // Create the Card's root element
         this.root = document.createElement('div');
         this.root.classList.add('card');
         this.root.id = card.card_id;
 
-        // Attach
-        this.card = card;
-        this.boardView = boardView;
-
-        // By default, not visible and not interactive
-        this.setVisibility(false);
-        this.setInteractivity(false);
-
-        // Place
-        this.place(boardView);
-    }
-
-    private place(boardView: BoardView): void {
-        const boardCoords = boardView.getCoordinateSystem();
+        // Configure Card position and size:
         const {leftPx, topPx} = boardCoords.getBoardLocationPx(
-            this.card.card_location,
-            this.card.card_shape
+            this.card.x,
+            this.card.y,
+            this.card.w,
+            this.card.h
         )
 
         const {widthPx, heightPx} = boardCoords.getBoardRectanglePx(
-            this.card.card_shape
+            this.card.w,
+            this.card.h
         );
 
         this.root.style.left = `${leftPx}px`;
@@ -46,10 +39,14 @@ export abstract class CardView {
         this.root.style.width = `${widthPx}px`;
         this.root.style.height = `${heightPx}px`;
 
-        // Place the Card on the Board:
-        boardView.root.appendChild(this.root);
+        // By default, the Card is not visible and not interactive
+        this.setVisibility(false);
+        this.setInteractivity(false);
     }
 
+    async prepare(_assetManager:AssetManager){
+        // Any Card-specific loading logic should go here
+    }
 
     setVisibility(
         visible: boolean
@@ -72,18 +69,14 @@ export abstract class CardView {
         }
     }
 
-    async load(){
-
+    onStart() {
+        // Called when the Card is started
     }
-
-    // Override this to unload assets.
-    unload() {
-
+    onStop() {
+        // Called when the Card is stopped
     }
-
-    // Do something when the card starts.
-    async start() {
-
+    onDestroy() {
+        // Called when the Card is destroyed
     }
 }
 

@@ -7,6 +7,7 @@ import {ProgressBar} from "./progress-bar/progress-bar.ts";
 import {SessionConnectingOverlay} from "./overlays/session-connecting/session-connecting.ts";
 import {ConsoleMessageOverlay} from "./overlays/console-message/console-message.ts";
 import {SessionFinishedOverlay} from "./overlays/session-finished/session-finished.ts";
+import {SessionStartedOverlay} from "./overlays/session-start/session-start.ts";
 
 export class ShellUI extends UIElementBase {
     root: HTMLDivElement
@@ -18,6 +19,7 @@ export class ShellUI extends UIElementBase {
     // Overlays
     private sessionConnectingOverlay: SessionConnectingOverlay;
     private overlayConsoleMessage: ConsoleMessageOverlay;
+    private sessionStartedOverlay: SessionStartedOverlay;
     private sessionFinishedOverlay: SessionFinishedOverlay;
 
     constructor() {
@@ -45,6 +47,10 @@ export class ShellUI extends UIElementBase {
         // Initialize overlay for session finished
         this.sessionFinishedOverlay = new SessionFinishedOverlay();
         this.sessionFinishedOverlay.mount(this.root);
+
+        // Initialize overlay for session started
+        this.sessionStartedOverlay = new SessionStartedOverlay();
+        this.sessionStartedOverlay.mount(this.root);
 
     }
 
@@ -76,6 +82,19 @@ export class ShellUI extends UIElementBase {
     }
 
 
+    async playStartScreen(){
+        // Await for the button to be pressed
+        let startPressed = new Promise<void>((resolve, _reject) => {
+            this.sessionStartedOverlay.show(
+                () => {
+                    this.sessionStartedOverlay.hide()
+                    resolve()
+                }
+            )
+        })
+
+        await startPressed
+    }
     async playEndScreen(
         message:string = '',
         endScreenTimeoutMsec: number = 10000
