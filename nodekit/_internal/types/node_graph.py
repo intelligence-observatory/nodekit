@@ -21,25 +21,10 @@ class Node(pydantic.BaseModel):
             "List of Cards placed on the Board, in back-to-front order."
             "The first Card in this list is at the \"bottom\" of the Board, in the z-direction."
         ),
-        min_length=1,
     )
     sensors: List[Sensor] = pydantic.Field(min_length=1)
     outcomes: List[Outcome] = pydantic.Field(default_factory=list)
     effects: List[Effect] = pydantic.Field(default_factory=list)
-
-    @pydantic.model_validator(mode='after')
-    def check_node_is_well_formed(self) -> Self:
-
-        for sensor in self.sensors:
-            # Todo: if the Sensor references a Card, ensure the Card exists in this node.
-            # Todo: check that the Sensor and Target type are compatible:
-            ...
-
-        # If there is only one Sensor, enforce the domain rule that it cannot be a TimeoutSensor.
-        if len(self.sensors) == 1 and self.sensors[0].sensor_type == 'TimeoutSensor':
-            raise ValueError("A Node with only one Sensor cannot be a TimeoutSensor. Combine this Node with the next Node instead.")
-
-        return self
 
 
 # %% NodeGraph
