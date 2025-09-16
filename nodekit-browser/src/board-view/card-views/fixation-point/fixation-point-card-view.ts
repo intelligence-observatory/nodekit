@@ -3,16 +3,11 @@ import {CardView} from "../card-view.ts";
 import type {ClickableCardView} from "../card-view.ts";
 
 import type {FixationPointCard} from "../../../types/cards";
-import {BoardView} from "../../board-view.ts";
 
-export class FixationPointCardView extends CardView implements ClickableCardView{
-    button: HTMLButtonElement
-    constructor(
-        card: FixationPointCard,
-        boardView: BoardView,
-    ) {
-        super(card, boardView)
+export class FixationPointCardView extends CardView<FixationPointCard> implements ClickableCardView{
+    private button: HTMLButtonElement | undefined;
 
+    async load(){
         this.button = document.createElement('button');
         this.button.classList.add('fixation-point');
 
@@ -29,6 +24,10 @@ export class FixationPointCardView extends CardView implements ClickableCardView
     }
 
     addClickCallback(callback: (e: MouseEvent) => void) {
+        if (!this.button) {
+            throw new Error('Button not initialized. Did you forget to call load()?');
+        }
+
         this.button.addEventListener('click', (e:MouseEvent) => {
             callback(e)
         });

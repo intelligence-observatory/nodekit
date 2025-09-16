@@ -137,39 +137,39 @@ export class BoardView {
     // Cards
     async prepareCard(card: Card) {
         // Dynamic dispatch
-        const boardView = this;
+        const boardCoords = this.getCoordinateSystem();
         let cardView: CardView | null = null;
         switch (card.card_type) {
             case "FixationPointCard":
                 cardView = new FixationPointCardView(
-                    card, boardView
+                    card, boardCoords
                 )
                 break
             case "MarkdownPagesCard":
                 cardView = new MarkdownPagesCardView(
-                    card, boardView
+                    card, boardCoords
                 )
                 break
             case "ImageCard":
                 cardView = new ImageCardView(
                     card,
-                    boardView,
+                    boardCoords,
                 )
                 break
             case "VideoCard":
                 cardView = new VideoCardView(
                     card,
-                    boardView
+                    boardCoords
                 );
                 break
             case "TextCard":
                 cardView = new TextCardView(
-                    card, boardView
+                    card, boardCoords
                 )
                 break
             case "BlankCard":
                 cardView = new BlankCardView(
-                    card, boardView
+                    card, boardCoords
                 )
                 break
             default:
@@ -177,7 +177,7 @@ export class BoardView {
         }
 
         // Load all Card resources:
-        await cardView.load();
+        await cardView.load(this.assetManager);
 
         // Mount CardView to BoardView:
         this.root.appendChild(cardView.root);

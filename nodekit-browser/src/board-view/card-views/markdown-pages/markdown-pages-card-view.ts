@@ -4,25 +4,22 @@ import {UIElementBase} from "../../../ui/shell-ui/base.ts";
 import {CardView, type DoneableCardView} from "../card-view.ts";
 import type {MarkdownPagesCard} from "../../../types/cards";
 import type {SpatialSize} from "../../../types/common.ts";
-import {BoardView} from "../../board-view.ts";
 import {renderTextContent, type TextContentParameters} from "../../../utils.ts";
 
 
-export class MarkdownPagesCardView extends CardView implements DoneableCardView {
-    viewerDiv: HTMLDivElement
-    navButtons: NavButtonsTray;
-    doneButton: Button;
+export class MarkdownPagesCardView extends CardView<MarkdownPagesCard> implements DoneableCardView {
+    viewerDiv: HTMLDivElement | undefined;
+    navButtons: NavButtonsTray | undefined;
+    doneButton: Button | undefined;
     pageIndex: number = 0;
 
     onPressDone: (() => void) | null = null;
 
-    contentPages: HTMLDivElement[]
+    contentPages: HTMLDivElement[] = [];
 
-    constructor(
-        card: MarkdownPagesCard,
-        boardView: BoardView,
-    ) {
-        super(card, boardView);
+    async load () {
+        const card = this.card;
+        const boardCoords = this.boardCoords;
 
         if (card.pages.length === 0) {
             throw new Error("No pages provided to MarkdownPagesViewer");
@@ -49,7 +46,6 @@ export class MarkdownPagesCardView extends CardView implements DoneableCardView 
             const divCur = renderTextContent(
                 textContentParametersCur,
                 (fontSize: SpatialSize) => {
-                    const boardCoords = this.boardView.getCoordinateSystem()
                     const sizePx = boardCoords.getSizePx(fontSize)
                     return sizePx + 'px';
                 }
@@ -90,6 +86,10 @@ export class MarkdownPagesCardView extends CardView implements DoneableCardView 
             throw new Error(`goToPage: index ${pageIndex} outside [0, ${numPages - 1}]`);
         }
 
+        if (!this.viewerDiv) {
+            throw new Error("Viewer div not initialized. Did you forget to call load()?");
+        }
+
         // Lazily attach any pages that are not yet in the DOM.
         for (const pageDiv of this.contentPages) {
             if (!pageDiv.isConnected) {
@@ -126,6 +126,9 @@ export class MarkdownPagesCardView extends CardView implements DoneableCardView 
     }
 
     private setButtonStates() {
+        if (!this.navButtons || !this.doneButton) {
+            throw new Error("Navigation buttons or Done button not initialized. Did you forget to call load()?");
+        }
         // Enables / disables navigation buttons based on current page index
         const numPages = this.contentPages.length;
         this.navButtons.setButtonStates(
