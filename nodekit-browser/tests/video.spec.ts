@@ -21,8 +21,8 @@ test('video', async ({ page }) => {
 
    await page.goto("./video.html");
    await page.waitForLoadState('domcontentloaded');
-   expect(errors).toHaveLength(0);
    await page.waitForTimeout(2000);
+   expect(errors).toHaveLength(0);
 
    // TODO make this quiet.
    expect(logs).not.toHaveProperty('error');
