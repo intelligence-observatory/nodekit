@@ -1,30 +1,10 @@
 import {expect, test} from '@playwright/test';
+import {nodeGraphTest} from "./fixtures";
 
-test('video', async ({ page }) => {
-   // Get page errors.
-   let errors: Error[] = [];
-   page.on('pageerror', (error) => {
-      errors.push(error);
-   });
-
-   // Log all console messages.
-   const logs: {[key: string]: string[]} = {};
-   page.on('console', message => {
-      let t = message.type();
-      if (!(t in logs)) {
-            logs[t] = [];
-      }
-      let location = message.location();
-      let simpleMessage = message.text() + " line: " + location.lineNumber + " column: " + location.columnNumber
-      logs[t].push(simpleMessage);
-   });
-
-   await page.goto("./video.html");
-   await page.waitForLoadState('domcontentloaded');
-   await page.waitForTimeout(2000);
-   expect(errors).toHaveLength(0);
-
-   // TODO make this quiet.
-   expect(logs).not.toHaveProperty('error');
+nodeGraphTest('video', async ({ nodeGraphPage }) => {
+   await nodeGraphPage.goto("video.html");
+   await nodeGraphPage.page.waitForTimeout(2000);
+   //await nodeGraphPage.page.locator('video').first().click();
+   //await nodeGraphPage.expectNodeGraphEnded();
 });
 
