@@ -30,8 +30,13 @@ export class NodeGraphPage {
     async goto(filename: string) {
         await this.page.goto('./' + filename);
         await this.page.waitForLoadState('domcontentloaded');
+        await this.page.waitForTimeout(100);
         const pageText = await this.page.content();
+        const button =  this.page.locator('.start-button').first();
+        const text = await button.textContent();
+        console.log("First element text:", text);
         console.log(pageText);
+        await this.page.locator('.start-button').first().click();
     }
 
     async expectNodeGraphEnded()  {
