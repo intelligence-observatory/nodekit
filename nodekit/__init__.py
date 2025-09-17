@@ -17,10 +17,8 @@ __all__ = [
     # Operations namespace:
     'ops',
 
-    # Local play function:
+    # Browser runtime methods:
     'play',
-
-    # Static resource getters:
     'get_browser_bundle',
 ]
 
@@ -43,8 +41,6 @@ import nodekit.actions as actions
 import nodekit.events as events
 import nodekit.ops as ops
 
-# Local play function:
+# Browser runtime:
 from nodekit._internal.browser.local_runner.main import play
-
-# Static resources:
 from nodekit._internal.browser.browser_bundle import get_browser_bundle
