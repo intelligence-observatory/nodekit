@@ -1,12 +1,12 @@
 import type {Event} from "../types/events";
 import type {Action} from "../types/actions";
-import type {NodeGraph} from "../types/node-graph.ts";
-import type {NodeId} from "../types/node-graph.ts";
+import type {Timeline} from "../types/timeline.ts";
+import type {NodeId} from "../types/timeline.ts";
 import type {Outcome} from "../types/outcomes";
 
 export function calculateBonusUsd(
     events: Event[],
-    nodeGraph: NodeGraph,
+    nodeGraph: Timeline,
 ): number {
     /*
     Function which computers the bonus USD amount based on the events and the node graph.

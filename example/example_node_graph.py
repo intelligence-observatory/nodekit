@@ -168,7 +168,7 @@ for _ in range(2):
     nodes.append(node)
 
 # Generate preview of NodeGraph webpage:
-node_graph = nk.NodeGraph(
+node_graph = nk.Timeline(
     nodes=nodes,
     title="Test task (sandbox)",
     description='Test task',

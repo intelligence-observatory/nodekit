@@ -27,12 +27,14 @@ class Node(pydantic.BaseModel):
     effects: List[Effect] = pydantic.Field(default_factory=list)
 
 
-# %% NodeGraph
-class NodeGraph(pydantic.BaseModel):
+# %% Timeline
+class Timeline(pydantic.BaseModel):
 
     board: Board = pydantic.Field(default_factory=Board)
-
     nodes: List[Node]
+
+    # NodeKit version:
+    nodekit_version: str = pydantic.Field(default=VERSION)
 
     # Payment information
     base_payment_usd: PayableMonetaryAmountUsd = pydantic.Field(
@@ -57,6 +59,3 @@ class NodeGraph(pydantic.BaseModel):
     keywords: List[str] = pydantic.Field(
         description='Keywords that Participants may use to discover this task.'
     )
-
-    # NodeKit version:
-    nodekit_version: str = pydantic.Field(default=VERSION)

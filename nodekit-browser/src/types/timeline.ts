@@ -14,7 +14,7 @@ export interface Node {
     effects: Effect[];
 }
 
-export interface NodeGraph {
+export interface Timeline {
     board: Board;
     nodes: Node[];
     nodekit_version: string;

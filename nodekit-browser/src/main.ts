@@ -2,7 +2,7 @@ import {NodePlayer} from "./node-player/node-player.ts";
 import type {BonusDisclosureEvent, BrowserContextEvent, EndEvent, Event, LeaveEvent, NodeResultEvent, ReturnEvent, StartEvent, UUID} from "./types/events";
 import {type ISO8601, type MonetaryAmountUsd} from "./types/common.ts";
 import {calculateBonusUsd} from "./ops/calculate-bonus.ts";
-import type {NodeGraph} from "./types/node-graph.ts";
+import type {Timeline} from "./types/timeline.ts";
 import {performanceNowToISO8601} from "./utils.ts";
 import {getBrowserContext} from "./user-gates/browser-context.ts";
 import {DeviceGate} from "./user-gates/device-gate.ts";
@@ -20,7 +20,7 @@ function getCurrentTimestamp(): ISO8601 {
 }
 
 export async function play(
-    nodeGraph: NodeGraph,
+    nodeGraph: Timeline,
     assetUrls: AssetUrl[],
     onEventCallback: OnEventCallback | null = null,
     previousEvents: Event[] = [],

@@ -13,7 +13,7 @@ import uvicorn
 from nodekit._internal.browser.browser_bundle import get_browser_bundle
 from nodekit._internal.types.assets import AssetFile, AssetUrl
 from nodekit._internal.types.events.events import Event
-from nodekit._internal.types.node_graph import NodeGraph
+from nodekit._internal.types.node_graph import Timeline
 
 
 # %%
@@ -34,7 +34,7 @@ class LocalRunner:
         self.host = host
 
         # In-memory state of the runner:
-        self._node_graph: NodeGraph | None = None
+        self._node_graph: Timeline | None = None
         self._events: List[Event] = []
 
         self.asset_id_to_file: Dict[str, AssetFile] = {}
@@ -85,7 +85,7 @@ class LocalRunner:
             self._server = None
             self._thread = None
 
-    def set_node_graph(self, node_graph: NodeGraph):
+    def set_node_graph(self, node_graph: Timeline):
         with self._lock:
             # Reset NodeGraph and Events
             self._node_graph = node_graph
@@ -224,7 +224,7 @@ class PlaySession:
         return runner.list_events()
 
 def play(
-        node_graph: NodeGraph,
+        node_graph: Timeline,
         asset_files: List[AssetFile] | None = None,
 ) -> PlaySession:
     """
