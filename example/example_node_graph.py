@@ -168,19 +168,12 @@ for _ in range(2):
     nodes.append(node)
 
 # Generate preview of NodeGraph webpage:
-node_graph = nk.Timeline(
-    nodes=nodes,
-    title="Test task (sandbox)",
-    description='Test task',
-    keywords=['test', 'example'],
-    max_duration_sec=600,
-    base_payment_usd='0.01',
-)
-Path('tmp.json').write_text(node_graph.model_dump_json(indent=4))
+timeline = nk.Timeline(nodes=nodes)
+Path('timeline.json').write_text(timeline.model_dump_json(indent=4))
 
 # %% Play the NodeGraph locally:
 play_session = nk.play(
-    node_graph,
+    timeline,
     asset_files=image_files + video_files,
 )
 
@@ -194,6 +187,6 @@ while True:
 # %% Can compute authoritative bonus based on the events and the bonus rules:
 bonus_usd = nk.ops.calculate_bonus_usd(
     events=events,
-    node_graph=node_graph,
+    node_graph=timeline,
 )
 print(f"Computed bonus: ${bonus_usd}")

@@ -25,37 +25,9 @@ class Node(pydantic.BaseModel):
     sensors: List[Sensor] = pydantic.Field(min_length=1)
     outcomes: List[Outcome] = pydantic.Field(default_factory=list)
     effects: List[Effect] = pydantic.Field(default_factory=list)
-
+    board: Board = pydantic.Field(default_factory=Board)
 
 # %% Timeline
 class Timeline(pydantic.BaseModel):
-
-    board: Board = pydantic.Field(default_factory=Board)
-    nodes: List[Node]
-
-    # NodeKit version:
-    nodekit_version: str = pydantic.Field(default=VERSION)
-
-    # Payment information
-    base_payment_usd: PayableMonetaryAmountUsd = pydantic.Field(
-        description="The base payment (in USD) that a Participant receives upon successfully completing a run. Should be explicitly disclosed to the Participant ahead of time.",
-    )
-
-    # Duration
-    max_duration_sec: int = pydantic.Field(
-        gt=0,
-        description="The maximum of time in seconds a Participant has to complete a run of the NodeGraph before it is no longer accepted."
-    )
-
-    # Metadata that should be disclosed to the Participant ahead of time:
-    title: str = pydantic.Field(
-        min_length=1,
-        description='The title of the posting for the NodeGraph.'
-    )
-    description: str = pydantic.Field(
-        min_length=1,
-        description='A detailed description of the NodeGraph.'
-    )
-    keywords: List[str] = pydantic.Field(
-        description='Keywords that Participants may use to discover this task.'
-    )
+    nodes: List[Node] = pydantic.Field(min_length=1, description='The sequence of Nodes that make up the Timeline.')
+    nodekit_version: str = pydantic.Field(default=VERSION, description='The semantic version number of NodeKit used to create this NodeGraph.')
