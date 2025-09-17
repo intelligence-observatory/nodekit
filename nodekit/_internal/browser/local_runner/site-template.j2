@@ -10,9 +10,8 @@
     <link href="{{ nodekit_css_link }}" rel="stylesheet">
 
     <script>
-        // NodeGraph and AssetURLs:
-        const nodeGraph = {{ node_graph | tojson(indent=4) | indent(8, first=False) }};
-        const assetUrls = {{ asset_urls | tojson(indent=4) | indent(8, first=False) }};
+        // Timeline:
+        const timeline = {{ timeline | tojson(indent=4) | indent(8, first=False) }};
 
         // Submit URL injected from FastAPI
         const submitUrl = "{{ submit_event_url }}";
@@ -33,8 +32,7 @@
         window.onload = async () => {
             // Start NodeKit playback
             await NodeKit.play(
-                nodeGraph,
-                assetUrls,
+                timeline,
                 sendEvent
             );
         };

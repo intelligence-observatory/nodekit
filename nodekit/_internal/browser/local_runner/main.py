@@ -59,15 +59,6 @@ class LocalRunner:
             self._thread.start()
             self._running = True
 
-    def mount_asset_files(self, asset_files: List[AssetFile]) -> None:
-        """
-        Mounts AssetFiles to the FastAPI app to be served by the LocalRunner.
-        Calling this function sets self._asset_urls to the URLs of the provided AssetFiles.
-        """
-        with self._lock:
-            self.asset_id_to_file = {asset_file.identifier.sha256: asset_file for asset_file in asset_files}
-
-
 
 
     def shutdown(self):
@@ -90,6 +81,9 @@ class LocalRunner:
             # Reset Timeline and Events
             self._timeline = timeline
             self._events = []
+
+            # Mount AssetFiles:
+            self.asset_id_to_file = {asset_file.identifier.sha256: asset_file for asset_file in timeline.asset_files}
 
     def _build_app(self) -> fastapi.FastAPI:
         app = fastapi.FastAPI()
@@ -153,7 +147,7 @@ class LocalRunner:
                 asset_urls.append(
                     AssetUrl(
                         identifier=asset_file.identifier,
-                        url=pydantic.AnyUrl(str(request.url_for("get_asset", asset_id=asset_id)))
+                        url=pydantic.AnyUrl(str(request.url_for("get_asset", asset_id=asset_id))),
                     )
                 )
 
@@ -162,8 +156,11 @@ class LocalRunner:
                 request=request,
                 name='site-template.j2',
                 context={
-                    "node_graph": self._timeline.model_dump(mode='json'),
-                    "asset_urls": [a.model_dump(mode='json') for a in asset_urls],
+                    "timeline": {
+                        'nodes': [n.model_dump(mode='json') for n in self._timeline.nodes],
+                        'asset_urls': [a.model_dump(mode='json') for a in asset_urls],
+                        'nodekit_version': self._timeline.nodekit_version,
+                    },
                     "nodekit_javascript_link": request.url_for(
                         "get_nodekit_javascript",
                         js_hash=NODEKIT_JS_HASH,
@@ -236,7 +233,7 @@ def play(
     runner = _get_runner()
     runner.ensure_running()
     runner.set_timeline(timeline)
-    runner.mount_asset_files(timeline.asset_files)
+    #runner.mount_asset_files(timeline.asset_files)
     print('Play the NodeGraph at:', runner.url)
     return PlaySession(
         url=runner.url

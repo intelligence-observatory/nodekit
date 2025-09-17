@@ -3,6 +3,7 @@ import type {Card} from "./cards";
 import type {Sensor} from "./sensors";
 import type {Outcome} from "./outcomes";
 import type {Effect} from "./effects/base.ts";
+import type {AssetUrl} from "./assets";
 
 export type NodeId = string & { __brand: 'NodeId' };
 
@@ -17,5 +18,6 @@ export interface Node {
 
 export interface Timeline {
     nodes: Node[];
+    asset_urls: AssetUrl[];
     nodekit_version: string;
 }

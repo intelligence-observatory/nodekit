@@ -11,7 +11,7 @@
 <script type="module" src="src/main.ts"></script>
 <script type="module">
 
-    let nodeGraph = {
+    let timeline = {
         "nodes": [
             {
                 "node_id": "1266bee5-12d0-4586-af12-2228917b4dd4",
@@ -156,25 +156,24 @@
                 }
             }
         ],
-        "nodekit_version": "0.1.0"
+        "nodekit_version": "0.1.0",
+        "asset_urls": [
+            {
+                'identifier': {
+                    "sha256": "3f224a8b6a7917ae1364cf2cc9daf7a5f7073bfe0fb5d9b638d8a6efc1c867f7",
+                    "mime_type": "video/mp4"
+                },
+                'url': 'static/test-video.mp4',
+            },
+            {
+                'identifier': {
+                    "sha256": "b87d9ff074668df4e7698280bf6ac0a11c307389eaabec400dd00023462cb416",
+                    "mime_type": "image/png"
+                },
+                'url': 'static/lo_poly_animal_BEAR_BLK_label.png',
+            }
+        ]
     }
-
-    const assetUrls = [
-        {
-            'identifier': {
-                "sha256": "3f224a8b6a7917ae1364cf2cc9daf7a5f7073bfe0fb5d9b638d8a6efc1c867f7",
-                "mime_type": "video/mp4"
-            },
-            'url': 'static/test-video.mp4',
-        },
-        {
-            'identifier': {
-                "sha256": "b87d9ff074668df4e7698280bf6ac0a11c307389eaabec400dd00023462cb416",
-                "mime_type": "image/png"
-            },
-            'url': 'static/lo_poly_animal_BEAR_BLK_label.png',
-        }
-    ];
 
     import {play} from '/src/main.ts';
 
@@ -183,8 +182,7 @@
     window.onload = async () => {
         // Add focus
         let events = await play(
-            nodeGraph,
-            assetUrls,
+            timeline,
             (event) => {
                 console.log(event);
             }
