@@ -3813,7 +3813,7 @@ class Ko {
 class Qo {
   // Map of sensor ID to SensorBinding
   constructor(e, t) {
-    this.cardViews = /* @__PURE__ */ new Map(), this.sensorBindings = /* @__PURE__ */ new Map(), this.root = document.createElement("div"), this.root.className = "board-view", this.root.id = `${e}`, this.root.style.width = t.board_width_px + "px", this.root.style.height = t.board_height_px + "px", this.setBoardState(!1, !1);
+    this.cardViews = /* @__PURE__ */ new Map(), this.sensorBindings = /* @__PURE__ */ new Map(), this.root = document.createElement("div"), this.root.className = "board-view", this.root.id = `${e}`, this.root.style.width = t.board_width_px + "px", this.root.style.height = t.board_height_px + "px", this.root.style.backgroundColor = t.background_color, this.setBoardState(!1, !1);
   }
   getCoordinateSystem() {
     const { width: e, height: t, left: i, top: s } = this.root.getBoundingClientRect();

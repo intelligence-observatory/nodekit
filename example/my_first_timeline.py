@@ -108,21 +108,36 @@ def make_video_node(
     )
 
 
-def make_instructions_node() -> nk.Node:
+def make_instructions_node(
+        text: str,
+) -> nk.Node:
 
-    markdown_pages_card = nk.cards.MarkdownPagesCard(
-        pages=[
-            "# Welcome!\n\nThis is a test task.",
-            "## Instructions\n\nBla bla bla.",
-            "### More Instructions\n\nBla bla bla again.",
-            "#### Final Instructions\n\nThis is the last page.",
-        ],
+    text_card = nk.cards.TextCard(
+        text=text,
         x=0, y=0, w=0.8, h=0.8,
+        background_color='#ffffff',
+        justification_horizontal='left',
+        justification_vertical='top',
+    )
+    continue_button = nk.cards.TextCard(
+        text='Continue',
+        x=0, y=-0.45, w=0.3, h=0.05,
+        background_color='#32a852',
+        text_color='#ffffff',
+        t_start=1000,
+    )
+
+    sensor = nk.sensors.ClickSensor(
+        card_id=continue_button.card_id,
+        t_start=1000,
     )
 
     return nk.Node(
-        cards=[markdown_pages_card],
-        sensors=[nk.sensors.DoneSensor(card_id=markdown_pages_card.card_id)],
+        cards=[
+            text_card,
+            continue_button,
+        ],
+        sensors=[sensor],
     )
 
 
@@ -142,8 +157,11 @@ for path in sorted(glob.glob('./example_videos/*.mp4')):
 # %%
 nodes = []
 
-nodes.append(
-    make_instructions_node()
+nodes.extend(
+    [
+        make_instructions_node("# Welcome!\n\nThis is a test task.",),
+        make_instructions_node("## Instructions\n\nBla bla bla."),
+    ]
 )
 
 for video_file in video_files:

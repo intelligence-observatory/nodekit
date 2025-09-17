@@ -56,6 +56,7 @@ declare interface BlankCard extends BaseCard<'BlankCard'> {
 declare interface Board {
     board_width_px: number;
     board_height_px: number;
+    background_color: ColorHexString;
 }
 
 declare type BonusDisclosureEvent = BaseEvent<'BonusDisclosureEvent', {
