@@ -30,6 +30,8 @@ export class NodeGraphPage {
     async goto(filename: string) {
         await this.page.goto('./' + filename);
         await this.page.waitForLoadState('domcontentloaded');
+        const pageText = await this.page.content();
+        console.log(pageText);
     }
 
     async expectNodeGraphEnded()  {
