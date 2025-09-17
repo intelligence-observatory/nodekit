@@ -30,17 +30,15 @@ export class NodeGraphPage {
     async goto(filename: string) {
         await this.page.goto('./' + filename);
         await this.page.waitForLoadState('domcontentloaded');
-        await this.page.waitForTimeout(100);
-        const pageText = await this.page.content();
-        const button =  this.page.locator('.start-button').first();
-        const text = await button.textContent();
-        console.log("First element text:", text);
-        console.log(pageText);
+
+        // TODO instead of waiting a second for the node graph to start, use an event callback.
+        await this.page.waitForTimeout(1000);
+
         await this.page.locator('.start-button').first().click();
     }
 
     async expectNodeGraphEnded()  {
-        expect(this.page.locator('css=submit-button').first().isVisible()).toBeTruthy();
+        expect(this.page.locator('.submit-button').first().isVisible()).toBeTruthy();
     }
 
     async end() {

@@ -1,4 +1,4 @@
-import {expect, test} from '@playwright/test';
+import {expect} from '@playwright/test';
 import {nodeGraphTest} from "./fixtures";
 
 nodeGraphTest('video', async ({ nodeGraphPage }) => {
@@ -7,6 +7,6 @@ nodeGraphTest('video', async ({ nodeGraphPage }) => {
    let video = nodeGraphPage.page.locator('video').first();
    await expect(video).toBeVisible();
    await video.click();
-   //await nodeGraphPage.expectNodeGraphEnded();
+   await nodeGraphPage.expectNodeGraphEnded();
 });
 
