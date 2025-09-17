@@ -1,66 +1,62 @@
-from typing import Literal, Union, Annotated, Set
+from abc import ABC
 
 import pydantic
 
-from nodekit._internal.types.base import DslModel, NullParameters
-from nodekit._internal.types.common import TimeDurationMsec, CardId, PressableKey
-from nodekit._internal.types.sensors.base import BaseSensor
+from nodekit._internal.types.common import CardId, PressableKey, TimePointMsec, SensorId
+from typing import Literal, Annotated, Union
+from uuid import uuid4
 
+# %%
+class BaseSensor(pydantic.BaseModel, ABC):
+    """
+    A Sensor represents a listener for Participant behavior.
+    When a Sensor is triggered, it emits an Action.
+    """
+
+    # Sensor identifiers
+    sensor_id: SensorId = pydantic.Field(description='The unique identifier for this Sensor.', default_factory=uuid4)
+    sensor_type: str
+
+    # Time:
+    t_start: TimePointMsec = pydantic.Field(
+        default=0,
+        description='The time (in milliseconds) relative to Node start when the Sensor is armed.',
+    )
 
 # %%
 class TimeoutSensor(BaseSensor):
     """
-    Attaches to the Board and triggers an Action after a specified timeout period.
+    A Sensor that triggers immediately after it is armed.
     """
-
-    class TimeoutSensorParameters(DslModel):
-        timeout_msec: TimeDurationMsec
-
     sensor_type: Literal['TimeoutSensor'] = 'TimeoutSensor'
-    sensor_parameters: TimeoutSensorParameters
-    card_id: None = pydantic.Field(default=None, frozen=True)  # Only binds to Board
-
+    t_start: TimePointMsec = pydantic.Field(
+        description = 'The time (in milliseconds) relative to Node start when the TimeoutAction is emitted.',
+    )
 
 # %%
 class DoneSensor(BaseSensor):
     sensor_type: Literal['DoneSensor'] = 'DoneSensor'
-    sensor_parameters: NullParameters = pydantic.Field(default_factory=NullParameters, frozen=True)
-    card_id: CardId # Only binds to Card
-
+    card_id: CardId = pydantic.Field(description='The ID of the done-able Card to which this DoneSensor is attached.')
 
 # %%
 class ClickSensor(BaseSensor):
-    sensor_type: Literal['ClickSensor'] = pydantic.Field(default='ClickSensor', frozen=True)
-    sensor_parameters: NullParameters = pydantic.Field(default_factory=NullParameters, frozen=True)
-    card_id: CardId # Only binds to Card
+    sensor_type: Literal['ClickSensor'] = 'ClickSensor'
+    card_id: CardId = pydantic.Field(description='The ID of the click-able Card to which this ClickSensor is attached.')
 
 
 # %%
-class KeyPressSensor(BaseSensor):
-    class KeyPressSensorParameters(DslModel):
-        keys: Set[PressableKey]
+class KeySensor(BaseSensor):
+    sensor_type: Literal['KeySensor'] = 'KeySensor'
+    key: PressableKey = pydantic.Field(description='The key that triggers this KeySensor when pressed down.')
 
-    sensor_type: Literal['KeyPressSensor'] = 'KeyPressSensor'
-    sensor_parameters: KeyPressSensorParameters
-    card_id: None = pydantic.Field(default=None, frozen=True)  # Only binds to Board
-
-
-class KeyHoldsSensor(BaseSensor):
-    class KeyHoldsSensorParameters(DslModel):
-        keys: Set[PressableKey]
-
-    sensor_type: Literal['KeyHoldsSensor'] = 'KeyHoldsSensor'
-    sensor_parameters: KeyHoldsSensorParameters
-    card_id: None = pydantic.Field(default=None, frozen=True)  # Only binds to Board
 
 # %%
 Sensor = Annotated[
     Union[
-        TimeoutSensor,
         DoneSensor,
         ClickSensor,
-        KeyPressSensor,
-        KeyHoldsSensor,
+        KeySensor,
+        TimeoutSensor,
         # Add other Sensor types here as needed
     ],
     pydantic.Field(discriminator='sensor_type')

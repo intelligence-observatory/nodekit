@@ -1,4 +1,10 @@
-import type {BrowserContext} from "../types/events";
+export interface BrowserContext {
+    user_agent: string,
+    viewport_width_px: number,
+    viewport_height_px: number,
+    display_width_px: number,
+    display_height_px: number
+}
 
 export function getBrowserContext(): BrowserContext {
     return {

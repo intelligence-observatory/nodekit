@@ -1,39 +1,40 @@
-import {marked} from 'marked';
-import DOMPurify from 'dompurify';
-import type {SpatialSize, TextContent} from "../../../types/common.ts";
+import type {SpatialSize,} from "../../../types/common.ts";
 
 import './text-card-view.css'
 import {CardView, type ClickableCardView} from "../card-view.ts";
-import type {TextCard} from "../../../types/cards/cards.ts";
-import {BoardView} from "../../board-view.ts";
+import type {TextCard} from "../../../types/cards";
+import {renderTextContent, type TextContentParameters} from "../../../utils.ts";
 
 /**
  * A card which displays left-justified Markdown text on a light background.
  * Offers a scrollbar if the content is too long.
  */
-export class TextCardView extends CardView implements ClickableCardView {
-    textContainer: HTMLDivElement;
+export class TextCardView extends CardView<TextCard> implements ClickableCardView {
+    textContainer: HTMLDivElement | undefined;
 
-    constructor(
-        card: TextCard,
-        boardView: BoardView,
-
+    async prepare(
     ) {
-        super(card, boardView);
         this.textContainer = document.createElement('div');
         this.textContainer.classList.add('text-card');
         this.root.appendChild(this.textContainer);
 
 
         // Set styles based on card parameters:
-        this.textContainer.style.backgroundColor = card.card_parameters.background_color;
+        this.textContainer.style.backgroundColor = this.card.background_color;
 
         // Mount text content
+        const textContent: TextContentParameters = {
+            text: this.card.text,
+            textColor: this.card.text_color,
+            fontSize: this.card.font_size,
+            justificationHorizontal: this.card.justification_horizontal,
+            justificationVertical: this.card.justification_vertical,
+        }
+
         const textContentDiv = renderTextContent(
-            card.card_parameters.content,
+            textContent,
             (fontSize:SpatialSize) =>{
-                const boardCoords = boardView.getCoordinateSystem()
-                const sizePx = boardCoords.getSizePx(fontSize)
+                const sizePx = this.boardCoords.getSizePx(fontSize)
                 return sizePx + 'px';
             }
         )
@@ -42,52 +43,11 @@ export class TextCardView extends CardView implements ClickableCardView {
 
 
     addClickCallback(callback: (e: MouseEvent) => void) {
+        if (!this.textContainer) {
+            throw new Error('Text container not initialized. Did you forget to call load()?');
+        }
         this.textContainer.addEventListener('click', (e: MouseEvent) => {
             callback(e);
         });
     }
-}
-
-
-export function renderTextContent(
-    textContent: TextContent,
-    fontSizeToCSS: (fontSize:SpatialSize) => string
-): HTMLDivElement {
-    const textDiv = document.createElement('div');
-    textDiv.classList.add('text-content');
-
-    // Set styles based on textContent parameters:
-    textDiv.style.color = textContent.text_color;
-    textDiv.style.textAlign = textContent.justification_horizontal;
-    switch (textContent.justification_vertical) {
-        case 'top':
-            textDiv.style.justifyContent = 'flex-start';
-            break;
-        case 'center':
-            textDiv.style.justifyContent = 'center';
-            break;
-        case 'bottom':
-            textDiv.style.justifyContent = 'flex-end';
-            break;
-        default:
-            throw new Error(`Unknown vertical justification: ${textContent.justification_vertical}`);
-    }
-
-    // Process font size
-    const fontSizeCss = fontSizeToCSS(textContent.font_size);
-    textDiv.style.fontSize = fontSizeCss;
-
-
-    let parsed = marked.parse(textContent.text);
-    // If a promise, wait for it to resolve
-    if (parsed instanceof Promise) {
-        parsed.then((result) =>{
-            textDiv.innerHTML = DOMPurify.sanitize(result);
-        })
-    }
-    else{
-        textDiv.innerHTML = DOMPurify.sanitize(parsed);
-    }
-
-    return textDiv
 }

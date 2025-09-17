@@ -29,7 +29,7 @@ export class BoardViewsUI {
         }
 
 
-        const newBoardView = new BoardView(boardId, board, this.assetManager);
+        const newBoardView = new BoardView(boardId, board);
         this.boardViews.set(boardId, newBoardView);
 
         // Mount the new board view to the root element
@@ -57,12 +57,12 @@ export class BoardViewsUI {
                 return;
             }
             const currentBoardView = this.getBoardView(this.activeBoardId);
-            currentBoardView.setState(false, false);
+            currentBoardView.setBoardState(false, false);
         }
 
         // Turn on the new BoardView
         const newBoardView = this.getBoardView(boardId);
-        newBoardView.setState(true, true);
+        newBoardView.setBoardState(true, true);
         this.activeBoardId = boardId;
     }
 

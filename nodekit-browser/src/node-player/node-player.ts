@@ -1,61 +1,46 @@
 import type {Node} from "../types/node-graph.ts";
 
 import type {PlayNodeResult} from "./node-play.ts";
-import {DeviceGate} from "../user-gates/device-gate.ts";
 import {buildUIs} from "../ui/ui-builder.ts";
 import type {ShellUI} from "../ui/shell-ui/shell-ui.ts";
 import type {BoardViewsUI} from "../ui/board-views-ui/board-views-ui.ts";
 import {NodePlay} from "./node-play.ts";
 import {type NodePlayId} from "../types/common.ts";
+import type {Board} from "../types/board";
 
 
 export class NodePlayer {
-    private boardViewsUI: BoardViewsUI;
+    public boardViewsUI: BoardViewsUI;
     private shellUI: ShellUI;
     private bufferedNodePlays: Map<NodePlayId, NodePlay> = new Map();
+    private _boardShape: Board;
 
-    constructor(){
+    constructor(
+        board: Board
+    ){
         // Create all DIVs needed for the NodePlayer in a centralized call:
         const {shellUI, boardViewsUI} = buildUIs();
         this.shellUI = shellUI;
         this.boardViewsUI = boardViewsUI;
-
-        try {
-            if (!DeviceGate.isValidDevice()){
-                throw new Error('Unsupported device. Please use a desktop browser.');
-            }
-        }
-        catch (error) {
-            this.showErrorMessageOverlay(error as Error);
-            throw new Error('NodePlayer initialization failed: ' + (error as Error).message);
-        }
+        this._boardShape = board;
     }
 
     async prepare(node: Node): Promise<NodePlayId> {
         /*
         Prepares a NodePlay instance and returns its ID.
          */
+        const nodePlayId: NodePlayId = crypto.randomUUID() as NodePlayId;
+        const boardView = this.boardViewsUI.createBoardView(nodePlayId, this._boardShape);
+        const nodePlay = new NodePlay(
+            node,
+            boardView,
+        )
+        await nodePlay.prepare(this.boardViewsUI.assetManager)
 
-        try{
-            // Create a new BoardView on which the NodePlay will be rendered::
-            const nodePlayId: NodePlayId = crypto.randomUUID() as NodePlayId;
-            const boardView = this.boardViewsUI.createBoardView(nodePlayId, node.board);
-            const nodePlay = new NodePlay(
-                node,
-                boardView,
-            )
-            await nodePlay.prepare()
+        // Add the prepared NodePlay to buffer
+        this.bufferedNodePlays.set(nodePlayId, nodePlay);
 
-            // Add the prepared NodePlay to buffer
-            this.bufferedNodePlays.set(nodePlayId, nodePlay);
-
-            return nodePlayId as NodePlayId;
-        }
-        catch(error) {
-            // Show error message overlay
-            this.showErrorMessageOverlay(error as Error);
-            throw new Error('NodePlayer preparation failed: ' + (error as Error).message);
-        }
+        return nodePlayId as NodePlayId;
     }
 
     async play(nodePlayId: NodePlayId): Promise<PlayNodeResult>{
@@ -63,28 +48,22 @@ export class NodePlayer {
         Executes the NodePlay instance with the given ID.
         Returns a NodeMeasurements upon completion.
          */
-        try{
-            const nodePlay = this.bufferedNodePlays.get(nodePlayId);
-            if (!nodePlay) {
-                throw new Error(`NodePlay ${nodePlayId} does not exist. `);
-            }
+        const nodePlay = this.bufferedNodePlays.get(nodePlayId);
 
-            // Set active board:
-            this.boardViewsUI.setActiveBoard(nodePlayId);
-
-            const nodeMeasurements = await nodePlay.run()
-
-            // Remove the NodePlay instance and its BoardView from the buffer:
-            this.boardViewsUI.destroyBoardView(nodePlayId);
-            this.bufferedNodePlays.delete(nodePlayId);
-
-            return nodeMeasurements
+        if (!nodePlay) {
+            const error = new Error(`NodePlay ${nodePlayId} does not exist. `);
+            this.showErrorMessageOverlay(error as Error)
+            throw error;
         }
-        catch(error) {
-            // Show error message overlay
-            this.showErrorMessageOverlay(error as Error);
-            throw error; // Re-throw the error after showing the overlay
-        }
+
+        // Set active Board:
+        this.boardViewsUI.setActiveBoard(nodePlayId);
+        const playNodeResult = await nodePlay.run()
+
+        // Remove the NodePlay instance and its BoardView from the buffer:
+        this.boardViewsUI.destroyBoardView(nodePlayId);
+        this.bufferedNodePlays.delete(nodePlayId);
+        return playNodeResult;
     }
 
     setProgressBar(percent: number) {
@@ -105,11 +84,15 @@ export class NodePlayer {
         this.shellUI.hideConsoleMessageOverlay()
     }
 
+    async playStartScreen() {
+        await this.shellUI.playStartScreen()
+    }
+
     async playEndScreen(message:string='', endScreenTimeoutMsec: number=10000) {
         await this.shellUI.playEndScreen(message, endScreenTimeoutMsec)
     }
 
-    private showErrorMessageOverlay(error: Error){
+    showErrorMessageOverlay(error: Error){
         console.error('An error occurred:', error);
         this.shellUI.showConsoleMessageOverlay(
             'The following error occurred:',

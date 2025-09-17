@@ -24,8 +24,6 @@ export class SessionFinishedOverlay extends OverlayBase {
         this.messageSpan = document.createElement("span");
         this.messageSpan.classList.add("debrief-message-box__text");
         this.messageBox.appendChild(this.messageSpan);
-
-
     }
 
     show(
@@ -55,7 +53,6 @@ export class SessionFinishedOverlay extends OverlayBase {
         // Clear the event listener
         this.submitButton.removeAllEventListeners()
     }
-
 }
 
 

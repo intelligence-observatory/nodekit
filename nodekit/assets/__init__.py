@@ -1,11 +1,17 @@
 __all__ = [
-    "AssetLink",
-    "ImageLink",
-    "VideoLink",
+    'ImageIdentifier',
+    'VideoIdentifier',
+    'AssetFile',
+    'ImageFile',
+    'VideoFile',
+    'AssetUrl',
 ]
 
-from nodekit._internal.types.assets.base import (
-    AssetLink,
-    ImageLink,
-    VideoLink,
+from nodekit._internal.types.assets import (
+    ImageIdentifier,
+    VideoIdentifier,
+    AssetFile,
+    ImageFile,
+    VideoFile,
+    AssetUrl,
 )
