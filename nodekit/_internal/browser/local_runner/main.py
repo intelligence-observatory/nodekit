@@ -138,9 +138,9 @@ class LocalRunner:
                 request: fastapi.Request,
         ) -> fastapi.responses.HTMLResponse:
             if self._timeline is None:
-                raise fastapi.HTTPException(status_code=404, detail="No NodeGraph is currently being served. Call `nodekit.play` first.")
+                raise fastapi.HTTPException(status_code=404, detail="No Timeline is currently being served. Call `nodekit.play` first.")
 
-            # Package asset urls
+            # Package asset urls:
             asset_urls = []
             for asset_id in sorted(self.asset_id_to_file.keys()):
                 asset_file = self.asset_id_to_file[asset_id]
@@ -151,7 +151,6 @@ class LocalRunner:
                     )
                 )
 
-            # Render the jinja2 template with the NodeGraph
             return templates.TemplateResponse(
                 request=request,
                 name='site-template.j2',
@@ -214,8 +213,8 @@ class PlaySession:
 
     def list_events(self) -> List[Event]:
         """
-        Returns the Events for the current Runner's NodeGraph session.
-        Todo: this might diverge from the NodeGraph if `nodekit.play` is called again.
+        Returns the Events for the current session.
+        Todo: this might diverge if `nodekit.play` is called again.
         """
         runner = _get_runner()
         return runner.list_events()
@@ -224,9 +223,7 @@ def play(
         timeline: Timeline,
 ) -> PlaySession:
     """
-    Runs the NodeGraph at http://localhost:{port}.
-    If the NodeGraph references Assets, they must be provided via the `asset_files` argument.
-
+    Runs the Timeline at http://localhost:{port}.
     Returns the link to the running instance.
     """
 
@@ -234,7 +231,7 @@ def play(
     runner.ensure_running()
     runner.set_timeline(timeline)
     #runner.mount_asset_files(timeline.asset_files)
-    print('Play the NodeGraph at:', runner.url)
+    print('Play the Timeline at:', runner.url)
     return PlaySession(
         url=runner.url
     )

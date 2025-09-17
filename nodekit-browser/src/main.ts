@@ -24,8 +24,8 @@ export async function play(
     previousEvents: Event[] = [],
 ): Promise<Event[]> {
     /*
-    Executes a run through the NodeGraph. Events are returned as an array.
-    Events emitted from a previous, interrupted run of the NodeGraph can be provided to continue from the point of interruption.
+    Executes a run through the Timeline. Events are returned as an array.
+    Events emitted from a previous, interrupted run of the Timeline can be provided to continue from the point of interruption.
     */
 
     // If no onEventCallback is provided, use a no-op function:
@@ -112,8 +112,6 @@ export async function play(
     events.push(browserContextEvent);
     onEventCallback(browserContextEvent);
 
-
-    // Play the Nodes in the NodeGraph:
     const nodes = timeline.nodes;
     for (let i = 0; i < nodes.length; i++) {
         // Prepare the Node:

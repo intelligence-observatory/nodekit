@@ -184,14 +184,12 @@ for _ in range(2):
     )
     nodes.append(node)
 
-# Generate preview of NodeGraph webpage:
 timeline = nk.Timeline(
     nodes=nodes,
     asset_files=image_files + video_files,
 )
-Path('timeline.json').write_text(timeline.model_dump_json(indent=4))
 
-# %% Play the NodeGraph locally:
+# %% Play the Timeline:
 play_session = nk.play(timeline=timeline)
 
 # %% Wait until the end event is observed:
@@ -204,6 +202,6 @@ while True:
 # %% Can compute authoritative bonus based on the events and the bonus rules:
 bonus_usd = nk.ops.calculate_bonus_usd(
     events=events,
-    node_graph=timeline,
+    timeline=timeline,
 )
 print(f"Computed bonus: ${bonus_usd}")
