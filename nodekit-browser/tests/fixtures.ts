@@ -28,23 +28,25 @@ export class NodeGraphPage {
     }
 
     async goto(filename: string) {
+        // Go to a local file page:
         await this.page.goto('./' + filename);
-        await this.page.waitForLoadState('domcontentloaded');
-
-        // TODO instead of waiting a second for the node graph to start, use an event callback.
-        await this.page.waitForTimeout(1000);
-
+        await this.page.setViewportSize({width: 800, height: 800})
+        // Load everything:
+        await this.page.waitForLoadState('load');
+        // Click the start button:
         await this.page.locator('.start-button').first().click();
     }
 
+    // Expect the submit button to be visible:
     async expectNodeGraphEnded()  {
+        await this.page.waitForTimeout(500);
         expect(this.page.locator('.submit-button').first().isVisible()).toBeTruthy();
     }
 
     async end() {
         // Print logged messages:
         let observations = Object.entries(this.logs).map(([t, messages]) => {
-            return [t + ":"].concat(messages).join("");
+            return [t + ":"].concat(messages).join("\n");
         }).join("\n\n");
         console.log(observations);
 
