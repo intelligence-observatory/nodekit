@@ -158,12 +158,7 @@ declare interface Node_2 {
     sensors: Sensor[];
     outcomes: Outcome[];
     effects: Effect[];
-}
-
-declare interface NodeGraph {
     board: Board;
-    nodes: Node_2[];
-    nodekit_version: string;
 }
 
 declare type NodeId = string & {
@@ -185,7 +180,7 @@ declare interface Outcome {
     bonus_amount_usd: MonetaryAmountUsd;
 }
 
-export declare function play(nodeGraph: NodeGraph, assetUrls: AssetUrl[], onEventCallback?: OnEventCallback | null, previousEvents?: Event_2[]): Promise<Event_2[]>;
+export declare function play(nodeGraph: Timeline, assetUrls: AssetUrl[], onEventCallback?: OnEventCallback | null, previousEvents?: Event_2[]): Promise<Event_2[]>;
 
 declare type PressableKey = "Enter" | " " | "ArrowDown" | "ArrowLeft" | "ArrowRight" | "ArrowUp" | "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z" | "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
 
@@ -221,6 +216,11 @@ declare interface TextFormattingOptions {
     font_size: SpatialSize;
     justification_horizontal: 'left' | 'center' | 'right';
     justification_vertical: 'top' | 'center' | 'bottom';
+}
+
+declare interface Timeline {
+    nodes: Node_2[];
+    nodekit_version: string;
 }
 
 declare interface TimeoutAction extends BaseAction<"TimeoutAction"> {

@@ -70,7 +70,7 @@ def make_basic_fixation_node(
     )
 
 def make_image_node(
-        image_file: nk.assets.ImageFile
+        image_file: nk.assets.AssetFile
 ) -> nk.Node:
 
     image_card = nk.cards.ImageCard(
@@ -89,7 +89,7 @@ def make_image_node(
     )
 
 def make_video_node(
-        video_file: nk.assets.VideoFile
+        video_file: nk.assets.AssetFile
 ) -> nk.Node:
 
     video_card = nk.cards.VideoCard(
@@ -126,17 +126,16 @@ def make_instructions_node() -> nk.Node:
     )
 
 
-# %% Load ImageFiles
+# %% Load Asset Files
 image_files =[]
 for path in sorted(glob.glob('./example_images/*.png')):
-    image_file = nk.assets.ImageFile.from_path(Path(path))
+    image_file = nk.assets.AssetFile.from_path(Path(path))
     image_files.append(image_file)
 
 
 video_files = []
-
 for path in sorted(glob.glob('./example_videos/*.mp4')):
-    video_file = nk.assets.VideoFile.from_path(Path(path))
+    video_file = nk.assets.AssetFile.from_path(Path(path))
     video_files.append(video_file)
 
 
@@ -168,14 +167,14 @@ for _ in range(2):
     nodes.append(node)
 
 # Generate preview of NodeGraph webpage:
-timeline = nk.Timeline(nodes=nodes)
+timeline = nk.Timeline(
+    nodes=nodes,
+    asset_files=image_files + video_files,
+)
 Path('timeline.json').write_text(timeline.model_dump_json(indent=4))
 
 # %% Play the NodeGraph locally:
-play_session = nk.play(
-    timeline,
-    asset_files=image_files + video_files,
-)
+play_session = nk.play(timeline=timeline)
 
 # %% Wait until the end event is observed:
 while True:

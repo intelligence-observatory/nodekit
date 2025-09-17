@@ -42,7 +42,7 @@ export async function play(
     const nodekitVersion = nodeGraph.nodekit_version;
 
     // Initialize the NodePlayer:
-    let nodePlayer = new NodePlayer(nodeGraph.board);
+    let nodePlayer = new NodePlayer();
 
 
     // Device gating:

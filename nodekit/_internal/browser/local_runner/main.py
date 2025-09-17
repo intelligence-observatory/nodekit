@@ -13,7 +13,7 @@ import uvicorn
 from nodekit._internal.browser.browser_bundle import get_browser_bundle
 from nodekit._internal.types.assets import AssetFile, AssetUrl
 from nodekit._internal.types.events.events import Event
-from nodekit._internal.types.node_graph import Timeline
+from nodekit._internal.types.node import Timeline
 
 
 # %%
@@ -34,7 +34,7 @@ class LocalRunner:
         self.host = host
 
         # In-memory state of the runner:
-        self._node_graph: Timeline | None = None
+        self._timeline: Timeline | None = None
         self._events: List[Event] = []
 
         self.asset_id_to_file: Dict[str, AssetFile] = {}
@@ -85,10 +85,10 @@ class LocalRunner:
             self._server = None
             self._thread = None
 
-    def set_node_graph(self, node_graph: Timeline):
+    def set_timeline(self, timeline: Timeline):
         with self._lock:
-            # Reset NodeGraph and Events
-            self._node_graph = node_graph
+            # Reset Timeline and Events
+            self._timeline = timeline
             self._events = []
 
     def _build_app(self) -> fastapi.FastAPI:
@@ -139,11 +139,11 @@ class LocalRunner:
                 media_type=asset_file.identifier.mime_type
             )
 
-        @app.get("/play")
+        @app.get("/")
         def site(
                 request: fastapi.Request,
         ) -> fastapi.responses.HTMLResponse:
-            if self._node_graph is None:
+            if self._timeline is None:
                 raise fastapi.HTTPException(status_code=404, detail="No NodeGraph is currently being served. Call `nodekit.play` first.")
 
             # Package asset urls
@@ -162,7 +162,7 @@ class LocalRunner:
                 request=request,
                 name='site-template.j2',
                 context={
-                    "node_graph": self._node_graph.model_dump(mode='json'),
+                    "node_graph": self._timeline.model_dump(mode='json'),
                     "asset_urls": [a.model_dump(mode='json') for a in asset_urls],
                     "nodekit_javascript_link": request.url_for(
                         "get_nodekit_javascript",
@@ -193,7 +193,7 @@ class LocalRunner:
 
     @property
     def url(self) -> str:
-        return f'http://{self.host}:{self.port}/play'
+        return f'http://{self.host}:{self.port}'
 
     def list_events(self) -> List[Event]:
         with self._lock:
@@ -224,8 +224,7 @@ class PlaySession:
         return runner.list_events()
 
 def play(
-        node_graph: Timeline,
-        asset_files: List[AssetFile] | None = None,
+        timeline: Timeline,
 ) -> PlaySession:
     """
     Runs the NodeGraph at http://localhost:{port}.
@@ -233,13 +232,11 @@ def play(
 
     Returns the link to the running instance.
     """
-    if asset_files is None:
-        asset_files = []
 
     runner = _get_runner()
     runner.ensure_running()
-    runner.set_node_graph(node_graph)
-    runner.mount_asset_files(asset_files)
+    runner.set_timeline(timeline)
+    runner.mount_asset_files(timeline.asset_files)
     print('Play the NodeGraph at:', runner.url)
     return PlaySession(
         url=runner.url

@@ -28,7 +28,7 @@ __all__ = [
 from nodekit._internal.version import VERSION
 
 # Incoming models:
-from nodekit._internal.types.node_graph import (
+from nodekit._internal.types.node import (
     Timeline,
     Node,
 )

@@ -4212,13 +4212,13 @@ class ia {
   }
 }
 class sa {
-  constructor(e) {
+  constructor() {
     this.bufferedNodePlays = /* @__PURE__ */ new Map();
-    const { shellUI: t, boardViewsUI: i } = ta();
-    this.shellUI = t, this.boardViewsUI = i, this._boardShape = e;
+    const { shellUI: e, boardViewsUI: t } = ta();
+    this.shellUI = e, this.boardViewsUI = t;
   }
   async prepare(e) {
-    const t = crypto.randomUUID(), i = this.boardViewsUI.createBoardView(t, this._boardShape), s = new ia(
+    const t = crypto.randomUUID(), i = this.boardViewsUI.createBoardView(t, e.board), s = new ia(
       e,
       i
     );
@@ -5838,7 +5838,7 @@ async function va(n, e, t = null, i = []) {
   });
   let s = i;
   const r = n.nodekit_version;
-  let l = new sa(n.board);
+  let l = new sa();
   if (!xa.isValidDevice()) {
     const M = new Error("Unsupported device. Please use a desktop browser.");
     throw l.showErrorMessageOverlay(M), M;

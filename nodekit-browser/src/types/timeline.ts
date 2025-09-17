@@ -12,10 +12,10 @@ export interface Node {
     sensors: Sensor[];
     outcomes: Outcome[];
     effects: Effect[];
+    board: Board;
 }
 
 export interface Timeline {
-    board: Board;
     nodes: Node[];
     nodekit_version: string;
 }

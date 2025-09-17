@@ -1,19 +1,23 @@
-from typing import List, Self
+from typing import List
 from uuid import uuid4
 
 import pydantic
 
+from nodekit._internal.types.assets import AssetFile
 from nodekit._internal.types.board.board import Board
 from nodekit._internal.types.cards.cards import Card
-from nodekit._internal.types.common import PayableMonetaryAmountUsd, NodeId
-from nodekit._internal.types.outcome import Outcome
+from nodekit._internal.types.common import NodeId
 from nodekit._internal.types.effects.effects import Effect
+from nodekit._internal.types.outcome import Outcome
 from nodekit._internal.types.sensors.sensors import Sensor
 from nodekit._internal.version import VERSION
 
 
 # %% Node
 class Node(pydantic.BaseModel):
+    class Config:
+        frozen = True
+
     node_id: NodeId = pydantic.Field(default_factory=uuid4)
 
     cards: List[Card] = pydantic.Field(
@@ -27,7 +31,21 @@ class Node(pydantic.BaseModel):
     effects: List[Effect] = pydantic.Field(default_factory=list)
     board: Board = pydantic.Field(default_factory=Board)
 
+
 # %% Timeline
 class Timeline(pydantic.BaseModel):
-    nodes: List[Node] = pydantic.Field(min_length=1, description='The sequence of Nodes that make up the Timeline.')
-    nodekit_version: str = pydantic.Field(default=VERSION, description='The semantic version number of NodeKit used to create this NodeGraph.')
+    nodes: List[Node] = pydantic.Field(
+        min_length=1,
+        description='The sequence of Nodes that make up the Timeline.'
+    )
+    asset_files: List[AssetFile] = pydantic.Field(
+        default_factory=list,
+        description='Local paths to all Assets used in this Timeline.'
+    )
+    nodekit_version: str = pydantic.Field(default=VERSION, description='The semantic version number of NodeKit used to create this Timeline.')
+
+    @pydantic.model_validator(mode='after')
+    def check_all_assets_are_backed(self, ):
+        # Todo
+        return self
+

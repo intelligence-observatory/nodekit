@@ -2,7 +2,7 @@ from decimal import Decimal
 from typing import List, Dict
 
 from nodekit._internal.types.events.events import Event, EventTypeEnum
-from nodekit._internal.types.node_graph import Timeline
+from nodekit._internal.types.node import Timeline
 from nodekit._internal.types.common import NodeId
 from nodekit._internal.types.outcome import Outcome
 

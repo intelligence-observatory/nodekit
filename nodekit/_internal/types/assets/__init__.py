@@ -32,13 +32,17 @@ AssetIdentifier = Annotated[Union[
 
 
 # %%
-class BaseAssetFile(pydantic.BaseModel, ABC):
+class AssetFile(pydantic.BaseModel):
     """
     Points to an asset file located on the user's filesystem,
     along with the user's claim of the file's SHA-256 hash and mime type.
     """
     identifier: AssetIdentifier  = pydantic.Field(description='The claimed identifier of the file bytes at the given path.',)
     path: pydantic.FilePath
+
+    @pydantic.field_validator('path', mode='after')
+    def make_absolute_path(cls, path: Path) -> Path:
+        return path.resolve()
 
     @pydantic.model_validator(mode='after')
     def check_file_extension(self) -> Self:
@@ -76,21 +80,6 @@ class BaseAssetFile(pydantic.BaseModel, ABC):
             identifier=asset_identifier,
             path=path.resolve()
         )
-
-class ImageFile(BaseAssetFile):
-    identifier: ImageIdentifier = pydantic.Field(description='The identifier for the image asset, including its SHA-256 hash and mime type.')
-
-class VideoFile(BaseAssetFile):
-    identifier: VideoIdentifier = pydantic.Field(description='The identifier for the video asset, including its SHA-256 hash and mime type.')
-
-AssetFile = Annotated[
-    Union[
-        ImageFile,
-        VideoFile,
-    ],
-    pydantic.Field(discriminator='identifier')
-]
-
 
 # %%
 class AssetUrl(pydantic.BaseModel):
