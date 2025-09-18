@@ -52,7 +52,13 @@ export class ClickSensorBinding implements SensorBinding {
         }
 
         // Subscribe to mousedown on the Board: (todo: create the PointerStream)
-        boardRootElement.addEventListener('mousedown', clickCallback);
+        boardRootElement.addEventListener(
+            'mousedown',
+            clickCallback,
+            {
+                capture: true, // Capture phase to get the event before it might be stopped by children.
+            }
+        );
     }
 
     arm(): void {
