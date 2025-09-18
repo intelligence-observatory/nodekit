@@ -6,6 +6,7 @@ import type {Timeline} from "./types/timeline.ts";
 import {performanceNowToISO8601} from "./utils.ts";
 import {getBrowserContext} from "./user-gates/browser-context.ts";
 import {DeviceGate} from "./user-gates/device-gate.ts";
+import type {AssetUrl} from "./types/assets";
 
 export type OnEventCallback = (event: Event) => void;
 
@@ -20,6 +21,7 @@ function getCurrentTimestamp(): ISO8601 {
 
 export async function play(
     timeline: Timeline,
+    assetUrls: AssetUrl[],
     onEventCallback: OnEventCallback | null = null,
     previousEvents: Event[] = [],
 ): Promise<Event[]> {
@@ -52,7 +54,7 @@ export async function play(
 
     nodePlayer.showConnectingOverlay()
     // Todo: await preload assets
-    for (const assetUrl of timeline.asset_urls) {
+    for (const assetUrl of assetUrls) {
         nodePlayer.boardViewsUI.assetManager.registerAsset(assetUrl)
     }
 

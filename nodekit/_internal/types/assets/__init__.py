@@ -7,8 +7,6 @@ import pydantic
 from nodekit._internal.ops.hash_asset_file import hash_asset_file
 from nodekit._internal.types.common import MimeType, SHA256
 
-from abc import ABC
-
 # %%
 class BaseAssetIdentifier(pydantic.BaseModel):
     sha256: SHA256
@@ -30,9 +28,47 @@ AssetIdentifier = Annotated[Union[
     pydantic.Field(discriminator='mime_type')
 ]
 
+# %%
+class ImageFile(ImageIdentifier):
+
+    @pydantic.field_validator('path', mode='after')
+    def make_absolute_path(cls, path: Path) -> Path:
+        return path.resolve()
+
+    @pydantic.model_validator(mode='after')
+    def check_file_extension(self) -> Self:
+        """
+        Validate that the path ends with the expected file extension
+        """
+        extension = mimetypes.guess_extension(type=self.mime_type, strict=True)
+        if not extension:
+            raise ValueError(f"Could not determine file extension for mime type {self.mime_type}.")
+
+        if not str(self.path).endswith(extension):
+            raise ValueError(f"Asset path {self.path} does not end with the expected file extension {extension}.")
+
+        return self
+
+    @classmethod
+    def from_path(cls, path: Path) -> Self:
+        """
+        A convenience method to create an Asset from a file path.
+        This is I/O intensive, as it computes the SHA-256 hash of the file.
+        """
+        sha256 = hash_asset_file(path)
+        guessed_mime_type, _ = mimetypes.guess_type(path, strict=True)
+        if not guessed_mime_type:
+            raise ValueError(f"Could not determine MIME type for file at {path}\n Does it have a valid file extension?")
+
+        guessed_mime_type: MimeType
+        return cls(
+            sha256=sha256,
+            mime_type=guessed_mime_type,
+            path=path.resolve()
+        )
 
 # %%
-class AssetFile(pydantic.BaseModel):
+class AssetFile2(pydantic.BaseModel):
     """
     Points to an asset file located on the user's filesystem,
     along with the user's claim of the file's SHA-256 hash and mime type.
@@ -67,7 +103,7 @@ class AssetFile(pydantic.BaseModel):
         sha256 = hash_asset_file(path)
         guessed_mime_type, _ = mimetypes.guess_type(path, strict=True)
         if not guessed_mime_type:
-            raise ValueError(f"Could not determine mime_type for file at path {path}.")
+            raise ValueError(f"Could not determine MIME type for file at {path}\n Does it have a valid file extension?")
 
         guessed_mime_type: MimeType
 

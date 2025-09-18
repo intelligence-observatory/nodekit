@@ -3,7 +3,6 @@ from uuid import uuid4
 
 import pydantic
 
-from nodekit._internal.types.assets import AssetFile
 from nodekit._internal.types.board.board import Board
 from nodekit._internal.types.cards.cards import Card
 from nodekit._internal.types.common import NodeId
@@ -37,10 +36,6 @@ class Timeline(pydantic.BaseModel):
     nodes: List[Node] = pydantic.Field(
         min_length=1,
         description='The sequence of Nodes that make up the Timeline.'
-    )
-    asset_files: List[AssetFile] = pydantic.Field(
-        default_factory=list,
-        description='Local paths to all Assets used in this Timeline.'
     )
     nodekit_version: str = pydantic.Field(default=VERSION, description='The semantic version number of NodeKit used to create this Timeline.')
 

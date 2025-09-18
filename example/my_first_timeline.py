@@ -119,6 +119,7 @@ def make_instructions_node(
         justification_horizontal='left',
         justification_vertical='top',
     )
+
     continue_button = nk.cards.TextCard(
         text='Continue',
         x=0, y=-0.45, w=0.3, h=0.05,
@@ -186,11 +187,13 @@ for _ in range(2):
 
 timeline = nk.Timeline(
     nodes=nodes,
-    asset_files=image_files + video_files,
 )
 
 # %% Play the Timeline:
-play_session = nk.play(timeline=timeline)
+play_session = nk.play(
+    timeline=timeline,
+    asset_files=image_files + video_files
+)
 
 # %% Wait until the end event is observed:
 while True:

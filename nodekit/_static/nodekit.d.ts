@@ -181,7 +181,7 @@ declare interface Outcome {
     bonus_amount_usd: MonetaryAmountUsd;
 }
 
-export declare function play(timeline: Timeline, onEventCallback?: OnEventCallback | null, previousEvents?: Event_2[]): Promise<Event_2[]>;
+export declare function play(timeline: Timeline, assetUrls: AssetUrl[], onEventCallback?: OnEventCallback | null, previousEvents?: Event_2[]): Promise<Event_2[]>;
 
 declare type PressableKey = "Enter" | " " | "ArrowDown" | "ArrowLeft" | "ArrowRight" | "ArrowUp" | "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z" | "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
 

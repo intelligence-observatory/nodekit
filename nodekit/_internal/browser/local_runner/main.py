@@ -82,8 +82,13 @@ class LocalRunner:
             self._timeline = timeline
             self._events = []
 
-            # Mount AssetFiles:
-            self.asset_id_to_file = {asset_file.identifier.sha256: asset_file for asset_file in timeline.asset_files}
+    def mount_asset_files(self, asset_files: List[AssetFile] | None):
+        with self._lock:
+            if asset_files is None:
+                return
+
+            for asset_file in asset_files:
+                self.asset_id_to_file[asset_file.identifier.sha256] = asset_file
 
     def _build_app(self) -> fastapi.FastAPI:
         app = fastapi.FastAPI()
@@ -155,11 +160,8 @@ class LocalRunner:
                 request=request,
                 name='site-template.j2',
                 context={
-                    "timeline": {
-                        'nodes': [n.model_dump(mode='json') for n in self._timeline.nodes],
-                        'asset_urls': [a.model_dump(mode='json') for a in asset_urls],
-                        'nodekit_version': self._timeline.nodekit_version,
-                    },
+                    "timeline": self._timeline.model_dump(mode='json'),
+                    'asset_urls': [a.model_dump(mode='json') for a in asset_urls],
                     "nodekit_javascript_link": request.url_for(
                         "get_nodekit_javascript",
                         js_hash=NODEKIT_JS_HASH,
@@ -221,6 +223,7 @@ class PlaySession:
 
 def play(
         timeline: Timeline,
+        asset_files: List[AssetFile] | None = None,
 ) -> PlaySession:
     """
     Runs the Timeline at http://localhost:{port}.
@@ -230,7 +233,7 @@ def play(
     runner = _get_runner()
     runner.ensure_running()
     runner.set_timeline(timeline)
-    #runner.mount_asset_files(timeline.asset_files)
+    runner.mount_asset_files(asset_files)
     print('Play the Timeline at:', runner.url)
     return PlaySession(
         url=runner.url
