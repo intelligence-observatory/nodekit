@@ -2,10 +2,8 @@ import type {Action, ClickAction, KeyAction, TimeoutAction} from "../../types/ac
 import type {PressableKey} from "../../types/common.ts";
 import {type SensorId} from "../../types/common.ts";
 import type {BoardCoordinateSystem} from "../board-view.ts";
-import type {ClickableCardView, DoneableCardView} from "../card-views/card-view.ts";
-import {CardView} from "../card-views/card-view.ts";
-import type {BoardRegion} from "../../types/regions";
-
+import type {Region} from "../../types/regions";
+import {checkPointInRegion} from "../../utils.ts";
 import {performanceNowToISO8601} from "../../utils.ts";
 
 // Generic contract:
@@ -23,7 +21,9 @@ export class ClickSensorBinding implements SensorBinding {
 
     constructor(
         sensorId: SensorId,
+        region: Region,
         onSensorFired: (action: ClickAction) => void,
+        boardRootElement: HTMLDivElement,
         boardCoords: BoardCoordinateSystem,
     ) {
 
@@ -32,31 +32,35 @@ export class ClickSensorBinding implements SensorBinding {
                 return;
             }
 
-            const location = boardCoords.getBoardLocationFromMouseEvent(e)
+            const {x, y} = boardCoords.getBoardLocationFromMouseEvent(e)
+            console.log(x, y)
+
+            // Do a region check:
+            const inside = checkPointInRegion(x, y, region);
+            if (!inside) {
+                return
+            }
 
             const action: ClickAction = {
                 sensor_id: sensorId,
                 action_type: "ClickAction",
-                click_x: location.x,
-                click_y: location.y,
+                click_x: x,
+                click_y: y,
                 timestamp_action: performanceNowToISO8601(performance.now())
             };
             onSensorFired(action);
         }
 
-        cardView.addClickCallback(clickCallback);
+        // Subscribe to mousedown on the Board: (todo: create the PointerStream)
+        boardRootElement.addEventListener('mousedown', clickCallback);
     }
 
     arm(): void {
-        this.cardView.root.classList.add('card--clickable');
         this.tArmed = performance.now();
-        this.cardView.setInteractivity(true);
     }
 
     destroy(): void {
-        this.cardView.root.classList.remove('card--clickable');
         this.tArmed = null;
-        this.cardView.setInteractivity(false);
     }
 }
 

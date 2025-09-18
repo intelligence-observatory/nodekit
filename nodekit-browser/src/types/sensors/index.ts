@@ -1,5 +1,5 @@
 import type {PressableKey, SensorId, TimePointMsec} from "../common.ts";
-import type {BoardRegion} from "../regions";
+import type {Region} from "../regions";
 
 
 export interface BaseSensor<T extends string> {
@@ -12,7 +12,7 @@ export interface TimeoutSensor extends BaseSensor<'TimeoutSensor'>{}
 
 
 export interface ClickSensor extends BaseSensor<'ClickSensor'>{
-    region: BoardRegion
+    region: Region
 }
 
 export interface KeySensor extends BaseSensor<'KeySensor'> {

@@ -5,10 +5,9 @@ import type {CardId, SensorId, SpatialPoint, SpatialSize} from "../types/common.
 import type {Sensor} from "../types/sensors";
 import type {Action} from "../types/actions";
 import './board-view.css'
-import type {CardView, ClickableCardView, DoneableCardView} from "./card-views/card-view.ts";
+import type {CardView} from "./card-views/card-view.ts";
 import {ClickSensorBinding, KeySensorBinding, type SensorBinding, TimeoutSensorBinding} from "./sensor-bindings/sensor-binding.ts";
 import {FixationPointCardView} from "./card-views/fixation-point/fixation-point-card-view.ts";
-import {MarkdownPagesCardView} from "./card-views/markdown-pages/markdown-pages-card-view.ts";
 import {ImageCardView} from "./card-views/image/image-card.ts";
 import {TextCardView} from "./card-views/text/text-card-view.ts";
 import {VideoCardView} from "./card-views/video/video-card.ts";
@@ -166,11 +165,6 @@ export class BoardView {
                     card, boardCoords
                 )
                 break
-            case "MarkdownPagesCard":
-                cardView = new MarkdownPagesCardView(
-                    card, boardCoords
-                )
-                break
             case "ImageCard":
                 cardView = new ImageCardView(
                     card,
@@ -263,7 +257,9 @@ export class BoardView {
 
             sensorBinding = new ClickSensorBinding(
                 sensor.sensor_id,
+                sensor.region,
                 onSensorFired,
+                this.root,
                 this.getCoordinateSystem(),
             )
         }
