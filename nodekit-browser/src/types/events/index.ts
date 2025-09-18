@@ -2,8 +2,8 @@ import type {NodeId} from "../timeline.ts";
 import type {MonetaryAmountUsd} from "../common.ts";
 import type {Action} from "../actions";
 import type {BrowserContext} from "../../user-gates/browser-context.ts";
+import type {ISO8601} from "../common.ts";
 
-export type ISO8601 = string & { __brand: 'ISO8601' };
 export type UUID = string & { __brand: 'UUID' };
 
 // Base:

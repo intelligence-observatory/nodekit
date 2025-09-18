@@ -33,7 +33,6 @@ export class ClickSensorBinding implements SensorBinding {
             }
 
             const {x, y} = boardCoords.getBoardLocationFromMouseEvent(e)
-            console.log(x, y)
 
             // Do a region check:
             const inside = checkPointInRegion(x, y, region);

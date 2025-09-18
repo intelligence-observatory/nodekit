@@ -15,8 +15,6 @@ export interface KeyAction extends BaseAction<"KeyAction"> {
     key: PressableKey;
 }
 
-export interface DoneAction extends BaseAction<"DoneAction"> {}
-
 export interface TimeoutAction extends BaseAction<"TimeoutAction"> {}
 
-export type Action = ClickAction | DoneAction | TimeoutAction | KeyAction;
+export type Action = ClickAction | TimeoutAction | KeyAction;
