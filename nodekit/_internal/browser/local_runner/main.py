@@ -151,8 +151,7 @@ class LocalRunner:
                 asset_file = self.asset_id_to_file[asset_id]
                 asset_urls.append(
                     AssetUrl(
-                        sha256=asset_file.sha256,
-                        mime_type=asset_file.mime_type,
+                        identifier=asset_file.identifier,
                         url=pydantic.AnyUrl(str(request.url_for("get_asset", asset_id=asset_id))),
                     )
                 )
@@ -224,7 +223,7 @@ class PlaySession:
 
 def play(
         timeline: Timeline,
-        asset_files: List[AssetFile] | None = None,
+        asset_files: List[AssetFile],
 ) -> PlaySession:
     """
     Runs the Timeline at http://localhost:{port}.

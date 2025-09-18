@@ -34,12 +34,12 @@ export interface MarkdownPagesCard extends BaseCard<'MarkdownPagesCard'>, TextFo
 
 // ImageCard
 export interface ImageCard extends BaseCard<'ImageCard'>{
-    image_identifier: ImageIdentifier;
+    image: ImageIdentifier;
 }
 
 // VideoCard
 export interface VideoCard extends BaseCard<'VideoCard'>{
-    video_identifier: VideoIdentifier;
+    video: VideoIdentifier;
     muted: boolean;
     loop: boolean;
 }

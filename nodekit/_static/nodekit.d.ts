@@ -113,7 +113,7 @@ declare interface HidePointerEffect extends BaseEffect<'HidePointerEffect'> {
 }
 
 declare interface ImageCard extends BaseCard<'ImageCard'> {
-    image_identifier: ImageIdentifier;
+    image: ImageIdentifier;
 }
 
 declare interface ImageIdentifier extends BaseAssetIdentifier<"image/png"> {
@@ -240,7 +240,7 @@ declare type UUID = string & {
 };
 
 declare interface VideoCard extends BaseCard<'VideoCard'> {
-    video_identifier: VideoIdentifier;
+    video: VideoIdentifier;
     muted: boolean;
     loop: boolean;
 }

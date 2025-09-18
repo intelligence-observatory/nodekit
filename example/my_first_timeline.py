@@ -76,7 +76,7 @@ def make_image_node(
         image_file: nk.assets.ImageFile
 ) -> nk.Node:
     image_card = nk.cards.ImageCard(
-        image=image_file,
+        image=image_file.identifier,
         x=0, y=0, w=0.5, h=0.5,
     )
 
@@ -91,12 +91,14 @@ def make_image_node(
     )
 
 
+
 def make_video_node(
         video_file: nk.assets.VideoFile
 ) -> nk.Node:
+
     video_card = nk.cards.VideoCard(
         x=0, y=0, w=0.5, h=0.5,
-        video=video_file,
+        video=video_file.identifier,
     )
 
     text_card = nk.cards.TextCard(
@@ -187,7 +189,6 @@ for _ in range(2):
 timeline = nk.Timeline(
     nodes=nodes,
 )
-raise Exception
 
 # %% Play the Timeline:
 play_session = nk.play(

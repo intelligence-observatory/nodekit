@@ -15,7 +15,7 @@ export class VideoCardView extends CardView<VideoCard> implements ClickableCardV
         this.root.appendChild(this.videoContainer);
 
         this.video = await assetManager.getVideo(
-            this.card.video_identifier
+            this.card.video
         );
         this.video.classList.add('video-card__content');
         this.videoContainer.appendChild(this.video);
