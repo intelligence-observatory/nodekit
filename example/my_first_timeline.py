@@ -23,7 +23,8 @@ def make_basic_fixation_node(
     )
 
     color_card = nk.cards.BlankCard(
-        x=0, y=0, w=0.1, h=0.1, color='#32a852',
+        color='#32a852',
+        x=0, y=0, w=0.1, h=0.1,
     )
 
     # Define your Sensors, which will detect an Action from the Participant:
@@ -86,7 +87,6 @@ def make_image_node(
         cards=[image_card, text_card],
         sensors=[nk.sensors.KeySensor(key=' ')],
     )
-
 
 
 def make_video_node(
