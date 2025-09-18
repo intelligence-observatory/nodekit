@@ -1,16 +1,17 @@
 from abc import ABC
+from typing import Literal, Annotated, Union
+from uuid import uuid4
 
 import pydantic
 
-from nodekit._internal.types.common import CardId, PressableKey, TimePointMsec, SensorId
+from nodekit._internal.types.common import PressableKey, TimePointMsec, SensorId
 from nodekit._internal.types.regions import BoardRegion
-from typing import Literal, Annotated, Union
-from uuid import uuid4
+
 
 # %%
 class BaseSensor(pydantic.BaseModel, ABC):
     """
-    A Sensor represents a listener for Participant behavior.
+    A Sensor is a listener for Participant behavior.
     When a Sensor is triggered, it emits an Action.
     """
 
@@ -37,17 +38,12 @@ class TimeoutSensor(BaseSensor):
 # %%
 class ClickSensor(BaseSensor):
     sensor_type: Literal['ClickSensor'] = 'ClickSensor'
-    card_id: CardId = pydantic.Field(description='The ID of the click-able Card to which this ClickSensor is attached.')
-    region: BoardRegion = pydantic.Field(description='The region of the Board which will trigger this sensor if clicked.')
-
-# %%
-
-
+    region: BoardRegion = pydantic.Field(description='The region of the Board that triggers the Sensor if clicked.')
 
 # %%
 class KeySensor(BaseSensor):
     sensor_type: Literal['KeySensor'] = 'KeySensor'
-    key: PressableKey = pydantic.Field(description='The key that triggers this KeySensor when pressed down.')
+    key: PressableKey = pydantic.Field(description='The key that triggers the Sensor when pressed down.')
 
 
 # %%

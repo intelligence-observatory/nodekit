@@ -5,6 +5,7 @@ __all__ = [
     'Timeline',
     'Node',
     'Outcome',
+    'Board',
 
     # Namespaced types:
     'assets',
@@ -13,6 +14,7 @@ __all__ = [
     'effects',
     'actions',
     'events',
+    'regions',
 
     # Operations namespace:
     'ops',
@@ -30,9 +32,9 @@ from nodekit._internal.types.node import (
     Timeline,
     Node,
 )
-
+from nodekit._internal.types.board import Board
 from nodekit._internal.types.outcome import Outcome
-
+import nodekit.regions as regions
 import nodekit.cards as cards
 import nodekit.assets as assets
 import nodekit.effects as effects
@@ -40,6 +42,7 @@ import nodekit.sensors as sensors
 import nodekit.actions as actions
 import nodekit.events as events
 import nodekit.ops as ops
+
 
 # Browser runtime:
 from nodekit._internal.browser.local_runner.main import play

@@ -1,9 +1,10 @@
-import type {Action, ClickAction, DoneAction, KeyAction, TimeoutAction} from "../../types/actions";
+import type {Action, ClickAction, KeyAction, TimeoutAction} from "../../types/actions";
 import type {PressableKey} from "../../types/common.ts";
 import {type SensorId} from "../../types/common.ts";
 import type {BoardCoordinateSystem} from "../board-view.ts";
 import type {ClickableCardView, DoneableCardView} from "../card-views/card-view.ts";
 import {CardView} from "../card-views/card-view.ts";
+import type {BoardRegion} from "../../types/regions";
 
 import {performanceNowToISO8601} from "../../utils.ts";
 
@@ -19,15 +20,12 @@ export interface SensorBinding {
 export class ClickSensorBinding implements SensorBinding {
 
     protected tArmed: DOMHighResTimeStamp | null = null;
-    private cardView: ClickableCardView;
 
     constructor(
         sensorId: SensorId,
         onSensorFired: (action: ClickAction) => void,
-        cardView: ClickableCardView,
         boardCoords: BoardCoordinateSystem,
     ) {
-        this.cardView = cardView;
 
         const clickCallback = (e: MouseEvent) => {
             if (!this.tArmed) {
@@ -60,47 +58,6 @@ export class ClickSensorBinding implements SensorBinding {
         this.tArmed = null;
         this.cardView.setInteractivity(false);
     }
-}
-
-// Done sensor
-export class DoneSensorBinding implements SensorBinding {
-    protected tArmed: DOMHighResTimeStamp | null = null;
-    private cardView: DoneableCardView;
-
-    constructor(
-        sensorId: SensorId,
-        onSensorFired: (action: Action) => void,
-        cardView: DoneableCardView,
-    ) {
-        this.cardView = cardView;
-        // Attach the done sensor to the card
-        cardView.addDoneCallback(
-            () => {
-                if (!this.tArmed) {
-                    return;
-                }
-                // Create the action to be fired
-                const action: DoneAction = {
-                    sensor_id: sensorId,
-                    action_type: "DoneAction",
-                    timestamp_action: performanceNowToISO8601(performance.now())
-                };
-                // Call the onSensorFired callback with the action
-                onSensorFired(action);
-            }
-        )
-    }
-
-    arm(): void {
-        this.tArmed = performance.now();
-        this.cardView.setInteractivity(true);
-    }
-
-    destroy(): void {
-        this.tArmed = null;
-        this.cardView.setInteractivity(false);
-    }
-
 }
 
 // TimeoutSensor
@@ -186,16 +143,3 @@ export class KeySensorBinding implements SensorBinding {
     }
 }
 
-
-// Type Guards
-export function assertClickable(cardView: CardView): asserts cardView is ClickableCardView {
-    if (!('addClickCallback' in cardView)) {
-        throw new Error("CardView is not clickable");
-    }
-}
-
-export function assertDoneable(cardView: CardView): asserts cardView is DoneableCardView {
-    if (!('addDoneCallback' in cardView)) {
-        throw new Error("CardView is not doneable");
-    }
-}

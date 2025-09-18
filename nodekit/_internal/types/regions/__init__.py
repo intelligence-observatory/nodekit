@@ -1,24 +1,29 @@
-import pydantic
-from abc import ABC
 from typing import Literal, Annotated, Union
+
+import pydantic
+
 from nodekit._internal.types.common import SpatialPoint, SpatialSize
 
-class BaseBoardRegion(pydantic.BaseModel, ABC):
+# %%
+class BaseBoardRegion(pydantic.BaseModel):
     """
-    Represents a boolean function over the Board. This can be used to define
-    areas of interest, such as clickable regions.
+    A Region is defined by a boolean function over the Board.
 
-    Semantically, we say that a point on the Board is "in" the region if the
+    Semantically, we say that a point on the Board is "in" a Region if the
     function evaluates to True at that point.
+
+    Regions can be used to define areas of interest, such as clickable regions.
     """
     region_type: str
+
 
 class Rectangle(BaseBoardRegion):
     region_type: Literal['Rectangle'] = 'Rectangle'
     x: SpatialPoint = pydantic.Field(description='The center of the rectangle, along the Board x-axis.')
     y: SpatialPoint = pydantic.Field(description='The center of the rectangle, along the Board y-axis.')
-    w: SpatialSize = pydantic.Field(description='The width of the rectangle, in Board units.')
-    h: SpatialSize = pydantic.Field(description='The height of the rectangle, in Board units.')
+    w: SpatialSize = pydantic.Field(description='The width of the rectangle, in Board units.', gt=0)
+    h: SpatialSize = pydantic.Field(description='The height of the rectangle, in Board units.', gt=0)
+
 
 class Ellipse(BaseBoardRegion):
     region_type: Literal['Ellipse'] = 'Ellipse'
@@ -28,11 +33,11 @@ class Ellipse(BaseBoardRegion):
     h: SpatialSize = pydantic.Field(description='The y-diameter of the ellipse, in Board units.')
 
 
+# %%
 BoardRegion = Annotated[
     Union[
-        'Rectangle',
-        'Ellipse'
+        Rectangle,
+        Ellipse
     ],
     pydantic.Field(discriminator='region_type')
 ]
-

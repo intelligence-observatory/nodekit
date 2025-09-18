@@ -1,4 +1,5 @@
-import type {CardId, PressableKey, SensorId, TimePointMsec} from "../common.ts";
+import type {PressableKey, SensorId, TimePointMsec} from "../common.ts";
+import type {BoardRegion} from "../regions";
 
 
 export interface BaseSensor<T extends string> {
@@ -9,20 +10,14 @@ export interface BaseSensor<T extends string> {
 
 export interface TimeoutSensor extends BaseSensor<'TimeoutSensor'>{}
 
-export interface DoneSensor extends BaseSensor<'DoneSensor'>{
-    card_id: CardId
-}
 
 export interface ClickSensor extends BaseSensor<'ClickSensor'>{
-    card_id: CardId
+    region: BoardRegion
 }
 
 export interface KeySensor extends BaseSensor<'KeySensor'> {
     key: PressableKey
 }
 
-export interface KeyHoldsSensor extends BaseSensor<'KeyHoldsSensor'> {
-    key: PressableKey;
-}
 
-export type Sensor = TimeoutSensor | DoneSensor | ClickSensor | KeySensor | KeyHoldsSensor;
+export type Sensor = TimeoutSensor | ClickSensor | KeySensor;

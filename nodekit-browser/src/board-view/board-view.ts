@@ -6,7 +6,7 @@ import type {Sensor} from "../types/sensors";
 import type {Action} from "../types/actions";
 import './board-view.css'
 import type {CardView, ClickableCardView, DoneableCardView} from "./card-views/card-view.ts";
-import {assertClickable, assertDoneable, ClickSensorBinding, DoneSensorBinding, KeySensorBinding, type SensorBinding, TimeoutSensorBinding} from "./sensor-bindings/sensor-binding.ts";
+import {ClickSensorBinding, KeySensorBinding, type SensorBinding, TimeoutSensorBinding} from "./sensor-bindings/sensor-binding.ts";
 import {FixationPointCardView} from "./card-views/fixation-point/fixation-point-card-view.ts";
 import {MarkdownPagesCardView} from "./card-views/markdown-pages/markdown-pages-card-view.ts";
 import {ImageCardView} from "./card-views/image/image-card.ts";
@@ -260,26 +260,15 @@ export class BoardView {
             );
         }
         else if (sensor.sensor_type == "ClickSensor"){
-            let cardView = this.getCardView(sensor.card_id);
-            assertClickable(cardView); // Defensive runtime check
+
             sensorBinding = new ClickSensorBinding(
                 sensor.sensor_id,
                 onSensorFired,
-                cardView as ClickableCardView,
                 this.getCoordinateSystem(),
             )
         }
-        else if (sensor.sensor_type == "DoneSensor"){
-            let cardView = this.getCardView(sensor.card_id);
-            assertDoneable(cardView); // Defensive runtime check
-            sensorBinding = new DoneSensorBinding(
-                sensor.sensor_id,
-                onSensorFired,
-                cardView as DoneableCardView,
-            )
-        }
         else {
-            throw new Error(`Unknown Sensor of type ${sensor.sensor_type}`);
+            throw new Error(`Unknown Sensor provided: ${sensor}`);
         }
 
         this.sensorBindings.set(sensor.sensor_id, sensorBinding);

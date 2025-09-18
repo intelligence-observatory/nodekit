@@ -2,6 +2,7 @@ import nodekit as nk
 import random
 import time
 import glob
+from pathlib import Path
 
 random.seed(42)
 
@@ -28,7 +29,14 @@ def make_basic_fixation_node(
     )
 
     # Define your Sensors, which will detect an Action from the Participant:
-    clicked_fixation_dot_sensor = nk.sensors.ClickSensor(card_id=fixation_card.card_id)
+    clicked_fixation_dot_sensor = nk.sensors.ClickSensor(
+        region=nk.regions.Rectangle(
+            x=fixation_x,
+            y=fixation_y,
+            w = fixation_card.w,
+            h = fixation_card.h,
+        )
+    )
     spacebar_sensor = nk.sensors.KeySensor(key=' ')
     timeout_sensor = nk.sensors.TimeoutSensor(t_start=5000)
 
@@ -129,8 +137,13 @@ def make_instructions_node(
     )
 
     sensor = nk.sensors.ClickSensor(
-        card_id=continue_button.card_id,
         t_start=1000,
+        region=nk.regions.Rectangle(
+            x=continue_button.x,
+            y=continue_button.y,
+            w=continue_button.w,
+            h=continue_button.h
+        )
     )
 
     return nk.Node(
@@ -187,6 +200,8 @@ timeline = nk.Timeline(
     nodes=nodes,
 )
 
+Path('timeline.json').write_text(timeline.model_dump_json(indent=2))
+raise Exception
 # %% Play the Timeline:
 play_session = nk.play(
     timeline=timeline,
