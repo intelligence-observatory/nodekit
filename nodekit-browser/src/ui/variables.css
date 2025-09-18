@@ -77,9 +77,6 @@ html, body {
     position: fixed;
     overflow: hidden;
 
-    /* Cursor */
-    cursor: crosshair;
-
     /* Scrollbars */
     scrollbar-width: thin; /* Firefox */
     scrollbar-color: var(--system-scroll-color) transparent;
