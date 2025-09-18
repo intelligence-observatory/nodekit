@@ -151,7 +151,8 @@ class LocalRunner:
                 asset_file = self.asset_id_to_file[asset_id]
                 asset_urls.append(
                     AssetUrl(
-                        identifier=asset_file.identifier,
+                        sha256=asset_file.sha256,
+                        mime_type=asset_file.mime_type,
                         url=pydantic.AnyUrl(str(request.url_for("get_asset", asset_id=asset_id))),
                     )
                 )

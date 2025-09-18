@@ -3,7 +3,9 @@ import random
 import time
 from pathlib import Path
 import glob
+
 random.seed(42)
+
 
 # %% Create a sequence of simple Nodes in which the Participant must click on a fixation point:
 def make_basic_fixation_node(
@@ -69,13 +71,13 @@ def make_basic_fixation_node(
         outcomes=outcomes,
     )
 
-def make_image_node(
-        image_file: nk.assets.AssetFile
-) -> nk.Node:
 
+def make_image_node(
+        image_file: nk.assets.ImageFile
+) -> nk.Node:
     image_card = nk.cards.ImageCard(
-        x=0, y = 0, w=0.5, h=0.5,
-        image_identifier=image_file.identifier,
+        image=image_file,
+        x=0, y=0, w=0.5, h=0.5,
     )
 
     text_card = nk.cards.TextCard(
@@ -88,13 +90,13 @@ def make_image_node(
         sensors=[nk.sensors.KeySensor(key=' ')],
     )
 
-def make_video_node(
-        video_file: nk.assets.AssetFile
-) -> nk.Node:
 
+def make_video_node(
+        video_file: nk.assets.VideoFile
+) -> nk.Node:
     video_card = nk.cards.VideoCard(
         x=0, y=0, w=0.5, h=0.5,
-        video_identifier=video_file.identifier,
+        video=video_file,
     )
 
     text_card = nk.cards.TextCard(
@@ -111,7 +113,6 @@ def make_video_node(
 def make_instructions_node(
         text: str,
 ) -> nk.Node:
-
     text_card = nk.cards.TextCard(
         text=text,
         x=0, y=0, w=0.8, h=0.8,
@@ -143,35 +144,33 @@ def make_instructions_node(
 
 
 # %% Load Asset Files
-image_files =[]
+my_image_files = []
 for path in sorted(glob.glob('./example_images/*.png')):
-    image_file = nk.assets.AssetFile.from_path(Path(path))
-    image_files.append(image_file)
+    image_file = nk.assets.ImageFile.from_path(path)
+    my_image_files.append(image_file)
 
-
-video_files = []
+my_video_files = []
 for path in sorted(glob.glob('./example_videos/*.mp4')):
-    video_file = nk.assets.AssetFile.from_path(Path(path))
-    video_files.append(video_file)
-
+    video_file = nk.assets.VideoFile.from_path(path)
+    my_video_files.append(video_file)
 
 # %%
 nodes = []
 
 nodes.extend(
     [
-        make_instructions_node("# Welcome!\n\nThis is a test task.",),
+        make_instructions_node("# Welcome!\n\nThis is a test task.", ),
         make_instructions_node("## Instructions\n\nBla bla bla."),
     ]
 )
 
-for video_file in video_files:
+for video_file in my_video_files:
     node = make_video_node(
         video_file=video_file
     )
     nodes.append(node)
 
-for image_file in image_files:
+for image_file in my_image_files:
     node = make_image_node(
         image_file=image_file
     )
@@ -188,11 +187,12 @@ for _ in range(2):
 timeline = nk.Timeline(
     nodes=nodes,
 )
+raise Exception
 
 # %% Play the Timeline:
 play_session = nk.play(
     timeline=timeline,
-    asset_files=image_files + video_files
+    asset_files=my_image_files + my_video_files
 )
 
 # %% Wait until the end event is observed:
