@@ -27,11 +27,6 @@ export interface TextFormattingOptions {
 // FixationPointCard
 export interface FixationPointCard extends BaseCard<'FixationPointCard'>{}
 
-// PagesViewCard
-export interface MarkdownPagesCard extends BaseCard<'MarkdownPagesCard'>, TextFormattingOptions{
-    pages: MarkdownString[]
-}
-
 // ImageCard
 export interface ImageCard extends BaseCard<'ImageCard'>{
     image: ImageIdentifier;
@@ -56,4 +51,4 @@ export interface BlankCard extends BaseCard<'BlankCard'>{
 }
 
 // Union type for all card types
-export type Card = FixationPointCard | ImageCard | TextCard | MarkdownPagesCard | VideoCard | BlankCard;
+export type Card = FixationPointCard | ImageCard | TextCard  | VideoCard | BlankCard;
