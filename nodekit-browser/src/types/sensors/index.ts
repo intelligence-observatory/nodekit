@@ -19,5 +19,4 @@ export interface KeySensor extends BaseSensor<'KeySensor'> {
     key: PressableKey
 }
 
-
 export type Sensor = TimeoutSensor | ClickSensor | KeySensor;

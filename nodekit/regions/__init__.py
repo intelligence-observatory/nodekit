@@ -1,11 +1,11 @@
 __all__ = [
-    "BoardRegion",
+    "Shape",
     "Rectangle",
     "Ellipse",
 ]
 
 from nodekit._internal.types.regions import (
-    BoardRegion,
+    Shape,
     Rectangle,
     Ellipse,
 )

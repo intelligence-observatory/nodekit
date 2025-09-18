@@ -7,6 +7,7 @@ from nodekit._internal.types.assets import ImageIdentifier, VideoIdentifier
 from nodekit._internal.types.common import ColorHexString, MarkdownString, SpatialPoint, SpatialSize, TimePointMsec, CardId
 from uuid import uuid4
 
+
 # %% Concrete card classes
 class BaseCard(pydantic.BaseModel, ABC):
     """
@@ -49,6 +50,28 @@ class FixationPointCard(BaseCard):
         default=0.0375
     )
 
+# %%
+class BlankCard(BaseCard):
+    """
+    A rectangular card with a solid background color and no content.
+    """
+    card_type: Literal['BlankCard'] = 'BlankCard'
+    color: ColorHexString = pydantic.Field(
+        default='#808080',
+        description='The color of the BlankCard in hexadecimal format.'
+    )
+# %%
+from nodekit._internal.types.regions import Shape
+
+class ShapeCard(BaseCard):
+    card_type: Literal['ShapeCard'] = 'ShapeCard'
+    shape: Shape = pydantic.Field(
+        description='The shape of the ShapeCard.',
+    )
+    color: ColorHexString = pydantic.Field(
+        default='#808080',
+        description='The color of the ShapeCard in hexadecimal format.'
+    )
 
 # %%
 class ImageCard(BaseCard):
@@ -77,16 +100,6 @@ class VideoCard(BaseCard):
     muted: bool = pydantic.Field(description='Whether to mute the video audio.', default=True)
     loop: bool = pydantic.Field(description='Whether to loop the video when it ends.', default=False)
 
-# %%
-class BlankCard(BaseCard):
-    """
-    A rectangular card with a solid background color and no content.
-    """
-    card_type: Literal['BlankCard'] = 'BlankCard'
-    color: ColorHexString = pydantic.Field(
-        default='#808080',
-        description='The color of the BlankCard in hexadecimal format.'
-    )
 
 # %%
 Card = Annotated[

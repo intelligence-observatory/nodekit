@@ -1,6 +1,5 @@
 __all__ = [
     'FixationPointCard',
-    #'MarkdownPagesCard',
     'ImageCard',
     'VideoCard',
     'TextCard',
@@ -9,7 +8,6 @@ __all__ = [
 
 from nodekit._internal.types.cards.cards import (
     FixationPointCard,
-    #MarkdownPagesCard,
     BlankCard,
     ImageCard,
     VideoCard,
