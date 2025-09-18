@@ -26,11 +26,6 @@ class ClickAction(BaseAction):
 
 
 # %%
-class DoneAction(BaseAction):
-    action_type: Literal['DoneAction'] = 'DoneAction'
-
-
-# %%
 class TimeoutAction(BaseAction):
     action_type: Literal['TimeoutAction'] = 'TimeoutAction'
 
@@ -45,7 +40,6 @@ class KeyAction(BaseAction):
 Action = Annotated[
     Union[
         ClickAction,
-        #DoneAction,
         KeyAction,
         TimeoutAction,
     ],

@@ -34,15 +34,9 @@ class TimeoutSensor(BaseSensor):
     )
 
 # %%
-class DoneSensor(BaseSensor):
-    sensor_type: Literal['DoneSensor'] = 'DoneSensor'
-    card_id: CardId = pydantic.Field(description='The ID of the done-able Card to which this DoneSensor is attached.')
-
-# %%
 class ClickSensor(BaseSensor):
     sensor_type: Literal['ClickSensor'] = 'ClickSensor'
     card_id: CardId = pydantic.Field(description='The ID of the click-able Card to which this ClickSensor is attached.')
-
 
 # %%
 class KeySensor(BaseSensor):
@@ -53,11 +47,9 @@ class KeySensor(BaseSensor):
 # %%
 Sensor = Annotated[
     Union[
-        #DoneSensor,
         ClickSensor,
         KeySensor,
         TimeoutSensor,
-        # Add other Sensor types here as needed
     ],
     pydantic.Field(discriminator='sensor_type')
 ]
