@@ -2,25 +2,25 @@ from decimal import Decimal
 from typing import List, Dict
 
 from nodekit._internal.types.events.events import Event, EventTypeEnum
-from nodekit._internal.types.node_graph import NodeGraph
+from nodekit._internal.types.node import Timeline
 from nodekit._internal.types.common import NodeId
 from nodekit._internal.types.outcome import Outcome
 
 import warnings
 
-# %% BonusPolicy Rule Engine
+# %%
 def calculate_bonus_usd(
         events: List[Event],
-        node_graph: NodeGraph,
+        timeline: Timeline,
 ) -> Decimal:
     """
-    Calculates the current bonus USD earned based on the provided events and NodeGraph
+    Calculates the current bonus USD earned based on the provided events.
     """
 
     calculated_amount = Decimal('0')
 
     node_id_to_outcomes: Dict[NodeId, List[Outcome]] = {}
-    for node in node_graph.nodes:
+    for node in timeline.nodes:
         node_id_to_outcomes[node.node_id] = node.outcomes
 
     # Sort events by timestamp

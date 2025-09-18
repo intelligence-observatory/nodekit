@@ -51,9 +51,6 @@
     --system-neutral-color: hsla(0,100%,100%,0.2);
     --system-negative-color: #ff5c5c;
 
-    /* Card Selection */
-    --card-hover-color: rgba(128, 128, 128, 0.5);
-
     /* Cognition */
     --cognition-strong-color: hsl(208,100%,80%);
     --cognition-standard-color: hsl(207, 90%, 83%);
@@ -65,14 +62,6 @@
 
     /* Monetary Reinforcement */
     --monetary-gain-color: hsla(48, 90%, 60%, 1.0);
-    --monetary-loss-color: hsla(210, 10%, 23%, 1.0);
-    --monetary-gain-background: hsla(48, 90%, 60%, 0.3);
-    --monetary-loss-background: hsla(210, 10%, 23%, 0.3);
-
-    /* Default size for tokens */
-    --monetary-token-size: 16px;
-    --monetary-token-grid-gap: 8px;
-
 }
 html, body {
     margin: 0;

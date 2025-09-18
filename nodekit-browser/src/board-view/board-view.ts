@@ -103,6 +103,7 @@ export class BoardView {
         this.root.id = `${boardId}`;
         this.root.style.width = board.board_width_px + 'px';
         this.root.style.height = board.board_height_px + 'px';
+        this.root.style.backgroundColor = board.background_color;
 
         this.setBoardState(false, false);
     }

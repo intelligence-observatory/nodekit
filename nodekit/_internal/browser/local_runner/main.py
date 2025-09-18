@@ -13,7 +13,7 @@ import uvicorn
 from nodekit._internal.browser.browser_bundle import get_browser_bundle
 from nodekit._internal.types.assets import AssetFile, AssetUrl
 from nodekit._internal.types.events.events import Event
-from nodekit._internal.types.node_graph import NodeGraph
+from nodekit._internal.types.node import Timeline
 
 
 # %%
@@ -34,7 +34,7 @@ class LocalRunner:
         self.host = host
 
         # In-memory state of the runner:
-        self._node_graph: NodeGraph | None = None
+        self._timeline: Timeline | None = None
         self._events: List[Event] = []
 
         self.asset_id_to_file: Dict[str, AssetFile] = {}
@@ -59,15 +59,6 @@ class LocalRunner:
             self._thread.start()
             self._running = True
 
-    def mount_asset_files(self, asset_files: List[AssetFile]) -> None:
-        """
-        Mounts AssetFiles to the FastAPI app to be served by the LocalRunner.
-        Calling this function sets self._asset_urls to the URLs of the provided AssetFiles.
-        """
-        with self._lock:
-            self.asset_id_to_file = {asset_file.identifier.sha256: asset_file for asset_file in asset_files}
-
-
 
 
     def shutdown(self):
@@ -85,11 +76,19 @@ class LocalRunner:
             self._server = None
             self._thread = None
 
-    def set_node_graph(self, node_graph: NodeGraph):
+    def set_timeline(self, timeline: Timeline):
         with self._lock:
-            # Reset NodeGraph and Events
-            self._node_graph = node_graph
+            # Reset Timeline and Events
+            self._timeline = timeline
             self._events = []
+
+    def mount_asset_files(self, asset_files: List[AssetFile] | None):
+        with self._lock:
+            if asset_files is None:
+                return
+
+            for asset_file in asset_files:
+                self.asset_id_to_file[asset_file.identifier.sha256] = asset_file
 
     def _build_app(self) -> fastapi.FastAPI:
         app = fastapi.FastAPI()
@@ -139,31 +138,30 @@ class LocalRunner:
                 media_type=asset_file.identifier.mime_type
             )
 
-        @app.get("/play")
+        @app.get("/")
         def site(
                 request: fastapi.Request,
         ) -> fastapi.responses.HTMLResponse:
-            if self._node_graph is None:
-                raise fastapi.HTTPException(status_code=404, detail="No NodeGraph is currently being served. Call `nodekit.play` first.")
+            if self._timeline is None:
+                raise fastapi.HTTPException(status_code=404, detail="No Timeline is currently being served. Call `nodekit.play` first.")
 
-            # Package asset urls
+            # Package asset urls:
             asset_urls = []
             for asset_id in sorted(self.asset_id_to_file.keys()):
                 asset_file = self.asset_id_to_file[asset_id]
                 asset_urls.append(
                     AssetUrl(
                         identifier=asset_file.identifier,
-                        url=pydantic.AnyUrl(str(request.url_for("get_asset", asset_id=asset_id)))
+                        url=pydantic.AnyUrl(str(request.url_for("get_asset", asset_id=asset_id))),
                     )
                 )
 
-            # Render the jinja2 template with the NodeGraph
             return templates.TemplateResponse(
                 request=request,
                 name='site-template.j2',
                 context={
-                    "node_graph": self._node_graph.model_dump(mode='json'),
-                    "asset_urls": [a.model_dump(mode='json') for a in asset_urls],
+                    "timeline": self._timeline.model_dump(mode='json'),
+                    'asset_urls': [a.model_dump(mode='json') for a in asset_urls],
                     "nodekit_javascript_link": request.url_for(
                         "get_nodekit_javascript",
                         js_hash=NODEKIT_JS_HASH,
@@ -193,7 +191,7 @@ class LocalRunner:
 
     @property
     def url(self) -> str:
-        return f'http://{self.host}:{self.port}/play'
+        return f'http://{self.host}:{self.port}'
 
     def list_events(self) -> List[Event]:
         with self._lock:
@@ -217,30 +215,26 @@ class PlaySession:
 
     def list_events(self) -> List[Event]:
         """
-        Returns the Events for the current Runner's NodeGraph session.
-        Todo: this might diverge from the NodeGraph if `nodekit.play` is called again.
+        Returns the Events for the current session.
+        Todo: this might diverge if `nodekit.play` is called again.
         """
         runner = _get_runner()
         return runner.list_events()
 
 def play(
-        node_graph: NodeGraph,
-        asset_files: List[AssetFile] | None = None,
+        timeline: Timeline,
+        asset_files: List[AssetFile],
 ) -> PlaySession:
     """
-    Runs the NodeGraph at http://localhost:{port}.
-    If the NodeGraph references Assets, they must be provided via the `asset_files` argument.
-
+    Runs the Timeline at http://localhost:{port}.
     Returns the link to the running instance.
     """
-    if asset_files is None:
-        asset_files = []
 
     runner = _get_runner()
     runner.ensure_running()
-    runner.set_node_graph(node_graph)
+    runner.set_timeline(timeline)
     runner.mount_asset_files(asset_files)
-    print('Play the NodeGraph at:', runner.url)
+    print('Play the Timeline at:', runner.url)
     return PlaySession(
         url=runner.url
     )

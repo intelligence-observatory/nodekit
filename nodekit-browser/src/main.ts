@@ -2,7 +2,7 @@ import {NodePlayer} from "./node-player/node-player.ts";
 import type {BonusDisclosureEvent, BrowserContextEvent, EndEvent, Event, LeaveEvent, NodeResultEvent, ReturnEvent, StartEvent, UUID} from "./types/events";
 import {type ISO8601, type MonetaryAmountUsd} from "./types/common.ts";
 import {calculateBonusUsd} from "./ops/calculate-bonus.ts";
-import type {NodeGraph} from "./types/node-graph.ts";
+import type {Timeline} from "./types/timeline.ts";
 import {performanceNowToISO8601} from "./utils.ts";
 import {getBrowserContext} from "./user-gates/browser-context.ts";
 import {DeviceGate} from "./user-gates/device-gate.ts";
@@ -20,14 +20,14 @@ function getCurrentTimestamp(): ISO8601 {
 }
 
 export async function play(
-    nodeGraph: NodeGraph,
+    timeline: Timeline,
     assetUrls: AssetUrl[],
     onEventCallback: OnEventCallback | null = null,
     previousEvents: Event[] = [],
 ): Promise<Event[]> {
     /*
-    Executes a run through the NodeGraph. Events are returned as an array.
-    Events emitted from a previous, interrupted run of the NodeGraph can be provided to continue from the point of interruption.
+    Executes a run through the Timeline. Events are returned as an array.
+    Events emitted from a previous, interrupted run of the Timeline can be provided to continue from the point of interruption.
     */
 
     // If no onEventCallback is provided, use a no-op function:
@@ -39,10 +39,10 @@ export async function play(
     // Todo: the previousEvents can be processed to obtain the current state of the task. Otherwise, we always start from scratch.
 
     // Todo: version gating
-    const nodekitVersion = nodeGraph.nodekit_version;
+    const nodekitVersion = timeline.nodekit_version;
 
     // Initialize the NodePlayer:
-    let nodePlayer = new NodePlayer(nodeGraph.board);
+    let nodePlayer = new NodePlayer();
 
 
     // Device gating:
@@ -114,9 +114,7 @@ export async function play(
     events.push(browserContextEvent);
     onEventCallback(browserContextEvent);
 
-
-    // Play the Nodes in the NodeGraph:
-    const nodes = nodeGraph.nodes;
+    const nodes = timeline.nodes;
     for (let i = 0; i < nodes.length; i++) {
         // Prepare the Node:
         const node = nodes[i];
@@ -148,7 +146,7 @@ export async function play(
     // Bonus disclosure + end button phase:
     const bonusComputed = calculateBonusUsd(
         events,
-        nodeGraph,
+        timeline,
     )
 
     let bonusMessage = '';

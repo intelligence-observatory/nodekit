@@ -1,4 +1,4 @@
-import type {Node} from "../types/node-graph.ts";
+import type {Node} from "../types/timeline.ts";
 
 import type {PlayNodeResult} from "./node-play.ts";
 import {buildUIs} from "../ui/ui-builder.ts";
@@ -6,23 +6,18 @@ import type {ShellUI} from "../ui/shell-ui/shell-ui.ts";
 import type {BoardViewsUI} from "../ui/board-views-ui/board-views-ui.ts";
 import {NodePlay} from "./node-play.ts";
 import {type NodePlayId} from "../types/common.ts";
-import type {Board} from "../types/board";
 
 
 export class NodePlayer {
     public boardViewsUI: BoardViewsUI;
     private shellUI: ShellUI;
     private bufferedNodePlays: Map<NodePlayId, NodePlay> = new Map();
-    private _boardShape: Board;
 
-    constructor(
-        board: Board
-    ){
+    constructor(){
         // Create all DIVs needed for the NodePlayer in a centralized call:
         const {shellUI, boardViewsUI} = buildUIs();
         this.shellUI = shellUI;
         this.boardViewsUI = boardViewsUI;
-        this._boardShape = board;
     }
 
     async prepare(node: Node): Promise<NodePlayId> {
@@ -30,7 +25,7 @@ export class NodePlayer {
         Prepares a NodePlay instance and returns its ID.
          */
         const nodePlayId: NodePlayId = crypto.randomUUID() as NodePlayId;
-        const boardView = this.boardViewsUI.createBoardView(nodePlayId, this._boardShape);
+        const boardView = this.boardViewsUI.createBoardView(nodePlayId, node.board);
         const nodePlay = new NodePlay(
             node,
             boardView,

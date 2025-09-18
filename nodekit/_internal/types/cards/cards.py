@@ -62,7 +62,7 @@ class MarkdownPagesCard(BaseCard, TextFormattingOptions):
 # %%
 class ImageCard(BaseCard):
     card_type: Literal['ImageCard'] = 'ImageCard'
-    image_identifier: ImageIdentifier
+    image: ImageIdentifier
 
 
 # %%
@@ -78,7 +78,7 @@ class TextCard(BaseCard, TextFormattingOptions):
 # %%
 class VideoCard(BaseCard):
     card_type: Literal['VideoCard'] = 'VideoCard'
-    video_identifier: VideoIdentifier
+    video: VideoIdentifier
     muted: bool = pydantic.Field(description='Whether to mute the video audio.', default=True)
     loop: bool = pydantic.Field(description='Whether to loop the video when it ends.', default=False)
 

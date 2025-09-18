@@ -1,4 +1,4 @@
-import type {Node} from "../types/node-graph.ts";
+import type {Node} from "../types/timeline.ts";
 import type {Action} from "../types/actions/";
 import {BoardView} from "../board-view/board-view.ts";
 import {EventScheduler} from "./event-scheduler.ts";

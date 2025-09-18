@@ -40,14 +40,14 @@ class BaseEvent(pydantic.BaseModel):
 # %%
 class StartEvent(BaseEvent):
     """
-    Emitted when a Participant starts a new run through the NodeGraph.
+    Emitted when a Participant starts a new run.
     """
     event_type: Literal[EventTypeEnum.StartEvent] = EventTypeEnum.StartEvent
 
 
 class EndEvent(BaseEvent):
     """
-    Emitted when a Participant completes a run through the NodeGraph.
+    Emitted when a Participant completes a run.
     """
     event_type: Literal[EventTypeEnum.EndEvent] = EventTypeEnum.EndEvent
 

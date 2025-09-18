@@ -1,4 +1,4 @@
-import type {NodeId} from "../node-graph.ts";
+import type {NodeId} from "../timeline.ts";
 import type {MonetaryAmountUsd} from "../common.ts";
 import type {Action} from "../actions";
 import type {BrowserContext} from "../../user-gates/browser-context.ts";

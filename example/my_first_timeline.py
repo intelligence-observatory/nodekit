@@ -3,7 +3,9 @@ import random
 import time
 from pathlib import Path
 import glob
+
 random.seed(42)
+
 
 # %% Create a sequence of simple Nodes in which the Participant must click on a fixation point:
 def make_basic_fixation_node(
@@ -69,13 +71,13 @@ def make_basic_fixation_node(
         outcomes=outcomes,
     )
 
+
 def make_image_node(
         image_file: nk.assets.ImageFile
 ) -> nk.Node:
-
     image_card = nk.cards.ImageCard(
-        x=0, y = 0, w=0.5, h=0.5,
-        image_identifier=image_file.identifier,
+        image=image_file.identifier,
+        x=0, y=0, w=0.5, h=0.5,
     )
 
     text_card = nk.cards.TextCard(
@@ -88,13 +90,15 @@ def make_image_node(
         sensors=[nk.sensors.KeySensor(key=' ')],
     )
 
+
+
 def make_video_node(
         video_file: nk.assets.VideoFile
 ) -> nk.Node:
 
     video_card = nk.cards.VideoCard(
         x=0, y=0, w=0.5, h=0.5,
-        video_identifier=video_file.identifier,
+        video=video_file.identifier,
     )
 
     text_card = nk.cards.TextCard(
@@ -108,52 +112,67 @@ def make_video_node(
     )
 
 
-def make_instructions_node() -> nk.Node:
-
-    markdown_pages_card = nk.cards.MarkdownPagesCard(
-        pages=[
-            "# Welcome!\n\nThis is a test task.",
-            "## Instructions\n\nBla bla bla.",
-            "### More Instructions\n\nBla bla bla again.",
-            "#### Final Instructions\n\nThis is the last page.",
-        ],
+def make_instructions_node(
+        text: str,
+) -> nk.Node:
+    text_card = nk.cards.TextCard(
+        text=text,
         x=0, y=0, w=0.8, h=0.8,
+        background_color='#ffffff',
+        justification_horizontal='left',
+        justification_vertical='top',
+    )
+
+    continue_button = nk.cards.TextCard(
+        text='Continue',
+        x=0, y=-0.45, w=0.3, h=0.05,
+        background_color='#32a852',
+        text_color='#ffffff',
+        t_start=1000,
+    )
+
+    sensor = nk.sensors.ClickSensor(
+        card_id=continue_button.card_id,
+        t_start=1000,
     )
 
     return nk.Node(
-        cards=[markdown_pages_card],
-        sensors=[nk.sensors.DoneSensor(card_id=markdown_pages_card.card_id)],
+        cards=[
+            text_card,
+            continue_button,
+        ],
+        sensors=[sensor],
     )
 
 
-# %% Load ImageFiles
-image_files =[]
+# %% Load Asset Files
+my_image_files = []
 for path in sorted(glob.glob('./example_images/*.png')):
-    image_file = nk.assets.ImageFile.from_path(Path(path))
-    image_files.append(image_file)
+    image_file = nk.assets.ImageFile.from_path(path)
+    my_image_files.append(image_file)
 
-
-video_files = []
-
+my_video_files = []
 for path in sorted(glob.glob('./example_videos/*.mp4')):
-    video_file = nk.assets.VideoFile.from_path(Path(path))
-    video_files.append(video_file)
-
+    video_file = nk.assets.VideoFile.from_path(path)
+    my_video_files.append(video_file)
 
 # %%
 nodes = []
 
-nodes.append(
-    make_instructions_node()
+nodes.extend(
+    [
+        make_instructions_node("# Welcome!\n\nThis is a test task.", ),
+        make_instructions_node("## Instructions\n\nBla bla bla."),
+    ]
 )
 
-for video_file in video_files:
+for video_file in my_video_files:
     node = make_video_node(
         video_file=video_file
     )
     nodes.append(node)
 
-for image_file in image_files:
+for image_file in my_image_files:
     node = make_image_node(
         image_file=image_file
     )
@@ -167,21 +186,14 @@ for _ in range(2):
     )
     nodes.append(node)
 
-# Generate preview of NodeGraph webpage:
-node_graph = nk.NodeGraph(
+timeline = nk.Timeline(
     nodes=nodes,
-    title="Test task (sandbox)",
-    description='Test task',
-    keywords=['test', 'example'],
-    max_duration_sec=600,
-    base_payment_usd='0.01',
 )
-Path('tmp.json').write_text(node_graph.model_dump_json(indent=4))
 
-# %% Play the NodeGraph locally:
+# %% Play the Timeline:
 play_session = nk.play(
-    node_graph,
-    asset_files=image_files + video_files,
+    timeline=timeline,
+    asset_files=my_image_files + my_video_files
 )
 
 # %% Wait until the end event is observed:
@@ -194,6 +206,6 @@ while True:
 # %% Can compute authoritative bonus based on the events and the bonus rules:
 bonus_usd = nk.ops.calculate_bonus_usd(
     events=events,
-    node_graph=node_graph,
+    timeline=timeline,
 )
 print(f"Computed bonus: ${bonus_usd}")

@@ -28,7 +28,7 @@ export class ImageCardView extends CardView<ImageCard> implements ClickableCardV
         this.root.appendChild(this.imageContainer);
 
         this.image = await assetManager.getImage(
-            this.card.image_identifier
+            this.card.image
         );
 
         this.image.classList.add('image-card__content');

@@ -1,7 +1,6 @@
 
 .board-view {
 
-    background-color: var(--system-surface-color);
     color: var(--system-text-default-color-on-light);
 
     box-sizing: border-box;

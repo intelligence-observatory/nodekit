@@ -3704,7 +3704,7 @@ class qo extends Vt {
   }
   async prepare(e) {
     this.imageContainer = document.createElement("div"), this.imageContainer.classList.add("image-card"), this.root.appendChild(this.imageContainer), this.image = await e.getImage(
-      this.card.image_identifier
+      this.card.image
     ), this.image.classList.add("image-card__content"), this.image.draggable = !1, this.imageContainer.appendChild(this.image);
   }
 }
@@ -3734,7 +3734,7 @@ class Xo extends Vt {
 class Yo extends Vt {
   async prepare(e) {
     this.videoContainer = document.createElement("div"), this.videoContainer.classList.add("video-card"), this.root.appendChild(this.videoContainer), this.video = await e.getVideo(
-      this.card.video_identifier
+      this.card.video
     ), this.video.classList.add("video-card__content"), this.videoContainer.appendChild(this.video), this.video.muted = this.card.muted, this.video.loop = this.card.loop, this.video.draggable = !0;
   }
   addClickCallback(e) {
@@ -3813,7 +3813,7 @@ class Ko {
 class Qo {
   // Map of sensor ID to SensorBinding
   constructor(e, t) {
-    this.cardViews = /* @__PURE__ */ new Map(), this.sensorBindings = /* @__PURE__ */ new Map(), this.root = document.createElement("div"), this.root.className = "board-view", this.root.id = `${e}`, this.root.style.width = t.board_width_px + "px", this.root.style.height = t.board_height_px + "px", this.setBoardState(!1, !1);
+    this.cardViews = /* @__PURE__ */ new Map(), this.sensorBindings = /* @__PURE__ */ new Map(), this.root = document.createElement("div"), this.root.className = "board-view", this.root.id = `${e}`, this.root.style.width = t.board_width_px + "px", this.root.style.height = t.board_height_px + "px", this.root.style.backgroundColor = t.background_color, this.setBoardState(!1, !1);
   }
   getCoordinateSystem() {
     const { width: e, height: t, left: i, top: s } = this.root.getBoundingClientRect();
@@ -4212,13 +4212,13 @@ class ia {
   }
 }
 class sa {
-  constructor(e) {
+  constructor() {
     this.bufferedNodePlays = /* @__PURE__ */ new Map();
-    const { shellUI: t, boardViewsUI: i } = ta();
-    this.shellUI = t, this.boardViewsUI = i, this._boardShape = e;
+    const { shellUI: e, boardViewsUI: t } = ta();
+    this.shellUI = e, this.boardViewsUI = t;
   }
   async prepare(e) {
-    const t = crypto.randomUUID(), i = this.boardViewsUI.createBoardView(t, this._boardShape), s = new ia(
+    const t = crypto.randomUUID(), i = this.boardViewsUI.createBoardView(t, e.board), s = new ia(
       e,
       i
     );
@@ -5838,7 +5838,7 @@ async function va(n, e, t = null, i = []) {
   });
   let s = i;
   const r = n.nodekit_version;
-  let l = new sa(n.board);
+  let l = new sa();
   if (!xa.isValidDevice()) {
     const M = new Error("Unsupported device. Please use a desktop browser.");
     throw l.showErrorMessageOverlay(M), M;

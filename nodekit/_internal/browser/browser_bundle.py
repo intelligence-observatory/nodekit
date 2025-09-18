@@ -5,7 +5,6 @@ import pydantic
 
 
 # %%
-
 class NodeKitBrowserBundle(pydantic.BaseModel):
     css: str
     js: str

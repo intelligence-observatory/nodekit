@@ -56,6 +56,7 @@ declare interface BlankCard extends BaseCard<'BlankCard'> {
 declare interface Board {
     board_width_px: number;
     board_height_px: number;
+    background_color: ColorHexString;
 }
 
 declare type BonusDisclosureEvent = BaseEvent<'BonusDisclosureEvent', {
@@ -112,7 +113,7 @@ declare interface HidePointerEffect extends BaseEffect<'HidePointerEffect'> {
 }
 
 declare interface ImageCard extends BaseCard<'ImageCard'> {
-    image_identifier: ImageIdentifier;
+    image: ImageIdentifier;
 }
 
 declare interface ImageIdentifier extends BaseAssetIdentifier<"image/png"> {
@@ -158,12 +159,7 @@ declare interface Node_2 {
     sensors: Sensor[];
     outcomes: Outcome[];
     effects: Effect[];
-}
-
-declare interface NodeGraph {
     board: Board;
-    nodes: Node_2[];
-    nodekit_version: string;
 }
 
 declare type NodeId = string & {
@@ -185,7 +181,7 @@ declare interface Outcome {
     bonus_amount_usd: MonetaryAmountUsd;
 }
 
-export declare function play(nodeGraph: NodeGraph, assetUrls: AssetUrl[], onEventCallback?: OnEventCallback | null, previousEvents?: Event_2[]): Promise<Event_2[]>;
+export declare function play(timeline: Timeline, assetUrls: AssetUrl[], onEventCallback?: OnEventCallback | null, previousEvents?: Event_2[]): Promise<Event_2[]>;
 
 declare type PressableKey = "Enter" | " " | "ArrowDown" | "ArrowLeft" | "ArrowRight" | "ArrowUp" | "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z" | "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
 
@@ -223,6 +219,12 @@ declare interface TextFormattingOptions {
     justification_vertical: 'top' | 'center' | 'bottom';
 }
 
+declare interface Timeline {
+    nodes: Node_2[];
+    asset_urls: AssetUrl[];
+    nodekit_version: string;
+}
+
 declare interface TimeoutAction extends BaseAction<"TimeoutAction"> {
 }
 
@@ -238,7 +240,7 @@ declare type UUID = string & {
 };
 
 declare interface VideoCard extends BaseCard<'VideoCard'> {
-    video_identifier: VideoIdentifier;
+    video: VideoIdentifier;
     muted: boolean;
     loop: boolean;
 }

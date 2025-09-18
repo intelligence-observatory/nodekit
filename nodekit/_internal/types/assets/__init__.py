@@ -7,8 +7,6 @@ import pydantic
 from nodekit._internal.ops.hash_asset_file import hash_asset_file
 from nodekit._internal.types.common import MimeType, SHA256
 
-from abc import ABC
-
 # %%
 class BaseAssetIdentifier(pydantic.BaseModel):
     sha256: SHA256
@@ -32,13 +30,18 @@ AssetIdentifier = Annotated[Union[
 
 
 # %%
-class BaseAssetFile(pydantic.BaseModel, ABC):
+class BaseAssetFile(pydantic.BaseModel):
     """
     Points to an asset file located on the user's filesystem,
-    along with the user's claim of the file's SHA-256 hash and mime type.
+    along with the user's assertion of the file's SHA-256 hash and mime type.
+    These assertions will be later validated in a pre-run stage.
     """
-    identifier: AssetIdentifier  = pydantic.Field(description='The claimed identifier of the file bytes at the given path.',)
+    identifier: AssetIdentifier
     path: pydantic.FilePath
+
+    @pydantic.field_validator('path', mode='after')
+    def make_absolute_path(cls, path: Path) -> Path:
+        return path.resolve()
 
     @pydantic.model_validator(mode='after')
     def check_file_extension(self) -> Self:
@@ -55,44 +58,47 @@ class BaseAssetFile(pydantic.BaseModel, ABC):
         return self
 
     @classmethod
-    def from_path(cls, path: Path) -> Self:
+    def from_path(cls, path: Path | str) -> Self:
         """
         A convenience method to create an Asset from a file path.
         This is I/O intensive, as it computes the SHA-256 hash of the file.
         """
+        path = Path(path)
         sha256 = hash_asset_file(path)
         guessed_mime_type, _ = mimetypes.guess_type(path, strict=True)
         if not guessed_mime_type:
-            raise ValueError(f"Could not determine mime_type for file at path {path}.")
+            raise ValueError(f"Could not determine MIME type for file at {path}\n Does it have a valid file extension?")
 
         guessed_mime_type: MimeType
 
-        type_adapter = pydantic.TypeAdapter(AssetIdentifier)
-        asset_identifier = type_adapter.validate_python({
+        type_adapter=pydantic.TypeAdapter(AssetIdentifier)
+        identifier = type_adapter.validate_python({
             'sha256': sha256,
-            'mime_type': guessed_mime_type
-        })
+            'mime_type': guessed_mime_type,
+        }
+        )
+
         return cls(
-            identifier=asset_identifier,
+            identifier=identifier,
             path=path.resolve()
         )
 
+
+# %%
 class ImageFile(BaseAssetFile):
-    identifier: ImageIdentifier = pydantic.Field(description='The identifier for the image asset, including its SHA-256 hash and mime type.')
+    identifier: ImageIdentifier
 
 class VideoFile(BaseAssetFile):
-    identifier: VideoIdentifier = pydantic.Field(description='The identifier for the video asset, including its SHA-256 hash and mime type.')
+    identifier: VideoIdentifier
 
-AssetFile = Annotated[
-    Union[
-        ImageFile,
-        VideoFile,
-    ],
-    pydantic.Field(discriminator='identifier')
-]
-
+AssetFile = ImageFile | VideoFile
 
 # %%
 class AssetUrl(pydantic.BaseModel):
-    identifier: AssetIdentifier = pydantic.Field(description='The claimed identifier for the asset, including its SHA-256 hash and mime type.')
+    """
+    Points to an asset file located at a URL,
+    along with the user's assertion of the file's SHA-256 hash and mime type.
+    These assertions will be later validated in a pre-run stage.
+    """
+    identifier: AssetIdentifier
     url: pydantic.AnyUrl
