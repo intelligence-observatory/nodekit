@@ -17,6 +17,7 @@ class Node(pydantic.BaseModel):
         frozen = True
 
     node_id: NodeId = pydantic.Field(default_factory=uuid4)
+    board: Board = pydantic.Field(default_factory=Board)
     cards: List[Card] = pydantic.Field(
         description=(
             "List of Cards placed on the Board, in back-to-front order."
@@ -26,7 +27,6 @@ class Node(pydantic.BaseModel):
     sensors: List[Sensor] = pydantic.Field(min_length=1)
     outcomes: List[Outcome] = pydantic.Field(default_factory=list)
     effects: List[Effect] = pydantic.Field(default_factory=list)
-    board: Board = pydantic.Field(default_factory=Board)
 
 
 # %%

@@ -3,6 +3,7 @@ from abc import ABC
 import pydantic
 
 from nodekit._internal.types.common import CardId, PressableKey, TimePointMsec, SensorId
+from nodekit._internal.types.regions import BoardRegion
 from typing import Literal, Annotated, Union
 from uuid import uuid4
 
@@ -37,6 +38,11 @@ class TimeoutSensor(BaseSensor):
 class ClickSensor(BaseSensor):
     sensor_type: Literal['ClickSensor'] = 'ClickSensor'
     card_id: CardId = pydantic.Field(description='The ID of the click-able Card to which this ClickSensor is attached.')
+    region: BoardRegion = pydantic.Field(description='The region of the Board which will trigger this sensor if clicked.')
+
+# %%
+
+
 
 # %%
 class KeySensor(BaseSensor):
