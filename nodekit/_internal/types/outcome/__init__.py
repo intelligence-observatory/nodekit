@@ -22,7 +22,7 @@ class Outcome(pydantic.BaseModel):
 
     cards: List[Card] = pydantic.Field(
         description=(
-            'Cards that will be displayed on a fresh Board. These should all have a finite timespan.'
+            'Cards that will be displayed on a freshly cleared Board. These should all have a finite timespan.'
         ),
         default_factory=list,
     )
@@ -33,7 +33,7 @@ class Outcome(pydantic.BaseModel):
     )
 
     @pydantic.model_validator(mode='after')
-    def check_consequence_is_finite(self) -> Self:
+    def check_cards_are_finite(self) -> Self:
         # Ensure all the cards have a finite timespan
         for card in self.cards:
             if card.t_end is None:

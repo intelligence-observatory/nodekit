@@ -96,7 +96,6 @@ class NodeResultEvent(BaseEvent):
 
 
 # %%
-
 class BrowserContextEvent(BaseEvent):
     """
     Emitted to capture browser context information, such as user agent and viewport size.

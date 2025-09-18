@@ -38,9 +38,3 @@ class Timeline(pydantic.BaseModel):
         description='The sequence of Nodes that make up the Timeline.'
     )
     nodekit_version: str = pydantic.Field(default=VERSION, description='The semantic version number of NodeKit used to create this Timeline.')
-
-    @pydantic.model_validator(mode='after')
-    def check_all_assets_are_backed(self, ):
-        # Todo
-        return self
-
