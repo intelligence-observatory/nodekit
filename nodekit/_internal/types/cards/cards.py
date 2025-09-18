@@ -40,6 +40,14 @@ class BaseCard(pydantic.BaseModel, ABC):
 # %%
 class FixationPointCard(BaseCard):
     card_type: Literal['FixationPointCard'] = 'FixationPointCard'
+    w: SpatialSize = pydantic.Field(
+        description='The horizontal diameter of the fixation point (ellipse), in Board units.',
+        default=0.0375
+    )
+    h: SpatialSize = pydantic.Field(
+        description='The vertical diameter of the fixation point (ellipse), in Board units.',
+        default=0.0375
+    )
 
 
 # %%

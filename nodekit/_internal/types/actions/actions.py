@@ -7,8 +7,7 @@ from nodekit._internal.types.common import (
     DatetimeUTC,
     PressableKey,
     SensorId,
-    SpatialPoint,
-    NodeId
+    SpatialPoint
 )
 
 
@@ -46,7 +45,7 @@ class KeyAction(BaseAction):
 Action = Annotated[
     Union[
         ClickAction,
-        DoneAction,
+        #DoneAction,
         KeyAction,
         TimeoutAction,
     ],

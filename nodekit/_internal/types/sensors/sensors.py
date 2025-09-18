@@ -53,7 +53,7 @@ class KeySensor(BaseSensor):
 # %%
 Sensor = Annotated[
     Union[
-        DoneSensor,
+        #DoneSensor,
         ClickSensor,
         KeySensor,
         TimeoutSensor,

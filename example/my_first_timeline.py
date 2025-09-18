@@ -1,7 +1,6 @@
 import nodekit as nk
 import random
 import time
-from pathlib import Path
 import glob
 
 random.seed(42)
@@ -21,8 +20,6 @@ def make_basic_fixation_node(
     fixation_card = nk.cards.FixationPointCard(
         x=fixation_x,
         y=fixation_y,
-        w=0.05,
-        h=0.05,
     )
 
     color_card = nk.cards.BlankCard(
