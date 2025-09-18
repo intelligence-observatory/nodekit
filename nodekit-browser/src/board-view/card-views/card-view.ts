@@ -79,11 +79,3 @@ export abstract class CardView<C extends Card = Card> {
         // Called when the Card is destroyed
     }
 }
-
-export interface ClickableCardView extends CardView {
-    addClickCallback: (callback: (e: MouseEvent) => void) => void
-}
-
-export interface DoneableCardView extends CardView {
-    addDoneCallback: (callback: () => void) => void
-}

@@ -1,10 +1,10 @@
 import './video-card.css'
-import {CardView, type ClickableCardView} from "../card-view.ts";
+import {CardView} from "../card-view.ts";
 import type {VideoCard} from "../../../types/cards";
 import type {AssetManager} from "../../../asset-manager/asset-manager.ts";
 
 
-export class VideoCardView extends CardView<VideoCard> implements ClickableCardView {
+export class VideoCardView extends CardView<VideoCard> {
 
     videoContainer: HTMLDivElement | undefined;
     video: HTMLVideoElement | undefined;
@@ -30,15 +30,6 @@ export class VideoCardView extends CardView<VideoCard> implements ClickableCardV
         this.video.draggable = true;
 
         // Play the video then
-    }
-
-    addClickCallback(callback: (e: MouseEvent) => void) {
-        if (!this.videoContainer) {
-            throw new Error('Video container not initialized. Did you forget to call load()?');
-        }
-        this.videoContainer.addEventListener('click', (e: MouseEvent) => {
-            callback(e);
-        });
     }
 
     onStart() {
