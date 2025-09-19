@@ -53,10 +53,6 @@ declare interface BaseSensor<T extends string> {
     t_start: TimePointMsec;
 }
 
-declare interface BlankCard extends BaseCard<'BlankCard'> {
-    color: ColorHexString;
-}
-
 declare interface Board {
     board_width_px: number;
     board_height_px: number;
@@ -77,7 +73,7 @@ declare interface BrowserContext {
 
 declare type BrowserContextEvent = BaseEvent<'BrowserContextEvent', BrowserContext>;
 
-declare type Card = FixationPointCard | ImageCard | TextCard | VideoCard | BlankCard | ShapeCard;
+declare type Card = ImageCard | TextCard | VideoCard | ShapeCard;
 
 declare type CardId = string & {
     __brand: 'CardId';
@@ -101,9 +97,6 @@ declare type Effect = HidePointerEffect;
 declare type EndEvent = BaseEvent<'EndEvent', {}>;
 
 declare type Event_2 = StartEvent | EndEvent | NodeResultEvent | LeaveEvent | ReturnEvent | BonusDisclosureEvent | BrowserContextEvent;
-
-declare interface FixationPointCard extends BaseCard<'FixationPointCard'> {
-}
 
 declare interface HidePointerEffect extends BaseEffect<'HidePointerEffect'> {
     t_end: TimePointMsec;
@@ -209,16 +202,13 @@ declare type SpatialSize = number & {
 
 declare type StartEvent = BaseEvent<'StartEvent', {}>;
 
-declare interface TextCard extends BaseCard<'TextCard'>, TextFormattingOptions {
+declare interface TextCard extends BaseCard<'TextCard'> {
     text: MarkdownString;
-    background_color: ColorHexString;
-}
-
-declare interface TextFormattingOptions {
-    text_color: ColorHexString;
     font_size: SpatialSize;
     justification_horizontal: 'left' | 'center' | 'right';
     justification_vertical: 'top' | 'center' | 'bottom';
+    text_color: ColorHexString;
+    background_color: ColorHexString;
 }
 
 declare interface Timeline {
