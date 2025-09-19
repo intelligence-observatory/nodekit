@@ -1,6 +1,5 @@
 from abc import ABC
 from typing import Literal, Annotated, Union
-from uuid import uuid4
 
 import pydantic
 
@@ -10,8 +9,7 @@ from nodekit._internal.types.common import (
     MarkdownString,
     SpatialPoint,
     SpatialSize,
-    TimePointMsec,
-    Shape
+    TimePointMsec
 )
 
 
@@ -41,19 +39,6 @@ class BaseCard(pydantic.BaseModel, ABC):
     t_end: TimePointMsec | None = pydantic.Field(
         description='The time (in milliseconds) relative to Node start when the Card is removed from the Board.',
         default=None,
-    )
-
-
-# %%
-
-class ShapeCard(BaseCard):
-    card_type: Literal['ShapeCard'] = 'ShapeCard'
-    shape: Shape = pydantic.Field(
-        description='The shape of the filled region in the ShapeCard.',
-    )
-    color: ColorHexString = pydantic.Field(
-        default='#808080',
-        description='The fill color in hexadecimal format.'
     )
 
 # %%
@@ -90,7 +75,6 @@ Card = Annotated[
         ImageCard,
         VideoCard,
         TextCard,
-        ShapeCard,
     ],
     pydantic.Field(discriminator='card_type')
 ]

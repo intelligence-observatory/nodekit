@@ -9,6 +9,7 @@ random.seed(42)
 
 # %% Create a sequence of simple Nodes in which the Participant must click on a fixation point:
 def make_basic_fixation_node(
+        fixation_image: nk.assets.ImageFile,
         fixation_x: float,
         fixation_y: float,
 ) -> nk.Node:
@@ -18,37 +19,12 @@ def make_basic_fixation_node(
     """
 
     # Configure your Cards, which give context to the Participant:
-    circle_card = nk.cards.ShapeCard(
+    fixation_circle = nk.cards.ImageCard(
         x=fixation_x,
         y=fixation_y,
         w=0.0375,
         h=0.0375,
-        shape='ellipse',
-        color='#ffffff',
-    )
-
-    vertical_bar = nk.cards.ShapeCard(
-        x=fixation_x,
-        y=fixation_y,
-        w=circle_card.w * 0.075,
-        h=circle_card.h * 0.9,
-        shape='rectangle',
-        color='#000000',
-    )
-
-    horizontal_bar = nk.cards.ShapeCard(
-        x=fixation_x,
-        y=fixation_y,
-        w=circle_card.w * 0.9,
-        h=circle_card.h * 0.075,
-        shape='rectangle',
-        color='#000000',
-    )
-
-    color_card = nk.cards.ShapeCard(
-        shape='rectangle',
-        color='#32a852',
-        x=0, y=0, w=0.1, h=0.1,
+        image=fixation_image.identifier,
     )
 
     # Define outcomes
@@ -84,17 +60,17 @@ def make_basic_fixation_node(
             shape='ellipse',
             x=fixation_x,
             y=fixation_y,
-            w = circle_card.w,
-            h = circle_card.h,
+            w = fixation_circle.w,
+            h = fixation_circle.h,
         ),
         outcome=positive_outcome,
     )
     spacebar_sensor = nk.sensors.KeySensor(key=' ', outcome=negative_outcome2)
-    timeout_sensor = nk.sensors.TimeoutSensor(t_start=5000, outcome=negative_outcome1)
+    timeout_sensor = nk.sensors.TimeoutSensor(t_start=2000, outcome=negative_outcome1)
 
     return nk.Node(
-        cards=[color_card, circle_card, vertical_bar, horizontal_bar],
-        sensors=[clicked_fixation_dot_sensor, spacebar_sensor],
+        cards=[fixation_circle],
+        sensors=[clicked_fixation_dot_sensor, spacebar_sensor, timeout_sensor],
     )
 
 
@@ -153,11 +129,11 @@ def make_instructions_node(
         x=0, y=-0.45, w=0.3, h=0.05,
         background_color='#32a852',
         text_color='#ffffff',
-        t_start=1000,
+        t_start=200,
     )
 
     sensor = nk.sensors.ClickSensor(
-        t_start=1000,
+        t_start=200,
         region=nk.regions.ShapeRegion(
             shape='rectangle',
             x=continue_button.x,
@@ -193,7 +169,6 @@ nodes = []
 nodes.extend(
     [
         make_instructions_node("# Welcome!\n\nThis is a test task.", ),
-        make_instructions_node("## Instructions\n\nBla bla bla."),
     ]
 )
 
@@ -213,7 +188,8 @@ for _ in range(2):
     # Randomly sample fixation points:
     node = make_basic_fixation_node(
         fixation_x=round(random.uniform(-0.3, 0.3), 2),
-        fixation_y=round(random.uniform(-0.3, 0.3), 2)
+        fixation_y=round(random.uniform(-0.3, 0.3), 2),
+        fixation_image = my_image_files[0]
     )
     nodes.append(node)
 
