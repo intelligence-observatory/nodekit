@@ -46,10 +46,7 @@ export class NodeGraphPage {
 
     async end() {
         // Print logged messages:
-        let observations = Object.entries(this.logs).map(([t, messages]) => {
-            return [t + ":"].concat(messages).join("\n");
-        }).join("\n\n");
-        console.log(observations);
+        console.log(JSON.stringify(this.logs, null, 4));
 
         // Check for thrown errors:
         expect(this.errors).toHaveLength(0);
