@@ -1,6 +1,5 @@
 node_modules/
 
-# In case testing fails before it can clean up:
 dist/
 
 # Playwright
