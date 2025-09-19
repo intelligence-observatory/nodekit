@@ -1,4 +1,4 @@
-declare type Action = ClickAction | DoneAction | TimeoutAction | KeyAction;
+declare type Action = ClickAction | TimeoutAction | KeyAction;
 
 declare type AssetIdentifier = ImageIdentifier | VideoIdentifier;
 
@@ -10,7 +10,7 @@ declare interface AssetUrl {
 declare interface BaseAction<T extends string> {
     sensor_id: SensorId;
     action_type: T;
-    timestamp_action: ISO8601_2;
+    timestamp_action: ISO8601;
 }
 
 declare interface BaseAssetIdentifier<MT extends string> {
@@ -43,6 +43,10 @@ declare type BaseEvent<T extends string, P> = {
     nodekit_version: string;
 };
 
+declare interface BaseRegion<T extends string> {
+    region_type: T;
+}
+
 declare interface BaseSensor<T extends string> {
     sensor_id: SensorId;
     sensor_type: T;
@@ -73,7 +77,7 @@ declare interface BrowserContext {
 
 declare type BrowserContextEvent = BaseEvent<'BrowserContextEvent', BrowserContext>;
 
-declare type Card = FixationPointCard | ImageCard | TextCard | MarkdownPagesCard | VideoCard | BlankCard;
+declare type Card = FixationPointCard | ImageCard | TextCard | VideoCard | BlankCard | ShapeCard;
 
 declare type CardId = string & {
     __brand: 'CardId';
@@ -85,19 +89,12 @@ declare interface ClickAction extends BaseAction<"ClickAction"> {
 }
 
 declare interface ClickSensor extends BaseSensor<'ClickSensor'> {
-    card_id: CardId;
+    region: Region;
 }
 
 declare type ColorHexString = string & {
     __brand: 'ColorHexString';
 };
-
-declare interface DoneAction extends BaseAction<"DoneAction"> {
-}
-
-declare interface DoneSensor extends BaseSensor<'DoneSensor'> {
-    card_id: CardId;
-}
 
 declare type Effect = HidePointerEffect;
 
@@ -123,15 +120,7 @@ declare type ISO8601 = string & {
     __brand: 'ISO8601';
 };
 
-declare type ISO8601_2 = string & {
-    __brand: 'ISO8601';
-};
-
 declare interface KeyAction extends BaseAction<"KeyAction"> {
-    key: PressableKey;
-}
-
-declare interface KeyHoldsSensor extends BaseSensor<'KeyHoldsSensor'> {
     key: PressableKey;
 }
 
@@ -140,10 +129,6 @@ declare interface KeySensor extends BaseSensor<'KeySensor'> {
 }
 
 declare type LeaveEvent = BaseEvent<'LeaveEvent', {}>;
-
-declare interface MarkdownPagesCard extends BaseCard<'MarkdownPagesCard'>, TextFormattingOptions {
-    pages: MarkdownString[];
-}
 
 declare type MarkdownString = string & {
     __brand: 'MarkdownString';
@@ -185,9 +170,11 @@ export declare function play(timeline: Timeline, assetUrls: AssetUrl[], onEventC
 
 declare type PressableKey = "Enter" | " " | "ArrowDown" | "ArrowLeft" | "ArrowRight" | "ArrowUp" | "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z" | "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
 
+declare type Region = ShapeRegion;
+
 declare type ReturnEvent = BaseEvent<'ReturnEvent', {}>;
 
-declare type Sensor = TimeoutSensor | DoneSensor | ClickSensor | KeySensor | KeyHoldsSensor;
+declare type Sensor = TimeoutSensor | ClickSensor | KeySensor;
 
 declare type SensorId = string & {
     __brand: 'SensorId';
@@ -196,6 +183,21 @@ declare type SensorId = string & {
 declare type SHA256 = string & {
     __brand: 'SHA256';
 };
+
+declare type Shape = 'rectangle' | 'ellipse';
+
+declare interface ShapeCard extends BaseCard<'ShapeCard'> {
+    shape: Shape;
+    color: ColorHexString;
+}
+
+declare interface ShapeRegion extends BaseRegion<'ShapeRegion'> {
+    shape: Shape;
+    x: SpatialPoint;
+    y: SpatialPoint;
+    w: SpatialPoint;
+    h: SpatialPoint;
+}
 
 declare type SpatialPoint = number & {
     __brand: 'SpatialPoint';

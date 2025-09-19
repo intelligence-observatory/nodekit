@@ -9,4 +9,5 @@ class Board(pydantic.BaseModel):
     background_color: ColorHexString = pydantic.Field(
         description='Hex string representing the background color of the Board.',
         default='#808080',
+        validate_default=True,
     )

@@ -94,7 +94,7 @@ class TextCard(BaseCard):
     font_size: SpatialSize = pydantic.Field(default=0.0175, description='The height of the em-box, in Board units.')
     justification_horizontal: Literal['left', 'center', 'right'] = 'center'
     justification_vertical: Literal['top', 'center', 'bottom'] = 'center'
-    text_color: ColorHexString = '#000000'
+    text_color: ColorHexString = pydantic.Field(default='#000000', validate_default=True)
     background_color: ColorHexString = pydantic.Field(
         default='#E6E6E600', # Transparent by default
         description='The background color of the TextCard in hexadecimal format.'

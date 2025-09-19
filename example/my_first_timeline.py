@@ -30,7 +30,7 @@ def make_basic_fixation_node(
     vertical_bar = nk.cards.ShapeCard(
         x=fixation_x,
         y=fixation_y,
-        w=circle_card.w / 10,
+        w=circle_card.w * 0.075,
         h=circle_card.h * 0.9,
         shape='rectangle',
         color='#000000',
@@ -40,7 +40,7 @@ def make_basic_fixation_node(
         x=fixation_x,
         y=fixation_y,
         w=circle_card.w * 0.9,
-        h=circle_card.h / 10,
+        h=circle_card.h * 0.075,
         shape='rectangle',
         color='#000000',
     )
@@ -226,7 +226,7 @@ timeline = nk.Timeline(
 )
 
 Path('timeline.json').write_text(timeline.model_dump_json(indent=2))
-raise Exception
+
 # %% Play the Timeline:
 play_session = nk.play(
     timeline=timeline,
