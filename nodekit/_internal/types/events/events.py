@@ -1,7 +1,6 @@
 # %%
 import enum
 from typing import Literal, Annotated, Union
-from uuid import UUID
 
 import pydantic
 
@@ -24,6 +23,7 @@ class EventTypeEnum(str, enum.Enum):
 class BaseEvent(pydantic.BaseModel):
     event_type: EventTypeEnum
     timestamp_event: DatetimeUTC
+
 
 # %%
 class StartEvent(BaseEvent):
@@ -52,7 +52,6 @@ class ReturnEvent(BaseEvent):
     Emitted when a Participant returns to a run (e.g., reopens the tab or navigates back) before it has completed.
     """
     event_type: Literal[EventTypeEnum.ReturnEvent] = EventTypeEnum.ReturnEvent
-
 
 
 class BonusDisclosureEvent(BaseEvent):

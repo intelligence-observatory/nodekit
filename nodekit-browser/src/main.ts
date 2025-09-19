@@ -145,8 +145,8 @@ export async function play(
     // Emit the BonusDisclosureEvent (if applicable):
     if (bonusMessage !== '') {
         const bonusDisclosureEvent: BonusDisclosureEvent = {
-            timestamp_event: getCurrentTimestamp(),
             event_type: "BonusDisclosureEvent",
+            timestamp_event: getCurrentTimestamp(),
             bonus_amount_usd: bonusComputed.toFixed(2) as MonetaryAmountUsd,
         }
         events.push(bonusDisclosureEvent);

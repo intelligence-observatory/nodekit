@@ -27,7 +27,7 @@ class BaseSensor(pydantic.BaseModel, ABC):
     # Optional outcome if this Sensor is triggered:
     outcome: Outcome | None = pydantic.Field(
         default=None,
-        description='The Outcome to apply if this Sensor is triggered.',
+        description='The Outcome to apply if this Sensor is triggered. If None, the Participant proceeds to the next Node immediately.',
     )
 
 # %%

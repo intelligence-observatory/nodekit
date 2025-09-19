@@ -4,7 +4,6 @@ from typing import Literal, Union, Annotated
 import pydantic
 
 from nodekit._internal.types.common import (
-    DatetimeUTC,
     PressableKey,
     SpatialPoint
 )
@@ -13,7 +12,6 @@ from nodekit._internal.types.common import (
 # %%
 class BaseAction(pydantic.BaseModel, ABC):
     action_type: str
-    timestamp_action: DatetimeUTC = pydantic.Field(description='The timestamp when the Sensor for this Action was triggered.')
 
 
 # %%

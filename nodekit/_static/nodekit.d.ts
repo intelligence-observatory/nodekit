@@ -203,8 +203,8 @@ declare interface TextCard extends BaseCard<'TextCard'> {
 }
 
 declare interface Timeline {
-    nodes: Node_2[];
     nodekit_version: string;
+    nodes: Node_2[];
 }
 
 declare interface TimeoutAction extends BaseAction<"TimeoutAction"> {
@@ -218,8 +218,8 @@ declare type TimePointMsec = number & {
 };
 
 declare interface Trace {
-    events: Event_2[];
     nodekit_version: string;
+    events: Event_2[];
 }
 
 declare interface VideoCard extends BaseCard<'VideoCard'> {
