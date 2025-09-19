@@ -98,7 +98,7 @@ export default defineConfig({
      command: 'python3 -m http.server 3000 -b localhost',
      stdout: "ignore",
      stderr: "ignore",
-     cwd: 'tests',
+     cwd: './',
      url: 'http://localhost:3000/',
      reuseExistingServer: !process.env.CI ,
      timeout: 12000000

@@ -29,10 +29,11 @@ export class NodeGraphPage {
 
     async goto(filename: string) {
         // Go to a local file page:
-        await this.page.goto('./' + filename);
-        await this.page.setViewportSize({width: 800, height: 800})
+        await this.page.goto('./tests/' + filename);
+        await this.page.setViewportSize({width: 800, height: 800});
         // Load everything:
         await this.page.waitForLoadState('load');
+        expect(this.errors).toHaveLength(0);
         // Click the start button:
         await this.page.locator('.start-button').first().click();
     }
