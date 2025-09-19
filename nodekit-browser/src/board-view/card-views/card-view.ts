@@ -19,7 +19,6 @@ export abstract class CardView<C extends Card = Card> {
         // Create the Card's root element
         this.root = document.createElement('div');
         this.root.classList.add('card');
-        this.root.id = card.card_id;
 
         // Configure Card position and size:
         const {leftPx, topPx} = boardCoords.getBoardLocationPx(

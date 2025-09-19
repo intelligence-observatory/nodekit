@@ -1,10 +1,9 @@
 from abc import ABC
 from typing import Literal, Annotated, Union
-from uuid import uuid4
 
 import pydantic
 
-from nodekit._internal.types.common import PressableKey, TimePointMsec, SensorId
+from nodekit._internal.types.common import PressableKey, TimePointMsec
 from nodekit._internal.types.regions import Region
 
 
@@ -16,7 +15,6 @@ class BaseSensor(pydantic.BaseModel, ABC):
     """
 
     # Sensor identifiers
-    sensor_id: SensorId = pydantic.Field(description='The unique identifier for this Sensor.', default_factory=uuid4)
     sensor_type: str
 
     # Time:

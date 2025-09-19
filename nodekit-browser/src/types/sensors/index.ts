@@ -1,9 +1,8 @@
-import type {PressableKey, SensorId, TimePointMsec} from "../common.ts";
+import type {PressableKey, TimePointMsec} from "../common.ts";
 import type {Region} from "../regions";
 
 
 export interface BaseSensor<T extends string> {
-    sensor_id: SensorId
     sensor_type: T
     t_start: TimePointMsec
 }

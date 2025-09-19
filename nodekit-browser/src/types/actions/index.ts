@@ -1,7 +1,6 @@
-import type {ISO8601, PressableKey, SensorId, SpatialPoint} from "../common.ts";
+import type {ISO8601, PressableKey, SpatialPoint} from "../common.ts";
 
 export interface BaseAction<T extends string> {
-    sensor_id: SensorId
     action_type: T
     timestamp_action: ISO8601
 }

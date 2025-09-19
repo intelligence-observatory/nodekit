@@ -19,7 +19,6 @@ declare interface BaseAssetIdentifier<MT extends string> {
 }
 
 declare interface BaseCard<T extends string> {
-    card_id: CardId;
     card_type: T;
     x: SpatialPoint;
     y: SpatialPoint;
@@ -74,10 +73,6 @@ declare interface BrowserContext {
 declare type BrowserContextEvent = BaseEvent<'BrowserContextEvent', BrowserContext>;
 
 declare type Card = ImageCard | TextCard | VideoCard | ShapeCard;
-
-declare type CardId = string & {
-    __brand: 'CardId';
-};
 
 declare interface ClickAction extends BaseAction<"ClickAction"> {
     click_x: SpatialPoint;
