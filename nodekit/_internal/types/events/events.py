@@ -7,7 +7,6 @@ import pydantic
 
 from nodekit._internal.types.actions.actions import Action
 from nodekit._internal.types.common import DatetimeUTC
-from nodekit._internal.version import VERSION
 
 
 # %%
@@ -22,21 +21,9 @@ class EventTypeEnum(str, enum.Enum):
 
 
 # %%
-class NullPayload(pydantic.BaseModel):
-    """
-    A sentinel model for *_value fields which do not require specification.
-    """
-    pass
-
-
 class BaseEvent(pydantic.BaseModel):
-    event_id: UUID
-    timestamp_event: DatetimeUTC
-
     event_type: EventTypeEnum
-    event_payload: NullPayload
-
-    nodekit_version: str = pydantic.Field(default=VERSION)
+    timestamp_event: DatetimeUTC
 
 # %%
 class StartEvent(BaseEvent):
@@ -72,29 +59,20 @@ class BonusDisclosureEvent(BaseEvent):
     """
     Emitted when a Participant is shown a bonus disclosure.
     """
-
-    class BonusDisclosure(pydantic.BaseModel):
-        bonus_amount_usd: str
-
     event_type: Literal[EventTypeEnum.BonusDisclosureEvent] = EventTypeEnum.BonusDisclosureEvent
-    event_payload: BonusDisclosure
+    bonus_amount_usd: str
 
 
 # %%
 class NodeResultEvent(BaseEvent):
-
-    class NodeResult(pydantic.BaseModel):
-        """
-        Describes the result of a NodePlay.
-        """
-        node_index: int = pydantic.Field(description='The index of the Node that was played.')
-        timestamp_node_start: DatetimeUTC
-        timestamp_node_end: DatetimeUTC
-        sensor_index: int = pydantic.Field(description='The index of the Sensor in this Node that was triggered.')
-        action: Action
-
     event_type: Literal[EventTypeEnum.NodeResultEvent] = EventTypeEnum.NodeResultEvent
-    event_payload: NodeResult
+
+    timestamp_node_start: DatetimeUTC
+    timestamp_action: DatetimeUTC
+    timestamp_node_end: DatetimeUTC
+    node_index: int = pydantic.Field(description='The index of the Node that was played.')
+    sensor_index: int = pydantic.Field(description='The index of the Sensor in this Node that was triggered.')
+    action: Action
 
 
 # %%
@@ -103,18 +81,14 @@ class BrowserContextEvent(BaseEvent):
     Emitted to capture browser context information, such as user agent and viewport size.
     """
 
-    class BrowserContext(pydantic.BaseModel):
-        # User agent string
-        user_agent: str = pydantic.Field(description="User agent string of the browser or application rendering the board.")
-
-        display_width_px: int
-        display_height_px: int
-
-        viewport_width_px: int
-        viewport_height_px: int
-
     event_type: Literal[EventTypeEnum.BrowserContextEvent] = EventTypeEnum.BrowserContextEvent
-    event_payload: BrowserContext
+    user_agent: str = pydantic.Field(description="User agent string of the browser or application rendering the board.")
+
+    display_width_px: int
+    display_height_px: int
+
+    viewport_width_px: int
+    viewport_height_px: int
 
 
 # %%

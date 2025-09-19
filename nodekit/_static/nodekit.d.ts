@@ -9,7 +9,6 @@ declare interface AssetUrl {
 
 declare interface BaseAction<T extends string> {
     action_type: T;
-    timestamp_action: ISO8601;
 }
 
 declare interface BaseAssetIdentifier<MT extends string> {
@@ -36,7 +35,6 @@ declare interface BaseEffect<T extends string> {
 declare interface BaseEvent<T extends string> {
     event_type: T;
     timestamp_event: ISO8601;
-    nodekit_version: string;
 }
 
 declare interface BaseRegion<T extends string> {
@@ -135,9 +133,10 @@ declare type NodeIndex = number & {
 };
 
 declare interface NodeResultEvent extends BaseEvent<'NodeResultEvent'> {
-    node_index: NodeIndex;
     timestamp_node_start: ISO8601;
+    timestamp_action: ISO8601;
     timestamp_node_end: ISO8601;
+    node_index: NodeIndex;
     sensor_index: SensorIndex;
     action: Action;
 }
@@ -149,7 +148,7 @@ declare interface Outcome {
     bonus_amount_usd: MonetaryAmountUsd;
 }
 
-export declare function play(timeline: Timeline, assetUrls: AssetUrl[], onEventCallback?: OnEventCallback | null, previousEvents?: Event_2[]): Promise<Event_2[]>;
+export declare function play(timeline: Timeline, assetUrls: AssetUrl[], onEventCallback?: OnEventCallback | null, previousEvents?: Event_2[]): Promise<Trace>;
 
 declare type PressableKey = "Enter" | " " | "ArrowDown" | "ArrowLeft" | "ArrowRight" | "ArrowUp" | "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z" | "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
 
@@ -205,7 +204,6 @@ declare interface TextCard extends BaseCard<'TextCard'> {
 
 declare interface Timeline {
     nodes: Node_2[];
-    asset_urls: AssetUrl[];
     nodekit_version: string;
 }
 
@@ -218,6 +216,11 @@ declare interface TimeoutSensor extends BaseSensor<'TimeoutSensor'> {
 declare type TimePointMsec = number & {
     __brand: 'TimePointMsec';
 };
+
+declare interface Trace {
+    events: Event_2[];
+    nodekit_version: string;
+}
 
 declare interface VideoCard extends BaseCard<'VideoCard'> {
     video: VideoIdentifier;

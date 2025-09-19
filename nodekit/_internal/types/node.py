@@ -31,3 +31,9 @@ class Timeline(pydantic.BaseModel):
         description='The sequence of Nodes that make up the Timeline.'
     )
     nodekit_version: str = pydantic.Field(default=VERSION, description='The semantic version number of NodeKit used to create this Timeline.')
+
+
+# %%
+class Trace(pydantic.BaseModel):
+    timeline: Timeline
+    nodekit_version: str = pydantic.Field(default=VERSION, description='The semantic version number of NodeKit used to create this Timeline.')

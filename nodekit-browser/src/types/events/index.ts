@@ -25,10 +25,10 @@ export interface BrowserContextEvent extends BaseEvent<'BrowserContextEvent'>{
 }
 
 export interface NodeResultEvent extends BaseEvent<'NodeResultEvent'>{
-    node_index: NodeIndex, // Timeline.nodes[node_index] is the Node this event originated from
     timestamp_node_start: ISO8601,
     timestamp_action: ISO8601,
     timestamp_node_end: ISO8601,
+    node_index: NodeIndex, // Timeline.nodes[node_index] is the Node this event originated from
     sensor_index: SensorIndex, // Timeline.nodes[node_index].sensors[sensor_index] is the Sensor that fired
     action: Action,
 }

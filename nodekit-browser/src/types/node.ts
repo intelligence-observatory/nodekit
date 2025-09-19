@@ -12,11 +12,11 @@ export interface Node {
 }
 
 export interface Timeline {
-    nodes: Node[];
     nodekit_version: string;
+    nodes: Node[];
 }
 
 export interface Trace {
-    events: Event[];
     nodekit_version: string;
+    events: Event[];
 }

@@ -504,14 +504,14 @@
 
     window.onload = async () => {
         // Add focus
-        let events = await play(
+        let trace = await play(
             timeline,
             assetUrls,
             (event) => {
                 console.log(event);
             }
         )
-        console.log(events)
+        console.log(trace)
     };
 </script>
 
