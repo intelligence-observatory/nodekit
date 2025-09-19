@@ -46,28 +46,7 @@ class BaseCard(pydantic.BaseModel, ABC):
     )
 
 
-# %%
-class FixationPointCard(BaseCard):
-    card_type: Literal['FixationPointCard'] = 'FixationPointCard'
-    w: SpatialSize = pydantic.Field(
-        description='The horizontal diameter of the fixation point (ellipse), in Board units.',
-        default=0.0375
-    )
-    h: SpatialSize = pydantic.Field(
-        description='The vertical diameter of the fixation point (ellipse), in Board units.',
-        default=0.0375
-    )
 
-# %%
-class BlankCard(BaseCard):
-    """
-    A rectangular card with a solid background color and no content.
-    """
-    card_type: Literal['BlankCard'] = 'BlankCard'
-    color: ColorHexString = pydantic.Field(
-        default='#808080',
-        description='The color of the BlankCard in hexadecimal format.'
-    )
 # %%
 
 class ShapeCard(BaseCard):
