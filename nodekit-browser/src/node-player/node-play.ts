@@ -6,7 +6,7 @@ import {type EffectBinding, HideCursorEffectBinding} from "../board-view/effect-
 
 import {performanceNowToISO8601} from "../utils.ts";
 import type {ISO8601, SensorId} from "../types/common.ts";
-import type {AssetManager} from "../asset-manager/asset-manager.ts";
+import type {AssetManager} from "../asset-manager";
 
 //
 export interface PlayNodeResult {

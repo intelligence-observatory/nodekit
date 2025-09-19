@@ -1,7 +1,7 @@
 import './video-card.css'
 import {CardView} from "../card-view.ts";
 import type {VideoCard} from "../../../types/cards";
-import type {AssetManager} from "../../../asset-manager/asset-manager.ts";
+import type {AssetManager} from "../../../asset-manager";
 
 
 export class VideoCardView extends CardView<VideoCard> {

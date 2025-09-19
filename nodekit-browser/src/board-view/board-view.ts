@@ -1,4 +1,4 @@
-import type {AssetManager} from "../asset-manager/asset-manager.ts";
+import type {AssetManager} from "../asset-manager";
 import type {Board} from "../types/board";
 import type {Card} from "../types/cards";
 import type {CardId, SensorId, SpatialPoint, SpatialSize} from "../types/common.ts";
@@ -7,11 +7,9 @@ import type {Action} from "../types/actions";
 import './board-view.css'
 import type {CardView} from "./card-views/card-view.ts";
 import {ClickSensorBinding, KeySensorBinding, type SensorBinding, TimeoutSensorBinding} from "./sensor-bindings/sensor-binding.ts";
-import {FixationPointCardView} from "./card-views/fixation-point/fixation-point-card-view.ts";
 import {ImageCardView} from "./card-views/image/image-card.ts";
 import {TextCardView} from "./card-views/text/text-card-view.ts";
 import {VideoCardView} from "./card-views/video/video-card.ts";
-import {BlankCardView} from "./card-views/blank/blank-card-view.ts";
 import {ShapeCardView} from "./card-views/shape/shape-card-view.ts";
 
 export class BoardCoordinateSystem {
@@ -161,11 +159,6 @@ export class BoardView {
         const boardCoords = this.getCoordinateSystem();
         let cardView: CardView | null = null;
         switch (card.card_type) {
-            case "FixationPointCard":
-                cardView = new FixationPointCardView(
-                    card, boardCoords
-                )
-                break
             case "ImageCard":
                 cardView = new ImageCardView(
                     card,
@@ -181,12 +174,6 @@ export class BoardView {
             case "TextCard":
                 cardView = new TextCardView(
                     card, boardCoords
-                )
-                break
-            case "BlankCard":
-                cardView = new BlankCardView(
-                    card,
-                    boardCoords
                 )
                 break
             case "ShapeCard":

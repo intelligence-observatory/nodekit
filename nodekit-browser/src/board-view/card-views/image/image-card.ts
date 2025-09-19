@@ -1,7 +1,7 @@
 import './image-card.css'
 import {CardView} from "../card-view.ts";
 import type {ImageCard} from "../../../types/cards";
-import type {AssetManager} from "../../../asset-manager/asset-manager.ts";
+import type {AssetManager} from "../../../asset-manager";
 
 /**
  * A card which displays left-justified Markdown text on a light background.

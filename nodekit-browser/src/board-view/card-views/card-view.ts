@@ -2,7 +2,7 @@ import './card-view.css';
 
 import type {Card} from "../../types/cards";
 import type {BoardCoordinateSystem} from "../board-view.ts";
-import type {AssetManager} from "../../asset-manager/asset-manager.ts";
+import type {AssetManager} from "../../asset-manager";
 
 export abstract class CardView<C extends Card = Card> {
     root: HTMLElement;
