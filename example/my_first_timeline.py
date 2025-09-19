@@ -182,7 +182,7 @@ def make_instructions_node(
 
 # %% Load Asset Files
 my_image_files = []
-for path in sorted(glob.glob('./example_images/*.png')):
+for path in sorted(glob.glob('./example_images/*')):
     image_file = nk.assets.ImageFile.from_path(path)
     my_image_files.append(image_file)
 
@@ -207,7 +207,7 @@ for video_file in my_video_files:
     )
     nodes.append(node)
 
-for image_file in my_image_files[:1]:
+for image_file in my_image_files[:5]:
     node = make_image_node(
         image_file=image_file
     )

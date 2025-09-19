@@ -1,8 +1,7 @@
-import type {CardId, ColorHexString, MarkdownString, Shape, SpatialPoint, SpatialSize, TimePointMsec} from "../common.ts";
+import type {ColorHexString, MarkdownString, Shape, SpatialPoint, SpatialSize, TimePointMsec} from "../common.ts";
 import type {ImageIdentifier, VideoIdentifier} from "../assets";
 
 export interface BaseCard<T extends string> {
-    card_id: CardId
     card_type: T
 
     x: SpatialPoint

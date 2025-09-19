@@ -44,7 +44,6 @@ class BaseCard(pydantic.BaseModel, ABC):
     )
 
 
-
 # %%
 
 class ShapeCard(BaseCard):

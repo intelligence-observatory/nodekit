@@ -40,10 +40,14 @@ PayableMonetaryAmountUsd = Annotated[
 # %% Assets
 SHA256 = Annotated[str, pydantic.Field(pattern=r'^[a-f0-9]{64}$')]
 
-MimeType = Literal[
+ImageMimeType = Literal[
     'image/png',
+    'image/svg+xml'
+]
+VideoMimeType = Literal[
     'video/mp4'
 ]
+MimeType = ImageMimeType | VideoMimeType
 
 # %% Space
 SpatialSize = Annotated[float, pydantic.Field(
@@ -110,5 +114,4 @@ PressableKey = Literal[
 
 # %% Identifiers
 NodeId = UUID
-CardId = UUID
 SensorId = UUID

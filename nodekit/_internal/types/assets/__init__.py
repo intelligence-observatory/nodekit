@@ -5,7 +5,7 @@ from typing import Self, Literal, Annotated, Union
 import pydantic
 
 from nodekit._internal.ops.hash_asset_file import hash_asset_file
-from nodekit._internal.types.common import MimeType, SHA256
+from nodekit._internal.types.common import MimeType, ImageMimeType, VideoMimeType, SHA256
 
 # %%
 class BaseAssetIdentifier(pydantic.BaseModel):
@@ -14,11 +14,11 @@ class BaseAssetIdentifier(pydantic.BaseModel):
 
 
 class ImageIdentifier(BaseAssetIdentifier):
-    mime_type: Literal['image/png'] = 'image/png'
+    mime_type: ImageMimeType
 
 
 class VideoIdentifier(BaseAssetIdentifier):
-    mime_type: Literal['video/mp4'] = 'video/mp4'
+    mime_type: VideoMimeType
 
 
 AssetIdentifier = Annotated[Union[

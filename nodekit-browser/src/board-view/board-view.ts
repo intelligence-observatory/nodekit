@@ -1,7 +1,7 @@
 import type {AssetManager} from "../asset-manager";
 import type {Board} from "../types/board";
 import type {Card} from "../types/cards";
-import type {CardId, SensorId, SpatialPoint, SpatialSize} from "../types/common.ts";
+import type {SensorId, SpatialPoint, SpatialSize} from "../types/common.ts";
 import type {Sensor} from "../types/sensors";
 import type {Action} from "../types/actions";
 import './board-view.css'
@@ -11,6 +11,8 @@ import {ImageCardView} from "./card-views/image/image-card.ts";
 import {TextCardView} from "./card-views/text/text-card-view.ts";
 import {VideoCardView} from "./card-views/video/video-card.ts";
 import {ShapeCardView} from "./card-views/shape/shape-card-view.ts";
+
+type CardViewId = string & { __brand: 'CardViewId' };
 
 export class BoardCoordinateSystem {
     public boardWidthPx: number; // Width of the board in pixels
@@ -89,7 +91,7 @@ export class BoardCoordinateSystem {
 
 export class BoardView {
     root: HTMLDivElement
-    cardViews: Map<CardId, CardView> = new Map(); // Map of card ID to CardView
+    cardViews: Map<CardViewId, CardView> = new Map(); // Map of card ID to CardView
     sensorBindings: Map<SensorId, SensorBinding> = new Map(); // Map of sensor ID to SensorBinding
 
     constructor(
@@ -143,7 +145,7 @@ export class BoardView {
     }
 
     // Cards
-    private getCardView(cardId: CardId): CardView {
+    private getCardView(cardId: CardViewId): CardView {
         const cardView = this.cardViews.get(cardId);
         if (!cardView) {
             throw new Error(`CardView with ID ${cardId} not found.`);
@@ -154,7 +156,7 @@ export class BoardView {
     async prepareCard(
         card: Card,
         assetManager: AssetManager,
-    ) {
+    ): Promise<CardViewId> {
         // Dynamic dispatch
         const boardCoords = this.getCoordinateSystem();
         let cardView: CardView | null = null;
@@ -192,25 +194,27 @@ export class BoardView {
         // Mount CardView to BoardView:
         this.root.appendChild(cardView.root);
 
-        // Register:
-        this.cardViews.set(card.card_id, cardView);
+        // Issue a new CardViewId:
+        const cardId = crypto.randomUUID() as CardViewId;
+        this.cardViews.set(cardId, cardView);
+        return cardId
     }
 
-    startCard(cardId: CardId) {
+    startCard(cardId: CardViewId) {
         // Show and start the CardView
         const cardView = this.getCardView(cardId);
         cardView.setVisibility(true);
         cardView.onStart();
     }
 
-    stopCard(cardId: CardId) {
+    stopCard(cardId: CardViewId) {
         // Hide and stop the CardView
         const cardView = this.getCardView(cardId);
         cardView.setVisibility(false);
         cardView.onStop();
     }
 
-    destroyCard(cardId: CardId) {
+    destroyCard(cardId: CardViewId) {
         // Unload and remove the CardView
         const cardView = this.getCardView(cardId);
         cardView.onDestroy();

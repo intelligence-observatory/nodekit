@@ -62,23 +62,20 @@ export class NodePlay {
     }
 
     public async prepare(assetManager: AssetManager) {
-        let setupPromises: Promise<void>[] = [];
 
         // Prepare and schedule Cards:
         for (const card of this.node.cards) {
             // Prepare Cards:
-            setupPromises.push(
-                this.boardView.prepareCard(
-                    card,
-                    assetManager,
-                )
-            );
+            const cardViewId = await this.boardView.prepareCard(
+                card,
+                assetManager,
+            )
 
             // Schedule CardView start:
             this.scheduler.scheduleEvent(
                 {
                     triggerTimeMsec: card.t_start,
-                    triggerFunc: () => {this.boardView.startCard(card.card_id)}
+                    triggerFunc: () => {this.boardView.startCard(cardViewId)}
                 }
             )
 
@@ -87,18 +84,16 @@ export class NodePlay {
                 this.scheduler.scheduleEvent(
                     {
                         triggerTimeMsec: card.t_end,
-                        triggerFunc: () => {this.boardView.stopCard(card.card_id)},
+                        triggerFunc: () => {this.boardView.stopCard(cardViewId)},
                     }
                 )
             }
 
             // Schedule Card destruction:
             this.scheduler.scheduleOnStop(
-                () => {this.boardView.destroyCard(card.card_id)}
+                () => {this.boardView.destroyCard(cardViewId)}
             )
         }
-        // Await all Card preparations, as some Sensors may depend on Cards being ready:
-        await Promise.all(setupPromises);
 
         // Prepare and schedule Sensors:
         for (const sensor of this.node.sensors) {
@@ -158,7 +153,6 @@ export class NodePlay {
         }
 
         // Buffer and prepare ALL potential Outcomes ahead of time:
-        let outcomeSetupPromises: Promise<void>[] = [];
         for (const outcome of this.node.outcomes) {
             const outcomeEventScheduleCur = new EventScheduler()
 
@@ -166,31 +160,30 @@ export class NodePlay {
             let maxEndTime: number = 0;
             for (const card of outcome.cards) {
                 // Prepare Cards:
-                outcomeSetupPromises.push(
-                    this.boardView.prepareCard(
-                        card,
-                        assetManager,
-                    )
-                );
+
+                const cardViewId = await this.boardView.prepareCard(
+                    card,
+                    assetManager,
+                )
                 // Schedule:
                 outcomeEventScheduleCur.scheduleEvent(
                     {
                         triggerTimeMsec: card.t_start,
-                        triggerFunc: () => {this.boardView.startCard(card.card_id)}
+                        triggerFunc: () => {this.boardView.startCard(cardViewId)}
                     }
                 )
                 if (card.t_end !== null) {
                     outcomeEventScheduleCur.scheduleEvent(
                         {
                             triggerTimeMsec: card.t_end,
-                            triggerFunc: () => {this.boardView.stopCard(card.card_id)},
+                            triggerFunc: () => {this.boardView.stopCard(cardViewId)},
                         }
                     )
                     if (card.t_end > maxEndTime) {
                         maxEndTime = card.t_end;
                     }
                 } else {
-                    throw new Error(`Consequence Cards must have an end time: ${card.card_id} `);
+                    throw new Error(`Consequence Cards must have an end time: ${card} `);
                 }
             }
             // Schedule outcome resolver:
@@ -204,9 +197,6 @@ export class NodePlay {
             // Attach:
             this.outcomeSchedulers[outcome.sensor_id] = outcomeEventScheduleCur;
         }
-        // Await all outcome preparations:
-        await Promise.all(outcomeSetupPromises);
-
 
         this.prepared = true;
     }
