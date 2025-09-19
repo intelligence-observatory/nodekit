@@ -1,7 +1,7 @@
 import type {AssetManager} from "../asset-manager";
 import type {Board} from "../types/board";
 import type {Card} from "../types/cards";
-import type {SensorId, SpatialPoint, SpatialSize} from "../types/common.ts";
+import type {SpatialPoint, SpatialSize} from "../types/common.ts";
 import type {Sensor} from "../types/sensors";
 import type {Action} from "../types/actions";
 import './board-view.css'
@@ -13,6 +13,9 @@ import {VideoCardView} from "./card-views/video/video-card.ts";
 import {ShapeCardView} from "./card-views/shape/shape-card-view.ts";
 
 type CardViewId = string & { __brand: 'CardViewId' };
+
+
+type SensorBindingId = string & { __brand: 'SensorBindingId' };
 
 export class BoardCoordinateSystem {
     public boardWidthPx: number; // Width of the board in pixels
@@ -92,7 +95,7 @@ export class BoardCoordinateSystem {
 export class BoardView {
     root: HTMLDivElement
     cardViews: Map<CardViewId, CardView> = new Map(); // Map of card ID to CardView
-    sensorBindings: Map<SensorId, SensorBinding> = new Map(); // Map of sensor ID to SensorBinding
+    sensorBindings: Map<SensorBindingId, SensorBinding> = new Map(); // Map of sensor ID to SensorBinding
 
     constructor(
         boardId: string,
@@ -223,10 +226,10 @@ export class BoardView {
     }
 
     // Sensors
-    private getSensorBinding(sensorId: SensorId): SensorBinding {
-        const sensorBinding = this.sensorBindings.get(sensorId);
+    private getSensorBinding(sensorBindingId: SensorBindingId): SensorBinding {
+        const sensorBinding = this.sensorBindings.get(sensorBindingId);
         if (!sensorBinding) {
-            throw new Error(`SensorBinding with ID ${sensorId} not found.`);
+            throw new Error(`SensorBinding with ID ${sensorBindingId} not found.`);
         }
         return sensorBinding;
     }
@@ -234,19 +237,17 @@ export class BoardView {
     prepareSensor(
         sensor: Sensor,
         onSensorFired: (action: Action) => void,
-    ) {
+    ): SensorBindingId {
 
         // Dynamic dispatch for initializing SensorBinding from Sensor
         let sensorBinding: SensorBinding | null = null;
         if (sensor.sensor_type === 'TimeoutSensor') {
             sensorBinding = new TimeoutSensorBinding(
-                sensor.sensor_id,
                 onSensorFired,
             );
         }
         else if (sensor.sensor_type === 'KeySensor') {
             sensorBinding = new KeySensorBinding(
-                sensor.sensor_id,
                 onSensorFired,
                 sensor.key,
             );
@@ -254,7 +255,6 @@ export class BoardView {
         else if (sensor.sensor_type == "ClickSensor"){
 
             sensorBinding = new ClickSensorBinding(
-                sensor.sensor_id,
                 sensor.region,
                 onSensorFired,
                 this.root,
@@ -264,20 +264,22 @@ export class BoardView {
         else {
             throw new Error(`Unknown Sensor provided: ${sensor}`);
         }
-
-        this.sensorBindings.set(sensor.sensor_id, sensorBinding);
+        // Issue a new SensorBindingId (a UUID):
+        const sensorBindingId = crypto.randomUUID() as SensorBindingId;
+        this.sensorBindings.set(sensorBindingId, sensorBinding);
+        return sensorBindingId
     }
 
     startSensor(
-        sensorId: SensorId,
+        sensorBindingId: SensorBindingId,
     ) {
-        const sensorBinding = this.getSensorBinding(sensorId);
+        const sensorBinding = this.getSensorBinding(sensorBindingId);
         sensorBinding.arm()
     }
 
-    destroySensor(sensorId: SensorId) {
-        const sensorBinding = this.getSensorBinding(sensorId);
+    destroySensor(sensorBindingId: SensorBindingId) {
+        const sensorBinding = this.getSensorBinding(sensorBindingId);
         sensorBinding.destroy();
-        this.sensorBindings.delete(sensorId);
+        this.sensorBindings.delete(sensorBindingId);
     }
 }

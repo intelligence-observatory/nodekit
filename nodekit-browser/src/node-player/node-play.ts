@@ -98,7 +98,7 @@ export class NodePlay {
         // Prepare and schedule Sensors:
         for (const sensor of this.node.sensors) {
             // Prepare Sensor:
-            this.boardView.prepareSensor(
+            const sensorBindingId = this.boardView.prepareSensor(
                 sensor,
                 action => this.deferredAction.resolve(action)
             )
@@ -107,13 +107,13 @@ export class NodePlay {
             this.scheduler.scheduleEvent(
                 {
                     triggerTimeMsec: sensor.t_start,
-                    triggerFunc: () => {this.boardView.startSensor(sensor.sensor_id)},
+                    triggerFunc: () => {this.boardView.startSensor(sensorBindingId)},
                 }
             )
 
             // Schedule Sensor destruction:
             this.scheduler.scheduleOnStop(
-                () => {this.boardView.destroySensor(sensor.sensor_id)}
+                () => {this.boardView.destroySensor(sensorBindingId)}
             )
         }
 

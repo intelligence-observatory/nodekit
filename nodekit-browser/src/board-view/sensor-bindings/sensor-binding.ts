@@ -1,6 +1,5 @@
 import type {Action, ClickAction, KeyAction, TimeoutAction} from "../../types/actions";
 import type {PressableKey} from "../../types/common.ts";
-import {type SensorId} from "../../types/common.ts";
 import type {BoardCoordinateSystem} from "../board-view.ts";
 import type {Region} from "../../types/regions";
 import {checkPointInRegion} from "../../utils.ts";
@@ -20,7 +19,6 @@ export class ClickSensorBinding implements SensorBinding {
     protected tArmed: DOMHighResTimeStamp | null = null;
 
     constructor(
-        sensorId: SensorId,
         region: Region,
         onSensorFired: (action: ClickAction) => void,
         boardRootElement: HTMLDivElement,
@@ -41,7 +39,6 @@ export class ClickSensorBinding implements SensorBinding {
             }
 
             const action: ClickAction = {
-                sensor_id: sensorId,
                 action_type: "ClickAction",
                 click_x: x,
                 click_y: y,
@@ -74,20 +71,16 @@ export class ClickSensorBinding implements SensorBinding {
 A sensor which fires immediately when armed and yields a TimeoutAction.
  */
 export class TimeoutSensorBinding implements SensorBinding {
-    private sensorId: SensorId;
     private onSensorFired: (action: Action) => void
 
     constructor(
-        sensorId: SensorId,
         onSensorFired: (action: Action) => void,
     ) {
-        this.sensorId = sensorId;
         this.onSensorFired = onSensorFired;
     }
 
     arm(): void {
         const action: TimeoutAction = {
-            sensor_id: this.sensorId,
             action_type: "TimeoutAction",
             timestamp_action: performanceNowToISO8601(performance.now())
         };
@@ -98,17 +91,14 @@ export class TimeoutSensorBinding implements SensorBinding {
 }
 
 export class KeySensorBinding implements SensorBinding {
-    private readonly sensorId: SensorId;
     private readonly onSensorFired: (action: Action) => void
     private tArmed: number | null = null;
     private readonly keys: PressableKey[];
 
     constructor(
-        sensorId: SensorId,
         onSensorFired: (action: Action) => void,
         key: PressableKey
     ) {
-        this.sensorId = sensorId;
         this.onSensorFired = onSensorFired;
 
         this.keys = [key];
@@ -142,7 +132,6 @@ export class KeySensorBinding implements SensorBinding {
 
         // Create the action to be fired:
         const action: KeyAction = {
-            sensor_id: this.sensorId,
             action_type: "KeyAction",
             key: key,
             timestamp_action: performanceNowToISO8601(performance.now())
