@@ -1,13 +1,10 @@
 from typing import List
-from uuid import uuid4
 
 import pydantic
 
 from nodekit._internal.types.board import Board
 from nodekit._internal.types.cards.cards import Card
-from nodekit._internal.types.common import NodeId
 from nodekit._internal.types.effects.effects import Effect
-from nodekit._internal.types.outcome import Outcome
 from nodekit._internal.types.sensors.sensors import Sensor
 from nodekit._internal.version import VERSION
 
@@ -16,7 +13,6 @@ class Node(pydantic.BaseModel):
     class Config:
         frozen = True
 
-    node_id: NodeId = pydantic.Field(default_factory=uuid4)
     board: Board = pydantic.Field(default_factory=Board)
     cards: List[Card] = pydantic.Field(
         description=(
@@ -25,7 +21,6 @@ class Node(pydantic.BaseModel):
         ),
     )
     sensors: List[Sensor] = pydantic.Field(min_length=1)
-    outcomes: List[Outcome] = pydantic.Field(default_factory=list)
     effects: List[Effect] = pydantic.Field(default_factory=list)
 
 

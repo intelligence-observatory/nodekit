@@ -1,17 +1,19 @@
-import type {Node} from "../types/timeline.ts";
+import type {Node} from "../types/node.ts";
 import type {Action} from "../types/actions/";
 import {BoardView} from "../board-view/board-view.ts";
 import {EventScheduler} from "./event-scheduler.ts";
 import {type EffectBinding, HideCursorEffectBinding} from "../board-view/effect-bindings/effect-bindings.ts";
 
 import {performanceNowToISO8601} from "../utils.ts";
-import type {ISO8601, SensorId} from "../types/common.ts";
+import type {ISO8601} from "../types/common.ts";
 import type {AssetManager} from "../asset-manager";
+import type {SensorIndex} from "../types/events";
 
-//
 export interface PlayNodeResult {
-    timestamp_start: ISO8601;
-    timestamp_end: ISO8601;
+    timestampStart: ISO8601;
+    timestampAction: ISO8601
+    timestampEnd: ISO8601;
+    sensorIndex: SensorIndex;
     action: Action;
 }
 
@@ -35,6 +37,11 @@ class Deferred<T> {
         this.resolveFunc(value);
     }
 }
+interface SensorFiring {
+    sensorIndex: SensorIndex;
+    timestampAction: ISO8601;
+    action: Action;
+}
 
 export class NodePlay {
     public boardView: BoardView
@@ -44,10 +51,10 @@ export class NodePlay {
 
     // Event schedules:
     private scheduler: EventScheduler
-    private outcomeSchedulers: Record<SensorId, EventScheduler>
+    private outcomeSchedulers: Record<SensorIndex, EventScheduler>
 
     // Resolvers
-    private deferredAction = new Deferred<Action>();
+    private deferredSensorFiring = new Deferred<SensorFiring>();
     private deferredOutcomeDone = new Deferred<void>();
 
 
@@ -96,11 +103,16 @@ export class NodePlay {
         }
 
         // Prepare and schedule Sensors:
-        for (const sensor of this.node.sensors) {
+        for (let sensorIndex = 0 as SensorIndex; sensorIndex < this.node.sensors.length; sensorIndex++) {
             // Prepare Sensor:
+            const sensor = this.node.sensors[sensorIndex];
             const sensorBindingId = this.boardView.prepareSensor(
                 sensor,
-                action => this.deferredAction.resolve(action)
+                (action, timestampAction) => this.deferredSensorFiring.resolve({
+                    sensorIndex: sensorIndex as SensorIndex,
+                    timestampAction: timestampAction,
+                    action: action,
+                })
             )
 
             // Schedule Sensor start:
@@ -115,45 +127,14 @@ export class NodePlay {
             this.scheduler.scheduleOnStop(
                 () => {this.boardView.destroySensor(sensorBindingId)}
             )
-        }
 
-        // Prepare and schedule Effects:
-        for (const effect of this.node.effects){
-            // Initialize the Effect binding // todo
-            // There is only one EffectBinding type for now, so just instantiate it directly:
-            const effectBinding: EffectBinding = new HideCursorEffectBinding(this.boardView)
-            // Schedule the effect start
-            this.scheduler.scheduleEvent(
-                {
-                    triggerTimeMsec: effect.t_start,
-                    triggerFunc: () => {
-                        effectBinding.start();
-                    },
-                }
-            )
-
-            // Schedule the effect end, if applicable
-            if (effect.t_end !== null) {
-                this.scheduler.scheduleEvent(
-                    {
-                        triggerTimeMsec: effect.t_end,
-                        triggerFunc: () => {
-                            effectBinding.stop();
-                        },
-                    }
-                )
+            if (!sensor.outcome) {
+                continue; // No outcome to prepare
             }
 
-            // Schedule effects always end
-            this.scheduler.scheduleOnStop(
-                () => {
-                    effectBinding.stop();
-                }
-            )
-        }
-
-        // Buffer and prepare ALL potential Outcomes ahead of time:
-        for (const outcome of this.node.outcomes) {
+            console.log(sensor)
+            // Buffer the Sensor outcome:
+            const outcome = sensor.outcome;
             const outcomeEventScheduleCur = new EventScheduler()
 
             // Prepare and schedule outcome.Cards:
@@ -195,7 +176,42 @@ export class NodePlay {
             )
 
             // Attach:
-            this.outcomeSchedulers[outcome.sensor_id] = outcomeEventScheduleCur;
+            this.outcomeSchedulers[sensorIndex] = outcomeEventScheduleCur;
+        }
+
+        // Prepare and schedule Effects:
+        for (const effect of this.node.effects){
+            // Initialize the Effect binding // todo
+            // There is only one EffectBinding type for now, so just instantiate it directly:
+            const effectBinding: EffectBinding = new HideCursorEffectBinding(this.boardView)
+            // Schedule the effect start
+            this.scheduler.scheduleEvent(
+                {
+                    triggerTimeMsec: effect.t_start,
+                    triggerFunc: () => {
+                        effectBinding.start();
+                    },
+                }
+            )
+
+            // Schedule the effect end, if applicable
+            if (effect.t_end !== null) {
+                this.scheduler.scheduleEvent(
+                    {
+                        triggerTimeMsec: effect.t_end,
+                        triggerFunc: () => {
+                            effectBinding.stop();
+                        },
+                    }
+                )
+            }
+
+            // Schedule effects always end
+            this.scheduler.scheduleOnStop(
+                () => {
+                    effectBinding.stop();
+                }
+            )
         }
 
         this.prepared = true;
@@ -219,22 +235,25 @@ export class NodePlay {
         this.scheduler.start()
 
         // Wait for a Sensor to fire:
-        const action = await this.deferredAction.promise;
+        const sensorFiring = await this.deferredSensorFiring.promise;
         this.scheduler.stop();
 
-        // Run an outcome, if one is provided for the given sensorId:
-        const sensorId = action.sensor_id;
-        if (sensorId in this.outcomeSchedulers) {
-            const outcomeSchedule = this.outcomeSchedulers[sensorId];
+        // Run the Outcome (if any) for the Sensor:
+        const sensorIndex = sensorFiring.sensorIndex;
+        if (sensorIndex in this.outcomeSchedulers) {
+            const outcomeSchedule = this.outcomeSchedulers[sensorIndex];
             outcomeSchedule.start();
             // Wait for the outcome to finish:
             await this.deferredOutcomeDone.promise;
             outcomeSchedule.stop();
         }
+
         return {
-            action: action,
-            timestamp_start: performanceNowToISO8601(timestampStart),
-            timestamp_end: performanceNowToISO8601(performance.now()),
+            sensorIndex: sensorFiring.sensorIndex,
+            action: sensorFiring.action,
+            timestampStart: performanceNowToISO8601(timestampStart),
+            timestampAction: sensorFiring.timestampAction,
+            timestampEnd: performanceNowToISO8601(performance.now()),
         }
     }
 }

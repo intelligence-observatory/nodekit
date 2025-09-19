@@ -13,13 +13,6 @@ class Outcome(pydantic.BaseModel):
     The Cards in an Outcome should all have closed t_end times, as the Outcome is expected to be temporally finite.
     """
 
-    sensor_id: SensorId = pydantic.Field(
-        description=(
-            'The ID of the Sensor that triggers this Outcome when activated. '
-            'Any Action from this Sensor will lead to this Outcome.'
-        )
-    )
-
     cards: List[Card] = pydantic.Field(
         description=(
             'Cards that will be displayed on a freshly cleared Board. These should all have a finite timespan.'

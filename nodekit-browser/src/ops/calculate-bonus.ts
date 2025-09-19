@@ -1,8 +1,5 @@
-import type {Event} from "../types/events";
-import type {Action} from "../types/actions";
-import type {Timeline} from "../types/timeline.ts";
-import type {NodeId} from "../types/timeline.ts";
-import type {Outcome} from "../types/outcomes";
+import type {Event, NodeIndex, SensorIndex} from "../types/events";
+import type {Timeline} from "../types/node.ts";
 
 export function calculateBonusUsd(
     events: Event[],
@@ -14,16 +11,11 @@ export function calculateBonusUsd(
 
     let bonusComputed = 0;
 
-    let nodeIdToConsequences: Record<NodeId, Outcome[]> = {}
-    for (const node of timeline.nodes) {
-        nodeIdToConsequences[node.node_id] = node.outcomes;
-    }
-
     // Sort events by timestamp to ensure correct order of processing
     // Note that event_timestamp is an ISO8601 string:
     events.sort((a, b) => a.timestamp_event.localeCompare(b.timestamp_event));
 
-    let observedNodeIds = new Set<NodeId>();
+    let observedNodes = new Set<NodeIndex>();
     for (let i = 0; i < events.length; i++) {
 
         const eventCur = events[i];
@@ -31,23 +23,24 @@ export function calculateBonusUsd(
         if (eventCur.event_type !== 'NodeResultEvent') {
             continue;
         }
-        const nodeResult = eventCur.event_payload;
-        const action: Action = nodeResult.action;
-        const sensorId = action.sensor_id;
+        const nodeIndex: NodeIndex = eventCur.node_index;
+        const sensorIndex: SensorIndex = eventCur.sensor_index;
         // Skip if we've already processed this node
-        if (observedNodeIds.has(nodeResult.node_id)) {
+        if (observedNodes.has(nodeIndex)) {
             continue;
         }
-        observedNodeIds.add(nodeResult.node_id);
+        observedNodes.add(nodeIndex);
 
-        // Perform scan through consequences;
-        for (const consequence of nodeIdToConsequences[nodeResult.node_id] || []) {
-            if (consequence.sensor_id === sensorId){
-                let bonusAmountUsd = parseFloat(consequence.bonus_amount_usd);
-                if (!isNaN(bonusAmountUsd) && bonusAmountUsd > 0){
-                    bonusComputed += bonusAmountUsd;
-                }
-            }
+        // Get Outcome for this Sensor fire, if it exists:
+        const node = timeline.nodes[nodeIndex];
+        const sensor = node.sensors[sensorIndex];
+        const outcome = sensor.outcome;
+        if (!outcome){
+            continue
+        }
+        let bonusAmountUsd = parseFloat(outcome.bonus_amount_usd);
+        if (!isNaN(bonusAmountUsd) && bonusAmountUsd > 0){
+            bonusComputed += bonusAmountUsd;
         }
     }
 

@@ -1,8 +1,7 @@
-import type {ISO8601, PressableKey, SpatialPoint} from "../common.ts";
+import type {PressableKey, SpatialPoint} from "../common.ts";
 
 export interface BaseAction<T extends string> {
     action_type: T
-    timestamp_action: ISO8601
 }
 
 export interface ClickAction extends BaseAction<"ClickAction"> {

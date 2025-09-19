@@ -6,8 +6,9 @@ from uuid import UUID
 import pydantic
 
 from nodekit._internal.types.actions.actions import Action
-from nodekit._internal.types.common import DatetimeUTC, NodeId
+from nodekit._internal.types.common import DatetimeUTC
 from nodekit._internal.version import VERSION
+
 
 # %%
 class EventTypeEnum(str, enum.Enum):
@@ -86,9 +87,10 @@ class NodeResultEvent(BaseEvent):
         """
         Describes the result of a NodePlay.
         """
-        node_id: NodeId = pydantic.Field(description='The ID of the Node from which this NodeResult was produced.')
+        node_index: int = pydantic.Field(description='The index of the Node that was played.')
         timestamp_node_start: DatetimeUTC
         timestamp_node_end: DatetimeUTC
+        sensor_index: int = pydantic.Field(description='The index of the Sensor in this Node that was triggered.')
         action: Action
 
     event_type: Literal[EventTypeEnum.NodeResultEvent] = EventTypeEnum.NodeResultEvent

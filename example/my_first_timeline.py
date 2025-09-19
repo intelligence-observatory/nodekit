@@ -51,20 +51,7 @@ def make_basic_fixation_node(
         x=0, y=0, w=0.1, h=0.1,
     )
 
-    # Define your Sensors, which will detect an Action from the Participant:
-    clicked_fixation_dot_sensor = nk.sensors.ClickSensor(
-        region=nk.regions.ShapeRegion(
-            shape='ellipse',
-            x=fixation_x,
-            y=fixation_y,
-            w = circle_card.w,
-            h = circle_card.h,
-        )
-    )
-    spacebar_sensor = nk.sensors.KeySensor(key=' ')
-    timeout_sensor = nk.sensors.TimeoutSensor(t_start=5000)
-
-    # Set up your ConsequenceMap, which maps Actions to Consequences
+    # Define outcomes
     positive_card = nk.cards.TextCard(
         text='Yay',
         x=0, y=0, w=0.5, h=0.5,
@@ -77,28 +64,37 @@ def make_basic_fixation_node(
         t_end=400,
     )
 
-    outcomes = [
-        nk.Outcome(
-            sensor_id=clicked_fixation_dot_sensor.sensor_id,
-            cards=[positive_card],
-            bonus_amount_usd='0.01'
+    positive_outcome = nk.Outcome(
+        cards=[positive_card],
+        bonus_amount_usd='0.01'
+    )
+
+    negative_outcome1 = nk.Outcome(
+        cards=[negative_card],
+        bonus_amount_usd='-0.01'
+    )
+    negative_outcome2 = nk.Outcome(
+        cards=[negative_card],
+        bonus_amount_usd='-0.05'
+    )
+
+    # Define your Sensors, which will detect an Action from the Participant:
+    clicked_fixation_dot_sensor = nk.sensors.ClickSensor(
+        region=nk.regions.ShapeRegion(
+            shape='ellipse',
+            x=fixation_x,
+            y=fixation_y,
+            w = circle_card.w,
+            h = circle_card.h,
         ),
-        nk.Outcome(
-            sensor_id=spacebar_sensor.sensor_id,
-            cards=[negative_card],
-            bonus_amount_usd='-0.01'
-        ),
-        nk.Outcome(
-            sensor_id=timeout_sensor.sensor_id,
-            cards=[negative_card],
-            bonus_amount_usd='-0.05'
-        )
-    ]
+        outcome=positive_outcome,
+    )
+    spacebar_sensor = nk.sensors.KeySensor(key=' ', outcome=negative_outcome2)
+    timeout_sensor = nk.sensors.TimeoutSensor(t_start=5000, outcome=negative_outcome1)
 
     return nk.Node(
         cards=[color_card, circle_card, vertical_bar, horizontal_bar],
         sensors=[clicked_fixation_dot_sensor, spacebar_sensor],
-        outcomes=outcomes,
     )
 
 

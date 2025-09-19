@@ -8,7 +8,6 @@ declare interface AssetUrl {
 }
 
 declare interface BaseAction<T extends string> {
-    sensor_id: SensorId;
     action_type: T;
     timestamp_action: ISO8601;
 }
@@ -34,22 +33,20 @@ declare interface BaseEffect<T extends string> {
     t_end: TimePointMsec | null;
 }
 
-declare type BaseEvent<T extends string, P> = {
-    event_id: UUID;
-    timestamp_event: ISO8601;
+declare interface BaseEvent<T extends string> {
     event_type: T;
-    event_payload: P;
+    timestamp_event: ISO8601;
     nodekit_version: string;
-};
+}
 
 declare interface BaseRegion<T extends string> {
     region_type: T;
 }
 
 declare interface BaseSensor<T extends string> {
-    sensor_id: SensorId;
     sensor_type: T;
     t_start: TimePointMsec;
+    outcome: Outcome | null;
 }
 
 declare interface Board {
@@ -58,19 +55,17 @@ declare interface Board {
     background_color: ColorHexString;
 }
 
-declare type BonusDisclosureEvent = BaseEvent<'BonusDisclosureEvent', {
+declare interface BonusDisclosureEvent extends BaseEvent<'BonusDisclosureEvent'> {
     bonus_amount_usd: MonetaryAmountUsd;
-}>;
+}
 
-declare interface BrowserContext {
+declare interface BrowserContextEvent extends BaseEvent<'BrowserContextEvent'> {
     user_agent: string;
     viewport_width_px: number;
     viewport_height_px: number;
     display_width_px: number;
     display_height_px: number;
 }
-
-declare type BrowserContextEvent = BaseEvent<'BrowserContextEvent', BrowserContext>;
 
 declare type Card = ImageCard | TextCard | VideoCard | ShapeCard;
 
@@ -89,7 +84,8 @@ declare type ColorHexString = string & {
 
 declare type Effect = HidePointerEffect;
 
-declare type EndEvent = BaseEvent<'EndEvent', {}>;
+declare interface EndEvent extends BaseEvent<'EndEvent'> {
+}
 
 declare type Event_2 = StartEvent | EndEvent | NodeResultEvent | LeaveEvent | ReturnEvent | BonusDisclosureEvent | BrowserContextEvent;
 
@@ -116,7 +112,8 @@ declare interface KeySensor extends BaseSensor<'KeySensor'> {
     key: PressableKey;
 }
 
-declare type LeaveEvent = BaseEvent<'LeaveEvent', {}>;
+declare interface LeaveEvent extends BaseEvent<'LeaveEvent'> {
+}
 
 declare type MarkdownString = string & {
     __brand: 'MarkdownString';
@@ -127,29 +124,27 @@ declare type MonetaryAmountUsd = string & {
 };
 
 declare interface Node_2 {
-    node_id: NodeId;
     cards: Card[];
     sensors: Sensor[];
-    outcomes: Outcome[];
     effects: Effect[];
     board: Board;
 }
 
-declare type NodeId = string & {
-    __brand: 'NodeId';
+declare type NodeIndex = number & {
+    __brand: "NodeIndex";
 };
 
-declare type NodeResultEvent = BaseEvent<'NodeResultEvent', {
-    node_id: NodeId;
+declare interface NodeResultEvent extends BaseEvent<'NodeResultEvent'> {
+    node_index: NodeIndex;
     timestamp_node_start: ISO8601;
     timestamp_node_end: ISO8601;
+    sensor_index: SensorIndex;
     action: Action;
-}>;
+}
 
 export declare type OnEventCallback = (event: Event_2) => void;
 
 declare interface Outcome {
-    sensor_id: SensorId;
     cards: Card[];
     bonus_amount_usd: MonetaryAmountUsd;
 }
@@ -160,12 +155,13 @@ declare type PressableKey = "Enter" | " " | "ArrowDown" | "ArrowLeft" | "ArrowRi
 
 declare type Region = ShapeRegion;
 
-declare type ReturnEvent = BaseEvent<'ReturnEvent', {}>;
+declare interface ReturnEvent extends BaseEvent<'ReturnEvent'> {
+}
 
 declare type Sensor = TimeoutSensor | ClickSensor | KeySensor;
 
-declare type SensorId = string & {
-    __brand: 'SensorId';
+declare type SensorIndex = number & {
+    __brand: "SensorIndex";
 };
 
 declare type SHA256 = string & {
@@ -195,7 +191,8 @@ declare type SpatialSize = number & {
     __brand: 'SpatialSize';
 };
 
-declare type StartEvent = BaseEvent<'StartEvent', {}>;
+declare interface StartEvent extends BaseEvent<'StartEvent'> {
+}
 
 declare interface TextCard extends BaseCard<'TextCard'> {
     text: MarkdownString;
@@ -220,10 +217,6 @@ declare interface TimeoutSensor extends BaseSensor<'TimeoutSensor'> {
 
 declare type TimePointMsec = number & {
     __brand: 'TimePointMsec';
-};
-
-declare type UUID = string & {
-    __brand: 'UUID';
 };
 
 declare interface VideoCard extends BaseCard<'VideoCard'> {

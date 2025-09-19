@@ -1,8 +1,8 @@
 import {NodePlayer} from "./node-player/node-player.ts";
-import type {BonusDisclosureEvent, BrowserContextEvent, EndEvent, Event, LeaveEvent, NodeResultEvent, ReturnEvent, StartEvent, UUID} from "./types/events";
+import type {BonusDisclosureEvent, BrowserContextEvent, EndEvent, Event, LeaveEvent, NodeIndex, NodeResultEvent, ReturnEvent, StartEvent} from "./types/events";
 import {type ISO8601, type MonetaryAmountUsd} from "./types/common.ts";
 import {calculateBonusUsd} from "./ops/calculate-bonus.ts";
-import type {Timeline} from "./types/timeline.ts";
+import type {Timeline, Trace} from "./types/node.ts";
 import {performanceNowToISO8601} from "./utils.ts";
 import {getBrowserContext} from "./user-gates/browser-context.ts";
 import {DeviceGate} from "./user-gates/device-gate.ts";
@@ -10,10 +10,6 @@ import type {AssetUrl} from "./types/assets";
 
 export type OnEventCallback = (event: Event) => void;
 
-
-function generateEventId(): UUID {
-    return crypto.randomUUID() as UUID;
-}
 
 function getCurrentTimestamp(): ISO8601 {
     return performanceNowToISO8601(performance.now())
@@ -24,7 +20,7 @@ export async function play(
     assetUrls: AssetUrl[],
     onEventCallback: OnEventCallback | null = null,
     previousEvents: Event[] = [],
-): Promise<Event[]> {
+): Promise<Trace> {
     /*
     Executes a run through the Timeline. Events are returned as an array.
     Events emitted from a previous, interrupted run of the Timeline can be provided to continue from the point of interruption.
@@ -65,11 +61,8 @@ export async function play(
     await nodePlayer.playStartScreen()
     // Emit the StartEvent
     const startEvent: StartEvent = {
-        event_id: generateEventId(),
-        timestamp_event: getCurrentTimestamp(),
         event_type: "StartEvent",
-        event_payload: {},
-        nodekit_version: nodekitVersion,
+        timestamp_event: getCurrentTimestamp(),
     }
     events.push(startEvent);
     onEventCallback(startEvent);
@@ -78,22 +71,16 @@ export async function play(
     function onVisibilityChange() {
         if (document.visibilityState === "hidden") {
             const leaveEvent: LeaveEvent = {
-                event_id: generateEventId(),
-                timestamp_event: getCurrentTimestamp(),
                 event_type: "LeaveEvent",
-                event_payload: {},
-                nodekit_version: nodekitVersion,
+                timestamp_event: getCurrentTimestamp(),
             };
             events.push(leaveEvent);
             onEventCallback!(leaveEvent);
         } else if (document.visibilityState === "visible") {
             // Optionally handle when the document becomes visible again
             const returnEvent: ReturnEvent = {
-                event_id: generateEventId(),
-                timestamp_event: getCurrentTimestamp(),
                 event_type: "ReturnEvent",
-                event_payload: {},
-                nodekit_version: nodekitVersion,
+                timestamp_event: getCurrentTimestamp(),
             };
             events.push(returnEvent);
             onEventCallback!(returnEvent);
@@ -105,19 +92,21 @@ export async function play(
     // Emit the BrowserContextEvent:
     const browserContext = getBrowserContext();
     const browserContextEvent: BrowserContextEvent = {
-        event_id: generateEventId(),
-        timestamp_event: getCurrentTimestamp(),
         event_type: "BrowserContextEvent",
-        event_payload: browserContext,
-        nodekit_version: nodekitVersion,
+        timestamp_event: getCurrentTimestamp(),
+        user_agent: browserContext.userAgent,
+        viewport_width_px: browserContext.viewportWidthPx,
+        viewport_height_px: browserContext.viewportHeightPx,
+        display_width_px: browserContext.displayWidthPx,
+        display_height_px: browserContext.displayHeightPx,
     }
     events.push(browserContextEvent);
     onEventCallback(browserContextEvent);
 
     const nodes = timeline.nodes;
-    for (let i = 0; i < nodes.length; i++) {
+    for (let nodeIndex = 0 as NodeIndex; nodeIndex < nodes.length; nodeIndex++) {
         // Prepare the Node:
-        const node = nodes[i];
+        const node = nodes[nodeIndex];
         const nodePlayId = await nodePlayer.prepare(node);
 
         // Play the Node:
@@ -125,22 +114,20 @@ export async function play(
 
         // Package the NodeResultEvent:
         const nodeResultEvent: NodeResultEvent = {
-            event_id: generateEventId(),
-            timestamp_event: getCurrentTimestamp(),
             event_type: "NodeResultEvent",
-            event_payload: {
-                node_id: node.node_id,
-                timestamp_node_start: result.timestamp_start,
-                timestamp_node_end: result.timestamp_end,
-                action: result.action,
-            },
-            nodekit_version: nodekitVersion,
+            timestamp_event: getCurrentTimestamp(),
+            timestamp_node_start: result.timestampStart,
+            timestamp_action: result.timestampAction,
+            timestamp_node_end: result.timestampEnd,
+            node_index: nodeIndex,
+            sensor_index: result.sensorIndex,
+            action: result.action,
         }
         events.push(nodeResultEvent);
         onEventCallback(nodeResultEvent);
 
         // Update the progress bar:
-        nodePlayer.setProgressBar((i + 1) / nodes.length * 100);
+        nodePlayer.setProgressBar((nodeIndex + 1) / nodes.length * 100);
     }
 
     // Bonus disclosure + end button phase:
@@ -158,13 +145,9 @@ export async function play(
     // Emit the BonusDisclosureEvent (if applicable):
     if (bonusMessage !== '') {
         const bonusDisclosureEvent: BonusDisclosureEvent = {
-            event_id: generateEventId(),
             timestamp_event: getCurrentTimestamp(),
             event_type: "BonusDisclosureEvent",
-            event_payload: {
-                bonus_amount_usd: bonusComputed.toFixed(2) as MonetaryAmountUsd,
-            },
-            nodekit_version: nodekitVersion,
+            bonus_amount_usd: bonusComputed.toFixed(2) as MonetaryAmountUsd,
         }
         events.push(bonusDisclosureEvent);
         onEventCallback(bonusDisclosureEvent);
@@ -172,11 +155,8 @@ export async function play(
 
     // Generate the EndEvent:
     const endEvent: EndEvent = {
-        event_id: generateEventId(),
-        timestamp_event: getCurrentTimestamp(),
         event_type: "EndEvent",
-        event_payload: {},
-        nodekit_version: nodekitVersion,
+        timestamp_event: getCurrentTimestamp(),
     }
     events.push(endEvent);
     onEventCallback(endEvent);
@@ -184,11 +164,17 @@ export async function play(
     // Remove the visibility change listener:
     document.removeEventListener("visibilitychange", onVisibilityChange);
 
-    // Show Events:
+    // Assemble trace:
+    const trace = {
+        nodekit_version: nodekitVersion,
+        events: events,
+    }
+
+    // Show the trace in the console for debugging:
     nodePlayer.showConsoleMessageOverlay(
-        'Events',
-        events,
+        'Trace',
+        trace,
     );
 
-    return events
+    return trace
 }

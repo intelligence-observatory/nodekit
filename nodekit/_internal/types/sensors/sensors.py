@@ -5,6 +5,7 @@ import pydantic
 
 from nodekit._internal.types.common import PressableKey, TimePointMsec
 from nodekit._internal.types.regions import Region
+from nodekit._internal.types.outcome import Outcome
 
 
 # %%
@@ -23,9 +24,16 @@ class BaseSensor(pydantic.BaseModel, ABC):
         description='The time (in milliseconds) relative to Node start when the Sensor is armed.',
     )
 
+    # Optional outcome if this Sensor is triggered:
+    outcome: Outcome | None = pydantic.Field(
+        default=None,
+        description='The Outcome to apply if this Sensor is triggered.',
+    )
+
 # %%
 class TimeoutSensor(BaseSensor):
     """
+    todo: rename to just "Timer"; add tends back in.
     A Sensor that triggers immediately after it is armed.
     """
     sensor_type: Literal['TimeoutSensor'] = 'TimeoutSensor'

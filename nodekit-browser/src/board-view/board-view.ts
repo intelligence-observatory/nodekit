@@ -1,7 +1,7 @@
 import type {AssetManager} from "../asset-manager";
 import type {Board} from "../types/board";
 import type {Card} from "../types/cards";
-import type {SpatialPoint, SpatialSize} from "../types/common.ts";
+import type {ISO8601, SpatialPoint, SpatialSize} from "../types/common.ts";
 import type {Sensor} from "../types/sensors";
 import type {Action} from "../types/actions";
 import './board-view.css'
@@ -15,7 +15,7 @@ import {ShapeCardView} from "./card-views/shape/shape-card-view.ts";
 type CardViewId = string & { __brand: 'CardViewId' };
 
 
-type SensorBindingId = string & { __brand: 'SensorBindingId' };
+export type SensorBindingId = string & { __brand: 'SensorBindingId' };
 
 export class BoardCoordinateSystem {
     public boardWidthPx: number; // Width of the board in pixels
@@ -82,8 +82,12 @@ export class BoardCoordinateSystem {
     }{
         // Converts a MouseEvent's (clientX, clientY) to Board coordinates (x, y)
 
-        const clickX = (e.clientX - this.boardLeftPx) / this.boardWidthPx - 0.5;
-        const clickY = -((e.clientY - this.boardTopPx) / this.boardHeightPx - 0.5);
+        let clickX = (e.clientX - this.boardLeftPx) / this.boardWidthPx - 0.5;
+        let clickY = -((e.clientY - this.boardTopPx) / this.boardHeightPx - 0.5);
+
+        // Standardize to 10 decimal places
+        clickX = parseFloat(clickX.toFixed(10));
+        clickY = parseFloat(clickY.toFixed(10));
 
         return {
             x:clickX as SpatialPoint,
@@ -236,7 +240,7 @@ export class BoardView {
 
     prepareSensor(
         sensor: Sensor,
-        onSensorFired: (action: Action) => void,
+        onSensorFired: (action: Action, timestampAction: ISO8601) => void,
     ): SensorBindingId {
 
         // Dynamic dispatch for initializing SensorBinding from Sensor
