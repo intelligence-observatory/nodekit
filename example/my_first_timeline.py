@@ -18,9 +18,13 @@ def make_basic_fixation_node(
     """
 
     # Configure your Cards, which give context to the Participant:
-    fixation_card = nk.cards.FixationPointCard(
+    fixation_card = nk.cards.ShapeCard(
         x=fixation_x,
         y=fixation_y,
+        w=0.0375,
+        h=0.0375,
+        shape='ellipse',
+        color='#ff0000',
     )
 
     color_card = nk.cards.BlankCard(
@@ -30,7 +34,8 @@ def make_basic_fixation_node(
 
     # Define your Sensors, which will detect an Action from the Participant:
     clicked_fixation_dot_sensor = nk.sensors.ClickSensor(
-        region=nk.regions.Rectangle(
+        region=nk.regions.ShapeRegion(
+            shape='ellipse',
             x=fixation_x,
             y=fixation_y,
             w = fixation_card.w,
@@ -138,7 +143,8 @@ def make_instructions_node(
 
     sensor = nk.sensors.ClickSensor(
         t_start=1000,
-        region=nk.regions.Rectangle(
+        region=nk.regions.ShapeRegion(
+            shape='rectangle',
             x=continue_button.x,
             y=continue_button.y,
             w=continue_button.w,
@@ -182,7 +188,7 @@ for video_file in my_video_files:
     )
     nodes.append(node)
 
-for image_file in my_image_files:
+for image_file in my_image_files[:1]:
     node = make_image_node(
         image_file=image_file
     )

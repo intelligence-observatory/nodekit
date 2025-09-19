@@ -73,8 +73,13 @@ export function checkPointInRegion(
     y: SpatialPoint,
     region: Region
 ): boolean {
-    switch (region.region_type) {
-        case 'Rectangle':
+    if (region.region_type !== 'ShapeRegion'){
+        throw new Error(`Region type ${region.region_type} not implemented in checkPointInRegion`);
+    }
+    // There's only one Region type: ShapeRegion
+
+    switch (region.shape) {
+        case 'rectangle':
             const left = region.x - region.w / 2;
             const right = region.x + region.w / 2;
             const top = region.y + region.h / 2;
@@ -83,7 +88,7 @@ export function checkPointInRegion(
                 (x <= right) &&
                 (y >= bottom) &&
                 (y <= top);
-        case 'Ellipse':
+        case 'ellipse':
             const radius_x = region.w / 2;
             const radius_y = region.h / 2;
             const delta_x = x - region.x;

@@ -1,11 +1,19 @@
 from abc import ABC
-from typing import Literal, Annotated, Union, List
+from typing import Literal, Annotated, Union
+from uuid import uuid4
 
 import pydantic
 
 from nodekit._internal.types.assets import ImageIdentifier, VideoIdentifier
-from nodekit._internal.types.common import ColorHexString, MarkdownString, SpatialPoint, SpatialSize, TimePointMsec, CardId
-from uuid import uuid4
+from nodekit._internal.types.common import (
+    ColorHexString,
+    MarkdownString,
+    SpatialPoint,
+    SpatialSize,
+    TimePointMsec,
+    CardId,
+    Shape
+)
 
 
 # %% Concrete card classes
@@ -61,16 +69,15 @@ class BlankCard(BaseCard):
         description='The color of the BlankCard in hexadecimal format.'
     )
 # %%
-from nodekit._internal.types.regions import Shape
 
 class ShapeCard(BaseCard):
     card_type: Literal['ShapeCard'] = 'ShapeCard'
     shape: Shape = pydantic.Field(
-        description='The shape of the ShapeCard.',
+        description='The shape of the filled region in the ShapeCard.',
     )
     color: ColorHexString = pydantic.Field(
         default='#808080',
-        description='The color of the ShapeCard in hexadecimal format.'
+        description='The fill color in hexadecimal format.'
     )
 
 # %%

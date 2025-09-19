@@ -1,21 +1,16 @@
 import type {SpatialPoint} from "../common.ts";
+import type {Shape} from "../common.ts";
 
 interface BaseRegion<T extends string> {
     region_type: T;
 }
 
-export interface Rectangle extends BaseRegion<'Rectangle'> {
+export interface ShapeRegion extends BaseRegion<'ShapeRegion'> {
+    shape: Shape
     x: SpatialPoint
     y: SpatialPoint
     w: SpatialPoint
     h: SpatialPoint
 }
 
-export interface Ellipse extends BaseRegion<'Ellipse'> {
-    x: SpatialPoint
-    y: SpatialPoint
-    w: SpatialPoint
-    h: SpatialPoint
-}
-
-export type Region = Rectangle | Ellipse;
+export type Region = ShapeRegion;
