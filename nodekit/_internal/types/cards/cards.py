@@ -111,11 +111,10 @@ class VideoCard(BaseCard):
 # %%
 Card = Annotated[
     Union[
-        FixationPointCard,
         ImageCard,
         VideoCard,
         TextCard,
-        BlankCard,
+        ShapeCard,
     ],
     pydantic.Field(discriminator='card_type')
 ]

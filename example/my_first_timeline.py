@@ -18,16 +18,35 @@ def make_basic_fixation_node(
     """
 
     # Configure your Cards, which give context to the Participant:
-    fixation_card = nk.cards.ShapeCard(
+    circle_card = nk.cards.ShapeCard(
         x=fixation_x,
         y=fixation_y,
         w=0.0375,
         h=0.0375,
         shape='ellipse',
-        color='#ff0000',
+        color='#ffffff',
     )
 
-    color_card = nk.cards.BlankCard(
+    vertical_bar = nk.cards.ShapeCard(
+        x=fixation_x,
+        y=fixation_y,
+        w=circle_card.w / 10,
+        h=circle_card.h * 0.9,
+        shape='rectangle',
+        color='#000000',
+    )
+
+    horizontal_bar = nk.cards.ShapeCard(
+        x=fixation_x,
+        y=fixation_y,
+        w=circle_card.w * 0.9,
+        h=circle_card.h / 10,
+        shape='rectangle',
+        color='#000000',
+    )
+
+    color_card = nk.cards.ShapeCard(
+        shape='rectangle',
         color='#32a852',
         x=0, y=0, w=0.1, h=0.1,
     )
@@ -38,8 +57,8 @@ def make_basic_fixation_node(
             shape='ellipse',
             x=fixation_x,
             y=fixation_y,
-            w = fixation_card.w,
-            h = fixation_card.h,
+            w = circle_card.w,
+            h = circle_card.h,
         )
     )
     spacebar_sensor = nk.sensors.KeySensor(key=' ')
@@ -77,7 +96,7 @@ def make_basic_fixation_node(
     ]
 
     return nk.Node(
-        cards=[color_card, fixation_card],
+        cards=[color_card, circle_card, vertical_bar, horizontal_bar],
         sensors=[clicked_fixation_dot_sensor, spacebar_sensor],
         outcomes=outcomes,
     )
