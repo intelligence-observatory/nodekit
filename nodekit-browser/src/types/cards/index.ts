@@ -1,4 +1,4 @@
-import type {ColorHexString, MarkdownString, Shape, SpatialPoint, SpatialSize, TimePointMsec} from "../common.ts";
+import type {ColorHexString, MarkdownString, SpatialPoint, SpatialSize, TimePointMsec} from "../common.ts";
 import type {ImageIdentifier, VideoIdentifier} from "../assets";
 
 export interface BaseCard<T extends string> {
@@ -33,9 +33,4 @@ export interface TextCard extends BaseCard<'TextCard'>{
     background_color: ColorHexString
 }
 
-export interface ShapeCard extends BaseCard<'ShapeCard'>{
-    shape: Shape
-    color: ColorHexString
-}
-
-export type Card = ImageCard | TextCard  | VideoCard  | ShapeCard;
+export type Card = ImageCard | TextCard  | VideoCard;

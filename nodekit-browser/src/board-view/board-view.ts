@@ -10,7 +10,6 @@ import {ClickSensorBinding, KeySensorBinding, type SensorBinding, TimeoutSensorB
 import {ImageCardView} from "./card-views/image/image-card.ts";
 import {TextCardView} from "./card-views/text/text-card-view.ts";
 import {VideoCardView} from "./card-views/video/video-card.ts";
-import {ShapeCardView} from "./card-views/shape/shape-card-view.ts";
 
 type CardViewId = string & { __brand: 'CardViewId' };
 
@@ -183,12 +182,6 @@ export class BoardView {
             case "TextCard":
                 cardView = new TextCardView(
                     card, boardCoords
-                )
-                break
-            case "ShapeCard":
-                cardView = new ShapeCardView(
-                    card,
-                    boardCoords
                 )
                 break
             default:
