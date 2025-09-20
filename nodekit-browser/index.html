@@ -41,7 +41,7 @@
                         "y": -0.45,
                         "w": 0.3,
                         "h": 0.05,
-                        "t_start": 100,
+                        "t_start": 200,
                         "t_end": null,
                         "text": "Continue",
                         "font_size": 0.0175,
@@ -54,71 +54,13 @@
                 "sensors": [
                     {
                         "sensor_type": "ClickSensor",
-                        "t_start": 100,
+                        "t_start": 200,
                         "outcome": null,
-                        "region": {
-                            "region_type": "ShapeRegion",
-                            "shape": "rectangle",
-                            "x": 0.0,
-                            "y": -0.45,
-                            "w": 0.3,
-                            "h": 0.05
-                        }
-                    }
-                ],
-                "effects": []
-            },
-            {
-                "board": {
-                    "board_width_px": 768,
-                    "board_height_px": 768,
-                    "background_color": "#808080ff"
-                },
-                "cards": [
-                    {
-                        "card_type": "TextCard",
-                        "x": 0.0,
-                        "y": 0.0,
-                        "w": 0.8,
-                        "h": 0.8,
-                        "t_start": 0,
-                        "t_end": null,
-                        "text": "## Instructions\n\nBla bla bla.",
-                        "font_size": 0.0175,
-                        "justification_horizontal": "left",
-                        "justification_vertical": "top",
-                        "text_color": "#000000ff",
-                        "background_color": "#ffffffff"
-                    },
-                    {
-                        "card_type": "TextCard",
                         "x": 0.0,
                         "y": -0.45,
                         "w": 0.3,
                         "h": 0.05,
-                        "t_start": 100,
-                        "t_end": null,
-                        "text": "Continue",
-                        "font_size": 0.0175,
-                        "justification_horizontal": "center",
-                        "justification_vertical": "center",
-                        "text_color": "#ffffffff",
-                        "background_color": "#32a852ff"
-                    }
-                ],
-                "sensors": [
-                    {
-                        "sensor_type": "ClickSensor",
-                        "t_start": 500,
-                        "outcome": null,
-                        "region": {
-                            "region_type": "ShapeRegion",
-                            "shape": "rectangle",
-                            "x": 0.0,
-                            "y": -0.45,
-                            "w": 0.3,
-                            "h": 0.05
-                        }
+                        "mask": "rectangle"
                     }
                 ],
                 "effects": []
@@ -145,39 +87,6 @@
                         "muted": true,
                         "loop": false
                     },
-                    {
-                        "card_type": "TextCard",
-                        "x": 0.0,
-                        "y": -0.4,
-                        "w": 0.5,
-                        "h": 0.1,
-                        "t_start": 0,
-                        "t_end": null,
-                        "text": "Press space to continue",
-                        "font_size": 0.0175,
-                        "justification_horizontal": "center",
-                        "justification_vertical": "center",
-                        "text_color": "#000000ff",
-                        "background_color": "#E6E6E600"
-                    }
-                ],
-                "sensors": [
-                    {
-                        "sensor_type": "KeySensor",
-                        "t_start": 0,
-                        "outcome": null,
-                        "key": " "
-                    }
-                ],
-                "effects": []
-            },
-            {
-                "board": {
-                    "board_width_px": 768,
-                    "board_height_px": 768,
-                    "background_color": "#808080ff"
-                },
-                "cards": [
                     {
                         "card_type": "TextCard",
                         "x": 0.0,
@@ -250,232 +159,6 @@
                 ],
                 "effects": []
             },
-            {
-                "board": {
-                    "board_width_px": 768,
-                    "board_height_px": 768,
-                    "background_color": "#808080ff"
-                },
-                "cards": [
-                    {
-                        "card_type": "ShapeCard",
-                        "x": 0.0,
-                        "y": 0.0,
-                        "w": 0.1,
-                        "h": 0.1,
-                        "t_start": 0,
-                        "t_end": null,
-                        "shape": "rectangle",
-                        "color": "#32a852ff"
-                    },
-                    {
-                        "card_type": "ShapeCard",
-                        "x": 0.08,
-                        "y": -0.28,
-                        "w": 0.0375,
-                        "h": 0.0375,
-                        "t_start": 0,
-                        "t_end": null,
-                        "shape": "ellipse",
-                        "color": "#ffffffff"
-                    },
-                    {
-                        "card_type": "ShapeCard",
-                        "x": 0.08,
-                        "y": -0.28,
-                        "w": 0.0028125,
-                        "h": 0.03375,
-                        "t_start": 0,
-                        "t_end": null,
-                        "shape": "rectangle",
-                        "color": "#000000ff"
-                    },
-                    {
-                        "card_type": "ShapeCard",
-                        "x": 0.08,
-                        "y": -0.28,
-                        "w": 0.03375,
-                        "h": 0.0028125,
-                        "t_start": 0,
-                        "t_end": null,
-                        "shape": "rectangle",
-                        "color": "#000000ff"
-                    }
-                ],
-                "sensors": [
-                    {
-                        "sensor_type": "ClickSensor",
-                        "t_start": 0,
-                        "outcome": {
-                            "cards": [
-                                {
-                                    "card_type": "TextCard",
-                                    "x": 0.0,
-                                    "y": 0.0,
-                                    "w": 0.5,
-                                    "h": 0.5,
-                                    "t_start": 0,
-                                    "t_end": 200,
-                                    "text": "Yay",
-                                    "font_size": 0.0175,
-                                    "justification_horizontal": "center",
-                                    "justification_vertical": "center",
-                                    "text_color": "#000000ff",
-                                    "background_color": "#E6E6E600"
-                                }
-                            ],
-                            "bonus_amount_usd": "0.01"
-                        },
-                        "region": {
-                            "region_type": "ShapeRegion",
-                            "shape": "ellipse",
-                            "x": 0.08,
-                            "y": -0.28,
-                            "w": 0.0375,
-                            "h": 0.0375
-                        }
-                    },
-                    {
-                        "sensor_type": "KeySensor",
-                        "t_start": 0,
-                        "outcome": {
-                            "cards": [
-                                {
-                                    "card_type": "TextCard",
-                                    "x": 0.0,
-                                    "y": 0.0,
-                                    "w": 0.5,
-                                    "h": 0.5,
-                                    "t_start": 0,
-                                    "t_end": 400,
-                                    "text": "Boo",
-                                    "font_size": 0.0175,
-                                    "justification_horizontal": "center",
-                                    "justification_vertical": "center",
-                                    "text_color": "#000000ff",
-                                    "background_color": "#E6E6E600"
-                                }
-                            ],
-                            "bonus_amount_usd": "-0.05"
-                        },
-                        "key": " "
-                    }
-                ],
-                "effects": []
-            },
-            {
-                "board": {
-                    "board_width_px": 768,
-                    "board_height_px": 768,
-                    "background_color": "#808080ff"
-                },
-                "cards": [
-                    {
-                        "card_type": "ShapeCard",
-                        "x": 0.0,
-                        "y": 0.0,
-                        "w": 0.1,
-                        "h": 0.1,
-                        "t_start": 0,
-                        "t_end": null,
-                        "shape": "rectangle",
-                        "color": "#32a852ff"
-                    },
-                    {
-                        "card_type": "ShapeCard",
-                        "x": -0.13,
-                        "y": -0.17,
-                        "w": 0.0375,
-                        "h": 0.0375,
-                        "t_start": 0,
-                        "t_end": null,
-                        "shape": "ellipse",
-                        "color": "#ffffffff"
-                    },
-                    {
-                        "card_type": "ShapeCard",
-                        "x": -0.13,
-                        "y": -0.17,
-                        "w": 0.0028125,
-                        "h": 0.03375,
-                        "t_start": 0,
-                        "t_end": null,
-                        "shape": "rectangle",
-                        "color": "#000000ff"
-                    },
-                    {
-                        "card_type": "ShapeCard",
-                        "x": -0.13,
-                        "y": -0.17,
-                        "w": 0.03375,
-                        "h": 0.0028125,
-                        "t_start": 0,
-                        "t_end": null,
-                        "shape": "rectangle",
-                        "color": "#000000ff"
-                    }
-                ],
-                "sensors": [
-                    {
-                        "sensor_type": "ClickSensor",
-                        "t_start": 0,
-                        "outcome": {
-                            "cards": [
-                                {
-                                    "card_type": "TextCard",
-                                    "x": 0.0,
-                                    "y": 0.0,
-                                    "w": 0.5,
-                                    "h": 0.5,
-                                    "t_start": 0,
-                                    "t_end": 200,
-                                    "text": "Yay",
-                                    "font_size": 0.0175,
-                                    "justification_horizontal": "center",
-                                    "justification_vertical": "center",
-                                    "text_color": "#000000ff",
-                                    "background_color": "#E6E6E600"
-                                }
-                            ],
-                            "bonus_amount_usd": "0.01"
-                        },
-                        "region": {
-                            "region_type": "ShapeRegion",
-                            "shape": "ellipse",
-                            "x": -0.13,
-                            "y": -0.17,
-                            "w": 0.0375,
-                            "h": 0.0375
-                        }
-                    },
-                    {
-                        "sensor_type": "KeySensor",
-                        "t_start": 0,
-                        "outcome": {
-                            "cards": [
-                                {
-                                    "card_type": "TextCard",
-                                    "x": 0.0,
-                                    "y": 0.0,
-                                    "w": 0.5,
-                                    "h": 0.5,
-                                    "t_start": 0,
-                                    "t_end": 400,
-                                    "text": "Boo",
-                                    "font_size": 0.0175,
-                                    "justification_horizontal": "center",
-                                    "justification_vertical": "center",
-                                    "text_color": "#000000ff",
-                                    "background_color": "#E6E6E600"
-                                }
-                            ],
-                            "bonus_amount_usd": "-0.05"
-                        },
-                        "key": " "
-                    }
-                ],
-                "effects": []
-            }
         ],
         "nodekit_version": "0.1.0"
     }
