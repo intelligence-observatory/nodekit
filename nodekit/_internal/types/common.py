@@ -80,9 +80,9 @@ DatetimeUTC = Annotated[
     pydantic.AfterValidator(ensure_utc)
 ]
 
-
 # %% Text
 MarkdownString = str
+
 
 def _normalize_hex_code(value: str) -> str:
     if len(value) == 7:
@@ -90,13 +90,14 @@ def _normalize_hex_code(value: str) -> str:
         value += 'FF'
     return value.lower()  # Lowercase
 
+
 ColorHexString = Annotated[
     str,
     pydantic.BeforeValidator(
         _normalize_hex_code
     ),
     pydantic.Field(
-        pattern=r"^#[0-9a-f]{8}$", # "#RRGGBBAA"
+        pattern=r"^#[0-9a-f]{8}$",  # "#RRGGBBAA"
         min_length=9,
         max_length=9,
     )
@@ -111,7 +112,3 @@ PressableKey = Literal[
     'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
     '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
 ]
-
-# %% Identifiers
-NodeId = UUID
-SensorId = UUID
