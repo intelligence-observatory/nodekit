@@ -33,4 +33,4 @@ export interface TextCard extends BaseCard<'TextCard'>{
     background_color: ColorHexString
 }
 
-export type Card = ImageCard | TextCard  | VideoCard;
+export type Card = ImageCard | TextCard | VideoCard;
