@@ -82,8 +82,6 @@ DatetimeUTC = Annotated[
 
 
 # %% Text
-
-
 MarkdownString = str
 
 def _normalize_hex_code(value: str) -> str:
