@@ -3,7 +3,6 @@ from typing import List, Self
 import pydantic
 
 from nodekit._internal.types.cards.cards import Card
-from nodekit._internal.types.common import MonetaryAmountUsd, SensorId
 
 # %%
 class Outcome(pydantic.BaseModel):
@@ -18,11 +17,6 @@ class Outcome(pydantic.BaseModel):
             'Cards that will be displayed on a freshly cleared Board. These should all have a finite timespan.'
         ),
         default_factory=list,
-    )
-
-    bonus_amount_usd: MonetaryAmountUsd = pydantic.Field(
-        description='The change in the running bonus amount. This can be positive or negative. This is not required to be tied to the Cards in any way.',
-        default='0.00'
     )
 
     @pydantic.model_validator(mode='after')

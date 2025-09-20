@@ -1,7 +1,6 @@
 import {NodePlayer} from "./node-player/node-player.ts";
-import type {BonusDisclosureEvent, BrowserContextEvent, EndEvent, Event, LeaveEvent, NodeIndex, NodeResultEvent, ReturnEvent, StartEvent} from "./types/events";
-import {type ISO8601, type MonetaryAmountUsd} from "./types/common.ts";
-import {calculateBonusUsd} from "./ops/calculate-bonus.ts";
+import type {BrowserContextEvent, EndEvent, Event, LeaveEvent, NodeIndex, NodeResultEvent, ReturnEvent, StartEvent} from "./types/events";
+import {type ISO8601} from "./types/common.ts";
 import type {Timeline, Trace} from "./types/node.ts";
 import {performanceNowToISO8601} from "./utils.ts";
 import {getBrowserContext} from "./user-gates/browser-context.ts";
@@ -130,28 +129,8 @@ export async function play(
         nodePlayer.setProgressBar((nodeIndex + 1) / nodes.length * 100);
     }
 
-    // Bonus disclosure + end button phase:
-    const bonusComputed = calculateBonusUsd(
-        events,
-        timeline,
-    )
-
-    let bonusMessage = '';
-    if (bonusComputed > 0) {
-        bonusMessage = `Bonus: ${bonusComputed} USD (pending validation)`;
-    }
-    await nodePlayer.playEndScreen(bonusMessage)
-
-    // Emit the BonusDisclosureEvent (if applicable):
-    if (bonusMessage !== '') {
-        const bonusDisclosureEvent: BonusDisclosureEvent = {
-            event_type: "BonusDisclosureEvent",
-            timestamp_event: getCurrentTimestamp(),
-            bonus_amount_usd: bonusComputed.toFixed(2) as MonetaryAmountUsd,
-        }
-        events.push(bonusDisclosureEvent);
-        onEventCallback(bonusDisclosureEvent);
-    }
+    // End screen:
+    await nodePlayer.playEndScreen()
 
     // Generate the EndEvent:
     const endEvent: EndEvent = {

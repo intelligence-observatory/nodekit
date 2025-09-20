@@ -53,10 +53,6 @@ declare interface Board {
     background_color: ColorHexString;
 }
 
-declare interface BonusDisclosureEvent extends BaseEvent<'BonusDisclosureEvent'> {
-    bonus_amount_usd: MonetaryAmountUsd;
-}
-
 declare interface BrowserContextEvent extends BaseEvent<'BrowserContextEvent'> {
     user_agent: string;
     viewport_width_px: number;
@@ -65,7 +61,7 @@ declare interface BrowserContextEvent extends BaseEvent<'BrowserContextEvent'> {
     display_height_px: number;
 }
 
-declare type Card = ImageCard | TextCard | VideoCard | ShapeCard;
+declare type Card = ImageCard | TextCard | VideoCard;
 
 declare interface ClickAction extends BaseAction<"ClickAction"> {
     click_x: SpatialPoint;
@@ -85,7 +81,7 @@ declare type Effect = HidePointerEffect;
 declare interface EndEvent extends BaseEvent<'EndEvent'> {
 }
 
-declare type Event_2 = StartEvent | EndEvent | NodeResultEvent | LeaveEvent | ReturnEvent | BonusDisclosureEvent | BrowserContextEvent;
+declare type Event_2 = StartEvent | EndEvent | NodeResultEvent | LeaveEvent | ReturnEvent | BrowserContextEvent;
 
 declare interface HidePointerEffect extends BaseEffect<'HidePointerEffect'> {
     t_end: TimePointMsec;
@@ -117,10 +113,6 @@ declare type MarkdownString = string & {
     __brand: 'MarkdownString';
 };
 
-declare type MonetaryAmountUsd = string & {
-    __brand: 'MonetaryAmountUsd';
-};
-
 declare interface Node_2 {
     cards: Card[];
     sensors: Sensor[];
@@ -145,7 +137,6 @@ export declare type OnEventCallback = (event: Event_2) => void;
 
 declare interface Outcome {
     cards: Card[];
-    bonus_amount_usd: MonetaryAmountUsd;
 }
 
 export declare function play(timeline: Timeline, assetUrls: AssetUrl[], onEventCallback?: OnEventCallback | null, previousEvents?: Event_2[]): Promise<Trace>;
@@ -168,11 +159,6 @@ declare type SHA256 = string & {
 };
 
 declare type Shape = 'rectangle' | 'ellipse';
-
-declare interface ShapeCard extends BaseCard<'ShapeCard'> {
-    shape: Shape;
-    color: ColorHexString;
-}
 
 declare interface ShapeRegion extends BaseRegion<'ShapeRegion'> {
     shape: Shape;

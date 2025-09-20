@@ -16,9 +16,6 @@ __all__ = [
     'events',
     'regions',
 
-    # Operations namespace:
-    'ops',
-
     # Browser runtime methods:
     'play',
     'get_browser_bundle',
@@ -41,7 +38,6 @@ import nodekit.effects as effects
 import nodekit.sensors as sensors
 import nodekit.actions as actions
 import nodekit.events as events
-import nodekit.ops as ops
 
 
 # Browser runtime:

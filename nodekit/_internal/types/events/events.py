@@ -15,7 +15,6 @@ class EventTypeEnum(str, enum.Enum):
     LeaveEvent = 'LeaveEvent'
     ReturnEvent = 'ReturnEvent'
     EndEvent = 'EndEvent'
-    BonusDisclosureEvent = 'BonusDisclosureEvent'
     BrowserContextEvent = 'BrowserContextEvent'
 
 
@@ -54,14 +53,6 @@ class ReturnEvent(BaseEvent):
     event_type: Literal[EventTypeEnum.ReturnEvent] = EventTypeEnum.ReturnEvent
 
 
-class BonusDisclosureEvent(BaseEvent):
-    """
-    Emitted when a Participant is shown a bonus disclosure.
-    """
-    event_type: Literal[EventTypeEnum.BonusDisclosureEvent] = EventTypeEnum.BonusDisclosureEvent
-    bonus_amount_usd: str
-
-
 # %%
 class NodeResultEvent(BaseEvent):
     event_type: Literal[EventTypeEnum.NodeResultEvent] = EventTypeEnum.NodeResultEvent
@@ -98,7 +89,6 @@ Event = Annotated[
         NodeResultEvent,
         LeaveEvent,
         ReturnEvent,
-        BonusDisclosureEvent,
         BrowserContextEvent,
     ],
     pydantic.Field(discriminator='event_type')

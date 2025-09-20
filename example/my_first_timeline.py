@@ -42,16 +42,13 @@ def make_basic_fixation_node(
 
     positive_outcome = nk.Outcome(
         cards=[positive_card],
-        bonus_amount_usd='0.01'
     )
 
     negative_outcome1 = nk.Outcome(
         cards=[negative_card],
-        bonus_amount_usd='-0.01'
     )
     negative_outcome2 = nk.Outcome(
         cards=[negative_card],
-        bonus_amount_usd='-0.05'
     )
 
     # Define your Sensors, which will detect an Action from the Participant:
@@ -200,7 +197,7 @@ timeline = nk.Timeline(
 Path('timeline.json').write_text(timeline.model_dump_json(indent=2))
 
 # %% Play the Timeline:
-play_session = nk.play(
+play_session = nk.play( # todo have this block until it returns a Timeline
     timeline=timeline,
     asset_files=my_image_files + my_video_files
 )
@@ -212,9 +209,6 @@ while True:
         break
     time.sleep(5)
 
-# %% Can compute authoritative bonus based on the events and the bonus rules:
-bonus_usd = nk.ops.calculate_bonus_usd(
-    events=events,
-    timeline=timeline,
-)
-print(f"Computed bonus: ${bonus_usd}")
+print(f'Observed {len(events)} events:')
+for event in events:
+    print(event.event_type)

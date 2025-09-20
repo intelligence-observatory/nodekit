@@ -1,4 +1,3 @@
-import type {MonetaryAmountUsd} from "../common.ts";
 import type {Action} from "../actions";
 import type {ISO8601} from "../common.ts";
 
@@ -33,9 +32,6 @@ export interface NodeResultEvent extends BaseEvent<'NodeResultEvent'>{
     action: Action,
 }
 
-export interface BonusDisclosureEvent extends BaseEvent<'BonusDisclosureEvent'>{
-    bonus_amount_usd: MonetaryAmountUsd
-}
 
 
 // Union type:
@@ -45,5 +41,4 @@ export type Event =
     NodeResultEvent |
     LeaveEvent |
     ReturnEvent |
-    BonusDisclosureEvent |
     BrowserContextEvent;
