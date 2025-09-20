@@ -1,5 +1,4 @@
-import type {PressableKey, TimePointMsec} from "../common.ts";
-import type {Region} from "../regions";
+import type {PressableKey, SpatialPoint, SpatialSize, TimePointMsec, Mask} from "../common.ts";
 import type {Outcome} from "../outcomes";
 
 
@@ -13,7 +12,11 @@ export interface TimeoutSensor extends BaseSensor<'TimeoutSensor'>{}
 
 
 export interface ClickSensor extends BaseSensor<'ClickSensor'>{
-    region: Region
+    x: SpatialPoint
+    y: SpatialPoint
+    w: SpatialSize
+    h: SpatialSize
+    mask: Mask
 }
 
 export interface KeySensor extends BaseSensor<'KeySensor'> {

@@ -252,7 +252,11 @@ export class BoardView {
         else if (sensor.sensor_type == "ClickSensor"){
 
             sensorBinding = new ClickSensorBinding(
-                sensor.region,
+                sensor.x,
+                sensor.y,
+                sensor.w,
+                sensor.h,
+                sensor.mask,
                 onSensorFired,
                 this.root,
                 this.getCoordinateSystem(),

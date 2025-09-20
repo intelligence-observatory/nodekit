@@ -41,6 +41,7 @@ class BaseCard(pydantic.BaseModel, ABC):
         default=None,
     )
 
+
 # %%
 class ImageCard(BaseCard):
     card_type: Literal['ImageCard'] = 'ImageCard'

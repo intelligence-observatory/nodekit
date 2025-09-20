@@ -1,8 +1,6 @@
 import type {Action, ClickAction, KeyAction, TimeoutAction} from "../../types/actions";
-import type {ISO8601, PressableKey} from "../../types/common.ts";
+import type {ISO8601, Mask, PressableKey, SpatialPoint, SpatialSize} from "../../types/common.ts";
 import type {BoardCoordinateSystem} from "../board-view.ts";
-import type {Region} from "../../types/regions";
-import {checkPointInRegion} from "../../utils.ts";
 import {performanceNowToISO8601} from "../../utils.ts";
 
 // Generic contract:
@@ -17,31 +15,50 @@ export interface SensorBinding {
 export class ClickSensorBinding implements SensorBinding {
 
     protected tArmed: DOMHighResTimeStamp | null = null;
+    private region: {
+        x: SpatialPoint;
+        y: SpatialPoint;
+        w: SpatialSize;
+        h: SpatialSize;
+        mask: Mask
+    };
 
     constructor(
-        region: Region,
+        x: SpatialPoint,
+        y: SpatialPoint,
+        w: SpatialSize,
+        h: SpatialSize,
+        mask: Mask,
         onSensorFired: (action: ClickAction, timestampAction: ISO8601) => void,
         boardRootElement: HTMLDivElement,
         boardCoords: BoardCoordinateSystem,
     ) {
+
+        this.region = {
+            x: x,
+            y: y,
+            w: w,
+            h: h,
+            mask: mask,
+        };
 
         const clickCallback = (e: MouseEvent) => {
             if (!this.tArmed) {
                 return;
             }
 
-            const {x, y} = boardCoords.getBoardLocationFromMouseEvent(e)
+            const click = boardCoords.getBoardLocationFromMouseEvent(e)
 
             // Do a region check:
-            const inside = checkPointInRegion(x, y, region);
+            const inside = this.checkPointInRegion(click.x, click.y);
             if (!inside) {
                 return
             }
 
             const action: ClickAction = {
                 action_type: "ClickAction",
-                click_x: x,
-                click_y: y,
+                click_x: click.x,
+                click_y: click.y,
             };
             onSensorFired(action, performanceNowToISO8601(e.timeStamp));
         }
@@ -54,6 +71,34 @@ export class ClickSensorBinding implements SensorBinding {
                 capture: true, // Capture phase to get the event before it might be stopped by children.
             }
         );
+    }
+
+    private checkPointInRegion(x: SpatialPoint, y: SpatialPoint): boolean {
+        const region = this.region;
+        switch (region.mask) {
+            case 'rectangle':
+                const left = region.x - region.w / 2;
+                const right = region.x + region.w / 2;
+                const top = region.y + region.h / 2;
+                const bottom = region.y - region.h / 2;
+                return (x >= left) &&
+                    (x <= right) &&
+                    (y >= bottom) &&
+                    (y <= top);
+            case 'ellipse':
+                const radius_x = region.w / 2;
+                const radius_y = region.h / 2;
+                const delta_x = x - region.x;
+                const delta_y = y - region.y;
+
+                return (
+                    (delta_x * delta_x) / (radius_x * radius_x) +
+                    (delta_y * delta_y) / (radius_y * radius_y) <=
+                    1
+                );
+            default:
+                throw new Error(`Unknown mask: ${region.mask}`);
+        }
     }
 
     arm(): void {

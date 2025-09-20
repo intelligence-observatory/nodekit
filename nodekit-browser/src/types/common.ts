@@ -12,4 +12,4 @@ export type PressableKey = "Enter" | " " | "ArrowDown" | "ArrowLeft" | "ArrowRig
 
 export type SHA256 = string & { __brand: 'SHA256' };
 
-export type Shape = 'rectangle' | 'ellipse'
+export type Mask = 'rectangle' | 'ellipse';

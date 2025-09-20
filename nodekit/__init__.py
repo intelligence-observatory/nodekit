@@ -14,7 +14,6 @@ __all__ = [
     'effects',
     'actions',
     'events',
-    'regions',
 
     # Browser runtime methods:
     'play',
@@ -31,7 +30,6 @@ from nodekit._internal.types.node import (
 )
 from nodekit._internal.types.board import Board
 from nodekit._internal.types.outcome import Outcome
-import nodekit.regions as regions
 import nodekit.cards as cards
 import nodekit.assets as assets
 import nodekit.effects as effects

@@ -4,8 +4,8 @@ from typing import Literal, Annotated, Union
 import pydantic
 
 from nodekit._internal.types.common import PressableKey, TimePointMsec
-from nodekit._internal.types.regions import Region
 from nodekit._internal.types.outcome import Outcome
+from nodekit._internal.types.common import SpatialPoint, SpatialSize, Mask
 
 
 # %%
@@ -23,6 +23,12 @@ class BaseSensor(pydantic.BaseModel, ABC):
         default=0,
         description='The time (in milliseconds) relative to Node start when the Sensor is armed.',
     )
+
+    # Todo!
+    #t_end: TimePointMsec | None = pydantic.Field(
+    #    default=None,
+    #    description='The time (in milliseconds) relative to Node start when the Sensor is disarmed. If None, the Sensor remains armed until the Node ends.',
+    #)
 
     # Optional outcome if this Sensor is triggered:
     outcome: Outcome | None = pydantic.Field(
@@ -44,7 +50,16 @@ class TimeoutSensor(BaseSensor):
 # %%
 class ClickSensor(BaseSensor):
     sensor_type: Literal['ClickSensor'] = 'ClickSensor'
-    region: Region = pydantic.Field(description='The region on the Board that triggers the Sensor if clicked.')
+    x: SpatialPoint = pydantic.Field(description='The center of the bounding box of the clickable region, along the Board x-axis.')
+    y: SpatialPoint = pydantic.Field(description='The center of the bounding box of the clickable region, along the Board y-axis.')
+    w: SpatialSize = pydantic.Field(description='The width of the bounding box of the clickable region, in Board units.', gt=0)
+    h: SpatialSize = pydantic.Field(description='The height of the bounding box of the clickable region, in Board units.', gt=0)
+    mask: Mask = pydantic.Field(
+        description='The shape of the clickable region. "rectangle" uses the box itself; "ellipse" inscribes an ellipse within the box.',
+        default='rectangle',
+        validate_default=True,
+    )
+
 
 # %%
 class KeySensor(BaseSensor):

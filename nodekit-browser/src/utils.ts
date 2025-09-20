@@ -1,7 +1,6 @@
-import type {ColorHexString, ISO8601, MarkdownString, SpatialPoint, SpatialSize} from "./types/common.ts";
+import type {ColorHexString, ISO8601, MarkdownString, SpatialSize} from "./types/common.ts";
 import {marked} from "marked";
 import DOMPurify from "dompurify";
-import type {Region} from "./types/regions";
 
 export function performanceNowToISO8601(
     performanceNowMsec: DOMHighResTimeStamp // as returned by performance.now()
@@ -59,47 +58,4 @@ export function renderTextContent(
     }
 
     return textDiv
-}
-
-/**
- * Check if a point (x, y) is inside a given region on the Board.
- * @param x SpatialPoint
- * @param y SpatialPoint
- * @param region Region
- * @returns boolean - true if the point is inside the region, false otherwise
- */
-export function checkPointInRegion(
-    x: SpatialPoint,
-    y: SpatialPoint,
-    region: Region
-): boolean {
-    if (region.region_type !== 'ShapeRegion'){
-        throw new Error(`Region type ${region.region_type} not implemented in checkPointInRegion`);
-    }
-    // There's only one Region type: ShapeRegion
-
-    switch (region.shape) {
-        case 'rectangle':
-            const left = region.x - region.w / 2;
-            const right = region.x + region.w / 2;
-            const top = region.y + region.h / 2;
-            const bottom = region.y - region.h / 2;
-            return (x >= left) &&
-                (x <= right) &&
-                (y >= bottom) &&
-                (y <= top);
-        case 'ellipse':
-            const radius_x = region.w / 2;
-            const radius_y = region.h / 2;
-            const delta_x = x - region.x;
-            const delta_y = y - region.y;
-
-            return (
-                (delta_x * delta_x) / (radius_x * radius_x) +
-                (delta_y * delta_y) / (radius_y * radius_y) <=
-                1
-            );
-        default:
-            throw new Error(`Unknown region type: ${region['region_type']}`);
-    }
 }

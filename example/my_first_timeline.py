@@ -43,7 +43,6 @@ def make_basic_fixation_node(
     positive_outcome = nk.Outcome(
         cards=[positive_card],
     )
-
     negative_outcome1 = nk.Outcome(
         cards=[negative_card],
     )
@@ -53,13 +52,11 @@ def make_basic_fixation_node(
 
     # Define your Sensors, which will detect an Action from the Participant:
     clicked_fixation_dot_sensor = nk.sensors.ClickSensor(
-        region=nk.regions.ShapeRegion(
-            shape='ellipse',
-            x=fixation_x,
-            y=fixation_y,
-            w = fixation_circle.w,
-            h = fixation_circle.h,
-        ),
+        mask='ellipse',
+        x=fixation_x,
+        y=fixation_y,
+        w=fixation_circle.w,
+        h=fixation_circle.h,
         outcome=positive_outcome,
     )
     spacebar_sensor = nk.sensors.KeySensor(key=' ', outcome=negative_outcome2)
@@ -93,7 +90,6 @@ def make_image_node(
 def make_video_node(
         video_file: nk.assets.VideoFile
 ) -> nk.Node:
-
     video_card = nk.cards.VideoCard(
         x=0, y=0, w=0.5, h=0.5,
         video=video_file.identifier,
@@ -131,13 +127,11 @@ def make_instructions_node(
 
     sensor = nk.sensors.ClickSensor(
         t_start=200,
-        region=nk.regions.ShapeRegion(
-            shape='rectangle',
-            x=continue_button.x,
-            y=continue_button.y,
-            w=continue_button.w,
-            h=continue_button.h
-        )
+        x=continue_button.x,
+        y=continue_button.y,
+        w=continue_button.w,
+        h=continue_button.h,
+        mask='rectangle',
     )
 
     return nk.Node(
@@ -186,7 +180,7 @@ for _ in range(2):
     node = make_basic_fixation_node(
         fixation_x=round(random.uniform(-0.3, 0.3), 2),
         fixation_y=round(random.uniform(-0.3, 0.3), 2),
-        fixation_image = my_image_files[0]
+        fixation_image=my_image_files[0]
     )
     nodes.append(node)
 
@@ -197,7 +191,7 @@ timeline = nk.Timeline(
 Path('timeline.json').write_text(timeline.model_dump_json(indent=2))
 
 # %% Play the Timeline:
-play_session = nk.play( # todo have this block until it returns a Timeline
+play_session = nk.play(  # todo have this block until it returns a Timeline
     timeline=timeline,
     asset_files=my_image_files + my_video_files
 )

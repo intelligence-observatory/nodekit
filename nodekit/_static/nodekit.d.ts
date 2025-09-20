@@ -37,10 +37,6 @@ declare interface BaseEvent<T extends string> {
     timestamp_event: ISO8601;
 }
 
-declare interface BaseRegion<T extends string> {
-    region_type: T;
-}
-
 declare interface BaseSensor<T extends string> {
     sensor_type: T;
     t_start: TimePointMsec;
@@ -69,7 +65,11 @@ declare interface ClickAction extends BaseAction<"ClickAction"> {
 }
 
 declare interface ClickSensor extends BaseSensor<'ClickSensor'> {
-    region: Region;
+    x: SpatialPoint;
+    y: SpatialPoint;
+    w: SpatialSize;
+    h: SpatialSize;
+    mask: Mask;
 }
 
 declare type ColorHexString = string & {
@@ -113,6 +113,8 @@ declare type MarkdownString = string & {
     __brand: 'MarkdownString';
 };
 
+declare type Mask = 'rectangle' | 'ellipse';
+
 declare interface Node_2 {
     cards: Card[];
     sensors: Sensor[];
@@ -143,8 +145,6 @@ export declare function play(timeline: Timeline, assetUrls: AssetUrl[], onEventC
 
 declare type PressableKey = "Enter" | " " | "ArrowDown" | "ArrowLeft" | "ArrowRight" | "ArrowUp" | "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z" | "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
 
-declare type Region = ShapeRegion;
-
 declare interface ReturnEvent extends BaseEvent<'ReturnEvent'> {
 }
 
@@ -157,16 +157,6 @@ declare type SensorIndex = number & {
 declare type SHA256 = string & {
     __brand: 'SHA256';
 };
-
-declare type Shape = 'rectangle' | 'ellipse';
-
-declare interface ShapeRegion extends BaseRegion<'ShapeRegion'> {
-    shape: Shape;
-    x: SpatialPoint;
-    y: SpatialPoint;
-    w: SpatialPoint;
-    h: SpatialPoint;
-}
 
 declare type SpatialPoint = number & {
     __brand: 'SpatialPoint';

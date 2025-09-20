@@ -58,8 +58,10 @@ SpatialSize = Annotated[float, pydantic.Field(
 )]
 SpatialPoint = Annotated[float, pydantic.Field(strict=True, ge=-0.5, le=0.5)]
 
-Shape = Literal['rectangle', 'ellipse']
-
+Mask = Annotated[
+    Literal['rectangle', 'ellipse'],
+    pydantic.Field(description='Describes the shape of a region inside of a bounding box. "rectangle" uses the box itself; "ellipse" inscribes a tighted fitted ellipse within the box.')
+]
 # %% Time
 TimeDurationMsec = Annotated[int, pydantic.Field(strict=True, ge=0, description='A duration of time in milliseconds.')]
 TimePointMsec = Annotated[int, pydantic.Field(strict=True, ge=0, description='A point in time relative to some start time in milliseconds.')]
