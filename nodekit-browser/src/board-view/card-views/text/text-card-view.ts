@@ -1,7 +1,7 @@
 import type {SpatialSize,} from "../../../types/common.ts";
 
 import './text-card-view.css'
-import {CardView, type ClickableCardView} from "../card-view.ts";
+import {CardView} from "../card-view.ts";
 import type {TextCard} from "../../../types/cards";
 import {renderTextContent, type TextContentParameters} from "../../../utils.ts";
 
@@ -9,7 +9,7 @@ import {renderTextContent, type TextContentParameters} from "../../../utils.ts";
  * A card which displays left-justified Markdown text on a light background.
  * Offers a scrollbar if the content is too long.
  */
-export class TextCardView extends CardView<TextCard> implements ClickableCardView {
+export class TextCardView extends CardView<TextCard> {
     textContainer: HTMLDivElement | undefined;
 
     async prepare(
@@ -39,15 +39,5 @@ export class TextCardView extends CardView<TextCard> implements ClickableCardVie
             }
         )
         this.textContainer.appendChild(textContentDiv);
-    }
-
-
-    addClickCallback(callback: (e: MouseEvent) => void) {
-        if (!this.textContainer) {
-            throw new Error('Text container not initialized. Did you forget to call load()?');
-        }
-        this.textContainer.addEventListener('click', (e: MouseEvent) => {
-            callback(e);
-        });
     }
 }

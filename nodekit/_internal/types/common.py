@@ -37,14 +37,17 @@ PayableMonetaryAmountUsd = Annotated[
     pydantic.AfterValidator(_ensure_payable_monetary_amount)
 ]
 
-
 # %% Assets
 SHA256 = Annotated[str, pydantic.Field(pattern=r'^[a-f0-9]{64}$')]
 
-MimeType = Literal[
+ImageMimeType = Literal[
     'image/png',
+    'image/svg+xml'
+]
+VideoMimeType = Literal[
     'video/mp4'
 ]
+MimeType = ImageMimeType | VideoMimeType
 
 # %% Space
 SpatialSize = Annotated[float, pydantic.Field(
@@ -55,9 +58,14 @@ SpatialSize = Annotated[float, pydantic.Field(
 )]
 SpatialPoint = Annotated[float, pydantic.Field(strict=True, ge=-0.5, le=0.5)]
 
+Mask = Annotated[
+    Literal['rectangle', 'ellipse'],
+    pydantic.Field(description='Describes the shape of a region inside of a bounding box. "rectangle" uses the box itself; "ellipse" inscribes a tighted fitted ellipse within the box.')
+]
 # %% Time
 TimeDurationMsec = Annotated[int, pydantic.Field(strict=True, ge=0, description='A duration of time in milliseconds.')]
 TimePointMsec = Annotated[int, pydantic.Field(strict=True, ge=0, description='A point in time relative to some start time in milliseconds.')]
+
 
 def ensure_utc(t: datetime.datetime) -> datetime.datetime:
     # Ensures that a datetime is timezone-aware and in UTC.
@@ -72,14 +80,25 @@ DatetimeUTC = Annotated[
     pydantic.AfterValidator(ensure_utc)
 ]
 
+
 # %% Text
 MarkdownString = str
+
+def _normalize_hex_code(value: str) -> str:
+    if len(value) == 7:
+        # If the hex code is in the format #RRGGBB, append 'FF' for full opacity
+        value += 'FF'
+    return value.lower()  # Lowercase
+
 ColorHexString = Annotated[
     str,
+    pydantic.BeforeValidator(
+        _normalize_hex_code
+    ),
     pydantic.Field(
-        pattern=r'^#(?:[0-9a-fA-F]{3}){1,2}$',
-        min_length=7, # e.g., #RRGGBB
-        max_length=9, # e.g., #RRGGBBAA
+        pattern=r"^#[0-9a-f]{8}$", # "#RRGGBBAA"
+        min_length=9,
+        max_length=9,
     )
 ]
 
@@ -93,8 +112,6 @@ PressableKey = Literal[
     '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
 ]
 
-
 # %% Identifiers
 NodeId = UUID
-CardId = UUID
 SensorId = UUID

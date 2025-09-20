@@ -8,7 +8,6 @@ __all__ = [
     "NodeResultEvent",
     "LeaveEvent",
     "ReturnEvent",
-    "BonusDisclosureEvent",
     "BrowserContextEvent",
 ]
 
@@ -20,6 +19,5 @@ from nodekit._internal.types.events.events import (
     NodeResultEvent,
     LeaveEvent,
     ReturnEvent,
-    BonusDisclosureEvent,
     BrowserContextEvent,
 )

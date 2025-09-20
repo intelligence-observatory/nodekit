@@ -1,6 +1,6 @@
 import "./board-views-ui.css";
 import type {Board} from "../../types/board";
-import type {AssetManager} from "../../asset-manager/asset-manager.ts";
+import type {AssetManager} from "../../asset-manager";
 import {BoardView} from "../../board-view/board-view.ts";
 
 export class BoardViewsUI {

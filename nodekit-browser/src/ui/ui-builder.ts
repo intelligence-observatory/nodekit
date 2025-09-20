@@ -1,7 +1,7 @@
 import './variables.css'
 import {ShellUI} from "./shell-ui/shell-ui.ts";
 import {BoardViewsUI} from "./board-views-ui/board-views-ui.ts";
-import {AssetManager} from "../asset-manager/asset-manager.ts";
+import {AssetManager} from "../asset-manager";
 
 
 export function buildUIs() {

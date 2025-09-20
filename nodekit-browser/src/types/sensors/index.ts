@@ -1,28 +1,26 @@
-import type {CardId, PressableKey, SensorId, TimePointMsec} from "../common.ts";
+import type {PressableKey, SpatialPoint, SpatialSize, TimePointMsec, Mask} from "../common.ts";
+import type {Outcome} from "../outcomes";
 
 
 export interface BaseSensor<T extends string> {
-    sensor_id: SensorId
     sensor_type: T
     t_start: TimePointMsec
+    outcome: Outcome | null
 }
 
 export interface TimeoutSensor extends BaseSensor<'TimeoutSensor'>{}
 
-export interface DoneSensor extends BaseSensor<'DoneSensor'>{
-    card_id: CardId
-}
 
 export interface ClickSensor extends BaseSensor<'ClickSensor'>{
-    card_id: CardId
+    x: SpatialPoint
+    y: SpatialPoint
+    w: SpatialSize
+    h: SpatialSize
+    mask: Mask
 }
 
 export interface KeySensor extends BaseSensor<'KeySensor'> {
     key: PressableKey
 }
 
-export interface KeyHoldsSensor extends BaseSensor<'KeyHoldsSensor'> {
-    key: PressableKey;
-}
-
-export type Sensor = TimeoutSensor | DoneSensor | ClickSensor | KeySensor | KeyHoldsSensor;
+export type Sensor = TimeoutSensor | ClickSensor | KeySensor;

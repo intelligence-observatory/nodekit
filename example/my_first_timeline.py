@@ -1,14 +1,15 @@
 import nodekit as nk
 import random
 import time
-from pathlib import Path
 import glob
+from pathlib import Path
 
 random.seed(42)
 
 
 # %% Create a sequence of simple Nodes in which the Participant must click on a fixation point:
 def make_basic_fixation_node(
+        fixation_image: nk.assets.ImageFile,
         fixation_x: float,
         fixation_y: float,
 ) -> nk.Node:
@@ -18,23 +19,15 @@ def make_basic_fixation_node(
     """
 
     # Configure your Cards, which give context to the Participant:
-    fixation_card = nk.cards.FixationPointCard(
+    fixation_circle = nk.cards.ImageCard(
         x=fixation_x,
         y=fixation_y,
-        w=0.05,
-        h=0.05,
+        w=0.0375,
+        h=0.0375,
+        image=fixation_image.identifier,
     )
 
-    color_card = nk.cards.BlankCard(
-        x=0, y=0, w=0.1, h=0.1, color='#32a852',
-    )
-
-    # Define your Sensors, which will detect an Action from the Participant:
-    clicked_fixation_dot_sensor = nk.sensors.ClickSensor(card_id=fixation_card.card_id)
-    spacebar_sensor = nk.sensors.KeySensor(key=' ')
-    timeout_sensor = nk.sensors.TimeoutSensor(t_start=5000)
-
-    # Set up your ConsequenceMap, which maps Actions to Consequences
+    # Define outcomes
     positive_card = nk.cards.TextCard(
         text='Yay',
         x=0, y=0, w=0.5, h=0.5,
@@ -47,28 +40,31 @@ def make_basic_fixation_node(
         t_end=400,
     )
 
-    outcomes = [
-        nk.Outcome(
-            sensor_id=clicked_fixation_dot_sensor.sensor_id,
-            cards=[positive_card],
-            bonus_amount_usd='0.01'
-        ),
-        nk.Outcome(
-            sensor_id=spacebar_sensor.sensor_id,
-            cards=[negative_card],
-            bonus_amount_usd='-0.01'
-        ),
-        nk.Outcome(
-            sensor_id=timeout_sensor.sensor_id,
-            cards=[negative_card],
-            bonus_amount_usd='-0.05'
-        )
-    ]
+    positive_outcome = nk.Outcome(
+        cards=[positive_card],
+    )
+    negative_outcome1 = nk.Outcome(
+        cards=[negative_card],
+    )
+    negative_outcome2 = nk.Outcome(
+        cards=[negative_card],
+    )
+
+    # Define your Sensors, which will detect an Action from the Participant:
+    clicked_fixation_dot_sensor = nk.sensors.ClickSensor(
+        mask='ellipse',
+        x=fixation_x,
+        y=fixation_y,
+        w=fixation_circle.w,
+        h=fixation_circle.h,
+        outcome=positive_outcome,
+    )
+    spacebar_sensor = nk.sensors.KeySensor(key=' ', outcome=negative_outcome2)
+    timeout_sensor = nk.sensors.TimeoutSensor(t_start=2000, outcome=negative_outcome1)
 
     return nk.Node(
-        cards=[color_card, fixation_card],
-        sensors=[clicked_fixation_dot_sensor, spacebar_sensor],
-        outcomes=outcomes,
+        cards=[fixation_circle],
+        sensors=[clicked_fixation_dot_sensor, spacebar_sensor, timeout_sensor],
     )
 
 
@@ -91,11 +87,9 @@ def make_image_node(
     )
 
 
-
 def make_video_node(
         video_file: nk.assets.VideoFile
 ) -> nk.Node:
-
     video_card = nk.cards.VideoCard(
         x=0, y=0, w=0.5, h=0.5,
         video=video_file.identifier,
@@ -128,12 +122,16 @@ def make_instructions_node(
         x=0, y=-0.45, w=0.3, h=0.05,
         background_color='#32a852',
         text_color='#ffffff',
-        t_start=1000,
+        t_start=200,
     )
 
     sensor = nk.sensors.ClickSensor(
-        card_id=continue_button.card_id,
-        t_start=1000,
+        t_start=200,
+        x=continue_button.x,
+        y=continue_button.y,
+        w=continue_button.w,
+        h=continue_button.h,
+        mask='rectangle',
     )
 
     return nk.Node(
@@ -147,7 +145,7 @@ def make_instructions_node(
 
 # %% Load Asset Files
 my_image_files = []
-for path in sorted(glob.glob('./example_images/*.png')):
+for path in sorted(glob.glob('./example_images/*')):
     image_file = nk.assets.ImageFile.from_path(path)
     my_image_files.append(image_file)
 
@@ -162,7 +160,6 @@ nodes = []
 nodes.extend(
     [
         make_instructions_node("# Welcome!\n\nThis is a test task.", ),
-        make_instructions_node("## Instructions\n\nBla bla bla."),
     ]
 )
 
@@ -172,7 +169,7 @@ for video_file in my_video_files:
     )
     nodes.append(node)
 
-for image_file in my_image_files:
+for image_file in my_image_files[:5]:
     node = make_image_node(
         image_file=image_file
     )
@@ -182,7 +179,8 @@ for _ in range(2):
     # Randomly sample fixation points:
     node = make_basic_fixation_node(
         fixation_x=round(random.uniform(-0.3, 0.3), 2),
-        fixation_y=round(random.uniform(-0.3, 0.3), 2)
+        fixation_y=round(random.uniform(-0.3, 0.3), 2),
+        fixation_image=my_image_files[0]
     )
     nodes.append(node)
 
@@ -190,8 +188,10 @@ timeline = nk.Timeline(
     nodes=nodes,
 )
 
+Path('timeline.json').write_text(timeline.model_dump_json(indent=2))
+
 # %% Play the Timeline:
-play_session = nk.play(
+play_session = nk.play(  # todo have this block until it returns a Timeline
     timeline=timeline,
     asset_files=my_image_files + my_video_files
 )
@@ -203,9 +203,6 @@ while True:
         break
     time.sleep(5)
 
-# %% Can compute authoritative bonus based on the events and the bonus rules:
-bonus_usd = nk.ops.calculate_bonus_usd(
-    events=events,
-    timeline=timeline,
-)
-print(f"Computed bonus: ${bonus_usd}")
+print(f'Observed {len(events)} events:')
+for event in events:
+    print(event.event_type)

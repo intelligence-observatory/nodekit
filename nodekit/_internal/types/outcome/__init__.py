@@ -3,7 +3,6 @@ from typing import List, Self
 import pydantic
 
 from nodekit._internal.types.cards.cards import Card
-from nodekit._internal.types.common import MonetaryAmountUsd, SensorId
 
 # %%
 class Outcome(pydantic.BaseModel):
@@ -13,27 +12,15 @@ class Outcome(pydantic.BaseModel):
     The Cards in an Outcome should all have closed t_end times, as the Outcome is expected to be temporally finite.
     """
 
-    sensor_id: SensorId = pydantic.Field(
-        description=(
-            'The ID of the Sensor that triggers this Outcome when activated. '
-            'Any Action from this Sensor will lead to this Outcome.'
-        )
-    )
-
     cards: List[Card] = pydantic.Field(
         description=(
-            'Cards that will be displayed on a fresh Board. These should all have a finite timespan.'
+            'Cards that will be displayed on a freshly cleared Board. These should all have a finite timespan.'
         ),
         default_factory=list,
     )
 
-    bonus_amount_usd: MonetaryAmountUsd = pydantic.Field(
-        description='The change in the running bonus amount. This can be positive or negative. This is not required to be tied to the Cards in any way.',
-        default='0.00'
-    )
-
     @pydantic.model_validator(mode='after')
-    def check_consequence_is_finite(self) -> Self:
+    def check_cards_are_finite(self) -> Self:
         # Ensure all the cards have a finite timespan
         for card in self.cards:
             if card.t_end is None:

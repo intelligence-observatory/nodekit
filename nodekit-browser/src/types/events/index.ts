@@ -1,39 +1,37 @@
-import type {NodeId} from "../timeline.ts";
-import type {MonetaryAmountUsd} from "../common.ts";
 import type {Action} from "../actions";
-import type {BrowserContext} from "../../user-gates/browser-context.ts";
+import type {ISO8601} from "../common.ts";
 
-export type ISO8601 = string & { __brand: 'ISO8601' };
-export type UUID = string & { __brand: 'UUID' };
+export type NodeIndex = number & { __brand: "NodeIndex" };
+export type SensorIndex = number & { __brand: "SensorIndex" };
 
 // Base:
-export type BaseEvent<T extends string, P> = {
-    event_id: UUID
-    timestamp_event: ISO8601,
-
+export interface BaseEvent<T extends string> {
     event_type: T,
-    event_payload: P,
-
-    nodekit_version: string
+    timestamp_event: ISO8601,
 }
 
 // Concrete types:
-export type StartEvent = BaseEvent<'StartEvent', {}>
-export type EndEvent = BaseEvent<'EndEvent', {}>
-export type LeaveEvent = BaseEvent<'LeaveEvent', {}>
-export type ReturnEvent = BaseEvent<'ReturnEvent', {}>
-export type BrowserContextEvent = BaseEvent<'BrowserContextEvent', BrowserContext>
-export type NodeResultEvent = BaseEvent<'NodeResultEvent',
-    {
-        node_id: NodeId,
-        timestamp_node_start: ISO8601,
-        timestamp_node_end: ISO8601,
-        action: Action,
-    }
->
-export type BonusDisclosureEvent = BaseEvent<'BonusDisclosureEvent',
-    { bonus_amount_usd: MonetaryAmountUsd }
->
+export interface StartEvent extends BaseEvent<'StartEvent'>{}
+export interface EndEvent extends BaseEvent<'EndEvent'>{}
+export interface LeaveEvent extends BaseEvent<'LeaveEvent'>{}
+export interface ReturnEvent extends BaseEvent<'ReturnEvent'>{}
+export interface BrowserContextEvent extends BaseEvent<'BrowserContextEvent'>{
+    user_agent: string,
+    viewport_width_px: number,
+    viewport_height_px: number,
+    display_width_px: number,
+    display_height_px: number
+}
+
+export interface NodeResultEvent extends BaseEvent<'NodeResultEvent'>{
+    timestamp_node_start: ISO8601,
+    timestamp_action: ISO8601,
+    timestamp_node_end: ISO8601,
+    node_index: NodeIndex, // Timeline.nodes[node_index] is the Node this event originated from
+    sensor_index: SensorIndex, // Timeline.nodes[node_index].sensors[sensor_index] is the Sensor that fired
+    action: Action,
+}
+
 
 
 // Union type:
@@ -43,5 +41,4 @@ export type Event =
     NodeResultEvent |
     LeaveEvent |
     ReturnEvent |
-    BonusDisclosureEvent |
     BrowserContextEvent;

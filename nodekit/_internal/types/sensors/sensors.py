@@ -1,20 +1,21 @@
 from abc import ABC
+from typing import Literal, Annotated, Union
 
 import pydantic
 
-from nodekit._internal.types.common import CardId, PressableKey, TimePointMsec, SensorId
-from typing import Literal, Annotated, Union
-from uuid import uuid4
+from nodekit._internal.types.common import PressableKey, TimePointMsec
+from nodekit._internal.types.outcome import Outcome
+from nodekit._internal.types.common import SpatialPoint, SpatialSize, Mask
+
 
 # %%
 class BaseSensor(pydantic.BaseModel, ABC):
     """
-    A Sensor represents a listener for Participant behavior.
+    A Sensor is a listener for Participant behavior.
     When a Sensor is triggered, it emits an Action.
     """
 
     # Sensor identifiers
-    sensor_id: SensorId = pydantic.Field(description='The unique identifier for this Sensor.', default_factory=uuid4)
     sensor_type: str
 
     # Time:
@@ -23,9 +24,22 @@ class BaseSensor(pydantic.BaseModel, ABC):
         description='The time (in milliseconds) relative to Node start when the Sensor is armed.',
     )
 
+    # Todo!
+    #t_end: TimePointMsec | None = pydantic.Field(
+    #    default=None,
+    #    description='The time (in milliseconds) relative to Node start when the Sensor is disarmed. If None, the Sensor remains armed until the Node ends.',
+    #)
+
+    # Optional outcome if this Sensor is triggered:
+    outcome: Outcome | None = pydantic.Field(
+        default=None,
+        description='The Outcome to apply if this Sensor is triggered. If None, the Participant proceeds to the next Node immediately.',
+    )
+
 # %%
 class TimeoutSensor(BaseSensor):
     """
+    todo: rename to just "Timer"; add tends back in.
     A Sensor that triggers immediately after it is armed.
     """
     sensor_type: Literal['TimeoutSensor'] = 'TimeoutSensor'
@@ -34,30 +48,31 @@ class TimeoutSensor(BaseSensor):
     )
 
 # %%
-class DoneSensor(BaseSensor):
-    sensor_type: Literal['DoneSensor'] = 'DoneSensor'
-    card_id: CardId = pydantic.Field(description='The ID of the done-able Card to which this DoneSensor is attached.')
-
-# %%
 class ClickSensor(BaseSensor):
     sensor_type: Literal['ClickSensor'] = 'ClickSensor'
-    card_id: CardId = pydantic.Field(description='The ID of the click-able Card to which this ClickSensor is attached.')
+    x: SpatialPoint = pydantic.Field(description='The center of the bounding box of the clickable region, along the Board x-axis.')
+    y: SpatialPoint = pydantic.Field(description='The center of the bounding box of the clickable region, along the Board y-axis.')
+    w: SpatialSize = pydantic.Field(description='The width of the bounding box of the clickable region, in Board units.', gt=0)
+    h: SpatialSize = pydantic.Field(description='The height of the bounding box of the clickable region, in Board units.', gt=0)
+    mask: Mask = pydantic.Field(
+        description='The shape of the clickable region. "rectangle" uses the box itself; "ellipse" inscribes an ellipse within the box.',
+        default='rectangle',
+        validate_default=True,
+    )
 
 
 # %%
 class KeySensor(BaseSensor):
     sensor_type: Literal['KeySensor'] = 'KeySensor'
-    key: PressableKey = pydantic.Field(description='The key that triggers this KeySensor when pressed down.')
+    key: PressableKey = pydantic.Field(description='The key that triggers the Sensor when pressed down.')
 
 
 # %%
 Sensor = Annotated[
     Union[
-        DoneSensor,
         ClickSensor,
         KeySensor,
         TimeoutSensor,
-        # Add other Sensor types here as needed
     ],
     pydantic.Field(discriminator='sensor_type')
 ]

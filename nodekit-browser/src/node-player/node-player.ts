@@ -1,4 +1,4 @@
-import type {Node} from "../types/timeline.ts";
+import type {Node} from "../types/node.ts";
 
 import type {PlayNodeResult} from "./node-play.ts";
 import {buildUIs} from "../ui/ui-builder.ts";

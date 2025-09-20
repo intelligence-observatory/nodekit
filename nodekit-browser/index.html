@@ -14,50 +14,65 @@
     let timeline = {
         "nodes": [
             {
-                "node_id": "1266bee5-12d0-4586-af12-2228917b4dd4",
+                "board": {
+                    "board_width_px": 768,
+                    "board_height_px": 768,
+                    "background_color": "#808080ff"
+                },
                 "cards": [
                     {
-                        "text_color": "#000000",
-                        "font_size": 0.0175,
-                        "justification_horizontal": "left",
-                        "justification_vertical": "top",
-                        "card_id": "6777bdab-f27a-40eb-bbbb-826546674101",
-                        "card_type": "MarkdownPagesCard",
+                        "card_type": "TextCard",
                         "x": 0.0,
                         "y": 0.0,
                         "w": 0.8,
                         "h": 0.8,
                         "t_start": 0,
                         "t_end": null,
-                        "pages": [
-                            "# Welcome!\n\nThis is a test task.",
-                            "## Instructions\n\nBla bla bla.",
-                            "### More Instructions\n\nBla bla bla again.",
-                            "#### Final Instructions\n\nThis is the last page."
-                        ]
+                        "text": "# Welcome!\n\nThis is a test task.",
+                        "font_size": 0.0175,
+                        "justification_horizontal": "left",
+                        "justification_vertical": "top",
+                        "text_color": "#000000ff",
+                        "background_color": "#ffffffff"
+                    },
+                    {
+                        "card_type": "TextCard",
+                        "x": 0.0,
+                        "y": -0.45,
+                        "w": 0.3,
+                        "h": 0.05,
+                        "t_start": 200,
+                        "t_end": null,
+                        "text": "Continue",
+                        "font_size": 0.0175,
+                        "justification_horizontal": "center",
+                        "justification_vertical": "center",
+                        "text_color": "#ffffffff",
+                        "background_color": "#32a852ff"
                     }
                 ],
                 "sensors": [
                     {
-                        "sensor_id": "22fa5794-00e2-4e5d-b49e-44c1636246c9",
-                        "sensor_type": "DoneSensor",
-                        "t_start": 0,
-                        "card_id": "6777bdab-f27a-40eb-bbbb-826546674101"
+                        "sensor_type": "ClickSensor",
+                        "t_start": 200,
+                        "outcome": null,
+                        "x": 0.0,
+                        "y": -0.45,
+                        "w": 0.3,
+                        "h": 0.05,
+                        "mask": "rectangle"
                     }
                 ],
-                "outcomes": [],
-                "effects": [],
+                "effects": []
+            },
+            {
                 "board": {
                     "board_width_px": 768,
                     "board_height_px": 768,
-                    "background_color": "#b03535"
-                }
-            },
-            {
-                "node_id": "60dc11f9-10b1-46d4-bb87-4aee1289bb36",
+                    "background_color": "#808080ff"
+                },
                 "cards": [
                     {
-                        "card_id": "87d88a05-5560-469b-8dc6-4ad60d23fd99",
                         "card_type": "VideoCard",
                         "x": 0.0,
                         "y": 0.0,
@@ -73,11 +88,6 @@
                         "loop": false
                     },
                     {
-                        "text_color": "#000000",
-                        "font_size": 0.0175,
-                        "justification_horizontal": "center",
-                        "justification_vertical": "center",
-                        "card_id": "62d32568-e7b6-476e-968b-582be52a0e19",
                         "card_type": "TextCard",
                         "x": 0.0,
                         "y": -0.4,
@@ -86,30 +96,31 @@
                         "t_start": 0,
                         "t_end": null,
                         "text": "Press space to continue",
+                        "font_size": 0.0175,
+                        "justification_horizontal": "center",
+                        "justification_vertical": "center",
+                        "text_color": "#000000ff",
                         "background_color": "#E6E6E600"
                     }
                 ],
                 "sensors": [
                     {
-                        "sensor_id": "ff33a401-fcf8-4370-a82a-1137b2ab26f3",
                         "sensor_type": "KeySensor",
                         "t_start": 0,
+                        "outcome": null,
                         "key": " "
                     }
                 ],
-                "outcomes": [],
-                "effects": [],
+                "effects": []
+            },
+            {
                 "board": {
                     "board_width_px": 768,
                     "board_height_px": 768,
-                    "background_color": "#808080"
-                }
-            },
-            {
-                "node_id": "ec1c444f-6622-4cd5-800b-ccef2ec8be9c",
+                    "background_color": "#808080ff"
+                },
                 "cards": [
                     {
-                        "card_id": "61036546-83ef-46ca-a4e7-5e78258d6cec",
                         "card_type": "ImageCard",
                         "x": 0.0,
                         "y": 0.0,
@@ -123,11 +134,6 @@
                         }
                     },
                     {
-                        "text_color": "#000000",
-                        "font_size": 0.0175,
-                        "justification_horizontal": "center",
-                        "justification_vertical": "center",
-                        "card_id": "0b4819d3-35c0-4c75-bbce-2669163c4719",
                         "card_type": "TextCard",
                         "x": 0.0,
                         "y": -0.4,
@@ -136,27 +142,25 @@
                         "t_start": 0,
                         "t_end": null,
                         "text": "Press space to continue",
+                        "font_size": 0.0175,
+                        "justification_horizontal": "center",
+                        "justification_vertical": "center",
+                        "text_color": "#000000ff",
                         "background_color": "#E6E6E600"
                     }
                 ],
                 "sensors": [
                     {
-                        "sensor_id": "7a624361-683a-4b90-a051-dab30b62a786",
                         "sensor_type": "KeySensor",
                         "t_start": 0,
+                        "outcome": null,
                         "key": " "
                     }
                 ],
-                "outcomes": [],
-                "effects": [],
-                "board": {
-                    "board_width_px": 768,
-                    "board_height_px": 768,
-                    "background_color": "#808080"
-                }
-            }
+                "effects": []
+            },
         ],
-        "nodekit_version": "0.1.0",
+        "nodekit_version": "0.1.0"
     }
 
 
@@ -183,14 +187,14 @@
 
     window.onload = async () => {
         // Add focus
-        let events = await play(
+        let trace = await play(
             timeline,
             assetUrls,
             (event) => {
                 console.log(event);
             }
         )
-        console.log(events)
+        console.log(trace)
     };
 </script>
 
