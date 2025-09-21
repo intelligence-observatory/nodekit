@@ -5,7 +5,7 @@ from typing import Literal, Annotated, Union
 import pydantic
 
 from nodekit._internal.types.actions.actions import Action
-from nodekit._internal.types.common import NodeIndex, TimeElapsedMsec
+from nodekit._internal.types.common import NodeIndex, TimeElapsedMsec, SensorIndex
 
 
 # %%
@@ -69,7 +69,7 @@ class NodeStartEvent(BaseNodeEvent):
 
 class ActionEvent(BaseNodeEvent):
     event_type: Literal[EventTypeEnum.ActionEvent] = EventTypeEnum.ActionEvent
-    sensor_index: int = pydantic.Field(description='The index of the Sensor in this Node that was triggered.')
+    sensor_index: SensorIndex = pydantic.Field(description='The index of the Sensor in this Node that was triggered.')
     action: Action
 
 class NodeEndEvent(BaseNodeEvent):
