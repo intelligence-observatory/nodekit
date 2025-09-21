@@ -23,7 +23,7 @@ class Outcome(pydantic.BaseModel):
     def check_cards_are_finite(self) -> Self:
         # Ensure all the cards have a finite timespan
         for card in self.cards:
-            if card.t_end is None:
+            if card.end_msec is None:
                 raise ValueError(f'Outcome Card {card.card_id} must have a finite t_end.')
         return self
 

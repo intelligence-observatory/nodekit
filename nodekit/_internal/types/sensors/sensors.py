@@ -3,7 +3,7 @@ from typing import Literal, Annotated, Union
 
 import pydantic
 
-from nodekit._internal.types.common import PressableKey, TimePointMsec
+from nodekit._internal.types.common import PressableKey, NodeTimePointMsec
 from nodekit._internal.types.outcome import Outcome
 from nodekit._internal.types.common import SpatialPoint, SpatialSize, Mask
 
@@ -19,13 +19,13 @@ class BaseSensor(pydantic.BaseModel, ABC):
     sensor_type: str
 
     # Time:
-    t_start: TimePointMsec = pydantic.Field(
+    start_msec: NodeTimePointMsec = pydantic.Field(
         default=0,
         description='The time (in milliseconds) relative to Node start when the Sensor is armed.',
     )
 
     # Todo!
-    #t_end: TimePointMsec | None = pydantic.Field(
+    #end_msec: TimePointMsec | None = pydantic.Field(
     #    default=None,
     #    description='The time (in milliseconds) relative to Node start when the Sensor is disarmed. If None, the Sensor remains armed until the Node ends.',
     #)
@@ -43,7 +43,7 @@ class TimeoutSensor(BaseSensor):
     A Sensor that triggers immediately after it is armed.
     """
     sensor_type: Literal['TimeoutSensor'] = 'TimeoutSensor'
-    t_start: TimePointMsec = pydantic.Field(
+    start_msec: NodeTimePointMsec = pydantic.Field(
         description = 'The time (in milliseconds) relative to Node start when the TimeoutAction is emitted.',
     )
 

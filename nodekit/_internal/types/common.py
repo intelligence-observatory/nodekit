@@ -28,7 +28,7 @@ Mask = Annotated[
     pydantic.Field(description='Describes the shape of a region inside of a bounding box. "rectangle" uses the box itself; "ellipse" inscribes a tightly fitted ellipse within the box.')
 ]
 # %% Time
-TimePointMsec = Annotated[int, pydantic.Field(strict=True, ge=0, description='A point in time relative to some start time in milliseconds.')]
+NodeTimePointMsec = Annotated[int, pydantic.Field(strict=True, ge=0, description='A point in time relative to the start of a Node.')]
 TimeElapsedMsec = Annotated[int, pydantic.Field(strict=True, ge=0, description='An elapsed duration of time in milliseconds, relative to some start.')]
 
 # %% Text

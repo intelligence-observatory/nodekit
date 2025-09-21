@@ -2,7 +2,7 @@ export type UUID = string & { __brand: 'UUID' };
 export type SpatialSize = number & { __brand: 'SpatialSize' };
 export type SpatialPoint = number & { __brand: 'SpatialPoint' };
 
-export type TimePointMsec = number & { __brand: 'TimePointMsec' };
+export type NodeTimePointMsec = number & { __brand: 'NodeTimePointMsec' };
 export type TimeElapsedMsec = number & { __brand: 'TimeElapsedMsec' };
 
 export type MarkdownString = string & { __brand: 'MarkdownString'}

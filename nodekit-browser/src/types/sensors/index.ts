@@ -1,10 +1,10 @@
-import type {PressableKey, SpatialPoint, SpatialSize, TimePointMsec, Mask} from "../common.ts";
+import type {PressableKey, SpatialPoint, SpatialSize, NodeTimePointMsec, Mask} from "../common.ts";
 import type {Outcome} from "../outcomes";
 
 
 export interface BaseSensor<T extends string> {
     sensor_type: T
-    t_start: TimePointMsec
+    start_msec: NodeTimePointMsec
     outcome: Outcome | null
 }
 

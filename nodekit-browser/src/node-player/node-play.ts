@@ -79,16 +79,16 @@ export class NodePlay {
             // Schedule CardView start:
             this.scheduler.scheduleEvent(
                 {
-                    triggerTimeMsec: card.t_start,
+                    triggerTimeMsec: card.start_msec,
                     triggerFunc: () => {this.boardView.startCard(cardViewId)}
                 }
             )
 
             // Schedule CardView stop:
-            if (card.t_end !== null) {
+            if (card.end_msec !== null) {
                 this.scheduler.scheduleEvent(
                     {
-                        triggerTimeMsec: card.t_end,
+                        triggerTimeMsec: card.end_msec,
                         triggerFunc: () => {this.boardView.stopCard(cardViewId)},
                     }
                 )
@@ -116,7 +116,7 @@ export class NodePlay {
             // Schedule Sensor start:
             this.scheduler.scheduleEvent(
                 {
-                    triggerTimeMsec: sensor.t_start,
+                    triggerTimeMsec: sensor.start_msec,
                     triggerFunc: () => {this.boardView.startSensor(sensorBindingId)},
                 }
             )
@@ -147,19 +147,19 @@ export class NodePlay {
                 // Schedule:
                 outcomeEventScheduleCur.scheduleEvent(
                     {
-                        triggerTimeMsec: card.t_start,
+                        triggerTimeMsec: card.start_msec,
                         triggerFunc: () => {this.boardView.startCard(cardViewId)}
                     }
                 )
-                if (card.t_end !== null) {
+                if (card.end_msec !== null) {
                     outcomeEventScheduleCur.scheduleEvent(
                         {
-                            triggerTimeMsec: card.t_end,
+                            triggerTimeMsec: card.end_msec,
                             triggerFunc: () => {this.boardView.stopCard(cardViewId)},
                         }
                     )
-                    if (card.t_end > maxEndTime) {
-                        maxEndTime = card.t_end;
+                    if (card.end_msec > maxEndTime) {
+                        maxEndTime = card.end_msec;
                     }
                 } else {
                     throw new Error(`Consequence Cards must have an end time: ${card} `);
@@ -185,7 +185,7 @@ export class NodePlay {
             // Schedule the effect start
             this.scheduler.scheduleEvent(
                 {
-                    triggerTimeMsec: effect.t_start,
+                    triggerTimeMsec: effect.start_msec,
                     triggerFunc: () => {
                         effectBinding.start();
                     },
@@ -193,10 +193,10 @@ export class NodePlay {
             )
 
             // Schedule the effect end, if applicable
-            if (effect.t_end !== null) {
+            if (effect.end_msec !== null) {
                 this.scheduler.scheduleEvent(
                     {
-                        triggerTimeMsec: effect.t_end,
+                        triggerTimeMsec: effect.end_msec,
                         triggerFunc: () => {
                             effectBinding.stop();
                         },

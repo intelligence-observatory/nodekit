@@ -1,4 +1,4 @@
-import type {ColorHexString, MarkdownString, SpatialPoint, SpatialSize, TimePointMsec} from "../common.ts";
+import type {ColorHexString, MarkdownString, SpatialPoint, SpatialSize, NodeTimePointMsec} from "../common.ts";
 import type {ImageIdentifier, VideoIdentifier} from "../assets";
 
 export interface BaseCard<T extends string> {
@@ -10,8 +10,8 @@ export interface BaseCard<T extends string> {
     w: SpatialSize
     h: SpatialSize
 
-    t_start: TimePointMsec
-    t_end: TimePointMsec | null;
+    start_msec: NodeTimePointMsec
+    end_msec: NodeTimePointMsec | null;
 }
 
 export interface ImageCard extends BaseCard<'ImageCard'>{
