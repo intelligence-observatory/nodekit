@@ -9,7 +9,7 @@ class Outcome(pydantic.BaseModel):
     """
     An Outcome is a set of Cards that are displayed on a fresh Board following a Participant Action.
     An Outcome might be intended to serve as a reinforcer or punisher for the Participant.
-    The Cards in an Outcome should all have closed t_end times, as the Outcome is expected to be temporally finite.
+    The Cards in an Outcome should all have closed end_msec times, as the Outcome is expected to be temporally finite.
     """
 
     cards: List[Card] = pydantic.Field(
@@ -24,6 +24,6 @@ class Outcome(pydantic.BaseModel):
         # Ensure all the cards have a finite timespan
         for card in self.cards:
             if card.end_msec is None:
-                raise ValueError(f'Outcome Card {card.card_id} must have a finite t_end.')
+                raise ValueError(f'Outcome Card {card.card_id} must have a finite end_msec.')
         return self
 

@@ -27,14 +27,14 @@ declare interface BaseCard<T extends string> {
     y: SpatialPoint;
     w: SpatialSize;
     h: SpatialSize;
-    t_start: TimePointMsec;
-    t_end: TimePointMsec | null;
+    start_msec: NodeTimePointMsec;
+    end_msec: NodeTimePointMsec | null;
 }
 
 declare interface BaseEffect<T extends string> {
     effect_type: T;
-    t_start: TimePointMsec;
-    t_end: TimePointMsec | null;
+    start_msec: NodeTimePointMsec;
+    end_msec: NodeTimePointMsec | null;
 }
 
 declare interface BaseEvent<T extends string> {
@@ -48,7 +48,7 @@ declare interface BaseNodeEvent<T extends string> extends BaseEvent<T> {
 
 declare interface BaseSensor<T extends string> {
     sensor_type: T;
-    t_start: TimePointMsec;
+    start_msec: NodeTimePointMsec;
     outcome: Outcome | null;
 }
 
@@ -93,7 +93,7 @@ declare interface EndEvent extends BaseEvent<'EndEvent'> {
 declare type Event_2 = StartEvent | BrowserContextEvent | LeaveEvent | ReturnEvent | NodeStartEvent | ActionEvent | NodeEndEvent | EndEvent;
 
 declare interface HidePointerEffect extends BaseEffect<'HidePointerEffect'> {
-    t_end: TimePointMsec;
+    end_msec: NodeTimePointMsec;
 }
 
 declare interface ImageCard extends BaseCard<'ImageCard'> {
@@ -136,6 +136,10 @@ declare type NodeIndex = number & {
 
 declare interface NodeStartEvent extends BaseNodeEvent<'NodeStartEvent'> {
 }
+
+declare type NodeTimePointMsec = number & {
+    __brand: 'NodeTimePointMsec';
+};
 
 export declare type OnEventCallback = (event: Event_2) => void;
 
@@ -194,10 +198,6 @@ declare interface TimeoutAction extends BaseAction<"TimeoutAction"> {
 
 declare interface TimeoutSensor extends BaseSensor<'TimeoutSensor'> {
 }
-
-declare type TimePointMsec = number & {
-    __brand: 'TimePointMsec';
-};
 
 declare interface Trace {
     nodekit_version: string;

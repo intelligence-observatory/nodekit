@@ -2489,14 +2489,14 @@ class Ao {
       );
       this.scheduler.scheduleEvent(
         {
-          triggerTimeMsec: t.t_start,
+          triggerTimeMsec: t.start_msec,
           triggerFunc: () => {
             this.boardView.startCard(i);
           }
         }
-      ), t.t_end !== null && this.scheduler.scheduleEvent(
+      ), t.end_msec !== null && this.scheduler.scheduleEvent(
         {
-          triggerTimeMsec: t.t_end,
+          triggerTimeMsec: t.end_msec,
           triggerFunc: () => {
             this.boardView.stopCard(i);
           }
@@ -2518,7 +2518,7 @@ class Ao {
       );
       if (this.scheduler.scheduleEvent(
         {
-          triggerTimeMsec: i.t_start,
+          triggerTimeMsec: i.start_msec,
           triggerFunc: () => {
             this.boardView.startSensor(s);
           }
@@ -2539,20 +2539,20 @@ class Ao {
         );
         if (c.scheduleEvent(
           {
-            triggerTimeMsec: h.t_start,
+            triggerTimeMsec: h.start_msec,
             triggerFunc: () => {
               this.boardView.startCard(u);
             }
           }
-        ), h.t_end !== null)
+        ), h.end_msec !== null)
           c.scheduleEvent(
             {
-              triggerTimeMsec: h.t_end,
+              triggerTimeMsec: h.end_msec,
               triggerFunc: () => {
                 this.boardView.stopCard(u);
               }
             }
-          ), h.t_end > a && (a = h.t_end);
+          ), h.end_msec > a && (a = h.end_msec);
         else
           throw new Error(`Consequence Cards must have an end time: ${h} `);
       }
@@ -2569,14 +2569,14 @@ class Ao {
       const i = new To(this.boardView);
       this.scheduler.scheduleEvent(
         {
-          triggerTimeMsec: t.t_start,
+          triggerTimeMsec: t.start_msec,
           triggerFunc: () => {
             i.start();
           }
         }
-      ), t.t_end !== null && this.scheduler.scheduleEvent(
+      ), t.end_msec !== null && this.scheduler.scheduleEvent(
         {
-          triggerTimeMsec: t.t_end,
+          triggerTimeMsec: t.end_msec,
           triggerFunc: () => {
             i.stop();
           }
