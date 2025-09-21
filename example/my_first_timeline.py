@@ -1,8 +1,8 @@
-import nodekit as nk
-import random
-import time
 import glob
+import random
 from pathlib import Path
+
+import nodekit as nk
 
 random.seed(42)
 
