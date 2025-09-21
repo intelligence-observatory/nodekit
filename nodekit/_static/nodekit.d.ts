@@ -49,6 +49,7 @@ declare interface BaseNodeEvent<T extends string> extends BaseEvent<T> {
 declare interface BaseSensor<T extends string> {
     sensor_type: T;
     start_msec: NodeTimePointMsec;
+    end_msec: NodeTimePointMsec | null;
     outcome: Outcome | null;
 }
 
@@ -197,6 +198,7 @@ declare interface TimeoutAction extends BaseAction<"TimeoutAction"> {
 }
 
 declare interface TimeoutSensor extends BaseSensor<'TimeoutSensor'> {
+    end_msec: null;
 }
 
 declare interface Trace {

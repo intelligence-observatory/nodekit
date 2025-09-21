@@ -2413,7 +2413,8 @@ class So {
     this.getSensorBinding(e).arm();
   }
   destroySensor(e) {
-    this.getSensorBinding(e).destroy(), this.sensorBindings.delete(e);
+    const t = this.getSensorBinding(e);
+    t && (t.destroy(), this.sensorBindings.delete(e));
   }
 }
 class ys {
@@ -2523,13 +2524,19 @@ class Ao {
             this.boardView.startSensor(s);
           }
         }
+      ), i.end_msec !== null && this.scheduler.scheduleEvent(
+        {
+          triggerTimeMsec: i.end_msec,
+          triggerFunc: () => {
+            this.boardView.destroySensor(s);
+          }
+        }
       ), this.scheduler.scheduleOnStop(
         () => {
           this.boardView.destroySensor(s);
         }
       ), !i.outcome)
         continue;
-      console.log(i);
       const r = i.outcome, c = new ys();
       let a = 0;
       for (const h of r.cards) {
