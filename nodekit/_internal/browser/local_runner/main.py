@@ -248,6 +248,8 @@ def play(
             break
         time.sleep(5)
 
+    # Shut down the server:
+    runner.shutdown()
 
     return Trace(
         events=events
