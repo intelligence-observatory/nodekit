@@ -5,11 +5,14 @@ import type {Outcome} from "../outcomes";
 export interface BaseSensor<T extends string> {
     sensor_type: T
     start_msec: NodeTimePointMsec
+    end_msec: NodeTimePointMsec | null // If null, the window lasts until the Node ends
+
     outcome: Outcome | null
 }
 
-export interface TimeoutSensor extends BaseSensor<'TimeoutSensor'>{}
-
+export interface TimeoutSensor extends BaseSensor<'TimeoutSensor'>{
+    end_msec: null
+}
 
 export interface ClickSensor extends BaseSensor<'ClickSensor'>{
     x: SpatialPoint

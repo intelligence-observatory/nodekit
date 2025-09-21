@@ -113,7 +113,7 @@ export class NodePlay {
                 })
             )
 
-            // Schedule Sensor start:
+            // Schedule Sensor arming:
             this.scheduler.scheduleEvent(
                 {
                     triggerTimeMsec: sensor.start_msec,
@@ -121,7 +121,17 @@ export class NodePlay {
                 }
             )
 
-            // Schedule Sensor destruction:
+            // Schedule Sensor disarming:
+            if (sensor.end_msec !== null) {
+                this.scheduler.scheduleEvent(
+                    {
+                        triggerTimeMsec: sensor.end_msec,
+                        triggerFunc: () => {this.boardView.destroySensor(sensorBindingId)},
+                    }
+                )
+
+            }
+            // Schedule Sensor destruction at Node end:
             this.scheduler.scheduleOnStop(
                 () => {this.boardView.destroySensor(sensorBindingId)}
             )
@@ -130,7 +140,6 @@ export class NodePlay {
                 continue; // No outcome to prepare
             }
 
-            console.log(sensor)
             // Buffer the Sensor outcome:
             const outcome = sensor.outcome;
             const outcomeEventScheduleCur = new EventScheduler()

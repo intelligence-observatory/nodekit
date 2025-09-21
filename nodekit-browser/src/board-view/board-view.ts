@@ -282,6 +282,9 @@ export class BoardView {
 
     destroySensor(sensorBindingId: SensorBindingId) {
         const sensorBinding = this.getSensorBinding(sensorBindingId);
+        if (!sensorBinding) {
+            return
+        }
         sensorBinding.destroy();
         this.sensorBindings.delete(sensorBindingId);
     }
