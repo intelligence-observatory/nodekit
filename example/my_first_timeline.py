@@ -191,18 +191,12 @@ timeline = nk.Timeline(
 Path('timeline.json').write_text(timeline.model_dump_json(indent=2))
 
 # %% Play the Timeline:
-play_session = nk.play(  # todo have this block until it returns a Timeline
+trace = nk.play(
     timeline=timeline,
     asset_files=my_image_files + my_video_files
 )
 
-# %% Wait until the end event is observed:
-while True:
-    events = play_session.list_events()
-    if any(isinstance(event, nk.events.EndEvent) for event in events):
-        break
-    time.sleep(5)
-
-print(f'Observed {len(events)} events:')
-for event in events:
+# %%
+print(f'Observed {len(trace.events)} events:')
+for event in trace.events:
     print(event.event_type)

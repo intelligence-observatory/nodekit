@@ -7,6 +7,7 @@ from nodekit._internal.types.cards.cards import Card
 from nodekit._internal.types.effects.effects import Effect
 from nodekit._internal.types.sensors.sensors import Sensor
 from nodekit._internal.version import VERSION
+from nodekit._internal.types.events.events import Event
 
 # %%
 class Node(pydantic.BaseModel):
@@ -35,5 +36,5 @@ class Timeline(pydantic.BaseModel):
 
 # %%
 class Trace(pydantic.BaseModel):
-    timeline: Timeline
+    events: List[Event]
     nodekit_version: str = pydantic.Field(default=VERSION, description='The semantic version number of NodeKit used to create this Timeline.')
