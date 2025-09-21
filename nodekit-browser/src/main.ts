@@ -1,18 +1,14 @@
 import {NodePlayer} from "./node-player/node-player.ts";
-import type {BrowserContextEvent, EndEvent, Event, LeaveEvent, NodeIndex, NodeResultEvent, ReturnEvent, StartEvent} from "./types/events";
-import {type ISO8601} from "./types/common.ts";
+import type {BrowserContextEvent, EndEvent, Event, LeaveEvent, NodeIndex, NodeStartEvent, ActionEvent, NodeEndEvent, ReturnEvent, StartEvent} from "./types/events";
+import {Clock} from "./clock.ts";
 import type {Timeline, Trace} from "./types/node.ts";
-import {performanceNowToISO8601} from "./utils.ts";
 import {getBrowserContext} from "./user-gates/browser-context.ts";
 import {DeviceGate} from "./user-gates/device-gate.ts";
 import type {AssetUrl} from "./types/assets";
+import type {TimeElapsedMsec} from "./types/common.ts";
 
 export type OnEventCallback = (event: Event) => void;
 
-
-function getCurrentTimestamp(): ISO8601 {
-    return performanceNowToISO8601(performance.now())
-}
 
 export async function play(
     timeline: Timeline,
@@ -52,16 +48,17 @@ export async function play(
     for (const assetUrl of assetUrls) {
         nodePlayer.boardViewsUI.assetManager.registerAsset(assetUrl)
     }
-
     nodePlayer.hideConnectingOverlay()
 
 
     // Todo: always have a "start" button to gain focus and ensure the user is ready; emit the StartEvent after that.
+    const clock = new Clock();
     await nodePlayer.playStartScreen()
     // Emit the StartEvent
+    clock.start()
     const startEvent: StartEvent = {
         event_type: "StartEvent",
-        timestamp_event: getCurrentTimestamp(),
+        t: 0 as TimeElapsedMsec,
     }
     events.push(startEvent);
     onEventCallback(startEvent);
@@ -71,7 +68,7 @@ export async function play(
         if (document.visibilityState === "hidden") {
             const leaveEvent: LeaveEvent = {
                 event_type: "LeaveEvent",
-                timestamp_event: getCurrentTimestamp(),
+                t: clock.now(),
             };
             events.push(leaveEvent);
             onEventCallback!(leaveEvent);
@@ -79,7 +76,7 @@ export async function play(
             // Optionally handle when the document becomes visible again
             const returnEvent: ReturnEvent = {
                 event_type: "ReturnEvent",
-                timestamp_event: getCurrentTimestamp(),
+                t: clock.now(),
             };
             events.push(returnEvent);
             onEventCallback!(returnEvent);
@@ -92,7 +89,7 @@ export async function play(
     const browserContext = getBrowserContext();
     const browserContextEvent: BrowserContextEvent = {
         event_type: "BrowserContextEvent",
-        timestamp_event: getCurrentTimestamp(),
+        t: clock.now(),
         user_agent: browserContext.userAgent,
         viewport_width_px: browserContext.viewportWidthPx,
         viewport_height_px: browserContext.viewportHeightPx,
@@ -111,20 +108,36 @@ export async function play(
         // Play the Node:
         let result = await nodePlayer.play(nodePlayId);
 
-        // Package the NodeResultEvent:
-        const nodeResultEvent: NodeResultEvent = {
-            event_type: "NodeResultEvent",
-            timestamp_event: getCurrentTimestamp(),
-            timestamp_node_start: result.timestampStart,
-            timestamp_action: result.timestampAction,
-            timestamp_node_end: result.timestampEnd,
+        // Emit the NodeStartEvent: todo: emit immediately when actually started?
+        const nodeStartEvent: NodeStartEvent = {
+            event_type: "NodeStartEvent",
+            t: clock.convertDomTimestampToClockTime(result.domTimestampStart),
+            node_index: nodeIndex,
+        }
+        events.push(nodeStartEvent);
+        onEventCallback(nodeStartEvent);
+
+
+        // Emit the ActionEvent: todo: emit immediately
+        const actionEvent: ActionEvent = {
+            event_type: "ActionEvent",
+            t: clock.convertDomTimestampToClockTime(result.domTimestampAction),
             node_index: nodeIndex,
             sensor_index: result.sensorIndex,
             action: result.action,
         }
-        events.push(nodeResultEvent);
-        onEventCallback(nodeResultEvent);
+        events.push(actionEvent);
+        onEventCallback(actionEvent);
 
+        // Emit the NodeEndEvent: todo: emit immediately
+        const nodeEndEvent: NodeEndEvent = {
+            event_type: "NodeEndEvent",
+            t: clock.convertDomTimestampToClockTime(result.domTimestampEnd),
+            node_index: nodeIndex,
+        }
+        events.push(nodeEndEvent);
+        onEventCallback(nodeEndEvent);
+        
         // Update the progress bar:
         nodePlayer.setProgressBar((nodeIndex + 1) / nodes.length * 100);
     }
@@ -135,7 +148,7 @@ export async function play(
     // Generate the EndEvent:
     const endEvent: EndEvent = {
         event_type: "EndEvent",
-        timestamp_event: getCurrentTimestamp(),
+        t: clock.now(),
     }
     events.push(endEvent);
     onEventCallback(endEvent);

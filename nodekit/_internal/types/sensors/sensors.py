@@ -3,7 +3,7 @@ from typing import Literal, Annotated, Union
 
 import pydantic
 
-from nodekit._internal.types.common import PressableKey, TimePointMsec
+from nodekit._internal.types.common import PressableKey, NodeTimePointMsec
 from nodekit._internal.types.outcome import Outcome
 from nodekit._internal.types.common import SpatialPoint, SpatialSize, Mask
 
@@ -12,24 +12,22 @@ from nodekit._internal.types.common import SpatialPoint, SpatialSize, Mask
 class BaseSensor(pydantic.BaseModel, ABC):
     """
     A Sensor is a listener for Participant behavior.
-    When a Sensor is triggered, it emits an Action.
+    When a Sensor is triggered, it emits an Action and optionally applies an Outcome.
+
     """
 
     # Sensor identifiers
     sensor_type: str
 
-    # Time:
-    t_start: TimePointMsec = pydantic.Field(
+    start_msec: NodeTimePointMsec = pydantic.Field(
         default=0,
         description='The time (in milliseconds) relative to Node start when the Sensor is armed.',
     )
 
-    # Todo!
-    #t_end: TimePointMsec | None = pydantic.Field(
-    #    default=None,
-    #    description='The time (in milliseconds) relative to Node start when the Sensor is disarmed. If None, the Sensor remains armed until the Node ends.',
-    #)
-
+    end_msec: NodeTimePointMsec | None = pydantic.Field(
+        default=None,
+        description='The time (in milliseconds) relative to Node start when the Sensor is disarmed. If None, the Sensor remains armed until the Node ends.',
+    )
     # Optional outcome if this Sensor is triggered:
     outcome: Outcome | None = pydantic.Field(
         default=None,
@@ -39,13 +37,11 @@ class BaseSensor(pydantic.BaseModel, ABC):
 # %%
 class TimeoutSensor(BaseSensor):
     """
-    todo: rename to just "Timer"; add tends back in.
-    A Sensor that triggers immediately after it is armed.
+    A Sensor that triggers immediately when armed.
     """
     sensor_type: Literal['TimeoutSensor'] = 'TimeoutSensor'
-    t_start: TimePointMsec = pydantic.Field(
-        description = 'The time (in milliseconds) relative to Node start when the TimeoutAction is emitted.',
-    )
+    start_msec: NodeTimePointMsec
+    end_msec: None = pydantic.Field(default=None)
 
 # %%
 class ClickSensor(BaseSensor):
@@ -70,9 +66,9 @@ class KeySensor(BaseSensor):
 # %%
 Sensor = Annotated[
     Union[
+        TimeoutSensor,
         ClickSensor,
         KeySensor,
-        TimeoutSensor,
     ],
     pydantic.Field(discriminator='sensor_type')
 ]

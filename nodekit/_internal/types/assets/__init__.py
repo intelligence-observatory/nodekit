@@ -1,11 +1,12 @@
 import mimetypes
 from pathlib import Path
-from typing import Self, Literal, Annotated, Union
+from typing import Self, Annotated, Union
 
 import pydantic
 
 from nodekit._internal.ops.hash_asset_file import hash_asset_file
 from nodekit._internal.types.common import MimeType, ImageMimeType, VideoMimeType, SHA256
+
 
 # %%
 class BaseAssetIdentifier(pydantic.BaseModel):

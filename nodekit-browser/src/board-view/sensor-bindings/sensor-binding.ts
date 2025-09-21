@@ -1,7 +1,6 @@
 import type {Action, ClickAction, KeyAction, TimeoutAction} from "../../types/actions";
-import type {ISO8601, Mask, PressableKey, SpatialPoint, SpatialSize} from "../../types/common.ts";
+import type {Mask, PressableKey, SpatialPoint, SpatialSize} from "../../types/common.ts";
 import type {BoardCoordinateSystem} from "../board-view.ts";
-import {performanceNowToISO8601} from "../../utils.ts";
 
 // Generic contract:
 export interface SensorBinding {
@@ -29,7 +28,7 @@ export class ClickSensorBinding implements SensorBinding {
         w: SpatialSize,
         h: SpatialSize,
         mask: Mask,
-        onSensorFired: (action: ClickAction, timestampAction: ISO8601) => void,
+        onSensorFired: (action: ClickAction, domTimestampAction: DOMHighResTimeStamp) => void,
         boardRootElement: HTMLDivElement,
         boardCoords: BoardCoordinateSystem,
     ) {
@@ -57,10 +56,13 @@ export class ClickSensorBinding implements SensorBinding {
 
             const action: ClickAction = {
                 action_type: "ClickAction",
-                click_x: click.x,
-                click_y: click.y,
+                x: click.x,
+                y: click.y,
             };
-            onSensorFired(action, performanceNowToISO8601(e.timeStamp));
+            onSensorFired(
+                action,
+                performance.now()
+            );
         }
 
         // Subscribe to mousedown on the Board: (todo: create the PointerStream)
@@ -115,10 +117,10 @@ export class ClickSensorBinding implements SensorBinding {
 A sensor which fires immediately when armed and yields a TimeoutAction.
  */
 export class TimeoutSensorBinding implements SensorBinding {
-    private onSensorFired:  (action: Action, timestampAction: ISO8601) => void
+    private onSensorFired:  (action: Action, domTimestampAction: DOMHighResTimeStamp) => void
 
     constructor(
-        onSensorFired: (action: Action, timestampAction: ISO8601)=> void,
+        onSensorFired: (action: Action, domTimestampAction: DOMHighResTimeStamp)=> void,
     ) {
         this.onSensorFired = onSensorFired;
     }
@@ -127,19 +129,19 @@ export class TimeoutSensorBinding implements SensorBinding {
         const action: TimeoutAction = {
             action_type: "TimeoutAction",
         };
-        this.onSensorFired(action, performanceNowToISO8601(performance.now()))
+        this.onSensorFired(action, performance.now());
     }
 
     destroy(): void {}
 }
 
 export class KeySensorBinding implements SensorBinding {
-    private readonly onSensorFired:  (action: Action, timestampAction: ISO8601) => void
+    private onSensorFired:  (action: Action, domTimestampAction: DOMHighResTimeStamp) => void
     private tArmed: number | null = null;
     private readonly keys: PressableKey[];
 
     constructor(
-        onSensorFired:  (action: Action, timestampAction: ISO8601) => void,
+        onSensorFired:  (action: Action, domTimestampAction: DOMHighResTimeStamp) => void,
         key: PressableKey
     ) {
         this.onSensorFired = onSensorFired;
@@ -179,7 +181,7 @@ export class KeySensorBinding implements SensorBinding {
             key: key,
         };
 
-        this.onSensorFired(action, performanceNowToISO8601(e.timeStamp));
+        this.onSensorFired(action, performance.now());
     }
 }
 

@@ -4,15 +4,13 @@ import {BoardView} from "../board-view/board-view.ts";
 import {EventScheduler} from "./event-scheduler.ts";
 import {type EffectBinding, HideCursorEffectBinding} from "../board-view/effect-bindings/effect-bindings.ts";
 
-import {performanceNowToISO8601} from "../utils.ts";
-import type {ISO8601} from "../types/common.ts";
 import type {AssetManager} from "../asset-manager";
 import type {SensorIndex} from "../types/events";
 
 export interface PlayNodeResult {
-    timestampStart: ISO8601;
-    timestampAction: ISO8601
-    timestampEnd: ISO8601;
+    domTimestampStart: DOMHighResTimeStamp;
+    domTimestampAction: DOMHighResTimeStamp
+    domTimestampEnd: DOMHighResTimeStamp;
     sensorIndex: SensorIndex;
     action: Action;
 }
@@ -39,7 +37,7 @@ class Deferred<T> {
 }
 interface SensorFiring {
     sensorIndex: SensorIndex;
-    timestampAction: ISO8601;
+    domTimestampAction: DOMHighResTimeStamp;
     action: Action;
 }
 
@@ -81,16 +79,16 @@ export class NodePlay {
             // Schedule CardView start:
             this.scheduler.scheduleEvent(
                 {
-                    triggerTimeMsec: card.t_start,
+                    triggerTimeMsec: card.start_msec,
                     triggerFunc: () => {this.boardView.startCard(cardViewId)}
                 }
             )
 
             // Schedule CardView stop:
-            if (card.t_end !== null) {
+            if (card.end_msec !== null) {
                 this.scheduler.scheduleEvent(
                     {
-                        triggerTimeMsec: card.t_end,
+                        triggerTimeMsec: card.end_msec,
                         triggerFunc: () => {this.boardView.stopCard(cardViewId)},
                     }
                 )
@@ -108,22 +106,32 @@ export class NodePlay {
             const sensor = this.node.sensors[sensorIndex];
             const sensorBindingId = this.boardView.prepareSensor(
                 sensor,
-                (action, timestampAction) => this.deferredSensorFiring.resolve({
+                (action, domTimestampAction) => this.deferredSensorFiring.resolve({
                     sensorIndex: sensorIndex as SensorIndex,
-                    timestampAction: timestampAction,
+                    domTimestampAction: domTimestampAction,
                     action: action,
                 })
             )
 
-            // Schedule Sensor start:
+            // Schedule Sensor arming:
             this.scheduler.scheduleEvent(
                 {
-                    triggerTimeMsec: sensor.t_start,
+                    triggerTimeMsec: sensor.start_msec,
                     triggerFunc: () => {this.boardView.startSensor(sensorBindingId)},
                 }
             )
 
-            // Schedule Sensor destruction:
+            // Schedule Sensor disarming:
+            if (sensor.end_msec !== null) {
+                this.scheduler.scheduleEvent(
+                    {
+                        triggerTimeMsec: sensor.end_msec,
+                        triggerFunc: () => {this.boardView.destroySensor(sensorBindingId)},
+                    }
+                )
+
+            }
+            // Schedule Sensor destruction at Node end:
             this.scheduler.scheduleOnStop(
                 () => {this.boardView.destroySensor(sensorBindingId)}
             )
@@ -132,7 +140,6 @@ export class NodePlay {
                 continue; // No outcome to prepare
             }
 
-            console.log(sensor)
             // Buffer the Sensor outcome:
             const outcome = sensor.outcome;
             const outcomeEventScheduleCur = new EventScheduler()
@@ -149,19 +156,19 @@ export class NodePlay {
                 // Schedule:
                 outcomeEventScheduleCur.scheduleEvent(
                     {
-                        triggerTimeMsec: card.t_start,
+                        triggerTimeMsec: card.start_msec,
                         triggerFunc: () => {this.boardView.startCard(cardViewId)}
                     }
                 )
-                if (card.t_end !== null) {
+                if (card.end_msec !== null) {
                     outcomeEventScheduleCur.scheduleEvent(
                         {
-                            triggerTimeMsec: card.t_end,
+                            triggerTimeMsec: card.end_msec,
                             triggerFunc: () => {this.boardView.stopCard(cardViewId)},
                         }
                     )
-                    if (card.t_end > maxEndTime) {
-                        maxEndTime = card.t_end;
+                    if (card.end_msec > maxEndTime) {
+                        maxEndTime = card.end_msec;
                     }
                 } else {
                     throw new Error(`Consequence Cards must have an end time: ${card} `);
@@ -187,7 +194,7 @@ export class NodePlay {
             // Schedule the effect start
             this.scheduler.scheduleEvent(
                 {
-                    triggerTimeMsec: effect.t_start,
+                    triggerTimeMsec: effect.start_msec,
                     triggerFunc: () => {
                         effectBinding.start();
                     },
@@ -195,10 +202,10 @@ export class NodePlay {
             )
 
             // Schedule the effect end, if applicable
-            if (effect.t_end !== null) {
+            if (effect.end_msec !== null) {
                 this.scheduler.scheduleEvent(
                     {
-                        triggerTimeMsec: effect.t_end,
+                        triggerTimeMsec: effect.end_msec,
                         triggerFunc: () => {
                             effectBinding.stop();
                         },
@@ -231,7 +238,7 @@ export class NodePlay {
         this.started = true;
 
         // Kick off scheduler:
-        const timestampStart = performance.now();
+        const domTimestampStart = performance.now();
         this.scheduler.start()
 
         // Wait for a Sensor to fire:
@@ -251,9 +258,9 @@ export class NodePlay {
         return {
             sensorIndex: sensorFiring.sensorIndex,
             action: sensorFiring.action,
-            timestampStart: performanceNowToISO8601(timestampStart),
-            timestampAction: sensorFiring.timestampAction,
-            timestampEnd: performanceNowToISO8601(performance.now()),
+            domTimestampStart: domTimestampStart,
+            domTimestampAction: sensorFiring.domTimestampAction,
+            domTimestampEnd: performance.now(),
         }
     }
 }

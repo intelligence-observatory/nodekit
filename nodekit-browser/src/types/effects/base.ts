@@ -1,13 +1,13 @@
-import type {TimePointMsec} from "../common.ts";
+import type {NodeTimePointMsec} from "../common.ts";
 
 export interface BaseEffect<T extends string>{
     effect_type: T;
-    t_start: TimePointMsec;
-    t_end: TimePointMsec | null
+    start_msec: NodeTimePointMsec;
+    end_msec: NodeTimePointMsec | null
 }
 
 export interface HidePointerEffect extends BaseEffect<'HidePointerEffect'> {
-    t_end: TimePointMsec; // Must have an end time.
+    end_msec: NodeTimePointMsec; // Must have an end time.
 }
 
 // Union type for all effects

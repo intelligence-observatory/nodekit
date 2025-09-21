@@ -2,6 +2,7 @@ import atexit
 import dataclasses
 import hashlib
 import threading
+import time
 from pathlib import Path
 from typing import List, Dict
 
@@ -14,7 +15,7 @@ import uvicorn
 from nodekit._internal.browser.browser_bundle import get_browser_bundle
 from nodekit._internal.types.assets import AssetFile, AssetUrl
 from nodekit._internal.types.events.events import Event
-from nodekit._internal.types.node import Timeline
+from nodekit._internal.types.node import Timeline, Trace
 
 
 # %%
@@ -185,6 +186,7 @@ class LocalRunner:
             # Need a TypeAdapter for this.
             typeadapter = pydantic.TypeAdapter(Event)
             event = typeadapter.validate_python(event)
+            print(f'Received {event.event_type}')
             self._events.append(event)
             return fastapi.Response(status_code=fastapi.status.HTTP_204_NO_CONTENT)
 
@@ -225,17 +227,30 @@ class PlaySession:
 def play(
         timeline: Timeline,
         asset_files: List[AssetFile],
-) -> PlaySession:
+) -> Trace:
     """
     Runs the Timeline at http://localhost:{port}.
-    Returns the link to the running instance.
+    Blocks until the Trace is complete.
     """
 
     runner = _get_runner()
     runner.ensure_running()
     runner.set_timeline(timeline)
     runner.mount_asset_files(asset_files)
-    print('Play the Timeline at:', runner.url)
-    return PlaySession(
-        url=runner.url
+    print('Play the Timeline at:\n', runner.url)
+
+
+    # Wait until the End Event is observed:
+    while True:
+        # Todo: make this better; add a timeout
+        events = runner.list_events()
+        if any([e.event_type == 'EndEvent' for e in events]):
+            break
+        time.sleep(5)
+
+    # Shut down the server:
+    runner.shutdown()
+
+    return Trace(
+        events=events
     )

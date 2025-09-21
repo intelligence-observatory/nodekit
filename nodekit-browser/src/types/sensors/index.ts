@@ -1,15 +1,18 @@
-import type {PressableKey, SpatialPoint, SpatialSize, TimePointMsec, Mask} from "../common.ts";
+import type {PressableKey, SpatialPoint, SpatialSize, NodeTimePointMsec, Mask} from "../common.ts";
 import type {Outcome} from "../outcomes";
 
 
 export interface BaseSensor<T extends string> {
     sensor_type: T
-    t_start: TimePointMsec
+    start_msec: NodeTimePointMsec
+    end_msec: NodeTimePointMsec | null // If null, the window lasts until the Node ends
+
     outcome: Outcome | null
 }
 
-export interface TimeoutSensor extends BaseSensor<'TimeoutSensor'>{}
-
+export interface TimeoutSensor extends BaseSensor<'TimeoutSensor'>{
+    end_msec: null
+}
 
 export interface ClickSensor extends BaseSensor<'ClickSensor'>{
     x: SpatialPoint

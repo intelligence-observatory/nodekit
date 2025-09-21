@@ -1,41 +1,6 @@
-import datetime
-from decimal import Decimal
 from typing import Literal, Annotated
-from uuid import UUID
 
 import pydantic
-
-
-# %% Money
-def _ensure_monetary_amount_precision(value: str) -> str:
-    SubcentMonetaryAmountAdapter = pydantic.TypeAdapter(
-        Annotated[Decimal, pydantic.Field(decimal_places=5)]
-    )
-    d = SubcentMonetaryAmountAdapter.validate_python(value)
-    return str(d)
-
-
-MonetaryAmountUsd = Annotated[
-    str,
-    pydantic.Field(description='An arbitrary amount of money in USD, including negative amounts, represented as a string with at most five decimal places, e.g., "1.00001".'),
-    pydantic.AfterValidator(_ensure_monetary_amount_precision)
-]
-
-
-# %% Money
-def _ensure_payable_monetary_amount(value: str) -> str:
-    PayableMonetaryAmountAdapter = pydantic.TypeAdapter(
-        Annotated[Decimal, pydantic.Field(decimal_places=5)]
-    )
-    d = PayableMonetaryAmountAdapter.validate_python(value)
-    return str(d)
-
-
-PayableMonetaryAmountUsd = Annotated[
-    str,
-    pydantic.Field(description='A semi-positive amount of money in USD that is payable to a worker, represented as a string with at most two decimal places, e.g., "1.00". This amount must be at least "0.01".'),
-    pydantic.AfterValidator(_ensure_payable_monetary_amount)
-]
 
 # %% Assets
 SHA256 = Annotated[str, pydantic.Field(pattern=r'^[a-f0-9]{64}$')]
@@ -60,29 +25,15 @@ SpatialPoint = Annotated[float, pydantic.Field(strict=True, ge=-0.5, le=0.5)]
 
 Mask = Annotated[
     Literal['rectangle', 'ellipse'],
-    pydantic.Field(description='Describes the shape of a region inside of a bounding box. "rectangle" uses the box itself; "ellipse" inscribes a tighted fitted ellipse within the box.')
+    pydantic.Field(description='Describes the shape of a region inside of a bounding box. "rectangle" uses the box itself; "ellipse" inscribes a tightly fitted ellipse within the box.')
 ]
 # %% Time
-TimeDurationMsec = Annotated[int, pydantic.Field(strict=True, ge=0, description='A duration of time in milliseconds.')]
-TimePointMsec = Annotated[int, pydantic.Field(strict=True, ge=0, description='A point in time relative to some start time in milliseconds.')]
-
-
-def ensure_utc(t: datetime.datetime) -> datetime.datetime:
-    # Ensures that a datetime is timezone-aware and in UTC.
-    if t.tzinfo is None:
-        raise ValueError(f"Datetime must be timezone-aware: {t}")
-    return t.astimezone(datetime.timezone.utc)
-
-
-DatetimeUTC = Annotated[
-    datetime.datetime,
-    pydantic.Field(description='A timezone-aware datetime in UTC.'),
-    pydantic.AfterValidator(ensure_utc)
-]
-
+NodeTimePointMsec = Annotated[int, pydantic.Field(strict=True, ge=0, description='A point in time relative to the start of a Node.')]
+TimeElapsedMsec = Annotated[int, pydantic.Field(strict=True, ge=0, description='An elapsed duration of time in milliseconds, relative to some start.')]
 
 # %% Text
 MarkdownString = str
+
 
 def _normalize_hex_code(value: str) -> str:
     if len(value) == 7:
@@ -90,13 +41,14 @@ def _normalize_hex_code(value: str) -> str:
         value += 'FF'
     return value.lower()  # Lowercase
 
+
 ColorHexString = Annotated[
     str,
     pydantic.BeforeValidator(
         _normalize_hex_code
     ),
     pydantic.Field(
-        pattern=r"^#[0-9a-f]{8}$", # "#RRGGBBAA"
+        pattern=r"^#[0-9a-f]{8}$",  # "#RRGGBBAA"
         min_length=9,
         max_length=9,
     )
@@ -113,5 +65,5 @@ PressableKey = Literal[
 ]
 
 # %% Identifiers
-NodeId = UUID
-SensorId = UUID
+NodeIndex = Annotated[int, pydantic.Field(strict=True, ge=0, description='The index of a Node in a Timeline, starting from 0.')]
+SensorIndex = Annotated[int, pydantic.Field(strict=True, ge=0, description='The index of a Sensor in a Node, starting from 0.')]

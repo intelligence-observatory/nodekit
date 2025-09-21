@@ -5,23 +5,28 @@ from typing import Literal, Annotated, Union
 import pydantic
 
 from nodekit._internal.types.actions.actions import Action
-from nodekit._internal.types.common import DatetimeUTC
+from nodekit._internal.types.common import NodeIndex, TimeElapsedMsec, SensorIndex
 
 
 # %%
 class EventTypeEnum(str, enum.Enum):
     StartEvent = 'StartEvent'
-    NodeResultEvent = 'NodeResultEvent'
+    BrowserContextEvent = 'BrowserContextEvent'
     LeaveEvent = 'LeaveEvent'
     ReturnEvent = 'ReturnEvent'
+
+    NodeStartEvent = 'NodeStartEvent'
+    ActionEvent = 'ActionEvent'
+    NodeEndEvent = 'NodeEndEvent'
+
     EndEvent = 'EndEvent'
-    BrowserContextEvent = 'BrowserContextEvent'
+
 
 
 # %%
 class BaseEvent(pydantic.BaseModel):
     event_type: EventTypeEnum
-    timestamp_event: DatetimeUTC
+    t: TimeElapsedMsec
 
 
 # %%
@@ -54,15 +59,21 @@ class ReturnEvent(BaseEvent):
 
 
 # %%
-class NodeResultEvent(BaseEvent):
-    event_type: Literal[EventTypeEnum.NodeResultEvent] = EventTypeEnum.NodeResultEvent
 
-    timestamp_node_start: DatetimeUTC
-    timestamp_action: DatetimeUTC
-    timestamp_node_end: DatetimeUTC
-    node_index: int = pydantic.Field(description='The index of the Node that was played.')
-    sensor_index: int = pydantic.Field(description='The index of the Sensor in this Node that was triggered.')
+class BaseNodeEvent(BaseEvent):
+    node_index: NodeIndex
+
+
+class NodeStartEvent(BaseNodeEvent):
+    event_type: Literal[EventTypeEnum.NodeStartEvent] = EventTypeEnum.NodeStartEvent
+
+class ActionEvent(BaseNodeEvent):
+    event_type: Literal[EventTypeEnum.ActionEvent] = EventTypeEnum.ActionEvent
+    sensor_index: SensorIndex = pydantic.Field(description='The index of the Sensor in this Node that was triggered.')
     action: Action
+
+class NodeEndEvent(BaseNodeEvent):
+    event_type: Literal[EventTypeEnum.NodeEndEvent] = EventTypeEnum.NodeEndEvent
 
 
 # %%
@@ -85,11 +96,13 @@ class BrowserContextEvent(BaseEvent):
 Event = Annotated[
     Union[
         StartEvent,
-        EndEvent,
-        NodeResultEvent,
+        BrowserContextEvent,
         LeaveEvent,
         ReturnEvent,
-        BrowserContextEvent,
+        NodeStartEvent,
+        ActionEvent,
+        NodeEndEvent,
+        EndEvent,
     ],
     pydantic.Field(discriminator='event_type')
 ]

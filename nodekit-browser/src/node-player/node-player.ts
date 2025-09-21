@@ -1,10 +1,10 @@
 import type {Node} from "../types/node.ts";
 
 import type {PlayNodeResult} from "./node-play.ts";
+import {NodePlay} from "./node-play.ts";
 import {buildUIs} from "../ui/ui-builder.ts";
 import type {ShellUI} from "../ui/shell-ui/shell-ui.ts";
 import type {BoardViewsUI} from "../ui/board-views-ui/board-views-ui.ts";
-import {NodePlay} from "./node-play.ts";
 import {type NodePlayId} from "../types/common.ts";
 
 

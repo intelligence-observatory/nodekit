@@ -1,7 +1,7 @@
 import type {AssetManager} from "../asset-manager";
 import type {Board} from "../types/board";
 import type {Card} from "../types/cards";
-import type {ISO8601, SpatialPoint, SpatialSize} from "../types/common.ts";
+import type {SpatialPoint, SpatialSize} from "../types/common.ts";
 import type {Sensor} from "../types/sensors";
 import type {Action} from "../types/actions";
 import './board-view.css'
@@ -87,6 +87,8 @@ export class BoardCoordinateSystem {
         // Standardize to 10 decimal places
         clickX = parseFloat(clickX.toFixed(10));
         clickY = parseFloat(clickY.toFixed(10));
+
+        console.log(e.clientX, e.clientY, clickX, clickY)
 
         return {
             x:clickX as SpatialPoint,
@@ -233,7 +235,7 @@ export class BoardView {
 
     prepareSensor(
         sensor: Sensor,
-        onSensorFired: (action: Action, timestampAction: ISO8601) => void,
+        onSensorFired: (action: Action, domTimestampAction: DOMHighResTimeStamp) => void,
     ): SensorBindingId {
 
         // Dynamic dispatch for initializing SensorBinding from Sensor
@@ -280,6 +282,9 @@ export class BoardView {
 
     destroySensor(sensorBindingId: SensorBindingId) {
         const sensorBinding = this.getSensorBinding(sensorBindingId);
+        if (!sensorBinding) {
+            return
+        }
         sensorBinding.destroy();
         this.sensorBindings.delete(sensorBindingId);
     }

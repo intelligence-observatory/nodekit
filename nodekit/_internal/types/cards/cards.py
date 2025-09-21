@@ -9,7 +9,7 @@ from nodekit._internal.types.common import (
     MarkdownString,
     SpatialPoint,
     SpatialSize,
-    TimePointMsec
+    NodeTimePointMsec
 )
 
 
@@ -18,7 +18,6 @@ class BaseCard(pydantic.BaseModel, ABC):
     """
     Cards are visual elements which are placed on the Board.
     They are defined by their type, position, size, and the time range during which they are visible.
-    A Board unit of 1 corresponds to the *smaller* extent of the Board (the full width of the Board or the full height of the Board; whichever is smaller.
     """
     # Identifiers
     card_type: str
@@ -32,11 +31,11 @@ class BaseCard(pydantic.BaseModel, ABC):
     h: SpatialSize = pydantic.Field(description='The height of the Card, in Board units.')
 
     # Time:
-    t_start: TimePointMsec = pydantic.Field(
+    start_msec: NodeTimePointMsec = pydantic.Field(
         description='The time (in milliseconds) relative to Node start when the Card is placed on the Board.',
         default=0,
     )
-    t_end: TimePointMsec | None = pydantic.Field(
+    end_msec: NodeTimePointMsec | None = pydantic.Field(
         description='The time (in milliseconds) relative to Node start when the Card is removed from the Board.',
         default=None,
     )

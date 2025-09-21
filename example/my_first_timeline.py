@@ -1,8 +1,8 @@
-import nodekit as nk
-import random
-import time
 import glob
+import random
 from pathlib import Path
+
+import nodekit as nk
 
 random.seed(42)
 
@@ -31,13 +31,13 @@ def make_basic_fixation_node(
     positive_card = nk.cards.TextCard(
         text='Yay',
         x=0, y=0, w=0.5, h=0.5,
-        t_end=200,
+        end_msec=200,
     )
 
     negative_card = nk.cards.TextCard(
         text='Boo',
         x=0, y=0, w=0.5, h=0.5,
-        t_end=400,
+        end_msec=400,
     )
 
     positive_outcome = nk.Outcome(
@@ -60,7 +60,7 @@ def make_basic_fixation_node(
         outcome=positive_outcome,
     )
     spacebar_sensor = nk.sensors.KeySensor(key=' ', outcome=negative_outcome2)
-    timeout_sensor = nk.sensors.TimeoutSensor(t_start=2000, outcome=negative_outcome1)
+    timeout_sensor = nk.sensors.TimeoutSensor(start_msec=2000, outcome=negative_outcome1)
 
     return nk.Node(
         cards=[fixation_circle],
@@ -122,11 +122,11 @@ def make_instructions_node(
         x=0, y=-0.45, w=0.3, h=0.05,
         background_color='#32a852',
         text_color='#ffffff',
-        t_start=200,
+        start_msec=200,
     )
 
     sensor = nk.sensors.ClickSensor(
-        t_start=200,
+        start_msec=200,
         x=continue_button.x,
         y=continue_button.y,
         w=continue_button.w,
@@ -191,18 +191,12 @@ timeline = nk.Timeline(
 Path('timeline.json').write_text(timeline.model_dump_json(indent=2))
 
 # %% Play the Timeline:
-play_session = nk.play(  # todo have this block until it returns a Timeline
+trace = nk.play(
     timeline=timeline,
     asset_files=my_image_files + my_video_files
 )
 
-# %% Wait until the end event is observed:
-while True:
-    events = play_session.list_events()
-    if any(isinstance(event, nk.events.EndEvent) for event in events):
-        break
-    time.sleep(5)
-
-print(f'Observed {len(events)} events:')
-for event in events:
+# %%
+print(f'Observed {len(trace.events)} events:')
+for event in trace.events:
     print(event.event_type)
