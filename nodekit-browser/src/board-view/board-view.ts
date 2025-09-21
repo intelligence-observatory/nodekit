@@ -88,6 +88,8 @@ export class BoardCoordinateSystem {
         clickX = parseFloat(clickX.toFixed(10));
         clickY = parseFloat(clickY.toFixed(10));
 
+        console.log(e.clientX, e.clientY, clickX, clickY)
+
         return {
             x:clickX as SpatialPoint,
             y:clickY as SpatialPoint

@@ -17,8 +17,8 @@ class BaseAction(pydantic.BaseModel, ABC):
 # %%
 class ClickAction(BaseAction):
     action_type: Literal['ClickAction'] = 'ClickAction'
-    click_x: SpatialPoint = pydantic.Field(description='The x-coordinate of the click, in Board units.')
-    click_y: SpatialPoint = pydantic.Field(description='The y-coordinate of the click, in Board units.')
+    x: SpatialPoint = pydantic.Field(description='The x-coordinate of the click, in Board units.')
+    y: SpatialPoint = pydantic.Field(description='The y-coordinate of the click, in Board units.')
 
 
 # %%
