@@ -59,24 +59,12 @@ SpatialPoint = Annotated[float, pydantic.Field(strict=True, ge=-0.5, le=0.5)]
 
 Mask = Annotated[
     Literal['rectangle', 'ellipse'],
-    pydantic.Field(description='Describes the shape of a region inside of a bounding box. "rectangle" uses the box itself; "ellipse" inscribes a tighted fitted ellipse within the box.')
+    pydantic.Field(description='Describes the shape of a region inside of a bounding box. "rectangle" uses the box itself; "ellipse" inscribes a tightly fitted ellipse within the box.')
 ]
 # %% Time
 TimeDurationMsec = Annotated[int, pydantic.Field(strict=True, ge=0, description='A duration of time in milliseconds.')]
 TimePointMsec = Annotated[int, pydantic.Field(strict=True, ge=0, description='A point in time relative to some start time in milliseconds.')]
-
-
-def ensure_utc(t: datetime.datetime) -> datetime.datetime:
-    # Ensures that a datetime is timezone-aware and in UTC.
-    if t.tzinfo is None:
-        raise ValueError(f"Datetime must be timezone-aware: {t}")
-    return t.astimezone(datetime.timezone.utc)
-
-DatetimeUTC = Annotated[
-    datetime.datetime,
-    pydantic.Field(description='A timezone-aware datetime in UTC.'),
-    pydantic.AfterValidator(ensure_utc)
-]
+TimeElapsedMsec = Annotated[int, pydantic.Field(strict=True, ge=0, description='An elapsed duration of time in milliseconds, relative to some start.')]
 
 # %% Text
 MarkdownString = str
@@ -110,3 +98,7 @@ PressableKey = Literal[
     'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
     '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
 ]
+
+
+# %% Identifiers
+NodeIndex = Annotated[int, pydantic.Field(strict=True, ge=0, description='The index of a Node in a Timeline, starting from 0.')]
