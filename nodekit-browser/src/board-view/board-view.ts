@@ -1,7 +1,7 @@
 import type {AssetManager} from "../asset-manager";
 import type {Board} from "../types/board";
 import type {Card} from "../types/cards";
-import type {TimeElapsedMsec, SpatialPoint, SpatialSize} from "../types/common.ts";
+import type {SpatialPoint, SpatialSize} from "../types/common.ts";
 import type {Sensor} from "../types/sensors";
 import type {Action} from "../types/actions";
 import './board-view.css'
@@ -233,7 +233,7 @@ export class BoardView {
 
     prepareSensor(
         sensor: Sensor,
-        onSensorFired: (action: Action, t: TimeElapsedMsec) => void,
+        onSensorFired: (action: Action, domTimestampAction: DOMHighResTimeStamp) => void,
     ): SensorBindingId {
 
         // Dynamic dispatch for initializing SensorBinding from Sensor

@@ -3,15 +3,14 @@ import type {Action} from "../types/actions/";
 import {BoardView} from "../board-view/board-view.ts";
 import {EventScheduler} from "./event-scheduler.ts";
 import {type EffectBinding, HideCursorEffectBinding} from "../board-view/effect-bindings/effect-bindings.ts";
-import {type TimeElapsedMsec} from "../types/common.ts";
 
 import type {AssetManager} from "../asset-manager";
 import type {SensorIndex} from "../types/events";
 
 export interface PlayNodeResult {
-    tStart: TimeElapsedMsec;
-    tAction: TimeElapsedMsec
-    tEnd: TimeElapsedMsec;
+    domTimestampStart: DOMHighResTimeStamp;
+    domTimestampAction: DOMHighResTimeStamp
+    domTimestampEnd: DOMHighResTimeStamp;
     sensorIndex: SensorIndex;
     action: Action;
 }
@@ -38,7 +37,7 @@ class Deferred<T> {
 }
 interface SensorFiring {
     sensorIndex: SensorIndex;
-    timestampAction: TimeElapsedMsec;
+    domTimestampAction: DOMHighResTimeStamp;
     action: Action;
 }
 
@@ -107,9 +106,9 @@ export class NodePlay {
             const sensor = this.node.sensors[sensorIndex];
             const sensorBindingId = this.boardView.prepareSensor(
                 sensor,
-                (action, timestampAction) => this.deferredSensorFiring.resolve({
+                (action, domTimestampAction) => this.deferredSensorFiring.resolve({
                     sensorIndex: sensorIndex as SensorIndex,
-                    timestampAction: timestampAction,
+                    domTimestampAction: domTimestampAction,
                     action: action,
                 })
             )
@@ -230,7 +229,7 @@ export class NodePlay {
         this.started = true;
 
         // Kick off scheduler:
-        const timestampStart = performance.now();
+        const domTimestampStart = performance.now();
         this.scheduler.start()
 
         // Wait for a Sensor to fire:
@@ -250,9 +249,9 @@ export class NodePlay {
         return {
             sensorIndex: sensorFiring.sensorIndex,
             action: sensorFiring.action,
-            tStart: performanceNowToISO8601(timestampStart),
-            tAction: sensorFiring.timestampAction,
-            tEnd: performanceNowToISO8601(performance.now()),
+            domTimestampStart: domTimestampStart,
+            domTimestampAction: sensorFiring.domTimestampAction,
+            domTimestampEnd: performance.now(),
         }
     }
 }

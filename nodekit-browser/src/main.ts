@@ -108,10 +108,10 @@ export async function play(
         // Play the Node:
         let result = await nodePlayer.play(nodePlayId);
 
-        // Emit the NodeStartEvent: todo: emit immediately
+        // Emit the NodeStartEvent: todo: emit immediately when actually started?
         const nodeStartEvent: NodeStartEvent = {
             event_type: "NodeStartEvent",
-            t: result.tStart,
+            t: clock.convertDomTimestampToClockTime(result.domTimestampStart),
             node_index: nodeIndex,
         }
         events.push(nodeStartEvent);
@@ -121,7 +121,7 @@ export async function play(
         // Emit the ActionEvent: todo: emit immediately
         const actionEvent: ActionEvent = {
             event_type: "ActionEvent",
-            t: result.tAction,
+            t: clock.convertDomTimestampToClockTime(result.domTimestampAction),
             node_index: nodeIndex,
             sensor_index: result.sensorIndex,
             action: result.action,
@@ -132,13 +132,12 @@ export async function play(
         // Emit the NodeEndEvent: todo: emit immediately
         const nodeEndEvent: NodeEndEvent = {
             event_type: "NodeEndEvent",
-            t: result.tEnd,
+            t: clock.convertDomTimestampToClockTime(result.domTimestampEnd),
             node_index: nodeIndex,
         }
         events.push(nodeEndEvent);
         onEventCallback(nodeEndEvent);
-
-
+        
         // Update the progress bar:
         nodePlayer.setProgressBar((nodeIndex + 1) / nodes.length * 100);
     }
