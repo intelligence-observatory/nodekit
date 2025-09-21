@@ -1,8 +1,10 @@
 export type UUID = string & { __brand: 'UUID' };
-export type ISO8601 = string & { __brand: 'ISO8601' };
 export type SpatialSize = number & { __brand: 'SpatialSize' };
 export type SpatialPoint = number & { __brand: 'SpatialPoint' };
+
 export type TimePointMsec = number & { __brand: 'TimePointMsec' };
+export type TimeElapsedMsec = number & { __brand: 'TimeElapsedMsec' };
+
 export type MarkdownString = string & { __brand: 'MarkdownString'}
 export type ColorHexString = string & { __brand: 'ColorHexString' };
 

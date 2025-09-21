@@ -1,7 +1,6 @@
 import datetime
 from decimal import Decimal
 from typing import Literal, Annotated
-from uuid import UUID
 
 import pydantic
 
@@ -72,7 +71,6 @@ def ensure_utc(t: datetime.datetime) -> datetime.datetime:
     if t.tzinfo is None:
         raise ValueError(f"Datetime must be timezone-aware: {t}")
     return t.astimezone(datetime.timezone.utc)
-
 
 DatetimeUTC = Annotated[
     datetime.datetime,

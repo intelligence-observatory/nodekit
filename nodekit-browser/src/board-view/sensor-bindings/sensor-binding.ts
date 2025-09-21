@@ -1,7 +1,6 @@
 import type {Action, ClickAction, KeyAction, TimeoutAction} from "../../types/actions";
-import type {ISO8601, Mask, PressableKey, SpatialPoint, SpatialSize} from "../../types/common.ts";
+import type {TimeElapsedMsec, Mask, PressableKey, SpatialPoint, SpatialSize} from "../../types/common.ts";
 import type {BoardCoordinateSystem} from "../board-view.ts";
-import {performanceNowToISO8601} from "../../utils.ts";
 
 // Generic contract:
 export interface SensorBinding {
@@ -29,7 +28,7 @@ export class ClickSensorBinding implements SensorBinding {
         w: SpatialSize,
         h: SpatialSize,
         mask: Mask,
-        onSensorFired: (action: ClickAction, timestampAction: ISO8601) => void,
+        onSensorFired: (action: ClickAction, t: TimeElapsedMsec) => void,
         boardRootElement: HTMLDivElement,
         boardCoords: BoardCoordinateSystem,
     ) {

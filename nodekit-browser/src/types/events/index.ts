@@ -1,5 +1,5 @@
 import type {Action} from "../actions";
-import type {ISO8601} from "../common.ts";
+import type {TimeElapsedMsec} from "../common.ts";
 
 export type NodeIndex = number & { __brand: "NodeIndex" };
 export type SensorIndex = number & { __brand: "SensorIndex" };
@@ -7,7 +7,7 @@ export type SensorIndex = number & { __brand: "SensorIndex" };
 // Base:
 export interface BaseEvent<T extends string> {
     event_type: T,
-    timestamp_event: ISO8601,
+    t: TimeElapsedMsec, // The time the Event was emitted, relative to the start of the Trace
 }
 
 // Concrete types:
@@ -23,22 +23,28 @@ export interface BrowserContextEvent extends BaseEvent<'BrowserContextEvent'>{
     display_height_px: number
 }
 
-export interface NodeResultEvent extends BaseEvent<'NodeResultEvent'>{
-    timestamp_node_start: ISO8601,
-    timestamp_action: ISO8601,
-    timestamp_node_end: ISO8601,
-    node_index: NodeIndex, // Timeline.nodes[node_index] is the Node this event originated from
+
+interface BaseNodeEvent<T extends string> extends BaseEvent<T> {
+    // Base class for Events which are associated with a particular Node in the Timeline
+    node_index: NodeIndex, // Timeline.nodes[node_index] is the Node this event originated;
+}
+
+export interface NodeStartEvent extends BaseNodeEvent<'NodeStartEvent'>{}
+
+export interface ActionEvent extends BaseNodeEvent<'ActionEvent'>{
     sensor_index: SensorIndex, // Timeline.nodes[node_index].sensors[sensor_index] is the Sensor that fired
     action: Action,
 }
 
-
+export interface NodeEndEvent extends BaseNodeEvent<'NodeEndEvent'>{}
 
 // Union type:
 export type Event =
     StartEvent |
-    EndEvent |
-    NodeResultEvent |
+    BrowserContextEvent |
     LeaveEvent |
     ReturnEvent |
-    BrowserContextEvent;
+    NodeStartEvent |
+    ActionEvent |
+    NodeEndEvent |
+    EndEvent;

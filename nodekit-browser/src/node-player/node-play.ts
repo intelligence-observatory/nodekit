@@ -3,16 +3,15 @@ import type {Action} from "../types/actions/";
 import {BoardView} from "../board-view/board-view.ts";
 import {EventScheduler} from "./event-scheduler.ts";
 import {type EffectBinding, HideCursorEffectBinding} from "../board-view/effect-bindings/effect-bindings.ts";
+import {type TimeElapsedMsec} from "../types/common.ts";
 
-import {performanceNowToISO8601} from "../utils.ts";
-import type {ISO8601} from "../types/common.ts";
 import type {AssetManager} from "../asset-manager";
 import type {SensorIndex} from "../types/events";
 
 export interface PlayNodeResult {
-    timestampStart: ISO8601;
-    timestampAction: ISO8601
-    timestampEnd: ISO8601;
+    tStart: TimeElapsedMsec;
+    tAction: TimeElapsedMsec
+    tEnd: TimeElapsedMsec;
     sensorIndex: SensorIndex;
     action: Action;
 }
@@ -39,7 +38,7 @@ class Deferred<T> {
 }
 interface SensorFiring {
     sensorIndex: SensorIndex;
-    timestampAction: ISO8601;
+    timestampAction: TimeElapsedMsec;
     action: Action;
 }
 
@@ -251,9 +250,9 @@ export class NodePlay {
         return {
             sensorIndex: sensorFiring.sensorIndex,
             action: sensorFiring.action,
-            timestampStart: performanceNowToISO8601(timestampStart),
-            timestampAction: sensorFiring.timestampAction,
-            timestampEnd: performanceNowToISO8601(performance.now()),
+            tStart: performanceNowToISO8601(timestampStart),
+            tAction: sensorFiring.timestampAction,
+            tEnd: performanceNowToISO8601(performance.now()),
         }
     }
 }
