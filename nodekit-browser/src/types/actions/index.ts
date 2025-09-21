@@ -5,8 +5,8 @@ export interface BaseAction<T extends string> {
 }
 
 export interface ClickAction extends BaseAction<"ClickAction"> {
-    click_x: SpatialPoint;
-    click_y: SpatialPoint;
+    x: SpatialPoint;
+    y: SpatialPoint;
 }
 
 export interface KeyAction extends BaseAction<"KeyAction"> {

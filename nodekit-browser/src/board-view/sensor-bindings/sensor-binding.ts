@@ -56,8 +56,8 @@ export class ClickSensorBinding implements SensorBinding {
 
             const action: ClickAction = {
                 action_type: "ClickAction",
-                click_x: click.x,
-                click_y: click.y,
+                x: click.x,
+                y: click.y,
             };
             onSensorFired(
                 action,
