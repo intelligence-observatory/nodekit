@@ -117,7 +117,6 @@ export async function play(
     for (let nodeIndex = 0 as NodeIndex; nodeIndex < nodes.length; nodeIndex++) {
         // Prepare the Node:
         const node = nodes[nodeIndex];
-
         const nodePlay = new NodePlay(
             node,
             rootBoardContainerDiv,
@@ -125,10 +124,7 @@ export async function play(
         await nodePlay.prepare(assetManager)
 
         // Play the Node:
-        nodePlay.boardView.setBoardState(true, true);
         let result = await nodePlay.run();
-        nodePlay.boardView.reset();
-        rootBoardContainerDiv.removeChild(nodePlay.boardView.root);
 
         // Emit the NodeStartEvent: todo: emit immediately when actually started?
         const nodeStartEvent: NodeStartEvent = {
@@ -158,6 +154,11 @@ export async function play(
         }
         events.push(nodeEndEvent);
         onEventCallback(nodeEndEvent);
+
+        // Clear the rootBoardContainerDiv of all children:
+        while (rootBoardContainerDiv.firstChild) {
+            rootBoardContainerDiv.removeChild(rootBoardContainerDiv.firstChild);
+        }
         
         // Update the progress bar:
         shellUI.setProgressBar((nodeIndex + 1) / nodes.length * 100);

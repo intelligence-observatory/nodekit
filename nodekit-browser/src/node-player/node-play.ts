@@ -67,7 +67,6 @@ export class NodePlay {
         const boardView = new BoardView(nodePlayId, node.board)
         root.appendChild(boardView.root);
 
-
         this.boardView = boardView;
         this.node = node;
         this.scheduler = new EventScheduler();
@@ -242,6 +241,8 @@ export class NodePlay {
             throw new Error('NodePlay already started');
         }
 
+        this.boardView.setBoardState(true, true);
+
         this.started = true;
 
         // Kick off scheduler:
@@ -261,6 +262,9 @@ export class NodePlay {
             await this.deferredOutcomeDone.promise;
             outcomeSchedule.stop();
         }
+
+        //
+        this.boardView.reset();
 
         return {
             sensorIndex: sensorFiring.sensorIndex,
