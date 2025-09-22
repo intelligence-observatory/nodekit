@@ -10,11 +10,10 @@ import {AssetManager} from "./asset-manager";
 import {ShellUI} from "./ui/shell-ui/shell-ui.ts";
 import {BoardViewsUI} from "./ui/board-views-ui/board-views-ui.ts";
 import {NodePlay} from "./node-player/node-play.ts";
-import pk from '../package.json'
+import {version as NODEKIT_VERSION} from '../package.json'
+import {gt, major} from 'semver';
 
 export type OnEventCallback = (event: Event) => void;
-
-
 
 
 export async function play(
@@ -47,9 +46,8 @@ export async function play(
     nodeKitDiv.appendChild(boardUI.root)
 
     // Version gating:
-    if (timeline.nodekit_version !== pk.version) {
-        // Todo: a more accurate semantic version check
-        throw new Error(`Incompatible NodeKit version. Timeline version: ${timeline.nodekit_version}, NodeKit version: ${pk.version}`);
+    if (gt(timeline.nodekit_version, NODEKIT_VERSION) || major(timeline.nodekit_version) !== major(NODEKIT_VERSION)) {
+        throw new Error(`Incompatible NodeKit version. Timeline version: ${timeline.nodekit_version}, NodeKit version: ${NODEKIT_VERSION}`);
     }
 
     // Device gating:
@@ -97,7 +95,6 @@ export async function play(
             onEventCallback!(returnEvent);
         }
     }
-
     document.addEventListener("visibilitychange", onVisibilityChange)
 
     // Emit the BrowserContextEvent:
@@ -181,7 +178,7 @@ export async function play(
 
     // Assemble trace:
     const trace = {
-        nodekit_version: timeline.nodekit_version,
+        nodekit_version: NODEKIT_VERSION,
         events: events,
     }
 
