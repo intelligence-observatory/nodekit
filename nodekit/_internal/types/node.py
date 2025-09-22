@@ -11,17 +11,24 @@ from nodekit._internal.types.events.events import Event
 
 # %%
 class Node(pydantic.BaseModel):
+
     class Config:
         frozen = True
 
     board: Board = pydantic.Field(default_factory=Board)
+
     cards: List[Card] = pydantic.Field(
         description=(
             "List of Cards placed on the Board, in back-to-front order."
             "The first Card in this list is at the \"bottom\" of the Board, in the z-direction."
         ),
     )
-    sensors: List[Sensor] = pydantic.Field(min_length=1)
+
+    sensors: List[Sensor] = pydantic.Field(
+        min_length=1,
+        description='Conditions that terminate the Node when met.'
+    )
+
     effects: List[Effect] = pydantic.Field(default_factory=list)
 
 
@@ -31,6 +38,7 @@ class Timeline(pydantic.BaseModel):
         min_length=1,
         description='The sequence of Nodes that make up the Timeline.'
     )
+
     nodekit_version: str = pydantic.Field(default=VERSION, description='The semantic version number of NodeKit used to create this Timeline.')
 
 

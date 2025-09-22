@@ -3,9 +3,7 @@ from typing import Literal, Annotated, Union
 
 import pydantic
 
-from nodekit._internal.types.common import PressableKey, NodeTimePointMsec
-from nodekit._internal.types.outcome import Outcome
-from nodekit._internal.types.common import SpatialPoint, SpatialSize, Mask
+from nodekit._internal.types.common import PressableKey, NodeTimePointMsec, SpatialPoint, SpatialSize, Mask
 
 
 # %%
@@ -21,14 +19,9 @@ class BaseSensor(pydantic.BaseModel, ABC):
         default=0,
         description='The time (in milliseconds) relative to Node start when the Sensor is armed.',
     )
-
     end_msec: NodeTimePointMsec | None = pydantic.Field(
         default=None,
         description='The time (in milliseconds) relative to Node start when the Sensor is disarmed. If None, the Sensor remains armed until the Node ends.',
-    )
-    outcome: Outcome | None = pydantic.Field(
-        default=None,
-        description='The Outcome that will occur if this Sensor is triggered. If None, no Outcome occurs.',
     )
 
 # %%

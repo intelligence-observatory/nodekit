@@ -49,11 +49,9 @@ export class NodePlay {
 
     // Event schedules:
     private scheduler: EventScheduler
-    private outcomeSchedulers: Record<SensorIndex, EventScheduler>
 
     // Resolvers
     private deferredSensorFiring = new Deferred<SensorFiring>();
-    private deferredOutcomeDone = new Deferred<void>();
 
     constructor(
         node: Node,
@@ -61,7 +59,6 @@ export class NodePlay {
         this.boardView = new BoardView(node.board);
         this.node = node;
         this.scheduler = new EventScheduler();
-        this.outcomeSchedulers = {};
     }
 
     public async prepare(assetManager: AssetManager) {
@@ -133,55 +130,6 @@ export class NodePlay {
             this.scheduler.scheduleOnStop(
                 () => {this.boardView.destroySensor(sensorBindingId)}
             )
-
-            if (!sensor.outcome) {
-                continue; // No outcome to prepare
-            }
-
-            // Buffer the Sensor outcome:
-            const outcome = sensor.outcome;
-            const outcomeEventScheduleCur = new EventScheduler()
-
-            // Prepare and schedule outcome.Cards:
-            let maxEndTime: number = 0;
-            for (const card of outcome.cards) {
-                // Prepare Cards:
-
-                const cardViewId = await this.boardView.prepareCard(
-                    card,
-                    assetManager,
-                )
-                // Schedule:
-                outcomeEventScheduleCur.scheduleEvent(
-                    {
-                        triggerTimeMsec: card.start_msec,
-                        triggerFunc: () => {this.boardView.startCard(cardViewId)}
-                    }
-                )
-                if (card.end_msec !== null) {
-                    outcomeEventScheduleCur.scheduleEvent(
-                        {
-                            triggerTimeMsec: card.end_msec,
-                            triggerFunc: () => {this.boardView.stopCard(cardViewId)},
-                        }
-                    )
-                    if (card.end_msec > maxEndTime) {
-                        maxEndTime = card.end_msec;
-                    }
-                } else {
-                    throw new Error(`Consequence Cards must have an end time: ${card} `);
-                }
-            }
-            // Schedule outcome resolver:
-            outcomeEventScheduleCur.scheduleEvent(
-                {
-                    triggerTimeMsec: maxEndTime,
-                    triggerFunc: () => {this.deferredOutcomeDone.resolve()},
-                }
-            )
-
-            // Attach:
-            this.outcomeSchedulers[sensorIndex] = outcomeEventScheduleCur;
         }
 
         // Prepare and schedule Effects:
@@ -243,17 +191,6 @@ export class NodePlay {
         // Wait for a Sensor to fire:
         const sensorFiring = await this.deferredSensorFiring.promise;
         this.scheduler.stop();
-
-        // Run the Outcome (if any) for the Sensor:
-        const sensorIndex = sensorFiring.sensorIndex;
-        if (sensorIndex in this.outcomeSchedulers) {
-            const outcomeSchedule = this.outcomeSchedulers[sensorIndex];
-            outcomeSchedule.start();
-            // Wait for the outcome to finish:
-            await this.deferredOutcomeDone.promise;
-            outcomeSchedule.stop();
-        }
-
         this.boardView.reset();
 
         return {
