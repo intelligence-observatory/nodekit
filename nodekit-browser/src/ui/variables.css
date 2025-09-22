@@ -8,9 +8,7 @@
     --overlay-console-width: 80%;
 
     /* System Surfaces */
-    --system-surface-color: rgb(128, 128, 128);
     --system-surface-emphasis-color: rgb(140, 140, 140);
-    --system-background-color: rgb(125, 125, 125);
     --system-overlay-background-color: rgba(0, 0, 0, 0.5);
 
     /* System Borders */
@@ -63,8 +61,8 @@ html, body {
     padding: 0;
 }
 
-.node-engine-container {
-    background-color: var(--system-background-color);
+.nodekit-container {
+    background-color: rgb(128, 128, 128);
     height: 100vh;
     width: 100vw;
     top: 0;
@@ -81,27 +79,27 @@ html, body {
 }
 
 /* Scrollbar configuration for Chrome, Safari, Edge (WebKit) */
-.node-engine-container *::-webkit-scrollbar {
+.nodekit-container *::-webkit-scrollbar {
     width: 8px;
     height: 8px;
 }
 
-.node-engine-container *::-webkit-scrollbar-track {
+.nodekit-container *::-webkit-scrollbar-track {
     background: transparent;
 }
 
-.node-engine-container *::-webkit-scrollbar-thumb {
+.nodekit-container *::-webkit-scrollbar-thumb {
     background-color: var(--system-scroll-color, transparent);
     border-radius: 8px;
     border: 2px solid transparent; /* space between thumb and track */
 }
 
-.node-engine-container *::-webkit-scrollbar-thumb:hover {
+.nodekit-container *::-webkit-scrollbar-thumb:hover {
     background-color: var(--system-scroll-color, transparent);
 }
 
 /* This is the root of the PlayspaceUI and ShellUI. */
-.node-engine-container .node-engine-content {
+.nodekit-container .nodekit-content {
 
     position: absolute;
     top: 50%;
@@ -113,7 +111,4 @@ html, body {
 
     color: var(--system-text-default-color-on-light);
 
-    /*overflow: hidden;*/
-    border-radius: var(--system-border-radius);
-    background-color: var(--system-surface-color);
 }
