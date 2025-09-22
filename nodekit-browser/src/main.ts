@@ -56,12 +56,12 @@ export async function play(
         throw error;
     }
 
-    nodePlayer.showConnectingOverlay()
+    shellUI.showSessionConnectingOverlay()
     // Todo: await preload assets
     for (const assetUrl of assetUrls) {
         nodePlayer.boardViewsUI.assetManager.registerAsset(assetUrl)
     }
-    nodePlayer.hideConnectingOverlay()
+    shellUI.hideSessionConnectingOverlay()
 
     const clock = new Clock();
 

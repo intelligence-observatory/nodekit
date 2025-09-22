@@ -63,12 +63,6 @@ export class NodePlayer {
     }
 
     // Overlays:
-    showConnectingOverlay(startDelayMsec:number=500){
-        this.shellUI.showSessionConnectingOverlay(startDelayMsec)
-    }
-    hideConnectingOverlay() {
-        this.shellUI.hideSessionConnectingOverlay()
-    }
     showConsoleMessageOverlay(banner: string, message: any) {
         this.shellUI.showConsoleMessageOverlay(banner, message);
     }
