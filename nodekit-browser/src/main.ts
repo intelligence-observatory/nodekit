@@ -70,7 +70,7 @@ export async function play(
     const clock = new Clock();
 
     // Start screen:
-    //await shellUI.playStartScreen() // todo uncomment
+    await shellUI.playStartScreen()
     clock.start()
     const startEvent: StartEvent = {
         event_type: "StartEvent",
