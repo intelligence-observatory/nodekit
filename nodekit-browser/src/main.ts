@@ -46,7 +46,6 @@ export async function play(
 
 
     const rootBoardContainerDiv = tmpGetBoardViewsUIDiv();
-    const boardUI = new BoardViewsUI(rootBoardContainerDiv);
     nodeKitDiv.appendChild(rootBoardContainerDiv)
 
     // Version gate:
@@ -120,8 +119,9 @@ export async function play(
         // Prepare the Node:
         const node = nodes[nodeIndex];
         const nodePlayId: NodePlayId = crypto.randomUUID() as NodePlayId;
-        const boardView = boardUI.createBoardView(nodePlayId, node.board);
-        //const boardView = new BoardView(nodePlayId, node.board)
+        //const boardView = boardUI.createBoardView(nodePlayId, node.board);
+        const boardView = new BoardView(nodePlayId, node.board)
+        rootBoardContainerDiv.appendChild(boardView.root);
 
         const nodePlay = new NodePlay(
             node,
@@ -130,9 +130,10 @@ export async function play(
         await nodePlay.prepare(assetManager)
 
         // Play the Node:
-        boardUI.setActiveBoard(nodePlayId)
+        boardView.setBoardState(true, true);
         let result = await nodePlay.run();
-        boardUI.destroyBoardView(nodePlayId)
+        boardView.reset();
+        rootBoardContainerDiv.removeChild(boardView.root);
 
         // Emit the NodeStartEvent: todo: emit immediately when actually started?
         const nodeStartEvent: NodeStartEvent = {
