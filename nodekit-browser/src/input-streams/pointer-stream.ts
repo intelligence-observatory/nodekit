@@ -23,7 +23,6 @@ export class PointerStream {
         // Set up coordinate system:
         this.boardCoordinateSystem = this.getCoordinateSystem();
         const updateCoordinateSystem = () => {
-            console.log('Tmp: updating board coordinate system');
             this.boardCoordinateSystem = this.getCoordinateSystem();
         }
         window.addEventListener('resize', updateCoordinateSystem); // Update on resize
@@ -31,7 +30,7 @@ export class PointerStream {
 
         // Attach event listener:
         let lastMoveFlush: DOMHighResTimeStamp = 0; // Last time we flushed move events
-        const moveEventMaxSamplingHz = 60; // Sample move events at most this often
+        const moveEventMaxSamplingHz = 30; // Sample move events at most this often
 
         // PointerEvent handler:
         const handlePointerEvent = (event: PointerEvent) => {

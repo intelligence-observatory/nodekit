@@ -47,9 +47,6 @@ export class NodePlay {
     private prepared: boolean = false;
     private started: boolean = false;
 
-    // Input streams
-    // private keyStream: KeyStream
-
     // Event schedules:
     private scheduler: EventScheduler
     private outcomeSchedulers: Record<SensorIndex, EventScheduler>
@@ -57,7 +54,6 @@ export class NodePlay {
     // Resolvers
     private deferredSensorFiring = new Deferred<SensorFiring>();
     private deferredOutcomeDone = new Deferred<void>();
-
 
     constructor(
         node: Node,
@@ -191,7 +187,6 @@ export class NodePlay {
 
         // Prepare and schedule Effects:
         for (const effect of this.node.effects){
-            // Initialize the Effect binding // todo
             // There is only one EffectBinding type for now, so just instantiate it directly:
             const effectBinding: EffectBinding = new HideCursorEffectBinding(this.boardView)
             // Schedule the effect start
