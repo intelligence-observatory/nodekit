@@ -3,20 +3,25 @@ import type {Board} from "../../types/board";
 import type {AssetManager} from "../../asset-manager";
 import {BoardView} from "../../board-view/board-view.ts";
 
+export type TmpBoardUIDiv = HTMLDivElement
+
+export function tmpGetBoardViewsUIDiv(): TmpBoardUIDiv{
+    const div = document.createElement('div');
+    div.className = 'board-views-ui';
+    return div
+}
+
 export class BoardViewsUI {
 
     public root: HTMLDivElement;
     private boardViews: Map<string, BoardView> = new Map(); // Map of board ID to BoardView
     private activeBoardId: string | null = null;
-    public assetManager: AssetManager;
 
     constructor(
-        assetManager: AssetManager,
+        root: TmpBoardUIDiv
     ) {
-        this.root = document.createElement('div');
+        this.root = root;
         // Set class
-        this.root.className = 'board-views-ui'
-        this.assetManager = assetManager;
     }
 
     createBoardView(
@@ -27,7 +32,6 @@ export class BoardViewsUI {
         if (this.boardViews.has(boardId)){
             return this.getBoardView(boardId);
         }
-
 
         const newBoardView = new BoardView(boardId, board);
         this.boardViews.set(boardId, newBoardView);

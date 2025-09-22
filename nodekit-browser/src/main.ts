@@ -8,10 +8,11 @@ import type {NodePlayId, TimeElapsedMsec} from "./types/common.ts";
 import {createNodeKitRootDiv} from "./ui/ui-builder.ts";
 import {AssetManager} from "./asset-manager";
 import {ShellUI} from "./ui/shell-ui/shell-ui.ts";
-import {BoardViewsUI} from "./ui/board-views-ui/board-views-ui.ts";
+import {BoardViewsUI, tmpGetBoardViewsUIDiv} from "./ui/board-views-ui/board-views-ui.ts";
 import {NodePlay} from "./node-player/node-play.ts";
 import {version as NODEKIT_VERSION} from '../package.json'
 import {gt, major} from 'semver';
+import {BoardView} from "./board-view/board-view.ts";
 
 
 /**
@@ -43,8 +44,10 @@ export async function play(
     const shellUI = new ShellUI()
     shellUI.mount(nodeKitDiv); // put this step into the constructor
 
-    const boardUI = new BoardViewsUI(assetManager);
-    nodeKitDiv.appendChild(boardUI.root)
+
+    const rootBoardContainerDiv = tmpGetBoardViewsUIDiv();
+    const boardUI = new BoardViewsUI(rootBoardContainerDiv);
+    nodeKitDiv.appendChild(rootBoardContainerDiv)
 
     // Version gate:
     if (gt(timeline.nodekit_version, NODEKIT_VERSION) || major(timeline.nodekit_version) !== major(NODEKIT_VERSION)) {
@@ -68,7 +71,7 @@ export async function play(
     const clock = new Clock();
 
     // Start screen:
-    await shellUI.playStartScreen()
+    //await shellUI.playStartScreen() // todo uncomment
     clock.start()
     const startEvent: StartEvent = {
         event_type: "StartEvent",
@@ -118,6 +121,8 @@ export async function play(
         const node = nodes[nodeIndex];
         const nodePlayId: NodePlayId = crypto.randomUUID() as NodePlayId;
         const boardView = boardUI.createBoardView(nodePlayId, node.board);
+        //const boardView = new BoardView(nodePlayId, node.board)
+
         const nodePlay = new NodePlay(
             node,
             boardView,
