@@ -3,7 +3,7 @@ import type {Page} from "@playwright/test";
 
 abstract class TestPage {
     public readonly page: Page;
-    protected readonly errors: Error[] = [];
+    public readonly errors: Error[] = [];
     protected readonly logs: {[key: string]: string[]} = {};
 
     constructor(page: Page) {
@@ -51,19 +51,29 @@ export class NodeGraphPage extends TestPage {
             await route.continue();
         })
         // Go to a local file page:
-        await this.page.goto('./tests/' + filename);
-        await this.page.setViewportSize({width: 800, height: 800});
-        // Load everything:
-        await this.page.waitForLoadState('load');
-        expect(this.errors).toHaveLength(0);
-        // Click the start button:
-        await this.page.locator('.start-button').first().click();
+        try {
+            await this.page.goto('./tests/' + filename);
+            await this.page.setViewportSize({width: 800, height: 800});
+            // Load everything:
+            await this.page.waitForLoadState('load');
+            expect(this.errors).toHaveLength(0);
+            // Click the start button:
+            await this.page.locator('.start-button').first().click();
+        }
+        catch (e) {
+            this.errors.push(e as Error);
+        }
     }
 
     // Expect the submit button to be visible:
     async expectNodeGraphEnded()  {
-        await this.page.waitForTimeout(500);
-        expect(this.page.locator('.submit-button').first().isVisible()).toBeTruthy();
+        try {
+            await this.page.waitForTimeout(500);
+            expect(this.page.locator('.submit-button').first().isVisible()).toBeTruthy();
+        }
+        catch (e) {
+            this.errors.push(e as Error);
+        }
     }
 
     end() {
