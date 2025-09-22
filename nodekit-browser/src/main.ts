@@ -45,12 +45,12 @@ export async function play(
     const boardUI = new BoardViewsUI(assetManager);
     nodeKitDiv.appendChild(boardUI.root)
 
-    // Version gating:
+    // Version gate:
     if (gt(timeline.nodekit_version, NODEKIT_VERSION) || major(timeline.nodekit_version) !== major(NODEKIT_VERSION)) {
         throw new Error(`Incompatible NodeKit version. Timeline version: ${timeline.nodekit_version}, NodeKit version: ${NODEKIT_VERSION}`);
     }
 
-    // Device gating:
+    // Device gate:
     if (!checkDeviceIsValid()){
         const error = new Error('Unsupported device for NodeKit. Please use a desktop browser.');
         shellUI.showErrorOverlay(error);
