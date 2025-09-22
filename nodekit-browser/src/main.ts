@@ -8,7 +8,7 @@ import type {NodePlayId, TimeElapsedMsec} from "./types/common.ts";
 import {createNodeKitRootDiv} from "./ui/ui-builder.ts";
 import {AssetManager} from "./asset-manager";
 import {ShellUI} from "./ui/shell-ui/shell-ui.ts";
-import {BoardViewsUI, tmpGetBoardViewsUIDiv} from "./ui/board-views-ui/board-views-ui.ts";
+import {tmpGetBoardViewsUIDiv} from "./ui/board-views-ui/board-views-ui.ts";
 import {NodePlay} from "./node-player/node-play.ts";
 import {version as NODEKIT_VERSION} from '../package.json'
 import {gt, major} from 'semver';
