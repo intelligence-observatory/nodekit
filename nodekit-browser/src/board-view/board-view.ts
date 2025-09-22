@@ -101,12 +101,10 @@ export class BoardView {
     private pointerStream: PointerStream
 
     constructor(
-        boardId: string,
         board: Board,
     ) {
         this.root = document.createElement("div")
         this.root.className = 'board-view'
-        this.root.id = `${boardId}`;
         this.root.style.width = board.board_width_px + 'px';
         this.root.style.height = board.board_height_px + 'px';
         this.root.style.backgroundColor = board.background_color;
