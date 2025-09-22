@@ -69,9 +69,6 @@ export class PointerStream {
                     return;
             }
 
-            // If it's a move event, schedule a flush; otherwise, call subscribers immediately
-            //console.log(`Pointer event: ${event.type} at (${event.clientX}, ${event.clientY})`);
-
             // Convert to Board Coordinates:
             const {x, y} = this.boardCoordinateSystem.getBoardLocationFromPointerEvent(event);
 

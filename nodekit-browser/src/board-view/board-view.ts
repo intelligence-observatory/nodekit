@@ -82,9 +82,10 @@ export class BoardCoordinateSystem {
         let clickX = (e.clientX - this.boardLeftPx) / this.boardWidthPx - 0.5;
         let clickY = -((e.clientY - this.boardTopPx) / this.boardHeightPx - 0.5);
 
-        // Standardize to 10 decimal places
-        clickX = parseFloat(clickX.toFixed(10));
-        clickY = parseFloat(clickY.toFixed(10));
+        // Standardize decimal places
+        const precision = 10;
+        clickX = parseFloat(clickX.toFixed(precision));
+        clickY = parseFloat(clickY.toFixed(precision));
 
         return {
             x:clickX as SpatialPoint,
