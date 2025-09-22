@@ -57,9 +57,4 @@ export class NodePlayer {
         this.bufferedNodePlays.delete(nodePlayId);
         return playNodeResult;
     }
-
-    setProgressBar(percent: number) {
-        this.shellUI.setProgressBar(percent);
-    }
-
 }

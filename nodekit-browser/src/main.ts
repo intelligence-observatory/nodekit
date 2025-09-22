@@ -149,7 +149,7 @@ export async function play(
         onEventCallback(nodeEndEvent);
         
         // Update the progress bar:
-        nodePlayer.setProgressBar((nodeIndex + 1) / nodes.length * 100);
+        shellUI.setProgressBar((nodeIndex + 1) / nodes.length * 100);
     }
 
     // End screen:
@@ -172,7 +172,7 @@ export async function play(
         events: events,
     }
 
-    // Show the trace in the console for debugging:
+    // Show the Trace in the console:
     shellUI.showConsoleMessageOverlay(
         'Trace',
         trace,
