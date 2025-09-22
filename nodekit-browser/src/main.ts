@@ -46,7 +46,7 @@ export async function play(
     const boardUI = new BoardViewsUI(assetManager);
     nodeKitDiv.appendChild(boardUI.root)
 
-    const nodePlayer = new NodePlayer(shellUI, boardUI);
+    const nodePlayer = new NodePlayer(boardUI);
 
     // Device gating:
     if (!DeviceGate.isValidDevice()){

@@ -1,19 +1,16 @@
 import type {Node} from "../types/node.ts";
 import type {PlayNodeResult} from "./node-play.ts";
 import {NodePlay} from "./node-play.ts";
-import type {ShellUI} from "../ui/shell-ui/shell-ui.ts";
 import type {BoardViewsUI} from "../ui/board-views-ui/board-views-ui.ts";
 import {type NodePlayId} from "../types/common.ts";
 
 
 export class NodePlayer {
     public boardViewsUI: BoardViewsUI;
-    private shellUI: ShellUI;
     private bufferedNodePlays: Map<NodePlayId, NodePlay> = new Map();
 
-    constructor(shellUI:ShellUI, boardViewsUI:BoardViewsUI) {
+    constructor( boardViewsUI:BoardViewsUI) {
         // Create all DIVs needed for the NodePlayer in a centralized call:
-        this.shellUI = shellUI;
         this.boardViewsUI = boardViewsUI;
     }
 
@@ -43,9 +40,7 @@ export class NodePlayer {
         const nodePlay = this.bufferedNodePlays.get(nodePlayId);
 
         if (!nodePlay) {
-            const error = new Error(`NodePlay ${nodePlayId} does not exist. `);
-            this.shellUI.showErrorOverlay(error as Error)
-            throw error;
+            throw new Error(`NodePlay ${nodePlayId} does not exist. `);
         }
 
         // Set active Board:
