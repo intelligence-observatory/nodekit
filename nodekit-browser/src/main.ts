@@ -4,7 +4,7 @@ import type {Timeline, Trace} from "./types/node.ts";
 import {getBrowserContext} from "./user-gates/browser-context.ts";
 import {checkDeviceIsValid} from "./user-gates/device-gate.ts";
 import type {AssetUrl} from "./types/assets";
-import type {NodePlayId, TimeElapsedMsec} from "./types/common.ts";
+import type {TimeElapsedMsec} from "./types/common.ts";
 import {createNodeKitRootDiv} from "./ui/ui-builder.ts";
 import {AssetManager} from "./asset-manager";
 import {ShellUI} from "./ui/shell-ui/shell-ui.ts";
@@ -12,7 +12,6 @@ import {tmpGetBoardViewsUIDiv} from "./ui/board-views-ui/board-views-ui.ts";
 import {NodePlay} from "./node-player/node-play.ts";
 import {version as NODEKIT_VERSION} from '../package.json'
 import {gt, major} from 'semver';
-import {BoardView} from "./board-view/board-view.ts";
 
 
 /**
@@ -118,22 +117,18 @@ export async function play(
     for (let nodeIndex = 0 as NodeIndex; nodeIndex < nodes.length; nodeIndex++) {
         // Prepare the Node:
         const node = nodes[nodeIndex];
-        const nodePlayId: NodePlayId = crypto.randomUUID() as NodePlayId;
-        //const boardView = boardUI.createBoardView(nodePlayId, node.board);
-        const boardView = new BoardView(nodePlayId, node.board)
-        rootBoardContainerDiv.appendChild(boardView.root);
 
         const nodePlay = new NodePlay(
             node,
-            boardView,
+            rootBoardContainerDiv,
         )
         await nodePlay.prepare(assetManager)
 
         // Play the Node:
-        boardView.setBoardState(true, true);
+        nodePlay.boardView.setBoardState(true, true);
         let result = await nodePlay.run();
-        boardView.reset();
-        rootBoardContainerDiv.removeChild(boardView.root);
+        nodePlay.boardView.reset();
+        rootBoardContainerDiv.removeChild(nodePlay.boardView.root);
 
         // Emit the NodeStartEvent: todo: emit immediately when actually started?
         const nodeStartEvent: NodeStartEvent = {
