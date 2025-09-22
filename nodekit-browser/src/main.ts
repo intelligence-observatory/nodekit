@@ -13,7 +13,6 @@ import {NodePlay} from "./node-player/node-play.ts";
 import {version as NODEKIT_VERSION} from '../package.json'
 import {gt, major} from 'semver';
 
-
 /**
  * Plays a Timeline, returning a Trace of Events.
  * @param timeline
@@ -35,7 +34,6 @@ export async function play(
 
     // Todo: the previousEvents can be processed to obtain the current state of the task. Otherwise, we always start from scratch.
     const eventArray = new EventArray(previousEvents, onEventCallback);
-
 
     // Initialize divs:
     const nodeKitDiv = createNodeKitRootDiv();

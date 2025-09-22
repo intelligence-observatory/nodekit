@@ -142,13 +142,18 @@ declare type NodeTimePointMsec = number & {
     __brand: 'NodeTimePointMsec';
 };
 
-export declare type OnEventCallback = (event: Event_2) => void;
-
 declare interface Outcome {
     cards: Card[];
 }
 
-export declare function play(timeline: Timeline, assetUrls: AssetUrl[], onEventCallback?: OnEventCallback | null, previousEvents?: Event_2[]): Promise<Trace>;
+/**
+ * Plays a Timeline, returning a Trace of Events.
+ * @param timeline
+ * @param assetUrls
+ * @param onEventCallback
+ * @param previousEvents
+ */
+export declare function play(timeline: Timeline, assetUrls: AssetUrl[], onEventCallback?: ((event: Event_2) => void) | null, previousEvents?: Event_2[]): Promise<Trace>;
 
 declare type PressableKey = "Enter" | " " | "ArrowDown" | "ArrowLeft" | "ArrowRight" | "ArrowUp" | "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z" | "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
 
