@@ -62,17 +62,7 @@ export class NodePlayer {
         this.shellUI.setProgressBar(percent);
     }
 
-    // Overlays:
-    showConsoleMessageOverlay(banner: string, message: any) {
-        this.shellUI.showConsoleMessageOverlay(banner, message);
-    }
-    hideConsoleMessageOverlay() {
-        this.shellUI.hideConsoleMessageOverlay()
-    }
 
-    async playStartScreen() {
-        await this.shellUI.playStartScreen()
-    }
 
     async playEndScreen(message:string='', endScreenTimeoutMsec: number=10000) {
         await this.shellUI.playEndScreen(message, endScreenTimeoutMsec)

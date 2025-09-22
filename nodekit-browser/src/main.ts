@@ -173,7 +173,7 @@ export async function play(
     }
 
     // Show the trace in the console for debugging:
-    nodePlayer.showConsoleMessageOverlay(
+    shellUI.showConsoleMessageOverlay(
         'Trace',
         trace,
     );
