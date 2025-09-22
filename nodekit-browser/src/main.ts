@@ -33,8 +33,9 @@ export async function play(
         onEventCallback = (_event: Event) => {};
     }
 
-    let events: Event[] = previousEvents;
     // Todo: the previousEvents can be processed to obtain the current state of the task. Otherwise, we always start from scratch.
+    const eventArray = new EventArray(previousEvents, onEventCallback);
+
 
     // Initialize divs:
     const nodeKitDiv = createNodeKitRootDiv();
@@ -72,8 +73,7 @@ export async function play(
         event_type: "StartEvent",
         t: 0 as TimeElapsedMsec,
     }
-    events.push(startEvent);
-    onEventCallback(startEvent);
+    eventArray.push(startEvent);
 
     // Add a listener for the LeaveEvent:
     function onVisibilityChange() {
@@ -82,16 +82,14 @@ export async function play(
                 event_type: "LeaveEvent",
                 t: clock.now(),
             };
-            events.push(leaveEvent);
-            onEventCallback!(leaveEvent);
+            eventArray.push(leaveEvent);
         } else if (document.visibilityState === "visible") {
             // Optionally handle when the document becomes visible again
             const returnEvent: ReturnEvent = {
                 event_type: "ReturnEvent",
                 t: clock.now(),
             };
-            events.push(returnEvent);
-            onEventCallback!(returnEvent);
+            eventArray.push(returnEvent);
         }
     }
     document.addEventListener("visibilitychange", onVisibilityChange)
@@ -107,8 +105,7 @@ export async function play(
         display_width_px: browserContext.displayWidthPx,
         display_height_px: browserContext.displayHeightPx,
     }
-    events.push(browserContextEvent);
-    onEventCallback(browserContextEvent);
+    eventArray.push(browserContextEvent);
 
     const nodes = timeline.nodes;
     for (let nodeIndex = 0 as NodeIndex; nodeIndex < nodes.length; nodeIndex++) {
@@ -130,8 +127,7 @@ export async function play(
             t: clock.convertDomTimestampToClockTime(result.domTimestampStart),
             node_index: nodeIndex,
         }
-        events.push(nodeStartEvent);
-        onEventCallback(nodeStartEvent);
+        eventArray.push(nodeStartEvent);
 
         // Emit the ActionEvent: todo: emit immediately
         const actionEvent: ActionEvent = {
@@ -141,8 +137,7 @@ export async function play(
             sensor_index: result.sensorIndex,
             action: result.action,
         }
-        events.push(actionEvent);
-        onEventCallback(actionEvent);
+        eventArray.push(actionEvent);
 
         // Emit the NodeEndEvent: todo: emit immediately
         const nodeEndEvent: NodeEndEvent = {
@@ -150,8 +145,7 @@ export async function play(
             t: clock.convertDomTimestampToClockTime(result.domTimestampEnd),
             node_index: nodeIndex,
         }
-        events.push(nodeEndEvent);
-        onEventCallback(nodeEndEvent);
+        eventArray.push(nodeEndEvent);
 
         // Clear the rootBoardContainerDiv of all children:
         while (rootBoardContainerDiv.firstChild) {
@@ -170,8 +164,7 @@ export async function play(
         event_type: "EndEvent",
         t: clock.now(),
     }
-    events.push(endEvent);
-    onEventCallback(endEvent);
+    eventArray.push(endEvent);
 
     // Remove the visibility change listener:
     document.removeEventListener("visibilitychange", onVisibilityChange);
@@ -179,7 +172,7 @@ export async function play(
     // Assemble trace:
     const trace = {
         nodekit_version: NODEKIT_VERSION,
-        events: events,
+        events: eventArray.events,
     }
 
     // Show the Trace in the console:
@@ -189,4 +182,20 @@ export async function play(
     );
 
     return trace
+}
+
+class EventArray {
+    public events: Event[];
+    private onEventCallback: (event: Event) => void;
+    constructor(
+        initialEvents: Event[],
+        onEventCallback: ((event: Event) => void),
+    ){
+        this.onEventCallback = onEventCallback;
+        this.events = initialEvents;
+    }
+    push(event: Event) {
+        this.events.push(event);
+        this.onEventCallback(event);
+    }
 }
