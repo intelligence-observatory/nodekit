@@ -68,12 +68,26 @@ export class NodeGraphPage extends TestPage {
     // Expect the submit button to be visible:
     async expectNodeGraphEnded()  {
         try {
-            await this.page.waitForTimeout(500);
             expect(this.page.locator('.submit-button').first().isVisible()).toBeTruthy();
         }
         catch (e) {
             this.errors.push(e as Error);
         }
+    }
+
+    // Click the center of the screen twice:
+    async clickTwice() {
+      // Click the video, which triggers the ClickSensor, which ends the node:
+      let size = this.page.viewportSize();
+      expect(size).not.toBeNull();
+      // Appease the null check:
+      if (size) {
+          for (let i = 0; i < 2; i++) {
+              await this.page.waitForTimeout(1000);
+              // Click in the center of the screen:
+              await this.page.mouse.click(size.width / 2, size.height / 2);
+          }
+      }
     }
 
     end() {
