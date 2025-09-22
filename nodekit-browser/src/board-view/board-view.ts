@@ -23,16 +23,14 @@ export class BoardCoordinateSystem {
     public boardTopPx: number;
 
     constructor(
-        boardWidthPx: number,
-        boardHeightPx: number,
-        boardLeftPx: number,
-        boardTopPx: number,
+        target: HTMLDivElement,
     ) {
+        const {width, height, left, top} = target.getBoundingClientRect();
         // Initialize the board coordinate system with the given width and height in pixels
-        this.boardWidthPx = boardWidthPx;
-        this.boardHeightPx = boardHeightPx;
-        this.boardLeftPx = boardLeftPx;
-        this.boardTopPx = boardTopPx;
+        this.boardWidthPx = width;
+        this.boardHeightPx = height;
+        this.boardLeftPx = left;
+        this.boardTopPx = top;
     }
 
     getUnitPx(): number {
@@ -75,20 +73,17 @@ export class BoardCoordinateSystem {
         return this.getUnitPx() * boardSize;
     }
 
-    getBoardLocationFromMouseEvent(e: MouseEvent):{
+    getBoardLocationFromPointerEvent(e: PointerEvent):{
         x: SpatialPoint,
         y: SpatialPoint,
     }{
         // Converts a MouseEvent's (clientX, clientY) to Board coordinates (x, y)
-
         let clickX = (e.clientX - this.boardLeftPx) / this.boardWidthPx - 0.5;
         let clickY = -((e.clientY - this.boardTopPx) / this.boardHeightPx - 0.5);
 
         // Standardize to 10 decimal places
         clickX = parseFloat(clickX.toFixed(10));
         clickY = parseFloat(clickY.toFixed(10));
-
-        console.log(e.clientX, e.clientY, clickX, clickY)
 
         return {
             x:clickX as SpatialPoint,
@@ -117,8 +112,7 @@ export class BoardView {
     }
 
     getCoordinateSystem(): BoardCoordinateSystem {
-        const {width, height, left, top} = this.root.getBoundingClientRect();
-        return new BoardCoordinateSystem(width, height, left, top);
+        return new BoardCoordinateSystem(this.root);
     }
 
     reset() {

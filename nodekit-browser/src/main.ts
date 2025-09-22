@@ -35,7 +35,6 @@ export async function play(
     // Initialize the NodePlayer:
     let nodePlayer = new NodePlayer();
 
-
     // Device gating:
     if (!DeviceGate.isValidDevice()){
         const error = new Error('Unsupported device. Please use a desktop browser.');
@@ -115,7 +114,6 @@ export async function play(
         }
         events.push(nodeStartEvent);
         onEventCallback(nodeStartEvent);
-
 
         // Emit the ActionEvent: todo: emit immediately
         const actionEvent: ActionEvent = {

@@ -1,8 +1,6 @@
-
 @import "@fontsource/inter/400.css";
 @import "@fontsource/inter/700.css";
 @import 'board-views-ui/board-views-ui.css';
-
 
 :root {
     /* ShellUI Dimensions */
@@ -16,10 +14,7 @@
     --system-overlay-background-color: rgba(0, 0, 0, 0.5);
 
     /* System Borders */
-    --system-border-default-on-dark: 2px solid rgba(255, 255, 255, 0.1);
-    --system-border-default-on-light: 1px solid rgba(0, 0, 0, 0.2);
     --system-border-faint: 1px solid rgba(255, 255, 255, 0.1);
-
     --system-border-radius: 12px;
 
     /* System Buttons */
