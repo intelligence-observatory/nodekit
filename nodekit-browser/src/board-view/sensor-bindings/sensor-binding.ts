@@ -1,6 +1,6 @@
 import type {Action, ClickAction, KeyAction, TimeoutAction} from "../../types/actions";
 import type {Mask, PressableKey, SpatialPoint, SpatialSize} from "../../types/common.ts";
-import type {BoardCoordinateSystem} from "../board-view.ts";
+import type {PointerSample, PointerStream} from "../../input-streams/pointer-stream.ts";
 
 // Generic contract:
 export interface SensorBinding {
@@ -21,6 +21,7 @@ export class ClickSensorBinding implements SensorBinding {
         h: SpatialSize;
         mask: Mask
     };
+    private unsubscribe: () => void;
 
     constructor(
         x: SpatialPoint,
@@ -29,10 +30,8 @@ export class ClickSensorBinding implements SensorBinding {
         h: SpatialSize,
         mask: Mask,
         onSensorFired: (action: ClickAction, domTimestampAction: DOMHighResTimeStamp) => void,
-        boardRootElement: HTMLDivElement,
-        boardCoords: BoardCoordinateSystem,
+        pointerStream: PointerStream,
     ) {
-
         this.region = {
             x: x,
             y: y,
@@ -41,38 +40,38 @@ export class ClickSensorBinding implements SensorBinding {
             mask: mask,
         };
 
-        const clickCallback = (e: MouseEvent) => {
+        const clickCallback = (pointerSample: PointerSample) => {
             if (!this.tArmed) {
                 return;
             }
 
-            const click = boardCoords.getBoardLocationFromPointerEvent(e)
+            if (pointerSample.sampleType !== 'down') {
+                return;
+            }
 
             // Do a region check:
-            const inside = this.checkPointInRegion(click.x, click.y);
+            const inside = this.checkPointInRegion(
+                pointerSample.x,
+                pointerSample.y
+            );
+
             if (!inside) {
                 return
             }
 
             const action: ClickAction = {
                 action_type: "ClickAction",
-                x: click.x,
-                y: click.y,
+                x: pointerSample.x,
+                y: pointerSample.y,
             };
             onSensorFired(
                 action,
-                performance.now()
+                pointerSample.domTimestamp,
             );
         }
 
         // Subscribe to mousedown on the Board: (todo: create the PointerStream)
-        boardRootElement.addEventListener(
-            'mousedown',
-            clickCallback,
-            {
-                capture: true, // Capture phase to get the event before it might be stopped by children.
-            }
-        );
+        this.unsubscribe = pointerStream.subscribe(clickCallback);
     }
 
     private checkPointInRegion(x: SpatialPoint, y: SpatialPoint): boolean {
@@ -109,6 +108,7 @@ export class ClickSensorBinding implements SensorBinding {
 
     destroy(): void {
         this.tArmed = null;
+        this.unsubscribe();
     }
 }
 

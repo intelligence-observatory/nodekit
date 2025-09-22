@@ -10,6 +10,7 @@ import {ClickSensorBinding, KeySensorBinding, type SensorBinding, TimeoutSensorB
 import {ImageCardView} from "./card-views/image/image-card.ts";
 import {TextCardView} from "./card-views/text/text-card-view.ts";
 import {VideoCardView} from "./card-views/video/video-card.ts";
+import {PointerStream} from "../input-streams/pointer-stream.ts";
 
 type CardViewId = string & { __brand: 'CardViewId' };
 
@@ -96,6 +97,7 @@ export class BoardView {
     root: HTMLDivElement
     cardViews: Map<CardViewId, CardView> = new Map(); // Map of card ID to CardView
     sensorBindings: Map<SensorBindingId, SensorBinding> = new Map(); // Map of sensor ID to SensorBinding
+    private pointerStream: PointerStream
 
     constructor(
         boardId: string,
@@ -109,6 +111,8 @@ export class BoardView {
         this.root.style.backgroundColor = board.background_color;
 
         this.setBoardState(false, false);
+
+        this.pointerStream = new PointerStream(this.root);
     }
 
     getCoordinateSystem(): BoardCoordinateSystem {
@@ -146,7 +150,6 @@ export class BoardView {
         }
     }
 
-    // Cards
     private getCardView(cardId: CardViewId): CardView {
         const cardView = this.cardViews.get(cardId);
         if (!cardView) {
@@ -218,7 +221,6 @@ export class BoardView {
         this.cardViews.delete(cardId);
     }
 
-    // Sensors
     private getSensorBinding(sensorBindingId: SensorBindingId): SensorBinding {
         const sensorBinding = this.sensorBindings.get(sensorBindingId);
         if (!sensorBinding) {
@@ -246,7 +248,6 @@ export class BoardView {
             );
         }
         else if (sensor.sensor_type == "ClickSensor"){
-
             sensorBinding = new ClickSensorBinding(
                 sensor.x,
                 sensor.y,
@@ -254,8 +255,7 @@ export class BoardView {
                 sensor.h,
                 sensor.mask,
                 onSensorFired,
-                this.root,
-                this.getCoordinateSystem(),
+                this.pointerStream,
             )
         }
         else {

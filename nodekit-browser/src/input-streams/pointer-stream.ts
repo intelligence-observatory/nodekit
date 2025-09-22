@@ -13,12 +13,12 @@ export interface PointerSample {
 export class PointerStream {
     private target: HTMLDivElement;
     private boardCoordinateSystem: BoardCoordinateSystem
-    subscriptions: ((sample: PointerSample)=>void)[] = []
+    subscriptions: ((sample: PointerSample) => void)[] = []
 
     constructor(
         target: HTMLDivElement,
-    ){
-        this.target =  target;
+    ) {
+        this.target = target;
 
         // Set up coordinate system:
         this.boardCoordinateSystem = this.getCoordinateSystem();
@@ -27,6 +27,7 @@ export class PointerStream {
             this.boardCoordinateSystem = this.getCoordinateSystem();
         }
         window.addEventListener('resize', updateCoordinateSystem); // Update on resize
+        let firstCall = false;
 
         // Attach event listener:
         let lastMoveFlush: DOMHighResTimeStamp = 0; // Last time we flushed move events
@@ -34,12 +35,19 @@ export class PointerStream {
 
         // PointerEvent handler:
         const handlePointerEvent = (event: PointerEvent) => {
+
+            // Update coordinate system on first call:
+            if (!firstCall) {
+                this.boardCoordinateSystem = this.getCoordinateSystem();
+                firstCall = true;
+            }
+
             // Short circuit unless it's a move or a left-click down/up:
             let sampleType: PointerSampleType;
             switch (event.type) {
                 case 'pointermove':
                     // If enough time hasn't elapsed since the last move flush, skip this event:
-                    if (event.timeStamp - lastMoveFlush < 1000/moveEventMaxSamplingHz) {
+                    if (event.timeStamp - lastMoveFlush < 1000 / moveEventMaxSamplingHz) {
                         return;
                     }
                     sampleType = 'move';
@@ -62,7 +70,7 @@ export class PointerStream {
             }
 
             // If it's a move event, schedule a flush; otherwise, call subscribers immediately
-            console.log(`Pointer event: ${event.type} at (${event.clientX}, ${event.clientY})`);
+            //console.log(`Pointer event: ${event.type} at (${event.clientX}, ${event.clientY})`);
 
             // Convert to Board Coordinates:
             const {x, y} = this.boardCoordinateSystem.getBoardLocationFromPointerEvent(event);
@@ -88,14 +96,12 @@ export class PointerStream {
     }
 
     subscribe(
-        callback: (sample: PointerSample)=>void
-    ): {unsubscribe: ()=>void} {
+        callback: (sample: PointerSample) => void
+    ): () => void {
         this.subscriptions.push(callback);
-
-        return {
-            unsubscribe: () => {
+        return (() => {
                 this.subscriptions = this.subscriptions.filter(cb => cb !== callback);
             }
-        }
+        )
     }
 }

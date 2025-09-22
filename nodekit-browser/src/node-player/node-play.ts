@@ -6,7 +6,6 @@ import {type EffectBinding, HideCursorEffectBinding} from "../board-view/effect-
 
 import type {AssetManager} from "../asset-manager";
 import type {SensorIndex} from "../types/events";
-import {PointerStream} from "../input-streams/pointer-stream.ts";
 
 export interface PlayNodeResult {
     domTimestampStart: DOMHighResTimeStamp;
@@ -49,7 +48,6 @@ export class NodePlay {
     private started: boolean = false;
 
     // Input streams
-    private pointerStream: PointerStream
     // private keyStream: KeyStream
 
     // Event schedules:
@@ -69,9 +67,6 @@ export class NodePlay {
         this.node = node;
         this.scheduler = new EventScheduler();
         this.outcomeSchedulers = {};
-
-        // Initialize input stream
-        this.pointerStream = new PointerStream(this.boardView.root);
     }
 
     public async prepare(assetManager: AssetManager) {
