@@ -36,18 +36,15 @@ abstract class TestPage {
 }
 
 export class NodeGraphPage extends TestPage {
-    private readonly networkName: string;
     private readonly latency: number;
 
-    constructor(page: Page, networkName: string, latency: number) {
+    constructor(page: Page, latency: number) {
         super(page);
-        this.networkName = networkName;
         this.latency = latency;
     }
 
     async goto(filename: string) {
         // Throttle the network.
-        console.log("Network speed: " + this.networkName)
         await this.page.context().route("**", async (route) => {
             // Add delay before continuing the request
             await new Promise(resolve => setTimeout(resolve, this.latency));
@@ -110,37 +107,35 @@ type Fixtures = {
 }
 
 async function testNodeGraphPage(
-    networkName: string,
     latency: number,
     page: Page,
     use: (r: NodeGraphPage) => Promise<void>
 ) {
-    let nodeGraphPage =  new NodeGraphPage(page, networkName, latency);
+    let nodeGraphPage =  new NodeGraphPage(page, latency);
     await use(nodeGraphPage);
 }
 
 export const nodeGraphTest = test.extend<Fixtures>({
     offlinePage: async({ page }, use) => {
-        console.log("Offline:")
         let offlinePage = new OfflineNodeGraphPage(page);
         await use(offlinePage);
     },
     noThrottle: async({ page }, use) => {
-        await testNodeGraphPage("No throttle", 0, page, use);
+        await testNodeGraphPage( 0, page, use);
     },
     gprs: async({ page }, use) => {
-        await testNodeGraphPage("GPRS", 500, page, use);
+        await testNodeGraphPage(500, page, use);
     },
     twoG: async({ page }, use) => {
-        await testNodeGraphPage("2G", 300, page, use);
+        await testNodeGraphPage(300, page, use);
     },
     threeG: async({ page }, use) => {
-        await testNodeGraphPage("3G", 100, page, use);
+        await testNodeGraphPage(100, page, use);
     },
     fourG: async({ page }, use) => {
-        await testNodeGraphPage("4G", 20, page, use);
+        await testNodeGraphPage(20, page, use);
     },
     wifi: async({ page }, use) => {
-        await testNodeGraphPage("WiFi", 2, page, use);
+        await testNodeGraphPage(2, page, use);
     },
 });
