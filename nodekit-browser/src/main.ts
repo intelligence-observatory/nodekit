@@ -50,11 +50,10 @@ export async function play(
     }
     nodePlayer.hideConnectingOverlay()
 
-
-    // Todo: always have a "start" button to gain focus and ensure the user is ready; emit the StartEvent after that.
     const clock = new Clock();
+
+    // Start screen:
     await nodePlayer.playStartScreen()
-    // Emit the StartEvent
     clock.start()
     const startEvent: StartEvent = {
         event_type: "StartEvent",

@@ -28,10 +28,9 @@ class BaseSensor(pydantic.BaseModel, ABC):
         default=None,
         description='The time (in milliseconds) relative to Node start when the Sensor is disarmed. If None, the Sensor remains armed until the Node ends.',
     )
-    # Optional outcome if this Sensor is triggered:
     outcome: Outcome | None = pydantic.Field(
         default=None,
-        description='The Outcome to apply if this Sensor is triggered. If None, the Participant proceeds to the next Node immediately.',
+        description='The Outcome that will occur if this Sensor is triggered. If None, no Outcome occurs.',
     )
 
 # %%
