@@ -36,14 +36,10 @@ export async function play(
     let events: Event[] = previousEvents;
     // Todo: the previousEvents can be processed to obtain the current state of the task. Otherwise, we always start from scratch.
 
-    // Initialize managers:
+    // Initialize divs:
     const nodeKitDiv = createNodeKitRootDiv();
-
-    const assetManager = new AssetManager();
     const shellUI = new ShellUI()
-    shellUI.mount(nodeKitDiv); // put this step into the constructor
-
-
+    nodeKitDiv.appendChild(shellUI.root);
     const rootBoardContainerDiv = tmpGetBoardViewsUIDiv();
     nodeKitDiv.appendChild(rootBoardContainerDiv)
 
@@ -61,6 +57,7 @@ export async function play(
 
     shellUI.showSessionConnectingOverlay()
     // Todo: await preload assets
+    const assetManager = new AssetManager();
     for (const assetUrl of assetUrls) {
         assetManager.registerAsset(assetUrl)
     }

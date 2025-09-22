@@ -263,7 +263,6 @@ export class NodePlay {
             outcomeSchedule.stop();
         }
 
-        //
         this.boardView.reset();
 
         return {
