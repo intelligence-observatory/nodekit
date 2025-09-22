@@ -1,4 +1,3 @@
-import type {Node} from "../types/node.ts";
 import type {PlayNodeResult} from "./node-play.ts";
 import {NodePlay} from "./node-play.ts";
 import type {BoardViewsUI} from "../ui/board-views-ui/board-views-ui.ts";
@@ -9,27 +8,9 @@ export class NodePlayer {
     public boardViewsUI: BoardViewsUI;
     private bufferedNodePlays: Map<NodePlayId, NodePlay> = new Map();
 
-    constructor( boardViewsUI:BoardViewsUI) {
+    constructor(boardViewsUI:BoardViewsUI) {
         // Create all DIVs needed for the NodePlayer in a centralized call:
         this.boardViewsUI = boardViewsUI;
-    }
-
-    async prepare(node: Node): Promise<NodePlayId> {
-        /*
-        Prepares a NodePlay instance and returns its ID.
-         */
-        const nodePlayId: NodePlayId = crypto.randomUUID() as NodePlayId;
-        const boardView = this.boardViewsUI.createBoardView(nodePlayId, node.board);
-        const nodePlay = new NodePlay(
-            node,
-            boardView,
-        )
-        await nodePlay.prepare(this.boardViewsUI.assetManager)
-
-        // Add the prepared NodePlay to buffer
-        this.bufferedNodePlays.set(nodePlayId, nodePlay);
-
-        return nodePlayId as NodePlayId;
     }
 
     async play(nodePlayId: NodePlayId): Promise<PlayNodeResult>{

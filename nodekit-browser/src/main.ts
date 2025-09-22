@@ -1,15 +1,15 @@
-import {NodePlayer} from "./node-player/node-player.ts";
 import type {BrowserContextEvent, EndEvent, Event, LeaveEvent, NodeIndex, NodeStartEvent, ActionEvent, NodeEndEvent, ReturnEvent, StartEvent} from "./types/events";
 import {Clock} from "./clock.ts";
 import type {Timeline, Trace} from "./types/node.ts";
 import {getBrowserContext} from "./user-gates/browser-context.ts";
 import {DeviceGate} from "./user-gates/device-gate.ts";
 import type {AssetUrl} from "./types/assets";
-import type {TimeElapsedMsec} from "./types/common.ts";
+import type {NodePlayId, TimeElapsedMsec} from "./types/common.ts";
 import {createNodeKitRootDiv} from "./ui/ui-builder.ts";
 import {AssetManager} from "./asset-manager";
 import {ShellUI} from "./ui/shell-ui/shell-ui.ts";
 import {BoardViewsUI} from "./ui/board-views-ui/board-views-ui.ts";
+import {NodePlay} from "./node-player/node-play.ts";
 
 export type OnEventCallback = (event: Event) => void;
 
@@ -45,8 +45,6 @@ export async function play(
 
     const boardUI = new BoardViewsUI(assetManager);
     nodeKitDiv.appendChild(boardUI.root)
-
-    const nodePlayer = new NodePlayer(boardUI);
 
     // Device gating:
     if (!DeviceGate.isValidDevice()){
@@ -114,10 +112,19 @@ export async function play(
     for (let nodeIndex = 0 as NodeIndex; nodeIndex < nodes.length; nodeIndex++) {
         // Prepare the Node:
         const node = nodes[nodeIndex];
-        const nodePlayId = await nodePlayer.prepare(node);
+        const nodePlayId: NodePlayId = crypto.randomUUID() as NodePlayId;
+        const boardView = boardUI.createBoardView(nodePlayId, node.board);
+        const nodePlay = new NodePlay(
+            node,
+            boardView,
+        )
+        await nodePlay.prepare(assetManager)
 
         // Play the Node:
-        let result = await nodePlayer.play(nodePlayId);
+        boardUI.setActiveBoard(nodePlayId)
+        let result = await nodePlay.run();
+        boardUI.destroyBoardView(nodePlayId)
+
 
         // Emit the NodeStartEvent: todo: emit immediately when actually started?
         const nodeStartEvent: NodeStartEvent = {
