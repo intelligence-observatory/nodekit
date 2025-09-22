@@ -6,6 +6,10 @@ import {getBrowserContext} from "./user-gates/browser-context.ts";
 import {DeviceGate} from "./user-gates/device-gate.ts";
 import type {AssetUrl} from "./types/assets";
 import type {TimeElapsedMsec} from "./types/common.ts";
+import {createNodeKitRootDiv} from "./ui/ui-builder.ts";
+import {AssetManager} from "./asset-manager";
+import {ShellUI} from "./ui/shell-ui/shell-ui.ts";
+import {BoardViewsUI} from "./ui/board-views-ui/board-views-ui.ts";
 
 export type OnEventCallback = (event: Event) => void;
 
@@ -32,8 +36,18 @@ export async function play(
     // Todo: version gating
     const nodekitVersion = timeline.nodekit_version;
 
-    // Initialize the NodePlayer:
-    let nodePlayer = new NodePlayer();
+    // Initialize managers:
+    const nodeKitDiv = createNodeKitRootDiv();
+
+    const assetManager = new AssetManager();
+    const shellUI = new ShellUI()
+    shellUI.mount(nodeKitDiv); // turn this into constructor
+
+    const boardUI = new BoardViewsUI(assetManager);
+    nodeKitDiv.appendChild(boardUI.root)
+
+    const nodePlayer = new NodePlayer(shellUI, boardUI);
+
 
     // Device gating:
     if (!DeviceGate.isValidDevice()){

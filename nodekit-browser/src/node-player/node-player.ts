@@ -1,7 +1,6 @@
 import type {Node} from "../types/node.ts";
 import type {PlayNodeResult} from "./node-play.ts";
 import {NodePlay} from "./node-play.ts";
-import {buildUIs} from "../ui/ui-builder.ts";
 import type {ShellUI} from "../ui/shell-ui/shell-ui.ts";
 import type {BoardViewsUI} from "../ui/board-views-ui/board-views-ui.ts";
 import {type NodePlayId} from "../types/common.ts";
@@ -12,9 +11,8 @@ export class NodePlayer {
     private shellUI: ShellUI;
     private bufferedNodePlays: Map<NodePlayId, NodePlay> = new Map();
 
-    constructor(){
+    constructor(shellUI:ShellUI, boardViewsUI:BoardViewsUI) {
         // Create all DIVs needed for the NodePlayer in a centralized call:
-        const {shellUI, boardViewsUI} = buildUIs();
         this.shellUI = shellUI;
         this.boardViewsUI = boardViewsUI;
     }

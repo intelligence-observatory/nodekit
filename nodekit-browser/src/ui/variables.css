@@ -8,7 +8,6 @@
     --overlay-console-width: 80%;
 
     /* System Surfaces */
-    --system-surface-emphasis-color: rgb(140, 140, 140);
     --system-overlay-background-color: rgba(0, 0, 0, 0.5);
 
     /* System Borders */
@@ -16,11 +15,7 @@
     --system-border-radius: 12px;
 
     /* System Buttons */
-    --system-button-background-color: hsla(0, 0%, 90%, 1);
-    --system-button-hover-background-color: hsla(0, 0%, 80%, 1);
-    --system-button-active-background-color: hsla(0, 0%, 70%, 1);
     --system-button-border: 0px solid rgba(100, 100, 100, 1);
-    --system-button-box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
 
     /* System Scrollbars */
     --system-scroll-color: rgba(128,128,128, 0.1);
@@ -70,12 +65,6 @@ html, body {
     position: fixed;
     overflow: hidden;
 
-    /* Scrollbars */
-    scrollbar-width: thin; /* Firefox */
-    scrollbar-color: var(--system-scroll-color) transparent;
-
-    /* Default Text */
-    font-family: var(--font-family-sans), sans-serif;
 }
 
 /* Scrollbar configuration for Chrome, Safari, Edge (WebKit) */
@@ -110,5 +99,12 @@ html, body {
     width: 100%;
 
     color: var(--system-text-default-color-on-light);
+
+    /* Scrollbars */
+    scrollbar-width: thin; /* Firefox */
+    scrollbar-color: var(--system-scroll-color) transparent;
+
+    /* Default Text */
+    font-family: var(--font-family-sans), sans-serif;
 
 }
