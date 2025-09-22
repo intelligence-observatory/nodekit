@@ -116,8 +116,9 @@ export async function play(
         const node = nodes[nodeIndex];
         const nodePlay = new NodePlay(
             node,
-            rootBoardContainerDiv,
         )
+        // Mount
+        rootBoardContainerDiv.appendChild(nodePlay.boardView.root);
         await nodePlay.prepare(assetManager)
 
         // Play the Node:

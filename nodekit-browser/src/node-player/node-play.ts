@@ -6,7 +6,6 @@ import {type EffectBinding, HideCursorEffectBinding} from "../board-view/effect-
 
 import type {AssetManager} from "../asset-manager";
 import type {SensorIndex} from "../types/events";
-import type {TmpBoardUIDiv} from "../ui/board-views-ui/board-views-ui.ts";
 
 export interface PlayNodeResult {
     domTimestampStart: DOMHighResTimeStamp;
@@ -58,14 +57,8 @@ export class NodePlay {
 
     constructor(
         node: Node,
-        root: TmpBoardUIDiv,
     ) {
-
-        // Todo: spaghetti
-        const boardView = new BoardView(node.board)
-        root.appendChild(boardView.root);
-
-        this.boardView = boardView;
+        this.boardView = new BoardView(node.board);
         this.node = node;
         this.scheduler = new EventScheduler();
         this.outcomeSchedulers = {};
