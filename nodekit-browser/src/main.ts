@@ -1,4 +1,4 @@
-import type {BrowserContextEvent, EndEvent, Event, LeaveEvent, NodeIndex, NodeStartEvent, ActionEvent, NodeEndEvent, ReturnEvent, StartEvent} from "./types/events";
+import type {ActionEvent, BrowserContextEvent, EndEvent, Event, LeaveEvent, NodeEndEvent, NodeIndex, NodeStartEvent, ReturnEvent, StartEvent} from "./types/events";
 import {Clock} from "./clock.ts";
 import type {Timeline, Trace} from "./types/node.ts";
 import {getBrowserContext} from "./user-gates/browser-context.ts";
@@ -13,19 +13,20 @@ import {NodePlay} from "./node-player/node-play.ts";
 import {version as NODEKIT_VERSION} from '../package.json'
 import {gt, major} from 'semver';
 
-export type OnEventCallback = (event: Event) => void;
 
-
+/**
+ * Plays a Timeline, returning a Trace of Events.
+ * @param timeline
+ * @param assetUrls
+ * @param onEventCallback
+ * @param previousEvents
+ */
 export async function play(
     timeline: Timeline,
     assetUrls: AssetUrl[],
-    onEventCallback: OnEventCallback | null = null,
+    onEventCallback: ((event: Event) => void) | null = null,
     previousEvents: Event[] = [],
 ): Promise<Trace> {
-    /*
-    Executes a run through the Timeline. Events are returned as an array.
-    Events emitted from a previous, interrupted run of the Timeline can be provided to continue from the point of interruption.
-    */
 
     // If no onEventCallback is provided, use a no-op function:
     if (!onEventCallback) {
