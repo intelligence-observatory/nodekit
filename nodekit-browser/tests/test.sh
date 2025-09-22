@@ -1,7 +1,5 @@
 #!/bin/bash
 
-rm -r test-results/
-
 npm run build
 
 if [ $? -eq 0 ]; then
