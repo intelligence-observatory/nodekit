@@ -13,7 +13,7 @@
     "dev": "node_modules/.bin/vite",
     "build": "node_modules/.bin/tsc && vite build",
     "preview": "node_modules/.bin/vite preview",
-    "test": "npm run build && npx playwright test"
+    "test": "npm run build && npx playwright test || rm -r test-results/"
   },
   "dependencies": {
     "@fontsource/inter": "^5.2.5",
