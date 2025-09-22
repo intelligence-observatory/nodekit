@@ -41,7 +41,7 @@ export async function play(
 
     const assetManager = new AssetManager();
     const shellUI = new ShellUI()
-    shellUI.mount(nodeKitDiv); // turn this into constructor
+    shellUI.mount(nodeKitDiv); // put this step into the constructor
 
     const boardUI = new BoardViewsUI(assetManager);
     nodeKitDiv.appendChild(boardUI.root)
@@ -65,7 +65,7 @@ export async function play(
     const clock = new Clock();
 
     // Start screen:
-    await nodePlayer.playStartScreen()
+    await shellUI.playStartScreen()
     clock.start()
     const startEvent: StartEvent = {
         event_type: "StartEvent",
