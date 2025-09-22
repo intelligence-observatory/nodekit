@@ -44,7 +44,7 @@ export class NodePlayer {
 
         if (!nodePlay) {
             const error = new Error(`NodePlay ${nodePlayId} does not exist. `);
-            this.showErrorMessageOverlay(error as Error)
+            this.shellUI.showErrorOverlay(error as Error)
             throw error;
         }
 
@@ -78,15 +78,4 @@ export class NodePlayer {
         await this.shellUI.playEndScreen(message, endScreenTimeoutMsec)
     }
 
-    showErrorMessageOverlay(error: Error){
-        console.error('An error occurred:', error);
-        this.shellUI.showConsoleMessageOverlay(
-            'The following error occurred:',
-            {
-                name: (error as Error).name,
-                message: (error as Error).message,
-                stack: (error as Error).stack,
-            },
-        );
-    }
 }

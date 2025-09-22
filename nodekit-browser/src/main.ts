@@ -50,8 +50,8 @@ export async function play(
 
     // Device gating:
     if (!DeviceGate.isValidDevice()){
-        const error = new Error('Unsupported device. Please use a desktop browser.');
-        nodePlayer.showErrorMessageOverlay(error);
+        const error = new Error('Unsupported device for NodeKit. Please use a desktop browser.');
+        shellUI.showErrorOverlay(error);
         throw error;
     }
 
