@@ -62,10 +62,4 @@ export class NodePlayer {
         this.shellUI.setProgressBar(percent);
     }
 
-
-
-    async playEndScreen(message:string='', endScreenTimeoutMsec: number=10000) {
-        await this.shellUI.playEndScreen(message, endScreenTimeoutMsec)
-    }
-
 }

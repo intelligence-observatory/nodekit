@@ -153,7 +153,7 @@ export async function play(
     }
 
     // End screen:
-    await nodePlayer.playEndScreen()
+    await shellUI.playEndScreen()
 
     // Generate the EndEvent:
     const endEvent: EndEvent = {
