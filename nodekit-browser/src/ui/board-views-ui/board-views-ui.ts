@@ -1,8 +1,8 @@
 import "./board-views-ui.css";
 
-export type TmpBoardUIDiv = HTMLDivElement
+export type BoardViewsContainerDiv = HTMLDivElement
 
-export function tmpGetBoardViewsUIDiv(): TmpBoardUIDiv{
+export function getBoardViewsContainerDiv(): BoardViewsContainerDiv{
     const div = document.createElement('div');
     div.className = 'board-views-ui';
     return div

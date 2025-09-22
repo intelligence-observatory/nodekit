@@ -8,7 +8,7 @@ import type {TimeElapsedMsec} from "./types/common.ts";
 import {createNodeKitRootDiv} from "./ui/ui-builder.ts";
 import {AssetManager} from "./asset-manager";
 import {ShellUI} from "./ui/shell-ui/shell-ui.ts";
-import {tmpGetBoardViewsUIDiv} from "./ui/board-views-ui/board-views-ui.ts";
+import {getBoardViewsContainerDiv} from "./ui/board-views-ui/board-views-ui.ts";
 import {NodePlay} from "./node-player/node-play.ts";
 import {version as NODEKIT_VERSION} from '../package.json'
 import {gt, major} from 'semver';
@@ -39,8 +39,8 @@ export async function play(
     const nodeKitDiv = createNodeKitRootDiv();
     const shellUI = new ShellUI()
     nodeKitDiv.appendChild(shellUI.root);
-    const rootBoardContainerDiv = tmpGetBoardViewsUIDiv();
-    nodeKitDiv.appendChild(rootBoardContainerDiv)
+    const boardViewsContainerDiv = getBoardViewsContainerDiv();
+    nodeKitDiv.appendChild(boardViewsContainerDiv)
 
     // Version gate:
     if (gt(timeline.nodekit_version, NODEKIT_VERSION) || major(timeline.nodekit_version) !== major(NODEKIT_VERSION)) {
@@ -113,7 +113,7 @@ export async function play(
             node,
         )
         // Mount
-        rootBoardContainerDiv.appendChild(nodePlay.boardView.root);
+        boardViewsContainerDiv.appendChild(nodePlay.boardView.root);
         await nodePlay.prepare(assetManager)
 
         // Play the Node:
@@ -146,8 +146,8 @@ export async function play(
         eventArray.push(nodeEndEvent);
 
         // Clear the rootBoardContainerDiv of all children:
-        while (rootBoardContainerDiv.firstChild) {
-            rootBoardContainerDiv.removeChild(rootBoardContainerDiv.firstChild);
+        while (boardViewsContainerDiv.firstChild) {
+            boardViewsContainerDiv.removeChild(boardViewsContainerDiv.firstChild);
         }
         
         // Update the progress bar:
