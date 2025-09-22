@@ -129,7 +129,6 @@ export async function play(
         let result = await nodePlay.run();
         boardUI.destroyBoardView(nodePlayId)
 
-
         // Emit the NodeStartEvent: todo: emit immediately when actually started?
         const nodeStartEvent: NodeStartEvent = {
             event_type: "NodeStartEvent",
