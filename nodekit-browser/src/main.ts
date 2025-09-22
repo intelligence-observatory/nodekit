@@ -48,7 +48,6 @@ export async function play(
 
     const nodePlayer = new NodePlayer(shellUI, boardUI);
 
-
     // Device gating:
     if (!DeviceGate.isValidDevice()){
         const error = new Error('Unsupported device. Please use a desktop browser.');
@@ -59,7 +58,7 @@ export async function play(
     shellUI.showSessionConnectingOverlay()
     // Todo: await preload assets
     for (const assetUrl of assetUrls) {
-        nodePlayer.boardViewsUI.assetManager.registerAsset(assetUrl)
+        assetManager.registerAsset(assetUrl)
     }
     shellUI.hideSessionConnectingOverlay()
 
