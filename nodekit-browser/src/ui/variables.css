@@ -1,8 +1,6 @@
-
 @import "@fontsource/inter/400.css";
 @import "@fontsource/inter/700.css";
 @import 'board-views-ui/board-views-ui.css';
-
 
 :root {
     /* ShellUI Dimensions */
@@ -10,24 +8,14 @@
     --overlay-console-width: 80%;
 
     /* System Surfaces */
-    --system-surface-color: rgb(128, 128, 128);
-    --system-surface-emphasis-color: rgb(140, 140, 140);
-    --system-background-color: rgb(125, 125, 125);
     --system-overlay-background-color: rgba(0, 0, 0, 0.5);
 
     /* System Borders */
-    --system-border-default-on-dark: 2px solid rgba(255, 255, 255, 0.1);
-    --system-border-default-on-light: 1px solid rgba(0, 0, 0, 0.2);
     --system-border-faint: 1px solid rgba(255, 255, 255, 0.1);
-
     --system-border-radius: 12px;
 
     /* System Buttons */
-    --system-button-background-color: hsla(0, 0%, 90%, 1);
-    --system-button-hover-background-color: hsla(0, 0%, 80%, 1);
-    --system-button-active-background-color: hsla(0, 0%, 70%, 1);
     --system-button-border: 0px solid rgba(100, 100, 100, 1);
-    --system-button-box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
 
     /* System Scrollbars */
     --system-scroll-color: rgba(128,128,128, 0.1);
@@ -68,8 +56,8 @@ html, body {
     padding: 0;
 }
 
-.node-engine-container {
-    background-color: var(--system-background-color);
+.nodekit-container {
+    background-color: rgb(128, 128, 128);
     height: 100vh;
     width: 100vw;
     top: 0;
@@ -77,36 +65,30 @@ html, body {
     position: fixed;
     overflow: hidden;
 
-    /* Scrollbars */
-    scrollbar-width: thin; /* Firefox */
-    scrollbar-color: var(--system-scroll-color) transparent;
-
-    /* Default Text */
-    font-family: var(--font-family-sans), sans-serif;
 }
 
 /* Scrollbar configuration for Chrome, Safari, Edge (WebKit) */
-.node-engine-container *::-webkit-scrollbar {
+.nodekit-container *::-webkit-scrollbar {
     width: 8px;
     height: 8px;
 }
 
-.node-engine-container *::-webkit-scrollbar-track {
+.nodekit-container *::-webkit-scrollbar-track {
     background: transparent;
 }
 
-.node-engine-container *::-webkit-scrollbar-thumb {
+.nodekit-container *::-webkit-scrollbar-thumb {
     background-color: var(--system-scroll-color, transparent);
     border-radius: 8px;
     border: 2px solid transparent; /* space between thumb and track */
 }
 
-.node-engine-container *::-webkit-scrollbar-thumb:hover {
+.nodekit-container *::-webkit-scrollbar-thumb:hover {
     background-color: var(--system-scroll-color, transparent);
 }
 
 /* This is the root of the PlayspaceUI and ShellUI. */
-.node-engine-container .node-engine-content {
+.nodekit-container .nodekit-content {
 
     position: absolute;
     top: 50%;
@@ -118,7 +100,11 @@ html, body {
 
     color: var(--system-text-default-color-on-light);
 
-    /*overflow: hidden;*/
-    border-radius: var(--system-border-radius);
-    background-color: var(--system-surface-color);
+    /* Scrollbars */
+    scrollbar-width: thin; /* Firefox */
+    scrollbar-color: var(--system-scroll-color) transparent;
+
+    /* Default Text */
+    font-family: var(--font-family-sans), sans-serif;
+
 }

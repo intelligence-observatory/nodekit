@@ -1,67 +1,77 @@
-import {NodePlayer} from "./node-player/node-player.ts";
-import type {BrowserContextEvent, EndEvent, Event, LeaveEvent, NodeIndex, NodeStartEvent, ActionEvent, NodeEndEvent, ReturnEvent, StartEvent} from "./types/events";
+import type {ActionEvent, BrowserContextEvent, EndEvent, Event, LeaveEvent, NodeEndEvent, NodeIndex, NodeStartEvent, ReturnEvent, StartEvent} from "./types/events";
 import {Clock} from "./clock.ts";
 import type {Timeline, Trace} from "./types/node.ts";
 import {getBrowserContext} from "./user-gates/browser-context.ts";
-import {DeviceGate} from "./user-gates/device-gate.ts";
+import {checkDeviceIsValid} from "./user-gates/device-gate.ts";
 import type {AssetUrl} from "./types/assets";
 import type {TimeElapsedMsec} from "./types/common.ts";
+import {createNodeKitRootDiv} from "./ui/ui-builder.ts";
+import {AssetManager} from "./asset-manager";
+import {ShellUI} from "./ui/shell-ui/shell-ui.ts";
+import {getBoardViewsContainerDiv} from "./ui/board-views-ui/board-views-ui.ts";
+import {NodePlay} from "./node-player/node-play.ts";
+import {version as NODEKIT_VERSION} from '../package.json'
+import {gt, major} from 'semver';
 
-export type OnEventCallback = (event: Event) => void;
-
-
+/**
+ * Plays a Timeline, returning a Trace of Events.
+ * @param timeline
+ * @param assetUrls
+ * @param onEventCallback
+ * @param previousEvents
+ */
 export async function play(
     timeline: Timeline,
     assetUrls: AssetUrl[],
-    onEventCallback: OnEventCallback | null = null,
+    onEventCallback: ((event: Event) => void) | null = null,
     previousEvents: Event[] = [],
 ): Promise<Trace> {
-    /*
-    Executes a run through the Timeline. Events are returned as an array.
-    Events emitted from a previous, interrupted run of the Timeline can be provided to continue from the point of interruption.
-    */
 
     // If no onEventCallback is provided, use a no-op function:
     if (!onEventCallback) {
         onEventCallback = (_event: Event) => {};
     }
 
-    let events: Event[] = previousEvents;
     // Todo: the previousEvents can be processed to obtain the current state of the task. Otherwise, we always start from scratch.
+    const eventArray = new EventArray(previousEvents, onEventCallback);
 
-    // Todo: version gating
-    const nodekitVersion = timeline.nodekit_version;
+    // Initialize divs:
+    const nodeKitDiv = createNodeKitRootDiv();
+    const shellUI = new ShellUI()
+    nodeKitDiv.appendChild(shellUI.root);
+    const boardViewsContainerDiv = getBoardViewsContainerDiv();
+    nodeKitDiv.appendChild(boardViewsContainerDiv)
 
-    // Initialize the NodePlayer:
-    let nodePlayer = new NodePlayer();
+    // Version gate:
+    if (gt(timeline.nodekit_version, NODEKIT_VERSION) || major(timeline.nodekit_version) !== major(NODEKIT_VERSION)) {
+        throw new Error(`Incompatible NodeKit version. Timeline version: ${timeline.nodekit_version}, NodeKit version: ${NODEKIT_VERSION}`);
+    }
 
-
-    // Device gating:
-    if (!DeviceGate.isValidDevice()){
-        const error = new Error('Unsupported device. Please use a desktop browser.');
-        nodePlayer.showErrorMessageOverlay(error);
+    // Device gate:
+    if (!checkDeviceIsValid()){
+        const error = new Error('Unsupported device for NodeKit. Please use a desktop browser.');
+        shellUI.showErrorOverlay(error);
         throw error;
     }
 
-    nodePlayer.showConnectingOverlay()
+    shellUI.showSessionConnectingOverlay()
     // Todo: await preload assets
+    const assetManager = new AssetManager();
     for (const assetUrl of assetUrls) {
-        nodePlayer.boardViewsUI.assetManager.registerAsset(assetUrl)
+        assetManager.registerAsset(assetUrl)
     }
-    nodePlayer.hideConnectingOverlay()
+    shellUI.hideSessionConnectingOverlay()
 
-
-    // Todo: always have a "start" button to gain focus and ensure the user is ready; emit the StartEvent after that.
     const clock = new Clock();
-    await nodePlayer.playStartScreen()
-    // Emit the StartEvent
+
+    // Start screen:
+    await shellUI.playStartScreen()
     clock.start()
     const startEvent: StartEvent = {
         event_type: "StartEvent",
         t: 0 as TimeElapsedMsec,
     }
-    events.push(startEvent);
-    onEventCallback(startEvent);
+    eventArray.push(startEvent);
 
     // Add a listener for the LeaveEvent:
     function onVisibilityChange() {
@@ -70,19 +80,16 @@ export async function play(
                 event_type: "LeaveEvent",
                 t: clock.now(),
             };
-            events.push(leaveEvent);
-            onEventCallback!(leaveEvent);
+            eventArray.push(leaveEvent);
         } else if (document.visibilityState === "visible") {
             // Optionally handle when the document becomes visible again
             const returnEvent: ReturnEvent = {
                 event_type: "ReturnEvent",
                 t: clock.now(),
             };
-            events.push(returnEvent);
-            onEventCallback!(returnEvent);
+            eventArray.push(returnEvent);
         }
     }
-
     document.addEventListener("visibilitychange", onVisibilityChange)
 
     // Emit the BrowserContextEvent:
@@ -96,17 +103,21 @@ export async function play(
         display_width_px: browserContext.displayWidthPx,
         display_height_px: browserContext.displayHeightPx,
     }
-    events.push(browserContextEvent);
-    onEventCallback(browserContextEvent);
+    eventArray.push(browserContextEvent);
 
     const nodes = timeline.nodes;
     for (let nodeIndex = 0 as NodeIndex; nodeIndex < nodes.length; nodeIndex++) {
         // Prepare the Node:
         const node = nodes[nodeIndex];
-        const nodePlayId = await nodePlayer.prepare(node);
+        const nodePlay = new NodePlay(
+            node,
+        )
+        // Mount
+        boardViewsContainerDiv.appendChild(nodePlay.boardView.root);
+        await nodePlay.prepare(assetManager)
 
         // Play the Node:
-        let result = await nodePlayer.play(nodePlayId);
+        let result = await nodePlay.run();
 
         // Emit the NodeStartEvent: todo: emit immediately when actually started?
         const nodeStartEvent: NodeStartEvent = {
@@ -114,9 +125,7 @@ export async function play(
             t: clock.convertDomTimestampToClockTime(result.domTimestampStart),
             node_index: nodeIndex,
         }
-        events.push(nodeStartEvent);
-        onEventCallback(nodeStartEvent);
-
+        eventArray.push(nodeStartEvent);
 
         // Emit the ActionEvent: todo: emit immediately
         const actionEvent: ActionEvent = {
@@ -126,8 +135,7 @@ export async function play(
             sensor_index: result.sensorIndex,
             action: result.action,
         }
-        events.push(actionEvent);
-        onEventCallback(actionEvent);
+        eventArray.push(actionEvent);
 
         // Emit the NodeEndEvent: todo: emit immediately
         const nodeEndEvent: NodeEndEvent = {
@@ -135,38 +143,57 @@ export async function play(
             t: clock.convertDomTimestampToClockTime(result.domTimestampEnd),
             node_index: nodeIndex,
         }
-        events.push(nodeEndEvent);
-        onEventCallback(nodeEndEvent);
+        eventArray.push(nodeEndEvent);
+
+        // Clear the rootBoardContainerDiv of all children:
+        while (boardViewsContainerDiv.firstChild) {
+            boardViewsContainerDiv.removeChild(boardViewsContainerDiv.firstChild);
+        }
         
         // Update the progress bar:
-        nodePlayer.setProgressBar((nodeIndex + 1) / nodes.length * 100);
+        shellUI.setProgressBar((nodeIndex + 1) / nodes.length * 100);
     }
 
     // End screen:
-    await nodePlayer.playEndScreen()
+    await shellUI.playEndScreen()
 
     // Generate the EndEvent:
     const endEvent: EndEvent = {
         event_type: "EndEvent",
         t: clock.now(),
     }
-    events.push(endEvent);
-    onEventCallback(endEvent);
+    eventArray.push(endEvent);
 
     // Remove the visibility change listener:
     document.removeEventListener("visibilitychange", onVisibilityChange);
 
     // Assemble trace:
     const trace = {
-        nodekit_version: nodekitVersion,
-        events: events,
+        nodekit_version: NODEKIT_VERSION,
+        events: eventArray.events,
     }
 
-    // Show the trace in the console for debugging:
-    nodePlayer.showConsoleMessageOverlay(
+    // Show the Trace in the console:
+    shellUI.showConsoleMessageOverlay(
         'Trace',
         trace,
     );
 
     return trace
+}
+
+class EventArray {
+    public events: Event[];
+    private onEventCallback: (event: Event) => void;
+    constructor(
+        initialEvents: Event[],
+        onEventCallback: ((event: Event) => void),
+    ){
+        this.onEventCallback = onEventCallback;
+        this.events = initialEvents;
+    }
+    push(event: Event) {
+        this.events.push(event);
+        this.onEventCallback(event);
+    }
 }

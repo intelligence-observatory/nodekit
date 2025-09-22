@@ -55,12 +55,10 @@ export class NodePlay {
     private deferredSensorFiring = new Deferred<SensorFiring>();
     private deferredOutcomeDone = new Deferred<void>();
 
-
     constructor(
         node: Node,
-        boardView: BoardView,
     ) {
-        this.boardView = boardView;
+        this.boardView = new BoardView(node.board);
         this.node = node;
         this.scheduler = new EventScheduler();
         this.outcomeSchedulers = {};
@@ -188,7 +186,6 @@ export class NodePlay {
 
         // Prepare and schedule Effects:
         for (const effect of this.node.effects){
-            // Initialize the Effect binding // todo
             // There is only one EffectBinding type for now, so just instantiate it directly:
             const effectBinding: EffectBinding = new HideCursorEffectBinding(this.boardView)
             // Schedule the effect start
@@ -235,6 +232,8 @@ export class NodePlay {
             throw new Error('NodePlay already started');
         }
 
+        this.boardView.setBoardState(true, true);
+
         this.started = true;
 
         // Kick off scheduler:
@@ -254,6 +253,8 @@ export class NodePlay {
             await this.deferredOutcomeDone.promise;
             outcomeSchedule.stop();
         }
+
+        this.boardView.reset();
 
         return {
             sensorIndex: sensorFiring.sensorIndex,

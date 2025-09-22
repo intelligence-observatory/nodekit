@@ -13,10 +13,8 @@ class BaseSensor(pydantic.BaseModel, ABC):
     """
     A Sensor is a listener for Participant behavior.
     When a Sensor is triggered, it emits an Action and optionally applies an Outcome.
-
     """
 
-    # Sensor identifiers
     sensor_type: str
 
     start_msec: NodeTimePointMsec = pydantic.Field(
@@ -28,10 +26,9 @@ class BaseSensor(pydantic.BaseModel, ABC):
         default=None,
         description='The time (in milliseconds) relative to Node start when the Sensor is disarmed. If None, the Sensor remains armed until the Node ends.',
     )
-    # Optional outcome if this Sensor is triggered:
     outcome: Outcome | None = pydantic.Field(
         default=None,
-        description='The Outcome to apply if this Sensor is triggered. If None, the Participant proceeds to the next Node immediately.',
+        description='The Outcome that will occur if this Sensor is triggered. If None, no Outcome occurs.',
     )
 
 # %%
@@ -42,6 +39,7 @@ class TimeoutSensor(BaseSensor):
     sensor_type: Literal['TimeoutSensor'] = 'TimeoutSensor'
     start_msec: NodeTimePointMsec
     end_msec: None = pydantic.Field(default=None)
+
 
 # %%
 class ClickSensor(BaseSensor):
@@ -55,7 +53,6 @@ class ClickSensor(BaseSensor):
         default='rectangle',
         validate_default=True,
     )
-
 
 # %%
 class KeySensor(BaseSensor):

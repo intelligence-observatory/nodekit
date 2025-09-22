@@ -1,13 +1,45 @@
 import glob
-import random
 from pathlib import Path
-
 import nodekit as nk
 
-random.seed(42)
+
+# %% Helper functions to create Nodes:
+def make_instructions_node(
+        text: str,
+) -> nk.Node:
+    text_card = nk.cards.TextCard(
+        text=text,
+        x=0, y=0, w=0.8, h=0.8,
+        background_color='#ffffff',
+        justification_horizontal='left',
+        justification_vertical='top',
+    )
+
+    continue_button = nk.cards.TextCard(
+        text='Continue',
+        x=0, y=-0.45, w=0.3, h=0.05,
+        background_color='#32a852',
+        text_color='#ffffff',
+        start_msec=200,
+    )
+
+    sensor = nk.sensors.ClickSensor(
+        start_msec=200,
+        x=continue_button.x,
+        y=continue_button.y,
+        w=continue_button.w,
+        h=continue_button.h,
+    )
+
+    return nk.Node(
+        cards=[
+            text_card,
+            continue_button,
+        ],
+        sensors=[sensor],
+    )
 
 
-# %% Create a sequence of simple Nodes in which the Participant must click on a fixation point:
 def make_basic_fixation_node(
         fixation_image: nk.assets.ImageFile,
         fixation_x: float,
@@ -106,43 +138,6 @@ def make_video_node(
     )
 
 
-def make_instructions_node(
-        text: str,
-) -> nk.Node:
-    text_card = nk.cards.TextCard(
-        text=text,
-        x=0, y=0, w=0.8, h=0.8,
-        background_color='#ffffff',
-        justification_horizontal='left',
-        justification_vertical='top',
-    )
-
-    continue_button = nk.cards.TextCard(
-        text='Continue',
-        x=0, y=-0.45, w=0.3, h=0.05,
-        background_color='#32a852',
-        text_color='#ffffff',
-        start_msec=200,
-    )
-
-    sensor = nk.sensors.ClickSensor(
-        start_msec=200,
-        x=continue_button.x,
-        y=continue_button.y,
-        w=continue_button.w,
-        h=continue_button.h,
-        mask='rectangle',
-    )
-
-    return nk.Node(
-        cards=[
-            text_card,
-            continue_button,
-        ],
-        sensors=[sensor],
-    )
-
-
 # %% Load Asset Files
 my_image_files = []
 for path in sorted(glob.glob('./example_images/*')):
@@ -157,10 +152,8 @@ for path in sorted(glob.glob('./example_videos/*.mp4')):
 # %%
 nodes = []
 
-nodes.extend(
-    [
-        make_instructions_node("# Welcome!\n\nThis is a test task.", ),
-    ]
+nodes.append(
+    make_instructions_node("# Welcome!\n\nThis is a test task.", )
 )
 
 for video_file in my_video_files:
@@ -175,14 +168,13 @@ for image_file in my_image_files[:5]:
     )
     nodes.append(node)
 
-for _ in range(2):
-    # Randomly sample fixation points:
-    node = make_basic_fixation_node(
-        fixation_x=round(random.uniform(-0.3, 0.3), 2),
-        fixation_y=round(random.uniform(-0.3, 0.3), 2),
+nodes.append(
+    make_basic_fixation_node(
+        fixation_x=0.4,
+        fixation_y=-0.3,
         fixation_image=my_image_files[0]
     )
-    nodes.append(node)
+)
 
 timeline = nk.Timeline(
     nodes=nodes,
