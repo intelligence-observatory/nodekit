@@ -2,7 +2,7 @@ import type {BrowserContextEvent, EndEvent, Event, LeaveEvent, NodeIndex, NodeSt
 import {Clock} from "./clock.ts";
 import type {Timeline, Trace} from "./types/node.ts";
 import {getBrowserContext} from "./user-gates/browser-context.ts";
-import {DeviceGate} from "./user-gates/device-gate.ts";
+import {checkDeviceIsValid} from "./user-gates/device-gate.ts";
 import type {AssetUrl} from "./types/assets";
 import type {NodePlayId, TimeElapsedMsec} from "./types/common.ts";
 import {createNodeKitRootDiv} from "./ui/ui-builder.ts";
@@ -10,8 +10,11 @@ import {AssetManager} from "./asset-manager";
 import {ShellUI} from "./ui/shell-ui/shell-ui.ts";
 import {BoardViewsUI} from "./ui/board-views-ui/board-views-ui.ts";
 import {NodePlay} from "./node-player/node-play.ts";
+import pk from '../package.json'
 
 export type OnEventCallback = (event: Event) => void;
+
+
 
 
 export async function play(
@@ -33,9 +36,6 @@ export async function play(
     let events: Event[] = previousEvents;
     // Todo: the previousEvents can be processed to obtain the current state of the task. Otherwise, we always start from scratch.
 
-    // Todo: version gating
-    const nodekitVersion = timeline.nodekit_version;
-
     // Initialize managers:
     const nodeKitDiv = createNodeKitRootDiv();
 
@@ -46,8 +46,14 @@ export async function play(
     const boardUI = new BoardViewsUI(assetManager);
     nodeKitDiv.appendChild(boardUI.root)
 
+    // Version gating:
+    if (timeline.nodekit_version !== pk.version) {
+        // Todo: a more accurate semantic version check
+        throw new Error(`Incompatible NodeKit version. Timeline version: ${timeline.nodekit_version}, NodeKit version: ${pk.version}`);
+    }
+
     // Device gating:
-    if (!DeviceGate.isValidDevice()){
+    if (!checkDeviceIsValid()){
         const error = new Error('Unsupported device for NodeKit. Please use a desktop browser.');
         shellUI.showErrorOverlay(error);
         throw error;
@@ -175,7 +181,7 @@ export async function play(
 
     // Assemble trace:
     const trace = {
-        nodekit_version: nodekitVersion,
+        nodekit_version: timeline.nodekit_version,
         events: events,
     }
 
