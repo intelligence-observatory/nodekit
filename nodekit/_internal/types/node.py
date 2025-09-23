@@ -43,7 +43,7 @@ class Transition(pydantic.BaseModel):
 class Graph(pydantic.BaseModel):
     """
     A directed graph of Nodes which defines a runtime.
-    A Graph begins with the START Node, which always transitions to the first element of .nodes.
+    A Graph begins with the START Node.
     Every Node in a Graph must have a path to an END Node.
 
     Graphs may be defined compositionally: multiple Graphs can be combined using the
@@ -88,7 +88,8 @@ class Graph(pydantic.BaseModel):
         # Check all nodes have a path to END
 
         return self
+
 # %%
 class Trace(pydantic.BaseModel):
     events: List[Event]
-    nodekit_version: str = pydantic.Field(default=VERSION, description='The semantic version number of NodeKit used to create this Timeline.')
+    nodekit_version: str = pydantic.Field(default=VERSION, description='The semantic version number of NodeKit.')
