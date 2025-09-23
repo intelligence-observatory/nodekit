@@ -5,7 +5,8 @@ import {EventScheduler} from "./event-scheduler.ts";
 import {type EffectBinding, HideCursorEffectBinding} from "../board-view/effect-bindings/effect-bindings.ts";
 
 import type {AssetManager} from "../asset-manager";
-import type {SensorIndex} from "../types/events";
+
+import type {SensorIndex} from "../types/common.ts";
 
 export interface PlayNodeResult {
     domTimestampStart: DOMHighResTimeStamp;

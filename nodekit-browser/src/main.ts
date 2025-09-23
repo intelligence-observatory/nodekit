@@ -1,10 +1,10 @@
-import type {ActionEvent, BrowserContextEvent, EndEvent, Event, LeaveEvent, NodeEndEvent, NodeIndex, NodeStartEvent, ReturnEvent, StartEvent} from "./types/events";
+import type {ActionEvent, BrowserContextEvent, EndEvent, Event, LeaveEvent, NodeEndEvent, NodeStartEvent, ReturnEvent, StartEvent} from "./types/events";
 import {Clock} from "./clock.ts";
-import type {Timeline, Trace} from "./types/node.ts";
+import type {Graph, Trace} from "./types/node.ts";
 import {getBrowserContext} from "./user-gates/browser-context.ts";
 import {checkDeviceIsValid} from "./user-gates/device-gate.ts";
 import type {AssetUrl} from "./types/assets";
-import type {TimeElapsedMsec} from "./types/common.ts";
+import type {NodeIndex, TimeElapsedMsec} from "./types/common.ts";
 import {createNodeKitRootDiv} from "./ui/ui-builder.ts";
 import {AssetManager} from "./asset-manager";
 import {ShellUI} from "./ui/shell-ui/shell-ui.ts";
@@ -21,7 +21,7 @@ import {gt, major} from 'semver';
  * @param previousEvents
  */
 export async function play(
-    timeline: Timeline,
+    timeline: Graph,
     assetUrls: AssetUrl[],
     onEventCallback: ((event: Event) => void) | null = null,
     previousEvents: Event[] = [],
@@ -106,12 +106,25 @@ export async function play(
     eventArray.push(browserContextEvent);
 
     const nodes = timeline.nodes;
-    for (let nodeIndex = 0 as NodeIndex; nodeIndex < nodes.length; nodeIndex++) {
+    const transitions = timeline.transitions;
+
+
+    // Assemble transition map:
+    let currentNodeIndex: NodeIndex | 'END' = 'END';
+    for (let transition of transitions) {
+        if (transition.node_index === 'START') {
+            currentNodeIndex = transition.next_node_index;
+            break;
+        }
+    }
+
+    while (currentNodeIndex !== 'END') {
         // Prepare the Node:
-        const node = nodes[nodeIndex];
+        const node = nodes[currentNodeIndex];
         const nodePlay = new NodePlay(
             node,
         )
+
         // Mount
         boardViewsContainerDiv.appendChild(nodePlay.boardView.root);
         await nodePlay.prepare(assetManager)
@@ -123,7 +136,7 @@ export async function play(
         const nodeStartEvent: NodeStartEvent = {
             event_type: "NodeStartEvent",
             t: clock.convertDomTimestampToClockTime(result.domTimestampStart),
-            node_index: nodeIndex,
+            node_index: currentNodeIndex,
         }
         eventArray.push(nodeStartEvent);
 
@@ -131,7 +144,7 @@ export async function play(
         const actionEvent: ActionEvent = {
             event_type: "ActionEvent",
             t: clock.convertDomTimestampToClockTime(result.domTimestampAction),
-            node_index: nodeIndex,
+            node_index: currentNodeIndex,
             sensor_index: result.sensorIndex,
             action: result.action,
         }
@@ -141,7 +154,7 @@ export async function play(
         const nodeEndEvent: NodeEndEvent = {
             event_type: "NodeEndEvent",
             t: clock.convertDomTimestampToClockTime(result.domTimestampEnd),
-            node_index: nodeIndex,
+            node_index: currentNodeIndex,
         }
         eventArray.push(nodeEndEvent);
 
@@ -149,9 +162,16 @@ export async function play(
         while (boardViewsContainerDiv.firstChild) {
             boardViewsContainerDiv.removeChild(boardViewsContainerDiv.firstChild);
         }
-        
-        // Update the progress bar:
-        shellUI.setProgressBar((nodeIndex + 1) / nodes.length * 100);
+
+        // Get the next Node:
+        let nextNodeIndex: NodeIndex | 'END' = 'END'; // Fallthrough to END if no transition found
+        for (let transition of transitions) {
+            if (transition.node_index === currentNodeIndex && transition.sensor_index === result.sensorIndex) {
+                nextNodeIndex = transition.next_node_index;
+                break;
+            }
+        }
+        currentNodeIndex = nextNodeIndex
     }
 
     // End screen:

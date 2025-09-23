@@ -50,7 +50,6 @@ declare interface BaseSensor<T extends string> {
     sensor_type: T;
     start_msec: NodeTimePointMsec;
     end_msec: NodeTimePointMsec | null;
-    outcome: Outcome | null;
 }
 
 declare interface Board {
@@ -92,6 +91,12 @@ declare interface EndEvent extends BaseEvent<'EndEvent'> {
 }
 
 declare type Event_2 = StartEvent | BrowserContextEvent | LeaveEvent | ReturnEvent | NodeStartEvent | ActionEvent | NodeEndEvent | EndEvent;
+
+declare interface Graph {
+    nodekit_version: string;
+    nodes: Node_2[];
+    transitions: Transition[];
+}
 
 declare interface HidePointerEffect extends BaseEffect<'HidePointerEffect'> {
     end_msec: NodeTimePointMsec;
@@ -142,10 +147,6 @@ declare type NodeTimePointMsec = number & {
     __brand: 'NodeTimePointMsec';
 };
 
-declare interface Outcome {
-    cards: Card[];
-}
-
 /**
  * Plays a Timeline, returning a Trace of Events.
  * @param timeline
@@ -153,7 +154,7 @@ declare interface Outcome {
  * @param onEventCallback
  * @param previousEvents
  */
-export declare function play(timeline: Timeline, assetUrls: AssetUrl[], onEventCallback?: ((event: Event_2) => void) | null, previousEvents?: Event_2[]): Promise<Trace>;
+export declare function play(timeline: Graph, assetUrls: AssetUrl[], onEventCallback?: ((event: Event_2) => void) | null, previousEvents?: Event_2[]): Promise<Trace>;
 
 declare type PressableKey = "Enter" | " " | "ArrowDown" | "ArrowLeft" | "ArrowRight" | "ArrowUp" | "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z" | "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
 
@@ -194,11 +195,6 @@ declare type TimeElapsedMsec = number & {
     __brand: 'TimeElapsedMsec';
 };
 
-declare interface Timeline {
-    nodekit_version: string;
-    nodes: Node_2[];
-}
-
 declare interface TimeoutAction extends BaseAction<"TimeoutAction"> {
 }
 
@@ -209,6 +205,12 @@ declare interface TimeoutSensor extends BaseSensor<'TimeoutSensor'> {
 declare interface Trace {
     nodekit_version: string;
     events: Event_2[];
+}
+
+declare interface Transition {
+    node_index: NodeIndex | 'START';
+    sensor_index: SensorIndex;
+    next_node_index: NodeIndex | 'END';
 }
 
 declare interface VideoCard extends BaseCard<'VideoCard'> {

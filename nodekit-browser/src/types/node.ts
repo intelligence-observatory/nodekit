@@ -3,6 +3,7 @@ import type {Card} from "./cards";
 import type {Sensor} from "./sensors";
 import type {Effect} from "./effects/base.ts";
 import type {Event} from "./events";
+import type {NodeIndex, SensorIndex} from "./common.ts";
 
 export interface Node {
     cards: Card[];
@@ -11,9 +12,16 @@ export interface Node {
     board: Board;
 }
 
-export interface Timeline {
+export interface Transition {
+    node_index: NodeIndex | 'START';
+    sensor_index: SensorIndex;
+    next_node_index: NodeIndex | 'END';
+}
+
+export interface Graph {
     nodekit_version: string;
     nodes: Node[];
+    transitions: Transition[];
 }
 
 

@@ -1,8 +1,5 @@
 import type {Action} from "../actions";
-import type {TimeElapsedMsec} from "../common.ts";
-
-export type NodeIndex = number & { __brand: "NodeIndex" };
-export type SensorIndex = number & { __brand: "SensorIndex" };
+import type {NodeIndex, SensorIndex, TimeElapsedMsec} from "../common.ts";
 
 interface BaseEvent<T extends string> {
     event_type: T,

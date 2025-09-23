@@ -175,8 +175,36 @@ nodes.append(
     )
 )
 
-timeline = nk.Timeline(
+# %% Wire up transitions
+transitions = [
+    nk.Transition(
+        node_index='START',
+        sensor_index=0,
+        next_node_index=0,
+    ),
+    nk.Transition(
+        node_index=0,
+        sensor_index=0,
+        next_node_index=1,
+    ),
+
+    nk.Transition(
+        node_index=1,
+        sensor_index=0,
+        next_node_index=2,
+    ),
+
+    nk.Transition(
+        node_index=2,
+        sensor_index=0,
+        next_node_index='END',
+    )
+]
+
+# %%
+timeline = nk.Graph(
     nodes=nodes,
+    transitions=transitions,
 )
 
 Path('timeline.json').write_text(timeline.model_dump_json(indent=2))

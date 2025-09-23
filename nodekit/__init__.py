@@ -2,7 +2,7 @@ __all__ = [
     'VERSION',
 
     # Top-level types:
-    'Timeline',
+    'Graph',
     'Node',
     'Outcome',
     'Board',
@@ -25,8 +25,9 @@ from nodekit._internal.version import VERSION
 
 # Incoming models:
 from nodekit._internal.types.node import (
-    Timeline,
+    Graph,
     Node,
+    Transition,
 )
 from nodekit._internal.types.board import Board
 from nodekit._internal.types.outcome import Outcome
