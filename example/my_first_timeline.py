@@ -89,10 +89,9 @@ def make_basic_fixation_node(
         y=fixation_y,
         w=fixation_circle.w,
         h=fixation_circle.h,
-        outcome=positive_outcome,
     )
-    spacebar_sensor = nk.sensors.KeySensor(key=' ', outcome=negative_outcome2)
-    timeout_sensor = nk.sensors.TimeoutSensor(start_msec=2000, outcome=negative_outcome1)
+    spacebar_sensor = nk.sensors.KeySensor(key=' ')
+    timeout_sensor = nk.sensors.TimeoutSensor(start_msec=2000)
 
     return nk.Node(
         cards=[fixation_circle],

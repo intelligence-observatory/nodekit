@@ -16,6 +16,7 @@ export interface Timeline {
     nodes: Node[];
 }
 
+
 export interface Trace {
     nodekit_version: string;
     events: Event[];
