@@ -35,7 +35,7 @@ class Node(pydantic.BaseModel):
 
 class Transition(pydantic.BaseModel):
     node_index: NodeIndex | Literal['START']  # 'START' is a special sentinel value indicating the start of the Graph
-    sensor_index: SensorIndex
+    sensor_index: SensorIndex | None  # None indicates an unconditional transition (e.g., from START)
     next_node_index: NodeIndex | Literal['END']  # 'END' is a special sentinel value indicating the end of the Graph
 
 

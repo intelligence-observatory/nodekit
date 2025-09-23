@@ -4,7 +4,7 @@ __all__ = [
     # Top-level types:
     'Graph',
     'Node',
-    'Outcome',
+    'Transition',
     'Board',
 
     # Namespaced types:
@@ -30,7 +30,6 @@ from nodekit._internal.types.node import (
     Transition,
 )
 from nodekit._internal.types.board import Board
-from nodekit._internal.types.outcome import Outcome
 import nodekit.cards as cards
 import nodekit.assets as assets
 import nodekit.effects as effects

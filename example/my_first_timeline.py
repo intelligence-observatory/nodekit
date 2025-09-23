@@ -59,29 +59,6 @@ def make_basic_fixation_node(
         image=fixation_image.identifier,
     )
 
-    # Define outcomes
-    positive_card = nk.cards.TextCard(
-        text='Yay',
-        x=0, y=0, w=0.5, h=0.5,
-        end_msec=200,
-    )
-
-    negative_card = nk.cards.TextCard(
-        text='Boo',
-        x=0, y=0, w=0.5, h=0.5,
-        end_msec=400,
-    )
-
-    positive_outcome = nk.Outcome(
-        cards=[positive_card],
-    )
-    negative_outcome1 = nk.Outcome(
-        cards=[negative_card],
-    )
-    negative_outcome2 = nk.Outcome(
-        cards=[negative_card],
-    )
-
     # Define your Sensors, which will detect an Action from the Participant:
     clicked_fixation_dot_sensor = nk.sensors.ClickSensor(
         mask='ellipse',
@@ -179,7 +156,7 @@ nodes.append(
 transitions = [
     nk.Transition(
         node_index='START',
-        sensor_index=0,
+        sensor_index=None,
         next_node_index=0,
     ),
     nk.Transition(
@@ -202,16 +179,16 @@ transitions = [
 ]
 
 # %%
-timeline = nk.Graph(
+graph = nk.Graph(
     nodes=nodes,
     transitions=transitions,
 )
 
-Path('timeline.json').write_text(timeline.model_dump_json(indent=2))
+Path('timeline.json').write_text(graph.model_dump_json(indent=2))
 
 # %% Play the Timeline:
 trace = nk.play(
-    timeline=timeline,
+    timeline=graph,
     asset_files=my_image_files + my_video_files
 )
 
