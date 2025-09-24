@@ -67,3 +67,5 @@ PressableKey = Literal[
 # %% Identifiers
 NodeIndex = Annotated[int, pydantic.Field(strict=True, ge=0, description='The index of a Node in a Timeline, starting from 0.')]
 SensorIndex = Annotated[int, pydantic.Field(strict=True, ge=0, description='The index of a Sensor in a Node, starting from 0.')]
+
+

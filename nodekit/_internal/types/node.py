@@ -4,12 +4,12 @@ import pydantic
 
 from nodekit._internal.types.board import Board
 from nodekit._internal.types.cards.cards import Card
+from nodekit._internal.types.common import NodeIndex, SensorIndex
 from nodekit._internal.types.effects.effects import Effect
+from nodekit._internal.types.events.events import Event
 from nodekit._internal.types.sensors.sensors import Sensor
 from nodekit._internal.version import VERSION
-from nodekit._internal.types.events.events import Event
 
-from nodekit._internal.types.common import NodeIndex, SensorIndex
 
 # %%
 class Node(pydantic.BaseModel):
@@ -51,7 +51,7 @@ class Graph(pydantic.BaseModel):
     """
     nodes: List[Node] = pydantic.Field(
         min_length=1,
-        description='The Nodes in the Graph, each representing a state in the runtime. The first Node is the entry point of the Graph.',
+        description='The Nodes in the Graph, each representing a state in the runtime.',
 
     )
 
