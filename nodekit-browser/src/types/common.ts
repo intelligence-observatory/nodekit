@@ -1,4 +1,3 @@
-export type UUID = string & { __brand: 'UUID' };
 export type SpatialSize = number & { __brand: 'SpatialSize' };
 export type SpatialPoint = number & { __brand: 'SpatialPoint' };
 
@@ -14,4 +13,5 @@ export type SHA256 = string & { __brand: 'SHA256' };
 
 export type Mask = 'rectangle' | 'ellipse';
 export type NodeIndex = number & { __brand: "NodeIndex" };
+export type NodeId = string & { __brand: "NodeId" };
 export type SensorIndex = number & { __brand: "SensorIndex" };

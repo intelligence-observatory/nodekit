@@ -14,7 +14,7 @@ export interface Node {
 
 export interface Transition {
     node_index: NodeIndex | 'START';
-    sensor_index: SensorIndex;
+    sensor_index: SensorIndex | null;
     next_node_index: NodeIndex | 'END';
 }
 

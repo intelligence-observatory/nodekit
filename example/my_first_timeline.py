@@ -1,6 +1,192 @@
 import glob
 from pathlib import Path
 import nodekit as nk
+from typing import Literal
+
+# %%
+def make_triplet_trial(
+        fixation_image: nk.assets.ImageIdentifier,
+        stimulus_image: nk.assets.ImageIdentifier,
+        choice_left_image: nk.assets.ImageIdentifier,
+        choice_right_image: nk.assets.ImageIdentifier,
+        correct_choice: Literal['L', 'R']
+) -> nk.Graph:
+    """
+    Returns a Graph representing a single trial of a triplet task.
+    """
+
+    # Make fixation Node:
+    fixation_card = nk.cards.ImageCard(
+        x=0,
+        y=0,
+        w=0.0375,
+        h=0.0375,
+        image=fixation_image,
+    )
+    clicked_fixation_dot_sensor = nk.sensors.ClickSensor(
+        mask='ellipse',
+        x=fixation_card.x,
+        y=fixation_card.y,
+        w=fixation_card.w,
+        h=fixation_card.h,
+    )
+
+    fixation_node = nk.Node(
+        cards=[fixation_card],
+        sensors=[clicked_fixation_dot_sensor],
+    )
+
+    # Make main Node:
+    stimulus_card = nk.cards.ImageCard(
+        x=0,
+        y=0,
+        w=0.5,
+        h=0.5,
+        image=stimulus_image,
+        start_msec=0,
+        end_msec =200,
+    )
+    choice_left_card = nk.cards.ImageCard(
+        x=-0.25,
+        y=-0.3,
+        w=0.2,
+        h=0.2,
+        image=choice_left_image,
+        start_msec=200,
+    )
+    choice_right_card = nk.cards.ImageCard(
+        x=0.25,
+        y=-0.3,
+        w=0.2,
+        h=0.2,
+        image=choice_right_image,
+        start_msec=200,
+    )
+
+    clicked_left_sensor = nk.sensors.ClickSensor(
+        mask='rectangle',
+        x=choice_left_card.x,
+        y=choice_left_card.y,
+        w=choice_left_card.w,
+        h=choice_left_card.h,
+        start_msec=200,
+    )
+    clicked_right_sensor = nk.sensors.ClickSensor(
+        mask='rectangle',
+        x=choice_right_card.x,
+        y=choice_right_card.y,
+        w=choice_right_card.w,
+        h=choice_right_card.h,
+        start_msec=200,
+    )
+
+    timeout_sensor = nk.sensors.TimeoutSensor(
+        start_msec=2000,
+    )
+    main_node = nk.Node(
+        cards=[
+            stimulus_card,
+            choice_left_card,
+            choice_right_card,
+        ],
+        sensors=[
+            clicked_left_sensor,
+            clicked_right_sensor,
+            timeout_sensor,
+        ],
+    )
+
+    # Make positive feedback Node:
+    positive_card = nk.cards.TextCard(
+        text='Correct!',
+        x=0, y=0, w=0.5, h=0.5,
+        background_color='#32a852',
+        text_color='#ffffff',
+        justification_horizontal='center',
+        justification_vertical='center',
+    )
+    positive_timeout_sensor = nk.sensors.TimeoutSensor(
+        start_msec=500,
+    )
+    positive_node = nk.Node(
+        cards=[positive_card],
+        sensors=[positive_timeout_sensor],
+    )
+
+    # Make negative feedback Node:
+    negative_card = nk.cards.TextCard(
+        text='Incorrect',
+        x=0, y=0, w=0.5, h=0.5,
+        background_color='#a83232',
+        text_color='#ffffff',
+        justification_horizontal='center',
+        justification_vertical='center',
+    )
+    negative_timeout_sensor = nk.sensors.TimeoutSensor(
+        start_msec=1000,
+    )
+
+    negative_node = nk.Node(
+        cards=[negative_card],
+        sensors=[negative_timeout_sensor],
+    )
+
+    # Define transitions:
+    nodes = [
+        fixation_node,
+        main_node,
+        positive_node,
+        negative_node,
+    ]
+
+    transitions = [
+        nk.Transition(
+            node_index='START',
+            sensor_index=None,
+            next_node_index=0,
+        ),
+        nk.Transition(
+            node_index=0,
+            sensor_index=0,
+            next_node_index=1,
+        ),
+        nk.Transition(
+            node_index=1,
+            sensor_index=0 if correct_choice == 'L' else 1,
+            next_node_index=2,
+        ),
+        nk.Transition(
+            node_index=1,
+            sensor_index=1 if correct_choice == 'L' else 0,
+            next_node_index=3,
+        ),
+        nk.Transition(
+            node_index=1,
+            sensor_index=2,
+            next_node_index=3,
+        ),
+        nk.Transition(
+            node_index=1,
+            sensor_index=2,
+            next_node_index='END',
+        ),
+        nk.Transition(
+            node_index=2,
+            sensor_index=0,
+            next_node_index='END',
+        ),
+    ]
+
+    trial_graph = nk.Graph(
+        nodes=nodes,
+        transitions=transitions,
+    )
+    return trial_graph
+
+
+
+
+
 
 
 # %% Helper functions to create Nodes:
@@ -183,6 +369,15 @@ graph = nk.Graph(
     nodes=nodes,
     transitions=transitions,
 )
+
+graph = make_triplet_trial(
+    fixation_image=my_image_files[0].identifier,
+    stimulus_image=my_image_files[1].identifier,
+    choice_left_image=my_image_files[2].identifier,
+    choice_right_image=my_image_files[3].identifier,
+    correct_choice='L',
+)
+
 
 Path('timeline.json').write_text(graph.model_dump_json(indent=2))
 

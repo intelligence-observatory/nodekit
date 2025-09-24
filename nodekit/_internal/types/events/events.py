@@ -59,10 +59,8 @@ class ReturnEvent(BaseEvent):
 
 
 # %%
-
 class BaseNodeEvent(BaseEvent):
     node_index: NodeIndex
-
 
 class NodeStartEvent(BaseNodeEvent):
     event_type: Literal[EventTypeEnum.NodeStartEvent] = EventTypeEnum.NodeStartEvent

@@ -25,25 +25,24 @@ class Node(pydantic.BaseModel):
             "The first Card in this list is at the \"bottom\" of the Board, in the z-direction."
         ),
     )
-
     sensors: List[Sensor] = pydantic.Field(
         min_length=1,
-        description='Conditions that terminate the Node when met.'
+        description='List of Sensors that listen for a Participant Action. The first Sensor that is triggered ends the Node.'
     )
-
     effects: List[Effect] = pydantic.Field(default_factory=list)
+
 
 class Transition(pydantic.BaseModel):
     node_index: NodeIndex | Literal['START']  # 'START' is a special sentinel value indicating the start of the Graph
-    sensor_index: SensorIndex | None  # None indicates an unconditional transition (e.g., from START)
+    sensor_index: SensorIndex | None
     next_node_index: NodeIndex | Literal['END']  # 'END' is a special sentinel value indicating the end of the Graph
 
 
 # %%
 class Graph(pydantic.BaseModel):
     """
-    A directed graph of Nodes which defines a runtime.
-    A Graph begins with the START Node.
+    A directed acyclic graph which defines a runtime.
+    All Graphs begin at START, which transitions immediately to one Node in .nodes.
     Every Node in a Graph must have a path to an END Node.
 
     Graphs may be defined compositionally: multiple Graphs can be combined using the

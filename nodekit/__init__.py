@@ -18,6 +18,7 @@ __all__ = [
     # Browser runtime methods:
     'play',
     'get_browser_bundle',
+    'concat',
 ]
 
 # Version
@@ -37,6 +38,9 @@ import nodekit.sensors as sensors
 import nodekit.actions as actions
 import nodekit.events as events
 
-# Browser runtime:
+# Browser:
 from nodekit._internal.browser.local_runner.main import play
 from nodekit._internal.browser.browser_bundle import get_browser_bundle
+
+# Ops:
+from nodekit._internal.ops.concat import concat
