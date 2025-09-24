@@ -49,20 +49,9 @@ class Graph(pydantic.BaseModel):
     Graphs may be defined compositionally: multiple Graphs can be combined using the
     .append() and .extend() convenience methods.
     """
-    nodes: List[Node] = pydantic.Field(
-        min_length=1,
-        description='The Nodes in the Graph, each representing a state in the runtime.',
-
-    )
-
-    transitions: List[Transition] = pydantic.Field(
-        description='Directed edges between Nodes, defining possible paths through the Graph.',
-    )
-
-    nodekit_version: str = pydantic.Field(
-        default=VERSION,
-        description='The semantic version number of NodeKit.'
-    )
+    nodes: List[Node] = pydantic.Field(min_length=1)
+    transitions: List[Transition]
+    nodekit_version: str = pydantic.Field(default=VERSION)
 
     def append(self, graph: 'Graph') -> 'Graph':
         # Append another graph to this one, returning a new Graph.
