@@ -30,6 +30,7 @@ from nodekit._internal.types.node import (
     Node,
     Transition,
 )
+
 from nodekit._internal.types.board import Board
 import nodekit.cards as cards
 import nodekit.assets as assets

@@ -33,34 +33,34 @@ class Node(pydantic.BaseModel):
 
 
 class Transition(pydantic.BaseModel):
-    node_index: NodeIndex | Literal['START']  # 'START' is a special sentinel value indicating the start of the Graph
-    sensor_index: SensorIndex | None
-    next_node_index: NodeIndex | Literal['END']  # 'END' is a special sentinel value indicating the end of the Graph
+    node_index: NodeIndex # The Node from which this Transition originates
+    sensor_index: SensorIndex # The Sensor in that Node that triggers this Transition. None acts as a wildcard.
+    next_node_index: NodeIndex | Literal['END']
+
+    # Future: probabilistic
+    # next_node_indices: List[NodeIndex]  # For probabilistic transitions
+    # weights: List[float]  # For probabilistic transitions
+
+    # Future: EFSM
+    # guard: Guard # dictates whether this transition can be taken, based on an operation on register values
+    # register_updates: Dict[str, Any]  # the delta applied to the registers if this transition is taken
+
 
 
 # %%
 class Graph(pydantic.BaseModel):
     """
-    A directed acyclic graph which defines a runtime.
-    All Graphs begin at START, which transitions immediately to one Node in .nodes.
-    Every Node in a Graph must have a path to an END Node.
-
-    Graphs may be defined compositionally: multiple Graphs can be combined using the
-    .append() and .extend() convenience methods.
+    The canonical representation of a NodeKit runtime: a directed acyclic graph consisting of Nodes and Transitions between them, keyed off of Sensors.
+    All Graphs begin at a single Node, given by start_index.
+    Every Node in a Graph must have a path to an END Node, which is encoded by N.
     """
-    nodes: List[Node] = pydantic.Field(min_length=1)
+    nodes: List[Node] = pydantic.Field(
+        min_length=1,
+        description='A topologically sorted list of Nodes in the Graph. Tie-breaks are resolved by Node content hash.'
+    )
+    start_node_index: NodeIndex
     transitions: List[Transition]
     nodekit_version: str = pydantic.Field(default=VERSION)
-
-    def append(self, graph: 'Graph') -> 'Graph':
-        # Append another graph to this one, returning a new Graph.
-        # These two Graphs will be executed sequentially
-        raise NotImplementedError()
-
-    def extend(self, graphs: List['Graph']) -> 'Graph':
-        # Extend this graph by appending multiple graphs, returning a new Graph.
-        # These Graphs will be executed sequentially
-        raise NotImplementedError()
 
     @pydantic.model_validator(mode='after')
     def check_graph_is_valid(self) -> 'Graph':

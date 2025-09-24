@@ -22,6 +22,7 @@ export interface Graph {
     nodekit_version: string;
     nodes: Node[];
     transitions: Transition[];
+    start_node_index: NodeIndex;
 }
 
 

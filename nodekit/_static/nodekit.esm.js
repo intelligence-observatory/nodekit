@@ -1488,14 +1488,14 @@ function Ss(n, e, t, r) {
       case qe:
         var x = i[Yt];
         if (x) {
-          var $ = i[Gi];
-          x == $i && ($ = parseInt(Pr($), 10) >= 13 ? "11" : "10"), this.set(v, x).set(y, $);
+          var U = i[Gi];
+          x == $i && (U = parseInt(Pr(U), 10) >= 13 ? "11" : "10"), this.set(v, x).set(y, U);
         }
         this.get(v) == $i && i[w] == "Xbox" && this.set(v, "Xbox").set(y, void 0);
         break;
       case Xt:
-        var K = this.data, ie = function(F) {
-          return K[F].getItem().setCH(i).parseCH().get();
+        var K = this.data, ie = function(H) {
+          return K[H].getItem().setCH(i).parseCH().get();
         };
         this.set(Ie, ie(Ie)).set(ht, ie(ht)).set(it, ie(it)).set(Ye, ie(Ye)).set(qe, ie(qe));
     }
@@ -1929,17 +1929,17 @@ function $a() {
   function x(...h) {
     return h.map((_) => f(_)).join("");
   }
-  function $(h) {
+  function U(h) {
     const g = h[h.length - 1];
     return typeof g == "object" && g.constructor === Object ? (h.splice(h.length - 1, 1), g) : {};
   }
   function K(...h) {
-    return "(" + ($(h).capture ? "" : "?:") + h.map((V) => f(V)).join("|") + ")";
+    return "(" + (U(h).capture ? "" : "?:") + h.map((V) => f(V)).join("|") + ")";
   }
   function ie(h) {
     return new RegExp(h.toString() + "|").exec("").length - 1;
   }
-  function F(h, g) {
+  function H(h, g) {
     const _ = h && h.exec(g);
     return _ && _.index === 0;
   }
@@ -1987,7 +1987,7 @@ function $a() {
     end: "'",
     illegal: "\\n",
     contains: [T]
-  }, H = {
+  }, F = {
     scope: "string",
     begin: '"',
     end: '"',
@@ -1995,7 +1995,7 @@ function $a() {
     contains: [T]
   }, N = {
     begin: /\b(a|an|the|are|I'm|isn't|don't|doesn't|won't|but|just|should|pretty|simply|enough|gonna|going|wtf|so|such|will|you|your|they|like|more)\b/
-  }, M = function(h, g, _ = {}) {
+  }, $ = function(h, g, _ = {}) {
     const V = r(
       {
         scope: "comment",
@@ -2061,7 +2061,7 @@ function $a() {
         // look for 3 words in a row
       }
     ), V;
-  }, P = M("//", "$"), j = M("/\\*", "\\*/"), z = M("#", "$"), Z = {
+  }, P = $("//", "$"), j = $("/\\*", "\\*/"), z = $("#", "$"), Z = {
     scope: "number",
     begin: $e,
     relevance: 0
@@ -2105,7 +2105,7 @@ function $a() {
     BACKSLASH_ESCAPE: T,
     BINARY_NUMBER_MODE: ve,
     BINARY_NUMBER_RE: be,
-    COMMENT: M,
+    COMMENT: $,
     C_BLOCK_COMMENT_MODE: j,
     C_LINE_COMMENT_MODE: P,
     C_NUMBER_MODE: W,
@@ -2132,7 +2132,7 @@ function $a() {
     NUMBER_MODE: Z,
     NUMBER_RE: $e,
     PHRASAL_WORDS_MODE: N,
-    QUOTE_STRING_MODE: H,
+    QUOTE_STRING_MODE: F,
     REGEXP_MODE: X,
     RE_STARTERS_RE: st,
     SHEBANG: ot,
@@ -2390,19 +2390,19 @@ function $a() {
       return L.noHighlightRe.test(E);
     }
     function le(E) {
-      let B = E.className + " ";
-      B += E.parentNode ? E.parentNode.className : "";
-      const te = L.languageDetectRe.exec(B);
+      let D = E.className + " ";
+      D += E.parentNode ? E.parentNode.className : "";
+      const te = L.languageDetectRe.exec(D);
       if (te) {
         const de = O(te[1]);
         return de || (lt(me.replace("{}", te[1])), lt("Falling back to no-highlight mode for this block.", E)), de ? te[1] : "no-highlight";
       }
-      return B.split(/\s+/).find((de) => G(de) || O(de));
+      return D.split(/\s+/).find((de) => G(de) || O(de));
     }
-    function pe(E, B, te) {
+    function pe(E, D, te) {
       let de = "", ke = "";
-      typeof B == "object" ? (de = E, te = B.ignoreIllegals, ke = B.language) : (Be("10.7.0", "highlight(lang, code, ...args) has been deprecated."), Be("10.7.0", `Please use highlight(code, options) instead.
-https://github.com/highlightjs/highlight.js/issues/2277`), ke = E, de = B), te === void 0 && (te = !0);
+      typeof D == "object" ? (de = E, te = D.ignoreIllegals, ke = D.language) : (Be("10.7.0", "highlight(lang, code, ...args) has been deprecated."), Be("10.7.0", `Please use highlight(code, options) instead.
+https://github.com/highlightjs/highlight.js/issues/2277`), ke = E, de = D), te === void 0 && (te = !0);
       const We = {
         code: de,
         language: ke
@@ -2411,10 +2411,10 @@ https://github.com/highlightjs/highlight.js/issues/2277`), ke = E, de = B), te =
       const kt = We.result ? We.result : yt(We.language, We.code, te);
       return kt.code = We.code, Qe("after:highlight", kt), kt;
     }
-    function yt(E, B, te, de) {
+    function yt(E, D, te, de) {
       const ke = /* @__PURE__ */ Object.create(null);
-      function We(A, U) {
-        return A.keywords[U];
+      function We(A, B) {
+        return A.keywords[B];
       }
       function kt() {
         if (!Q.keywords) {
@@ -2423,21 +2423,21 @@ https://github.com/highlightjs/highlight.js/issues/2277`), ke = E, de = B), te =
         }
         let A = 0;
         Q.keywordPatternRe.lastIndex = 0;
-        let U = Q.keywordPatternRe.exec(ge), ee = "";
-        for (; U; ) {
-          ee += ge.substring(A, U.index);
-          const ce = et.case_insensitive ? U[0].toLowerCase() : U[0], Se = We(Q, ce);
+        let B = Q.keywordPatternRe.exec(ge), ee = "";
+        for (; B; ) {
+          ee += ge.substring(A, B.index);
+          const ce = et.case_insensitive ? B[0].toLowerCase() : B[0], Se = We(Q, ce);
           if (Se) {
             const [ct, ha] = Se;
             if (Re.addText(ee), ee = "", ke[ce] = (ke[ce] || 0) + 1, ke[ce] <= xr && (jn += ha), ct.startsWith("_"))
-              ee += U[0];
+              ee += B[0];
             else {
               const pa = et.classNameAliases[ct] || ct;
-              Je(U[0], pa);
+              Je(B[0], pa);
             }
           } else
-            ee += U[0];
-          A = Q.keywordPatternRe.lastIndex, U = Q.keywordPatternRe.exec(ge);
+            ee += B[0];
+          A = Q.keywordPatternRe.lastIndex, B = Q.keywordPatternRe.exec(ge);
         }
         ee += ge.substring(A), Re.addText(ee);
       }
@@ -2458,30 +2458,30 @@ https://github.com/highlightjs/highlight.js/issues/2277`), ke = E, de = B), te =
       function Fe() {
         Q.subLanguage != null ? qn() : kt(), ge = "";
       }
-      function Je(A, U) {
-        A !== "" && (Re.startScope(U), Re.addText(A), Re.endScope());
+      function Je(A, B) {
+        A !== "" && (Re.startScope(B), Re.addText(A), Re.endScope());
       }
-      function as(A, U) {
+      function as(A, B) {
         let ee = 1;
-        const ce = U.length - 1;
+        const ce = B.length - 1;
         for (; ee <= ce; ) {
           if (!A._emit[ee]) {
             ee++;
             continue;
           }
-          const Se = et.classNameAliases[A[ee]] || A[ee], ct = U[ee];
+          const Se = et.classNameAliases[A[ee]] || A[ee], ct = B[ee];
           Se ? Je(ct, Se) : (ge = ct, kt(), ge = ""), ee++;
         }
       }
-      function ls(A, U) {
-        return A.scope && typeof A.scope == "string" && Re.openNode(et.classNameAliases[A.scope] || A.scope), A.beginScope && (A.beginScope._wrap ? (Je(ge, et.classNameAliases[A.beginScope._wrap] || A.beginScope._wrap), ge = "") : A.beginScope._multi && (as(A.beginScope, U), ge = "")), Q = Object.create(A, { parent: { value: Q } }), Q;
+      function ls(A, B) {
+        return A.scope && typeof A.scope == "string" && Re.openNode(et.classNameAliases[A.scope] || A.scope), A.beginScope && (A.beginScope._wrap ? (Je(ge, et.classNameAliases[A.beginScope._wrap] || A.beginScope._wrap), ge = "") : A.beginScope._multi && (as(A.beginScope, B), ge = "")), Q = Object.create(A, { parent: { value: Q } }), Q;
       }
-      function cs(A, U, ee) {
-        let ce = F(A.endRe, ee);
+      function cs(A, B, ee) {
+        let ce = H(A.endRe, ee);
         if (ce) {
           if (A["on:end"]) {
             const Se = new e(A);
-            A["on:end"](U, Se), Se.isMatchIgnored && (ce = !1);
+            A["on:end"](B, Se), Se.isMatchIgnored && (ce = !1);
           }
           if (ce) {
             for (; A.endsParent && A.parent; )
@@ -2490,61 +2490,61 @@ https://github.com/highlightjs/highlight.js/issues/2277`), ke = E, de = B), te =
           }
         }
         if (A.endsWithParent)
-          return cs(A.parent, U, ee);
+          return cs(A.parent, B, ee);
       }
       function oa(A) {
         return Q.matcher.regexIndex === 0 ? (ge += A[0], 1) : (Rr = !0, 0);
       }
       function aa(A) {
-        const U = A[0], ee = A.rule, ce = new e(ee), Se = [ee.__beforeBegin, ee["on:begin"]];
+        const B = A[0], ee = A.rule, ce = new e(ee), Se = [ee.__beforeBegin, ee["on:begin"]];
         for (const ct of Se)
           if (ct && (ct(A, ce), ce.isMatchIgnored))
-            return oa(U);
-        return ee.skip ? ge += U : (ee.excludeBegin && (ge += U), Fe(), !ee.returnBegin && !ee.excludeBegin && (ge = U)), ls(ee, A), ee.returnBegin ? 0 : U.length;
+            return oa(B);
+        return ee.skip ? ge += B : (ee.excludeBegin && (ge += B), Fe(), !ee.returnBegin && !ee.excludeBegin && (ge = B)), ls(ee, A), ee.returnBegin ? 0 : B.length;
       }
       function la(A) {
-        const U = A[0], ee = B.substring(A.index), ce = cs(Q, A, ee);
+        const B = A[0], ee = D.substring(A.index), ce = cs(Q, A, ee);
         if (!ce)
           return Lt;
         const Se = Q;
-        Q.endScope && Q.endScope._wrap ? (Fe(), Je(U, Q.endScope._wrap)) : Q.endScope && Q.endScope._multi ? (Fe(), as(Q.endScope, A)) : Se.skip ? ge += U : (Se.returnEnd || Se.excludeEnd || (ge += U), Fe(), Se.excludeEnd && (ge = U));
+        Q.endScope && Q.endScope._wrap ? (Fe(), Je(B, Q.endScope._wrap)) : Q.endScope && Q.endScope._multi ? (Fe(), as(Q.endScope, A)) : Se.skip ? ge += B : (Se.returnEnd || Se.excludeEnd || (ge += B), Fe(), Se.excludeEnd && (ge = B));
         do
           Q.scope && Re.closeNode(), !Q.skip && !Q.subLanguage && (jn += Q.relevance), Q = Q.parent;
         while (Q !== ce.parent);
-        return ce.starts && ls(ce.starts, A), Se.returnEnd ? 0 : U.length;
+        return ce.starts && ls(ce.starts, A), Se.returnEnd ? 0 : B.length;
       }
       function ca() {
         const A = [];
-        for (let U = Q; U !== et; U = U.parent)
-          U.scope && A.unshift(U.scope);
-        A.forEach((U) => Re.openNode(U));
+        for (let B = Q; B !== et; B = B.parent)
+          B.scope && A.unshift(B.scope);
+        A.forEach((B) => Re.openNode(B));
       }
       let Gn = {};
-      function us(A, U) {
-        const ee = U && U[0];
+      function us(A, B) {
+        const ee = B && B[0];
         if (ge += A, ee == null)
           return Fe(), 0;
-        if (Gn.type === "begin" && U.type === "end" && Gn.index === U.index && ee === "") {
-          if (ge += B.slice(U.index, U.index + 1), !we) {
+        if (Gn.type === "begin" && B.type === "end" && Gn.index === B.index && ee === "") {
+          if (ge += D.slice(B.index, B.index + 1), !we) {
             const ce = new Error(`0 width match regex (${E})`);
             throw ce.languageName = E, ce.badRule = Gn.rule, ce;
           }
           return 1;
         }
-        if (Gn = U, U.type === "begin")
-          return aa(U);
-        if (U.type === "illegal" && !te) {
+        if (Gn = B, B.type === "begin")
+          return aa(B);
+        if (B.type === "illegal" && !te) {
           const ce = new Error('Illegal lexeme "' + ee + '" for mode "' + (Q.scope || "<unnamed>") + '"');
           throw ce.mode = Q, ce;
-        } else if (U.type === "end") {
-          const ce = la(U);
+        } else if (B.type === "end") {
+          const ce = la(B);
           if (ce !== Lt)
             return ce;
         }
-        if (U.type === "illegal" && ee === "")
+        if (B.type === "illegal" && ee === "")
           return ge += `
 `, 1;
-        if (kr > 1e5 && kr > U.index * 3)
+        if (kr > 1e5 && kr > B.index * 3)
           throw new Error("potential infinite loop, way more iterations than matches");
         return ge += ee, ee.length;
       }
@@ -2558,16 +2558,16 @@ https://github.com/highlightjs/highlight.js/issues/2277`), ke = E, de = B), te =
       let ge = "", jn = 0, Nt = 0, kr = 0, Rr = !1;
       try {
         if (et.__emitTokens)
-          et.__emitTokens(B, Re);
+          et.__emitTokens(D, Re);
         else {
           for (Q.matcher.considerAll(); ; ) {
             kr++, Rr ? Rr = !1 : Q.matcher.considerAll(), Q.matcher.lastIndex = Nt;
-            const A = Q.matcher.exec(B);
+            const A = Q.matcher.exec(D);
             if (!A) break;
-            const U = B.substring(Nt, A.index), ee = us(U, A);
+            const B = D.substring(Nt, A.index), ee = us(B, A);
             Nt = A.index + ee;
           }
-          us(B.substring(Nt));
+          us(D.substring(Nt));
         }
         return Re.finalize(), yr = Re.toHTML(), {
           language: E,
@@ -2581,13 +2581,13 @@ https://github.com/highlightjs/highlight.js/issues/2277`), ke = E, de = B), te =
         if (A.message && A.message.includes("Illegal"))
           return {
             language: E,
-            value: un(B),
+            value: un(D),
             illegal: !0,
             relevance: 0,
             _illegalBy: {
               message: A.message,
               index: Nt,
-              context: B.slice(Nt - 100, Nt + 100),
+              context: D.slice(Nt - 100, Nt + 100),
               mode: A.mode,
               resultSoFar: yr
             },
@@ -2596,7 +2596,7 @@ https://github.com/highlightjs/highlight.js/issues/2277`), ke = E, de = B), te =
         if (we)
           return {
             language: E,
-            value: un(B),
+            value: un(D),
             illegal: !1,
             relevance: 0,
             errorRaised: A,
@@ -2607,18 +2607,18 @@ https://github.com/highlightjs/highlight.js/issues/2277`), ke = E, de = B), te =
       }
     }
     function Gt(E) {
-      const B = {
+      const D = {
         value: un(E),
         illegal: !1,
         relevance: 0,
         _top: I,
         _emitter: new L.__emitter(L)
       };
-      return B._emitter.addText(E), B;
+      return D._emitter.addText(E), D;
     }
-    function It(E, B) {
-      B = B || L.languages || Object.keys(g);
-      const te = Gt(E), de = B.filter(O).filter(ye).map(
+    function It(E, D) {
+      D = D || L.languages || Object.keys(g);
+      const te = Gt(E), de = D.filter(O).filter(ye).map(
         (Fe) => yt(Fe, E, !1)
       );
       de.unshift(te);
@@ -2634,12 +2634,12 @@ https://github.com/highlightjs/highlight.js/issues/2277`), ke = E, de = B), te =
       }), [We, kt] = ke, qn = We;
       return qn.secondBest = kt, qn;
     }
-    function Un(E, B, te) {
-      const de = B && _[B] || te;
+    function Un(E, D, te) {
+      const de = D && _[D] || te;
       E.classList.add("hljs"), E.classList.add(`language-${de}`);
     }
     function Ue(E) {
-      let B = null;
+      let D = null;
       const te = le(E);
       if (G(te)) return;
       if (Qe(
@@ -2654,8 +2654,8 @@ https://github.com/highlightjs/highlight.js/issues/2277`), ke = E, de = B), te =
           "One of your code blocks includes unescaped HTML.",
           E.innerHTML
         );
-      B = E;
-      const de = B.textContent, ke = te ? pe(de, { language: te, ignoreIllegals: !0 }) : It(de);
+      D = E;
+      const de = D.textContent, ke = te ? pe(de, { language: te, ignoreIllegals: !0 }) : It(de);
       E.innerHTML = ke.value, E.dataset.highlighted = "yes", Un(E, te, ke.language), E.result = {
         language: ke.language,
         // TODO: remove with version 11.0
@@ -2686,10 +2686,10 @@ https://github.com/highlightjs/highlight.js/issues/2277`), ke = E, de = B), te =
       }
       document.querySelectorAll(L.cssSelector).forEach(Ue);
     }
-    function D(E, B) {
+    function M(E, D) {
       let te = null;
       try {
-        te = B(h);
+        te = D(h);
       } catch (de) {
         if (De("Language definition for '{}' could not be registered.".replace("{}", E)), we)
           De(de);
@@ -2697,12 +2697,12 @@ https://github.com/highlightjs/highlight.js/issues/2277`), ke = E, de = B), te =
           throw de;
         te = I;
       }
-      te.name || (te.name = E), g[E] = te, te.rawDefinition = B.bind(null, h), te.aliases && fe(te.aliases, { languageName: E });
+      te.name || (te.name = E), g[E] = te, te.rawDefinition = D.bind(null, h), te.aliases && fe(te.aliases, { languageName: E });
     }
     function p(E) {
       delete g[E];
-      for (const B of Object.keys(_))
-        _[B] === E && delete _[B];
+      for (const D of Object.keys(_))
+        _[D] === E && delete _[D];
     }
     function R() {
       return Object.keys(g);
@@ -2710,23 +2710,23 @@ https://github.com/highlightjs/highlight.js/issues/2277`), ke = E, de = B), te =
     function O(E) {
       return E = (E || "").toLowerCase(), g[E] || g[_[E]];
     }
-    function fe(E, { languageName: B }) {
+    function fe(E, { languageName: D }) {
       typeof E == "string" && (E = [E]), E.forEach((te) => {
-        _[te.toLowerCase()] = B;
+        _[te.toLowerCase()] = D;
       });
     }
     function ye(E) {
-      const B = O(E);
-      return B && !B.disableAutodetect;
+      const D = O(E);
+      return D && !D.disableAutodetect;
     }
     function Ee(E) {
-      E["before:highlightBlock"] && !E["before:highlightElement"] && (E["before:highlightElement"] = (B) => {
+      E["before:highlightBlock"] && !E["before:highlightElement"] && (E["before:highlightElement"] = (D) => {
         E["before:highlightBlock"](
-          Object.assign({ block: B.el }, B)
+          Object.assign({ block: D.el }, D)
         );
-      }), E["after:highlightBlock"] && !E["after:highlightElement"] && (E["after:highlightElement"] = (B) => {
+      }), E["after:highlightBlock"] && !E["after:highlightElement"] && (E["after:highlightElement"] = (D) => {
         E["after:highlightBlock"](
-          Object.assign({ block: B.el }, B)
+          Object.assign({ block: D.el }, D)
         );
       });
     }
@@ -2734,13 +2734,13 @@ https://github.com/highlightjs/highlight.js/issues/2277`), ke = E, de = B), te =
       Ee(E), V.push(E);
     }
     function Ve(E) {
-      const B = V.indexOf(E);
-      B !== -1 && V.splice(B, 1);
+      const D = V.indexOf(E);
+      D !== -1 && V.splice(D, 1);
     }
-    function Qe(E, B) {
+    function Qe(E, D) {
       const te = E;
       V.forEach(function(de) {
-        de[te] && de[te](B);
+        de[te] && de[te](D);
       });
     }
     function pn(E) {
@@ -2756,7 +2756,7 @@ https://github.com/highlightjs/highlight.js/issues/2277`), ke = E, de = B), te =
       configure: Fn,
       initHighlighting: Hn,
       initHighlightingOnLoad: zn,
-      registerLanguage: D,
+      registerLanguage: M,
       unregisterLanguage: p,
       listLanguages: R,
       getLanguage: O,
@@ -3494,18 +3494,18 @@ ${u}` : u;
 `, 1)[0], k = !f.trim(), C = 0;
         if (this.options.pedantic ? (C = 2, u = f.trimStart()) : k ? C = e[1].length + 1 : (C = e[2].search(this.rules.other.nonSpaceChar), C = C > 4 ? 1 : C, u = f.slice(C), C += e[1].length), k && this.rules.other.blankLine.test(d) && (l += d + `
 `, n = n.substring(d.length + 1), c = !0), !c) {
-          const K = this.rules.other.nextBulletRegex(C), ie = this.rules.other.hrRegex(C), F = this.rules.other.fencesBeginRegex(C), J = this.rules.other.headingBeginRegex(C), se = this.rules.other.htmlBeginRegex(C);
+          const K = this.rules.other.nextBulletRegex(C), ie = this.rules.other.hrRegex(C), H = this.rules.other.fencesBeginRegex(C), J = this.rules.other.headingBeginRegex(C), se = this.rules.other.htmlBeginRegex(C);
           for (; n; ) {
             const re = n.split(`
 `, 1)[0];
             let oe;
-            if (d = re, this.options.pedantic ? (d = d.replace(this.rules.other.listReplaceNesting, "  "), oe = d) : oe = d.replace(this.rules.other.tabCharGlobal, "    "), F.test(d) || J.test(d) || se.test(d) || K.test(d) || ie.test(d))
+            if (d = re, this.options.pedantic ? (d = d.replace(this.rules.other.listReplaceNesting, "  "), oe = d) : oe = d.replace(this.rules.other.tabCharGlobal, "    "), H.test(d) || J.test(d) || se.test(d) || K.test(d) || ie.test(d))
               break;
             if (oe.search(this.rules.other.nonSpaceChar) >= C || !d.trim())
               u += `
 ` + oe.slice(C);
             else {
-              if (k || f.replace(this.rules.other.tabCharGlobal, "    ").search(this.rules.other.nonSpaceChar) >= 4 || F.test(f) || J.test(f) || ie.test(f))
+              if (k || f.replace(this.rules.other.tabCharGlobal, "    ").search(this.rules.other.nonSpaceChar) >= 4 || H.test(f) || J.test(f) || ie.test(f))
                 break;
               u += `
 ` + d;
@@ -3515,12 +3515,12 @@ ${u}` : u;
           }
         }
         i.loose || (s ? i.loose = !0 : this.rules.other.doubleBlankLine.test(l) && (s = !0));
-        let x = null, $;
-        this.options.gfm && (x = this.rules.other.listIsTask.exec(u), x && ($ = x[0] !== "[ ] ", u = u.replace(this.rules.other.listReplaceTask, ""))), i.items.push({
+        let x = null, U;
+        this.options.gfm && (x = this.rules.other.listIsTask.exec(u), x && (U = x[0] !== "[ ] ", u = u.replace(this.rules.other.listReplaceTask, ""))), i.items.push({
           type: "list_item",
           raw: l,
           task: !!x,
-          checked: $,
+          checked: U,
           loose: !1,
           text: u,
           tokens: []
@@ -4783,7 +4783,7 @@ const Sn = {
 };
 function ea() {
   let n = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : Ql();
-  const e = (D) => ea(D);
+  const e = (M) => ea(M);
   if (e.version = "3.2.6", e.removed = [], !n || !n.document || n.document.nodeType !== Sn.document || !n.Element)
     return e.isSupported = !1, e;
   let {
@@ -4799,10 +4799,10 @@ function ea() {
     HTMLFormElement: f,
     DOMParser: d,
     trustedTypes: k
-  } = n, C = c.prototype, x = _n(C, "cloneNode"), $ = _n(C, "remove"), K = _n(C, "nextSibling"), ie = _n(C, "childNodes"), F = _n(C, "parentNode");
+  } = n, C = c.prototype, x = _n(C, "cloneNode"), U = _n(C, "remove"), K = _n(C, "nextSibling"), ie = _n(C, "childNodes"), H = _n(C, "parentNode");
   if (typeof s == "function") {
-    const D = t.createElement("template");
-    D.content && D.content.ownerDocument && (t = D.content.ownerDocument);
+    const M = t.createElement("template");
+    M.content && M.content.ownerDocument && (t = M.content.ownerDocument);
   }
   let J, se = "";
   const {
@@ -4814,15 +4814,15 @@ function ea() {
     importNode: He
   } = r;
   let be = Hs();
-  e.isSupported = typeof Ko == "function" && typeof F == "function" && re && re.createHTMLDocument !== void 0;
+  e.isSupported = typeof Ko == "function" && typeof H == "function" && re && re.createHTMLDocument !== void 0;
   const {
     MUSTACHE_EXPR: st,
     ERB_EXPR: ot,
     TMPLIT_EXPR: T,
     DATA_ATTR: S,
-    ARIA_ATTR: H,
+    ARIA_ATTR: F,
     IS_SCRIPT_OR_DATA: N,
-    ATTR_WHITESPACE: M,
+    ATTR_WHITESPACE: $,
     CUSTOM_ELEMENT: P
   } = Fs;
   let {
@@ -4882,7 +4882,7 @@ function ea() {
       Ce && Ce(p), _ = p;
     }
   }, I = ne({}, [...Br, ...Ur, ...zl]), L = ne({}, [...Fr, ...ql]), G = function(p) {
-    let R = F(p);
+    let R = H(p);
     (!R || !R.tagName) && (R = {
       namespaceURI: Et,
       tagName: "template"
@@ -4894,9 +4894,9 @@ function ea() {
       element: p
     });
     try {
-      F(p).removeChild(p);
+      H(p).removeChild(p);
     } catch {
-      $(p);
+      U(p);
     }
   }, pe = function(p, R) {
     try {
@@ -4958,8 +4958,8 @@ function ea() {
   }, Un = function(p) {
     return typeof a == "function" && p instanceof a;
   };
-  function Ue(D, p, R) {
-    Zn(D, (O) => {
+  function Ue(M, p, R) {
+    Zn(M, (O) => {
       O.call(e, p, R, _);
     });
   }
@@ -4977,7 +4977,7 @@ function ea() {
       if (!Me[O] && zn(O) && (X.tagNameCheck instanceof RegExp && Te(X.tagNameCheck, O) || X.tagNameCheck instanceof Function && X.tagNameCheck(O)))
         return !1;
       if (Ht && !Be[O]) {
-        const fe = F(p) || p.parentNode, ye = ie(p) || p.childNodes;
+        const fe = H(p) || p.parentNode, ye = ie(p) || p.childNodes;
         if (ye && fe) {
           const Ee = ye.length;
           for (let _e = Ee - 1; _e >= 0; --_e) {
@@ -4997,7 +4997,7 @@ function ea() {
     if (sn && (R === "id" || R === "name") && (O in t || O in V))
       return !1;
     if (!(Pn && !tn[R] && Te(S, R))) {
-      if (!(Nn && Te(H, R))) {
+      if (!(Nn && Te(F, R))) {
         if (!W[R] || tn[R]) {
           if (
             // First condition does a very basic check if a) it's basically a valid custom element tagname AND
@@ -5008,9 +5008,9 @@ function ea() {
             R === "is" && X.allowCustomizedBuiltInElements && (X.tagNameCheck instanceof RegExp && Te(X.tagNameCheck, O) || X.tagNameCheck instanceof Function && X.tagNameCheck(O)))
           ) return !1;
         } else if (!an[R]) {
-          if (!Te(j, kn(O, M, ""))) {
+          if (!Te(j, kn(O, $, ""))) {
             if (!((R === "src" || R === "xlink:href" || R === "href") && p !== "script" && Bl(O, "data:") === 0 && on[p])) {
-              if (!(At && !Te(N, kn(O, M, "")))) {
+              if (!(At && !Te(N, kn(O, $, "")))) {
                 if (O)
                   return !1;
               }
@@ -5061,13 +5061,13 @@ function ea() {
       wt && Zn([st, ot, T], (te) => {
         E = kn(E, te, " ");
       });
-      const B = g(p.nodeName);
-      if (!Hn(B, Qe, E)) {
+      const D = g(p.nodeName);
+      if (!Hn(D, Qe, E)) {
         pe(Ee, p);
         continue;
       }
       if (J && typeof k == "object" && typeof k.getAttributeType == "function" && !_e)
-        switch (k.getAttributeType(B, Qe)) {
+        switch (k.getAttributeType(D, Qe)) {
           case "TrustedHTML": {
             E = J.createHTML(E);
             break;
@@ -5085,44 +5085,44 @@ function ea() {
         }
     }
     Ue(be.afterSanitizeAttributes, p, null);
-  }, jt = function D(p) {
+  }, jt = function M(p) {
     let R = null;
     const O = Gt(p);
     for (Ue(be.beforeSanitizeShadowDOM, p, null); R = O.nextNode(); )
-      Ue(be.uponSanitizeShadowNode, R, null), Fn(R), hn(R), R.content instanceof o && D(R.content);
+      Ue(be.uponSanitizeShadowNode, R, null), Fn(R), hn(R), R.content instanceof o && M(R.content);
     Ue(be.afterSanitizeShadowDOM, p, null);
   };
-  return e.sanitize = function(D) {
+  return e.sanitize = function(M) {
     let p = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : {}, R = null, O = null, fe = null, ye = null;
-    if (ln = !D, ln && (D = "<!-->"), typeof D != "string" && !Un(D))
-      if (typeof D.toString == "function") {
-        if (D = D.toString(), typeof D != "string")
+    if (ln = !M, ln && (M = "<!-->"), typeof M != "string" && !Un(M))
+      if (typeof M.toString == "function") {
+        if (M = M.toString(), typeof M != "string")
           throw Rn("dirty is not a string, aborting");
       } else
         throw Rn("toString is not a function");
     if (!e.isSupported)
-      return D;
-    if (nn || me(p), e.removed = [], typeof D == "string" && (De = !1), De) {
-      if (D.nodeName) {
-        const Ve = g(D.nodeName);
+      return M;
+    if (nn || me(p), e.removed = [], typeof M == "string" && (De = !1), De) {
+      if (M.nodeName) {
+        const Ve = g(M.nodeName);
         if (!z[Ve] || Me[Ve])
           throw Rn("root node is forbidden and cannot be sanitized in-place");
       }
-    } else if (D instanceof a)
-      R = yt("<!---->"), O = R.ownerDocument.importNode(D, !0), O.nodeType === Sn.element && O.nodeName === "BODY" || O.nodeName === "HTML" ? R = O : R.appendChild(O);
+    } else if (M instanceof a)
+      R = yt("<!---->"), O = R.ownerDocument.importNode(M, !0), O.nodeType === Sn.element && O.nodeName === "BODY" || O.nodeName === "HTML" ? R = O : R.appendChild(O);
     else {
       if (!bt && !wt && !at && // eslint-disable-next-line unicorn/prefer-includes
-      D.indexOf("<") === -1)
-        return J && Ft ? J.createHTML(D) : D;
-      if (R = yt(D), !R)
+      M.indexOf("<") === -1)
+        return J && Ft ? J.createHTML(M) : M;
+      if (R = yt(M), !R)
         return bt ? null : Ft ? se : "";
     }
     R && rn && le(R.firstChild);
-    const Ee = Gt(De ? D : R);
+    const Ee = Gt(De ? M : R);
     for (; fe = Ee.nextNode(); )
       Fn(fe), hn(fe), fe.content instanceof o && jt(fe.content);
     if (De)
-      return D;
+      return M;
     if (bt) {
       if (Ut)
         for (ye = q.call(R.ownerDocument); R.firstChild; )
@@ -5137,24 +5137,24 @@ function ea() {
       _e = kn(_e, Ve, " ");
     }), J && Ft ? J.createHTML(_e) : _e;
   }, e.setConfig = function() {
-    let D = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : {};
-    me(D), nn = !0;
+    let M = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : {};
+    me(M), nn = !0;
   }, e.clearConfig = function() {
     _ = null, nn = !1;
-  }, e.isValidAttribute = function(D, p, R) {
+  }, e.isValidAttribute = function(M, p, R) {
     _ || me({});
-    const O = g(D), fe = g(p);
+    const O = g(M), fe = g(p);
     return Hn(O, fe, R);
-  }, e.addHook = function(D, p) {
-    typeof p == "function" && yn(be[D], p);
-  }, e.removeHook = function(D, p) {
+  }, e.addHook = function(M, p) {
+    typeof p == "function" && yn(be[M], p);
+  }, e.removeHook = function(M, p) {
     if (p !== void 0) {
-      const R = Ml(be[D], p);
-      return R === -1 ? void 0 : Dl(be[D], R, 1)[0];
+      const R = Ml(be[M], p);
+      return R === -1 ? void 0 : Dl(be[M], R, 1)[0];
     }
-    return Ps(be[D]);
-  }, e.removeHooks = function(D) {
-    be[D] = [];
+    return Ps(be[M]);
+  }, e.removeHooks = function(M) {
+    be[M] = [];
   }, e.removeAllHooks = function() {
     be = Hs();
   }, e;
@@ -5619,13 +5619,13 @@ function In() {
       ["\\s", 1],
       ["\\d", i],
       [d, r]
-    ], C = ($) => {
+    ], C = (U) => {
       for (const [K, ie] of k)
-        $ = $.split(`${K}*`).join(`${K}{0,${ie}}`).split(`${K}+`).join(`${K}{1,${ie}}`);
-      return $;
-    }, x = ($, K, ie) => {
-      const F = C(K), J = f++;
-      o($, J, K), u[$] = J, c[J] = K, l[J] = F, s[J] = new RegExp(K, ie ? "g" : void 0), a[J] = new RegExp(F, ie ? "g" : void 0);
+        U = U.split(`${K}*`).join(`${K}{0,${ie}}`).split(`${K}+`).join(`${K}{1,${ie}}`);
+      return U;
+    }, x = (U, K, ie) => {
+      const H = C(K), J = f++;
+      o(U, J, K), u[U] = J, c[J] = K, l[J] = H, s[J] = new RegExp(K, ie ? "g" : void 0), a[J] = new RegExp(H, ie ? "g" : void 0);
     };
     x("NUMERICIDENTIFIER", "0|[1-9]\\d*"), x("NUMERICIDENTIFIERLOOSE", "\\d+"), x("NONNUMERICIDENTIFIER", `\\d*[a-zA-Z-]${d}*`), x("MAINVERSION", `(${c[u.NUMERICIDENTIFIER]})\\.(${c[u.NUMERICIDENTIFIER]})\\.(${c[u.NUMERICIDENTIFIER]})`), x("MAINVERSIONLOOSE", `(${c[u.NUMERICIDENTIFIERLOOSE]})\\.(${c[u.NUMERICIDENTIFIERLOOSE]})\\.(${c[u.NUMERICIDENTIFIERLOOSE]})`), x("PRERELEASEIDENTIFIER", `(?:${c[u.NONNUMERICIDENTIFIER]}|${c[u.NUMERICIDENTIFIER]})`), x("PRERELEASEIDENTIFIERLOOSE", `(?:${c[u.NONNUMERICIDENTIFIER]}|${c[u.NUMERICIDENTIFIERLOOSE]})`), x("PRERELEASE", `(?:-(${c[u.PRERELEASEIDENTIFIER]}(?:\\.${c[u.PRERELEASEIDENTIFIER]})*))`), x("PRERELEASELOOSE", `(?:-?(${c[u.PRERELEASEIDENTIFIERLOOSE]}(?:\\.${c[u.PRERELEASEIDENTIFIERLOOSE]})*))`), x("BUILDIDENTIFIER", `${d}+`), x("BUILD", `(?:\\+(${c[u.BUILDIDENTIFIER]}(?:\\.${c[u.BUILDIDENTIFIER]})*))`), x("FULLPLAIN", `v?${c[u.MAINVERSION]}${c[u.PRERELEASE]}?${c[u.BUILD]}?`), x("FULL", `^${c[u.FULLPLAIN]}$`), x("LOOSEPLAIN", `[v=\\s]*${c[u.MAINVERSIONLOOSE]}${c[u.PRERELEASELOOSE]}?${c[u.BUILD]}?`), x("LOOSE", `^${c[u.LOOSEPLAIN]}$`), x("GTLT", "((?:<|>)?=?)"), x("XRANGEIDENTIFIERLOOSE", `${c[u.NUMERICIDENTIFIERLOOSE]}|x|X|\\*`), x("XRANGEIDENTIFIER", `${c[u.NUMERICIDENTIFIER]}|x|X|\\*`), x("XRANGEPLAIN", `[v=\\s]*(${c[u.XRANGEIDENTIFIER]})(?:\\.(${c[u.XRANGEIDENTIFIER]})(?:\\.(${c[u.XRANGEIDENTIFIER]})(?:${c[u.PRERELEASE]})?${c[u.BUILD]}?)?)?`), x("XRANGEPLAINLOOSE", `[v=\\s]*(${c[u.XRANGEIDENTIFIERLOOSE]})(?:\\.(${c[u.XRANGEIDENTIFIERLOOSE]})(?:\\.(${c[u.XRANGEIDENTIFIERLOOSE]})(?:${c[u.PRERELEASELOOSE]})?${c[u.BUILD]}?)?)?`), x("XRANGE", `^${c[u.GTLT]}\\s*${c[u.XRANGEPLAIN]}$`), x("XRANGELOOSE", `^${c[u.GTLT]}\\s*${c[u.XRANGEPLAINLOOSE]}$`), x("COERCEPLAIN", `(^|[^\\d])(\\d{1,${t}})(?:\\.(\\d{1,${t}}))?(?:\\.(\\d{1,${t}}))?`), x("COERCE", `${c[u.COERCEPLAIN]}(?:$|[^\\d])`), x("COERCEFULL", c[u.COERCEPLAIN] + `(?:${c[u.PRERELEASE]})?(?:${c[u.BUILD]})?(?:$|[^\\d])`), x("COERCERTL", c[u.COERCE], !0), x("COERCERTLFULL", c[u.COERCEFULL], !0), x("LONETILDE", "(?:~>?)"), x("TILDETRIM", `(\\s*)${c[u.LONETILDE]}\\s+`, !0), e.tildeTrimReplace = "$1~", x("TILDE", `^${c[u.LONETILDE]}${c[u.XRANGEPLAIN]}$`), x("TILDELOOSE", `^${c[u.LONETILDE]}${c[u.XRANGEPLAINLOOSE]}$`), x("LONECARET", "(?:\\^)"), x("CARETTRIM", `(\\s*)${c[u.LONECARET]}\\s+`, !0), e.caretTrimReplace = "$1^", x("CARET", `^${c[u.LONECARET]}${c[u.XRANGEPLAIN]}$`), x("CARETLOOSE", `^${c[u.LONECARET]}${c[u.XRANGEPLAINLOOSE]}$`), x("COMPARATORLOOSE", `^${c[u.GTLT]}\\s*(${c[u.LOOSEPLAIN]})$|^$`), x("COMPARATOR", `^${c[u.GTLT]}\\s*(${c[u.FULLPLAIN]})$|^$`), x("COMPARATORTRIM", `(\\s*)${c[u.GTLT]}\\s*(${c[u.LOOSEPLAIN]}|${c[u.XRANGEPLAIN]})`, !0), e.comparatorTrimReplace = "$1$2$3", x("HYPHENRANGE", `^\\s*(${c[u.XRANGEPLAIN]})\\s+-\\s+(${c[u.XRANGEPLAIN]})\\s*$`), x("HYPHENRANGELOOSE", `^\\s*(${c[u.XRANGEPLAINLOOSE]})\\s+-\\s+(${c[u.XRANGEPLAINLOOSE]})\\s*$`), x("STAR", "(<|>)?=?\\s*\\*"), x("GTE0", "^\\s*>=\\s*0\\.0\\.0\\s*$"), x("GTE0PRE", "^\\s*>=\\s*0\\.0\\.0-0\\s*$");
   })(er, er.exports)), er.exports;
@@ -6095,21 +6095,21 @@ function Ze() {
   vo = 1;
   const n = /\s+/g;
   class e {
-    constructor(S, H) {
-      if (H = i(H), S instanceof e)
-        return S.loose === !!H.loose && S.includePrerelease === !!H.includePrerelease ? S : new e(S.raw, H);
+    constructor(S, F) {
+      if (F = i(F), S instanceof e)
+        return S.loose === !!F.loose && S.includePrerelease === !!F.includePrerelease ? S : new e(S.raw, F);
       if (S instanceof o)
         return this.raw = S.value, this.set = [[S]], this.formatted = void 0, this;
-      if (this.options = H, this.loose = !!H.loose, this.includePrerelease = !!H.includePrerelease, this.raw = S.trim().replace(n, " "), this.set = this.raw.split("||").map((N) => this.parseRange(N.trim())).filter((N) => N.length), !this.set.length)
+      if (this.options = F, this.loose = !!F.loose, this.includePrerelease = !!F.includePrerelease, this.raw = S.trim().replace(n, " "), this.set = this.raw.split("||").map((N) => this.parseRange(N.trim())).filter((N) => N.length), !this.set.length)
         throw new TypeError(`Invalid SemVer Range: ${this.raw}`);
       if (this.set.length > 1) {
         const N = this.set[0];
-        if (this.set = this.set.filter((M) => !x(M[0])), this.set.length === 0)
+        if (this.set = this.set.filter(($) => !x($[0])), this.set.length === 0)
           this.set = [N];
         else if (this.set.length > 1) {
-          for (const M of this.set)
-            if (M.length === 1 && $(M[0])) {
-              this.set = [M];
+          for (const $ of this.set)
+            if ($.length === 1 && U($[0])) {
+              this.set = [$];
               break;
             }
         }
@@ -6121,9 +6121,9 @@ function Ze() {
         this.formatted = "";
         for (let S = 0; S < this.set.length; S++) {
           S > 0 && (this.formatted += "||");
-          const H = this.set[S];
-          for (let N = 0; N < H.length; N++)
-            N > 0 && (this.formatted += " "), this.formatted += H[N].toString().trim();
+          const F = this.set[S];
+          for (let N = 0; N < F.length; N++)
+            N > 0 && (this.formatted += " "), this.formatted += F[N].toString().trim();
         }
       }
       return this.formatted;
@@ -6135,9 +6135,9 @@ function Ze() {
       return this.range;
     }
     parseRange(S) {
-      const N = ((this.options.includePrerelease && k) | (this.options.loose && C)) + ":" + S, M = r.get(N);
-      if (M)
-        return M;
+      const N = ((this.options.includePrerelease && k) | (this.options.loose && C)) + ":" + S, $ = r.get(N);
+      if ($)
+        return $;
       const P = this.options.loose, j = P ? c[l.HYPHENRANGELOOSE] : c[l.HYPHENRANGE];
       S = S.replace(j, st(this.options.includePrerelease)), s("hyphen replace", S), S = S.replace(c[l.COMPARATORTRIM], u), s("comparator trim", S), S = S.replace(c[l.TILDETRIM], f), s("tilde trim", S), S = S.replace(c[l.CARETTRIM], d), s("caret trim", S);
       let z = S.split(" ").map((X) => ie(X, this.options)).join(" ").split(/\s+/).map((X) => be(X, this.options));
@@ -6152,10 +6152,10 @@ function Ze() {
       const ve = [...Z.values()];
       return r.set(N, ve), ve;
     }
-    intersects(S, H) {
+    intersects(S, F) {
       if (!(S instanceof e))
         throw new TypeError("a Range is required");
-      return this.set.some((N) => K(N, H) && S.set.some((M) => K(M, H) && N.every((P) => M.every((j) => P.intersects(j, H)))));
+      return this.set.some((N) => K(N, F) && S.set.some(($) => K($, F) && N.every((P) => $.every((j) => P.intersects(j, F)))));
     }
     // if ANY of the sets match ALL of its comparators, then pass
     test(S) {
@@ -6167,8 +6167,8 @@ function Ze() {
         } catch {
           return !1;
         }
-      for (let H = 0; H < this.set.length; H++)
-        if (ot(this.set[H], S, this.options))
+      for (let F = 0; F < this.set.length; F++)
+        if (ot(this.set[F], S, this.options))
           return !0;
       return !1;
     }
@@ -6180,45 +6180,45 @@ function Ze() {
     comparatorTrimReplace: u,
     tildeTrimReplace: f,
     caretTrimReplace: d
-  } = In(), { FLAG_INCLUDE_PRERELEASE: k, FLAG_LOOSE: C } = gr(), x = (T) => T.value === "<0.0.0-0", $ = (T) => T.value === "", K = (T, S) => {
-    let H = !0;
+  } = In(), { FLAG_INCLUDE_PRERELEASE: k, FLAG_LOOSE: C } = gr(), x = (T) => T.value === "<0.0.0-0", U = (T) => T.value === "", K = (T, S) => {
+    let F = !0;
     const N = T.slice();
-    let M = N.pop();
-    for (; H && N.length; )
-      H = N.every((P) => M.intersects(P, S)), M = N.pop();
-    return H;
-  }, ie = (T, S) => (s("comp", T, S), T = re(T, S), s("caret", T), T = J(T, S), s("tildes", T), T = q(T, S), s("xrange", T), T = He(T, S), s("stars", T), T), F = (T) => !T || T.toLowerCase() === "x" || T === "*", J = (T, S) => T.trim().split(/\s+/).map((H) => se(H, S)).join(" "), se = (T, S) => {
-    const H = S.loose ? c[l.TILDELOOSE] : c[l.TILDE];
-    return T.replace(H, (N, M, P, j, z) => {
-      s("tilde", T, N, M, P, j, z);
+    let $ = N.pop();
+    for (; F && N.length; )
+      F = N.every((P) => $.intersects(P, S)), $ = N.pop();
+    return F;
+  }, ie = (T, S) => (s("comp", T, S), T = re(T, S), s("caret", T), T = J(T, S), s("tildes", T), T = q(T, S), s("xrange", T), T = He(T, S), s("stars", T), T), H = (T) => !T || T.toLowerCase() === "x" || T === "*", J = (T, S) => T.trim().split(/\s+/).map((F) => se(F, S)).join(" "), se = (T, S) => {
+    const F = S.loose ? c[l.TILDELOOSE] : c[l.TILDE];
+    return T.replace(F, (N, $, P, j, z) => {
+      s("tilde", T, N, $, P, j, z);
       let Z;
-      return F(M) ? Z = "" : F(P) ? Z = `>=${M}.0.0 <${+M + 1}.0.0-0` : F(j) ? Z = `>=${M}.${P}.0 <${M}.${+P + 1}.0-0` : z ? (s("replaceTilde pr", z), Z = `>=${M}.${P}.${j}-${z} <${M}.${+P + 1}.0-0`) : Z = `>=${M}.${P}.${j} <${M}.${+P + 1}.0-0`, s("tilde return", Z), Z;
+      return H($) ? Z = "" : H(P) ? Z = `>=${$}.0.0 <${+$ + 1}.0.0-0` : H(j) ? Z = `>=${$}.${P}.0 <${$}.${+P + 1}.0-0` : z ? (s("replaceTilde pr", z), Z = `>=${$}.${P}.${j}-${z} <${$}.${+P + 1}.0-0`) : Z = `>=${$}.${P}.${j} <${$}.${+P + 1}.0-0`, s("tilde return", Z), Z;
     });
-  }, re = (T, S) => T.trim().split(/\s+/).map((H) => oe(H, S)).join(" "), oe = (T, S) => {
+  }, re = (T, S) => T.trim().split(/\s+/).map((F) => oe(F, S)).join(" "), oe = (T, S) => {
     s("caret", T, S);
-    const H = S.loose ? c[l.CARETLOOSE] : c[l.CARET], N = S.includePrerelease ? "-0" : "";
-    return T.replace(H, (M, P, j, z, Z) => {
-      s("caret", T, M, P, j, z, Z);
+    const F = S.loose ? c[l.CARETLOOSE] : c[l.CARET], N = S.includePrerelease ? "-0" : "";
+    return T.replace(F, ($, P, j, z, Z) => {
+      s("caret", T, $, P, j, z, Z);
       let W;
-      return F(P) ? W = "" : F(j) ? W = `>=${P}.0.0${N} <${+P + 1}.0.0-0` : F(z) ? P === "0" ? W = `>=${P}.${j}.0${N} <${P}.${+j + 1}.0-0` : W = `>=${P}.${j}.0${N} <${+P + 1}.0.0-0` : Z ? (s("replaceCaret pr", Z), P === "0" ? j === "0" ? W = `>=${P}.${j}.${z}-${Z} <${P}.${j}.${+z + 1}-0` : W = `>=${P}.${j}.${z}-${Z} <${P}.${+j + 1}.0-0` : W = `>=${P}.${j}.${z}-${Z} <${+P + 1}.0.0-0`) : (s("no pr"), P === "0" ? j === "0" ? W = `>=${P}.${j}.${z}${N} <${P}.${j}.${+z + 1}-0` : W = `>=${P}.${j}.${z}${N} <${P}.${+j + 1}.0-0` : W = `>=${P}.${j}.${z} <${+P + 1}.0.0-0`), s("caret return", W), W;
+      return H(P) ? W = "" : H(j) ? W = `>=${P}.0.0${N} <${+P + 1}.0.0-0` : H(z) ? P === "0" ? W = `>=${P}.${j}.0${N} <${P}.${+j + 1}.0-0` : W = `>=${P}.${j}.0${N} <${+P + 1}.0.0-0` : Z ? (s("replaceCaret pr", Z), P === "0" ? j === "0" ? W = `>=${P}.${j}.${z}-${Z} <${P}.${j}.${+z + 1}-0` : W = `>=${P}.${j}.${z}-${Z} <${P}.${+j + 1}.0-0` : W = `>=${P}.${j}.${z}-${Z} <${+P + 1}.0.0-0`) : (s("no pr"), P === "0" ? j === "0" ? W = `>=${P}.${j}.${z}${N} <${P}.${j}.${+z + 1}-0` : W = `>=${P}.${j}.${z}${N} <${P}.${+j + 1}.0-0` : W = `>=${P}.${j}.${z} <${+P + 1}.0.0-0`), s("caret return", W), W;
     });
-  }, q = (T, S) => (s("replaceXRanges", T, S), T.split(/\s+/).map((H) => $e(H, S)).join(" ")), $e = (T, S) => {
+  }, q = (T, S) => (s("replaceXRanges", T, S), T.split(/\s+/).map((F) => $e(F, S)).join(" ")), $e = (T, S) => {
     T = T.trim();
-    const H = S.loose ? c[l.XRANGELOOSE] : c[l.XRANGE];
-    return T.replace(H, (N, M, P, j, z, Z) => {
-      s("xRange", T, N, M, P, j, z, Z);
-      const W = F(P), ve = W || F(j), X = ve || F(z), Me = X;
-      return M === "=" && Me && (M = ""), Z = S.includePrerelease ? "-0" : "", W ? M === ">" || M === "<" ? N = "<0.0.0-0" : N = "*" : M && Me ? (ve && (j = 0), z = 0, M === ">" ? (M = ">=", ve ? (P = +P + 1, j = 0, z = 0) : (j = +j + 1, z = 0)) : M === "<=" && (M = "<", ve ? P = +P + 1 : j = +j + 1), M === "<" && (Z = "-0"), N = `${M + P}.${j}.${z}${Z}`) : ve ? N = `>=${P}.0.0${Z} <${+P + 1}.0.0-0` : X && (N = `>=${P}.${j}.0${Z} <${P}.${+j + 1}.0-0`), s("xRange return", N), N;
+    const F = S.loose ? c[l.XRANGELOOSE] : c[l.XRANGE];
+    return T.replace(F, (N, $, P, j, z, Z) => {
+      s("xRange", T, N, $, P, j, z, Z);
+      const W = H(P), ve = W || H(j), X = ve || H(z), Me = X;
+      return $ === "=" && Me && ($ = ""), Z = S.includePrerelease ? "-0" : "", W ? $ === ">" || $ === "<" ? N = "<0.0.0-0" : N = "*" : $ && Me ? (ve && (j = 0), z = 0, $ === ">" ? ($ = ">=", ve ? (P = +P + 1, j = 0, z = 0) : (j = +j + 1, z = 0)) : $ === "<=" && ($ = "<", ve ? P = +P + 1 : j = +j + 1), $ === "<" && (Z = "-0"), N = `${$ + P}.${j}.${z}${Z}`) : ve ? N = `>=${P}.0.0${Z} <${+P + 1}.0.0-0` : X && (N = `>=${P}.${j}.0${Z} <${P}.${+j + 1}.0-0`), s("xRange return", N), N;
     });
-  }, He = (T, S) => (s("replaceStars", T, S), T.trim().replace(c[l.STAR], "")), be = (T, S) => (s("replaceGTE0", T, S), T.trim().replace(c[S.includePrerelease ? l.GTE0PRE : l.GTE0], "")), st = (T) => (S, H, N, M, P, j, z, Z, W, ve, X, Me) => (F(N) ? H = "" : F(M) ? H = `>=${N}.0.0${T ? "-0" : ""}` : F(P) ? H = `>=${N}.${M}.0${T ? "-0" : ""}` : j ? H = `>=${H}` : H = `>=${H}${T ? "-0" : ""}`, F(W) ? Z = "" : F(ve) ? Z = `<${+W + 1}.0.0-0` : F(X) ? Z = `<${W}.${+ve + 1}.0-0` : Me ? Z = `<=${W}.${ve}.${X}-${Me}` : T ? Z = `<${W}.${ve}.${+X + 1}-0` : Z = `<=${Z}`, `${H} ${Z}`.trim()), ot = (T, S, H) => {
+  }, He = (T, S) => (s("replaceStars", T, S), T.trim().replace(c[l.STAR], "")), be = (T, S) => (s("replaceGTE0", T, S), T.trim().replace(c[S.includePrerelease ? l.GTE0PRE : l.GTE0], "")), st = (T) => (S, F, N, $, P, j, z, Z, W, ve, X, Me) => (H(N) ? F = "" : H($) ? F = `>=${N}.0.0${T ? "-0" : ""}` : H(P) ? F = `>=${N}.${$}.0${T ? "-0" : ""}` : j ? F = `>=${F}` : F = `>=${F}${T ? "-0" : ""}`, H(W) ? Z = "" : H(ve) ? Z = `<${+W + 1}.0.0-0` : H(X) ? Z = `<${W}.${+ve + 1}.0-0` : Me ? Z = `<=${W}.${ve}.${X}-${Me}` : T ? Z = `<${W}.${ve}.${+X + 1}-0` : Z = `<=${Z}`, `${F} ${Z}`.trim()), ot = (T, S, F) => {
     for (let N = 0; N < T.length; N++)
       if (!T[N].test(S))
         return !1;
-    if (S.prerelease.length && !H.includePrerelease) {
+    if (S.prerelease.length && !F.includePrerelease) {
       for (let N = 0; N < T.length; N++)
         if (s(T[N].semver), T[N].semver !== o.ANY && T[N].semver.prerelease.length > 0) {
-          const M = T[N].semver;
-          if (M.major === S.major && M.minor === S.minor && M.patch === S.patch)
+          const $ = T[N].semver;
+          if ($.major === S.major && $.minor === S.minor && $.patch === S.patch)
             return !0;
         }
       return !1;
@@ -6385,27 +6385,27 @@ function os() {
   const n = Le(), e = br(), { ANY: t } = e, r = Ze(), i = Er(), o = wr(), s = rs(), a = ss(), c = is();
   return _i = (u, f, d, k) => {
     u = new n(u, k), f = new r(f, k);
-    let C, x, $, K, ie;
+    let C, x, U, K, ie;
     switch (d) {
       case ">":
-        C = o, x = a, $ = s, K = ">", ie = ">=";
+        C = o, x = a, U = s, K = ">", ie = ">=";
         break;
       case "<":
-        C = s, x = c, $ = o, K = "<", ie = "<=";
+        C = s, x = c, U = o, K = "<", ie = "<=";
         break;
       default:
         throw new TypeError('Must provide a hilo val of "<" or ">"');
     }
     if (i(u, f, k))
       return !1;
-    for (let F = 0; F < f.set.length; ++F) {
-      const J = f.set[F];
+    for (let H = 0; H < f.set.length; ++H) {
+      const J = f.set[H];
       let se = null, re = null;
       if (J.forEach((oe) => {
-        oe.semver === t && (oe = new e(">=0.0.0")), se = se || oe, re = re || oe, C(oe.semver, se.semver, k) ? se = oe : $(oe.semver, re.semver, k) && (re = oe);
+        oe.semver === t && (oe = new e(">=0.0.0")), se = se || oe, re = re || oe, C(oe.semver, se.semver, k) ? se = oe : U(oe.semver, re.semver, k) && (re = oe);
       }), se.operator === K || se.operator === ie || (!re.operator || re.operator === K) && x(u, re.semver))
         return !1;
-      if (re.operator === ie && $(u, re.semver))
+      if (re.operator === ie && U(u, re.semver))
         return !1;
     }
     return !0;
@@ -6461,8 +6461,8 @@ function Ic() {
     f = new n(f, k), d = new n(d, k);
     let C = !1;
     e: for (const x of f.set) {
-      for (const $ of d.set) {
-        const K = c(x, $, k);
+      for (const U of d.set) {
+        const K = c(x, U, k);
         if (C = C || K !== null, K)
           continue e;
       }
@@ -6484,28 +6484,28 @@ function Ic() {
       d = a;
     }
     const C = /* @__PURE__ */ new Set();
-    let x, $;
+    let x, U;
     for (const q of f)
-      q.operator === ">" || q.operator === ">=" ? x = l(x, q, k) : q.operator === "<" || q.operator === "<=" ? $ = u($, q, k) : C.add(q.semver);
+      q.operator === ">" || q.operator === ">=" ? x = l(x, q, k) : q.operator === "<" || q.operator === "<=" ? U = u(U, q, k) : C.add(q.semver);
     if (C.size > 1)
       return null;
     let K;
-    if (x && $) {
-      if (K = i(x.semver, $.semver, k), K > 0)
+    if (x && U) {
+      if (K = i(x.semver, U.semver, k), K > 0)
         return null;
-      if (K === 0 && (x.operator !== ">=" || $.operator !== "<="))
+      if (K === 0 && (x.operator !== ">=" || U.operator !== "<="))
         return null;
     }
     for (const q of C) {
-      if (x && !r(q, String(x), k) || $ && !r(q, String($), k))
+      if (x && !r(q, String(x), k) || U && !r(q, String(U), k))
         return null;
       for (const $e of d)
         if (!r(q, String($e), k))
           return !1;
       return !0;
     }
-    let ie, F, J, se, re = $ && !k.includePrerelease && $.semver.prerelease.length ? $.semver : !1, oe = x && !k.includePrerelease && x.semver.prerelease.length ? x.semver : !1;
-    re && re.prerelease.length === 1 && $.operator === "<" && re.prerelease[0] === 0 && (re = !1);
+    let ie, H, J, se, re = U && !k.includePrerelease && U.semver.prerelease.length ? U.semver : !1, oe = x && !k.includePrerelease && x.semver.prerelease.length ? x.semver : !1;
+    re && re.prerelease.length === 1 && U.operator === "<" && re.prerelease[0] === 0 && (re = !1);
     for (const q of d) {
       if (se = se || q.operator === ">" || q.operator === ">=", J = J || q.operator === "<" || q.operator === "<=", x) {
         if (oe && q.semver.prerelease && q.semver.prerelease.length && q.semver.major === oe.major && q.semver.minor === oe.minor && q.semver.patch === oe.patch && (oe = !1), q.operator === ">" || q.operator === ">=") {
@@ -6514,17 +6514,17 @@ function Ic() {
         } else if (x.operator === ">=" && !r(x.semver, String(q), k))
           return !1;
       }
-      if ($) {
+      if (U) {
         if (re && q.semver.prerelease && q.semver.prerelease.length && q.semver.major === re.major && q.semver.minor === re.minor && q.semver.patch === re.patch && (re = !1), q.operator === "<" || q.operator === "<=") {
-          if (F = u($, q, k), F === q && F !== $)
+          if (H = u(U, q, k), H === q && H !== U)
             return !1;
-        } else if ($.operator === "<=" && !r($.semver, String(q), k))
+        } else if (U.operator === "<=" && !r(U.semver, String(q), k))
           return !1;
       }
-      if (!q.operator && ($ || x) && K !== 0)
+      if (!q.operator && (U || x) && K !== 0)
         return !1;
     }
-    return !(x && J && !$ && K !== 0 || $ && se && !x && K !== 0 || oe || re);
+    return !(x && J && !U && K !== 0 || U && se && !x && K !== 0 || oe || re);
   }, l = (f, d, k) => {
     if (!f)
       return d;
@@ -6542,7 +6542,7 @@ var Li, Po;
 function Nc() {
   if (Po) return Li;
   Po = 1;
-  const n = In(), e = gr(), t = Le(), r = na(), i = en(), o = cc(), s = uc(), a = hc(), c = pc(), l = fc(), u = dc(), f = gc(), d = mc(), k = Ke(), C = wc(), x = bc(), $ = ns(), K = Ec(), ie = vc(), F = wr(), J = rs(), se = ra(), re = ia(), oe = is(), q = ss(), $e = sa(), He = xc(), be = br(), st = Ze(), ot = Er(), T = kc(), S = Rc(), H = _c(), N = Sc(), M = Tc(), P = os(), j = Ac(), z = Cc(), Z = Oc(), W = Lc(), ve = Ic();
+  const n = In(), e = gr(), t = Le(), r = na(), i = en(), o = cc(), s = uc(), a = hc(), c = pc(), l = fc(), u = dc(), f = gc(), d = mc(), k = Ke(), C = wc(), x = bc(), U = ns(), K = Ec(), ie = vc(), H = wr(), J = rs(), se = ra(), re = ia(), oe = is(), q = ss(), $e = sa(), He = xc(), be = br(), st = Ze(), ot = Er(), T = kc(), S = Rc(), F = _c(), N = Sc(), $ = Tc(), P = os(), j = Ac(), z = Cc(), Z = Oc(), W = Lc(), ve = Ic();
   return Li = {
     parse: i,
     valid: o,
@@ -6556,10 +6556,10 @@ function Nc() {
     compare: k,
     rcompare: C,
     compareLoose: x,
-    compareBuild: $,
+    compareBuild: U,
     sort: K,
     rsort: ie,
-    gt: F,
+    gt: H,
     lt: J,
     eq: se,
     neq: re,
@@ -6572,9 +6572,9 @@ function Nc() {
     satisfies: ot,
     toComparators: T,
     maxSatisfying: S,
-    minSatisfying: H,
+    minSatisfying: F,
     minVersion: N,
-    validRange: M,
+    validRange: $,
     outside: P,
     gtr: j,
     ltr: z,
@@ -6593,7 +6593,7 @@ function Nc() {
 }
 var Ii = Nc();
 async function $c(n, e, t = null, r = []) {
-  t || (t = (F) => {
+  t || (t = (H) => {
   });
   const i = new Pc(r, t), o = Aa(), s = new ja();
   o.appendChild(s.root);
@@ -6601,13 +6601,13 @@ async function $c(n, e, t = null, r = []) {
   if (o.appendChild(a), Ii.gt(n.nodekit_version, Jn) || Ii.major(n.nodekit_version) !== Ii.major(Jn))
     throw new Error(`Incompatible NodeKit version. Timeline version: ${n.nodekit_version}, NodeKit version: ${Jn}`);
   if (!Ta()) {
-    const F = new Error("Unsupported device for NodeKit. Please use a desktop browser.");
-    throw s.showErrorOverlay(F), F;
+    const H = new Error("Unsupported device for NodeKit. Please use a desktop browser.");
+    throw s.showErrorOverlay(H), H;
   }
   s.showSessionConnectingOverlay();
   const c = new Ca();
-  for (const F of e)
-    c.registerAsset(F);
+  for (const H of e)
+    c.registerAsset(H);
   s.hideSessionConnectingOverlay();
   const l = new fa();
   await s.playStartScreen(), l.start();
@@ -6618,17 +6618,17 @@ async function $c(n, e, t = null, r = []) {
   i.push(u);
   function f() {
     if (document.visibilityState === "hidden") {
-      const F = {
+      const H = {
         event_type: "LeaveEvent",
         t: l.now()
       };
-      i.push(F);
+      i.push(H);
     } else if (document.visibilityState === "visible") {
-      const F = {
+      const H = {
         event_type: "ReturnEvent",
         t: l.now()
       };
-      i.push(F);
+      i.push(H);
     }
   }
   document.addEventListener("visibilitychange", f);
@@ -6643,28 +6643,23 @@ async function $c(n, e, t = null, r = []) {
   };
   i.push(k);
   const C = n.nodes, x = n.transitions;
-  let $ = "END";
-  for (let F of x)
-    if (F.node_index === "START") {
-      $ = F.next_node_index;
-      break;
-    }
-  for (; $ !== "END"; ) {
-    const F = C[$], J = new lc(
-      F
+  let U = n.start_node_index;
+  for (; U !== "END"; ) {
+    const H = C[U], J = new lc(
+      H
     );
     a.appendChild(J.boardView.root), await J.prepare(c);
     let se = await J.run();
     const re = {
       event_type: "NodeStartEvent",
       t: l.convertDomTimestampToClockTime(se.domTimestampStart),
-      node_index: $
+      node_index: U
     };
     i.push(re);
     const oe = {
       event_type: "ActionEvent",
       t: l.convertDomTimestampToClockTime(se.domTimestampAction),
-      node_index: $,
+      node_index: U,
       sensor_index: se.sensorIndex,
       action: se.action
     };
@@ -6672,17 +6667,17 @@ async function $c(n, e, t = null, r = []) {
     const q = {
       event_type: "NodeEndEvent",
       t: l.convertDomTimestampToClockTime(se.domTimestampEnd),
-      node_index: $
+      node_index: U
     };
     for (i.push(q); a.firstChild; )
       a.removeChild(a.firstChild);
     let $e = "END";
     for (let He of x)
-      if (He.node_index === $ && He.sensor_index === se.sensorIndex) {
+      if (He.node_index === U && He.sensor_index === se.sensorIndex) {
         $e = He.next_node_index;
         break;
       }
-    $ = $e;
+    U = $e;
   }
   await s.playEndScreen();
   const K = {

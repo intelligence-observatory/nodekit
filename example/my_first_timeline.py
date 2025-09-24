@@ -99,6 +99,7 @@ def make_triplet_trial(
     # Make positive feedback Node:
     positive_card = nk.cards.TextCard(
         text='Correct!',
+        font_size=0.05,
         x=0, y=0, w=0.5, h=0.5,
         background_color='#32a852',
         text_color='#ffffff',
@@ -115,7 +116,8 @@ def make_triplet_trial(
 
     # Make negative feedback Node:
     negative_card = nk.cards.TextCard(
-        text='Incorrect',
+        text='Incorrect.',
+        font_size=0.05,
         x=0, y=0, w=0.5, h=0.5,
         background_color='#a83232',
         text_color='#ffffff',
@@ -141,11 +143,6 @@ def make_triplet_trial(
 
     transitions = [
         nk.Transition(
-            node_index='START',
-            sensor_index=None,
-            next_node_index=0,
-        ),
-        nk.Transition(
             node_index=0,
             sensor_index=0,
             next_node_index=1,
@@ -163,11 +160,6 @@ def make_triplet_trial(
         nk.Transition(
             node_index=1,
             sensor_index=2,
-            next_node_index=3,
-        ),
-        nk.Transition(
-            node_index=1,
-            sensor_index=2,
             next_node_index='END',
         ),
         nk.Transition(
@@ -179,11 +171,10 @@ def make_triplet_trial(
 
     trial_graph = nk.Graph(
         nodes=nodes,
+        start_node_index =0,
         transitions=transitions,
     )
     return trial_graph
-
-
 
 
 
@@ -341,11 +332,6 @@ nodes.append(
 # %% Wire up transitions
 transitions = [
     nk.Transition(
-        node_index='START',
-        sensor_index=None,
-        next_node_index=0,
-    ),
-    nk.Transition(
         node_index=0,
         sensor_index=0,
         next_node_index=1,
@@ -368,6 +354,7 @@ transitions = [
 graph = nk.Graph(
     nodes=nodes,
     transitions=transitions,
+    start_node_index=0,
 )
 
 graph = make_triplet_trial(

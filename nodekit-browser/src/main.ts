@@ -15,13 +15,13 @@ import {gt, major} from 'semver';
 
 /**
  * Plays a Timeline, returning a Trace of Events.
- * @param timeline
+ * @param graph
  * @param assetUrls
  * @param onEventCallback
  * @param previousEvents
  */
 export async function play(
-    timeline: Graph,
+    graph: Graph,
     assetUrls: AssetUrl[],
     onEventCallback: ((event: Event) => void) | null = null,
     previousEvents: Event[] = [],
@@ -43,8 +43,8 @@ export async function play(
     nodeKitDiv.appendChild(boardViewsContainerDiv)
 
     // Version gate:
-    if (gt(timeline.nodekit_version, NODEKIT_VERSION) || major(timeline.nodekit_version) !== major(NODEKIT_VERSION)) {
-        throw new Error(`Incompatible NodeKit version. Timeline version: ${timeline.nodekit_version}, NodeKit version: ${NODEKIT_VERSION}`);
+    if (gt(graph.nodekit_version, NODEKIT_VERSION) || major(graph.nodekit_version) !== major(NODEKIT_VERSION)) {
+        throw new Error(`Incompatible NodeKit version. Timeline version: ${graph.nodekit_version}, NodeKit version: ${NODEKIT_VERSION}`);
     }
 
     // Device gate:
@@ -105,18 +105,12 @@ export async function play(
     }
     eventArray.push(browserContextEvent);
 
-    const nodes = timeline.nodes;
-    const transitions = timeline.transitions;
+    const nodes = graph.nodes;
+    const transitions = graph.transitions;
 
 
     // Assemble transition map:
-    let currentNodeIndex: NodeIndex | 'END' = 'END';
-    for (let transition of transitions) {
-        if (transition.node_index === 'START') {
-            currentNodeIndex = transition.next_node_index;
-            break;
-        }
-    }
+    let currentNodeIndex: NodeIndex | 'END' = graph.start_node_index;
 
     while (currentNodeIndex !== 'END') {
         // Prepare the Node:

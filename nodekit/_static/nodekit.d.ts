@@ -96,6 +96,7 @@ declare interface Graph {
     nodekit_version: string;
     nodes: Node_2[];
     transitions: Transition[];
+    start_node_index: NodeIndex;
 }
 
 declare interface HidePointerEffect extends BaseEffect<'HidePointerEffect'> {
@@ -149,12 +150,12 @@ declare type NodeTimePointMsec = number & {
 
 /**
  * Plays a Timeline, returning a Trace of Events.
- * @param timeline
+ * @param graph
  * @param assetUrls
  * @param onEventCallback
  * @param previousEvents
  */
-export declare function play(timeline: Graph, assetUrls: AssetUrl[], onEventCallback?: ((event: Event_2) => void) | null, previousEvents?: Event_2[]): Promise<Trace>;
+export declare function play(graph: Graph, assetUrls: AssetUrl[], onEventCallback?: ((event: Event_2) => void) | null, previousEvents?: Event_2[]): Promise<Trace>;
 
 declare type PressableKey = "Enter" | " " | "ArrowDown" | "ArrowLeft" | "ArrowRight" | "ArrowUp" | "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z" | "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
 
@@ -209,7 +210,7 @@ declare interface Trace {
 
 declare interface Transition {
     node_index: NodeIndex | 'START';
-    sensor_index: SensorIndex;
+    sensor_index: SensorIndex | null;
     next_node_index: NodeIndex | 'END';
 }
 
