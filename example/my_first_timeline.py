@@ -177,9 +177,6 @@ def make_triplet_trial(
     return trial_graph
 
 
-
-
-
 # %% Helper functions to create Nodes:
 def make_instructions_node(
         text: str,
@@ -364,7 +361,6 @@ graph = make_triplet_trial(
     choice_right_image=my_image_files[3].identifier,
     correct_choice='L',
 )
-
 
 Path('timeline.json').write_text(graph.model_dump_json(indent=2))
 

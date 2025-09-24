@@ -37,16 +37,6 @@ class Transition(pydantic.BaseModel):
     sensor_index: SensorIndex # The Sensor in that Node that triggers this Transition. None acts as a wildcard.
     next_node_index: NodeIndex | Literal['END']
 
-    # Future: probabilistic
-    # next_node_indices: List[NodeIndex]  # For probabilistic transitions
-    # weights: List[float]  # For probabilistic transitions
-
-    # Future: EFSM
-    # guard: Guard # dictates whether this transition can be taken, based on an operation on register values
-    # register_updates: Dict[str, Any]  # the delta applied to the registers if this transition is taken
-
-
-
 # %%
 class Graph(pydantic.BaseModel):
     """
@@ -58,8 +48,8 @@ class Graph(pydantic.BaseModel):
         min_length=1,
         description='A topologically sorted list of Nodes in the Graph. Tie-breaks are resolved by Node content hash.'
     )
-    start_node_index: NodeIndex
     transitions: List[Transition]
+    start_node_index: NodeIndex
     nodekit_version: str = pydantic.Field(default=VERSION)
 
     @pydantic.model_validator(mode='after')
