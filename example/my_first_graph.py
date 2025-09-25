@@ -3,6 +3,8 @@ from pathlib import Path
 import nodekit as nk
 from typing import Literal
 
+import nodekit._internal.types.graph
+
 
 # %%
 def make_triplet_trial(
@@ -11,7 +13,7 @@ def make_triplet_trial(
         choice_left_image: nk.assets.ImageIdentifier,
         choice_right_image: nk.assets.ImageIdentifier,
         correct_choice: Literal['L', 'R']
-) -> nk.Graph:
+) -> nodekit._internal.types.graph.Graph:
     """
     Returns a Graph implementing a single trial of an image triplet task.
     """
@@ -140,7 +142,7 @@ def make_triplet_trial(
         },
     )
 
-    trial_graph = nk.Graph(
+    trial_graph = nodekit._internal.types.graph.Graph(
         nodes={
             'fixation': fixation_node,
             'main': main_node,
@@ -204,7 +206,7 @@ fixation_node = nk.Node(
     },
 )
 
-graph = nk.Graph.from_sequence(
+graph = nodekit._internal.types.graph.Graph.from_sequence(
     [fixation_node, my_trial, my_trial, fixation_node]
 )
 

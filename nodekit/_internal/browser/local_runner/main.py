@@ -15,7 +15,8 @@ import uvicorn
 from nodekit._internal.browser.browser_bundle import get_browser_bundle
 from nodekit._internal.types.assets import AssetFile, AssetUrl
 from nodekit._internal.types.events.events import Event
-from nodekit._internal.types.node import Graph, Trace
+from nodekit._internal.types.trace import Trace
+from nodekit import Graph
 
 
 # %%
