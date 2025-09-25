@@ -110,7 +110,7 @@ export async function play(
     // Assemble transition map:
     let currentNodeId: NodeId = graph.start_node_id;
 
-    while (currentNodeId !== 'END') {
+    while (true) {
         // Prepare the Node:
         const node = nodes[currentNodeId];
         const nodePlay = new NodePlay(
@@ -132,22 +132,29 @@ export async function play(
         }
         eventArray.push(nodeStartEvent);
 
-        // Emit the ActionEvent: todo: emit immediately
-        const actionEvent: NodeExitEvent = {
+        // Emit NodeExitEvent: todo: emit immediately
+        const nodeExitEvent: NodeExitEvent = {
             event_type: "NodeExitEvent",
             t: clock.convertDomTimestampToClockTime(result.domTimestampAction),
             node_id: currentNodeId,
             sensor_id: result.sensorId,
             action: result.action,
         }
-        eventArray.push(actionEvent);
+        eventArray.push(nodeExitEvent);
 
         // Clear the rootBoardContainerDiv of all children:
         while (boardViewsContainerDiv.firstChild) {
             boardViewsContainerDiv.removeChild(boardViewsContainerDiv.firstChild);
         }
 
-        // Get the next Node:
+        // Get the next Node; if no transition specified, fall through to 'END':
+        if (!(currentNodeId in graph.transitions)) {
+            break
+        }
+
+        if (!(result.sensorId in graph.transitions[currentNodeId])) {
+            break
+        }
         currentNodeId = graph.transitions[currentNodeId][result.sensorId];
     }
 

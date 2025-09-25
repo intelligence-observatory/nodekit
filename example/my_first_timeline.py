@@ -150,17 +150,13 @@ def make_triplet_trial(
         },
         start_node_id='fixation',
         transitions={
-            'fixation': {'clicked-fixation': 'main'},
+            'fixation': {
+                'clicked-fixation': 'main'
+            },
             'main': {
                 'R': 'positive' if correct_choice == 'R' else 'negative',
                 'L': 'positive' if correct_choice == 'L' else 'negative',
-                'TO': 'END'
-            },
-            'positive': {
-                'wait': 'END'
-            },
-            'negative': {
-                'wait': 'END'
+                'TO': 'negative',
             },
         },
     )

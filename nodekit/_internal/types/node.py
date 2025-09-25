@@ -30,6 +30,12 @@ class Node(pydantic.BaseModel):
     )
     effects: List[Effect] = pydantic.Field(default_factory=list)
 
+    # Annotations:
+    payment_usd: AmountUsdStr = pydantic.Field(
+        default='0',
+        description='The Experimenter\'s intended change to the Particant\'s bonus amount (in USD) whenever this Node is visited.'
+    )
+
 
 # %%
 class Graph(pydantic.BaseModel):
