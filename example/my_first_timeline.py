@@ -35,7 +35,7 @@ def make_triplet_trial(
     fixation_node = nk.Node(
         cards=[fixation_card],
         sensors={
-            'fixation': clicked_fixation_dot_sensor
+            'clicked-fixation': clicked_fixation_dot_sensor
         },
     )
 
@@ -150,12 +150,18 @@ def make_triplet_trial(
         },
         start_node_id='fixation',
         transitions={
-            'fixation': {'fixation': 'main'},
-            'main': {'R': 'positive' if correct_choice == 'R' else 'negative',
-                     'L': 'positive' if correct_choice == 'L' else 'negative',
-                     'TO': 'END'},
-            'positive': {'wait': 'END'},
-            'negative': {'wait': 'END' },
+            'fixation': {'clicked-fixation': 'main'},
+            'main': {
+                'R': 'positive' if correct_choice == 'R' else 'negative',
+                'L': 'positive' if correct_choice == 'L' else 'negative',
+                'TO': 'END'
+            },
+            'positive': {
+                'wait': 'END'
+            },
+            'negative': {
+                'wait': 'END'
+            },
         },
     )
     return trial_graph
