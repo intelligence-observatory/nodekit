@@ -33,7 +33,7 @@ def make_triplet_trial(
     )
 
     fixation_node = nk.Node(
-        cards={'fixation-dot': fixation_card},
+        cards=[fixation_card],
         sensors={
             'fixation': clicked_fixation_dot_sensor
         },
@@ -87,11 +87,11 @@ def make_triplet_trial(
         start_msec=2000,
     )
     main_node = nk.Node(
-        cards={
-            'stim': stimulus_card,
-            'left-image': choice_left_card,
-            'right-image': choice_right_card,
-        },
+        cards=[
+            stimulus_card,
+            choice_left_card,
+            choice_right_card,
+        ],
         sensors={
             'L': clicked_left_sensor,
             'R': clicked_right_sensor,
@@ -113,9 +113,7 @@ def make_triplet_trial(
         start_msec=500,
     )
     positive_node = nk.Node(
-        cards={
-            'pos': positive_card
-        },
+        cards=[positive_card],
         sensors={
             'wait': positive_timeout_sensor
         },
@@ -136,9 +134,7 @@ def make_triplet_trial(
     )
 
     negative_node = nk.Node(
-        cards={
-            'neg': negative_card
-        },
+        cards=[negative_card],
         sensors={
             'wait': negative_timeout_sensor
         },

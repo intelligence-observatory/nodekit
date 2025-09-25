@@ -5477,7 +5477,7 @@ class lc {
     this.prepared = !1, this.started = !1, this.deferredSensorFiring = new ac(), this.boardView = new ic(e.board), this.node = e, this.scheduler = new sc();
   }
   async prepare(e) {
-    for (let t in this.node.cards) {
+    for (let t = 0; t < this.node.cards.length; t++) {
       const r = this.node.cards[t], i = await this.boardView.prepareCard(
         r,
         e

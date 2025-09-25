@@ -3,10 +3,10 @@ import type {Card} from "./cards";
 import type {Sensor} from "./sensors";
 import type {Effect} from "./effects/base.ts";
 import type {Event} from "./events";
-import type {NodeId, SensorId, CardId} from "./common.ts";
+import type {NodeId, SensorId} from "./common.ts";
 
 export interface Node {
-    cards: Record<CardId, Card>;
+    cards: Card[];
     sensors: Record<SensorId, Sensor>;
     effects: Effect[];
     board: Board;

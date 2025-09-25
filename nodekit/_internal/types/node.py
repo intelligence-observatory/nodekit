@@ -18,8 +18,7 @@ class Node(pydantic.BaseModel):
         frozen = True
 
     board: Board = pydantic.Field(default_factory=Board)
-
-    cards: Dict[CardId, Card] = pydantic.Field(
+    cards: List[Card] = pydantic.Field(
         description=(
             "List of Cards placed on the Board, in back-to-front order."
             "The first Card in this list is at the \"bottom\" of the Board, in the z-direction."

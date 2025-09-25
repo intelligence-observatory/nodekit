@@ -6,7 +6,7 @@ import {type EffectBinding, HideCursorEffectBinding} from "../board-view/effect-
 
 import type {AssetManager} from "../asset-manager";
 
-import type {SensorId, CardId} from "../types/common.ts";
+import type {SensorId} from "../types/common.ts";
 
 export interface PlayNodeResult {
     domTimestampStart: DOMHighResTimeStamp;
@@ -65,8 +65,8 @@ export class NodePlay {
     public async prepare(assetManager: AssetManager) {
 
         // Prepare and schedule Cards:
-        for (let cardId in this.node.cards) {
-            const card = this.node.cards[cardId as CardId];
+        for (let cardIndex = 0; cardIndex < this.node.cards.length; cardIndex++) {
+            const card = this.node.cards[cardIndex];
             // Prepare Cards:
             const cardViewId = await this.boardView.prepareCard(
                 card,

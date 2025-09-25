@@ -63,10 +63,6 @@ declare interface BrowserContextEvent extends BaseEvent<'BrowserContextEvent'> {
 
 declare type Card = ImageCard | TextCard | VideoCard;
 
-declare type CardId = string & {
-    __brand: 'CardId';
-};
-
 declare interface ClickAction extends BaseAction<"ClickAction"> {
     x: SpatialPoint;
     y: SpatialPoint;
@@ -127,7 +123,7 @@ declare type MarkdownString = string & {
 declare type Mask = 'rectangle' | 'ellipse';
 
 declare interface Node_2 {
-    cards: Record<CardId, Card>;
+    cards: Card[];
     sensors: Record<SensorId, Sensor>;
     effects: Effect[];
     board: Board;
