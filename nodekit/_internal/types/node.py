@@ -39,13 +39,15 @@ class Node(pydantic.BaseModel):
 # %%
 class Graph(pydantic.BaseModel):
     """
-    The canonical representation of a NodeKit runtime: a directed acyclic graph starting at a single Node.
+    The canonical representation of a NodeKit runtime.
+     A Graph consists of Nodes and transitions between them.
+     Nodes which do not have any outgoing transitions are terminal Nodes which end the experiment when completed.
     """
     nodekit_version: str = pydantic.Field(default=VERSION)
     nodes: Dict[NodeId, Node]
     start: NodeId
     transitions: Dict[NodeId, Dict[SensorId, NodeId]]  = pydantic.Field(
-        description='A mapping from (node_id, sensor_id) pairs to the next_node_id that should be transitioned to when that Sensor is triggered in that node.'
+        description='A mapping from (NodeId, SensorId) to the next Node that will be transitioned if the Sensor is triggered in that Node.'
     )
 
     @pydantic.model_validator(mode='after')
@@ -158,7 +160,7 @@ class Graph(pydantic.BaseModel):
 # %%
 class Trace(pydantic.BaseModel):
     """
-    The canonical representation of a Participant's run through a Graph.
+    The canonical representation of a Participant's path through a Graph.
     """
     nodekit_version: str = pydantic.Field(default=VERSION)
     events: List[Event]

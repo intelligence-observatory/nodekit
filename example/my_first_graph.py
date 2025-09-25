@@ -13,9 +13,8 @@ def make_triplet_trial(
         correct_choice: Literal['L', 'R']
 ) -> nk.Graph:
     """
-    Returns a Graph representing a single trial of a triplet task.
+    Returns a Graph implementing a single trial of an image triplet task.
     """
-
     # Make fixation Node:
     fixation_card = nk.cards.ImageCard(
         x=0,
@@ -24,6 +23,7 @@ def make_triplet_trial(
         h=0.0375,
         image=fixation_image,
     )
+
     clicked_fixation_dot_sensor = nk.sensors.ClickSensor(
         mask='ellipse',
         x=fixation_card.x,
@@ -66,7 +66,7 @@ def make_triplet_trial(
         start_msec=200,
     )
 
-    clicked_left_sensor = nk.sensors.ClickSensor(
+    left_sensor = nk.sensors.ClickSensor(
         mask='rectangle',
         x=choice_left_card.x,
         y=choice_left_card.y,
@@ -74,7 +74,7 @@ def make_triplet_trial(
         h=choice_left_card.h,
         start_msec=200,
     )
-    clicked_right_sensor = nk.sensors.ClickSensor(
+    right_sensor = nk.sensors.ClickSensor(
         mask='rectangle',
         x=choice_right_card.x,
         y=choice_right_card.y,
@@ -93,8 +93,8 @@ def make_triplet_trial(
             choice_right_card,
         ],
         sensors={
-            'L': clicked_left_sensor,
-            'R': clicked_right_sensor,
+            'L': left_sensor,
+            'R': right_sensor,
             'TO': timeout_sensor,
         },
     )
@@ -140,7 +140,6 @@ def make_triplet_trial(
         },
     )
 
-
     trial_graph = nk.Graph(
         nodes={
             'fixation': fixation_node,
@@ -163,7 +162,6 @@ def make_triplet_trial(
     return trial_graph
 
 
-
 # %% Load Asset Files
 my_image_files = []
 for path in sorted(glob.glob('./example_images/*')):
@@ -175,9 +173,7 @@ for path in sorted(glob.glob('./example_videos/*.mp4')):
     video_file = nk.assets.VideoFile.from_path(path)
     my_video_files.append(video_file)
 
-
 # %%
-
 my_trial = make_triplet_trial(
     fixation_image=my_image_files[0].identifier,
     stimulus_image=my_image_files[1].identifier,
@@ -209,7 +205,7 @@ fixation_node = nk.Node(
 )
 
 graph = nk.Graph.from_sequence(
-    [fixation_node,my_trial,my_trial, fixation_node]
+    [fixation_node, my_trial, my_trial, fixation_node]
 )
 
 Path('timeline.json').write_text(graph.model_dump_json(indent=2))

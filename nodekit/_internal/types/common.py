@@ -66,20 +66,11 @@ PressableKey = Literal[
 
 # %% Identifiers
 NodeId = Annotated[str, pydantic.Field(
-    description='An identifier for a Node which is unique within a Graph. Otherwise nonfunctional.',
-    # Ensure it is not END; reserved for sentinel signifying the end of a graph
-    min_length=1,
+    description='An identifier for a Node which is unique within a Graph.',
 )]
-
 
 SensorId = Annotated[str, pydantic.Field(
-    description='An identifier for a Sensor which is unique within a Node. Otherwise nonfunctional.',
-    min_length=1,
-)]
-
-CardId = Annotated[str, pydantic.Field(
-    description='An identifier for a Card which is unique within a Node. Otherwise nonfunctional.',
-    min_length=1,
+    description='An identifier for a Sensor which is unique within a Node.',
 )]
 
 # %% Money
