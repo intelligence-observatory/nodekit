@@ -209,7 +209,7 @@ fixation_node = nk.Node(
 )
 
 graph = nk.Graph.from_sequence(
-    [fixation_node,my_trial, fixation_node]
+    [fixation_node,my_trial,my_trial, fixation_node]
 )
 
 Path('timeline.json').write_text(graph.model_dump_json(indent=2))

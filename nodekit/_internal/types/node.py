@@ -37,43 +37,6 @@ class Node(pydantic.BaseModel):
 
 
 # %%
-
-"""
-EntryPort = GraphId | NodeId
-ExitPort = GraphId | NodeId | NodeId#SensorId
-
-Address to identify a specific Node in a Graph is: 
-node_id = {NodeId} # If Node in the top-level.
-node_id = {GraphId}/{NodeId} # If Node in a sub-graph
-node_id = {GraphId}/{GraphId}/{NodeId} # If Node in a sub-sub-graph
-
-
-Transition:
-ExitPort to EntryPort
-"""
-
-# %%
-class GraphBuilder:
-    def __init__(
-            self,
-            **kwargs
-    ):
-        ...
-
-
-    def append(self, other) -> Self:
-        ...
-
-    def extend(self, others) -> Self:
-        ...
-
-    def to_json(self):
-        ...
-
-    def from_json(self):
-        ...
-
-# %%
 class Graph(pydantic.BaseModel):
     """
     The canonical representation of a NodeKit runtime: a directed acyclic graph starting at a single Node.
@@ -158,6 +121,8 @@ class Graph(pydantic.BaseModel):
             # Connect outgoing ports of previous Node | Graph to the start Node of this Node | Graph:
             if i_child > 0:
                 prev_namespace = ids[i_child - 1]
+
+                # Todo: this is a slow O(N^2) approach
 
                 # Connect terminal Sensors in previous namespace to this Node:
                 for prev_node_id in nodes.keys():
