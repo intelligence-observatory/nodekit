@@ -1,6 +1,7 @@
 from typing import List, Literal
 
 import pydantic
+from typing import Union
 
 from nodekit._internal.types.board import Board
 from nodekit._internal.types.cards.cards import Card
@@ -9,7 +10,6 @@ from nodekit._internal.types.effects.effects import Effect
 from nodekit._internal.types.events.events import Event
 from nodekit._internal.types.sensors.sensors import Sensor
 from nodekit._internal.version import VERSION
-
 
 # %%
 class Node(pydantic.BaseModel):
@@ -31,12 +31,33 @@ class Node(pydantic.BaseModel):
     )
     effects: List[Effect] = pydantic.Field(default_factory=list)
 
-
+# %%
 class Transition(pydantic.BaseModel):
     node_index: NodeIndex # The Node from which this Transition originates
     sensor_index: SensorIndex # The Sensor in that Node that triggers this Transition. None acts as a wildcard.
     next_node_index: NodeIndex | Literal['END']
 
+# %%
+from typing import Annotated
+PayableAmountUsdStr = Annotated[
+    str,
+    pydantic.Field(
+        pattern=r'^\d+(\.\d{1,2})?$',
+        description='A decimal number with at most two decimal places, representing an amount in USD.')
+]
+
+class BasePaymentRule(pydantic.BaseModel):
+    payment_rule_type: str
+
+class NodePaymentRule(BasePaymentRule):
+    payment_rule_type: Literal['NodePaymentRule'] = 'NodePaymentRule'
+    node_index: NodeIndex = pydantic.Field(description='The index of the Node in the Graph for which this payment rule applies.')
+    amount_usd: PayableAmountUsdStr = pydantic.Field(description='The amount the Participant should be paid for reaching this Node, in USD.')
+
+PaymentRule = Annotated[
+    Union[NodePaymentRule],
+    pydantic.Field(discriminator='payment_rule_type')
+]
 # %%
 class Graph(pydantic.BaseModel):
     """
@@ -49,7 +70,14 @@ class Graph(pydantic.BaseModel):
         description='A topologically sorted list of Nodes in the Graph. Tie-breaks are resolved by Node content hash.'
     )
     transitions: List[Transition]
+
     start_node_index: NodeIndex
+
+    payment_rules: List[PaymentRule] = pydantic.Field(
+        description='Describes the author\'s intended payment policy for this Graph.',
+        default_factory=list
+    )
+
     nodekit_version: str = pydantic.Field(default=VERSION)
 
     @pydantic.model_validator(mode='after')
@@ -69,5 +97,8 @@ class Graph(pydantic.BaseModel):
 
 # %%
 class Trace(pydantic.BaseModel):
+    """
+    The canonical representation of a Participant's run through a Graph.
+    """
     events: List[Event]
-    nodekit_version: str = pydantic.Field(default=VERSION, description='The semantic version number of NodeKit.')
+    nodekit_version: str = pydantic.Field(default=VERSION)

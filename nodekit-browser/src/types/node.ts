@@ -13,8 +13,8 @@ export interface Node {
 }
 
 export interface Transition {
-    node_index: NodeIndex | 'START';
-    sensor_index: SensorIndex | null;
+    node_index: NodeIndex;
+    sensor_index: SensorIndex;
     next_node_index: NodeIndex | 'END';
 }
 
@@ -24,7 +24,6 @@ export interface Graph {
     transitions: Transition[];
     start_node_index: NodeIndex;
 }
-
 
 export interface Trace {
     nodekit_version: string;

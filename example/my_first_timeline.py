@@ -171,11 +171,17 @@ def make_triplet_trial(
 
     trial_graph = nk.Graph(
         nodes=nodes,
-        start_node_index =0,
+        start_node_index=0,
         transitions=transitions,
     )
     return trial_graph
 
+
+# %%
+def make_binary_choice_trial(
+
+) -> nk.Graph:
+    ...
 
 # %% Helper functions to create Nodes:
 def make_instructions_node(
