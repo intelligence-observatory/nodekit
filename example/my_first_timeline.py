@@ -178,12 +178,38 @@ for path in sorted(glob.glob('./example_videos/*.mp4')):
 
 # %%
 
-graph = make_triplet_trial(
+my_trial = make_triplet_trial(
     fixation_image=my_image_files[0].identifier,
     stimulus_image=my_image_files[1].identifier,
     choice_left_image=my_image_files[2].identifier,
     choice_right_image=my_image_files[3].identifier,
     correct_choice='L',
+)
+
+fixation_card = nk.cards.TextCard(
+    x=0,
+    y=0,
+    w=0.0375,
+    h=0.0375,
+    text='yo',
+)
+clicked_fixation_dot_sensor = nk.sensors.ClickSensor(
+    mask='ellipse',
+    x=fixation_card.x,
+    y=fixation_card.y,
+    w=fixation_card.w,
+    h=fixation_card.h,
+)
+
+fixation_node = nk.Node(
+    cards=[fixation_card],
+    sensors={
+        'clicked-fixation': clicked_fixation_dot_sensor
+    },
+)
+
+graph = nk.Graph.from_sequence(
+    [fixation_node,my_trial, fixation_node]
 )
 
 Path('timeline.json').write_text(graph.model_dump_json(indent=2))

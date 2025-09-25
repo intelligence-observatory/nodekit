@@ -108,7 +108,7 @@ export async function play(
     const nodes = graph.nodes;
 
     // Assemble transition map:
-    let currentNodeId: NodeId = graph.start_node_id;
+    let currentNodeId: NodeId = graph.start;
 
     while (true) {
         // Prepare the Node:

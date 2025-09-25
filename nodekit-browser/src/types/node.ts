@@ -17,7 +17,7 @@ export interface Graph {
     nodekit_version: string;
     nodes: Record<NodeId, Node>;
     transitions: Record<NodeId, Record<SensorId, NodeId>>;
-    start_node_id: NodeId;
+    start: NodeId;
 }
 
 export interface Trace {

@@ -6643,7 +6643,7 @@ async function $c(n, e, t = null, r = []) {
   };
   i.push(k);
   const C = n.nodes;
-  let b = n.start_node_id;
+  let b = n.start;
   for (; ; ) {
     const X = C[b], Y = new lc(
       X

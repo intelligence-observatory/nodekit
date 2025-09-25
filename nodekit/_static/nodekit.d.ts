@@ -91,7 +91,7 @@ declare interface Graph {
     nodekit_version: string;
     nodes: Record<NodeId, Node_2>;
     transitions: Record<NodeId, Record<SensorId, NodeId>>;
-    start_node_id: NodeId;
+    start: NodeId;
 }
 
 declare interface HidePointerEffect extends BaseEffect<'HidePointerEffect'> {
