@@ -1,5 +1,5 @@
 import type {Action} from "../actions";
-import type {NodeIndex, SensorIndex, TimeElapsedMsec} from "../common.ts";
+import type {NodeId, SensorId, TimeElapsedMsec} from "../common.ts";
 
 interface BaseEvent<T extends string> {
     event_type: T,
@@ -20,16 +20,15 @@ export interface BrowserContextEvent extends BaseEvent<'BrowserContextEvent'>{
 
 
 interface BaseNodeEvent<T extends string> extends BaseEvent<T> {
-    node_index: NodeIndex, // Timeline.nodes[node_index] is the Node this event originated;
+    node_id: NodeId, // Timeline.nodes[node_id] is the Node this event originated;
 }
 
-export interface NodeStartEvent extends BaseNodeEvent<'NodeStartEvent'>{}
+export interface NodeEnterEvent extends BaseNodeEvent<'NodeEnterEvent'>{}
 
-export interface ActionEvent extends BaseNodeEvent<'ActionEvent'>{
-    sensor_index: SensorIndex, // Timeline.nodes[node_index].sensors[sensor_index] is the Sensor that fired
+export interface NodeExitEvent extends BaseNodeEvent<'NodeExitEvent'>{
+    sensor_id: SensorId, // Timeline.nodes[node_id].sensors[sensor_id] is the Sensor that fired
     action: Action,
 }
-export interface NodeEndEvent extends BaseNodeEvent<'NodeEndEvent'>{}
 
 // Union type:
 export type Event =
@@ -37,7 +36,6 @@ export type Event =
     BrowserContextEvent |
     LeaveEvent |
     ReturnEvent |
-    NodeStartEvent |
-    ActionEvent |
-    NodeEndEvent |
+    NodeEnterEvent |
+    NodeExitEvent |
     EndEvent;

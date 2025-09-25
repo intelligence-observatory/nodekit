@@ -1,10 +1,5 @@
 declare type Action = ClickAction | TimeoutAction | KeyAction;
 
-declare interface ActionEvent extends BaseNodeEvent<'ActionEvent'> {
-    sensor_index: SensorIndex;
-    action: Action;
-}
-
 declare type AssetIdentifier = ImageIdentifier | VideoIdentifier;
 
 declare interface AssetUrl {
@@ -43,7 +38,7 @@ declare interface BaseEvent<T extends string> {
 }
 
 declare interface BaseNodeEvent<T extends string> extends BaseEvent<T> {
-    node_index: NodeIndex;
+    node_id: NodeId;
 }
 
 declare interface BaseSensor<T extends string> {
@@ -68,6 +63,10 @@ declare interface BrowserContextEvent extends BaseEvent<'BrowserContextEvent'> {
 
 declare type Card = ImageCard | TextCard | VideoCard;
 
+declare type CardId = string & {
+    __brand: 'CardId';
+};
+
 declare interface ClickAction extends BaseAction<"ClickAction"> {
     x: SpatialPoint;
     y: SpatialPoint;
@@ -90,13 +89,13 @@ declare type Effect = HidePointerEffect;
 declare interface EndEvent extends BaseEvent<'EndEvent'> {
 }
 
-declare type Event_2 = StartEvent | BrowserContextEvent | LeaveEvent | ReturnEvent | NodeStartEvent | ActionEvent | NodeEndEvent | EndEvent;
+declare type Event_2 = StartEvent | BrowserContextEvent | LeaveEvent | ReturnEvent | NodeEnterEvent | NodeExitEvent | EndEvent;
 
 declare interface Graph {
     nodekit_version: string;
-    nodes: Node_2[];
-    transitions: Transition[];
-    start_node_index: NodeIndex;
+    nodes: Record<NodeId, Node_2>;
+    transitions: Record<NodeId, Record<SensorId, NodeId>>;
+    start_node_id: NodeId;
 }
 
 declare interface HidePointerEffect extends BaseEffect<'HidePointerEffect'> {
@@ -128,21 +127,23 @@ declare type MarkdownString = string & {
 declare type Mask = 'rectangle' | 'ellipse';
 
 declare interface Node_2 {
-    cards: Card[];
-    sensors: Sensor[];
+    cards: Record<CardId, Card>;
+    sensors: Record<SensorId, Sensor>;
     effects: Effect[];
     board: Board;
 }
 
-declare interface NodeEndEvent extends BaseNodeEvent<'NodeEndEvent'> {
+declare interface NodeEnterEvent extends BaseNodeEvent<'NodeEnterEvent'> {
 }
 
-declare type NodeIndex = number & {
-    __brand: "NodeIndex";
+declare interface NodeExitEvent extends BaseNodeEvent<'NodeExitEvent'> {
+    sensor_id: SensorId;
+    action: Action;
+}
+
+declare type NodeId = string & {
+    __brand: 'NodeId';
 };
-
-declare interface NodeStartEvent extends BaseNodeEvent<'NodeStartEvent'> {
-}
 
 declare type NodeTimePointMsec = number & {
     __brand: 'NodeTimePointMsec';
@@ -164,8 +165,8 @@ declare interface ReturnEvent extends BaseEvent<'ReturnEvent'> {
 
 declare type Sensor = TimeoutSensor | ClickSensor | KeySensor;
 
-declare type SensorIndex = number & {
-    __brand: "SensorIndex";
+declare type SensorId = string & {
+    __brand: 'SensorId';
 };
 
 declare type SHA256 = string & {
@@ -206,12 +207,6 @@ declare interface TimeoutSensor extends BaseSensor<'TimeoutSensor'> {
 declare interface Trace {
     nodekit_version: string;
     events: Event_2[];
-}
-
-declare interface Transition {
-    node_index: NodeIndex | 'START';
-    sensor_index: SensorIndex | null;
-    next_node_index: NodeIndex | 'END';
 }
 
 declare interface VideoCard extends BaseCard<'VideoCard'> {

@@ -9,7 +9,7 @@ from nodekit._internal.types.common import (
     MarkdownString,
     SpatialPoint,
     SpatialSize,
-    NodeTimePointMsec
+    NodeTimePointMsec,
 )
 
 

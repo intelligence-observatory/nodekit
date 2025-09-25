@@ -12,6 +12,7 @@ export type PressableKey = "Enter" | " " | "ArrowDown" | "ArrowLeft" | "ArrowRig
 export type SHA256 = string & { __brand: 'SHA256' };
 
 export type Mask = 'rectangle' | 'ellipse';
-export type NodeIndex = number & { __brand: "NodeIndex" };
-export type NodeId = string & { __brand: "NodeId" };
-export type SensorIndex = number & { __brand: "SensorIndex" };
+
+export type NodeId = string & { __brand: 'NodeId' };
+export type SensorId = string & { __brand: 'SensorId' };
+export type CardId = string & { __brand: 'CardId' };

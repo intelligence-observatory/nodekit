@@ -65,7 +65,33 @@ PressableKey = Literal[
 ]
 
 # %% Identifiers
-NodeIndex = Annotated[int, pydantic.Field(strict=True, ge=0, description='The index of a Node in a Timeline, starting from 0.')]
-SensorIndex = Annotated[int, pydantic.Field(strict=True, ge=0, description='The index of a Sensor in a Node, starting from 0.')]
+NodeId = Annotated[str, pydantic.Field(
+    description='An identifier for a Node which is unique within a Graph. Otherwise nonfunctional.',
+    # Ensure it is not END; reserved for sentinel signifying the end of a graph
+    min_length=1,
+)]
 
 
+SensorId = Annotated[str, pydantic.Field(
+    description='An identifier for a Sensor which is unique within a Node. Otherwise nonfunctional.',
+    min_length=1,
+)]
+
+CardId = Annotated[str, pydantic.Field(
+    description='An identifier for a Card which is unique within a Node. Otherwise nonfunctional.',
+    min_length=1,
+)]
+
+# %% Money
+AmountUsdStr = Annotated[
+    str,
+    pydantic.Field(
+        pattern=r'^\d+(\.\d{1,5})?$',
+        description='A decimal number with at most five decimal places, representing an amount in USD. ')
+]
+PayableAmountUsdStr = Annotated[
+    str,
+    pydantic.Field(
+        pattern=r'^\d+(\.\d{1,2})?$',
+        description='A decimal number with at most two decimal places, representing an amount in USD.')
+]

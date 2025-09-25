@@ -4,7 +4,6 @@ __all__ = [
     # Top-level types:
     'Graph',
     'Node',
-    'Transition',
     'Board',
 
     # Namespaced types:
@@ -28,7 +27,6 @@ from nodekit._internal.version import VERSION
 from nodekit._internal.types.node import (
     Graph,
     Node,
-    Transition,
 )
 
 from nodekit._internal.types.board import Board

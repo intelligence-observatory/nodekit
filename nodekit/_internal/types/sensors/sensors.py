@@ -3,7 +3,13 @@ from typing import Literal, Annotated, Union
 
 import pydantic
 
-from nodekit._internal.types.common import PressableKey, NodeTimePointMsec, SpatialPoint, SpatialSize, Mask
+from nodekit._internal.types.common import (
+    PressableKey,
+    NodeTimePointMsec,
+    SpatialPoint,
+    SpatialSize,
+    Mask,
+)
 
 
 # %%

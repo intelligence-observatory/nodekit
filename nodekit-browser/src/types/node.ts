@@ -3,26 +3,21 @@ import type {Card} from "./cards";
 import type {Sensor} from "./sensors";
 import type {Effect} from "./effects/base.ts";
 import type {Event} from "./events";
-import type {NodeIndex, SensorIndex} from "./common.ts";
+import type {NodeId, SensorId, CardId} from "./common.ts";
 
 export interface Node {
-    cards: Card[];
-    sensors: Sensor[];
+    cards: Record<CardId, Card>;
+    sensors: Record<SensorId, Sensor>;
     effects: Effect[];
     board: Board;
 }
 
-export interface Transition {
-    node_index: NodeIndex;
-    sensor_index: SensorIndex;
-    next_node_index: NodeIndex | 'END';
-}
 
 export interface Graph {
     nodekit_version: string;
-    nodes: Node[];
-    transitions: Transition[];
-    start_node_index: NodeIndex;
+    nodes: Record<NodeId, Node>;
+    transitions: Record<NodeId, Record<SensorId, NodeId>>;
+    start_node_id: NodeId;
 }
 
 export interface Trace {

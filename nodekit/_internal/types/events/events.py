@@ -5,7 +5,11 @@ from typing import Literal, Annotated, Union
 import pydantic
 
 from nodekit._internal.types.actions.actions import Action
-from nodekit._internal.types.common import NodeIndex, TimeElapsedMsec, SensorIndex
+from nodekit._internal.types.common import (
+    TimeElapsedMsec,
+    NodeId,
+    SensorId,
+)
 
 
 # %%
@@ -15,9 +19,8 @@ class EventTypeEnum(str, enum.Enum):
     LeaveEvent = 'LeaveEvent'
     ReturnEvent = 'ReturnEvent'
 
-    NodeStartEvent = 'NodeStartEvent'
-    ActionEvent = 'ActionEvent'
-    NodeEndEvent = 'NodeEndEvent'
+    NodeEnterEvent = 'NodeEnterEvent'
+    NodeExitEvent = 'NodeExitEvent'
 
     EndEvent = 'EndEvent'
 
@@ -60,18 +63,15 @@ class ReturnEvent(BaseEvent):
 
 # %%
 class BaseNodeEvent(BaseEvent):
-    node_index: NodeIndex
+    node_id: NodeId
 
-class NodeStartEvent(BaseNodeEvent):
-    event_type: Literal[EventTypeEnum.NodeStartEvent] = EventTypeEnum.NodeStartEvent
+class NodeEnterEvent(BaseNodeEvent):
+    event_type: Literal[EventTypeEnum.NodeEnterEvent] = EventTypeEnum.NodeEnterEvent
 
-class ActionEvent(BaseNodeEvent):
-    event_type: Literal[EventTypeEnum.ActionEvent] = EventTypeEnum.ActionEvent
-    sensor_index: SensorIndex = pydantic.Field(description='The index of the Sensor in this Node that was triggered.')
+class NodeExitEvent(BaseNodeEvent):
+    event_type: Literal[EventTypeEnum.NodeExitEvent] = EventTypeEnum.NodeExitEvent
+    sensor_id: SensorId = pydantic.Field(description='Identifies the Sensor in the Node that was triggered.')
     action: Action
-
-class NodeEndEvent(BaseNodeEvent):
-    event_type: Literal[EventTypeEnum.NodeEndEvent] = EventTypeEnum.NodeEndEvent
 
 
 # %%
@@ -97,9 +97,8 @@ Event = Annotated[
         BrowserContextEvent,
         LeaveEvent,
         ReturnEvent,
-        NodeStartEvent,
-        ActionEvent,
-        NodeEndEvent,
+        NodeEnterEvent,
+        NodeExitEvent,
         EndEvent,
     ],
     pydantic.Field(discriminator='event_type')

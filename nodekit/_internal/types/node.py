@@ -1,11 +1,11 @@
-from typing import List, Literal
+import uuid
+from typing import List, Literal, Union, Dict, Tuple
 
 import pydantic
-from typing import Union
 
 from nodekit._internal.types.board import Board
 from nodekit._internal.types.cards.cards import Card
-from nodekit._internal.types.common import NodeIndex, SensorIndex
+from nodekit._internal.types.common import AmountUsdStr, NodeId, SensorId, CardId
 from nodekit._internal.types.effects.effects import Effect
 from nodekit._internal.types.events.events import Event
 from nodekit._internal.types.sensors.sensors import Sensor
@@ -19,45 +19,19 @@ class Node(pydantic.BaseModel):
 
     board: Board = pydantic.Field(default_factory=Board)
 
-    cards: List[Card] = pydantic.Field(
+    cards: Dict[CardId, Card] = pydantic.Field(
         description=(
             "List of Cards placed on the Board, in back-to-front order."
             "The first Card in this list is at the \"bottom\" of the Board, in the z-direction."
         ),
     )
-    sensors: List[Sensor] = pydantic.Field(
+    sensors: Dict[SensorId, Sensor] = pydantic.Field(
         min_length=1,
         description='List of Sensors that listen for a Participant Action. The first Sensor that is triggered ends the Node.'
     )
     effects: List[Effect] = pydantic.Field(default_factory=list)
 
-# %%
-class Transition(pydantic.BaseModel):
-    node_index: NodeIndex # The Node from which this Transition originates
-    sensor_index: SensorIndex # The Sensor in that Node that triggers this Transition. None acts as a wildcard.
-    next_node_index: NodeIndex | Literal['END']
 
-# %%
-from typing import Annotated
-PayableAmountUsdStr = Annotated[
-    str,
-    pydantic.Field(
-        pattern=r'^\d+(\.\d{1,2})?$',
-        description='A decimal number with at most two decimal places, representing an amount in USD.')
-]
-
-class BasePaymentRule(pydantic.BaseModel):
-    payment_rule_type: str
-
-class NodePaymentRule(BasePaymentRule):
-    payment_rule_type: Literal['NodePaymentRule'] = 'NodePaymentRule'
-    node_index: NodeIndex = pydantic.Field(description='The index of the Node in the Graph for which this payment rule applies.')
-    amount_usd: PayableAmountUsdStr = pydantic.Field(description='The amount the Participant should be paid for reaching this Node, in USD.')
-
-PaymentRule = Annotated[
-    Union[NodePaymentRule],
-    pydantic.Field(discriminator='payment_rule_type')
-]
 # %%
 class Graph(pydantic.BaseModel):
     """
@@ -65,20 +39,18 @@ class Graph(pydantic.BaseModel):
     All Graphs begin at a single Node, given by start_index.
     Every Node in a Graph must have a path to an END Node, which is encoded by N.
     """
-    nodes: List[Node] = pydantic.Field(
+    nodekit_version: str = pydantic.Field(default=VERSION)
+
+    nodes: Dict[NodeId, Node] = pydantic.Field(
         min_length=1,
         description='A topologically sorted list of Nodes in the Graph. Tie-breaks are resolved by Node content hash.'
     )
-    transitions: List[Transition]
 
-    start_node_index: NodeIndex
-
-    payment_rules: List[PaymentRule] = pydantic.Field(
-        description='Describes the author\'s intended payment policy for this Graph.',
-        default_factory=list
+    transitions: Dict[NodeId, Dict[SensorId, NodeId]] = pydantic.Field(
+        description='A mapping from (node_id, sensor_id) pairs to the next_node_id that should be transitioned to when that Sensor is triggered in that node.'
     )
 
-    nodekit_version: str = pydantic.Field(default=VERSION)
+    start_node_id: NodeId
 
     @pydantic.model_validator(mode='after')
     def check_graph_is_valid(self) -> 'Graph':
@@ -100,5 +72,5 @@ class Trace(pydantic.BaseModel):
     """
     The canonical representation of a Participant's run through a Graph.
     """
-    events: List[Event]
     nodekit_version: str = pydantic.Field(default=VERSION)
+    events: List[Event]

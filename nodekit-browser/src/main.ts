@@ -1,10 +1,10 @@
-import type {ActionEvent, BrowserContextEvent, EndEvent, Event, LeaveEvent, NodeEndEvent, NodeStartEvent, ReturnEvent, StartEvent} from "./types/events";
+import type {BrowserContextEvent, EndEvent, Event, LeaveEvent, NodeExitEvent, NodeEnterEvent, ReturnEvent, StartEvent} from "./types/events";
 import {Clock} from "./clock.ts";
 import type {Graph, Trace} from "./types/node.ts";
 import {getBrowserContext} from "./user-gates/browser-context.ts";
 import {checkDeviceIsValid} from "./user-gates/device-gate.ts";
 import type {AssetUrl} from "./types/assets";
-import type {NodeIndex, TimeElapsedMsec} from "./types/common.ts";
+import type {NodeId, TimeElapsedMsec} from "./types/common.ts";
 import {createNodeKitRootDiv} from "./ui/ui-builder.ts";
 import {AssetManager} from "./asset-manager";
 import {ShellUI} from "./ui/shell-ui/shell-ui.ts";
@@ -106,15 +106,13 @@ export async function play(
     eventArray.push(browserContextEvent);
 
     const nodes = graph.nodes;
-    const transitions = graph.transitions;
-
 
     // Assemble transition map:
-    let currentNodeIndex: NodeIndex | 'END' = graph.start_node_index;
+    let currentNodeId: NodeId = graph.start_node_id;
 
-    while (currentNodeIndex !== 'END') {
+    while (currentNodeId !== 'END') {
         // Prepare the Node:
-        const node = nodes[currentNodeIndex];
+        const node = nodes[currentNodeId];
         const nodePlay = new NodePlay(
             node,
         )
@@ -127,30 +125,22 @@ export async function play(
         let result = await nodePlay.run();
 
         // Emit the NodeStartEvent: todo: emit immediately when actually started?
-        const nodeStartEvent: NodeStartEvent = {
-            event_type: "NodeStartEvent",
+        const nodeStartEvent: NodeEnterEvent = {
+            event_type: "NodeEnterEvent",
             t: clock.convertDomTimestampToClockTime(result.domTimestampStart),
-            node_index: currentNodeIndex,
+            node_id: currentNodeId,
         }
         eventArray.push(nodeStartEvent);
 
         // Emit the ActionEvent: todo: emit immediately
-        const actionEvent: ActionEvent = {
-            event_type: "ActionEvent",
+        const actionEvent: NodeExitEvent = {
+            event_type: "NodeExitEvent",
             t: clock.convertDomTimestampToClockTime(result.domTimestampAction),
-            node_index: currentNodeIndex,
-            sensor_index: result.sensorIndex,
+            node_id: currentNodeId,
+            sensor_id: result.sensorId,
             action: result.action,
         }
         eventArray.push(actionEvent);
-
-        // Emit the NodeEndEvent: todo: emit immediately
-        const nodeEndEvent: NodeEndEvent = {
-            event_type: "NodeEndEvent",
-            t: clock.convertDomTimestampToClockTime(result.domTimestampEnd),
-            node_index: currentNodeIndex,
-        }
-        eventArray.push(nodeEndEvent);
 
         // Clear the rootBoardContainerDiv of all children:
         while (boardViewsContainerDiv.firstChild) {
@@ -158,14 +148,7 @@ export async function play(
         }
 
         // Get the next Node:
-        let nextNodeIndex: NodeIndex | 'END' = 'END'; // Fallthrough to END if no transition found
-        for (let transition of transitions) {
-            if (transition.node_index === currentNodeIndex && transition.sensor_index === result.sensorIndex) {
-                nextNodeIndex = transition.next_node_index;
-                break;
-            }
-        }
-        currentNodeIndex = nextNodeIndex
+        currentNodeId = graph.transitions[currentNodeId][result.sensorId];
     }
 
     // End screen:

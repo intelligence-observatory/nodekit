@@ -6,13 +6,13 @@ import {type EffectBinding, HideCursorEffectBinding} from "../board-view/effect-
 
 import type {AssetManager} from "../asset-manager";
 
-import type {SensorIndex} from "../types/common.ts";
+import type {SensorId, CardId} from "../types/common.ts";
 
 export interface PlayNodeResult {
     domTimestampStart: DOMHighResTimeStamp;
     domTimestampAction: DOMHighResTimeStamp
     domTimestampEnd: DOMHighResTimeStamp;
-    sensorIndex: SensorIndex;
+    sensorId: SensorId;
     action: Action;
 }
 
@@ -37,7 +37,7 @@ class Deferred<T> {
     }
 }
 interface SensorFiring {
-    sensorIndex: SensorIndex;
+    sensorId: SensorId;
     domTimestampAction: DOMHighResTimeStamp;
     action: Action;
 }
@@ -65,7 +65,8 @@ export class NodePlay {
     public async prepare(assetManager: AssetManager) {
 
         // Prepare and schedule Cards:
-        for (const card of this.node.cards) {
+        for (let cardId in this.node.cards) {
+            const card = this.node.cards[cardId as CardId];
             // Prepare Cards:
             const cardViewId = await this.boardView.prepareCard(
                 card,
@@ -97,13 +98,13 @@ export class NodePlay {
         }
 
         // Prepare and schedule Sensors:
-        for (let sensorIndex = 0 as SensorIndex; sensorIndex < this.node.sensors.length; sensorIndex++) {
+        for (let sensorId in this.node.sensors) {
             // Prepare Sensor:
-            const sensor = this.node.sensors[sensorIndex];
+            const sensor = this.node.sensors[sensorId as SensorId];
             const sensorBindingId = this.boardView.prepareSensor(
                 sensor,
                 (action, domTimestampAction) => this.deferredSensorFiring.resolve({
-                    sensorIndex: sensorIndex as SensorIndex,
+                    sensorId: sensorId as SensorId,
                     domTimestampAction: domTimestampAction,
                     action: action,
                 })
@@ -195,7 +196,7 @@ export class NodePlay {
         this.boardView.reset();
 
         return {
-            sensorIndex: sensorFiring.sensorIndex,
+            sensorId: sensorFiring.sensorId,
             action: sensorFiring.action,
             domTimestampStart: domTimestampStart,
             domTimestampAction: sensorFiring.domTimestampAction,
