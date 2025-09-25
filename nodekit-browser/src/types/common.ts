@@ -15,4 +15,3 @@ export type Mask = 'rectangle' | 'ellipse';
 
 export type NodeId = string & { __brand: 'NodeId' };
 export type SensorId = string & { __brand: 'SensorId' };
-export type CardId = string & { __brand: 'CardId' };

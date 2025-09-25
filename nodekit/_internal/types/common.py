@@ -86,12 +86,6 @@ CardId = Annotated[str, pydantic.Field(
 AmountUsdStr = Annotated[
     str,
     pydantic.Field(
-        pattern=r'^\d+(\.\d{1,5})?$',
-        description='A decimal number with at most five decimal places, representing an amount in USD. ')
-]
-PayableAmountUsdStr = Annotated[
-    str,
-    pydantic.Field(
-        pattern=r'^\d+(\.\d{1,2})?$',
-        description='A decimal number with at most two decimal places, representing an amount in USD.')
+        pattern=r'^-?\d+(\.\d{1,5})?$',
+        description='A decimal number with at most five decimal places, representing an amount in USD (negative or positive). ')
 ]

@@ -148,7 +148,7 @@ def make_triplet_trial(
             'positive': positive_node,
             'negative': negative_node,
         },
-        start_node_id='fixation',
+        start='fixation',
         transitions={
             'fixation': {
                 'clicked-fixation': 'main'
