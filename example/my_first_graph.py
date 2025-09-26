@@ -3,7 +3,6 @@ from pathlib import Path
 import nodekit as nk
 from typing import Literal
 
-import nodekit._internal.types.graph
 
 
 # %%
@@ -13,7 +12,7 @@ def make_triplet_trial(
         choice_left_image: nk.assets.ImageIdentifier,
         choice_right_image: nk.assets.ImageIdentifier,
         correct_choice: Literal['L', 'R']
-) -> nodekit._internal.types.graph.Graph:
+) -> nk.Graph:
     """
     Returns a Graph implementing a single trial of an image triplet task.
     """
@@ -142,7 +141,7 @@ def make_triplet_trial(
         },
     )
 
-    trial_graph = nodekit._internal.types.graph.Graph(
+    trial_graph = nk.Graph(
         nodes={
             'fixation': fixation_node,
             'main': main_node,
@@ -161,6 +160,7 @@ def make_triplet_trial(
             },
         },
     )
+
     return trial_graph
 
 
@@ -206,13 +206,13 @@ fixation_node = nk.Node(
     },
 )
 
-graph = nodekit._internal.types.graph.Graph.from_sequence(
+graph = nk.concat(
     [fixation_node, my_trial, my_trial, fixation_node]
 )
 
 Path('timeline.json').write_text(graph.model_dump_json(indent=2))
 
-# %% Play the Timeline:
+# %% Play the Graph:
 trace = nk.play(
     timeline=graph,
     asset_files=my_image_files + my_video_files
