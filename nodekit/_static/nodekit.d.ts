@@ -1,4 +1,4 @@
-declare type Action = ClickAction | TimeoutAction | KeyAction;
+declare type Action = ClickAction | WaitAction | KeyAction;
 
 declare type AssetIdentifier = ImageIdentifier | VideoIdentifier;
 
@@ -43,8 +43,6 @@ declare interface BaseNodeEvent<T extends string> extends BaseEvent<T> {
 
 declare interface BaseSensor<T extends string> {
     sensor_type: T;
-    start_msec: NodeTimePointMsec;
-    end_msec: NodeTimePointMsec | null;
 }
 
 declare interface Board {
@@ -68,7 +66,7 @@ declare interface ClickAction extends BaseAction<"ClickAction"> {
     y: SpatialPoint;
 }
 
-declare interface ClickSensor extends BaseSensor<'ClickSensor'> {
+declare interface ClickSensor extends TemporallyBoundedSensor<'ClickSensor'> {
     x: SpatialPoint;
     y: SpatialPoint;
     w: SpatialSize;
@@ -109,7 +107,7 @@ declare interface KeyAction extends BaseAction<"KeyAction"> {
     key: PressableKey;
 }
 
-declare interface KeySensor extends BaseSensor<'KeySensor'> {
+declare interface KeySensor extends TemporallyBoundedSensor<'KeySensor'> {
     key: PressableKey;
 }
 
@@ -146,7 +144,7 @@ declare type NodeTimePointMsec = number & {
 };
 
 /**
- * Plays a Timeline, returning a Trace of Events.
+ * Plays a Graph, returning a Trace of Events.
  * @param graph
  * @param assetUrls
  * @param onEventCallback
@@ -159,7 +157,7 @@ declare type PressableKey = "Enter" | " " | "ArrowDown" | "ArrowLeft" | "ArrowRi
 declare interface ReturnEvent extends BaseEvent<'ReturnEvent'> {
 }
 
-declare type Sensor = TimeoutSensor | ClickSensor | KeySensor;
+declare type Sensor = WaitSensor | ClickSensor | KeySensor;
 
 declare type SensorId = string & {
     __brand: 'SensorId';
@@ -180,6 +178,11 @@ declare type SpatialSize = number & {
 declare interface StartEvent extends BaseEvent<'StartEvent'> {
 }
 
+declare interface TemporallyBoundedSensor<T extends string> extends BaseSensor<T> {
+    start_msec: NodeTimePointMsec;
+    end_msec: NodeTimePointMsec | null;
+}
+
 declare interface TextCard extends BaseCard<'TextCard'> {
     text: MarkdownString;
     font_size: SpatialSize;
@@ -193,13 +196,6 @@ declare type TimeElapsedMsec = number & {
     __brand: 'TimeElapsedMsec';
 };
 
-declare interface TimeoutAction extends BaseAction<"TimeoutAction"> {
-}
-
-declare interface TimeoutSensor extends BaseSensor<'TimeoutSensor'> {
-    end_msec: null;
-}
-
 declare interface Trace {
     nodekit_version: string;
     events: Event_2[];
@@ -212,6 +208,13 @@ declare interface VideoCard extends BaseCard<'VideoCard'> {
 }
 
 declare interface VideoIdentifier extends BaseAssetIdentifier<"video/mp4"> {
+}
+
+declare interface WaitAction extends BaseAction<"WaitAction"> {
+}
+
+declare interface WaitSensor extends BaseSensor<'WaitSensor'> {
+    wait_msec: NodeTimePointMsec;
 }
 
 export { }

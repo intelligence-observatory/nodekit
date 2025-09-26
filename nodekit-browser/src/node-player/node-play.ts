@@ -110,24 +110,37 @@ export class NodePlay {
                 })
             )
 
-            // Schedule Sensor arming:
-            this.scheduler.scheduleEvent(
-                {
-                    triggerTimeMsec: sensor.start_msec,
-                    triggerFunc: () => {this.boardView.startSensor(sensorBindingId)},
-                }
-            )
-
-            // Schedule Sensor disarming:
-            if (sensor.end_msec !== null) {
+            // Schedule Sensor arming, if a TemporallyBoundedSensor:
+            if (sensor.sensor_type === 'ClickSensor' || sensor.sensor_type === 'KeySensor') {
                 this.scheduler.scheduleEvent(
                     {
-                        triggerTimeMsec: sensor.end_msec,
-                        triggerFunc: () => {this.boardView.destroySensor(sensorBindingId)},
+                        triggerTimeMsec: sensor.start_msec,
+                        triggerFunc: () => {this.boardView.startSensor(sensorBindingId)},
                     }
                 )
 
+                // Schedule Sensor disarming:
+                if (sensor.end_msec !== null) {
+                    this.scheduler.scheduleEvent(
+                        {
+                            triggerTimeMsec: sensor.end_msec,
+                            triggerFunc: () => {this.boardView.destroySensor(sensorBindingId)},
+                        }
+                    )
+
+                }
             }
+
+            // Schedule Sensor firing if a WaitSensor:
+            if (sensor.sensor_type === 'WaitSensor') {
+                this.scheduler.scheduleEvent(
+                    {
+                        triggerTimeMsec: sensor.wait_msec,
+                        triggerFunc: () => {this.boardView.startSensor(sensorBindingId)},
+                    }
+                )
+            }
+
             // Schedule Sensor destruction at Node end:
             this.scheduler.scheduleOnStop(
                 () => {this.boardView.destroySensor(sensorBindingId)}

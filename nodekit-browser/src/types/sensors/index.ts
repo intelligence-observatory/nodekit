@@ -1,17 +1,21 @@
 import type {PressableKey, SpatialPoint, SpatialSize, NodeTimePointMsec, Mask} from "../common.ts";
 
 
-export interface BaseSensor<T extends string> {
+interface BaseSensor<T extends string> {
     sensor_type: T
+}
+
+export interface WaitSensor extends BaseSensor<'WaitSensor'>{
+    wait_msec: NodeTimePointMsec
+}
+
+
+interface TemporallyBoundedSensor<T extends string> extends BaseSensor<T> {
     start_msec: NodeTimePointMsec
     end_msec: NodeTimePointMsec | null // If null, the window lasts until the Node ends
 }
 
-export interface TimeoutSensor extends BaseSensor<'TimeoutSensor'>{
-    end_msec: null
-}
-
-export interface ClickSensor extends BaseSensor<'ClickSensor'>{
+export interface ClickSensor extends TemporallyBoundedSensor<'ClickSensor'>{
     x: SpatialPoint
     y: SpatialPoint
     w: SpatialSize
@@ -19,8 +23,8 @@ export interface ClickSensor extends BaseSensor<'ClickSensor'>{
     mask: Mask
 }
 
-export interface KeySensor extends BaseSensor<'KeySensor'> {
+export interface KeySensor extends TemporallyBoundedSensor<'KeySensor'> {
     key: PressableKey
 }
 
-export type Sensor = TimeoutSensor | ClickSensor | KeySensor;
+export type Sensor = WaitSensor | ClickSensor | KeySensor;
