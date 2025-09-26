@@ -26,7 +26,7 @@ class Graph(pydantic.BaseModel):
     @pydantic.model_validator(mode='after')
     def check_graph_is_valid(self) -> 'Graph':
 
-        if not self.start in self.nodes:
+        if self.start not in self.nodes:
             raise ValueError(f"Graph start node {self.start} not in nodes.")
 
         num_nodes = len(self.nodes)
