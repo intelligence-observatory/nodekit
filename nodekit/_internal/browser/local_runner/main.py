@@ -37,7 +37,7 @@ class LocalRunner:
         self.host = host
 
         # In-memory state of the runner:
-        self._timeline: Graph | None = None
+        self._graph: Graph | None = None
         self._events: List[Event] = []
 
         self.asset_id_to_file: Dict[str, AssetFile] = {}
@@ -79,10 +79,10 @@ class LocalRunner:
             self._server = None
             self._thread = None
 
-    def set_timeline(self, timeline: Graph):
+    def set_graph(self, graph: Graph):
         with self._lock:
-            # Reset Timeline and Events
-            self._timeline = timeline
+            # Reset Graph and Events
+            self._graph = graph
             self._events = []
 
     def mount_asset_files(self, asset_files: List[AssetFile] | None):
@@ -145,8 +145,8 @@ class LocalRunner:
         def site(
                 request: fastapi.Request,
         ) -> fastapi.responses.HTMLResponse:
-            if self._timeline is None:
-                raise fastapi.HTTPException(status_code=404, detail="No Timeline is currently being served. Call `nodekit.play` first.")
+            if self._graph is None:
+                raise fastapi.HTTPException(status_code=404, detail="No Graph is currently being served. Call `nodekit.play` first.")
 
             # Package asset urls:
             asset_urls = []
@@ -163,7 +163,7 @@ class LocalRunner:
                 request=request,
                 name='site-template.j2',
                 context={
-                    "timeline": self._timeline.model_dump(mode='json'),
+                    "graph": self._graph.model_dump(mode='json'),
                     'asset_urls': [a.model_dump(mode='json') for a in asset_urls],
                     "nodekit_javascript_link": request.url_for(
                         "get_nodekit_javascript",
@@ -226,19 +226,19 @@ class PlaySession:
         return runner.list_events()
 
 def play(
-        timeline: Graph,
+        graph: Graph,
         asset_files: List[AssetFile],
 ) -> Trace:
     """
-    Runs the Timeline at http://localhost:{port}.
+    Runs the Graph at http://localhost:{port}.
     Blocks until the Trace is complete.
     """
 
     runner = _get_runner()
     runner.ensure_running()
-    runner.set_timeline(timeline)
+    runner.set_graph(graph)
     runner.mount_asset_files(asset_files)
-    print('Play the Timeline at:\n', runner.url)
+    print('Play the Graph at:\n', runner.url)
 
 
     # Wait until the End Event is observed:

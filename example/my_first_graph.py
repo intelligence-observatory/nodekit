@@ -210,11 +210,11 @@ graph = nk.concat(
     [fixation_node, my_trial, my_trial, fixation_node]
 )
 
-Path('timeline.json').write_text(graph.model_dump_json(indent=2))
+Path('graph.json').write_text(graph.model_dump_json(indent=2))
 
 # %% Play the Graph:
 trace = nk.play(
-    timeline=graph,
+    graph=graph,
     asset_files=my_image_files + my_video_files
 )
 

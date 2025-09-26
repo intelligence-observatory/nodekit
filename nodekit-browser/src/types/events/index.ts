@@ -20,13 +20,13 @@ export interface BrowserContextEvent extends BaseEvent<'BrowserContextEvent'>{
 
 
 interface BaseNodeEvent<T extends string> extends BaseEvent<T> {
-    node_id: NodeId, // Timeline.nodes[node_id] is the Node this event originated;
+    node_id: NodeId, // Graph.nodes[node_id] is the Node this event originated;
 }
 
 export interface NodeEnterEvent extends BaseNodeEvent<'NodeEnterEvent'>{}
 
 export interface NodeExitEvent extends BaseNodeEvent<'NodeExitEvent'>{
-    sensor_id: SensorId, // Timeline.nodes[node_id].sensors[sensor_id] is the Sensor that fired
+    sensor_id: SensorId, // Graph.nodes[node_id].sensors[sensor_id] is the Sensor that fired
     action: Action,
 }
 

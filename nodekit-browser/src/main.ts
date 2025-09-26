@@ -14,7 +14,7 @@ import {version as NODEKIT_VERSION} from '../package.json'
 import {gt, major} from 'semver';
 
 /**
- * Plays a Timeline, returning a Trace of Events.
+ * Plays a Graph, returning a Trace of Events.
  * @param graph
  * @param assetUrls
  * @param onEventCallback
@@ -44,7 +44,7 @@ export async function play(
 
     // Version gate:
     if (gt(graph.nodekit_version, NODEKIT_VERSION) || major(graph.nodekit_version) !== major(NODEKIT_VERSION)) {
-        throw new Error(`Incompatible NodeKit version. Timeline version: ${graph.nodekit_version}, NodeKit version: ${NODEKIT_VERSION}`);
+        throw new Error(`Incompatible NodeKit version requested: ${graph.nodekit_version}, Runtime version: ${NODEKIT_VERSION}`);
     }
 
     // Device gate:
