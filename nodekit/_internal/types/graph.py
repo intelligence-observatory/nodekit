@@ -13,7 +13,11 @@ class Graph(pydantic.BaseModel):
      Nodes which do not have any outgoing transitions are terminal Nodes which end the experiment when completed.
     """
     nodekit_version: str = pydantic.Field(default=VERSION)
+
+    # Nodes:
     nodes: Dict[NodeId, Node]
+
+    # Control flow:
     start: NodeId
     transitions: Dict[NodeId, Dict[SensorId, NodeId]]  = pydantic.Field(
         description='A mapping from (NodeId, SensorId) to the next Node that will be transitioned if the Sensor is triggered in that Node.'
