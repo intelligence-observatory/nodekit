@@ -1,4 +1,4 @@
-from typing import Dict, List, Union, Self
+from typing import Dict
 
 import pydantic
 
