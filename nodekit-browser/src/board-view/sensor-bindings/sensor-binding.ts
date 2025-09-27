@@ -148,7 +148,6 @@ export class KeySensorBinding implements SensorBinding {
         this.onSensorFired = onSensorFired;
 
         const keyCallback = (keySample:KeySample)=> {
-            console.log(keySample)
             if (!this.tArmed) {
                 return;
             }
