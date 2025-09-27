@@ -5,8 +5,8 @@ interface BaseSensor<T extends string> {
     sensor_type: T
 }
 
-export interface WaitSensor extends BaseSensor<'WaitSensor'>{
-    wait_msec: NodeTimePointMsec
+export interface TimeoutSensor extends BaseSensor<'TimeoutSensor'>{
+    timeout_msec: NodeTimePointMsec
 }
 
 
@@ -27,4 +27,4 @@ export interface KeySensor extends TemporallyBoundedSensor<'KeySensor'> {
     key: PressableKey
 }
 
-export type Sensor = WaitSensor | ClickSensor | KeySensor;
+export type Sensor = TimeoutSensor | ClickSensor | KeySensor;

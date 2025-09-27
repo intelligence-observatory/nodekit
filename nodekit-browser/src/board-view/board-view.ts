@@ -6,7 +6,7 @@ import type {Sensor} from "../types/sensors";
 import type {Action} from "../types/actions";
 import './board-view.css'
 import type {CardView} from "./card-views/card-view.ts";
-import {ClickSensorBinding, KeySensorBinding, type SensorBinding, WaitSensorBinding} from "./sensor-bindings/sensor-binding.ts";
+import {ClickSensorBinding, KeySensorBinding, type SensorBinding, TimeoutSensorBinding} from "./sensor-bindings/sensor-binding.ts";
 import {ImageCardView} from "./card-views/image/image-card.ts";
 import {TextCardView} from "./card-views/text/text-card-view.ts";
 import {VideoCardView} from "./card-views/video/video-card.ts";
@@ -235,8 +235,8 @@ export class BoardView {
 
         // Dynamic dispatch for initializing SensorBinding from Sensor
         let sensorBinding: SensorBinding | null = null;
-        if (sensor.sensor_type === 'WaitSensor') {
-            sensorBinding = new WaitSensorBinding(
+        if (sensor.sensor_type === 'TimeoutSensor') {
+            sensorBinding = new TimeoutSensorBinding(
                 onSensorFired,
             );
         }

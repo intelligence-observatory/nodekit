@@ -22,7 +22,7 @@ class ClickAction(BaseAction):
 
 
 # %%
-class WaitAction(BaseAction):
+class TimeoutAction(BaseAction):
     action_type: Literal['TimeoutAction'] = 'TimeoutAction'
 
 
@@ -37,7 +37,7 @@ Action = Annotated[
     Union[
         ClickAction,
         KeyAction,
-        WaitAction,
+        TimeoutAction,
     ],
     pydantic.Field(discriminator='action_type')
 ]

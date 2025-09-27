@@ -1,4 +1,4 @@
-import type {Action, ClickAction, KeyAction, WaitAction} from "../../types/actions";
+import type {Action, ClickAction, KeyAction, TimeoutAction} from "../../types/actions";
 import type {Mask, PressableKey, SpatialPoint, SpatialSize} from "../../types/common.ts";
 import type {PointerSample, PointerStream} from "../../input-streams/pointer-stream.ts";
 
@@ -113,9 +113,9 @@ export class ClickSensorBinding implements SensorBinding {
 }
 
 /**
-A sensor which fires immediately when armed and yields a WaitAction.
+A sensor which fires immediately when armed.
  */
-export class WaitSensorBinding implements SensorBinding {
+export class TimeoutSensorBinding implements SensorBinding {
     private onSensorFired:  (action: Action, domTimestampAction: DOMHighResTimeStamp) => void
 
     constructor(
@@ -125,8 +125,8 @@ export class WaitSensorBinding implements SensorBinding {
     }
 
     arm(): void {
-        const action: WaitAction = {
-            action_type: "WaitAction",
+        const action: TimeoutAction = {
+            action_type: "TimeoutAction",
         };
         this.onSensorFired(action, performance.now());
     }

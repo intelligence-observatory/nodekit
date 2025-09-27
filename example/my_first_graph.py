@@ -84,8 +84,8 @@ def make_triplet_trial(
         start_msec=200,
     )
 
-    timeout_sensor = nk.sensors.WaitSensor(
-        wait_msec=2000,
+    timeout_sensor = nk.sensors.TimeoutSensor(
+        timeout_msec=2000,
     )
     main_node = nk.Node(
         cards=[
@@ -110,8 +110,8 @@ def make_triplet_trial(
         justification_horizontal='center',
         justification_vertical='center',
     )
-    positive_timeout_sensor = nk.sensors.WaitSensor(
-        wait_msec=500,
+    positive_timeout_sensor = nk.sensors.TimeoutSensor(
+        timeout_msec=500,
     )
     positive_node = nk.Node(
         cards=[positive_card],
@@ -130,8 +130,8 @@ def make_triplet_trial(
         justification_horizontal='center',
         justification_vertical='center',
     )
-    negative_timeout_sensor = nk.sensors.WaitSensor(
-        wait_msec=1000,
+    negative_timeout_sensor = nk.sensors.TimeoutSensor(
+        timeout_msec=1000,
     )
 
     negative_node = nk.Node(

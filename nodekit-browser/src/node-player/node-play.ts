@@ -131,11 +131,11 @@ export class NodePlay {
                 }
             }
 
-            // Schedule Sensor firing if a WaitSensor:
-            if (sensor.sensor_type === 'WaitSensor') {
+            // Schedule Sensor firing if a TimeoutSensor:
+            if (sensor.sensor_type === 'TimeoutSensor') {
                 this.scheduler.scheduleEvent(
                     {
-                        triggerTimeMsec: sensor.wait_msec,
+                        triggerTimeMsec: sensor.timeout_msec,
                         triggerFunc: () => {this.boardView.startSensor(sensorBindingId)},
                     }
                 )

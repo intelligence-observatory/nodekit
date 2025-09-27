@@ -22,12 +22,12 @@ class BaseSensor(pydantic.BaseModel, ABC):
     sensor_type: str
 
 # %%
-class WaitSensor(BaseSensor):
+class TimeoutSensor(BaseSensor):
     """
     A Sensor that triggers when the specified time has elapsed since the start of the Node.
     """
-    sensor_type: Literal['WaitSensor'] = 'WaitSensor'
-    wait_msec: NodeTimePointMsec = pydantic.Field(
+    sensor_type: Literal['TimeoutSensor'] = 'TimeoutSensor'
+    timeout_msec: NodeTimePointMsec = pydantic.Field(
         description='The number of milliseconds from the start of the Node when the Sensor triggers.',
         gt=0,
     )
@@ -68,7 +68,7 @@ class KeySensor(TemporallyBoundedSensor):
 # %%
 Sensor = Annotated[
     Union[
-        WaitSensor,
+        TimeoutSensor,
         ClickSensor,
         KeySensor,
     ],
