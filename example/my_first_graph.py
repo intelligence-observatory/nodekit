@@ -3,8 +3,6 @@ from pathlib import Path
 import nodekit as nk
 from typing import Literal
 
-
-
 # %%
 def make_triplet_trial(
         fixation_image: nk.assets.ImageIdentifier,
