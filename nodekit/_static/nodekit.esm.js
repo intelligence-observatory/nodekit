@@ -3029,7 +3029,7 @@ class Ya {
   constructor(e, t, r) {
     this.tArmed = null, this.onSensorFired = e;
     const i = (o) => {
-      if (console.log(o), !this.tArmed || o.sampleType !== "down" || o.key !== t)
+      if (!this.tArmed || o.sampleType !== "down" || o.key !== t)
         return;
       const s = {
         action_type: "KeyAction",

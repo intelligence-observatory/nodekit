@@ -300,6 +300,7 @@ fixation_card = nk.cards.TextCard(
     h=0.0375,
     text='yo',
 )
+
 clicked_fixation_dot_sensor = nk.sensors.ClickSensor(
     mask='ellipse',
     x=fixation_card.x,
