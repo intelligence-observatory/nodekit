@@ -163,6 +163,115 @@ def make_triplet_trial(
 
     return trial_graph
 
+def make_fj_trial(
+        stimulus_image: nk.assets.ImageIdentifier,
+        correct_choice: Literal['f', 'j'],
+) -> nk.Graph:
+
+    # Make main Node:
+    stimulus_card = nk.cards.ImageCard(
+        x=0,
+        y=0,
+        w=0.5,
+        h=0.5,
+        image=stimulus_image,
+        start_msec=0,
+        end_msec=200,
+    )
+    choice_left_card = nk.cards.TextCard(
+        x=-0.25,
+        y=-0.3,
+        w=0.2,
+        h=0.2,
+        text='F',
+        start_msec=200,
+    )
+    choice_right_card = nk.cards.TextCard(
+        x=0.25,
+        y=-0.3,
+        w=0.2,
+        h=0.2,
+        text='J',
+        start_msec=200,
+    )
+
+    left_sensor = nk.sensors.KeySensor(
+        key='f',
+        start_msec=200,
+    )
+    right_sensor = nk.sensors.KeySensor(
+        key='j',
+        start_msec=200,
+    )
+
+    main_node = nk.Node(
+        cards=[
+            stimulus_card,
+            choice_left_card,
+            choice_right_card,
+        ],
+        sensors={
+            'f': left_sensor,
+            'j': right_sensor,
+        },
+    )
+
+    # Make positive feedback Node:
+    positive_card = nk.cards.TextCard(
+        text='Correct!',
+        font_size=0.05,
+        x=0, y=0, w=0.5, h=0.5,
+        background_color='#32a852',
+        text_color='#ffffff',
+        justification_horizontal='center',
+        justification_vertical='center',
+    )
+    positive_timeout_sensor = nk.sensors.TimeoutSensor(
+        timeout_msec=500,
+    )
+    positive_node = nk.Node(
+        cards=[positive_card],
+        sensors={
+            'wait': positive_timeout_sensor
+        },
+    )
+
+    # Make negative feedback Node:
+    negative_card = nk.cards.TextCard(
+        text='Incorrect.',
+        font_size=0.05,
+        x=0, y=0, w=0.5, h=0.5,
+        background_color='#a83232',
+        text_color='#ffffff',
+        justification_horizontal='center',
+        justification_vertical='center',
+    )
+    negative_timeout_sensor = nk.sensors.TimeoutSensor(
+        timeout_msec=1000,
+    )
+
+    negative_node = nk.Node(
+        cards=[negative_card],
+        sensors={
+            'wait': negative_timeout_sensor
+        },
+    )
+
+    trial_graph = nk.Graph(
+        nodes={
+            'main': main_node,
+            'positive': positive_node,
+            'negative': negative_node,
+        },
+        start='main',
+        transitions={
+            'main': {
+                'f': 'positive' if correct_choice == 'f' else 'negative',
+                'j': 'positive' if correct_choice == 'j' else 'negative',
+            },
+        },
+    )
+    return trial_graph
 
 # %% Load Asset Files
 my_image_files = []
@@ -206,8 +315,18 @@ fixation_node = nk.Node(
     },
 )
 
+fj_trial = make_fj_trial(
+    stimulus_image=my_image_files[4].identifier,
+    correct_choice='f',
+)
+
+fj_trial2 = make_fj_trial(
+    stimulus_image=my_image_files[5].identifier,
+    correct_choice='j',
+)
+
 graph = nk.concat(
-    [fixation_node, my_trial, my_trial, fixation_node]
+    [fixation_node, my_trial, my_trial, fixation_node, fj_trial, fj_trial2]
 )
 
 Path('graph.json').write_text(graph.model_dump_json(indent=2))

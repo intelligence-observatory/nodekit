@@ -11,6 +11,7 @@ import {ImageCardView} from "./card-views/image/image-card.ts";
 import {TextCardView} from "./card-views/text/text-card-view.ts";
 import {VideoCardView} from "./card-views/video/video-card.ts";
 import {PointerStream} from "../input-streams/pointer-stream.ts";
+import {KeyStream} from "../input-streams/key-stream.ts";
 
 type CardViewId = string & { __brand: 'CardViewId' };
 
@@ -99,6 +100,7 @@ export class BoardView {
     cardViews: Map<CardViewId, CardView> = new Map(); // Map of card ID to CardView
     sensorBindings: Map<SensorBindingId, SensorBinding> = new Map(); // Map of sensor ID to SensorBinding
     private pointerStream: PointerStream
+    private keyStream: KeyStream
 
     constructor(
         board: Board,
@@ -112,6 +114,7 @@ export class BoardView {
         this.setBoardState(false, false);
 
         this.pointerStream = new PointerStream(this.root);
+        this.keyStream = new KeyStream()
     }
 
     getCoordinateSystem(): BoardCoordinateSystem {
@@ -244,6 +247,7 @@ export class BoardView {
             sensorBinding = new KeySensorBinding(
                 onSensorFired,
                 sensor.key,
+                this.keyStream,
             );
         }
         else if (sensor.sensor_type == "ClickSensor"){

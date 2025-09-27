@@ -1,6 +1,7 @@
 import type {Action, ClickAction, KeyAction, TimeoutAction} from "../../types/actions";
 import type {Mask, PressableKey, SpatialPoint, SpatialSize} from "../../types/common.ts";
 import type {PointerSample, PointerStream} from "../../input-streams/pointer-stream.ts";
+import type {KeySample, KeyStream} from "../../input-streams/key-stream.ts";
 
 // Generic contract:
 export interface SensorBinding {
@@ -137,20 +138,33 @@ export class TimeoutSensorBinding implements SensorBinding {
 export class KeySensorBinding implements SensorBinding {
     private onSensorFired:  (action: Action, domTimestampAction: DOMHighResTimeStamp) => void
     private tArmed: number | null = null;
-    private readonly keys: PressableKey[];
+    private unsubscribe: () => void;
 
     constructor(
         onSensorFired:  (action: Action, domTimestampAction: DOMHighResTimeStamp) => void,
-        key: PressableKey
+        key: PressableKey,
+        keyStream: KeyStream,
     ) {
         this.onSensorFired = onSensorFired;
 
-        this.keys = [key];
-
-        // This listener must be added to document (and not the BoardView.root) because
-        // it is not guaranteed that the BoardView will have focus.
-        // See: https://stackoverflow.com/a/12828055
-        document.addEventListener('keydown', this.onKeyPress);
+        const keyCallback = (keySample:KeySample)=> {
+            console.log(keySample)
+            if (!this.tArmed) {
+                return;
+            }
+            if (keySample.sampleType !== 'down') {
+                return;
+            }
+            if (keySample.key !== key) {
+                return;
+            }
+            const action: KeyAction = {
+                action_type: "KeyAction",
+                key: keySample.key,
+            };
+            this.onSensorFired(action, keySample.domTimestamp);
+        }
+        this.unsubscribe = keyStream.subscribe(keyCallback)
     }
 
     arm() {
@@ -159,28 +173,7 @@ export class KeySensorBinding implements SensorBinding {
 
     destroy(): void {
         this.tArmed = null;
-        document.removeEventListener('keydown', this.onKeyPress);
-    }
-
-    private onKeyPress = (e: KeyboardEvent) => {
-        if (!this.tArmed) {
-            return;
-        }
-
-        e.preventDefault();
-
-        let key = e.key as PressableKey;
-        if (!this.keys.includes(key)) {
-            return
-        }
-
-        // Create the action to be fired:
-        const action: KeyAction = {
-            action_type: "KeyAction",
-            key: key,
-        };
-
-        this.onSensorFired(action, performance.now());
+        this.unsubscribe();
     }
 }
 
