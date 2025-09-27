@@ -1,4 +1,4 @@
-declare type Action = ClickAction | WaitAction | KeyAction;
+declare type Action = ClickAction | TimeoutAction | KeyAction;
 
 declare type AssetIdentifier = ImageIdentifier | VideoIdentifier;
 
@@ -157,7 +157,7 @@ declare type PressableKey = "Enter" | " " | "ArrowDown" | "ArrowLeft" | "ArrowRi
 declare interface ReturnEvent extends BaseEvent<'ReturnEvent'> {
 }
 
-declare type Sensor = WaitSensor | ClickSensor | KeySensor;
+declare type Sensor = TimeoutSensor | ClickSensor | KeySensor;
 
 declare type SensorId = string & {
     __brand: 'SensorId';
@@ -196,6 +196,13 @@ declare type TimeElapsedMsec = number & {
     __brand: 'TimeElapsedMsec';
 };
 
+declare interface TimeoutAction extends BaseAction<"TimeoutAction"> {
+}
+
+declare interface TimeoutSensor extends BaseSensor<'TimeoutSensor'> {
+    timeout_msec: NodeTimePointMsec;
+}
+
 declare interface Trace {
     nodekit_version: string;
     events: Event_2[];
@@ -208,13 +215,6 @@ declare interface VideoCard extends BaseCard<'VideoCard'> {
 }
 
 declare interface VideoIdentifier extends BaseAssetIdentifier<"video/mp4"> {
-}
-
-declare interface WaitAction extends BaseAction<"WaitAction"> {
-}
-
-declare interface WaitSensor extends BaseSensor<'WaitSensor'> {
-    wait_msec: NodeTimePointMsec;
 }
 
 export { }

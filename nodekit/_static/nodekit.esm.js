@@ -3018,7 +3018,7 @@ class Xa {
   }
   arm() {
     const e = {
-      action_type: "WaitAction"
+      action_type: "TimeoutAction"
     };
     this.onSensorFired(e, performance.now());
   }
@@ -5379,7 +5379,7 @@ class ic {
   }
   prepareSensor(e, t) {
     let r = null;
-    if (e.sensor_type === "WaitSensor")
+    if (e.sensor_type === "TimeoutSensor")
       r = new Xa(
         t
       );
@@ -5525,9 +5525,9 @@ class lc {
             this.boardView.destroySensor(i);
           }
         }
-      )), r.sensor_type === "WaitSensor" && this.scheduler.scheduleEvent(
+      )), r.sensor_type === "TimeoutSensor" && this.scheduler.scheduleEvent(
         {
-          triggerTimeMsec: r.wait_msec,
+          triggerTimeMsec: r.timeout_msec,
           triggerFunc: () => {
             this.boardView.startSensor(i);
           }
