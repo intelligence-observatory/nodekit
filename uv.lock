@@ -306,13 +306,14 @@ wheels = [
 
 [[package]]
 name = "nodekit"
-version = "0.0.1a2"
+version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "fastapi", extra = ["standard"] },
     { name = "jinja2" },
     { name = "pillow" },
     { name = "pydantic" },
+    { name = "pytest" },
 ]
 
 [package.dev-dependencies]
@@ -327,6 +328,7 @@ requires-dist = [
     { name = "jinja2", specifier = ">=3.1.4" },
     { name = "pillow", specifier = ">=10.4" },
     { name = "pydantic", specifier = ">=2.9.2" },
+    { name = "pytest", specifier = ">=8.4.1" },
 ]
 
 [package.metadata.requires-dev]
