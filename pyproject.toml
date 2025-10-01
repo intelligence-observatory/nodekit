@@ -39,3 +39,7 @@ dev = [
     "ty>=0.0.1a19",
     "pytest>=8.3",
 ]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["topo_sort/test"]
