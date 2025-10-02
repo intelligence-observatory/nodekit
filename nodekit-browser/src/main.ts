@@ -14,6 +14,7 @@ import {version as NODEKIT_VERSION} from '../package.json'
 import {gt, major} from 'semver';
 import {EventArray} from "./event-array.ts";
 import {KeyStream} from "./input-streams/key-stream.ts";
+import {PointerStream} from "./input-streams/pointer-stream.ts";
 
 /**
  * Plays a Graph, returning a Trace of Events.
@@ -66,22 +67,39 @@ export async function play(
 
     const clock = new Clock();
 
-    // Initialize input streams:
+    // Initialize KeyStream:
     const keyStream = new KeyStream(clock);
-
     keyStream.subscribe(
         // Subscribe to the key stream:
-        (keyEvent) => {
+        (keySample) => {
             eventArray.push(
                 {
                     event_type: "KeySampleEvent",
-                    t: keyEvent.t,
-                    kind: keyEvent.sampleType,
-                    key: keyEvent.key,
+                    t: keySample.t,
+                    kind: keySample.sampleType,
+                    key: keySample.key,
                 }
             )
         }
     )
+
+    // Initialize PointerStream:
+    const pointerStream = new PointerStream(boardViewsContainerDiv, clock)
+    pointerStream.subscribe(
+        // Subscribe to the pointer stream:
+        (pointerSample) => {
+            eventArray.push(
+                {
+                    event_type: "PointerSampleEvent",
+                    t: pointerSample.t,
+                    kind: pointerSample.sampleType,
+                    x: pointerSample.x,
+                    y: pointerSample.y,
+                }
+            )
+        }
+    )
+
 
     // Start screen:
     await shellUI.playStartScreen()
@@ -137,11 +155,12 @@ export async function play(
             node,
         )
 
-        // Mount
+        // Mount the Node to the Board:
         boardViewsContainerDiv.appendChild(nodePlay.boardView.root);
         await nodePlay.prepare(
             assetManager,
             keyStream,
+            pointerStream,
         )
 
         // Play the Node:

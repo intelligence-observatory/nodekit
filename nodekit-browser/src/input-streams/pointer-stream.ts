@@ -1,5 +1,6 @@
-import type {SpatialPoint} from "../types/common.ts";
+import type {SpatialPoint, TimeElapsedMsec} from "../types/common.ts";
 import {BoardCoordinateSystem} from "../board-view/board-view.ts";
+import type {Clock} from "../clock.ts";
 
 type PointerSampleType = 'move' | 'down' | 'up';
 
@@ -7,18 +8,21 @@ export interface PointerSample {
     sampleType: PointerSampleType
     x: SpatialPoint // In Board convention units
     y: SpatialPoint
-    domTimestamp: DOMHighResTimeStamp
+    t: TimeElapsedMsec
 }
 
 export class PointerStream {
     private target: HTMLDivElement;
     private boardCoordinateSystem: BoardCoordinateSystem
+    private clock: Clock
     subscriptions: ((sample: PointerSample) => void)[] = []
 
     constructor(
         target: HTMLDivElement,
+        clock: Clock,
     ) {
         this.target = target;
+        this.clock = clock;
 
         // Set up coordinate system:
         this.boardCoordinateSystem = this.getCoordinateSystem();
@@ -34,6 +38,10 @@ export class PointerStream {
 
         // PointerEvent handler:
         const handlePointerEvent = (event: PointerEvent) => {
+            // Short circuit if clock has not started
+            if (!this.clock.checkStarted()) {
+                return;
+            }
 
             // Update coordinate system on first call:
             if (!firstCall) {
@@ -76,7 +84,7 @@ export class PointerStream {
                 sampleType: sampleType,
                 x: x,
                 y: y,
-                domTimestamp: event.timeStamp,
+                t: clock.now(),
             }
             this.subscriptions.forEach(cb => cb(sample));
         };

@@ -8,6 +8,7 @@ import type {AssetManager} from "../asset-manager";
 
 import type {SensorId} from "../types/common.ts";
 import type {KeyStream} from "../input-streams/key-stream.ts";
+import type {PointerStream} from "../input-streams/pointer-stream.ts";
 
 export interface PlayNodeResult {
     domTimestampStart: DOMHighResTimeStamp;
@@ -66,6 +67,7 @@ export class NodePlay {
     public async prepare(
         assetManager: AssetManager,
         keyStream: KeyStream,
+        pointerStream: PointerStream,
     ) {
 
         // Prepare and schedule Cards:
@@ -113,6 +115,7 @@ export class NodePlay {
                     action: action,
                 }),
                 keyStream,
+                pointerStream,
             )
 
             // Schedule Sensor arming, if a TemporallyBoundedSensor:

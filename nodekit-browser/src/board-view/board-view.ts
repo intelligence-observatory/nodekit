@@ -98,7 +98,6 @@ export class BoardView {
     root: HTMLDivElement
     cardViews: Map<CardViewId, CardView> = new Map(); // Map of card ID to CardView
     sensorBindings: Map<SensorBindingId, SensorBinding> = new Map(); // Map of sensor ID to SensorBinding
-    private pointerStream: PointerStream
 
     constructor(
         boardColor: ColorHexString,
@@ -112,9 +111,7 @@ export class BoardView {
         // Set color of entire page:
         document.body.style.backgroundColor = boardColor;
 
-
         this.setBoardState(false, false);
-        this.pointerStream = new PointerStream(this.root);
     }
 
     getCoordinateSystem(): BoardCoordinateSystem {
@@ -236,6 +233,7 @@ export class BoardView {
         sensor: Sensor,
         onSensorFired: (action: Action, domTimestampAction: DOMHighResTimeStamp) => void,
         keyStream: KeyStream,
+        pointerStream: PointerStream,
     ): SensorBindingId {
 
         // Dynamic dispatch for initializing SensorBinding from Sensor
@@ -260,7 +258,7 @@ export class BoardView {
                 sensor.h,
                 sensor.mask,
                 onSensorFired,
-                this.pointerStream,
+                pointerStream,
             )
         }
         else {
