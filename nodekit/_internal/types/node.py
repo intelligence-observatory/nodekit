@@ -25,8 +25,8 @@ class Node(pydantic.BaseModel):
     )
     effects: List[Effect] = pydantic.Field(default_factory=list)
 
-    background_color: ColorHexString = pydantic.Field(
-        description='The background color of the Board for this Node.',
+    board_color: ColorHexString = pydantic.Field(
+        description='The color of the Board during this Node (the "background color").',
         default='#808080',
         validate_default=True,
     )
