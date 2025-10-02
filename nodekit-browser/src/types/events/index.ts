@@ -16,6 +16,7 @@ export interface BrowserContextEvent extends BaseEvent<'BrowserContextEvent'>{
     viewport_height_px: number,
     display_width_px: number,
     display_height_px: number,
+    device_pixel_ratio: number,
 }
 
 

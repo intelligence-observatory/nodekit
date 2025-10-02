@@ -91,6 +91,10 @@ class BrowserContextEvent(BaseEvent):
     viewport_width_px: int
     viewport_height_px: int
 
+    device_pixel_ratio: float = pydantic.Field(
+        description="The ratio between physical pixels and logical CSS pixels on the device."
+    )
+
 
 # %%
 Event = Annotated[

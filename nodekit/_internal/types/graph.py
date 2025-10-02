@@ -2,7 +2,7 @@ from typing import Dict
 
 import pydantic
 
-from nodekit import VERSION, Node, Board
+from nodekit import VERSION, Node
 from nodekit._internal.types.common import NodeId, SensorId
 
 

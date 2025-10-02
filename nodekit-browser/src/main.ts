@@ -102,6 +102,7 @@ export async function play(
         viewport_height_px: browserContext.viewportHeightPx,
         display_width_px: browserContext.displayWidthPx,
         display_height_px: browserContext.displayHeightPx,
+        device_pixel_ratio: browserContext.devicePixelRatio,
     }
     eventArray.push(browserContextEvent);
 
