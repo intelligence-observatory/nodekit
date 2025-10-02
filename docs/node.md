@@ -1,3 +1,5 @@
+# Graph 
+
 # Node
 
 ## Board
@@ -12,8 +14,8 @@ In practice, NodeKit sets the Board to 768 x 768 _CSS pixels_, which the W3C spe
 
 ## Sensors 
 
-## Outcomes
+## Actions
 
 ## Effects
 
-# Action
+# Transition
