@@ -2,12 +2,11 @@
 
 ## Board
 
-In NodeKit, the Board is defined as a 768 px x 768 px region on the Participant's screen, in CSS logical pixels. The exact viewing geometry of the Participant is not known. Under the assumptions that:
-* * One CSS logical pixel rendered on the Participant's screen corresponds to 1/96 physical inches (see W3's [reference pixel](https://www.w3.org/TR/css-values-3/#reference-pixel))
-* The Participant is sitting roughly arm's length (~28") from their monitor, and viewing it straight on and centered,
+The Board is the square region of the Participant's display on which the Graph unfolds. Points on the Board are given using _Board coordinates_, where (0, 0) is the center of the Board and (0.5, 0.5) is the top right. 
 
-The Board would be 8" x 8" physical inches, and take up ~16.26° x 16.26° of the Participant's visual field.
+NodeKit defines the **ideal Board** as 768 x 768 _reference pixels_. A reference pixel is a unit of _visual angle_ defined in the [W3C specification](https://www.w3.org/TR/css-values-3/#reference-pixel) as the visual angle of one pixel on a device with 96 [dpi](https://en.wikipedia.org/wiki/Dots_per_inch) at an arm's length. Given an arm's length of 28 inches, a reference pixel is ~0.0213° of visual angle, and the Board is ~16.26° x 16.26° of the Participant's visual field when viewed straight on. 
 
+In practice, the Board is set to 768 x 768 _CSS pixels_, because the W3C spec _recommends_ that browsers [map a single CSS pixel to a single reference pixel](https://www.w3.org/TR/css-values-3/#absolute-lengths). This mapping is always approximate, in that the Participant's viewing position is not known by the browser. 
 
 ## Cards
 
