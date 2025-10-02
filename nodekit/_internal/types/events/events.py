@@ -9,6 +9,8 @@ from nodekit._internal.types.common import (
     TimeElapsedMsec,
     NodeId,
     SensorId,
+    PressableKey,
+    SpatialPoint,
 )
 
 
@@ -21,6 +23,9 @@ class EventTypeEnum(str, enum.Enum):
 
     NodeEnterEvent = 'NodeEnterEvent'
     NodeExitEvent = 'NodeExitEvent'
+
+    PointerEvent = 'PointerEvent'
+    KeyEvent = 'KeyEvent'
 
     EndEvent = 'EndEvent'
 
@@ -59,6 +64,19 @@ class ReturnEvent(BaseEvent):
     Emitted when a Participant returns to a run (e.g., reopens the tab or navigates back) before it has completed.
     """
     event_type: Literal[EventTypeEnum.ReturnEvent] = EventTypeEnum.ReturnEvent
+
+
+# %%
+class PointerSampleEvent(BaseEvent):
+    event_type: Literal[EventTypeEnum.PointerEvent] = EventTypeEnum.PointerEvent
+    kind: Literal['move', 'down', 'up']
+    x: SpatialPoint
+    y: SpatialPoint
+
+class KeySampleEvent(BaseEvent):
+    event_type: Literal[EventTypeEnum.KeyEvent] = EventTypeEnum.KeyEvent
+    key: PressableKey
+    kind: Literal['down', 'up']
 
 
 # %%
@@ -103,6 +121,8 @@ Event = Annotated[
         BrowserContextEvent,
         LeaveEvent,
         ReturnEvent,
+        PointerSampleEvent,
+        KeySampleEvent,
         NodeEnterEvent,
         NodeExitEvent,
         EndEvent,
