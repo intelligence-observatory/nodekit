@@ -31,7 +31,6 @@ export interface NodeExitEvent extends BaseNodeEvent<'NodeExitEvent'>{
     action: Action,
 }
 
-
 export interface PointerSampleEvent extends BaseEvent<'PointerSampleEvent'>{
     x: SpatialPoint,
     y: SpatialPoint,

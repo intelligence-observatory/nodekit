@@ -3,6 +3,7 @@ import type {TimeElapsedMsec} from "./types/common.ts";
 export class Clock {
     private startTime: DOMHighResTimeStamp | null = null;
 
+
     start(): void {
         this.startTime = performance.now();
     }
@@ -24,5 +25,9 @@ export class Clock {
         // Round to integer milliseconds:
         delta = Math.round(delta);
         return delta as TimeElapsedMsec;
+    }
+
+    checkStarted(): boolean {
+        return this.startTime !== null;
     }
 }

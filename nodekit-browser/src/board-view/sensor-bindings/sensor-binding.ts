@@ -161,7 +161,7 @@ export class KeySensorBinding implements SensorBinding {
                 action_type: "KeyAction",
                 key: keySample.key,
             };
-            this.onSensorFired(action, keySample.domTimestamp);
+            this.onSensorFired(action, keySample.t);
         }
         this.unsubscribe = keyStream.subscribe(keyCallback)
     }

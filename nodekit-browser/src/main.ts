@@ -13,6 +13,7 @@ import {NodePlay} from "./node-player/node-play.ts";
 import {version as NODEKIT_VERSION} from '../package.json'
 import {gt, major} from 'semver';
 import {EventArray} from "./event-array.ts";
+import {KeyStream} from "./input-streams/key-stream.ts";
 
 /**
  * Plays a Graph, returning a Trace of Events.
@@ -64,6 +65,24 @@ export async function play(
     shellUI.hideSessionConnectingOverlay()
 
     const clock = new Clock();
+
+    // Initialize input streams:
+    const keyStream = new KeyStream(clock);
+    // const pointerStream = new PointerStream()
+
+    keyStream.subscribe(
+        // Subscribe to the key stream:
+        (keyEvent) => {
+            eventArray.push(
+                {
+                    event_type: "KeySampleEvent",
+                    t: keyEvent.t,
+                    kind: keyEvent.sampleType,
+                    key: keyEvent.key,
+                }
+            )
+        }
+    )
 
     // Start screen:
     await shellUI.playStartScreen()
@@ -121,7 +140,10 @@ export async function play(
 
         // Mount
         boardViewsContainerDiv.appendChild(nodePlay.boardView.root);
-        await nodePlay.prepare(assetManager)
+        await nodePlay.prepare(
+            assetManager,
+            keyStream,
+        )
 
         // Play the Node:
         let result = await nodePlay.run();

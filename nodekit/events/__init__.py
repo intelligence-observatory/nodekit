@@ -10,6 +10,9 @@ __all__ = [
     "NodeEnterEvent",
     "NodeExitEvent",
     "BrowserContextEvent",
+
+    "KeySampleEvent",
+    "PointerSampleEvent",
 ]
 
 from nodekit._internal.types.events.events import (
@@ -22,4 +25,6 @@ from nodekit._internal.types.events.events import (
     LeaveEvent,
     ReturnEvent,
     BrowserContextEvent,
+    KeySampleEvent,
+    PointerSampleEvent,
 )

@@ -7,6 +7,7 @@ import {type EffectBinding, HideCursorEffectBinding} from "../board-view/effect-
 import type {AssetManager} from "../asset-manager";
 
 import type {SensorId} from "../types/common.ts";
+import type {KeyStream} from "../input-streams/key-stream.ts";
 
 export interface PlayNodeResult {
     domTimestampStart: DOMHighResTimeStamp;
@@ -62,7 +63,10 @@ export class NodePlay {
         this.scheduler = new EventScheduler();
     }
 
-    public async prepare(assetManager: AssetManager) {
+    public async prepare(
+        assetManager: AssetManager,
+        keyStream: KeyStream,
+    ) {
 
         // Prepare and schedule Cards:
         for (let cardIndex = 0; cardIndex < this.node.cards.length; cardIndex++) {
@@ -107,7 +111,8 @@ export class NodePlay {
                     sensorId: sensorId as SensorId,
                     domTimestampAction: domTimestampAction,
                     action: action,
-                })
+                }),
+                keyStream,
             )
 
             // Schedule Sensor arming, if a TemporallyBoundedSensor:
