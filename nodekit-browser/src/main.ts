@@ -1,4 +1,4 @@
-import type {BrowserContextEvent, EndEvent, Event, LeaveEvent, NodeExitEvent, NodeEnterEvent, ReturnEvent, StartEvent} from "./types/events";
+import type {BrowserContextEvent, EndEvent, Event, LeaveEvent, NodeEnterEvent, NodeExitEvent, ReturnEvent, StartEvent} from "./types/events";
 import {Clock} from "./clock.ts";
 import type {Graph, Trace} from "./types/node.ts";
 import {getBrowserContext} from "./user-gates/browser-context.ts";
@@ -12,6 +12,7 @@ import {getBoardViewsContainerDiv} from "./ui/board-views-ui/board-views-ui.ts";
 import {NodePlay} from "./node-player/node-play.ts";
 import {version as NODEKIT_VERSION} from '../package.json'
 import {gt, major} from 'semver';
+import {EventArray} from "./event-array.ts";
 
 /**
  * Plays a Graph, returning a Trace of Events.
@@ -187,18 +188,3 @@ export async function play(
     return trace
 }
 
-class EventArray {
-    public events: Event[];
-    private onEventCallback: (event: Event) => void;
-    constructor(
-        initialEvents: Event[],
-        onEventCallback: ((event: Event) => void),
-    ){
-        this.onEventCallback = onEventCallback;
-        this.events = initialEvents;
-    }
-    push(event: Event) {
-        this.events.push(event);
-        this.onEventCallback(event);
-    }
-}
