@@ -105,9 +105,14 @@ export class BoardView {
     ) {
         this.root = document.createElement("div")
         this.root.className = 'board-view'
-        this.root.style.width = '768px'; // todo make responsive in tiers
-        this.root.style.height ='768px';
+
+        // Set background color:
         this.root.style.backgroundColor = boardColor;
+
+        // Set color of entire page:
+        document.body.style.backgroundColor = boardColor;
+
+
         this.setBoardState(false, false);
         this.pointerStream = new PointerStream(this.root);
     }

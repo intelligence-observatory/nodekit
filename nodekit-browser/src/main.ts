@@ -68,7 +68,6 @@ export async function play(
 
     // Initialize input streams:
     const keyStream = new KeyStream(clock);
-    // const pointerStream = new PointerStream()
 
     keyStream.subscribe(
         // Subscribe to the key stream:
