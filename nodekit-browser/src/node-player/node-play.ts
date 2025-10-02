@@ -57,7 +57,7 @@ export class NodePlay {
     constructor(
         node: Node,
     ) {
-        this.boardView = new BoardView(node.board);
+        this.boardView = new BoardView(node.board_color);
         this.node = node;
         this.scheduler = new EventScheduler();
     }

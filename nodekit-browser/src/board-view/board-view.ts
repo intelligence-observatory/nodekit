@@ -1,7 +1,6 @@
 import type {AssetManager} from "../asset-manager";
-import type {Board} from "../types/board";
 import type {Card} from "../types/cards";
-import type {SpatialPoint, SpatialSize} from "../types/common.ts";
+import type {ColorHexString, SpatialPoint, SpatialSize} from "../types/common.ts";
 import type {Sensor} from "../types/sensors";
 import type {Action} from "../types/actions";
 import './board-view.css'
@@ -103,16 +102,14 @@ export class BoardView {
     private keyStream: KeyStream
 
     constructor(
-        board: Board,
+        boardColor: ColorHexString,
     ) {
         this.root = document.createElement("div")
         this.root.className = 'board-view'
-        this.root.style.width = board.board_width_px + 'px';
-        this.root.style.height = board.board_height_px + 'px';
-        this.root.style.backgroundColor = board.background_color;
-
+        this.root.style.width = '768px'; // todo make responsive in tiers
+        this.root.style.height ='768px';
+        this.root.style.backgroundColor = boardColor;
         this.setBoardState(false, false);
-
         this.pointerStream = new PointerStream(this.root);
         this.keyStream = new KeyStream()
     }

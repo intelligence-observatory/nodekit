@@ -27,6 +27,6 @@ class Node(pydantic.BaseModel):
 
     board_color: ColorHexString = pydantic.Field(
         description='The color of the Board during this Node (the "background color").',
-        default='#808080',
+        default='#808080ff',
         validate_default=True,
     )

@@ -1,15 +1,14 @@
-import type {Board} from "./board";
 import type {Card} from "./cards";
 import type {Sensor} from "./sensors";
 import type {Effect} from "./effects/base.ts";
 import type {Event} from "./events";
-import type {NodeId, SensorId} from "./common.ts";
+import type {ColorHexString, NodeId, SensorId} from "./common.ts";
 
 export interface Node {
     cards: Card[];
     sensors: Record<SensorId, Sensor>;
     effects: Effect[];
-    board: Board;
+    board_color: ColorHexString;
 }
 
 
