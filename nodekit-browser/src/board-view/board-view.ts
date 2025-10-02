@@ -129,6 +129,7 @@ export class BoardView {
         visible: boolean,
         interactivity: boolean
     ) {
+
         // Set visibility
         if (visible) {
             this.root.style.opacity = '1';

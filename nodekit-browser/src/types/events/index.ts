@@ -1,5 +1,5 @@
 import type {Action} from "../actions";
-import type {NodeId, SensorId, TimeElapsedMsec} from "../common.ts";
+import type {NodeId, PressableKey, SensorId, SpatialPoint, TimeElapsedMsec} from "../common.ts";
 
 interface BaseEvent<T extends string> {
     event_type: T,
@@ -31,6 +31,18 @@ export interface NodeExitEvent extends BaseNodeEvent<'NodeExitEvent'>{
     action: Action,
 }
 
+
+export interface PointerSampleEvent extends BaseEvent<'PointerSampleEvent'>{
+    x: SpatialPoint,
+    y: SpatialPoint,
+    kind: 'down' | 'up' | 'move'
+}
+
+export interface KeySampleEvent extends BaseEvent<'KeySampleEvent'>{
+    key: PressableKey
+    kind: 'down' | 'up'
+}
+
 // Union type:
 export type Event =
     StartEvent |
@@ -39,4 +51,6 @@ export type Event =
     ReturnEvent |
     NodeEnterEvent |
     NodeExitEvent |
+    PointerSampleEvent |
+    KeySampleEvent |
     EndEvent;
