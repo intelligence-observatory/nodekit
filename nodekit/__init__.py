@@ -5,7 +5,6 @@ __all__ = [
     'Node',
     'Graph',
     'Trace',
-    'Board',
 
     # Namespaced types:
     'assets',
@@ -30,7 +29,6 @@ from nodekit._internal.version import VERSION
 from nodekit._internal.types.node import Node
 from nodekit._internal.types.graph import Graph
 from nodekit._internal.types.trace import Trace
-from nodekit._internal.types.board import Board
 
 import nodekit.cards as cards
 import nodekit.assets as assets
