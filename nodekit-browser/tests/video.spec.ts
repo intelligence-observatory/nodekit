@@ -18,11 +18,6 @@ async function keyPress(nodeGraphPage: NodeGraphPage, key: string, delay: number
 
 async function runTest(nodeGraphPage: NodeGraphPage) {
    try {
-      // Start the test:
-      await nodeGraphPage.goto('video.html');
-      // Find the video:
-      let video = nodeGraphPage.page.locator('video').first();
-      await expect(video).toBeVisible();
       // Await a timeout, and await some key presses:
       let events: Promise<void>[] = [
           nodeGraphPage.page.waitForTimeout(5000),
@@ -30,12 +25,19 @@ async function runTest(nodeGraphPage: NodeGraphPage) {
           keyPress(nodeGraphPage, "b", 1100),
           keyPress(nodeGraphPage, "c", 1200),
       ];
-      // Click twice:
-      await nodeGraphPage.clickTwice();
+      // Start the test:
+      await nodeGraphPage.goto('video.html');
+      // Find the video:
+      let video = nodeGraphPage.page.locator('video').first();
+      await expect(video).toBeVisible();
+      // Click the video:
+      await nodeGraphPage.click();
       // Clicked the video:
       await expect(video).not.toBeVisible();
       // There is only one node so the whole graph should be done:
       await nodeGraphPage.expectNodeGraphEnded();
+      // Submit results:
+      await nodeGraphPage.click();
       // Await the events:
       await Promise.all(events);
       // Close the page:
