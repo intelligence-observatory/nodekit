@@ -10,7 +10,10 @@ nodeGraphTest('video (offline)', async ({ offlinePage }) => {
 
 async function runTest(nodeGraphPage: NodeGraphPage) {
    try {
+      // Start the test:
       await nodeGraphPage.goto('video.html');
+      // Get the start time:
+      let t0 = await nodeGraphPage.page.evaluate(() => Date.now());
       // Find the video:
       let video = nodeGraphPage.page.locator('video').first();
       await expect(video).toBeVisible();
@@ -20,6 +23,12 @@ async function runTest(nodeGraphPage: NodeGraphPage) {
       await expect(video).not.toBeVisible();
       // There is only one node so the whole graph should be done:
       await nodeGraphPage.expectNodeGraphEnded();
+      // Get the time elapsed:
+      let t1 = await nodeGraphPage.page.evaluate(() => Date.now());
+      // Wait 5 seconds:
+      await nodeGraphPage.page.waitForTimeout(5000 - (t1 - t0));
+      // Close the page:
+      await nodeGraphPage.page.close();
    }
    catch (e) {
       nodeGraphPage.errors.push(e as Error);
