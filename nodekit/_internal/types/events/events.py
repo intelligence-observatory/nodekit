@@ -16,65 +16,59 @@ from nodekit._internal.types.common import (
 
 # %%
 class EventTypeEnum(str, enum.Enum):
-    StartEvent = 'StartEvent'
-    BrowserContextEvent = 'BrowserContextEvent'
-    LeaveEvent = 'LeaveEvent'
-    ReturnEvent = 'ReturnEvent'
+    TraceStartedEvent = 'TraceStartedEvent'
+    TraceEndedEvent = 'TraceEndedEvent'
 
-    NodeEnterEvent = 'NodeEnterEvent'
-    NodeExitEvent = 'NodeExitEvent'
+    NodeEnteredEvent = 'NodeEnteredEvent'
+    NodeExitedEvent = 'NodeExitedEvent'
 
-    PointerEvent = 'PointerEvent'
-    KeyEvent = 'KeyEvent'
+    PointerSampledEvent = 'PointerSampledEvent'
+    KeySampledEvent = 'KeySampledEvent'
 
-    EndEvent = 'EndEvent'
-
+    BrowserContextSampledEvent = 'BrowserContextSampledEvent'
+    PageSuspendedEvent = 'PageSuspendedEvent'
+    PageResumedEvent = 'PageResumedEvent'
 
 
 # %%
 class BaseEvent(pydantic.BaseModel):
     event_type: EventTypeEnum
-    t: TimeElapsedMsec
+    t: TimeElapsedMsec = pydantic.Field(description='The number of elapsed milliseconds since StartedEvent.')
 
 
 # %%
-class StartedEvent(BaseEvent):
-    """
-    Emitted when a Participant starts a new Trace.
-    """
-    event_type: Literal[EventTypeEnum.StartEvent] = EventTypeEnum.StartEvent
+class TraceStartedEvent(BaseEvent):
+    event_type: Literal[EventTypeEnum.TraceStartedEvent] = EventTypeEnum.TraceStartedEvent
 
 
-class EndedEvent(BaseEvent):
-    """
-    Emitted when a Participant ends a Trace.
-    """
-    event_type: Literal[EventTypeEnum.EndEvent] = EventTypeEnum.EndEvent
+class TraceEndedEvent(BaseEvent):
+    event_type: Literal[EventTypeEnum.TraceEndedEvent] = EventTypeEnum.TraceEndedEvent
 
+# %%
 
 class PageSuspendedEvent(BaseEvent):
     """
-    Emitted when a Participant suspends the page running the Graph (e.g., closes the tab or navigates away) before it has completed.
+    Emitted when a Participant suspends the page (e.g., closes the tab or navigates away).
     """
-    event_type: Literal[EventTypeEnum.LeaveEvent] = EventTypeEnum.LeaveEvent
+    event_type: Literal[EventTypeEnum.PageSuspendedEvent] = EventTypeEnum.PageSuspendedEvent
 
 
 class PageResumedEvent(BaseEvent):
     """
     Emitted when a Participant returns to the page (e.g., reopens the tab or navigates back).
     """
-    event_type: Literal[EventTypeEnum.ReturnEvent] = EventTypeEnum.ReturnEvent
+    event_type: Literal[EventTypeEnum.PageResumedEvent] = EventTypeEnum.PageResumedEvent
 
 
 # %%
 class PointerSampledEvent(BaseEvent):
-    event_type: Literal[EventTypeEnum.PointerEvent] = EventTypeEnum.PointerEvent
+    event_type: Literal[EventTypeEnum.PointerSampledEvent] = EventTypeEnum.PointerSampledEvent
     kind: Literal['move', 'down', 'up']
     x: SpatialPoint
     y: SpatialPoint
 
 class KeySampledEvent(BaseEvent):
-    event_type: Literal[EventTypeEnum.KeyEvent] = EventTypeEnum.KeyEvent
+    event_type: Literal[EventTypeEnum.KeySampledEvent] = EventTypeEnum.KeySampledEvent
     key: PressableKey
     kind: Literal['down', 'up']
 
@@ -84,10 +78,10 @@ class BaseNodeEvent(BaseEvent):
     node_id: NodeId
 
 class NodeEnteredEvent(BaseNodeEvent):
-    event_type: Literal[EventTypeEnum.NodeEnterEvent] = EventTypeEnum.NodeEnterEvent
+    event_type: Literal[EventTypeEnum.NodeEnteredEvent] = EventTypeEnum.NodeEnteredEvent
 
 class NodeExitedEvent(BaseNodeEvent):
-    event_type: Literal[EventTypeEnum.NodeExitEvent] = EventTypeEnum.NodeExitEvent
+    event_type: Literal[EventTypeEnum.NodeExitedEvent] = EventTypeEnum.NodeExitedEvent
     sensor_id: SensorId = pydantic.Field(description='Identifies the Sensor in the Node that was triggered.')
     action: Action
 
@@ -98,7 +92,7 @@ class BrowserContextSampledEvent(BaseEvent):
     Emitted to capture browser context information, such as user agent and viewport size.
     """
 
-    event_type: Literal[EventTypeEnum.BrowserContextEvent] = EventTypeEnum.BrowserContextEvent
+    event_type: Literal[EventTypeEnum.BrowserContextSampledEvent] = EventTypeEnum.BrowserContextSampledEvent
     user_agent: str = pydantic.Field(description="User agent string of the browser or application rendering the board.")
 
     display_width_px: int
@@ -114,21 +108,19 @@ class BrowserContextSampledEvent(BaseEvent):
 # %%
 Event = Annotated[
     Union[
-        # Trace lifecycle:
-        StartedEvent,
-        EndedEvent,
-
-        # Page navigation:
-        PageSuspendedEvent,
-        PageResumedEvent,
+        # Graph flow:
+        TraceStartedEvent,
+        TraceEndedEvent,
+        NodeEnteredEvent,
+        NodeExitedEvent,
 
         # Input streams:
         PointerSampledEvent,
         KeySampledEvent,
 
-        # Graph flow:
-        NodeEnteredEvent,
-        NodeExitedEvent,
+        # Page navigation:
+        PageSuspendedEvent,
+        PageResumedEvent,
 
         # Context:
         BrowserContextSampledEvent,
