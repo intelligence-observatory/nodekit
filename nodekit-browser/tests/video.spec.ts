@@ -8,25 +8,36 @@ nodeGraphTest('video (offline)', async ({ offlinePage }) => {
    await offlinePage.end();
 });
 
+// Wait for `delay` ms. Then press `key`. Then, wait 50 ms. Then, depress `key`.
+async function keyPress(nodeGraphPage: NodeGraphPage, key: string, delay: number) : Promise<void> {
+   await nodeGraphPage.page.waitForTimeout(delay);
+   await nodeGraphPage.page.keyboard.down(key);
+   await nodeGraphPage.page.waitForTimeout(50);
+   await nodeGraphPage.page.keyboard.up(key);
+}
+
 async function runTest(nodeGraphPage: NodeGraphPage) {
    try {
       // Start the test:
       await nodeGraphPage.goto('video.html');
-      // Get the start time:
-      let t0 = await nodeGraphPage.page.evaluate(() => Date.now());
       // Find the video:
       let video = nodeGraphPage.page.locator('video').first();
       await expect(video).toBeVisible();
+      // Await a timeout, and await some key presses:
+      let events: Promise<void>[] = [
+          nodeGraphPage.page.waitForTimeout(5000),
+          keyPress(nodeGraphPage, "a", 1000),
+          keyPress(nodeGraphPage, "b", 1100),
+          keyPress(nodeGraphPage, "c", 1200),
+      ];
       // Click twice:
       await nodeGraphPage.clickTwice();
       // Clicked the video:
       await expect(video).not.toBeVisible();
       // There is only one node so the whole graph should be done:
       await nodeGraphPage.expectNodeGraphEnded();
-      // Get the time elapsed:
-      let t1 = await nodeGraphPage.page.evaluate(() => Date.now());
-      // Wait 5 seconds:
-      await nodeGraphPage.page.waitForTimeout(5000 - (t1 - t0));
+      // Await the events:
+      await Promise.all(events);
       // Close the page:
       await nodeGraphPage.page.close();
    }
