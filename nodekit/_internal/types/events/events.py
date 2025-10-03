@@ -38,42 +38,42 @@ class BaseEvent(pydantic.BaseModel):
 
 
 # %%
-class StartEvent(BaseEvent):
+class StartedEvent(BaseEvent):
     """
-    Emitted when a Participant starts a new run.
+    Emitted when a Participant starts a new Trace.
     """
     event_type: Literal[EventTypeEnum.StartEvent] = EventTypeEnum.StartEvent
 
 
-class EndEvent(BaseEvent):
+class EndedEvent(BaseEvent):
     """
-    Emitted when a Participant completes a run.
+    Emitted when a Participant ends a Trace.
     """
     event_type: Literal[EventTypeEnum.EndEvent] = EventTypeEnum.EndEvent
 
 
-class LeaveEvent(BaseEvent):
+class PageSuspendedEvent(BaseEvent):
     """
-    Emitted when a Participant leaves a run (e.g., closes the tab or navigates away) before it has completed.
+    Emitted when a Participant suspends the page running the Graph (e.g., closes the tab or navigates away) before it has completed.
     """
     event_type: Literal[EventTypeEnum.LeaveEvent] = EventTypeEnum.LeaveEvent
 
 
-class ReturnEvent(BaseEvent):
+class PageResumedEvent(BaseEvent):
     """
-    Emitted when a Participant returns to a run (e.g., reopens the tab or navigates back) before it has completed.
+    Emitted when a Participant returns to the page (e.g., reopens the tab or navigates back).
     """
     event_type: Literal[EventTypeEnum.ReturnEvent] = EventTypeEnum.ReturnEvent
 
 
 # %%
-class PointerSampleEvent(BaseEvent):
+class PointerSampledEvent(BaseEvent):
     event_type: Literal[EventTypeEnum.PointerEvent] = EventTypeEnum.PointerEvent
     kind: Literal['move', 'down', 'up']
     x: SpatialPoint
     y: SpatialPoint
 
-class KeySampleEvent(BaseEvent):
+class KeySampledEvent(BaseEvent):
     event_type: Literal[EventTypeEnum.KeyEvent] = EventTypeEnum.KeyEvent
     key: PressableKey
     kind: Literal['down', 'up']
@@ -83,17 +83,17 @@ class KeySampleEvent(BaseEvent):
 class BaseNodeEvent(BaseEvent):
     node_id: NodeId
 
-class NodeEnterEvent(BaseNodeEvent):
+class NodeEnteredEvent(BaseNodeEvent):
     event_type: Literal[EventTypeEnum.NodeEnterEvent] = EventTypeEnum.NodeEnterEvent
 
-class NodeExitEvent(BaseNodeEvent):
+class NodeExitedEvent(BaseNodeEvent):
     event_type: Literal[EventTypeEnum.NodeExitEvent] = EventTypeEnum.NodeExitEvent
     sensor_id: SensorId = pydantic.Field(description='Identifies the Sensor in the Node that was triggered.')
     action: Action
 
 
 # %%
-class BrowserContextEvent(BaseEvent):
+class BrowserContextSampledEvent(BaseEvent):
     """
     Emitted to capture browser context information, such as user agent and viewport size.
     """
@@ -111,19 +111,27 @@ class BrowserContextEvent(BaseEvent):
         description="The ratio between physical pixels and logical CSS pixels on the device."
     )
 
-
 # %%
 Event = Annotated[
     Union[
-        StartEvent,
-        BrowserContextEvent,
-        LeaveEvent,
-        ReturnEvent,
-        PointerSampleEvent,
-        KeySampleEvent,
-        NodeEnterEvent,
-        NodeExitEvent,
-        EndEvent,
+        # Trace lifecycle:
+        StartedEvent,
+        EndedEvent,
+
+        # Page navigation:
+        PageSuspendedEvent,
+        PageResumedEvent,
+
+        # Input streams:
+        PointerSampledEvent,
+        KeySampledEvent,
+
+        # Graph flow:
+        NodeEnteredEvent,
+        NodeExitedEvent,
+
+        # Context:
+        BrowserContextSampledEvent,
     ],
     pydantic.Field(discriminator='event_type')
 ]

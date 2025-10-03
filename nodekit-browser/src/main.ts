@@ -100,7 +100,6 @@ export async function play(
         }
     )
 
-
     // Start screen:
     await shellUI.playStartScreen()
     clock.start()
