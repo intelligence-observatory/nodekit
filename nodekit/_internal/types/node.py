@@ -21,7 +21,7 @@ class Node(pydantic.BaseModel):
     )
     sensors: Dict[SensorId, Sensor] = pydantic.Field(
         min_length=1,
-        description='List of Sensors that listen for a Participant Action. The first Sensor that is triggered ends the Node.'
+        description='Set of Sensors that listen for a Participant Action. The first Sensor that is triggered ends the Node.'
     )
     effects: List[Effect] = pydantic.Field(default_factory=list)
 
