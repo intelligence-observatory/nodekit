@@ -1,4 +1,4 @@
-import type {BrowserContextEvent, EndEvent, Event, LeaveEvent, NodeEnterEvent, NodeExitEvent, ReturnEvent, StartEvent} from "./types/events";
+import type {BrowserContextSampledEvent, TraceEndedEvent, Event, PageSuspendedEvent, NodeEnteredEvent, NodeExitedEvent, PageResumedEvent, TraceStartedEvent} from "./types/events";
 import {Clock} from "./clock.ts";
 import type {Graph, Trace} from "./types/node.ts";
 import {getBrowserContext} from "./user-gates/browser-context.ts";
@@ -74,7 +74,7 @@ export async function play(
         (keySample) => {
             eventArray.push(
                 {
-                    event_type: "KeySampleEvent",
+                    event_type: "KeySampledEvent",
                     t: keySample.t,
                     kind: keySample.sampleType,
                     key: keySample.key,
@@ -90,7 +90,7 @@ export async function play(
         (pointerSample) => {
             eventArray.push(
                 {
-                    event_type: "PointerSampleEvent",
+                    event_type: "PointerSampledEvent",
                     t: pointerSample.t,
                     kind: pointerSample.sampleType,
                     x: pointerSample.x,
@@ -103,8 +103,8 @@ export async function play(
     // Start screen:
     await shellUI.playStartScreen()
     clock.start()
-    const startEvent: StartEvent = {
-        event_type: "StartEvent",
+    const startEvent: TraceStartedEvent = {
+        event_type: "TraceStartedEvent",
         t: 0 as TimeElapsedMsec,
     }
     eventArray.push(startEvent);
@@ -112,15 +112,15 @@ export async function play(
     // Add a listener for the LeaveEvent:
     function onVisibilityChange() {
         if (document.visibilityState === "hidden") {
-            const leaveEvent: LeaveEvent = {
-                event_type: "LeaveEvent",
+            const leaveEvent: PageSuspendedEvent = {
+                event_type: "PageSuspendedEvent",
                 t: clock.now(),
             };
             eventArray.push(leaveEvent);
         } else if (document.visibilityState === "visible") {
             // Optionally handle when the document becomes visible again
-            const returnEvent: ReturnEvent = {
-                event_type: "ReturnEvent",
+            const returnEvent: PageResumedEvent = {
+                event_type: "PageResumedEvent",
                 t: clock.now(),
             };
             eventArray.push(returnEvent);
@@ -130,8 +130,8 @@ export async function play(
 
     // Emit the BrowserContextEvent:
     const browserContext = getBrowserContext();
-    const browserContextEvent: BrowserContextEvent = {
-        event_type: "BrowserContextEvent",
+    const browserContextEvent: BrowserContextSampledEvent = {
+        event_type: "BrowserContextSampledEvent",
         t: clock.now(),
         user_agent: browserContext.userAgent,
         viewport_width_px: browserContext.viewportWidthPx,
@@ -166,16 +166,16 @@ export async function play(
         let result = await nodePlay.run();
 
         // Emit the NodeStartEvent: todo: emit immediately when actually started?
-        const nodeStartEvent: NodeEnterEvent = {
-            event_type: "NodeEnterEvent",
+        const nodeStartEvent: NodeEnteredEvent = {
+            event_type: "NodeEnteredEvent",
             t: clock.convertDomTimestampToClockTime(result.domTimestampStart),
             node_id: currentNodeId,
         }
         eventArray.push(nodeStartEvent);
 
         // Emit NodeExitEvent: todo: emit immediately
-        const nodeExitEvent: NodeExitEvent = {
-            event_type: "NodeExitEvent",
+        const nodeExitEvent: NodeExitedEvent = {
+            event_type: "NodeExitedEvent",
             t: clock.convertDomTimestampToClockTime(result.domTimestampAction),
             node_id: currentNodeId,
             sensor_id: result.sensorId,
@@ -203,8 +203,8 @@ export async function play(
     await shellUI.playEndScreen()
 
     // Generate the EndEvent:
-    const endEvent: EndEvent = {
-        event_type: "EndEvent",
+    const endEvent: TraceEndedEvent = {
+        event_type: "TraceEndedEvent",
         t: clock.now(),
     }
     eventArray.push(endEvent);

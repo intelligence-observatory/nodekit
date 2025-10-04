@@ -6,11 +6,11 @@ interface BaseEvent<T extends string> {
     t: TimeElapsedMsec, // The time the Event was emitted, relative to the start of the Trace
 }
 
-export interface StartEvent extends BaseEvent<'StartEvent'>{}
-export interface EndEvent extends BaseEvent<'EndEvent'>{}
-export interface LeaveEvent extends BaseEvent<'LeaveEvent'>{}
-export interface ReturnEvent extends BaseEvent<'ReturnEvent'>{}
-export interface BrowserContextEvent extends BaseEvent<'BrowserContextEvent'>{
+export interface TraceStartedEvent extends BaseEvent<'TraceStartedEvent'>{}
+export interface TraceEndedEvent extends BaseEvent<'TraceEndedEvent'>{}
+export interface PageSuspendedEvent extends BaseEvent<'PageSuspendedEvent'>{}
+export interface PageResumedEvent extends BaseEvent<'PageResumedEvent'>{}
+export interface BrowserContextSampledEvent extends BaseEvent<'BrowserContextSampledEvent'>{
     user_agent: string,
     viewport_width_px: number,
     viewport_height_px: number,
@@ -19,37 +19,37 @@ export interface BrowserContextEvent extends BaseEvent<'BrowserContextEvent'>{
     device_pixel_ratio: number,
 }
 
-
+//
 interface BaseNodeEvent<T extends string> extends BaseEvent<T> {
     node_id: NodeId, // Graph.nodes[node_id] is the Node this event originated;
 }
 
-export interface NodeEnterEvent extends BaseNodeEvent<'NodeEnterEvent'>{}
+export interface NodeEnteredEvent extends BaseNodeEvent<'NodeEnteredEvent'>{}
 
-export interface NodeExitEvent extends BaseNodeEvent<'NodeExitEvent'>{
+export interface NodeExitedEvent extends BaseNodeEvent<'NodeExitedEvent'>{
     sensor_id: SensorId, // Graph.nodes[node_id].sensors[sensor_id] is the Sensor that fired
     action: Action,
 }
 
-export interface PointerSampleEvent extends BaseEvent<'PointerSampleEvent'>{
+export interface PointerSampledEvent extends BaseEvent<'PointerSampledEvent'>{
     x: SpatialPoint,
     y: SpatialPoint,
     kind: 'down' | 'up' | 'move'
 }
 
-export interface KeySampleEvent extends BaseEvent<'KeySampleEvent'>{
+export interface KeySampledEvent extends BaseEvent<'KeySampledEvent'>{
     key: PressableKey
     kind: 'down' | 'up'
 }
 
 // Union type:
 export type Event =
-    StartEvent |
-    BrowserContextEvent |
-    LeaveEvent |
-    ReturnEvent |
-    NodeEnterEvent |
-    NodeExitEvent |
-    PointerSampleEvent |
-    KeySampleEvent |
-    EndEvent;
+    TraceStartedEvent |
+    BrowserContextSampledEvent |
+    PageSuspendedEvent |
+    PageResumedEvent |
+    NodeEnteredEvent |
+    NodeExitedEvent |
+    PointerSampledEvent |
+    KeySampledEvent |
+    TraceEndedEvent;
