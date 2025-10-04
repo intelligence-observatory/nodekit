@@ -12,3 +12,7 @@ class Trace(pydantic.BaseModel):
     """
     nodekit_version: str = pydantic.Field(default=VERSION)
     events: List[Event]
+
+    @pydantic.field_validator('events')
+    def order_events(cls, events: List[Event]) -> List[Event]:
+        return sorted(events, key=lambda e: e.t)
