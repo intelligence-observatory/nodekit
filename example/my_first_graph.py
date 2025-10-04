@@ -340,3 +340,4 @@ trace = nk.play(
 print(f'Observed {len(trace.events)} events:')
 for event in trace.events:
     print(event.event_type)
+

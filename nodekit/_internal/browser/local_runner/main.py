@@ -14,7 +14,7 @@ import uvicorn
 
 from nodekit._internal.browser.browser_bundle import get_browser_bundle
 from nodekit._internal.types.assets import AssetFile, AssetUrl
-from nodekit._internal.types.events.events import Event
+from nodekit._internal.types.events.events import Event, EventTypeEnum
 from nodekit._internal.types.trace import Trace
 from nodekit import Graph
 
@@ -187,7 +187,7 @@ class LocalRunner:
             # Need a TypeAdapter for this.
             typeadapter = pydantic.TypeAdapter(Event)
             event = typeadapter.validate_python(event)
-            print(f'Received {event.event_type}')
+            print(f'Received {event.event_type.value}')
             self._events.append(event)
             return fastapi.Response(status_code=fastapi.status.HTTP_204_NO_CONTENT)
 
@@ -245,7 +245,7 @@ def play(
     while True:
         # Todo: make this better; add a timeout
         events = runner.list_events()
-        if any([e.event_type == 'EndEvent' for e in events]):
+        if any([e.event_type == EventTypeEnum.TraceEndedEvent for e in events]):
             break
         time.sleep(5)
 
