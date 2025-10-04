@@ -6,14 +6,14 @@ import {type EffectBinding, HideCursorEffectBinding} from "../board-view/effect-
 
 import type {AssetManager} from "../asset-manager";
 
-import type {SensorId} from "../types/common.ts";
+import type {SensorId, TimeElapsedMsec} from "../types/common.ts";
 import type {KeyStream} from "../input-streams/key-stream.ts";
 import type {PointerStream} from "../input-streams/pointer-stream.ts";
+import type {Clock} from "../clock.ts";
 
 export interface PlayNodeResult {
-    domTimestampStart: DOMHighResTimeStamp;
-    domTimestampAction: DOMHighResTimeStamp
-    domTimestampEnd: DOMHighResTimeStamp;
+    tStart: TimeElapsedMsec;
+    tAction: TimeElapsedMsec
     sensorId: SensorId;
     action: Action;
 }
@@ -39,8 +39,8 @@ class Deferred<T> {
     }
 }
 interface SensorFiring {
+    t: TimeElapsedMsec;
     sensorId: SensorId;
-    domTimestampAction: DOMHighResTimeStamp;
     action: Action;
 }
 
@@ -68,6 +68,7 @@ export class NodePlay {
         assetManager: AssetManager,
         keyStream: KeyStream,
         pointerStream: PointerStream,
+        clock: Clock,
     ) {
 
         // Prepare and schedule Cards:
@@ -109,13 +110,14 @@ export class NodePlay {
             const sensor = this.node.sensors[sensorId as SensorId];
             const sensorBindingId = this.boardView.prepareSensor(
                 sensor,
-                (action, domTimestampAction) => this.deferredSensorFiring.resolve({
+                (action, tAction) => this.deferredSensorFiring.resolve({
                     sensorId: sensorId as SensorId,
-                    domTimestampAction: domTimestampAction,
+                    t: tAction,
                     action: action,
                 }),
                 keyStream,
                 pointerStream,
+                clock,
             )
 
             // Schedule Sensor arming, if a TemporallyBoundedSensor:
@@ -192,7 +194,7 @@ export class NodePlay {
         this.prepared = true;
     }
 
-    async run(): Promise<PlayNodeResult> {
+    async run(clock:Clock): Promise<PlayNodeResult> {
         // Run the NodePlay, returning a Promise which resolves when a Sensor fires and the corresponding Reinforcer has completed.
         if (!this.prepared) {
             // Prepare the NodePlay
@@ -208,7 +210,7 @@ export class NodePlay {
         this.started = true;
 
         // Kick off scheduler:
-        const domTimestampStart = performance.now();
+        let tStart: TimeElapsedMsec = clock.now()
         this.scheduler.start()
 
         // Wait for a Sensor to fire:
@@ -219,9 +221,8 @@ export class NodePlay {
         return {
             sensorId: sensorFiring.sensorId,
             action: sensorFiring.action,
-            domTimestampStart: domTimestampStart,
-            domTimestampAction: sensorFiring.domTimestampAction,
-            domTimestampEnd: performance.now(),
+            tStart: tStart,
+            tAction: sensorFiring.t,
         }
     }
 }

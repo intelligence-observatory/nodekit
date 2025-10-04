@@ -160,15 +160,16 @@ export async function play(
             assetManager,
             keyStream,
             pointerStream,
+            clock,
         )
 
         // Play the Node:
-        let result = await nodePlay.run();
+        let result = await nodePlay.run(clock);
 
         // Emit the NodeStartEvent: todo: emit immediately when actually started?
         const nodeStartEvent: NodeEnteredEvent = {
             event_type: "NodeEnteredEvent",
-            t: clock.convertDomTimestampToClockTime(result.domTimestampStart),
+            t: result.tStart,
             node_id: currentNodeId,
         }
         eventArray.push(nodeStartEvent);
@@ -176,7 +177,7 @@ export async function play(
         // Emit NodeExitEvent: todo: emit immediately
         const nodeExitEvent: NodeExitedEvent = {
             event_type: "NodeExitedEvent",
-            t: clock.convertDomTimestampToClockTime(result.domTimestampAction),
+            t: result.tAction,
             node_id: currentNodeId,
             sensor_id: result.sensorId,
             action: result.action,

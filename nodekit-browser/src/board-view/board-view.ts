@@ -1,6 +1,6 @@
 import type {AssetManager} from "../asset-manager";
 import type {Card} from "../types/cards";
-import type {ColorHexString, SpatialPoint, SpatialSize} from "../types/common.ts";
+import type {ColorHexString, SpatialPoint, SpatialSize, TimeElapsedMsec} from "../types/common.ts";
 import type {Sensor} from "../types/sensors";
 import type {Action} from "../types/actions";
 import './board-view.css'
@@ -11,6 +11,7 @@ import {TextCardView} from "./card-views/text/text-card-view.ts";
 import {VideoCardView} from "./card-views/video/video-card.ts";
 import {PointerStream} from "../input-streams/pointer-stream.ts";
 import {KeyStream} from "../input-streams/key-stream.ts";
+import type {Clock} from "../clock.ts";
 
 type CardViewId = string & { __brand: 'CardViewId' };
 
@@ -231,9 +232,10 @@ export class BoardView {
 
     prepareSensor(
         sensor: Sensor,
-        onSensorFired: (action: Action, domTimestampAction: DOMHighResTimeStamp) => void,
+        onSensorFired: (action: Action, tAction: TimeElapsedMsec) => void,
         keyStream: KeyStream,
         pointerStream: PointerStream,
+        clock: Clock,
     ): SensorBindingId {
 
         // Dynamic dispatch for initializing SensorBinding from Sensor
@@ -241,6 +243,7 @@ export class BoardView {
         if (sensor.sensor_type === 'TimeoutSensor') {
             sensorBinding = new TimeoutSensorBinding(
                 onSensorFired,
+                clock,
             );
         }
         else if (sensor.sensor_type === 'KeySensor') {

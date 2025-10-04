@@ -1,7 +1,8 @@
 import type {Action, ClickAction, KeyAction, TimeoutAction} from "../../types/actions";
-import type {Mask, PressableKey, SpatialPoint, SpatialSize} from "../../types/common.ts";
+import type {Mask, PressableKey, SpatialPoint, SpatialSize, TimeElapsedMsec} from "../../types/common.ts";
 import type {PointerSample, PointerStream} from "../../input-streams/pointer-stream.ts";
 import type {KeySample, KeyStream} from "../../input-streams/key-stream.ts";
+import type {Clock} from "../../clock.ts";
 
 // Generic contract:
 export interface SensorBinding {
@@ -11,7 +12,6 @@ export interface SensorBinding {
 }
 
 
-// Click sensor
 export class ClickSensorBinding implements SensorBinding {
 
     protected tArmed: DOMHighResTimeStamp | null = null;
@@ -30,7 +30,7 @@ export class ClickSensorBinding implements SensorBinding {
         w: SpatialSize,
         h: SpatialSize,
         mask: Mask,
-        onSensorFired: (action: ClickAction, domTimestampAction: DOMHighResTimeStamp) => void,
+        onSensorFired: (action: ClickAction, tAction: TimeElapsedMsec) => void,
         pointerStream: PointerStream,
     ) {
         this.region = {
@@ -67,7 +67,7 @@ export class ClickSensorBinding implements SensorBinding {
             };
             onSensorFired(
                 action,
-                pointerSample.domTimestamp,
+                pointerSample.t,
             );
         }
 
@@ -114,40 +114,43 @@ export class ClickSensorBinding implements SensorBinding {
 }
 
 /**
-A sensor which fires immediately when armed.
+ A sensor which fires immediately when armed.
  */
 export class TimeoutSensorBinding implements SensorBinding {
-    private onSensorFired:  (action: Action, domTimestampAction: DOMHighResTimeStamp) => void
+    private onSensorFired: (action: Action, tAction: TimeElapsedMsec) => void
+    private clock: Clock
 
     constructor(
-        onSensorFired: (action: Action, domTimestampAction: DOMHighResTimeStamp)=> void,
+        onSensorFired: (action: Action, tAction: TimeElapsedMsec) => void,
+        clock: Clock,
     ) {
         this.onSensorFired = onSensorFired;
+        this.clock = clock;
     }
 
     arm(): void {
         const action: TimeoutAction = {
             action_type: "TimeoutAction",
         };
-        this.onSensorFired(action, performance.now());
+        this.onSensorFired(action, this.clock.now());
     }
 
     destroy(): void {}
 }
 
 export class KeySensorBinding implements SensorBinding {
-    private onSensorFired:  (action: Action, domTimestampAction: DOMHighResTimeStamp) => void
+    private onSensorFired: (action: Action, tAction: TimeElapsedMsec) => void
     private tArmed: number | null = null;
     private unsubscribe: () => void;
 
     constructor(
-        onSensorFired:  (action: Action, domTimestampAction: DOMHighResTimeStamp) => void,
+        onSensorFired: (action: Action, tAction: TimeElapsedMsec) => void,
         key: PressableKey,
         keyStream: KeyStream,
     ) {
         this.onSensorFired = onSensorFired;
 
-        const keyCallback = (keySample:KeySample)=> {
+        const keyCallback = (keySample: KeySample) => {
             if (!this.tArmed) {
                 return;
             }

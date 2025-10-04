@@ -39,7 +39,7 @@ export class PointerStream {
         // PointerEvent handler:
         const handlePointerEvent = (event: PointerEvent) => {
             // Short circuit if clock has not started
-            if (!this.clock.checkStarted()) {
+            if (!this.clock.checkClockStarted()) {
                 return;
             }
 

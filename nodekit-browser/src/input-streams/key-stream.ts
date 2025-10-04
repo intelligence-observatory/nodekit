@@ -32,7 +32,7 @@ export class KeyStream {
     private handleKeyDown = (event: KeyboardEvent) => {
 
         // Short circuit if clock has not started
-        if (!this.clock.checkStarted()) {
+        if (!this.clock.checkClockStarted()) {
             return;
         }
 
@@ -54,7 +54,7 @@ export class KeyStream {
 
     private handleKeyUp = (event: KeyboardEvent) => {
         // Short circuit if clock has not started
-        if (!this.clock.checkStarted()) {
+        if (!this.clock.checkClockStarted()) {
             return;
         }
         // Mark this key as no longer being held down:

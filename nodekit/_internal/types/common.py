@@ -29,11 +29,10 @@ Mask = Annotated[
 ]
 # %% Time
 NodeTimePointMsec = Annotated[int, pydantic.Field(strict=True, ge=0, description='A point in time relative to the start of a Node.')]
-TimeElapsedMsec = Annotated[int, pydantic.Field(strict=True, ge=0, description='An elapsed duration of time in milliseconds, relative to some start.')]
+TimeElapsedMsec = Annotated[int, pydantic.Field(strict=True, ge=0, description='An elapsed duration of time in milliseconds, relative to the start of the Trace.')]
 
 # %% Text
 MarkdownString = str
-
 
 def _normalize_hex_code(value: str) -> str:
     if len(value) == 7:
