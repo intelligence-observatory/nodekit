@@ -5,5 +5,5 @@ This project follows the [BEM](https://getbem.com/naming/) convention for CSS cl
 
 ## Testing 
 
-- Ensure you've run `npm install`. 
+- Ensure you've run `npm install` and `npx playwright install`
 - Run `npm run test`
