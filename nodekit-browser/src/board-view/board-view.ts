@@ -1,18 +1,22 @@
-import type {AssetManager} from "../asset-manager/asset-manager.ts";
-import type {Board} from "../types/board";
+import type {AssetManager} from "../asset-manager";
 import type {Card} from "../types/cards";
-import type {CardId, SensorId, SpatialPoint, SpatialSize} from "../types/common.ts";
+import type {ColorHexString, SpatialPoint, SpatialSize, TimeElapsedMsec} from "../types/common.ts";
 import type {Sensor} from "../types/sensors";
 import type {Action} from "../types/actions";
 import './board-view.css'
-import type {CardView, ClickableCardView, DoneableCardView} from "./card-views/card-view.ts";
-import {assertClickable, assertDoneable, ClickSensorBinding, DoneSensorBinding, KeySensorBinding, type SensorBinding, TimeoutSensorBinding} from "./sensor-bindings/sensor-binding.ts";
-import {FixationPointCardView} from "./card-views/fixation-point/fixation-point-card-view.ts";
-import {MarkdownPagesCardView} from "./card-views/markdown-pages/markdown-pages-card-view.ts";
+import type {CardView} from "./card-views/card-view.ts";
+import {ClickSensorBinding, KeySensorBinding, type SensorBinding, TimeoutSensorBinding} from "./sensor-bindings/sensor-binding.ts";
 import {ImageCardView} from "./card-views/image/image-card.ts";
 import {TextCardView} from "./card-views/text/text-card-view.ts";
 import {VideoCardView} from "./card-views/video/video-card.ts";
-import {BlankCardView} from "./card-views/blank/blank-card-view.ts";
+import {PointerStream} from "../input-streams/pointer-stream.ts";
+import {KeyStream} from "../input-streams/key-stream.ts";
+import type {Clock} from "../clock.ts";
+
+type CardViewId = string & { __brand: 'CardViewId' };
+
+
+export type SensorBindingId = string & { __brand: 'SensorBindingId' };
 
 export class BoardCoordinateSystem {
     public boardWidthPx: number; // Width of the board in pixels
@@ -21,16 +25,14 @@ export class BoardCoordinateSystem {
     public boardTopPx: number;
 
     constructor(
-        boardWidthPx: number,
-        boardHeightPx: number,
-        boardLeftPx: number,
-        boardTopPx: number,
+        target: HTMLDivElement,
     ) {
+        const {width, height, left, top} = target.getBoundingClientRect();
         // Initialize the board coordinate system with the given width and height in pixels
-        this.boardWidthPx = boardWidthPx;
-        this.boardHeightPx = boardHeightPx;
-        this.boardLeftPx = boardLeftPx;
-        this.boardTopPx = boardTopPx;
+        this.boardWidthPx = width;
+        this.boardHeightPx = height;
+        this.boardLeftPx = left;
+        this.boardTopPx = top;
     }
 
     getUnitPx(): number {
@@ -73,14 +75,18 @@ export class BoardCoordinateSystem {
         return this.getUnitPx() * boardSize;
     }
 
-    getBoardLocationFromMouseEvent(e: MouseEvent):{
+    getBoardLocationFromPointerEvent(e: PointerEvent):{
         x: SpatialPoint,
         y: SpatialPoint,
     }{
         // Converts a MouseEvent's (clientX, clientY) to Board coordinates (x, y)
+        let clickX = (e.clientX - this.boardLeftPx) / this.boardWidthPx - 0.5;
+        let clickY = -((e.clientY - this.boardTopPx) / this.boardHeightPx - 0.5);
 
-        const clickX = (e.clientX - this.boardLeftPx) / this.boardWidthPx - 0.5;
-        const clickY = -((e.clientY - this.boardTopPx) / this.boardHeightPx - 0.5);
+        // Standardize decimal places
+        const precision = 10;
+        clickX = parseFloat(clickX.toFixed(precision));
+        clickY = parseFloat(clickY.toFixed(precision));
 
         return {
             x:clickX as SpatialPoint,
@@ -91,25 +97,26 @@ export class BoardCoordinateSystem {
 
 export class BoardView {
     root: HTMLDivElement
-    cardViews: Map<CardId, CardView> = new Map(); // Map of card ID to CardView
-    sensorBindings: Map<SensorId, SensorBinding> = new Map(); // Map of sensor ID to SensorBinding
+    cardViews: Map<CardViewId, CardView> = new Map(); // Map of card ID to CardView
+    sensorBindings: Map<SensorBindingId, SensorBinding> = new Map(); // Map of sensor ID to SensorBinding
 
     constructor(
-        boardId: string,
-        board: Board,
+        boardColor: ColorHexString,
     ) {
         this.root = document.createElement("div")
         this.root.className = 'board-view'
-        this.root.id = `${boardId}`;
-        this.root.style.width = board.board_width_px + 'px';
-        this.root.style.height = board.board_height_px + 'px';
+
+        // Set background color:
+        this.root.style.backgroundColor = boardColor;
+
+        // Set color of entire page:
+        document.body.style.backgroundColor = boardColor;
 
         this.setBoardState(false, false);
     }
 
     getCoordinateSystem(): BoardCoordinateSystem {
-        const {width, height, left, top} = this.root.getBoundingClientRect();
-        return new BoardCoordinateSystem(width, height, left, top);
+        return new BoardCoordinateSystem(this.root);
     }
 
     reset() {
@@ -123,6 +130,7 @@ export class BoardView {
         visible: boolean,
         interactivity: boolean
     ) {
+
         // Set visibility
         if (visible) {
             this.root.style.opacity = '1';
@@ -143,8 +151,7 @@ export class BoardView {
         }
     }
 
-    // Cards
-    private getCardView(cardId: CardId): CardView {
+    private getCardView(cardId: CardViewId): CardView {
         const cardView = this.cardViews.get(cardId);
         if (!cardView) {
             throw new Error(`CardView with ID ${cardId} not found.`);
@@ -155,21 +162,11 @@ export class BoardView {
     async prepareCard(
         card: Card,
         assetManager: AssetManager,
-    ) {
+    ): Promise<CardViewId> {
         // Dynamic dispatch
         const boardCoords = this.getCoordinateSystem();
         let cardView: CardView | null = null;
         switch (card.card_type) {
-            case "FixationPointCard":
-                cardView = new FixationPointCardView(
-                    card, boardCoords
-                )
-                break
-            case "MarkdownPagesCard":
-                cardView = new MarkdownPagesCardView(
-                    card, boardCoords
-                )
-                break
             case "ImageCard":
                 cardView = new ImageCardView(
                     card,
@@ -187,12 +184,6 @@ export class BoardView {
                     card, boardCoords
                 )
                 break
-            case "BlankCard":
-                cardView = new BlankCardView(
-                    card,
-                    boardCoords
-                )
-                break
             default:
                 throw new Error(`Unsupported Card type: ${card}`);
         }
@@ -203,25 +194,27 @@ export class BoardView {
         // Mount CardView to BoardView:
         this.root.appendChild(cardView.root);
 
-        // Register:
-        this.cardViews.set(card.card_id, cardView);
+        // Issue a new CardViewId:
+        const cardId = crypto.randomUUID() as CardViewId;
+        this.cardViews.set(cardId, cardView);
+        return cardId
     }
 
-    startCard(cardId: CardId) {
+    startCard(cardId: CardViewId) {
         // Show and start the CardView
         const cardView = this.getCardView(cardId);
         cardView.setVisibility(true);
         cardView.onStart();
     }
 
-    stopCard(cardId: CardId) {
+    stopCard(cardId: CardViewId) {
         // Hide and stop the CardView
         const cardView = this.getCardView(cardId);
         cardView.setVisibility(false);
         cardView.onStop();
     }
 
-    destroyCard(cardId: CardId) {
+    destroyCard(cardId: CardViewId) {
         // Unload and remove the CardView
         const cardView = this.getCardView(cardId);
         cardView.onDestroy();
@@ -229,71 +222,70 @@ export class BoardView {
         this.cardViews.delete(cardId);
     }
 
-    // Sensors
-    private getSensorBinding(sensorId: SensorId): SensorBinding {
-        const sensorBinding = this.sensorBindings.get(sensorId);
+    private getSensorBinding(sensorBindingId: SensorBindingId): SensorBinding {
+        const sensorBinding = this.sensorBindings.get(sensorBindingId);
         if (!sensorBinding) {
-            throw new Error(`SensorBinding with ID ${sensorId} not found.`);
+            throw new Error(`SensorBinding with ID ${sensorBindingId} not found.`);
         }
         return sensorBinding;
     }
 
     prepareSensor(
         sensor: Sensor,
-        onSensorFired: (action: Action) => void,
-    ) {
+        onSensorFired: (action: Action, tAction: TimeElapsedMsec) => void,
+        keyStream: KeyStream,
+        pointerStream: PointerStream,
+        clock: Clock,
+    ): SensorBindingId {
 
         // Dynamic dispatch for initializing SensorBinding from Sensor
         let sensorBinding: SensorBinding | null = null;
         if (sensor.sensor_type === 'TimeoutSensor') {
             sensorBinding = new TimeoutSensorBinding(
-                sensor.sensor_id,
                 onSensorFired,
+                clock,
             );
         }
         else if (sensor.sensor_type === 'KeySensor') {
             sensorBinding = new KeySensorBinding(
-                sensor.sensor_id,
                 onSensorFired,
                 sensor.key,
+                keyStream,
             );
         }
         else if (sensor.sensor_type == "ClickSensor"){
-            let cardView = this.getCardView(sensor.card_id);
-            assertClickable(cardView); // Defensive runtime check
             sensorBinding = new ClickSensorBinding(
-                sensor.sensor_id,
+                sensor.x,
+                sensor.y,
+                sensor.w,
+                sensor.h,
+                sensor.mask,
                 onSensorFired,
-                cardView as ClickableCardView,
-                this.getCoordinateSystem(),
-            )
-        }
-        else if (sensor.sensor_type == "DoneSensor"){
-            let cardView = this.getCardView(sensor.card_id);
-            assertDoneable(cardView); // Defensive runtime check
-            sensorBinding = new DoneSensorBinding(
-                sensor.sensor_id,
-                onSensorFired,
-                cardView as DoneableCardView,
+                pointerStream,
             )
         }
         else {
-            throw new Error(`Unknown Sensor of type ${sensor.sensor_type}`);
+            throw new Error(`Unknown Sensor provided: ${sensor}`);
         }
-
-        this.sensorBindings.set(sensor.sensor_id, sensorBinding);
+        // Issue a new SensorBindingId (a UUID):
+        const sensorBindingId = crypto.randomUUID() as SensorBindingId;
+        this.sensorBindings.set(sensorBindingId, sensorBinding);
+        return sensorBindingId
     }
 
     startSensor(
-        sensorId: SensorId,
+        sensorBindingId: SensorBindingId,
     ) {
-        const sensorBinding = this.getSensorBinding(sensorId);
+        const sensorBinding = this.getSensorBinding(sensorBindingId);
         sensorBinding.arm()
     }
 
-    destroySensor(sensorId: SensorId) {
-        const sensorBinding = this.getSensorBinding(sensorId);
+    destroySensor(sensorBindingId: SensorBindingId) {
+        const sensorBinding = this.getSensorBinding(sensorBindingId);
+        if (!sensorBinding) {
+            return
+        }
         sensorBinding.destroy();
-        this.sensorBindings.delete(sensorId);
+        this.sensorBindings.delete(sensorBindingId);
     }
 }

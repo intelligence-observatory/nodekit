@@ -2,7 +2,7 @@ import './card-view.css';
 
 import type {Card} from "../../types/cards";
 import type {BoardCoordinateSystem} from "../board-view.ts";
-import type {AssetManager} from "../../asset-manager/asset-manager.ts";
+import type {AssetManager} from "../../asset-manager";
 
 export abstract class CardView<C extends Card = Card> {
     root: HTMLElement;
@@ -19,7 +19,6 @@ export abstract class CardView<C extends Card = Card> {
         // Create the Card's root element
         this.root = document.createElement('div');
         this.root.classList.add('card');
-        this.root.id = card.card_id;
 
         // Configure Card position and size:
         const {leftPx, topPx} = boardCoords.getBoardLocationPx(
@@ -78,12 +77,4 @@ export abstract class CardView<C extends Card = Card> {
     onDestroy() {
         // Called when the Card is destroyed
     }
-}
-
-export interface ClickableCardView extends CardView {
-    addClickCallback: (callback: (e: MouseEvent) => void) => void
-}
-
-export interface DoneableCardView extends CardView {
-    addDoneCallback: (callback: () => void) => void
 }

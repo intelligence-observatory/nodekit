@@ -2,9 +2,9 @@ __all__ = [
     'VERSION',
 
     # Top-level types:
-    'NodeGraph',
     'Node',
-    'Outcome',
+    'Graph',
+    'Trace',
 
     # Namespaced types:
     'assets',
@@ -14,26 +14,21 @@ __all__ = [
     'actions',
     'events',
 
-    # Operations namespace:
-    'ops',
-
-    # Local play function:
+    # Browser runtime methods:
     'play',
-
-    # Static resource getters:
     'get_browser_bundle',
+
+    # Ops
+    'concat',
 ]
 
 # Version
 from nodekit._internal.version import VERSION
 
 # Incoming models:
-from nodekit._internal.types.node_graph import (
-    NodeGraph,
-    Node,
-)
-
-from nodekit._internal.types.outcome import Outcome
+from nodekit._internal.types.node import Node
+from nodekit._internal.types.graph import Graph
+from nodekit._internal.types.trace import Trace
 
 import nodekit.cards as cards
 import nodekit.assets as assets
@@ -41,10 +36,11 @@ import nodekit.effects as effects
 import nodekit.sensors as sensors
 import nodekit.actions as actions
 import nodekit.events as events
-import nodekit.ops as ops
 
-# Local play function:
+# Browser:
 from nodekit._internal.browser.local_runner.main import play
-
-# Static resources:
 from nodekit._internal.browser.browser_bundle import get_browser_bundle
+
+
+# Ops:
+from nodekit._internal.ops.concat import concat

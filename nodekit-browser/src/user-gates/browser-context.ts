@@ -1,19 +1,25 @@
 export interface BrowserContext {
-    user_agent: string,
-    viewport_width_px: number,
-    viewport_height_px: number,
-    display_width_px: number,
-    display_height_px: number
+    userAgent: string,
+
+    viewportWidthPx: number,
+    viewportHeightPx: number,
+
+    displayWidthPx: number,
+    displayHeightPx: number,
+
+    devicePixelRatio: number,
 }
 
 export function getBrowserContext(): BrowserContext {
     return {
-        user_agent: navigator.userAgent,
+        userAgent: navigator.userAgent,
 
-        display_width_px: screen.width,
-        display_height_px: screen.height,
+        viewportWidthPx: window.innerWidth,
+        viewportHeightPx: window.innerHeight,
 
-        viewport_width_px: window.innerWidth,
-        viewport_height_px: window.innerHeight,
+        displayWidthPx: screen.width,
+        displayHeightPx: screen.height,
+
+        devicePixelRatio: window.devicePixelRatio,
     }
 }

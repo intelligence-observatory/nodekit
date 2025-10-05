@@ -3,23 +3,32 @@ __all__ = [
     "Event",
 
     # Concrete classes:
-    "StartEvent",
-    "EndEvent",
-    "NodeResultEvent",
-    "LeaveEvent",
-    "ReturnEvent",
-    "BonusDisclosureEvent",
-    "BrowserContextEvent",
+    "TraceStartedEvent",
+    "TraceEndedEvent",
+    "PageSuspendedEvent",
+    "PageResumedEvent",
+    "NodeEnteredEvent",
+    "NodeExitedEvent",
+    "BrowserContextSampledEvent",
+    "KeySampledEvent",
+    "PointerSampledEvent",
 ]
 
 from nodekit._internal.types.events.events import (
     Event,
     EventTypeEnum,
-    StartEvent,
-    EndEvent,
-    NodeResultEvent,
-    LeaveEvent,
-    ReturnEvent,
-    BonusDisclosureEvent,
-    BrowserContextEvent,
+
+    TraceStartedEvent,
+    TraceEndedEvent,
+    NodeEnteredEvent,
+    NodeExitedEvent,
+
+    KeySampledEvent,
+    PointerSampledEvent,
+
+    PageSuspendedEvent,
+    PageResumedEvent,
+
+    BrowserContextSampledEvent,
+
 )

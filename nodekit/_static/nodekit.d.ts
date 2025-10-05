@@ -1,4 +1,4 @@
-declare type Action = ClickAction | DoneAction | TimeoutAction | KeyAction;
+declare type Action = ClickAction | TimeoutAction | KeyAction;
 
 declare type AssetIdentifier = ImageIdentifier | VideoIdentifier;
 
@@ -8,9 +8,7 @@ declare interface AssetUrl {
 }
 
 declare interface BaseAction<T extends string> {
-    sensor_id: SensorId;
     action_type: T;
-    timestamp_action: ISO8601_2;
 }
 
 declare interface BaseAssetIdentifier<MT extends string> {
@@ -19,179 +17,150 @@ declare interface BaseAssetIdentifier<MT extends string> {
 }
 
 declare interface BaseCard<T extends string> {
-    card_id: CardId;
     card_type: T;
     x: SpatialPoint;
     y: SpatialPoint;
     w: SpatialSize;
     h: SpatialSize;
-    t_start: TimePointMsec;
-    t_end: TimePointMsec | null;
+    start_msec: NodeTimePointMsec;
+    end_msec: NodeTimePointMsec | null;
 }
 
 declare interface BaseEffect<T extends string> {
     effect_type: T;
-    t_start: TimePointMsec;
-    t_end: TimePointMsec | null;
+    start_msec: NodeTimePointMsec;
+    end_msec: NodeTimePointMsec | null;
 }
 
-declare type BaseEvent<T extends string, P> = {
-    event_id: UUID;
-    timestamp_event: ISO8601;
+declare interface BaseEvent<T extends string> {
     event_type: T;
-    event_payload: P;
-    nodekit_version: string;
-};
+    t: TimeElapsedMsec;
+}
+
+declare interface BaseNodeEvent<T extends string> extends BaseEvent<T> {
+    node_id: NodeId;
+}
 
 declare interface BaseSensor<T extends string> {
-    sensor_id: SensorId;
     sensor_type: T;
-    t_start: TimePointMsec;
 }
 
-declare interface BlankCard extends BaseCard<'BlankCard'> {
-    color: ColorHexString;
-}
-
-declare interface Board {
-    board_width_px: number;
-    board_height_px: number;
-}
-
-declare type BonusDisclosureEvent = BaseEvent<'BonusDisclosureEvent', {
-    bonus_amount_usd: MonetaryAmountUsd;
-}>;
-
-declare interface BrowserContext {
+declare interface BrowserContextSampledEvent extends BaseEvent<'BrowserContextSampledEvent'> {
     user_agent: string;
     viewport_width_px: number;
     viewport_height_px: number;
     display_width_px: number;
     display_height_px: number;
+    device_pixel_ratio: number;
 }
 
-declare type BrowserContextEvent = BaseEvent<'BrowserContextEvent', BrowserContext>;
-
-declare type Card = FixationPointCard | ImageCard | TextCard | MarkdownPagesCard | VideoCard | BlankCard;
-
-declare type CardId = string & {
-    __brand: 'CardId';
-};
+declare type Card = ImageCard | TextCard | VideoCard;
 
 declare interface ClickAction extends BaseAction<"ClickAction"> {
-    click_x: SpatialPoint;
-    click_y: SpatialPoint;
+    x: SpatialPoint;
+    y: SpatialPoint;
 }
 
-declare interface ClickSensor extends BaseSensor<'ClickSensor'> {
-    card_id: CardId;
+declare interface ClickSensor extends TemporallyBoundedSensor<'ClickSensor'> {
+    x: SpatialPoint;
+    y: SpatialPoint;
+    w: SpatialSize;
+    h: SpatialSize;
+    mask: Mask;
 }
 
 declare type ColorHexString = string & {
     __brand: 'ColorHexString';
 };
 
-declare interface DoneAction extends BaseAction<"DoneAction"> {
-}
-
-declare interface DoneSensor extends BaseSensor<'DoneSensor'> {
-    card_id: CardId;
-}
-
 declare type Effect = HidePointerEffect;
 
-declare type EndEvent = BaseEvent<'EndEvent', {}>;
+declare type Event_2 = TraceStartedEvent | BrowserContextSampledEvent | PageSuspendedEvent | PageResumedEvent | NodeEnteredEvent | NodeExitedEvent | PointerSampledEvent | KeySampledEvent | TraceEndedEvent;
 
-declare type Event_2 = StartEvent | EndEvent | NodeResultEvent | LeaveEvent | ReturnEvent | BonusDisclosureEvent | BrowserContextEvent;
-
-declare interface FixationPointCard extends BaseCard<'FixationPointCard'> {
+declare interface Graph {
+    nodekit_version: string;
+    nodes: Record<NodeId, Node_2>;
+    transitions: Record<NodeId, Record<SensorId, NodeId>>;
+    start: NodeId;
 }
 
 declare interface HidePointerEffect extends BaseEffect<'HidePointerEffect'> {
-    t_end: TimePointMsec;
+    end_msec: NodeTimePointMsec;
 }
 
 declare interface ImageCard extends BaseCard<'ImageCard'> {
-    image_identifier: ImageIdentifier;
+    image: ImageIdentifier;
 }
 
 declare interface ImageIdentifier extends BaseAssetIdentifier<"image/png"> {
 }
 
-declare type ISO8601 = string & {
-    __brand: 'ISO8601';
-};
-
-declare type ISO8601_2 = string & {
-    __brand: 'ISO8601';
-};
-
 declare interface KeyAction extends BaseAction<"KeyAction"> {
     key: PressableKey;
 }
 
-declare interface KeyHoldsSensor extends BaseSensor<'KeyHoldsSensor'> {
+declare interface KeySampledEvent extends BaseEvent<'KeySampledEvent'> {
     key: PressableKey;
+    kind: 'down' | 'up';
 }
 
-declare interface KeySensor extends BaseSensor<'KeySensor'> {
+declare interface KeySensor extends TemporallyBoundedSensor<'KeySensor'> {
     key: PressableKey;
-}
-
-declare type LeaveEvent = BaseEvent<'LeaveEvent', {}>;
-
-declare interface MarkdownPagesCard extends BaseCard<'MarkdownPagesCard'>, TextFormattingOptions {
-    pages: MarkdownString[];
 }
 
 declare type MarkdownString = string & {
     __brand: 'MarkdownString';
 };
 
-declare type MonetaryAmountUsd = string & {
-    __brand: 'MonetaryAmountUsd';
-};
+declare type Mask = 'rectangle' | 'ellipse';
 
 declare interface Node_2 {
-    node_id: NodeId;
     cards: Card[];
-    sensors: Sensor[];
-    outcomes: Outcome[];
+    sensors: Record<SensorId, Sensor>;
     effects: Effect[];
+    board_color: ColorHexString;
 }
 
-declare interface NodeGraph {
-    board: Board;
-    nodes: Node_2[];
-    nodekit_version: string;
+declare interface NodeEnteredEvent extends BaseNodeEvent<'NodeEnteredEvent'> {
+}
+
+declare interface NodeExitedEvent extends BaseNodeEvent<'NodeExitedEvent'> {
+    sensor_id: SensorId;
+    action: Action;
 }
 
 declare type NodeId = string & {
     __brand: 'NodeId';
 };
 
-declare type NodeResultEvent = BaseEvent<'NodeResultEvent', {
-    node_id: NodeId;
-    timestamp_node_start: ISO8601;
-    timestamp_node_end: ISO8601;
-    action: Action;
-}>;
+declare type NodeTimePointMsec = number & {
+    __brand: 'NodeTimePointMsec';
+};
 
-export declare type OnEventCallback = (event: Event_2) => void;
-
-declare interface Outcome {
-    sensor_id: SensorId;
-    cards: Card[];
-    bonus_amount_usd: MonetaryAmountUsd;
+declare interface PageResumedEvent extends BaseEvent<'PageResumedEvent'> {
 }
 
-export declare function play(nodeGraph: NodeGraph, assetUrls: AssetUrl[], onEventCallback?: OnEventCallback | null, previousEvents?: Event_2[]): Promise<Event_2[]>;
+declare interface PageSuspendedEvent extends BaseEvent<'PageSuspendedEvent'> {
+}
 
-declare type PressableKey = "Enter" | " " | "ArrowDown" | "ArrowLeft" | "ArrowRight" | "ArrowUp" | "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z" | "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
+/**
+ * Plays a Graph, returning a Trace of Events.
+ * @param graph
+ * @param assetUrls
+ * @param onEventCallback
+ * @param previousEvents
+ */
+export declare function play(graph: Graph, assetUrls: AssetUrl[], onEventCallback?: ((event: Event_2) => void) | null, previousEvents?: Event_2[]): Promise<Trace>;
 
-declare type ReturnEvent = BaseEvent<'ReturnEvent', {}>;
+declare interface PointerSampledEvent extends BaseEvent<'PointerSampledEvent'> {
+    x: SpatialPoint;
+    y: SpatialPoint;
+    kind: 'down' | 'up' | 'move';
+}
 
-declare type Sensor = TimeoutSensor | DoneSensor | ClickSensor | KeySensor | KeyHoldsSensor;
+declare type PressableKey = string;
+
+declare type Sensor = TimeoutSensor | ClickSensor | KeySensor;
 
 declare type SensorId = string & {
     __brand: 'SensorId';
@@ -209,36 +178,44 @@ declare type SpatialSize = number & {
     __brand: 'SpatialSize';
 };
 
-declare type StartEvent = BaseEvent<'StartEvent', {}>;
-
-declare interface TextCard extends BaseCard<'TextCard'>, TextFormattingOptions {
-    text: MarkdownString;
-    background_color: ColorHexString;
+declare interface TemporallyBoundedSensor<T extends string> extends BaseSensor<T> {
+    start_msec: NodeTimePointMsec;
+    end_msec: NodeTimePointMsec | null;
 }
 
-declare interface TextFormattingOptions {
-    text_color: ColorHexString;
+declare interface TextCard extends BaseCard<'TextCard'> {
+    text: MarkdownString;
     font_size: SpatialSize;
     justification_horizontal: 'left' | 'center' | 'right';
     justification_vertical: 'top' | 'center' | 'bottom';
+    text_color: ColorHexString;
+    background_color: ColorHexString;
 }
+
+declare type TimeElapsedMsec = number & {
+    __brand: 'TimeElapsedMsec';
+};
 
 declare interface TimeoutAction extends BaseAction<"TimeoutAction"> {
 }
 
 declare interface TimeoutSensor extends BaseSensor<'TimeoutSensor'> {
+    timeout_msec: NodeTimePointMsec;
 }
 
-declare type TimePointMsec = number & {
-    __brand: 'TimePointMsec';
-};
+declare interface Trace {
+    nodekit_version: string;
+    events: Event_2[];
+}
 
-declare type UUID = string & {
-    __brand: 'UUID';
-};
+declare interface TraceEndedEvent extends BaseEvent<'TraceEndedEvent'> {
+}
+
+declare interface TraceStartedEvent extends BaseEvent<'TraceStartedEvent'> {
+}
 
 declare interface VideoCard extends BaseCard<'VideoCard'> {
-    video_identifier: VideoIdentifier;
+    video: VideoIdentifier;
     muted: boolean;
     loop: boolean;
 }

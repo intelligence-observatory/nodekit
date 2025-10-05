@@ -1,9 +1,6 @@
 import type {AssetIdentifier, AssetUrl, ImageIdentifier, VideoIdentifier} from "../types/assets";
 import type {SHA256} from "../types/common.ts";
 
-/** * The AssetManager provides methods to retrieve asset URLs, cache assets, and preload assets.
- */
-
 type AssetKey = `${SHA256}|${string}`; // string is the mime type
 
 export class AssetManager {
