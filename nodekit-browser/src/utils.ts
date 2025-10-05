@@ -1,13 +1,7 @@
-import type {ColorHexString, ISO8601, MarkdownString, SpatialSize} from "./types/common.ts";
+import type {ColorHexString, MarkdownString, SpatialSize} from "./types/common.ts";
 import {marked} from "marked";
 import DOMPurify from "dompurify";
 
-export function performanceNowToISO8601(
-    performanceNowMsec: DOMHighResTimeStamp // as returned by performance.now()
-): ISO8601 {
-    const timestampMsec = performance.timeOrigin + performanceNowMsec;
-    return new Date(timestampMsec).toISOString() as ISO8601;
-}
 
 export interface TextContentParameters {
     text: MarkdownString

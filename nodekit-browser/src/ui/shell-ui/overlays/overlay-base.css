@@ -10,7 +10,6 @@
 
     /* Animation */
     opacity:0;
-    transition: opacity 0.4s ease-in-out, backdrop-filter 0.4s ease-in-out;
 
     /* Interactivity */
     pointer-events: none; /* Prevent interaction when hidden */

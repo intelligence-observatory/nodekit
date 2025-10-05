@@ -1,47 +1,55 @@
-import type {NodeId} from "../node-graph.ts";
-import type {MonetaryAmountUsd} from "../common.ts";
 import type {Action} from "../actions";
-import type {BrowserContext} from "../../user-gates/browser-context.ts";
+import type {NodeId, PressableKey, SensorId, SpatialPoint, TimeElapsedMsec} from "../common.ts";
 
-export type ISO8601 = string & { __brand: 'ISO8601' };
-export type UUID = string & { __brand: 'UUID' };
-
-// Base:
-export type BaseEvent<T extends string, P> = {
-    event_id: UUID
-    timestamp_event: ISO8601,
-
+interface BaseEvent<T extends string> {
     event_type: T,
-    event_payload: P,
-
-    nodekit_version: string
+    t: TimeElapsedMsec, // The time the Event was emitted, relative to the start of the Trace
 }
 
-// Concrete types:
-export type StartEvent = BaseEvent<'StartEvent', {}>
-export type EndEvent = BaseEvent<'EndEvent', {}>
-export type LeaveEvent = BaseEvent<'LeaveEvent', {}>
-export type ReturnEvent = BaseEvent<'ReturnEvent', {}>
-export type BrowserContextEvent = BaseEvent<'BrowserContextEvent', BrowserContext>
-export type NodeResultEvent = BaseEvent<'NodeResultEvent',
-    {
-        node_id: NodeId,
-        timestamp_node_start: ISO8601,
-        timestamp_node_end: ISO8601,
-        action: Action,
-    }
->
-export type BonusDisclosureEvent = BaseEvent<'BonusDisclosureEvent',
-    { bonus_amount_usd: MonetaryAmountUsd }
->
+export interface TraceStartedEvent extends BaseEvent<'TraceStartedEvent'>{}
+export interface TraceEndedEvent extends BaseEvent<'TraceEndedEvent'>{}
+export interface PageSuspendedEvent extends BaseEvent<'PageSuspendedEvent'>{}
+export interface PageResumedEvent extends BaseEvent<'PageResumedEvent'>{}
+export interface BrowserContextSampledEvent extends BaseEvent<'BrowserContextSampledEvent'>{
+    user_agent: string,
+    viewport_width_px: number,
+    viewport_height_px: number,
+    display_width_px: number,
+    display_height_px: number,
+    device_pixel_ratio: number,
+}
 
+//
+interface BaseNodeEvent<T extends string> extends BaseEvent<T> {
+    node_id: NodeId, // Graph.nodes[node_id] is the Node this event originated;
+}
+
+export interface NodeEnteredEvent extends BaseNodeEvent<'NodeEnteredEvent'>{}
+
+export interface NodeExitedEvent extends BaseNodeEvent<'NodeExitedEvent'>{
+    sensor_id: SensorId, // Graph.nodes[node_id].sensors[sensor_id] is the Sensor that fired
+    action: Action,
+}
+
+export interface PointerSampledEvent extends BaseEvent<'PointerSampledEvent'>{
+    x: SpatialPoint,
+    y: SpatialPoint,
+    kind: 'down' | 'up' | 'move'
+}
+
+export interface KeySampledEvent extends BaseEvent<'KeySampledEvent'>{
+    key: PressableKey
+    kind: 'down' | 'up'
+}
 
 // Union type:
 export type Event =
-    StartEvent |
-    EndEvent |
-    NodeResultEvent |
-    LeaveEvent |
-    ReturnEvent |
-    BonusDisclosureEvent |
-    BrowserContextEvent;
+    TraceStartedEvent |
+    BrowserContextSampledEvent |
+    PageSuspendedEvent |
+    PageResumedEvent |
+    NodeEnteredEvent |
+    NodeExitedEvent |
+    PointerSampledEvent |
+    KeySampledEvent |
+    TraceEndedEvent;

@@ -77,6 +77,17 @@ export class ShellUI extends UIElementBase {
         this.overlayConsoleMessage.displayMessage(banner, data);
     }
 
+    showErrorOverlay(error: Error) {
+        this.showConsoleMessageOverlay(
+            'The following error occurred:',
+            {
+                name: (error as Error).name,
+                message: (error as Error).message,
+                stack: (error as Error).stack,
+            },
+        );
+    }
+
     hideConsoleMessageOverlay() {
         this.overlayConsoleMessage.hide();
     }

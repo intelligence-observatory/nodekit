@@ -1,196 +1,230 @@
-import {NodePlayer} from "./node-player/node-player.ts";
-import type {BonusDisclosureEvent, BrowserContextEvent, EndEvent, Event, LeaveEvent, NodeResultEvent, ReturnEvent, StartEvent, UUID} from "./types/events";
-import {type ISO8601, type MonetaryAmountUsd} from "./types/common.ts";
-import {calculateBonusUsd} from "./ops/calculate-bonus.ts";
-import type {NodeGraph} from "./types/node-graph.ts";
-import {performanceNowToISO8601} from "./utils.ts";
+import type {BrowserContextSampledEvent, TraceEndedEvent, Event, PageSuspendedEvent, NodeEnteredEvent, NodeExitedEvent, PageResumedEvent, TraceStartedEvent} from "./types/events";
+import {Clock} from "./clock.ts";
+import type {Graph, Trace} from "./types/node.ts";
 import {getBrowserContext} from "./user-gates/browser-context.ts";
-import {DeviceGate} from "./user-gates/device-gate.ts";
+import {checkDeviceIsValid} from "./user-gates/device-gate.ts";
 import type {AssetUrl} from "./types/assets";
+import type {NodeId, TimeElapsedMsec} from "./types/common.ts";
+import {createNodeKitRootDiv} from "./ui/ui-builder.ts";
+import {AssetManager} from "./asset-manager";
+import {ShellUI} from "./ui/shell-ui/shell-ui.ts";
+import {getBoardViewsContainerDiv} from "./ui/board-views-ui/board-views-ui.ts";
+import {NodePlay} from "./node-player/node-play.ts";
+import {version as NODEKIT_VERSION} from '../package.json'
+import {gt, major} from 'semver';
+import {EventArray} from "./event-array.ts";
+import {KeyStream} from "./input-streams/key-stream.ts";
+import {PointerStream} from "./input-streams/pointer-stream.ts";
 
-export type OnEventCallback = (event: Event) => void;
-
-
-function generateEventId(): UUID {
-    return crypto.randomUUID() as UUID;
-}
-
-function getCurrentTimestamp(): ISO8601 {
-    return performanceNowToISO8601(performance.now())
-}
-
+/**
+ * Plays a Graph, returning a Trace of Events.
+ * @param graph
+ * @param assetUrls
+ * @param onEventCallback
+ * @param previousEvents
+ */
 export async function play(
-    nodeGraph: NodeGraph,
+    graph: Graph,
     assetUrls: AssetUrl[],
-    onEventCallback: OnEventCallback | null = null,
+    onEventCallback: ((event: Event) => void) | null = null,
     previousEvents: Event[] = [],
-): Promise<Event[]> {
-    /*
-    Executes a run through the NodeGraph. Events are returned as an array.
-    Events emitted from a previous, interrupted run of the NodeGraph can be provided to continue from the point of interruption.
-    */
+): Promise<Trace> {
 
     // If no onEventCallback is provided, use a no-op function:
     if (!onEventCallback) {
         onEventCallback = (_event: Event) => {};
     }
 
-    let events: Event[] = previousEvents;
     // Todo: the previousEvents can be processed to obtain the current state of the task. Otherwise, we always start from scratch.
+    const eventArray = new EventArray(previousEvents, onEventCallback);
 
-    // Todo: version gating
-    const nodekitVersion = nodeGraph.nodekit_version;
+    // Initialize divs:
+    const nodeKitDiv = createNodeKitRootDiv();
+    const shellUI = new ShellUI()
+    nodeKitDiv.appendChild(shellUI.root);
+    const boardViewsContainerDiv = getBoardViewsContainerDiv();
+    nodeKitDiv.appendChild(boardViewsContainerDiv)
 
-    // Initialize the NodePlayer:
-    let nodePlayer = new NodePlayer(nodeGraph.board);
+    // Version gate:
+    if (gt(graph.nodekit_version, NODEKIT_VERSION) || major(graph.nodekit_version) !== major(NODEKIT_VERSION)) {
+        throw new Error(`Incompatible NodeKit version requested: ${graph.nodekit_version}, Runtime version: ${NODEKIT_VERSION}`);
+    }
 
-
-    // Device gating:
-    if (!DeviceGate.isValidDevice()){
-        const error = new Error('Unsupported device. Please use a desktop browser.');
-        nodePlayer.showErrorMessageOverlay(error);
+    // Device gate:
+    if (!checkDeviceIsValid()){
+        const error = new Error('Unsupported device for NodeKit. Please use a desktop browser.');
+        shellUI.showErrorOverlay(error);
         throw error;
     }
 
-    nodePlayer.showConnectingOverlay()
+    shellUI.showSessionConnectingOverlay()
     // Todo: await preload assets
+    const assetManager = new AssetManager();
     for (const assetUrl of assetUrls) {
-        nodePlayer.boardViewsUI.assetManager.registerAsset(assetUrl)
+        assetManager.registerAsset(assetUrl)
     }
+    shellUI.hideSessionConnectingOverlay()
 
-    nodePlayer.hideConnectingOverlay()
+    const clock = new Clock();
 
+    // Initialize KeyStream:
+    const keyStream = new KeyStream(clock);
+    keyStream.subscribe(
+        // Subscribe to the key stream:
+        (keySample) => {
+            eventArray.push(
+                {
+                    event_type: "KeySampledEvent",
+                    t: keySample.t,
+                    kind: keySample.sampleType,
+                    key: keySample.key,
+                }
+            )
+        }
+    )
 
-    // Todo: always have a "start" button to gain focus and ensure the user is ready; emit the StartEvent after that.
-    await nodePlayer.playStartScreen()
-    // Emit the StartEvent
-    const startEvent: StartEvent = {
-        event_id: generateEventId(),
-        timestamp_event: getCurrentTimestamp(),
-        event_type: "StartEvent",
-        event_payload: {},
-        nodekit_version: nodekitVersion,
+    // Initialize PointerStream:
+    const pointerStream = new PointerStream(boardViewsContainerDiv, clock)
+    pointerStream.subscribe(
+        // Subscribe to the pointer stream:
+        (pointerSample) => {
+            eventArray.push(
+                {
+                    event_type: "PointerSampledEvent",
+                    t: pointerSample.t,
+                    kind: pointerSample.sampleType,
+                    x: pointerSample.x,
+                    y: pointerSample.y,
+                }
+            )
+        }
+    )
+
+    // Start screen:
+    await shellUI.playStartScreen()
+    clock.start()
+    const startEvent: TraceStartedEvent = {
+        event_type: "TraceStartedEvent",
+        t: 0 as TimeElapsedMsec,
     }
-    events.push(startEvent);
-    onEventCallback(startEvent);
+    eventArray.push(startEvent);
 
     // Add a listener for the LeaveEvent:
     function onVisibilityChange() {
         if (document.visibilityState === "hidden") {
-            const leaveEvent: LeaveEvent = {
-                event_id: generateEventId(),
-                timestamp_event: getCurrentTimestamp(),
-                event_type: "LeaveEvent",
-                event_payload: {},
-                nodekit_version: nodekitVersion,
+            const leaveEvent: PageSuspendedEvent = {
+                event_type: "PageSuspendedEvent",
+                t: clock.now(),
             };
-            events.push(leaveEvent);
-            onEventCallback!(leaveEvent);
+            eventArray.push(leaveEvent);
         } else if (document.visibilityState === "visible") {
             // Optionally handle when the document becomes visible again
-            const returnEvent: ReturnEvent = {
-                event_id: generateEventId(),
-                timestamp_event: getCurrentTimestamp(),
-                event_type: "ReturnEvent",
-                event_payload: {},
-                nodekit_version: nodekitVersion,
+            const returnEvent: PageResumedEvent = {
+                event_type: "PageResumedEvent",
+                t: clock.now(),
             };
-            events.push(returnEvent);
-            onEventCallback!(returnEvent);
+            eventArray.push(returnEvent);
         }
     }
-
     document.addEventListener("visibilitychange", onVisibilityChange)
 
     // Emit the BrowserContextEvent:
     const browserContext = getBrowserContext();
-    const browserContextEvent: BrowserContextEvent = {
-        event_id: generateEventId(),
-        timestamp_event: getCurrentTimestamp(),
-        event_type: "BrowserContextEvent",
-        event_payload: browserContext,
-        nodekit_version: nodekitVersion,
+    const browserContextEvent: BrowserContextSampledEvent = {
+        event_type: "BrowserContextSampledEvent",
+        t: clock.now(),
+        user_agent: browserContext.userAgent,
+        viewport_width_px: browserContext.viewportWidthPx,
+        viewport_height_px: browserContext.viewportHeightPx,
+        display_width_px: browserContext.displayWidthPx,
+        display_height_px: browserContext.displayHeightPx,
+        device_pixel_ratio: browserContext.devicePixelRatio,
     }
-    events.push(browserContextEvent);
-    onEventCallback(browserContextEvent);
+    eventArray.push(browserContextEvent);
 
+    const nodes = graph.nodes;
 
-    // Play the Nodes in the NodeGraph:
-    const nodes = nodeGraph.nodes;
-    for (let i = 0; i < nodes.length; i++) {
+    // Assemble transition map:
+    let currentNodeId: NodeId = graph.start;
+
+    while (true) {
         // Prepare the Node:
-        const node = nodes[i];
-        const nodePlayId = await nodePlayer.prepare(node);
+        const node = nodes[currentNodeId];
+        const nodePlay = new NodePlay(
+            node,
+        )
+
+        // Mount the Node to the Board:
+        boardViewsContainerDiv.appendChild(nodePlay.boardView.root);
+        await nodePlay.prepare(
+            assetManager,
+            keyStream,
+            pointerStream,
+            clock,
+        )
 
         // Play the Node:
-        let result = await nodePlayer.play(nodePlayId);
+        let result = await nodePlay.run(clock);
 
-        // Package the NodeResultEvent:
-        const nodeResultEvent: NodeResultEvent = {
-            event_id: generateEventId(),
-            timestamp_event: getCurrentTimestamp(),
-            event_type: "NodeResultEvent",
-            event_payload: {
-                node_id: node.node_id,
-                timestamp_node_start: result.timestamp_start,
-                timestamp_node_end: result.timestamp_end,
-                action: result.action,
-            },
-            nodekit_version: nodekitVersion,
+        // Emit the NodeStartEvent: todo: emit immediately when actually started?
+        const nodeStartEvent: NodeEnteredEvent = {
+            event_type: "NodeEnteredEvent",
+            t: result.tStart,
+            node_id: currentNodeId,
         }
-        events.push(nodeResultEvent);
-        onEventCallback(nodeResultEvent);
+        eventArray.push(nodeStartEvent);
 
-        // Update the progress bar:
-        nodePlayer.setProgressBar((i + 1) / nodes.length * 100);
-    }
-
-    // Bonus disclosure + end button phase:
-    const bonusComputed = calculateBonusUsd(
-        events,
-        nodeGraph,
-    )
-
-    let bonusMessage = '';
-    if (bonusComputed > 0) {
-        bonusMessage = `Bonus: ${bonusComputed} USD (pending validation)`;
-    }
-    await nodePlayer.playEndScreen(bonusMessage)
-
-    // Emit the BonusDisclosureEvent (if applicable):
-    if (bonusMessage !== '') {
-        const bonusDisclosureEvent: BonusDisclosureEvent = {
-            event_id: generateEventId(),
-            timestamp_event: getCurrentTimestamp(),
-            event_type: "BonusDisclosureEvent",
-            event_payload: {
-                bonus_amount_usd: bonusComputed.toFixed(2) as MonetaryAmountUsd,
-            },
-            nodekit_version: nodekitVersion,
+        // Emit NodeExitEvent: todo: emit immediately
+        const nodeExitEvent: NodeExitedEvent = {
+            event_type: "NodeExitedEvent",
+            t: result.tAction,
+            node_id: currentNodeId,
+            sensor_id: result.sensorId,
+            action: result.action,
         }
-        events.push(bonusDisclosureEvent);
-        onEventCallback(bonusDisclosureEvent);
+        eventArray.push(nodeExitEvent);
+
+        // Clear the rootBoardContainerDiv of all children:
+        while (boardViewsContainerDiv.firstChild) {
+            boardViewsContainerDiv.removeChild(boardViewsContainerDiv.firstChild);
+        }
+
+        // Get the next Node; if no transition specified, fall through to 'END':
+        if (!(currentNodeId in graph.transitions)) {
+            break
+        }
+
+        if (!(result.sensorId in graph.transitions[currentNodeId])) {
+            break
+        }
+        currentNodeId = graph.transitions[currentNodeId][result.sensorId];
     }
+
+    // End screen:
+    await shellUI.playEndScreen()
 
     // Generate the EndEvent:
-    const endEvent: EndEvent = {
-        event_id: generateEventId(),
-        timestamp_event: getCurrentTimestamp(),
-        event_type: "EndEvent",
-        event_payload: {},
-        nodekit_version: nodekitVersion,
+    const endEvent: TraceEndedEvent = {
+        event_type: "TraceEndedEvent",
+        t: clock.now(),
     }
-    events.push(endEvent);
-    onEventCallback(endEvent);
+    eventArray.push(endEvent);
 
     // Remove the visibility change listener:
     document.removeEventListener("visibilitychange", onVisibilityChange);
 
-    // Show Events:
-    nodePlayer.showConsoleMessageOverlay(
-        'Events',
-        events,
+    // Assemble trace:
+    const trace = {
+        nodekit_version: NODEKIT_VERSION,
+        events: eventArray.events,
+    }
+
+    // Show the Trace in the console:
+    shellUI.showConsoleMessageOverlay(
+        'Trace',
+        trace,
     );
 
-    return events
+    return trace
 }
+

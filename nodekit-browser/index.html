@@ -11,368 +11,691 @@
 <script type="module" src="src/main.ts"></script>
 <script type="module">
 
-    let nodeGraph = {
-        "board": {
-            "board_width_px": 768,
-            "board_height_px": 768
-        },
-        "nodes": [
-            {
-                "node_id": "20c56223-29ce-4e6b-a37c-526fd00045c7",
+    let graph={
+        "nodekit_version": "0.1.0",
+        "nodes": {
+            "0": {
                 "cards": [
                     {
-                        "card_id": "99ead4a3-01b3-4cd3-8a1e-2303906f4d97",
+                        "card_type": "TextCard",
+                        "x": 0.0,
+                        "y": 0.0,
+                        "w": 0.0375,
+                        "h": 0.0375,
+                        "start_msec": 0,
+                        "end_msec": null,
+                        "text": "yo",
+                        "font_size": 0.0175,
+                        "justification_horizontal": "center",
+                        "justification_vertical": "center",
+                        "text_color": "#000000ff",
+                        "background_color": "#E6E6E600"
+                    },
+                    {
                         "card_type": "VideoCard",
                         "x": 0.0,
                         "y": 0.0,
                         "w": 0.5,
                         "h": 0.5,
-                        "t_start": 0,
-                        "t_end": 3000,
-                        "video_identifier": {
-                            "sha256": "3f224a8b6a7917ae1364cf2cc9daf7a5f7073bfe0fb5d9b638d8a6efc1c867f7",
-                            "mime_type": "video/mp4"
+                        "start_msec": 0,
+                        "end_msec": null,
+                        "video": {
+                            mime_type: "video/mp4",
+                            sha256: "3f224a8b6a7917ae1364cf2cc9daf7a5f7073bfe0fb5d9b638d8a6efc1c867f7",
                         },
-                        "muted": false,
-                        "loop": true,
+                        "muted": true,
+                        "loop": false
                     },
-                    {
-                        "text_color": "#000000",
-                        "font_size": 0.0175,
-                        "justification_horizontal": "center",
-                        "justification_vertical": "center",
-                        "card_id": "cceca0ae-0236-44c2-87f9-0578fb145aee",
-                        "card_type": "TextCard",
-                        "x": 0.0,
-                        "y": -0.4,
-                        "w": 0.5,
-                        "h": 0.1,
-                        "t_start": 0,
-                        "t_end": null,
-                        "text": "Press space to continue",
-                        "background_color": "#E6E6E600"
-                    }
                 ],
-                "sensors": [
-                    {
-                        "sensor_id": "361228fd-cf8a-4cef-9cab-0d17b4302806",
-                        "sensor_type": "KeySensor",
-                        "t_start": 0,
-                        "key": " "
-                    }
-                ],
-                "outcomes": [],
-                "effects": []
-            },
-            {
-                "node_id": "1e825284-1962-42eb-8533-3f5c5035b696",
-                "cards": [
-                    {
-                        "text_color": "#000000",
-                        "font_size": 0.0175,
-                        "justification_horizontal": "left",
-                        "justification_vertical": "top",
-                        "card_id": "63f88779-22d7-4472-a54b-68ef1cc9af5f",
-                        "card_type": "MarkdownPagesCard",
+                "sensors": {
+                    "clicked-fixation": {
+                        "sensor_type": "ClickSensor",
+                        "start_msec": 0,
+                        "end_msec": null,
                         "x": 0.0,
                         "y": 0.0,
-                        "w": 0.8,
-                        "h": 0.8,
-                        "t_start": 0,
-                        "t_end": null,
-                        "pages": [
-                            "# Welcome!\n\nThis is a test task.",
-                            "## Instructions\n\nBla bla bla.",
-                        ]
+                        "w": 0.0375,
+                        "h": 0.0375,
+                        "mask": "ellipse"
                     }
-                ],
-                "sensors": [
-                    {
-                        "sensor_id": "72bc18ab-8aae-482e-9866-048efeb2835e",
-                        "sensor_type": "DoneSensor",
-                        "t_start": 0,
-                        "card_id": "63f88779-22d7-4472-a54b-68ef1cc9af5f"
-                    }
-                ],
-                "outcomes": [],
-                "effects": []
+                },
+                "effects": [],
+                "board_color": "#808080ff"
             },
-            {
-                "node_id": "aeb68d81-c894-44d7-aac2-91c7481212a1",
+            "1/fixation": {
                 "cards": [
                     {
-                        "card_id": "fc1233fd-f7fe-4013-bd34-ba81020f168a",
+                        "card_type": "ImageCard",
+                        "x": 0.0,
+                        "y": 0.0,
+                        "w": 0.0375,
+                        "h": 0.0375,
+                        "start_msec": 0,
+                        "end_msec": null,
+                        "image": {
+                            "sha256": "89fcd035750bf589cdcb63b4b551a4488ca2aa6e93e19943d1578ccc096f19ea",
+                            "mime_type": "image/svg+xml"
+                        }
+                    }
+                ],
+                "sensors": {
+                    "clicked-fixation": {
+                        "sensor_type": "ClickSensor",
+                        "start_msec": 0,
+                        "end_msec": null,
+                        "x": 0.0,
+                        "y": 0.0,
+                        "w": 0.0375,
+                        "h": 0.0375,
+                        "mask": "ellipse"
+                    }
+                },
+                "effects": [],
+                "board_color": "#808080ff"
+            },
+            "1/main": {
+                "cards": [
+                    {
                         "card_type": "ImageCard",
                         "x": 0.0,
                         "y": 0.0,
                         "w": 0.5,
                         "h": 0.5,
-                        "t_start": 0,
-                        "t_end": null,
-                        "image_identifier": {
+                        "start_msec": 0,
+                        "end_msec": 200,
+                        "image": {
                             "sha256": "b87d9ff074668df4e7698280bf6ac0a11c307389eaabec400dd00023462cb416",
                             "mime_type": "image/png"
                         }
                     },
                     {
-                        "text_color": "#000000",
+                        "card_type": "ImageCard",
+                        "x": -0.25,
+                        "y": -0.3,
+                        "w": 0.2,
+                        "h": 0.2,
+                        "start_msec": 200,
+                        "end_msec": null,
+                        "image": {
+                            "sha256": "f66018c63e5de97a4a022f8d0da2083d44a842abcc27195b6cca13980a77dc7b",
+                            "mime_type": "image/png"
+                        }
+                    },
+                    {
+                        "card_type": "ImageCard",
+                        "x": 0.25,
+                        "y": -0.3,
+                        "w": 0.2,
+                        "h": 0.2,
+                        "start_msec": 200,
+                        "end_msec": null,
+                        "image": {
+                            "sha256": "6ffb27faa004ef9ec945f1369437369b2b1720b292582c547eaa082d65061bd6",
+                            "mime_type": "image/png"
+                        }
+                    }
+                ],
+                "sensors": {
+                    "L": {
+                        "sensor_type": "ClickSensor",
+                        "start_msec": 200,
+                        "end_msec": null,
+                        "x": -0.25,
+                        "y": -0.3,
+                        "w": 0.2,
+                        "h": 0.2,
+                        "mask": "rectangle"
+                    },
+                    "R": {
+                        "sensor_type": "ClickSensor",
+                        "start_msec": 200,
+                        "end_msec": null,
+                        "x": 0.25,
+                        "y": -0.3,
+                        "w": 0.2,
+                        "h": 0.2,
+                        "mask": "rectangle"
+                    },
+                    "TO": {
+                        "sensor_type": "TimeoutSensor",
+                        "timeout_msec": 2000
+                    }
+                },
+                "effects": [],
+                "board_color": "#808080ff"
+            },
+            "1/positive": {
+                "cards": [
+                    {
+                        "card_type": "TextCard",
+                        "x": 0.0,
+                        "y": 0.0,
+                        "w": 0.5,
+                        "h": 0.5,
+                        "start_msec": 0,
+                        "end_msec": null,
+                        "text": "Correct!",
+                        "font_size": 0.05,
+                        "justification_horizontal": "center",
+                        "justification_vertical": "center",
+                        "text_color": "#ffffffff",
+                        "background_color": "#32a852ff"
+                    }
+                ],
+                "sensors": {
+                    "wait": {
+                        "sensor_type": "TimeoutSensor",
+                        "timeout_msec": 500
+                    }
+                },
+                "effects": [],
+                "board_color": "#808080ff"
+            },
+            "1/negative": {
+                "cards": [
+                    {
+                        "card_type": "TextCard",
+                        "x": 0.0,
+                        "y": 0.0,
+                        "w": 0.5,
+                        "h": 0.5,
+                        "start_msec": 0,
+                        "end_msec": null,
+                        "text": "Incorrect.",
+                        "font_size": 0.05,
+                        "justification_horizontal": "center",
+                        "justification_vertical": "center",
+                        "text_color": "#ffffffff",
+                        "background_color": "#a83232ff"
+                    }
+                ],
+                "sensors": {
+                    "wait": {
+                        "sensor_type": "TimeoutSensor",
+                        "timeout_msec": 1000
+                    }
+                },
+                "effects": [],
+                "board_color": "#808080ff"
+            },
+            "2/fixation": {
+                "cards": [
+                    {
+                        "card_type": "ImageCard",
+                        "x": 0.0,
+                        "y": 0.0,
+                        "w": 0.0375,
+                        "h": 0.0375,
+                        "start_msec": 0,
+                        "end_msec": null,
+                        "image": {
+                            "sha256": "89fcd035750bf589cdcb63b4b551a4488ca2aa6e93e19943d1578ccc096f19ea",
+                            "mime_type": "image/svg+xml"
+                        }
+                    }
+                ],
+                "sensors": {
+                    "clicked-fixation": {
+                        "sensor_type": "ClickSensor",
+                        "start_msec": 0,
+                        "end_msec": null,
+                        "x": 0.0,
+                        "y": 0.0,
+                        "w": 0.0375,
+                        "h": 0.0375,
+                        "mask": "ellipse"
+                    }
+                },
+                "effects": [],
+                "board_color": "#808080ff"
+            },
+            "2/main": {
+                "cards": [
+                    {
+                        "card_type": "ImageCard",
+                        "x": 0.0,
+                        "y": 0.0,
+                        "w": 0.5,
+                        "h": 0.5,
+                        "start_msec": 0,
+                        "end_msec": 200,
+                        "image": {
+                            "sha256": "b87d9ff074668df4e7698280bf6ac0a11c307389eaabec400dd00023462cb416",
+                            "mime_type": "image/png"
+                        }
+                    },
+                    {
+                        "card_type": "ImageCard",
+                        "x": -0.25,
+                        "y": -0.3,
+                        "w": 0.2,
+                        "h": 0.2,
+                        "start_msec": 200,
+                        "end_msec": null,
+                        "image": {
+                            "sha256": "f66018c63e5de97a4a022f8d0da2083d44a842abcc27195b6cca13980a77dc7b",
+                            "mime_type": "image/png"
+                        }
+                    },
+                    {
+                        "card_type": "ImageCard",
+                        "x": 0.25,
+                        "y": -0.3,
+                        "w": 0.2,
+                        "h": 0.2,
+                        "start_msec": 200,
+                        "end_msec": null,
+                        "image": {
+                            "sha256": "6ffb27faa004ef9ec945f1369437369b2b1720b292582c547eaa082d65061bd6",
+                            "mime_type": "image/png"
+                        }
+                    }
+                ],
+                "sensors": {
+                    "L": {
+                        "sensor_type": "ClickSensor",
+                        "start_msec": 200,
+                        "end_msec": null,
+                        "x": -0.25,
+                        "y": -0.3,
+                        "w": 0.2,
+                        "h": 0.2,
+                        "mask": "rectangle"
+                    },
+                    "R": {
+                        "sensor_type": "ClickSensor",
+                        "start_msec": 200,
+                        "end_msec": null,
+                        "x": 0.25,
+                        "y": -0.3,
+                        "w": 0.2,
+                        "h": 0.2,
+                        "mask": "rectangle"
+                    },
+                    "TO": {
+                        "sensor_type": "TimeoutSensor",
+                        "timeout_msec": 2000
+                    }
+                },
+                "effects": [],
+                "board_color": "#808080ff"
+            },
+            "2/positive": {
+                "cards": [
+                    {
+                        "card_type": "TextCard",
+                        "x": 0.0,
+                        "y": 0.0,
+                        "w": 0.5,
+                        "h": 0.5,
+                        "start_msec": 0,
+                        "end_msec": null,
+                        "text": "Correct!",
+                        "font_size": 0.05,
+                        "justification_horizontal": "center",
+                        "justification_vertical": "center",
+                        "text_color": "#ffffffff",
+                        "background_color": "#32a852ff"
+                    }
+                ],
+                "sensors": {
+                    "wait": {
+                        "sensor_type": "TimeoutSensor",
+                        "timeout_msec": 500
+                    }
+                },
+                "effects": [],
+                "board_color": "#808080ff"
+            },
+            "2/negative": {
+                "cards": [
+                    {
+                        "card_type": "TextCard",
+                        "x": 0.0,
+                        "y": 0.0,
+                        "w": 0.5,
+                        "h": 0.5,
+                        "start_msec": 0,
+                        "end_msec": null,
+                        "text": "Incorrect.",
+                        "font_size": 0.05,
+                        "justification_horizontal": "center",
+                        "justification_vertical": "center",
+                        "text_color": "#ffffffff",
+                        "background_color": "#a83232ff"
+                    }
+                ],
+                "sensors": {
+                    "wait": {
+                        "sensor_type": "TimeoutSensor",
+                        "timeout_msec": 1000
+                    }
+                },
+                "effects": [],
+                "board_color": "#808080ff"
+            },
+            "3": {
+                "cards": [
+                    {
+                        "card_type": "TextCard",
+                        "x": 0.0,
+                        "y": 0.0,
+                        "w": 0.0375,
+                        "h": 0.0375,
+                        "start_msec": 0,
+                        "end_msec": null,
+                        "text": "yo",
                         "font_size": 0.0175,
                         "justification_horizontal": "center",
                         "justification_vertical": "center",
-                        "card_id": "85c9ce9d-5eef-4960-bc83-bfb4211f2531",
-                        "card_type": "TextCard",
-                        "x": 0.0,
-                        "y": -0.4,
-                        "w": 0.5,
-                        "h": 0.1,
-                        "t_start": 0,
-                        "t_end": null,
-                        "text": "Press space to continue",
+                        "text_color": "#000000ff",
                         "background_color": "#E6E6E600"
                     }
                 ],
-                "sensors": [
-                    {
-                        "sensor_id": "7e04eb53-0a4f-46e9-b10c-2beeb572e150",
-                        "sensor_type": "KeySensor",
-                        "t_start": 0,
-                        "key": " "
-                    }
-                ],
-                "outcomes": [],
-                "effects": []
-            },
-            {
-                "node_id": "6e1dd538-d99a-4e22-aba0-736d74701ea2",
-                "cards": [
-                    {
-                        "card_id": "975e6dfd-db32-476c-ba5d-86972486dc03",
-                        "card_type": "BlankCard",
+                "sensors": {
+                    "clicked-fixation": {
+                        "sensor_type": "ClickSensor",
+                        "start_msec": 0,
+                        "end_msec": null,
                         "x": 0.0,
                         "y": 0.0,
-                        "w": 0.1,
-                        "h": 0.1,
-                        "t_start": 0,
-                        "t_end": null,
-                        "color": "#32a852"
-                    },
-                    {
-                        "card_id": "9949fd68-b2a0-41df-b0b0-13a9aa197ab3",
-                        "card_type": "FixationPointCard",
-                        "x": 0.08,
-                        "y": -0.28,
-                        "w": 0.05,
-                        "h": 0.05,
-                        "t_start": 0,
-                        "t_end": null
+                        "w": 0.0375,
+                        "h": 0.0375,
+                        "mask": "ellipse"
                     }
-                ],
-                "sensors": [
-                    {
-                        "sensor_id": "08179af8-3dae-4320-8677-2a92088772ac",
-                        "sensor_type": "ClickSensor",
-                        "t_start": 0,
-                        "card_id": "9949fd68-b2a0-41df-b0b0-13a9aa197ab3"
-                    },
-                    {
-                        "sensor_id": "6b2f37f8-111a-43c8-b1ff-573381f17be3",
-                        "sensor_type": "KeySensor",
-                        "t_start": 0,
-                        "key": " "
-                    }
-                ],
-                "outcomes": [
-                    {
-                        "sensor_id": "08179af8-3dae-4320-8677-2a92088772ac",
-                        "cards": [
-                            {
-                                "text_color": "#000000",
-                                "font_size": 0.0175,
-                                "justification_horizontal": "center",
-                                "justification_vertical": "center",
-                                "card_id": "29b32f49-e2c9-4bf0-a5e4-49a858937160",
-                                "card_type": "TextCard",
-                                "x": 0.0,
-                                "y": 0.0,
-                                "w": 0.5,
-                                "h": 0.5,
-                                "t_start": 0,
-                                "t_end": 200,
-                                "text": "Yay",
-                                "background_color": "#E6E6E600"
-                            }
-                        ],
-                        "bonus_amount_usd": "0.01"
-                    },
-                    {
-                        "sensor_id": "6b2f37f8-111a-43c8-b1ff-573381f17be3",
-                        "cards": [
-                            {
-                                "text_color": "#000000",
-                                "font_size": 0.0175,
-                                "justification_horizontal": "center",
-                                "justification_vertical": "center",
-                                "card_id": "56ebb0ea-3c4b-4276-b625-c5c90aeb0508",
-                                "card_type": "TextCard",
-                                "x": 0.0,
-                                "y": 0.0,
-                                "w": 0.5,
-                                "h": 0.5,
-                                "t_start": 0,
-                                "t_end": 400,
-                                "text": "Boo",
-                                "background_color": "#E6E6E600"
-                            }
-                        ],
-                        "bonus_amount_usd": "-0.01"
-                    },
-                    {
-                        "sensor_id": "f155f701-b49e-4ce1-a0a4-f89ca41e39ad",
-                        "cards": [
-                            {
-                                "text_color": "#000000",
-                                "font_size": 0.0175,
-                                "justification_horizontal": "center",
-                                "justification_vertical": "center",
-                                "card_id": "56ebb0ea-3c4b-4276-b625-c5c90aeb0508",
-                                "card_type": "TextCard",
-                                "x": 0.0,
-                                "y": 0.0,
-                                "w": 0.5,
-                                "h": 0.5,
-                                "t_start": 0,
-                                "t_end": 400,
-                                "text": "Boo",
-                                "background_color": "#E6E6E600"
-                            }
-                        ],
-                        "bonus_amount_usd": "-0.05"
-                    }
-                ],
-                "effects": []
+                },
+                "effects": [],
+                "board_color": "#808080ff"
             },
-            {
-                "node_id": "92c97aa1-734f-4fa0-85b3-e27879193382",
+            "4/main": {
                 "cards": [
                     {
-                        "card_id": "8b07bd35-a8e1-478f-a65f-93e60e156d93",
-                        "card_type": "BlankCard",
+                        "card_type": "ImageCard",
                         "x": 0.0,
                         "y": 0.0,
-                        "w": 0.1,
-                        "h": 0.1,
-                        "t_start": 0,
-                        "t_end": null,
-                        "color": "#32a852"
+                        "w": 0.5,
+                        "h": 0.5,
+                        "start_msec": 0,
+                        "end_msec": 200,
+                        "image": {
+                            "sha256": "d29444b8bb250b30c4d45a4200804c8ae1f85a4c4748a9b27523c4ac7d4527e8",
+                            "mime_type": "image/png"
+                        }
                     },
                     {
-                        "card_id": "de1bb87c-2e8d-4a7e-a603-ad803a376244",
-                        "card_type": "FixationPointCard",
-                        "x": -0.13,
-                        "y": -0.17,
-                        "w": 0.05,
-                        "h": 0.05,
-                        "t_start": 0,
-                        "t_end": null
+                        "card_type": "TextCard",
+                        "x": -0.25,
+                        "y": -0.3,
+                        "w": 0.2,
+                        "h": 0.2,
+                        "start_msec": 200,
+                        "end_msec": null,
+                        "text": "F",
+                        "font_size": 0.0175,
+                        "justification_horizontal": "center",
+                        "justification_vertical": "center",
+                        "text_color": "#000000ff",
+                        "background_color": "#E6E6E600"
+                    },
+                    {
+                        "card_type": "TextCard",
+                        "x": 0.25,
+                        "y": -0.3,
+                        "w": 0.2,
+                        "h": 0.2,
+                        "start_msec": 200,
+                        "end_msec": null,
+                        "text": "J",
+                        "font_size": 0.0175,
+                        "justification_horizontal": "center",
+                        "justification_vertical": "center",
+                        "text_color": "#000000ff",
+                        "background_color": "#E6E6E600"
                     }
                 ],
-                "sensors": [
-                    {
-                        "sensor_id": "ec77f12e-4d7e-490b-9640-d43c1d243c82",
-                        "sensor_type": "ClickSensor",
-                        "t_start": 0,
-                        "card_id": "de1bb87c-2e8d-4a7e-a603-ad803a376244"
-                    },
-                    {
-                        "sensor_id": "928e608b-bced-4ac0-94ab-e9189bcf3c8b",
+                "sensors": {
+                    "f": {
                         "sensor_type": "KeySensor",
-                        "t_start": 0,
-                        "key": " "
+                        "start_msec": 200,
+                        "end_msec": null,
+                        "key": "f"
+                    },
+                    "j": {
+                        "sensor_type": "KeySensor",
+                        "start_msec": 200,
+                        "end_msec": null,
+                        "key": "j"
+                    }
+                },
+                "effects": [],
+                "board_color": "#808080ff"
+            },
+            "4/positive": {
+                "cards": [
+                    {
+                        "card_type": "TextCard",
+                        "x": 0.0,
+                        "y": 0.0,
+                        "w": 0.5,
+                        "h": 0.5,
+                        "start_msec": 0,
+                        "end_msec": null,
+                        "text": "Correct!",
+                        "font_size": 0.05,
+                        "justification_horizontal": "center",
+                        "justification_vertical": "center",
+                        "text_color": "#ffffffff",
+                        "background_color": "#32a852ff"
                     }
                 ],
-                "outcomes": [
+                "sensors": {
+                    "wait": {
+                        "sensor_type": "TimeoutSensor",
+                        "timeout_msec": 500
+                    }
+                },
+                "effects": [],
+                "board_color": "#808080ff"
+            },
+            "4/negative": {
+                "cards": [
                     {
-                        "sensor_id": "ec77f12e-4d7e-490b-9640-d43c1d243c82",
-                        "cards": [
-                            {
-                                "text_color": "#000000",
-                                "font_size": 0.0175,
-                                "justification_horizontal": "center",
-                                "justification_vertical": "center",
-                                "card_id": "7583a5d3-dfc1-42ab-8bb3-a434a597daa5",
-                                "card_type": "TextCard",
-                                "x": 0.0,
-                                "y": 0.0,
-                                "w": 0.5,
-                                "h": 0.5,
-                                "t_start": 0,
-                                "t_end": 200,
-                                "text": "Yay",
-                                "background_color": "#E6E6E600"
-                            }
-                        ],
-                        "bonus_amount_usd": "0.01"
-                    },
-                    {
-                        "sensor_id": "928e608b-bced-4ac0-94ab-e9189bcf3c8b",
-                        "cards": [
-                            {
-                                "text_color": "#000000",
-                                "font_size": 0.0175,
-                                "justification_horizontal": "center",
-                                "justification_vertical": "center",
-                                "card_id": "8d44f943-9fe0-4cf5-80e9-64fdc0c44151",
-                                "card_type": "TextCard",
-                                "x": 0.0,
-                                "y": 0.0,
-                                "w": 0.5,
-                                "h": 0.5,
-                                "t_start": 0,
-                                "t_end": 400,
-                                "text": "Boo",
-                                "background_color": "#E6E6E600"
-                            }
-                        ],
-                        "bonus_amount_usd": "-0.01"
-                    },
-                    {
-                        "sensor_id": "e702f943-11ea-43b0-91d1-c4f4e1a5646a",
-                        "cards": [
-                            {
-                                "text_color": "#000000",
-                                "font_size": 0.0175,
-                                "justification_horizontal": "center",
-                                "justification_vertical": "center",
-                                "card_id": "8d44f943-9fe0-4cf5-80e9-64fdc0c44151",
-                                "card_type": "TextCard",
-                                "x": 0.0,
-                                "y": 0.0,
-                                "w": 0.5,
-                                "h": 0.5,
-                                "t_start": 0,
-                                "t_end": 400,
-                                "text": "Boo",
-                                "background_color": "#E6E6E600"
-                            }
-                        ],
-                        "bonus_amount_usd": "-0.05"
+                        "card_type": "TextCard",
+                        "x": 0.0,
+                        "y": 0.0,
+                        "w": 0.5,
+                        "h": 0.5,
+                        "start_msec": 0,
+                        "end_msec": null,
+                        "text": "Incorrect.",
+                        "font_size": 0.05,
+                        "justification_horizontal": "center",
+                        "justification_vertical": "center",
+                        "text_color": "#ffffffff",
+                        "background_color": "#a83232ff"
                     }
                 ],
-                "effects": []
+                "sensors": {
+                    "wait": {
+                        "sensor_type": "TimeoutSensor",
+                        "timeout_msec": 1000
+                    }
+                },
+                "effects": [],
+                "board_color": "#808080ff"
+            },
+            "5/main": {
+                "cards": [
+                    {
+                        "card_type": "ImageCard",
+                        "x": 0.0,
+                        "y": 0.0,
+                        "w": 0.5,
+                        "h": 0.5,
+                        "start_msec": 0,
+                        "end_msec": 200,
+                        "image": {
+                            "sha256": "4d333259c12c1d7ec81a89871d4977b5e711e60eb70fc65605e327779bd10b7b",
+                            "mime_type": "image/png"
+                        }
+                    },
+                    {
+                        "card_type": "TextCard",
+                        "x": -0.25,
+                        "y": -0.3,
+                        "w": 0.2,
+                        "h": 0.2,
+                        "start_msec": 200,
+                        "end_msec": null,
+                        "text": "F",
+                        "font_size": 0.0175,
+                        "justification_horizontal": "center",
+                        "justification_vertical": "center",
+                        "text_color": "#000000ff",
+                        "background_color": "#E6E6E600"
+                    },
+                    {
+                        "card_type": "TextCard",
+                        "x": 0.25,
+                        "y": -0.3,
+                        "w": 0.2,
+                        "h": 0.2,
+                        "start_msec": 200,
+                        "end_msec": null,
+                        "text": "J",
+                        "font_size": 0.0175,
+                        "justification_horizontal": "center",
+                        "justification_vertical": "center",
+                        "text_color": "#000000ff",
+                        "background_color": "#E6E6E600"
+                    }
+                ],
+                "sensors": {
+                    "f": {
+                        "sensor_type": "KeySensor",
+                        "start_msec": 200,
+                        "end_msec": null,
+                        "key": "f"
+                    },
+                    "j": {
+                        "sensor_type": "KeySensor",
+                        "start_msec": 200,
+                        "end_msec": null,
+                        "key": "j"
+                    }
+                },
+                "effects": [],
+                "board_color": "#808080ff"
+            },
+            "5/positive": {
+                "cards": [
+                    {
+                        "card_type": "TextCard",
+                        "x": 0.0,
+                        "y": 0.0,
+                        "w": 0.5,
+                        "h": 0.5,
+                        "start_msec": 0,
+                        "end_msec": null,
+                        "text": "Correct!",
+                        "font_size": 0.05,
+                        "justification_horizontal": "center",
+                        "justification_vertical": "center",
+                        "text_color": "#ffffffff",
+                        "background_color": "#32a852ff"
+                    }
+                ],
+                "sensors": {
+                    "wait": {
+                        "sensor_type": "TimeoutSensor",
+                        "timeout_msec": 500
+                    }
+                },
+                "effects": [],
+                "board_color": "#808080ff"
+            },
+            "5/negative": {
+                "cards": [
+                    {
+                        "card_type": "TextCard",
+                        "x": 0.0,
+                        "y": 0.0,
+                        "w": 0.5,
+                        "h": 0.5,
+                        "start_msec": 0,
+                        "end_msec": null,
+                        "text": "Incorrect.",
+                        "font_size": 0.05,
+                        "justification_horizontal": "center",
+                        "justification_vertical": "center",
+                        "text_color": "#ffffffff",
+                        "background_color": "#a83232ff"
+                    }
+                ],
+                "sensors": {
+                    "wait": {
+                        "sensor_type": "TimeoutSensor",
+                        "timeout_msec": 1000
+                    }
+                },
+                "effects": [],
+                "board_color": "#808080ff"
             }
-        ],
-        "base_payment_usd": "0.01",
-        "max_duration_sec": 600,
-        "title": "Test task (sandbox)",
-        "description": "Test task",
-        "keywords": [
-            "test",
-            "example"
-        ],
-        "nodekit_version": "0.1.0"
+        },
+        "start": "0",
+        "transitions": {
+            "1/fixation": {
+                "clicked-fixation": "1/main"
+            },
+            "1/main": {
+                "R": "1/negative",
+                "L": "1/positive",
+                "TO": "1/negative"
+            },
+            "0": {
+                "clicked-fixation": "1/fixation"
+            },
+            "2/fixation": {
+                "clicked-fixation": "2/main"
+            },
+            "2/main": {
+                "R": "2/negative",
+                "L": "2/positive",
+                "TO": "2/negative"
+            },
+            "1/positive": {
+                "wait": "2/fixation"
+            },
+            "1/negative": {
+                "wait": "2/fixation"
+            },
+            "2/positive": {
+                "wait": "3"
+            },
+            "2/negative": {
+                "wait": "3"
+            },
+            "4/main": {
+                "f": "4/positive",
+                "j": "4/negative"
+            },
+            "3": {
+                "clicked-fixation": "4/main"
+            },
+            "5/main": {
+                "f": "5/negative",
+                "j": "5/positive"
+            },
+            "4/positive": {
+                "wait": "5/main"
+            },
+            "4/negative": {
+                "wait": "5/main"
+            }
+        }
     }
 
-    const assetUrls = [
+    let assetUrls =  [
         {
             'identifier': {
                 "sha256": "3f224a8b6a7917ae1364cf2cc9daf7a5f7073bfe0fb5d9b638d8a6efc1c867f7",
@@ -387,7 +710,7 @@
             },
             'url': 'static/lo_poly_animal_BEAR_BLK_label.png',
         }
-    ];
+    ]
 
     import {play} from '/src/main.ts';
 
@@ -395,14 +718,14 @@
 
     window.onload = async () => {
         // Add focus
-        let events = await play(
-            nodeGraph,
+        let trace = await play(
+            graph,
             assetUrls,
             (event) => {
                 console.log(event);
             }
         )
-        console.log(events)
+        console.log(trace)
     };
 </script>
 
