@@ -75,18 +75,16 @@ export class NodeGraphPage extends TestPage {
         }
     }
 
-    // Click the center of the screen twice:
-    async clickTwice() {
+    // Click the center of the screen:
+    async click() {
       // Click the video, which triggers the ClickSensor, which ends the node:
       let size = this.page.viewportSize();
       expect(size).not.toBeNull();
+      await this.page.waitForTimeout(1000);
       // Appease the null check:
       if (size) {
-          for (let i = 0; i < 2; i++) {
-              await this.page.waitForTimeout(1000);
-              // Click in the center of the screen:
-              await this.page.mouse.click(size.width / 2, size.height / 2);
-          }
+          // Click in the center of the screen:
+          await this.page.mouse.click(size.width / 2, size.height / 2);
       }
     }
 
