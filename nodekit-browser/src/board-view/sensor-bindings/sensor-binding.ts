@@ -1,6 +1,8 @@
 import type {Action, ClickAction, KeyAction, TimeoutAction} from "../../types/actions";
-import type {Mask, PressableKey, SpatialPoint, SpatialSize} from "../../types/common.ts";
+import type {Mask, PressableKey, SpatialPoint, SpatialSize, TimeElapsedMsec} from "../../types/common.ts";
 import type {PointerSample, PointerStream} from "../../input-streams/pointer-stream.ts";
+import type {KeySample, KeyStream} from "../../input-streams/key-stream.ts";
+import type {Clock} from "../../clock.ts";
 
 // Generic contract:
 export interface SensorBinding {
@@ -10,7 +12,6 @@ export interface SensorBinding {
 }
 
 
-// Click sensor
 export class ClickSensorBinding implements SensorBinding {
 
     protected tArmed: DOMHighResTimeStamp | null = null;
@@ -29,7 +30,7 @@ export class ClickSensorBinding implements SensorBinding {
         w: SpatialSize,
         h: SpatialSize,
         mask: Mask,
-        onSensorFired: (action: ClickAction, domTimestampAction: DOMHighResTimeStamp) => void,
+        onSensorFired: (action: ClickAction, tAction: TimeElapsedMsec) => void,
         pointerStream: PointerStream,
     ) {
         this.region = {
@@ -66,7 +67,7 @@ export class ClickSensorBinding implements SensorBinding {
             };
             onSensorFired(
                 action,
-                pointerSample.domTimestamp,
+                pointerSample.t,
             );
         }
 
@@ -112,46 +113,60 @@ export class ClickSensorBinding implements SensorBinding {
     }
 }
 
-// TimeoutSensor
 /**
-A sensor which fires immediately when armed and yields a TimeoutAction.
+ A sensor which fires immediately when armed.
  */
 export class TimeoutSensorBinding implements SensorBinding {
-    private onSensorFired:  (action: Action, domTimestampAction: DOMHighResTimeStamp) => void
+    private onSensorFired: (action: Action, tAction: TimeElapsedMsec) => void
+    private clock: Clock
 
     constructor(
-        onSensorFired: (action: Action, domTimestampAction: DOMHighResTimeStamp)=> void,
+        onSensorFired: (action: Action, tAction: TimeElapsedMsec) => void,
+        clock: Clock,
     ) {
         this.onSensorFired = onSensorFired;
+        this.clock = clock;
     }
 
     arm(): void {
         const action: TimeoutAction = {
             action_type: "TimeoutAction",
         };
-        this.onSensorFired(action, performance.now());
+        this.onSensorFired(action, this.clock.now());
     }
 
     destroy(): void {}
 }
 
 export class KeySensorBinding implements SensorBinding {
-    private onSensorFired:  (action: Action, domTimestampAction: DOMHighResTimeStamp) => void
+    private onSensorFired: (action: Action, tAction: TimeElapsedMsec) => void
     private tArmed: number | null = null;
-    private readonly keys: PressableKey[];
+    private unsubscribe: () => void;
 
     constructor(
-        onSensorFired:  (action: Action, domTimestampAction: DOMHighResTimeStamp) => void,
-        key: PressableKey
+        onSensorFired: (action: Action, tAction: TimeElapsedMsec) => void,
+        key: PressableKey,
+        keyStream: KeyStream,
     ) {
         this.onSensorFired = onSensorFired;
 
-        this.keys = [key];
-
-        // This listener must be added to document (and not the BoardView.root) because
-        // it is not guaranteed that the BoardView will have focus.
-        // See: https://stackoverflow.com/a/12828055
-        document.addEventListener('keydown', this.onKeyPress);
+        const keyCallback = (keySample: KeySample) => {
+            if (!this.tArmed) {
+                return;
+            }
+            if (keySample.sampleType !== 'down') {
+                return;
+            }
+            if (keySample.key !== key) {
+                return;
+            }
+            const action: KeyAction = {
+                action_type: "KeyAction",
+                key: keySample.key,
+            };
+            this.onSensorFired(action, keySample.t);
+        }
+        this.unsubscribe = keyStream.subscribe(keyCallback)
     }
 
     arm() {
@@ -160,28 +175,7 @@ export class KeySensorBinding implements SensorBinding {
 
     destroy(): void {
         this.tArmed = null;
-        document.removeEventListener('keydown', this.onKeyPress);
-    }
-
-    private onKeyPress = (e: KeyboardEvent) => {
-        if (!this.tArmed) {
-            return;
-        }
-
-        e.preventDefault();
-
-        let key = e.key as PressableKey;
-        if (!this.keys.includes(key)) {
-            return
-        }
-
-        // Create the action to be fired:
-        const action: KeyAction = {
-            action_type: "KeyAction",
-            key: key,
-        };
-
-        this.onSensorFired(action, performance.now());
+        this.unsubscribe();
     }
 }
 

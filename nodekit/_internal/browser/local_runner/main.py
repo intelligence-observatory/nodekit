@@ -14,8 +14,9 @@ import uvicorn
 
 from nodekit._internal.browser.browser_bundle import get_browser_bundle
 from nodekit._internal.types.assets import AssetFile, AssetUrl
-from nodekit._internal.types.events.events import Event
-from nodekit._internal.types.node import Timeline, Trace
+from nodekit._internal.types.events.events import Event, EventTypeEnum
+from nodekit._internal.types.trace import Trace
+from nodekit import Graph
 
 
 # %%
@@ -36,7 +37,7 @@ class LocalRunner:
         self.host = host
 
         # In-memory state of the runner:
-        self._timeline: Timeline | None = None
+        self._graph: Graph | None = None
         self._events: List[Event] = []
 
         self.asset_id_to_file: Dict[str, AssetFile] = {}
@@ -78,10 +79,10 @@ class LocalRunner:
             self._server = None
             self._thread = None
 
-    def set_timeline(self, timeline: Timeline):
+    def set_graph(self, graph: Graph):
         with self._lock:
-            # Reset Timeline and Events
-            self._timeline = timeline
+            # Reset Graph and Events
+            self._graph = graph
             self._events = []
 
     def mount_asset_files(self, asset_files: List[AssetFile] | None):
@@ -144,8 +145,8 @@ class LocalRunner:
         def site(
                 request: fastapi.Request,
         ) -> fastapi.responses.HTMLResponse:
-            if self._timeline is None:
-                raise fastapi.HTTPException(status_code=404, detail="No Timeline is currently being served. Call `nodekit.play` first.")
+            if self._graph is None:
+                raise fastapi.HTTPException(status_code=404, detail="No Graph is currently being served. Call `nodekit.play` first.")
 
             # Package asset urls:
             asset_urls = []
@@ -162,7 +163,7 @@ class LocalRunner:
                 request=request,
                 name='site-template.j2',
                 context={
-                    "timeline": self._timeline.model_dump(mode='json'),
+                    "graph": self._graph.model_dump(mode='json'),
                     'asset_urls': [a.model_dump(mode='json') for a in asset_urls],
                     "nodekit_javascript_link": request.url_for(
                         "get_nodekit_javascript",
@@ -186,7 +187,7 @@ class LocalRunner:
             # Need a TypeAdapter for this.
             typeadapter = pydantic.TypeAdapter(Event)
             event = typeadapter.validate_python(event)
-            print(f'Received {event.event_type}')
+            print(f'Received {event.event_type.value}')
             self._events.append(event)
             return fastapi.Response(status_code=fastapi.status.HTTP_204_NO_CONTENT)
 
@@ -225,26 +226,26 @@ class PlaySession:
         return runner.list_events()
 
 def play(
-        timeline: Timeline,
+        graph: Graph,
         asset_files: List[AssetFile],
 ) -> Trace:
     """
-    Runs the Timeline at http://localhost:{port}.
+    Runs the Graph at http://localhost:{port}.
     Blocks until the Trace is complete.
     """
 
     runner = _get_runner()
     runner.ensure_running()
-    runner.set_timeline(timeline)
+    runner.set_graph(graph)
     runner.mount_asset_files(asset_files)
-    print('Play the Timeline at:\n', runner.url)
+    print('Play the Graph at:\n', runner.url)
 
 
     # Wait until the End Event is observed:
     while True:
         # Todo: make this better; add a timeout
         events = runner.list_events()
-        if any([e.event_type == 'EndEvent' for e in events]):
+        if any([e.event_type == EventTypeEnum.TraceEndedEvent for e in events]):
             break
         time.sleep(5)
 

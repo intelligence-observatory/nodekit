@@ -1,10 +1,5 @@
 declare type Action = ClickAction | TimeoutAction | KeyAction;
 
-declare interface ActionEvent extends BaseNodeEvent<'ActionEvent'> {
-    sensor_index: SensorIndex;
-    action: Action;
-}
-
 declare type AssetIdentifier = ImageIdentifier | VideoIdentifier;
 
 declare interface AssetUrl {
@@ -43,28 +38,20 @@ declare interface BaseEvent<T extends string> {
 }
 
 declare interface BaseNodeEvent<T extends string> extends BaseEvent<T> {
-    node_index: NodeIndex;
+    node_id: NodeId;
 }
 
 declare interface BaseSensor<T extends string> {
     sensor_type: T;
-    start_msec: NodeTimePointMsec;
-    end_msec: NodeTimePointMsec | null;
-    outcome: Outcome | null;
 }
 
-declare interface Board {
-    board_width_px: number;
-    board_height_px: number;
-    background_color: ColorHexString;
-}
-
-declare interface BrowserContextEvent extends BaseEvent<'BrowserContextEvent'> {
+declare interface BrowserContextSampledEvent extends BaseEvent<'BrowserContextSampledEvent'> {
     user_agent: string;
     viewport_width_px: number;
     viewport_height_px: number;
     display_width_px: number;
     display_height_px: number;
+    device_pixel_ratio: number;
 }
 
 declare type Card = ImageCard | TextCard | VideoCard;
@@ -74,7 +61,7 @@ declare interface ClickAction extends BaseAction<"ClickAction"> {
     y: SpatialPoint;
 }
 
-declare interface ClickSensor extends BaseSensor<'ClickSensor'> {
+declare interface ClickSensor extends TemporallyBoundedSensor<'ClickSensor'> {
     x: SpatialPoint;
     y: SpatialPoint;
     w: SpatialSize;
@@ -88,10 +75,14 @@ declare type ColorHexString = string & {
 
 declare type Effect = HidePointerEffect;
 
-declare interface EndEvent extends BaseEvent<'EndEvent'> {
-}
+declare type Event_2 = TraceStartedEvent | BrowserContextSampledEvent | PageSuspendedEvent | PageResumedEvent | NodeEnteredEvent | NodeExitedEvent | PointerSampledEvent | KeySampledEvent | TraceEndedEvent;
 
-declare type Event_2 = StartEvent | BrowserContextEvent | LeaveEvent | ReturnEvent | NodeStartEvent | ActionEvent | NodeEndEvent | EndEvent;
+declare interface Graph {
+    nodekit_version: string;
+    nodes: Record<NodeId, Node_2>;
+    transitions: Record<NodeId, Record<SensorId, NodeId>>;
+    start: NodeId;
+}
 
 declare interface HidePointerEffect extends BaseEffect<'HidePointerEffect'> {
     end_msec: NodeTimePointMsec;
@@ -108,11 +99,13 @@ declare interface KeyAction extends BaseAction<"KeyAction"> {
     key: PressableKey;
 }
 
-declare interface KeySensor extends BaseSensor<'KeySensor'> {
+declare interface KeySampledEvent extends BaseEvent<'KeySampledEvent'> {
     key: PressableKey;
+    kind: 'down' | 'up';
 }
 
-declare interface LeaveEvent extends BaseEvent<'LeaveEvent'> {
+declare interface KeySensor extends TemporallyBoundedSensor<'KeySensor'> {
+    key: PressableKey;
 }
 
 declare type MarkdownString = string & {
@@ -123,47 +116,54 @@ declare type Mask = 'rectangle' | 'ellipse';
 
 declare interface Node_2 {
     cards: Card[];
-    sensors: Sensor[];
+    sensors: Record<SensorId, Sensor>;
     effects: Effect[];
-    board: Board;
+    board_color: ColorHexString;
 }
 
-declare interface NodeEndEvent extends BaseNodeEvent<'NodeEndEvent'> {
+declare interface NodeEnteredEvent extends BaseNodeEvent<'NodeEnteredEvent'> {
 }
 
-declare type NodeIndex = number & {
-    __brand: "NodeIndex";
+declare interface NodeExitedEvent extends BaseNodeEvent<'NodeExitedEvent'> {
+    sensor_id: SensorId;
+    action: Action;
+}
+
+declare type NodeId = string & {
+    __brand: 'NodeId';
 };
-
-declare interface NodeStartEvent extends BaseNodeEvent<'NodeStartEvent'> {
-}
 
 declare type NodeTimePointMsec = number & {
     __brand: 'NodeTimePointMsec';
 };
 
-declare interface Outcome {
-    cards: Card[];
+declare interface PageResumedEvent extends BaseEvent<'PageResumedEvent'> {
+}
+
+declare interface PageSuspendedEvent extends BaseEvent<'PageSuspendedEvent'> {
 }
 
 /**
- * Plays a Timeline, returning a Trace of Events.
- * @param timeline
+ * Plays a Graph, returning a Trace of Events.
+ * @param graph
  * @param assetUrls
  * @param onEventCallback
  * @param previousEvents
  */
-export declare function play(timeline: Timeline, assetUrls: AssetUrl[], onEventCallback?: ((event: Event_2) => void) | null, previousEvents?: Event_2[]): Promise<Trace>;
+export declare function play(graph: Graph, assetUrls: AssetUrl[], onEventCallback?: ((event: Event_2) => void) | null, previousEvents?: Event_2[]): Promise<Trace>;
 
-declare type PressableKey = "Enter" | " " | "ArrowDown" | "ArrowLeft" | "ArrowRight" | "ArrowUp" | "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z" | "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
-
-declare interface ReturnEvent extends BaseEvent<'ReturnEvent'> {
+declare interface PointerSampledEvent extends BaseEvent<'PointerSampledEvent'> {
+    x: SpatialPoint;
+    y: SpatialPoint;
+    kind: 'down' | 'up' | 'move';
 }
+
+declare type PressableKey = string;
 
 declare type Sensor = TimeoutSensor | ClickSensor | KeySensor;
 
-declare type SensorIndex = number & {
-    __brand: "SensorIndex";
+declare type SensorId = string & {
+    __brand: 'SensorId';
 };
 
 declare type SHA256 = string & {
@@ -178,7 +178,9 @@ declare type SpatialSize = number & {
     __brand: 'SpatialSize';
 };
 
-declare interface StartEvent extends BaseEvent<'StartEvent'> {
+declare interface TemporallyBoundedSensor<T extends string> extends BaseSensor<T> {
+    start_msec: NodeTimePointMsec;
+    end_msec: NodeTimePointMsec | null;
 }
 
 declare interface TextCard extends BaseCard<'TextCard'> {
@@ -194,21 +196,22 @@ declare type TimeElapsedMsec = number & {
     __brand: 'TimeElapsedMsec';
 };
 
-declare interface Timeline {
-    nodekit_version: string;
-    nodes: Node_2[];
-}
-
 declare interface TimeoutAction extends BaseAction<"TimeoutAction"> {
 }
 
 declare interface TimeoutSensor extends BaseSensor<'TimeoutSensor'> {
-    end_msec: null;
+    timeout_msec: NodeTimePointMsec;
 }
 
 declare interface Trace {
     nodekit_version: string;
     events: Event_2[];
+}
+
+declare interface TraceEndedEvent extends BaseEvent<'TraceEndedEvent'> {
+}
+
+declare interface TraceStartedEvent extends BaseEvent<'TraceStartedEvent'> {
 }
 
 declare interface VideoCard extends BaseCard<'VideoCard'> {

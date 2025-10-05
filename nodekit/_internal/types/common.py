@@ -29,11 +29,10 @@ Mask = Annotated[
 ]
 # %% Time
 NodeTimePointMsec = Annotated[int, pydantic.Field(strict=True, ge=0, description='A point in time relative to the start of a Node.')]
-TimeElapsedMsec = Annotated[int, pydantic.Field(strict=True, ge=0, description='An elapsed duration of time in milliseconds, relative to some start.')]
+TimeElapsedMsec = Annotated[int, pydantic.Field(strict=True, ge=0, description='An elapsed duration of time in milliseconds, relative to the start of the Trace.')]
 
 # %% Text
 MarkdownString = str
-
 
 def _normalize_hex_code(value: str) -> str:
     if len(value) == 7:
@@ -65,5 +64,18 @@ PressableKey = Literal[
 ]
 
 # %% Identifiers
-NodeIndex = Annotated[int, pydantic.Field(strict=True, ge=0, description='The index of a Node in a Timeline, starting from 0.')]
-SensorIndex = Annotated[int, pydantic.Field(strict=True, ge=0, description='The index of a Sensor in a Node, starting from 0.')]
+NodeId = Annotated[str, pydantic.Field(
+    description='An identifier for a Node which is unique within a Graph.',
+)]
+
+SensorId = Annotated[str, pydantic.Field(
+    description='An identifier for a Sensor which is unique within a Node.',
+)]
+
+# %% Money
+AmountUsdStr = Annotated[
+    str,
+    pydantic.Field(
+        pattern=r'^-?\d+(\.\d{1,5})?$',
+        description='A decimal number with at most five decimal places, representing an amount in USD (negative or positive). ')
+]

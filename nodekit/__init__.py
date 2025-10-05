@@ -2,10 +2,9 @@ __all__ = [
     'VERSION',
 
     # Top-level types:
-    'Timeline',
     'Node',
-    'Outcome',
-    'Board',
+    'Graph',
+    'Trace',
 
     # Namespaced types:
     'assets',
@@ -18,18 +17,19 @@ __all__ = [
     # Browser runtime methods:
     'play',
     'get_browser_bundle',
+
+    # Ops
+    'concat',
 ]
 
 # Version
 from nodekit._internal.version import VERSION
 
 # Incoming models:
-from nodekit._internal.types.node import (
-    Timeline,
-    Node,
-)
-from nodekit._internal.types.board import Board
-from nodekit._internal.types.outcome import Outcome
+from nodekit._internal.types.node import Node
+from nodekit._internal.types.graph import Graph
+from nodekit._internal.types.trace import Trace
+
 import nodekit.cards as cards
 import nodekit.assets as assets
 import nodekit.effects as effects
@@ -37,6 +37,10 @@ import nodekit.sensors as sensors
 import nodekit.actions as actions
 import nodekit.events as events
 
-# Browser runtime:
+# Browser:
 from nodekit._internal.browser.local_runner.main import play
 from nodekit._internal.browser.browser_bundle import get_browser_bundle
+
+
+# Ops:
+from nodekit._internal.ops.concat import concat

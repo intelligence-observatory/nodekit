@@ -8,21 +8,17 @@ export class Clock {
     }
 
     now(): TimeElapsedMsec {
-        return this.convertDomTimestampToClockTime(performance.now());
-    }
-
-    /**
-     * Convert a DOMHighResTimeStamp from performance.now() to TimeElapsedMsec since the clock was started.
-     * @throws Error if the clock has not been started.
-     * @param t
-     */
-    convertDomTimestampToClockTime(t: DOMHighResTimeStamp): TimeElapsedMsec {
         if (this.startTime === null) {
             throw new Error("Clock has not been started. Call start() before calling convertToTimeElapsedMsec().");
         }
-        let delta = t - this.startTime;
+        let delta = performance.now() - this.startTime;
+
         // Round to integer milliseconds:
         delta = Math.round(delta);
         return delta as TimeElapsedMsec;
+    }
+
+    checkClockStarted(): boolean {
+        return this.startTime !== null;
     }
 }
