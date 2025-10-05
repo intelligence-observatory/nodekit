@@ -17,54 +17,69 @@
         identifier: videoIdentifier,
         url: "../static/test-video.mp4"
     };
-    const nodes = [
-        {
-            node_id: "01988636-b4f7-7901-95de-43599d57a440",
-            cards: [{
-                card_id: "3b6f3e51-437b-495f-b1bf-9437e8dcdb25",
-                card_type: "VideoCard",
-                x: 0,
-                y: 0,
-                w: 0.5,
-                h: 0.5,
-                t_start: 0,
-                t_end: null,
-                video_identifier: videoIdentifier,
-                muted: true,
-                loop: false,
-            }],
-            sensors: [{
-                sensor_id: "01988636-b4f7-7901-95de-43492b583ae6",
-                sensor_type: "ClickSensor",
-                t_start: 0,
-                card_id: "3b6f3e51-437b-495f-b1bf-9437e8dcdb25"
-            }],
-            outcomes: [],
-            effects: []
 
-        }]
-    nodeGraph = {
-        nodekit_version: "test",
-        board: {
-            board_width_px: 768,
-            board_height_px: 768
+    let graph = {
+        nodekit_version: "0.1.0",
+        nodes: {
+            'video-node':{
+                "cards": [
+                    {
+                        "card_type": "VideoCard",
+                        "x": 0.0,
+                        "y": 0.0,
+                        "w": 0.5,
+                        "h": 0.5,
+                        "start_msec": 0,
+                        "end_msec": null,
+                        "video": videoIdentifier,
+                        "muted": true,
+                        "loop": false
+                    },
+                ],
+                "sensors": {
+                    "L": {
+                        "sensor_type": "ClickSensor",
+                        "start_msec": 200,
+                        "end_msec": null,
+                        "x": -0.25,
+                        "y": -0.3,
+                        "w": 0.2,
+                        "h": 0.2,
+                        "mask": "rectangle"
+                    },
+                    "R": {
+                        "sensor_type": "ClickSensor",
+                        "start_msec": 200,
+                        "end_msec": null,
+                        "x": 0.25,
+                        "y": -0.3,
+                        "w": 0.2,
+                        "h": 0.2,
+                        "mask": "rectangle"
+                    },
+                    "TO": {
+                        "sensor_type": "TimeoutSensor",
+                        "timeout_msec": 2000
+                    }
+                },
+                "effects": [],
+                "board_color": "#808080ff"
+            }
         },
-        nodes: nodes,
-        bonus_rules: [],
+        start: 'video-node',
+        transitions: {},
     }
 
-    window.focus();
-
     window.onload = async () => {
-       await NodeKit.play(
-           nodeGraph,
+       let trace = await NodeKit.play(
+           graph,
            [videoUrl],
            (event) => {
                 console.log(event);
            }
        );
+       console.log(trace)
     };
-
 </script>
 
 </body>
