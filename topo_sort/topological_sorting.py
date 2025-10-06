@@ -63,7 +63,7 @@ def node_hash(node: Node, idx: int) -> Tuple[str, int]:
     digest = hashlib.sha256(json_str.encode("utf-8")).hexdigest()
     return digest, idx
 
-# %% Kahn's Algorithm implimentation for topographical sorting:
+# %% Kahn's Algorithm implementation for topographical sorting:
 def topological_sort(nodes: List[Node], transitions: List[Transition]) -> List[int]:
     """
     Return a list of node indices arranged in a topologically sorted order.

@@ -49,7 +49,7 @@ def test_example_2_fail():
     #         |    \
     #         1     3
     # Sensors indexed at 0 from left to right on all nodes
-
+ 
     # Create Nodes:
     nodes = [          # Node from Visualization:
         Node.sensors_from_num(2),       # 0
