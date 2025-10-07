@@ -8,3 +8,6 @@ build-browser:
 build: build-browser
 	rm -rf dist && \
 	uv build
+
+check:
+	uvx ty check
