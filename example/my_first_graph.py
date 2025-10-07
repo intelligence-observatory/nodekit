@@ -294,9 +294,10 @@ my_trial = make_triplet_trial(
 fixation_card = nk.cards.TextCard(
     x=0,
     y=0,
-    w=0.0375,
-    h=0.0375,
-    text='yo',
+    w=0.2,
+    h=0.2,
+    text='click me!',
+    background_color='#32a852',
 )
 
 clicked_fixation_dot_sensor = nk.sensors.ClickSensor(
