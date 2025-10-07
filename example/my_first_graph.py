@@ -328,6 +328,9 @@ graph = nk.concat(
     [fixation_node, my_trial, my_trial, fixation_node, fj_trial, fj_trial2]
 )
 
+# %% Pack it for later:
+nk.pack(graph, 'my_graph.nkg')
+
 # %% Play the Graph:
 trace = nk.play(graph)
 

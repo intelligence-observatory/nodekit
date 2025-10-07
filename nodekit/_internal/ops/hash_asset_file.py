@@ -1,4 +1,4 @@
-from nodekit._internal.types.common import SHA256
+from nodekit._internal.types.common import SHA256, MediaType
 import pydantic
 from pathlib import Path
 import hashlib
@@ -17,3 +17,16 @@ def hash_asset_file(path: Path) -> SHA256:
     type_adapter = pydantic.TypeAdapter(SHA256)
     validated_sha256 = type_adapter.validate_python(sha256_hexdigest)
     return validated_sha256
+
+def get_extension(media_type: MediaType) -> str:
+    """
+    Returns the file extension, without the leading dot, for a given media (MIME) type.
+    """
+    mime_to_extension = {
+        "image/png": "png",
+        "image/svg+xml": "svg",
+        "video/mp4": "mp4",
+    }
+    if media_type not in mime_to_extension:
+        raise ValueError(f"Unsupported media type: {media_type}")
+    return mime_to_extension[media_type]

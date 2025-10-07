@@ -5,14 +5,14 @@ from nodekit._internal.types.cards.cards import (
     VideoCard,
 )
 from nodekit._internal.types.common import (
-    MimeType,
+    MediaType,
     SHA256,
 )
 from typing import Dict, List
 
 
 def collect_asset_files(graph: Graph) -> List[AssetFile]:
-    assets: Dict[MimeType, Dict[SHA256, AssetFile]] = {}
+    assets: Dict[MediaType, Dict[SHA256, AssetFile]] = {}
     for node in graph.nodes.values():
         for card in node.cards:
             if isinstance(card, ImageCard):

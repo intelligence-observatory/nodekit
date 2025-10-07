@@ -1,21 +1,15 @@
-from typing import Dict
 import os
+import zipfile
 
-from nodekit._internal.types.assets import AssetFile
-from nodekit._internal.types.cards.cards import (
-    ImageCard,
-    VideoCard,
-)
-from nodekit._internal.types.common import (
-    MimeType,
-    SHA256,
-)
+from nodekit._internal.ops.collect_asset_files import collect_asset_files
+from nodekit._internal.ops.hash_asset_file import get_extension
 from nodekit._internal.types.graph import Graph
 
+GraphId = str
 
 def pack(
-    path: str | os.PathLike,
     graph: Graph,
+    path: str | os.PathLike,
 ) -> None:
     """
     Packs the Graph into a .nkg file, which is a .zip archive with the following structure:
@@ -23,26 +17,34 @@ def pack(
     graph.json
     assets/
         {mime-type-1}/{mime-type-2}/{sha256}.{ext}
-
     """
-    # Copy all Assets to assets/ folder
     # Write the manifest.json
-    # Collect the AssetFiles from all Nodes:
 
-    assets: Dict[MimeType, Dict[SHA256, AssetFile]] = {}
-    for node in graph.nodes.values():
-        for card in node.cards:
-            if isinstance(card, ImageCard):
-                image = card.image
-                if image.mime_type not in assets:
-                    assets[image.mime_type] = {}
-                assets[image.mime_type][image.sha256] = image
-            elif isinstance(card, VideoCard):
-                video = card.video
-                if video.mime_type not in assets:
-                    assets[video.mime_type] = {}
-                assets[video.mime_type][video.sha256] = video
-    raise NotImplementedError
+    # Collect the AssetFiles from the Graph:
+    asset_files = collect_asset_files(graph=graph)
+
+    # Ensure the given path ends with .nkg or has no extension:
+    if not str(path).endswith('.nkg'):
+        path = f"{path}.nkg"
+    if not str(path).endswith('.nkg'):
+        raise ValueError(f"Path must end with .nkg: {path}")
+
+    # Open a zip file for writing:
+    with zipfile.ZipFile(path, 'w', zipfile.ZIP_DEFLATED) as zf:
+        # Write graph.json
+        graph_json_path = 'graph.json'
+        zf.writestr(graph_json_path, graph.model_dump_json())
+
+        # Copy assets
+        for asset in asset_files:
+            extension = get_extension(media_type=asset.mime_type)
+            asset_path = os.path.join('assets', asset.mime_type, f"{asset.sha256}.{extension}")
+            source_path = asset.path
+            zf.write(source_path, asset_path)
+
+    # No return value
+
+
 
 
 def unpack(

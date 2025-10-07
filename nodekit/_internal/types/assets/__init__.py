@@ -5,9 +5,9 @@ import pydantic
 
 from nodekit._internal.ops.hash_asset_file import hash_asset_file
 from nodekit._internal.types.common import (
-    MimeType,
-    ImageMimeType,
-    VideoMimeType,
+    MediaType,
+    ImageMediaType,
+    VideoMediaType,
     SHA256,
 )
 
@@ -21,7 +21,7 @@ class BaseAssetFile(pydantic.BaseModel):
     """
 
     sha256: SHA256
-    mime_type: MimeType
+    mime_type: MediaType
 
     # Python runtime fields only:
     path: pydantic.FilePath = pydantic.Field(
@@ -83,7 +83,7 @@ class BaseAssetFile(pydantic.BaseModel):
                 f"Could not determine MIME type for file at {path}\n Does it have a valid file extension?"
             )
 
-        guessed_mime_type: MimeType
+        guessed_mime_type: MediaType
 
         return cls(
             sha256=sha256,
@@ -94,11 +94,11 @@ class BaseAssetFile(pydantic.BaseModel):
 
 
 class ImageFile(BaseAssetFile):
-    mime_type: ImageMimeType
+    mime_type: ImageMediaType
 
 
 class VideoFile(BaseAssetFile):
-    mime_type: VideoMimeType
+    mime_type: VideoMediaType
 
 
 AssetFile = Annotated[
