@@ -36,6 +36,5 @@ nodekit = [
 
 [dependency-groups]
 dev = [
-    "ty>=0.0.1a19",
     "pytest>=8.3",
 ]

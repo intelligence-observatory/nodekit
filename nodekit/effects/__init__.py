@@ -1,7 +1,5 @@
 __all__ = [
-    'HidePointerEffect',
+    "HidePointerEffect",
 ]
 
-from nodekit._internal.types.effects.effects import (
-    HidePointerEffect
-)
+from nodekit._internal.types.effects.effects import HidePointerEffect
