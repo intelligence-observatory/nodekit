@@ -3,7 +3,10 @@ from typing import Literal, Annotated, Union
 
 import pydantic
 
-from nodekit._internal.types.assets import ImageIdentifier, VideoIdentifier
+from nodekit._internal.types.assets import (
+    ImageIdentifier,
+    VideoIdentifier
+)
 from nodekit._internal.types.common import (
     ColorHexString,
     MarkdownString,

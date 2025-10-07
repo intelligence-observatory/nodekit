@@ -85,7 +85,6 @@ class BaseAssetFile(pydantic.BaseModel):
         )
 
 
-# %%
 class ImageFile(BaseAssetFile):
     identifier: ImageIdentifier
 
@@ -95,11 +94,27 @@ class VideoFile(BaseAssetFile):
 AssetFile = ImageFile | VideoFile
 
 # %%
-class AssetUrl(pydantic.BaseModel):
-    """
-    Points to an asset file located at a URL,
-    along with the user's assertion of the file's SHA-256 hash and mime type.
-    These assertions will be later validated in a pre-run stage.
-    """
-    identifier: AssetIdentifier
-    url: pydantic.AnyUrl
+import PIL.Image
+
+from typing import Iterator
+
+class Asset(pydantic.BaseModel):
+    sha256: SHA256
+    media_type: MimeType
+    path: Path = pydantic.Field(description='Path to the asset', exclude=True)
+
+    @classmethod
+    def from_path(cls, path: Path | str) -> Self:
+        ...
+
+class Image(Asset):
+    ...
+
+    def as_pil(self) -> PIL.Image.Image:
+        ...
+
+class Video(Asset):
+    ...
+
+    def frames(self) -> Iterator[PIL.Image.Image]:
+        ...

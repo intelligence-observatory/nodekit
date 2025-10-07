@@ -16,6 +16,7 @@ class Node(pydantic.BaseModel):
             "The first Card in this list is at the \"bottom\" of the Board, in the z-direction."
         ),
     )
+
     sensors: Dict[SensorId, Sensor] = pydantic.Field(
         min_length=1,
         description='Set of Sensors that listen for a Participant Action. The first Sensor that is triggered ends the Node.'

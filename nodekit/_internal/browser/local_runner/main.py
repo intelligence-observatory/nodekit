@@ -13,7 +13,7 @@ import pydantic
 import uvicorn
 
 from nodekit._internal.browser.browser_bundle import get_browser_bundle
-from nodekit._internal.types.assets import AssetFile, AssetUrl
+from nodekit._internal.types.assets import AssetFile
 from nodekit._internal.types.events.events import Event, EventTypeEnum
 from nodekit._internal.types.trace import Trace
 from nodekit import Graph
@@ -153,9 +153,9 @@ class LocalRunner:
             for asset_id in sorted(self.asset_id_to_file.keys()):
                 asset_file = self.asset_id_to_file[asset_id]
                 asset_urls.append(
-                    AssetUrl(
-                        identifier=asset_file.identifier,
-                        url=pydantic.AnyUrl(str(request.url_for("get_asset", asset_id=asset_id))),
+                    dict(
+                        identifier=asset_file.identifier.model_dump(mode='json'),
+                        url=str(request.url_for("get_asset", asset_id=asset_id)),
                     )
                 )
 
@@ -164,7 +164,7 @@ class LocalRunner:
                 name='site-template.j2',
                 context={
                     "graph": self._graph.model_dump(mode='json'),
-                    'asset_urls': [a.model_dump(mode='json') for a in asset_urls],
+                    'asset_urls': asset_urls,
                     "nodekit_javascript_link": request.url_for(
                         "get_nodekit_javascript",
                         js_hash=NODEKIT_JS_HASH,
