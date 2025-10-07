@@ -10,6 +10,7 @@ from nodekit._internal.types.common import (
 )
 from typing import Dict, List
 
+
 def collect_asset_files(graph: Graph) -> List[AssetFile]:
     assets: Dict[MimeType, Dict[SHA256, AssetFile]] = {}
     for node in graph.nodes.values():

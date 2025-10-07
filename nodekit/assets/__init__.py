@@ -1,6 +1,6 @@
 __all__ = [
-    'ImageFile',
-    'VideoFile',
+    "ImageFile",
+    "VideoFile",
 ]
 
 from nodekit._internal.types.assets import (

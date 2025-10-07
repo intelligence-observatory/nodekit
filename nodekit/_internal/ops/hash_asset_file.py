@@ -3,6 +3,7 @@ import pydantic
 from pathlib import Path
 import hashlib
 
+
 def hash_asset_file(path: Path) -> SHA256:
     """
     Compute the SHA-256 hash of a file at the given path.
@@ -13,6 +14,6 @@ def hash_asset_file(path: Path) -> SHA256:
             h.update(chunk)
 
     sha256_hexdigest = h.hexdigest()
-    type_adapter= pydantic.TypeAdapter(SHA256)
+    type_adapter = pydantic.TypeAdapter(SHA256)
     validated_sha256 = type_adapter.validate_python(sha256_hexdigest)
     return validated_sha256

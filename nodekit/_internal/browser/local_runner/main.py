@@ -22,13 +22,11 @@ from nodekit import Graph
 
 # %%
 class LocalRunner:
-
     def __init__(
-            self,
-            port: int = 7651,
-            host: str = "127.0.0.1",
+        self,
+        port: int = 7651,
+        host: str = "127.0.0.1",
     ):
-
         self._lock = threading.RLock()
         self._thread: threading.Thread | None = None
         self._server: uvicorn.Server | None = None
@@ -63,10 +61,7 @@ class LocalRunner:
             self._thread.start()
             self._running = True
 
-
-
     def shutdown(self):
-
         with self._lock:
             if not self._running:
                 return
@@ -107,22 +102,24 @@ class LocalRunner:
         NODEKIT_CSS_HASH = _sha(bundle.css)
 
         # Mount the jinja2 template at ./site-template.j2:
-        templates = fastapi.templating.Jinja2Templates(
-            directory=Path(__file__).parent
-        )
+        templates = fastapi.templating.Jinja2Templates(directory=Path(__file__).parent)
 
         # Cache-busted asset endpoints
         @app.get("/static/nodekit.{js_hash}.js", name="get_nodekit_javascript")
         def get_nodekit_javascript(js_hash: str) -> fastapi.responses.PlainTextResponse:
             if not js_hash == NODEKIT_JS_HASH:
                 raise fastapi.HTTPException(status_code=404, detail="JS not found")
-            return fastapi.responses.PlainTextResponse(bundle.js, media_type="application/javascript")
+            return fastapi.responses.PlainTextResponse(
+                bundle.js, media_type="application/javascript"
+            )
 
         @app.get("/static/nodekit.{css_hash}.css", name="get_nodekit_css")
         def get_nodekit_css(css_hash: str) -> fastapi.responses.PlainTextResponse:
             if not css_hash == NODEKIT_CSS_HASH:
                 raise fastapi.HTTPException(status_code=404, detail="CSS not found")
-            return fastapi.responses.PlainTextResponse(bundle.css, media_type="text/css")
+            return fastapi.responses.PlainTextResponse(
+                bundle.css, media_type="text/css"
+            )
 
         @app.get("/health")
         def health():
@@ -135,19 +132,23 @@ class LocalRunner:
             try:
                 asset_file = self.asset_id_to_file[asset_id]
             except KeyError:
-                raise fastapi.HTTPException(status_code=404, detail=f"Asset with ID {asset_id} not found.")
+                raise fastapi.HTTPException(
+                    status_code=404, detail=f"Asset with ID {asset_id} not found."
+                )
 
             return fastapi.responses.FileResponse(
-                path=asset_file.path,
-                media_type=asset_file.mime_type
+                path=asset_file.path, media_type=asset_file.mime_type
             )
 
         @app.get("/")
         def site(
-                request: fastapi.Request,
+            request: fastapi.Request,
         ) -> fastapi.responses.HTMLResponse:
             if self._graph is None:
-                raise fastapi.HTTPException(status_code=404, detail="No Graph is currently being served. Call `nodekit.play` first.")
+                raise fastapi.HTTPException(
+                    status_code=404,
+                    detail="No Graph is currently being served. Call `nodekit.play` first.",
+                )
 
             # Package asset urls:
             asset_urls = []
@@ -155,17 +156,17 @@ class LocalRunner:
                 asset_file = self.asset_id_to_file[asset_id]
                 asset_urls.append(
                     dict(
-                        identifier=asset_file.model_dump(mode='json'),
+                        identifier=asset_file.model_dump(mode="json"),
                         url=str(request.url_for("get_asset", asset_id=asset_id)),
                     )
                 )
 
             return templates.TemplateResponse(
                 request=request,
-                name='site-template.j2',
+                name="site-template.j2",
                 context={
-                    "graph": self._graph.model_dump(mode='json'),
-                    'asset_urls': asset_urls,
+                    "graph": self._graph.model_dump(mode="json"),
+                    "asset_urls": asset_urls,
                     "nodekit_javascript_link": request.url_for(
                         "get_nodekit_javascript",
                         js_hash=NODEKIT_JS_HASH,
@@ -177,18 +178,18 @@ class LocalRunner:
                     "submit_event_url": request.url_for(
                         "submit_event",
                     ),
-                }
+                },
             )
 
         @app.post("/submit")
         def submit_event(
-                event: dict,
+            event: dict,
         ) -> fastapi.Response:
             # Event is a type alias which is a Union of multiple concrete event types.
             # Need a TypeAdapter for this.
             typeadapter = pydantic.TypeAdapter(Event)
             event = typeadapter.validate_python(event)
-            print(f'Received {event.event_type.value}')
+            print(f"Received {event.event_type.value}")
             self._events.append(event)
             return fastapi.Response(status_code=fastapi.status.HTTP_204_NO_CONTENT)
 
@@ -196,7 +197,7 @@ class LocalRunner:
 
     @property
     def url(self) -> str:
-        return f'http://{self.host}:{self.port}'
+        return f"http://{self.host}:{self.port}"
 
     def list_events(self) -> List[Event]:
         with self._lock:
@@ -205,6 +206,7 @@ class LocalRunner:
 
 # %% Singleton instance of the LocalRunner
 _runner: LocalRunner | None = None
+
 
 def _get_runner() -> LocalRunner:
     global _runner
@@ -226,8 +228,9 @@ class PlaySession:
         runner = _get_runner()
         return runner.list_events()
 
+
 def play(
-        graph: Graph,
+    graph: Graph,
 ) -> Trace:
     """
     Runs the Graph at http://localhost:{port}.
@@ -241,7 +244,7 @@ def play(
     # Collect the AssetFiles from the Graph:
     asset_files = collect_asset_files(graph)
     runner.mount_asset_files(asset_files)
-    print('Play the Graph at:\n', runner.url)
+    print("Play the Graph at:\n", runner.url)
 
     # Wait until the End Event is observed:
     while True:
@@ -254,6 +257,4 @@ def play(
     # Shut down the server:
     runner.shutdown()
 
-    return Trace(
-        events=events
-    )
+    return Trace(events=events)

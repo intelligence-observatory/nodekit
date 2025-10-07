@@ -8,6 +8,7 @@ from nodekit._internal.types.common import (
     SensorId,
 )
 
+
 # %%
 class Graph(pydantic.BaseModel):
     """
@@ -23,13 +24,12 @@ class Graph(pydantic.BaseModel):
 
     # Control flow:
     start: NodeId
-    transitions: Dict[NodeId, Dict[SensorId, NodeId]]  = pydantic.Field(
-        description='A mapping from (NodeId, SensorId) to the next Node that will be transitioned if the Sensor is triggered in that Node.'
+    transitions: Dict[NodeId, Dict[SensorId, NodeId]] = pydantic.Field(
+        description="A mapping from (NodeId, SensorId) to the next Node that will be transitioned if the Sensor is triggered in that Node."
     )
 
-    @pydantic.model_validator(mode='after')
+    @pydantic.model_validator(mode="after")
     def check_graph_is_valid(self) -> Self:
-
         if self.start not in self.nodes:
             raise ValueError(f"Graph start node {self.start} not in nodes.")
 

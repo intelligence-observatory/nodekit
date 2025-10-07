@@ -1,4 +1,3 @@
-from pathlib import Path
 from typing import Dict
 import os
 
@@ -15,8 +14,8 @@ from nodekit._internal.types.graph import Graph
 
 
 def pack(
-        path: str | os.PathLike,
-        graph: Graph,
+    path: str | os.PathLike,
+    graph: Graph,
 ) -> None:
     """
     Packs the Graph into a .nkg file, which is a .zip archive with the following structure:
