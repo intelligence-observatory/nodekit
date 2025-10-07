@@ -38,4 +38,5 @@ nodekit = [
 dev = [
     "ty>=0.0.1a19",
     "pytest>=8.3",
+    "ruff>=0.13.3",
 ]
