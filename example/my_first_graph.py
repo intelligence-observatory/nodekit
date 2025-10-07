@@ -5,10 +5,10 @@ from typing import Literal
 
 # %%
 def make_triplet_trial(
-        fixation_image: nk.assets.ImageIdentifier,
-        stimulus_image: nk.assets.ImageIdentifier,
-        choice_left_image: nk.assets.ImageIdentifier,
-        choice_right_image: nk.assets.ImageIdentifier,
+        fixation_image: nk.assets.ImageFile,
+        stimulus_image: nk.assets.ImageFile,
+        choice_left_image: nk.assets.ImageFile,
+        choice_right_image: nk.assets.ImageFile,
         correct_choice: Literal['L', 'R']
 ) -> nk.Graph:
     """
@@ -162,7 +162,7 @@ def make_triplet_trial(
     return trial_graph
 
 def make_fj_trial(
-        stimulus_image: nk.assets.ImageIdentifier,
+        stimulus_image: nk.assets.ImageFile,
         correct_choice: Literal['f', 'j'],
 ) -> nk.Graph:
 
@@ -328,7 +328,7 @@ graph = nk.concat(
     [fixation_node, my_trial, my_trial, fixation_node, fj_trial, fj_trial2]
 )
 
-Path('graph.json').write_text(graph.model_dump_json(indent=2))
+Path('graph_manifest.json').write_text(graph._manifest.model_dump_json(indent=2))
 
 # %% Play the Graph:
 trace = nk.play(

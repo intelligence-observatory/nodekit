@@ -1,33 +1,10 @@
 import mimetypes
 from pathlib import Path
 from typing import Self, Annotated, Union
-
 import pydantic
 
 from nodekit._internal.ops.hash_asset_file import hash_asset_file
 from nodekit._internal.types.common import MimeType, ImageMimeType, VideoMimeType, SHA256
-
-
-# %%
-class BaseAssetIdentifier(pydantic.BaseModel):
-    sha256: SHA256
-    mime_type: MimeType
-
-
-class ImageIdentifier(BaseAssetIdentifier):
-    mime_type: ImageMimeType
-
-
-class VideoIdentifier(BaseAssetIdentifier):
-    mime_type: VideoMimeType
-
-
-AssetIdentifier = Annotated[Union[
-        ImageIdentifier,
-        VideoIdentifier,
-    ],
-    pydantic.Field(discriminator='mime_type')
-]
 
 
 # %%
@@ -37,8 +14,12 @@ class BaseAssetFile(pydantic.BaseModel):
     along with the user's assertion of the file's SHA-256 hash and mime type.
     These assertions will be later validated in a pre-run stage.
     """
-    identifier: AssetIdentifier
-    path: pydantic.FilePath
+    sha256: SHA256
+    mime_type: MimeType
+
+    # Python runtime fields only:
+    path: pydantic.FilePath = pydantic.Field(exclude=True)
+    _verified: bool = pydantic.PrivateAttr(default=False)
 
     @pydantic.field_validator('path', mode='after')
     def make_absolute_path(cls, path: Path) -> Path:
@@ -49,13 +30,26 @@ class BaseAssetFile(pydantic.BaseModel):
         """
         Validate that the path ends with the expected file extension
         """
-        extension = mimetypes.guess_extension(type=self.identifier.mime_type, strict=True)
+        extension = mimetypes.guess_extension(type=self.mime_type, strict=True)
         if not extension:
-            raise ValueError(f"Could not determine file extension for mime type {self.identifier.mime_type}.")
+            raise ValueError(f"Could not determine file extension for mime type {self.mime_type}.")
 
         if not str(self.path).endswith(extension):
             raise ValueError(f"Asset path {self.path} does not end with the expected file extension {extension}.")
 
+        return self
+
+    @pydantic.model_validator(mode='after')
+    def check_file_hash(self) -> Self:
+        """
+        Validate that the file at the given path matches the expected SHA-256 hash.
+        This is I/O intensive, as it reads the entire file.
+        """
+        if self._verified:
+            return self
+        actual_sha256 = hash_asset_file(self.path)
+        if actual_sha256 != self.sha256:
+            raise ValueError(f"Asset file at {self.path} has SHA-256 hash {actual_sha256}, but expected {self.sha256}.")
         return self
 
     @classmethod
@@ -72,49 +66,25 @@ class BaseAssetFile(pydantic.BaseModel):
 
         guessed_mime_type: MimeType
 
-        type_adapter=pydantic.TypeAdapter(AssetIdentifier)
-        identifier = type_adapter.validate_python({
-            'sha256': sha256,
-            'mime_type': guessed_mime_type,
-        }
-        )
-
         return cls(
-            identifier=identifier,
-            path=path.resolve()
+            sha256=sha256,
+            mime_type=guessed_mime_type,
+            path=path.resolve(),
+            _verified=True,
         )
 
 
 class ImageFile(BaseAssetFile):
-    identifier: ImageIdentifier
+    mime_type: ImageMimeType
+
 
 class VideoFile(BaseAssetFile):
-    identifier: VideoIdentifier
+    mime_type: VideoMimeType
 
-AssetFile = ImageFile | VideoFile
 
-# %%
-import PIL.Image
-
-from typing import Iterator
-
-class Asset(pydantic.BaseModel):
-    sha256: SHA256
-    media_type: MimeType
-    path: Path = pydantic.Field(description='Path to the asset', exclude=True)
-
-    @classmethod
-    def from_path(cls, path: Path | str) -> Self:
-        ...
-
-class Image(Asset):
-    ...
-
-    def as_pil(self) -> PIL.Image.Image:
-        ...
-
-class Video(Asset):
-    ...
-
-    def frames(self) -> Iterator[PIL.Image.Image]:
-        ...
+AssetFile = Annotated[Union[
+    ImageFile,
+    VideoFile,
+],
+pydantic.Field(discriminator='mime_type')
+]

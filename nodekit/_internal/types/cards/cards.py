@@ -4,8 +4,8 @@ from typing import Literal, Annotated, Union
 import pydantic
 
 from nodekit._internal.types.assets import (
-    ImageIdentifier,
-    VideoIdentifier
+    ImageFile,
+    VideoFile,
 )
 from nodekit._internal.types.common import (
     ColorHexString,
@@ -43,11 +43,10 @@ class BaseCard(pydantic.BaseModel, ABC):
         default=None,
     )
 
-
 # %%
 class ImageCard(BaseCard):
     card_type: Literal['ImageCard'] = 'ImageCard'
-    image: ImageIdentifier
+    image: ImageFile
 
 
 # %%
@@ -66,7 +65,7 @@ class TextCard(BaseCard):
 # %%
 class VideoCard(BaseCard):
     card_type: Literal['VideoCard'] = 'VideoCard'
-    video: VideoIdentifier
+    video: VideoFile
     muted: bool = pydantic.Field(description='Whether to mute the video audio.', default=True)
     loop: bool = pydantic.Field(description='Whether to loop the video when it ends.', default=False)
 
