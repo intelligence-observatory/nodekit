@@ -1,5 +1,5 @@
 .idea/
 *.egg-info/
 
-./nodekit-browser/node_modules/
-./nodekit-browser/dist/
+nodekit-browser/node_modules/
+nodekit-browser/dist/
