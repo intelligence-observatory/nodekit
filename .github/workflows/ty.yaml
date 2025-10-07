@@ -1,0 +1,25 @@
+on:
+  push:
+    branches-ignore:
+      - main
+    paths:
+      - nodekit/**.py
+jobs:
+  ty:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository code
+        uses: actions/checkout@v5
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Install uv
+        run: |
+          pip3 install uv
+      - name: Install nodekit
+        run: |
+          pip3 install -e .
+      - name: Type check
+        run: |
+          make check
