@@ -10,9 +10,6 @@ from nodekit._internal.types.sensors.sensors import Sensor
 
 # %%
 class Node(pydantic.BaseModel):
-    class Config:
-        frozen = True
-
     cards: List[Card] = pydantic.Field(
         description=(
             "List of Cards placed on the Board, in back-to-front order."
