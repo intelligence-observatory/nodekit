@@ -1,0 +1,30 @@
+on:
+  workflow_dispatch:
+  push:
+    branches-ignore:
+      - main
+    paths:
+      - nodekit/**/*.py
+      - .github/workflows/lint_and_type_check.yaml
+      - Makefile
+jobs:
+  lint_and_type_check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository code
+        uses: actions/checkout@v5
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Install uv
+        run: |
+          pip3 install uv
+          uv venv
+          source .venv/bin/activate
+      - name: Install nodekit
+        run: |
+          uv pip install -e .
+      - name: Check
+        run: |
+          make check
