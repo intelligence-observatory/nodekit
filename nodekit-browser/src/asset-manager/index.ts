@@ -12,7 +12,7 @@ export class AssetManager {
 
     registerAsset(assetUrl: AssetUrl): void {
         let sha256 = assetUrl.identifier.sha256;
-        let mimeType = assetUrl.identifier.mime_type;
+        let mimeType = assetUrl.identifier.media_type;
         // Create the lookup key.
         let key = this.getKey(sha256, mimeType);
         // Register the asset URL.
@@ -20,10 +20,10 @@ export class AssetManager {
     }
 
     private lookupAssetUrl(assetIdentifier: AssetIdentifier): AssetUrl {
-        let key = this.getKey(assetIdentifier.sha256, assetIdentifier.mime_type);
+        let key = this.getKey(assetIdentifier.sha256, assetIdentifier.media_type);
         let url = this.urlLookup[key];
         if (!url) {
-            throw new Error(`Asset not found: ${assetIdentifier.sha256} (${assetIdentifier.mime_type})`);
+            throw new Error(`Asset not found: ${assetIdentifier.sha256} (${assetIdentifier.media_type})`);
         }
         return url
     }

@@ -17,14 +17,14 @@ def collect_asset_files(graph: Graph) -> List[AssetFile]:
         for card in node.cards:
             if isinstance(card, ImageCard):
                 image = card.image
-                if image.mime_type not in assets:
-                    assets[image.mime_type] = {}
-                assets[image.mime_type][image.sha256] = image
+                if image.media_type not in assets:
+                    assets[image.media_type] = {}
+                assets[image.media_type][image.sha256] = image
             elif isinstance(card, VideoCard):
                 video = card.video
-                if video.mime_type not in assets:
-                    assets[video.mime_type] = {}
-                assets[video.mime_type][video.sha256] = video
+                if video.media_type not in assets:
+                    assets[video.media_type] = {}
+                assets[video.media_type][video.sha256] = video
 
     # Return as list:
     asset_files: List[AssetFile] = []

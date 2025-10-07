@@ -331,6 +331,9 @@ graph = nk.concat(
 # %% Pack it for later:
 nk.pack(graph, 'my_graph.nkg')
 
+# %% Try unpacking it:
+graph_roundtrip = nk.unpack('my_graph.nkg')
+
 # %% Play the Graph:
 trace = nk.play(graph)
 

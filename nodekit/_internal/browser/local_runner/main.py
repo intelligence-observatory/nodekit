@@ -137,7 +137,7 @@ class LocalRunner:
                 )
 
             return fastapi.responses.FileResponse(
-                path=asset_file.path, media_type=asset_file.mime_type
+                path=asset_file.path, media_type=asset_file.media_type
             )
 
         @app.get("/")

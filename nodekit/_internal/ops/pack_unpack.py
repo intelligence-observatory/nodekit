@@ -37,16 +37,12 @@ def pack(
 
         # Copy assets
         for asset in asset_files:
-            extension = get_extension(media_type=asset.mime_type)
-            asset_path = os.path.join('assets', asset.mime_type, f"{asset.sha256}.{extension}")
+            extension = get_extension(media_type=asset.media_type)
+            asset_path = os.path.join('assets', asset.media_type, f"{asset.sha256}.{extension}")
             source_path = asset.path
             zf.write(source_path, asset_path)
 
-    # No return value
-
-
-
-
+# %%
 def unpack(
     path: str | os.PathLike,
 ) -> Graph:
@@ -55,4 +51,14 @@ def unpack(
     All AssetFiles in the Graph are backed by the asset files in the .nkg archive.
     The user is responsible for ensuring the .nkg file is not moved or edited while the Graph is in use.
     """
-    raise NotImplementedError
+
+    if not str(path).endswith('.nkg'):
+        raise ValueError(f"Path must end with .nkg: {path}")
+
+    # Open the zip file for reading:
+    with zipfile.ZipFile(path, 'r') as zf:
+        # Read graph.json, ignoring any Image.path validators
+        graph_json_path = 'graph.json'
+        with zf.open(graph_json_path) as f:
+            graph_json = f.read().decode('utf-8')
+            graph = Graph.model_validate_json(graph_json)

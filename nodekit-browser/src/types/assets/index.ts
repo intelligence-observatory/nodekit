@@ -5,7 +5,7 @@ import type {SHA256} from "../common.ts";
 // Asset identifiers:
 export interface BaseAssetIdentifier<MT extends string> {
     sha256: SHA256
-    mime_type: MT
+    media_type: MT
 }
 
 export interface ImageIdentifier extends BaseAssetIdentifier<"image/png"> {}

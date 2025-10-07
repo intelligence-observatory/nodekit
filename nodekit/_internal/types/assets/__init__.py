@@ -1,6 +1,7 @@
 import mimetypes
 from pathlib import Path
 from typing import Self, Annotated, Union
+
 import pydantic
 
 from nodekit._internal.ops.hash_asset_file import hash_asset_file
@@ -21,12 +22,13 @@ class BaseAssetFile(pydantic.BaseModel):
     """
 
     sha256: SHA256
-    mime_type: MediaType
+    media_type: MediaType
 
     # Python runtime fields only:
-    path: pydantic.FilePath = pydantic.Field(
+    path: pydantic.FilePath | None = pydantic.Field(
         exclude=True,  # Never included in the JSON dump
         description="The path to the asset file on the Graph reader's local filesystem.",
+        default=None,
     )
     _verified: bool = pydantic.PrivateAttr(
         default=False
@@ -41,10 +43,15 @@ class BaseAssetFile(pydantic.BaseModel):
         """
         Validate that the path ends with the expected file extension
         """
-        extension = mimetypes.guess_extension(type=self.mime_type, strict=True)
+
+        # Skip if no path is set (e.g. when deserializing from JSON)
+        if self.path is None:
+            return self
+
+        extension = mimetypes.guess_extension(type=self.media_type, strict=True)
         if not extension:
             raise ValueError(
-                f"Could not determine file extension for mime type {self.mime_type}."
+                f"Could not determine file extension for mime type {self.media_type}."
             )
 
         if not str(self.path).endswith(extension):
@@ -60,6 +67,8 @@ class BaseAssetFile(pydantic.BaseModel):
         Validate that the file at the given path matches the expected SHA-256 hash.
         This is I/O intensive, as it reads the entire file.
         """
+        if self.path is None:
+            return self
         if self._verified:
             return self
         actual_sha256 = hash_asset_file(self.path)
@@ -87,18 +96,18 @@ class BaseAssetFile(pydantic.BaseModel):
 
         return cls(
             sha256=sha256,
-            mime_type=guessed_mime_type,
+            media_type=guessed_mime_type,
             path=path.resolve(),
             _verified=True,
         )
 
 
 class ImageFile(BaseAssetFile):
-    mime_type: ImageMediaType
+    media_type: ImageMediaType
 
 
 class VideoFile(BaseAssetFile):
-    mime_type: VideoMediaType
+    media_type: VideoMediaType
 
 
 AssetFile = Annotated[
