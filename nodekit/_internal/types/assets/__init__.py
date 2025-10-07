@@ -21,8 +21,8 @@ class BaseAssetFile(pydantic.BaseModel):
     These assertions will be later validated in a pre-run stage.
     """
 
-    sha256: SHA256
-    media_type: MediaType
+    sha256: SHA256 = pydantic.Field(description='The SHA-256 hash of the asset file, as a hex string.')
+    media_type: MediaType = pydantic.Field(description='The IANA media (MIME) type of the asset file.')
 
     # Python runtime fields only:
     path: pydantic.FilePath | None = pydantic.Field(
@@ -86,17 +86,17 @@ class BaseAssetFile(pydantic.BaseModel):
         """
         path = Path(path)
         sha256 = hash_asset_file(path)
-        guessed_mime_type, _ = mimetypes.guess_type(path, strict=True)
-        if not guessed_mime_type:
+        guessed_media_type, _ = mimetypes.guess_type(path, strict=True)
+        if not guessed_media_type:
             raise ValueError(
                 f"Could not determine MIME type for file at {path}\n Does it have a valid file extension?"
             )
 
-        guessed_mime_type: MediaType
+        guessed_media_type: MediaType
 
         return cls(
             sha256=sha256,
-            media_type=guessed_mime_type,
+            media_type=guessed_media_type,
             path=path.resolve(),
             _verified=True,
         )
