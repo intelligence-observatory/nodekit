@@ -21,7 +21,7 @@ jobs:
           pip3 install uv
       - name: Install nodekit
         run: |
-          pip3 install -e .
+          uv pip install -e .
       - name: Type check
         run: |
           make check
