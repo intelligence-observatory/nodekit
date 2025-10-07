@@ -5,6 +5,7 @@ on:
       - main
     paths:
       - nodekit/**.py
+      - .github/workflows/ty.yaml
 jobs:
   ty:
     runs-on: ubuntu-latest
