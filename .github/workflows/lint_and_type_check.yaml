@@ -5,9 +5,9 @@ on:
       - main
     paths:
       - nodekit/**/*.py
-      - .github/workflows/ty.yaml
+      - lint_and_type_check.yaml
 jobs:
-  ty:
+  lint_and_type_check:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository code
