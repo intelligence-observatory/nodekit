@@ -24,6 +24,6 @@ jobs:
       - name: Install nodekit
         run: |
           uv pip install -e .
-      - name: Type check
+      - name: Check
         run: |
           make check

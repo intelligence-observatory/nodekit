@@ -10,4 +10,5 @@ build: build-browser
 	uv build
 
 check:
-	uvx ty check
+	uvx ty check && \
+	uvx ruff check
