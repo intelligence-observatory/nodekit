@@ -1,25 +1,21 @@
 __all__ = [
-    'VERSION',
-
+    "VERSION",
     # Top-level types:
-    'Node',
-    'Graph',
-    'Trace',
-
+    "Node",
+    "Graph",
+    "Trace",
     # Namespaced types:
-    'assets',
-    'cards',
-    'sensors',
-    'effects',
-    'actions',
-    'events',
-
+    "assets",
+    "cards",
+    "sensors",
+    "effects",
+    "actions",
+    "events",
     # Browser runtime methods:
-    'play',
-    'get_browser_bundle',
-
+    "play",
+    "get_browser_bundle",
     # Ops
-    'concat',
+    "concat",
 ]
 
 # Version
