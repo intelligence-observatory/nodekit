@@ -18,8 +18,11 @@ class BaseAssetFile(pydantic.BaseModel):
     mime_type: MimeType
 
     # Python runtime fields only:
-    path: pydantic.FilePath = pydantic.Field(exclude=True)
-    _verified: bool = pydantic.PrivateAttr(default=False)
+    path: pydantic.FilePath = pydantic.Field(
+        exclude=True, # Never included in the JSON dump
+        description='The path to the asset file on the Graph reader\'s local filesystem.'
+    )
+    _verified: bool = pydantic.PrivateAttr(default=False) # If verified, will skip the (I/O bound) hash check
 
     @pydantic.field_validator('path', mode='after')
     def make_absolute_path(cls, path: Path) -> Path:
@@ -56,7 +59,7 @@ class BaseAssetFile(pydantic.BaseModel):
     def from_path(cls, path: Path | str) -> Self:
         """
         A convenience method to create an Asset from a file path.
-        This is I/O intensive, as it computes the SHA-256 hash of the file.
+        This is I/O bound, as it computes the SHA-256 hash of the file.
         """
         path = Path(path)
         sha256 = hash_asset_file(path)

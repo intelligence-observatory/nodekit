@@ -1,88 +1,21 @@
-from typing import Dict, Self, List
+from typing import Dict, Self
 
 import pydantic
 
 from nodekit import VERSION, Node
-from nodekit._internal.types.common import NodeId, SensorId
-
-from pathlib import Path
-
+from nodekit._internal.types.common import (
+    NodeId,
+    SensorId,
+)
 
 # %%
-class Graph:
+class Graph(pydantic.BaseModel):
     """
-    The canonical representation of a NodeKit runtime.
-     A Graph consists of Nodes and transitions between them.
-     Nodes which do not have any outgoing transitions are terminal Nodes which end the experiment when completed.
+    The canonical representation of a NodeKit Graph.
+    A Graph is a directed acyclic graph (DAG) of Nodes connected by transitions triggered by Sensors.
+    A Graph has exactly one start Node.
     """
 
-    def __init__(
-            self,
-            nodes: Dict[NodeId, Node],
-            start: NodeId,
-            transitions: Dict[NodeId, Dict[SensorId, NodeId]],
-    ):
-        # Validate the Graph:
-        self._manifest = Manifest(
-            nodes=nodes,
-            start=start,
-            transitions=transitions,
-        ).model_copy()
-
-    @property
-    def start(self) -> NodeId:
-        """
-        The NodeId of the starting Node in the Graph.
-        """
-        return self._manifest.start
-
-    @property
-    def nodes(self) -> Dict[NodeId, Node]:
-        """
-        A mapping from NodeId to Node.
-        """
-        return self._manifest.nodes
-
-    @property
-    def transitions(self) -> Dict[NodeId, Dict[SensorId, NodeId]]:
-        """
-        A mapping from (NodeId, SensorId) to the next NodeId that will be transitioned to if the Sensor is triggered in that Node.
-        """
-        return self._manifest.transitions
-
-    @property
-    def assets(self) -> Dict[MimeType, Dict[SHA256, AssetFile]]:
-        """
-        A mapping from mime type to a mapping from SHA-256 hash to AssetFile.
-        """
-        raise NotImplementedError
-
-    def save(self, path: Path) -> None:
-        """
-        Saves the Graph as a .nkg file, which is a .zip archive with the following structure:
-
-        manifest.json
-        assets/
-            {mime-type}/
-
-        """
-        ...
-        # Copy all Assets to assets/ folder
-        # Create the manifest.json
-        raise NotImplementedError
-
-    @classmethod
-    def load(cls, path: Path) -> Self:
-        """
-        Loads a .nkg file from disk and returns the corresponding Graph object.
-        Backs all Assets with the .nkg file.
-        """
-        raise NotImplementedError
-
-
-
-# %% Graph manifest
-class Manifest(pydantic.BaseModel):
     nodekit_version: str = pydantic.Field(default=VERSION)
 
     # Nodes:
@@ -112,5 +45,7 @@ class Manifest(pydantic.BaseModel):
         # Todo: topologically sort nodes in the validator
         ...
         # Check all nodes have a path to END
+
+        # Check all referenced Assets exist
 
         return self

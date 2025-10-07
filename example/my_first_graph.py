@@ -284,10 +284,10 @@ for path in sorted(glob.glob('./example_videos/*.mp4')):
 
 # %%
 my_trial = make_triplet_trial(
-    fixation_image=my_image_files[0].identifier,
-    stimulus_image=my_image_files[1].identifier,
-    choice_left_image=my_image_files[2].identifier,
-    choice_right_image=my_image_files[3].identifier,
+    fixation_image=my_image_files[0],
+    stimulus_image=my_image_files[1],
+    choice_left_image=my_image_files[2],
+    choice_right_image=my_image_files[3],
     correct_choice='L',
 )
 
@@ -315,12 +315,12 @@ fixation_node = nk.Node(
 )
 
 fj_trial = make_fj_trial(
-    stimulus_image=my_image_files[4].identifier,
+    stimulus_image=my_image_files[4],
     correct_choice='f',
 )
 
 fj_trial2 = make_fj_trial(
-    stimulus_image=my_image_files[5].identifier,
+    stimulus_image=my_image_files[5],
     correct_choice='j',
 )
 
@@ -328,13 +328,8 @@ graph = nk.concat(
     [fixation_node, my_trial, my_trial, fixation_node, fj_trial, fj_trial2]
 )
 
-Path('graph_manifest.json').write_text(graph._manifest.model_dump_json(indent=2))
-
 # %% Play the Graph:
-trace = nk.play(
-    graph=graph,
-    asset_files=my_image_files + my_video_files
-)
+trace = nk.play(graph)
 
 # %%
 print(f'Observed {len(trace.events)} events:')
