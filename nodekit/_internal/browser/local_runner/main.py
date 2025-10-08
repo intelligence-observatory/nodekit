@@ -13,10 +13,9 @@ import pydantic
 import uvicorn
 
 from nodekit._internal.browser.browser_bundle import get_browser_bundle
-from nodekit._internal.types.assets import AssetFile
+from nodekit._internal.types.assets.identifiers import AssetIdentifier
 from nodekit._internal.types.events.events import Event, EventTypeEnum
 from nodekit._internal.types.trace import Trace
-from nodekit._internal.ops.collect_asset_files import collect_asset_files
 from nodekit import Graph
 
 
@@ -39,7 +38,7 @@ class LocalRunner:
         self._graph: Graph | None = None
         self._events: List[Event] = []
 
-        self.asset_id_to_file: Dict[str, AssetFile] = {}
+        self.asset_id_to_file: Dict[str, AssetIdentifier] = {}
 
         # Initialize FastAPI app
         self.app = self._build_app()
@@ -81,13 +80,11 @@ class LocalRunner:
             self._graph = graph
             self._events = []
 
-    def mount_asset_files(self, asset_files: List[AssetFile] | None):
-        with self._lock:
-            if asset_files is None:
-                return
-
-            for asset_file in asset_files:
-                self.asset_id_to_file[asset_file.sha256] = asset_file
+            # Mount Graph's assets:
+            for media_type in graph.assets:
+                for sha256 in graph.assets[media_type]:
+                    asset_file = graph.assets[media_type][sha256]
+                    self.asset_id_to_file[asset_file.sha256] = asset_file
 
     def _build_app(self) -> fastapi.FastAPI:
         app = fastapi.FastAPI()
@@ -241,9 +238,6 @@ def play(
     runner.ensure_running()
     runner.set_graph(graph)
 
-    # Collect the AssetFiles from the Graph:
-    asset_files = collect_asset_files(graph)
-    runner.mount_asset_files(asset_files)
     print("Play the Graph at:\n", runner.url)
 
     # Wait until the End Event is observed:

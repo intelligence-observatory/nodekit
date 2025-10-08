@@ -1,46 +1,57 @@
 import os
 import zipfile
+from pathlib import Path
+from typing import Dict
 
-from nodekit._internal.ops.collect_asset_files import collect_asset_files
 from nodekit._internal.ops.hash_asset_file import get_extension
-from nodekit._internal.types.graph import Graph
+from nodekit._internal.types.common import (
+    MediaType,
+    SHA256,
+)
+from nodekit._internal.types.graph import Graph, Manifest
 
-GraphId = str
 
+# %%
 def pack(
     graph: Graph,
     path: str | os.PathLike,
-) -> None:
+) -> Path:
     """
     Packs the Graph into a .nkg file, which is a .zip archive with the following structure:
 
-    graph.json
+    manifest.json
     assets/
         {mime-type-1}/{mime-type-2}/{sha256}.{ext}
     """
-    # Write the manifest.json
-
-    # Collect the AssetFiles from the Graph:
-    asset_files = collect_asset_files(graph=graph)
-
     # Ensure the given path ends with .nkg or has no extension:
-    if not str(path).endswith('.nkg'):
-        path = f"{path}.nkg"
     if not str(path).endswith('.nkg'):
         raise ValueError(f"Path must end with .nkg: {path}")
 
+    manifest = graph._manifest
+
+    # Package assets:
+    assets: Dict[MediaType, Dict[SHA256, Path]] = {}
+    for asset in asset_files:
+        if asset.media_type not in assets:
+            assets[asset.media_type] = {}
+        extension = get_extension(media_type=asset.media_type)
+        asset_path = Path('assets') / asset.media_type / f"{asset.sha256}.{extension}"
+        assets[asset.media_type][asset.sha256] = asset_path
+
+
     # Open a zip file for writing:
     with zipfile.ZipFile(path, 'w', zipfile.ZIP_DEFLATED) as zf:
-        # Write graph.json
-        graph_json_path = 'graph.json'
-        zf.writestr(graph_json_path, graph.model_dump_json())
+        # Write manifest.json
+        manifest_json_path = 'manifest.json'
+        zf.writestr(manifest_json_path, manifest.model_dump_json())
 
         # Copy assets
-        for asset in asset_files:
-            extension = get_extension(media_type=asset.media_type)
-            asset_path = os.path.join('assets', asset.media_type, f"{asset.sha256}.{extension}")
-            source_path = asset.path
-            zf.write(source_path, asset_path)
+        for media_type in manifest.assets:
+            for sha256, asset_path in manifest.assets[media_type].items():
+                source_path = graph.asset_store. # todo
+                zf.write(source_path, asset_path)
+
+    return Path(path)
 
 # %%
 def unpack(
@@ -58,7 +69,12 @@ def unpack(
     # Open the zip file for reading:
     with zipfile.ZipFile(path, 'r') as zf:
         # Read graph.json, ignoring any Image.path validators
-        graph_json_path = 'graph.json'
-        with zf.open(graph_json_path) as f:
-            graph_json = f.read().decode('utf-8')
-            graph = Graph.model_validate_json(graph_json)
+        manifest_json_path = 'manifest.json'
+        with zf.open(manifest_json_path) as f:
+            manifest_json = f.read().decode('utf-8')
+            manifest = Manifest.model_validate_json(manifest_json)
+
+        # Back the AssetFiles in the Graph with the files in the zip archive:
+        ...
+
+    return graph

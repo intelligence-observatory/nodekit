@@ -2,14 +2,16 @@ import glob
 import nodekit as nk
 from typing import Literal
 
+import nodekit._internal.types.assets.identifiers
+
 
 # %%
 def make_triplet_trial(
-    fixation_image: nk.assets.ImageFile,
-    stimulus_image: nk.assets.ImageFile,
-    choice_left_image: nk.assets.ImageFile,
-    choice_right_image: nk.assets.ImageFile,
-    correct_choice: Literal["L", "R"],
+        fixation_image: nodekit._internal.types.assets.identifiers.ImageIdentifier,
+        stimulus_image: nodekit._internal.types.assets.identifiers.ImageIdentifier,
+        choice_left_image: nodekit._internal.types.assets.identifiers.ImageIdentifier,
+        choice_right_image: nodekit._internal.types.assets.identifiers.ImageIdentifier,
+        correct_choice: Literal["L", "R"],
 ) -> nk.Graph:
     """
     Returns a Graph implementing a single trial of an image triplet task.
@@ -161,8 +163,8 @@ def make_triplet_trial(
 
 
 def make_fj_trial(
-    stimulus_image: nk.assets.ImageFile,
-    correct_choice: Literal["f", "j"],
+        stimulus_image: nodekit._internal.types.assets.identifiers.ImageIdentifier,
+        correct_choice: Literal["f", "j"],
 ) -> nk.Graph:
     # Make main Node:
     stimulus_card = nk.cards.ImageCard(
@@ -275,12 +277,12 @@ def make_fj_trial(
 # %% Load Asset Files
 my_image_files = []
 for path in sorted(glob.glob("./example_images/*")):
-    image_file = nk.assets.ImageFile.from_path(path)
+    image_file = nodekit._internal.types.assets.identifiers.ImageIdentifier.from_path(path)
     my_image_files.append(image_file)
 
 my_video_files = []
 for path in sorted(glob.glob("./example_videos/*.mp4")):
-    video_file = nk.assets.VideoFile.from_path(path)
+    video_file = nodekit._internal.types.assets.identifiers.VideoIdentifier.from_path(path)
     my_video_files.append(video_file)
 
 # %%
@@ -328,16 +330,18 @@ graph = nk.concat(
     [fixation_node, my_trial, my_trial, fixation_node, fj_trial, fj_trial2]
 )
 
-# %% Pack it for later:
+# %% One can pack the Graph for later:
 nk.pack(graph, 'my_graph.nkg')
 
-# %% Try unpacking it:
+# %% Unpacking the Graph:
 graph_roundtrip = nk.unpack('my_graph.nkg')
 
-# %% Play the Graph:
+# %% Play the Graph now:
 trace = nk.play(graph)
 
 # %%
 print(f"Observed {len(trace.events)} events:")
 for event in trace.events:
     print(event.event_type)
+
+

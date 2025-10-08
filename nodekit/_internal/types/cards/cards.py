@@ -3,10 +3,7 @@ from typing import Literal, Annotated, Union
 
 import pydantic
 
-from nodekit._internal.types.assets import (
-    ImageFile,
-    VideoFile,
-)
+from nodekit._internal.types.assets.identifiers import Image, Video
 from nodekit._internal.types.common import (
     ColorHexString,
     MarkdownString,
@@ -56,7 +53,7 @@ class BaseCard(pydantic.BaseModel, ABC):
 # %%
 class ImageCard(BaseCard):
     card_type: Literal["ImageCard"] = "ImageCard"
-    image: ImageFile
+    image: Image
 
 
 # %%
@@ -80,7 +77,7 @@ class TextCard(BaseCard):
 # %%
 class VideoCard(BaseCard):
     card_type: Literal["VideoCard"] = "VideoCard"
-    video: VideoFile
+    video: Video
     muted: bool = pydantic.Field(
         description="Whether to mute the video audio.", default=True
     )
