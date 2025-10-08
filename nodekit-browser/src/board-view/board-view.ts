@@ -1,7 +1,6 @@
 import type {AssetManager} from "../asset-manager";
-import type {Board} from "../types/board";
 import type {Card} from "../types/cards";
-import type {SpatialPoint, SpatialSize} from "../types/common.ts";
+import type {ColorHexString, SpatialPoint, SpatialSize, TimeElapsedMsec} from "../types/common.ts";
 import type {Sensor} from "../types/sensors";
 import type {Action} from "../types/actions";
 import './board-view.css'
@@ -11,6 +10,8 @@ import {ImageCardView} from "./card-views/image/image-card.ts";
 import {TextCardView} from "./card-views/text/text-card-view.ts";
 import {VideoCardView} from "./card-views/video/video-card.ts";
 import {PointerStream} from "../input-streams/pointer-stream.ts";
+import {KeyStream} from "../input-streams/key-stream.ts";
+import type {Clock} from "../clock.ts";
 
 type CardViewId = string & { __brand: 'CardViewId' };
 
@@ -98,20 +99,20 @@ export class BoardView {
     root: HTMLDivElement
     cardViews: Map<CardViewId, CardView> = new Map(); // Map of card ID to CardView
     sensorBindings: Map<SensorBindingId, SensorBinding> = new Map(); // Map of sensor ID to SensorBinding
-    private pointerStream: PointerStream
 
     constructor(
-        board: Board,
+        boardColor: ColorHexString,
     ) {
         this.root = document.createElement("div")
         this.root.className = 'board-view'
-        this.root.style.width = board.board_width_px + 'px';
-        this.root.style.height = board.board_height_px + 'px';
-        this.root.style.backgroundColor = board.background_color;
+
+        // Set background color:
+        this.root.style.backgroundColor = boardColor;
+
+        // Set color of entire page:
+        document.body.style.backgroundColor = boardColor;
 
         this.setBoardState(false, false);
-
-        this.pointerStream = new PointerStream(this.root);
     }
 
     getCoordinateSystem(): BoardCoordinateSystem {
@@ -129,6 +130,7 @@ export class BoardView {
         visible: boolean,
         interactivity: boolean
     ) {
+
         // Set visibility
         if (visible) {
             this.root.style.opacity = '1';
@@ -230,7 +232,10 @@ export class BoardView {
 
     prepareSensor(
         sensor: Sensor,
-        onSensorFired: (action: Action, domTimestampAction: DOMHighResTimeStamp) => void,
+        onSensorFired: (action: Action, tAction: TimeElapsedMsec) => void,
+        keyStream: KeyStream,
+        pointerStream: PointerStream,
+        clock: Clock,
     ): SensorBindingId {
 
         // Dynamic dispatch for initializing SensorBinding from Sensor
@@ -238,12 +243,14 @@ export class BoardView {
         if (sensor.sensor_type === 'TimeoutSensor') {
             sensorBinding = new TimeoutSensorBinding(
                 onSensorFired,
+                clock,
             );
         }
         else if (sensor.sensor_type === 'KeySensor') {
             sensorBinding = new KeySensorBinding(
                 onSensorFired,
                 sensor.key,
+                keyStream,
             );
         }
         else if (sensor.sensor_type == "ClickSensor"){
@@ -254,7 +261,7 @@ export class BoardView {
                 sensor.h,
                 sensor.mask,
                 onSensorFired,
-                this.pointerStream,
+                pointerStream,
             )
         }
         else {

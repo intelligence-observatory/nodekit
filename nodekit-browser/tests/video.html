@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <link rel="icon" href="data:,">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Video Test</title>
+</head>
+<body>
+<script src="../dist/nodekit.js"></script>
+<link rel="stylesheet" href="../dist/nodekit.css">
+<script>
+    const videoIdentifier = {
+        mime_type: "video/mp4",
+        sha256: "3f224a8b6a7917ae1364cf2cc9daf7a5f7073bfe0fb5d9b638d8a6efc1c867f7",
+    };
+    const videoUrl = {
+        identifier: videoIdentifier,
+        url: "../static/test-video.mp4"
+    };
+
+    let graph = {
+        nodekit_version: "0.1.0",
+        nodes: {
+            'video-node':{
+                "cards": [
+                    {
+                        "card_type": "VideoCard",
+                        "x": 0.0,
+                        "y": 0.0,
+                        "w": 0.5,
+                        "h": 0.5,
+                        "start_msec": 0,
+                        "end_msec": null,
+                        "video": videoIdentifier,
+                        "muted": true,
+                        "loop": false
+                    },
+                ],
+                "sensors": {
+                    "L": {
+                        "sensor_type": "ClickSensor",
+                        "start_msec": 200,
+                        "end_msec": null,
+                        "x": -0.25,
+                        "y": -0.3,
+                        "w": 0.2,
+                        "h": 0.2,
+                        "mask": "rectangle"
+                    },
+                    "R": {
+                        "sensor_type": "ClickSensor",
+                        "start_msec": 200,
+                        "end_msec": null,
+                        "x": 0.25,
+                        "y": -0.3,
+                        "w": 0.2,
+                        "h": 0.2,
+                        "mask": "rectangle"
+                    },
+                    "TO": {
+                        "sensor_type": "TimeoutSensor",
+                        "timeout_msec": 2000
+                    }
+                },
+                "effects": [],
+                "board_color": "#808080ff"
+            }
+        },
+        start: 'video-node',
+        transitions: {},
+    }
+
+    window.onload = async () => {
+       let trace = await NodeKit.play(
+           graph,
+           [videoUrl],
+           (event) => {
+                console.log(event);
+           }
+       );
+       console.log(trace)
+    };
+</script>
+
+</body>
+</html>

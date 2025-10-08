@@ -5,7 +5,9 @@ export interface BrowserContext {
     viewportHeightPx: number,
 
     displayWidthPx: number,
-    displayHeightPx: number
+    displayHeightPx: number,
+
+    devicePixelRatio: number,
 }
 
 export function getBrowserContext(): BrowserContext {
@@ -17,5 +19,7 @@ export function getBrowserContext(): BrowserContext {
 
         displayWidthPx: screen.width,
         displayHeightPx: screen.height,
+
+        devicePixelRatio: window.devicePixelRatio,
     }
 }

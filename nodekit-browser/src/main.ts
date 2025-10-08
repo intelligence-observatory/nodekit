@@ -1,10 +1,10 @@
-import type {ActionEvent, BrowserContextEvent, EndEvent, Event, LeaveEvent, NodeEndEvent, NodeStartEvent, ReturnEvent, StartEvent} from "./types/events";
+import type {BrowserContextSampledEvent, TraceEndedEvent, Event, PageSuspendedEvent, NodeEnteredEvent, NodeExitedEvent, PageResumedEvent, TraceStartedEvent} from "./types/events";
 import {Clock} from "./clock.ts";
 import type {Graph, Trace} from "./types/node.ts";
 import {getBrowserContext} from "./user-gates/browser-context.ts";
 import {checkDeviceIsValid} from "./user-gates/device-gate.ts";
 import type {AssetUrl} from "./types/assets";
-import type {NodeIndex, TimeElapsedMsec} from "./types/common.ts";
+import type {NodeId, TimeElapsedMsec} from "./types/common.ts";
 import {createNodeKitRootDiv} from "./ui/ui-builder.ts";
 import {AssetManager} from "./asset-manager";
 import {ShellUI} from "./ui/shell-ui/shell-ui.ts";
@@ -12,16 +12,19 @@ import {getBoardViewsContainerDiv} from "./ui/board-views-ui/board-views-ui.ts";
 import {NodePlay} from "./node-player/node-play.ts";
 import {version as NODEKIT_VERSION} from '../package.json'
 import {gt, major} from 'semver';
+import {EventArray} from "./event-array.ts";
+import {KeyStream} from "./input-streams/key-stream.ts";
+import {PointerStream} from "./input-streams/pointer-stream.ts";
 
 /**
- * Plays a Timeline, returning a Trace of Events.
- * @param timeline
+ * Plays a Graph, returning a Trace of Events.
+ * @param graph
  * @param assetUrls
  * @param onEventCallback
  * @param previousEvents
  */
 export async function play(
-    timeline: Graph,
+    graph: Graph,
     assetUrls: AssetUrl[],
     onEventCallback: ((event: Event) => void) | null = null,
     previousEvents: Event[] = [],
@@ -43,8 +46,8 @@ export async function play(
     nodeKitDiv.appendChild(boardViewsContainerDiv)
 
     // Version gate:
-    if (gt(timeline.nodekit_version, NODEKIT_VERSION) || major(timeline.nodekit_version) !== major(NODEKIT_VERSION)) {
-        throw new Error(`Incompatible NodeKit version. Timeline version: ${timeline.nodekit_version}, NodeKit version: ${NODEKIT_VERSION}`);
+    if (gt(graph.nodekit_version, NODEKIT_VERSION) || major(graph.nodekit_version) !== major(NODEKIT_VERSION)) {
+        throw new Error(`Incompatible NodeKit version requested: ${graph.nodekit_version}, Runtime version: ${NODEKIT_VERSION}`);
     }
 
     // Device gate:
@@ -64,11 +67,44 @@ export async function play(
 
     const clock = new Clock();
 
+    // Initialize KeyStream:
+    const keyStream = new KeyStream(clock);
+    keyStream.subscribe(
+        // Subscribe to the key stream:
+        (keySample) => {
+            eventArray.push(
+                {
+                    event_type: "KeySampledEvent",
+                    t: keySample.t,
+                    kind: keySample.sampleType,
+                    key: keySample.key,
+                }
+            )
+        }
+    )
+
+    // Initialize PointerStream:
+    const pointerStream = new PointerStream(boardViewsContainerDiv, clock)
+    pointerStream.subscribe(
+        // Subscribe to the pointer stream:
+        (pointerSample) => {
+            eventArray.push(
+                {
+                    event_type: "PointerSampledEvent",
+                    t: pointerSample.t,
+                    kind: pointerSample.sampleType,
+                    x: pointerSample.x,
+                    y: pointerSample.y,
+                }
+            )
+        }
+    )
+
     // Start screen:
     await shellUI.playStartScreen()
     clock.start()
-    const startEvent: StartEvent = {
-        event_type: "StartEvent",
+    const startEvent: TraceStartedEvent = {
+        event_type: "TraceStartedEvent",
         t: 0 as TimeElapsedMsec,
     }
     eventArray.push(startEvent);
@@ -76,15 +112,15 @@ export async function play(
     // Add a listener for the LeaveEvent:
     function onVisibilityChange() {
         if (document.visibilityState === "hidden") {
-            const leaveEvent: LeaveEvent = {
-                event_type: "LeaveEvent",
+            const leaveEvent: PageSuspendedEvent = {
+                event_type: "PageSuspendedEvent",
                 t: clock.now(),
             };
             eventArray.push(leaveEvent);
         } else if (document.visibilityState === "visible") {
             // Optionally handle when the document becomes visible again
-            const returnEvent: ReturnEvent = {
-                event_type: "ReturnEvent",
+            const returnEvent: PageResumedEvent = {
+                event_type: "PageResumedEvent",
                 t: clock.now(),
             };
             eventArray.push(returnEvent);
@@ -94,92 +130,82 @@ export async function play(
 
     // Emit the BrowserContextEvent:
     const browserContext = getBrowserContext();
-    const browserContextEvent: BrowserContextEvent = {
-        event_type: "BrowserContextEvent",
+    const browserContextEvent: BrowserContextSampledEvent = {
+        event_type: "BrowserContextSampledEvent",
         t: clock.now(),
         user_agent: browserContext.userAgent,
         viewport_width_px: browserContext.viewportWidthPx,
         viewport_height_px: browserContext.viewportHeightPx,
         display_width_px: browserContext.displayWidthPx,
         display_height_px: browserContext.displayHeightPx,
+        device_pixel_ratio: browserContext.devicePixelRatio,
     }
     eventArray.push(browserContextEvent);
 
-    const nodes = timeline.nodes;
-    const transitions = timeline.transitions;
-
+    const nodes = graph.nodes;
 
     // Assemble transition map:
-    let currentNodeIndex: NodeIndex | 'END' = 'END';
-    for (let transition of transitions) {
-        if (transition.node_index === 'START') {
-            currentNodeIndex = transition.next_node_index;
-            break;
-        }
-    }
+    let currentNodeId: NodeId = graph.start;
 
-    while (currentNodeIndex !== 'END') {
+    while (true) {
         // Prepare the Node:
-        const node = nodes[currentNodeIndex];
+        const node = nodes[currentNodeId];
         const nodePlay = new NodePlay(
             node,
         )
 
-        // Mount
+        // Mount the Node to the Board:
         boardViewsContainerDiv.appendChild(nodePlay.boardView.root);
-        await nodePlay.prepare(assetManager)
+        await nodePlay.prepare(
+            assetManager,
+            keyStream,
+            pointerStream,
+            clock,
+        )
 
         // Play the Node:
-        let result = await nodePlay.run();
+        let result = await nodePlay.run(clock);
 
         // Emit the NodeStartEvent: todo: emit immediately when actually started?
-        const nodeStartEvent: NodeStartEvent = {
-            event_type: "NodeStartEvent",
-            t: clock.convertDomTimestampToClockTime(result.domTimestampStart),
-            node_index: currentNodeIndex,
+        const nodeStartEvent: NodeEnteredEvent = {
+            event_type: "NodeEnteredEvent",
+            t: result.tStart,
+            node_id: currentNodeId,
         }
         eventArray.push(nodeStartEvent);
 
-        // Emit the ActionEvent: todo: emit immediately
-        const actionEvent: ActionEvent = {
-            event_type: "ActionEvent",
-            t: clock.convertDomTimestampToClockTime(result.domTimestampAction),
-            node_index: currentNodeIndex,
-            sensor_index: result.sensorIndex,
+        // Emit NodeExitEvent: todo: emit immediately
+        const nodeExitEvent: NodeExitedEvent = {
+            event_type: "NodeExitedEvent",
+            t: result.tAction,
+            node_id: currentNodeId,
+            sensor_id: result.sensorId,
             action: result.action,
         }
-        eventArray.push(actionEvent);
-
-        // Emit the NodeEndEvent: todo: emit immediately
-        const nodeEndEvent: NodeEndEvent = {
-            event_type: "NodeEndEvent",
-            t: clock.convertDomTimestampToClockTime(result.domTimestampEnd),
-            node_index: currentNodeIndex,
-        }
-        eventArray.push(nodeEndEvent);
+        eventArray.push(nodeExitEvent);
 
         // Clear the rootBoardContainerDiv of all children:
         while (boardViewsContainerDiv.firstChild) {
             boardViewsContainerDiv.removeChild(boardViewsContainerDiv.firstChild);
         }
 
-        // Get the next Node:
-        let nextNodeIndex: NodeIndex | 'END' = 'END'; // Fallthrough to END if no transition found
-        for (let transition of transitions) {
-            if (transition.node_index === currentNodeIndex && transition.sensor_index === result.sensorIndex) {
-                nextNodeIndex = transition.next_node_index;
-                break;
-            }
+        // Get the next Node; if no transition specified, fall through to 'END':
+        if (!(currentNodeId in graph.transitions)) {
+            break
         }
-        currentNodeIndex = nextNodeIndex
+
+        if (!(result.sensorId in graph.transitions[currentNodeId])) {
+            break
+        }
+        currentNodeId = graph.transitions[currentNodeId][result.sensorId];
     }
 
     // End screen:
     await shellUI.playEndScreen()
 
     // Generate the EndEvent:
-    const endEvent: EndEvent = {
-        event_type: "EndEvent",
+    const endEvent: TraceEndedEvent = {
+        event_type: "TraceEndedEvent",
         t: clock.now(),
     }
     eventArray.push(endEvent);
@@ -202,18 +228,3 @@ export async function play(
     return trace
 }
 
-class EventArray {
-    public events: Event[];
-    private onEventCallback: (event: Event) => void;
-    constructor(
-        initialEvents: Event[],
-        onEventCallback: ((event: Event) => void),
-    ){
-        this.onEventCallback = onEventCallback;
-        this.events = initialEvents;
-    }
-    push(event: Event) {
-        this.events.push(event);
-        this.onEventCallback(event);
-    }
-}

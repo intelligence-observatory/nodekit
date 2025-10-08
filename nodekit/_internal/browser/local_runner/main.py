@@ -14,19 +14,18 @@ import uvicorn
 
 from nodekit._internal.browser.browser_bundle import get_browser_bundle
 from nodekit._internal.types.assets import AssetFile, AssetUrl
-from nodekit._internal.types.events.events import Event
-from nodekit._internal.types.node import Graph, Trace
+from nodekit._internal.types.events.events import Event, EventTypeEnum
+from nodekit._internal.types.trace import Trace
+from nodekit import Graph
 
 
 # %%
 class LocalRunner:
-
     def __init__(
-            self,
-            port: int = 7651,
-            host: str = "127.0.0.1",
+        self,
+        port: int = 7651,
+        host: str = "127.0.0.1",
     ):
-
         self._lock = threading.RLock()
         self._thread: threading.Thread | None = None
         self._server: uvicorn.Server | None = None
@@ -36,7 +35,7 @@ class LocalRunner:
         self.host = host
 
         # In-memory state of the runner:
-        self._timeline: Graph | None = None
+        self._graph: Graph | None = None
         self._events: List[Event] = []
 
         self.asset_id_to_file: Dict[str, AssetFile] = {}
@@ -61,10 +60,7 @@ class LocalRunner:
             self._thread.start()
             self._running = True
 
-
-
     def shutdown(self):
-
         with self._lock:
             if not self._running:
                 return
@@ -78,10 +74,10 @@ class LocalRunner:
             self._server = None
             self._thread = None
 
-    def set_timeline(self, timeline: Graph):
+    def set_graph(self, graph: Graph):
         with self._lock:
-            # Reset Timeline and Events
-            self._timeline = timeline
+            # Reset Graph and Events
+            self._graph = graph
             self._events = []
 
     def mount_asset_files(self, asset_files: List[AssetFile] | None):
@@ -105,22 +101,24 @@ class LocalRunner:
         NODEKIT_CSS_HASH = _sha(bundle.css)
 
         # Mount the jinja2 template at ./site-template.j2:
-        templates = fastapi.templating.Jinja2Templates(
-            directory=Path(__file__).parent
-        )
+        templates = fastapi.templating.Jinja2Templates(directory=Path(__file__).parent)
 
         # Cache-busted asset endpoints
         @app.get("/static/nodekit.{js_hash}.js", name="get_nodekit_javascript")
         def get_nodekit_javascript(js_hash: str) -> fastapi.responses.PlainTextResponse:
             if not js_hash == NODEKIT_JS_HASH:
                 raise fastapi.HTTPException(status_code=404, detail="JS not found")
-            return fastapi.responses.PlainTextResponse(bundle.js, media_type="application/javascript")
+            return fastapi.responses.PlainTextResponse(
+                bundle.js, media_type="application/javascript"
+            )
 
         @app.get("/static/nodekit.{css_hash}.css", name="get_nodekit_css")
         def get_nodekit_css(css_hash: str) -> fastapi.responses.PlainTextResponse:
             if not css_hash == NODEKIT_CSS_HASH:
                 raise fastapi.HTTPException(status_code=404, detail="CSS not found")
-            return fastapi.responses.PlainTextResponse(bundle.css, media_type="text/css")
+            return fastapi.responses.PlainTextResponse(
+                bundle.css, media_type="text/css"
+            )
 
         @app.get("/health")
         def health():
@@ -133,19 +131,23 @@ class LocalRunner:
             try:
                 asset_file = self.asset_id_to_file[asset_id]
             except KeyError:
-                raise fastapi.HTTPException(status_code=404, detail=f"Asset with ID {asset_id} not found.")
+                raise fastapi.HTTPException(
+                    status_code=404, detail=f"Asset with ID {asset_id} not found."
+                )
 
             return fastapi.responses.FileResponse(
-                path=asset_file.path,
-                media_type=asset_file.identifier.mime_type
+                path=asset_file.path, media_type=asset_file.identifier.mime_type
             )
 
         @app.get("/")
         def site(
-                request: fastapi.Request,
+            request: fastapi.Request,
         ) -> fastapi.responses.HTMLResponse:
-            if self._timeline is None:
-                raise fastapi.HTTPException(status_code=404, detail="No Timeline is currently being served. Call `nodekit.play` first.")
+            if self._graph is None:
+                raise fastapi.HTTPException(
+                    status_code=404,
+                    detail="No Graph is currently being served. Call `nodekit.play` first.",
+                )
 
             # Package asset urls:
             asset_urls = []
@@ -154,16 +156,18 @@ class LocalRunner:
                 asset_urls.append(
                     AssetUrl(
                         identifier=asset_file.identifier,
-                        url=pydantic.AnyUrl(str(request.url_for("get_asset", asset_id=asset_id))),
+                        url=pydantic.AnyUrl(
+                            str(request.url_for("get_asset", asset_id=asset_id))
+                        ),
                     )
                 )
 
             return templates.TemplateResponse(
                 request=request,
-                name='site-template.j2',
+                name="site-template.j2",
                 context={
-                    "timeline": self._timeline.model_dump(mode='json'),
-                    'asset_urls': [a.model_dump(mode='json') for a in asset_urls],
+                    "graph": self._graph.model_dump(mode="json"),
+                    "asset_urls": [a.model_dump(mode="json") for a in asset_urls],
                     "nodekit_javascript_link": request.url_for(
                         "get_nodekit_javascript",
                         js_hash=NODEKIT_JS_HASH,
@@ -175,18 +179,18 @@ class LocalRunner:
                     "submit_event_url": request.url_for(
                         "submit_event",
                     ),
-                }
+                },
             )
 
         @app.post("/submit")
         def submit_event(
-                event: dict,
+            event: dict,
         ) -> fastapi.Response:
             # Event is a type alias which is a Union of multiple concrete event types.
             # Need a TypeAdapter for this.
             typeadapter = pydantic.TypeAdapter(Event)
             event = typeadapter.validate_python(event)
-            print(f'Received {event.event_type}')
+            print(f"Received {event.event_type.value}")
             self._events.append(event)
             return fastapi.Response(status_code=fastapi.status.HTTP_204_NO_CONTENT)
 
@@ -194,7 +198,7 @@ class LocalRunner:
 
     @property
     def url(self) -> str:
-        return f'http://{self.host}:{self.port}'
+        return f"http://{self.host}:{self.port}"
 
     def list_events(self) -> List[Event]:
         with self._lock:
@@ -203,6 +207,7 @@ class LocalRunner:
 
 # %% Singleton instance of the LocalRunner
 _runner: LocalRunner | None = None
+
 
 def _get_runner() -> LocalRunner:
     global _runner
@@ -224,33 +229,31 @@ class PlaySession:
         runner = _get_runner()
         return runner.list_events()
 
+
 def play(
-        timeline: Graph,
-        asset_files: List[AssetFile],
+    graph: Graph,
+    asset_files: List[AssetFile],
 ) -> Trace:
     """
-    Runs the Timeline at http://localhost:{port}.
+    Runs the Graph at http://localhost:{port}.
     Blocks until the Trace is complete.
     """
 
     runner = _get_runner()
     runner.ensure_running()
-    runner.set_timeline(timeline)
+    runner.set_graph(graph)
     runner.mount_asset_files(asset_files)
-    print('Play the Timeline at:\n', runner.url)
-
+    print("Play the Graph at:\n", runner.url)
 
     # Wait until the End Event is observed:
     while True:
         # Todo: make this better; add a timeout
         events = runner.list_events()
-        if any([e.event_type == 'EndEvent' for e in events]):
+        if any([e.event_type == EventTypeEnum.TraceEndedEvent for e in events]):
             break
         time.sleep(5)
 
     # Shut down the server:
     runner.shutdown()
 
-    return Trace(
-        events=events
-    )
+    return Trace(events=events)
