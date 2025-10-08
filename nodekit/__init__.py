@@ -4,6 +4,7 @@ __all__ = [
     "Node",
     "Graph",
     "Trace",
+
     # Namespaced types:
     "assets",
     "cards",
@@ -11,9 +12,11 @@ __all__ = [
     "effects",
     "actions",
     "events",
+
     # Browser runtime methods:
     "play",
     "get_browser_bundle",
+
     # Ops
     "concat",
     "pack",
@@ -36,7 +39,7 @@ import nodekit.actions as actions
 import nodekit.events as events
 
 # Browser:
-from nodekit._internal.browser.local_runner.main import play
+#from nodekit._internal.browser.local_runner.main import play
 from nodekit._internal.browser.browser_bundle import get_browser_bundle
 
 

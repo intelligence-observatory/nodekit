@@ -16,13 +16,13 @@ import contextlib
 from typing import ContextManager, IO
 
 # %% Locators
-class AssetLocatorTypeEnum(str, enum.Enum):
-    FileSystemPath = "filesystem"
-    ZipArchiveInnerPath = "zip_archive"
-    RelativePath = 'relative_path'
+class LocatorTypeEnum(str, enum.Enum):
+    FileSystemPath = "FileSystemPath"
+    ZipArchiveInnerPath = "ZipArchiveInnerPath"
+    RelativePath = 'RelativePath'
 
-class BaseAssetLocator(pydantic.BaseModel, ABC):
-    locator_type: AssetLocatorTypeEnum
+class BaseLocator(pydantic.BaseModel, ABC):
+    locator_type: LocatorTypeEnum
 
     @abstractmethod
     def open(self) -> ContextManager[IO[bytes]]:
@@ -31,11 +31,11 @@ class BaseAssetLocator(pydantic.BaseModel, ABC):
         """
         ...
 
-class FileSystemPath(BaseAssetLocator):
+class FileSystemPath(BaseLocator):
     """
     A locator which points to an absolute filepath on the viewer's local file system.
     """
-    locator_type: Literal[AssetLocatorTypeEnum.FileSystemPath] = AssetLocatorTypeEnum.FileSystemPath
+    locator_type: Literal[LocatorTypeEnum.FileSystemPath] = LocatorTypeEnum.FileSystemPath
     path: pydantic.FilePath = pydantic.Field(
         description="The absolute path to the asset file in the local filesystem."
     )
@@ -47,8 +47,8 @@ class FileSystemPath(BaseAssetLocator):
     def open(self) -> ContextManager[IO[bytes]]:
         return self.path.open("rb")
 
-class ZipArchiveInnerPath(BaseAssetLocator):
-    locator_type: Literal[AssetLocatorTypeEnum.ZipArchiveInnerPath] = AssetLocatorTypeEnum.ZipArchiveInnerPath
+class ZipArchiveInnerPath(BaseLocator):
+    locator_type: Literal[LocatorTypeEnum.ZipArchiveInnerPath] = LocatorTypeEnum.ZipArchiveInnerPath
     zip_archive_path: pydantic.FilePath = pydantic.Field(description="The path to the zip archive file on the local filesystem")
     inner_path: Path = pydantic.Field(description="The internal path within the zip archive to the asset file.")
 
@@ -65,13 +65,13 @@ class ZipArchiveInnerPath(BaseAssetLocator):
         return open_stream()
 
 
-class RelativePath(BaseAssetLocator):
+class RelativePath(BaseLocator):
     """
     A locator which points to a relative path on the viewer's local file system.
     This is useful for assets that are bundled alongside a graph file, e.g., in a zip archive.
     The viewer must resolve the relative path against a known base path.
     """
-    locator_type: Literal[AssetLocatorTypeEnum.RelativePath] = AssetLocatorTypeEnum.FileSystemPath
+    locator_type: Literal[LocatorTypeEnum.RelativePath] = LocatorTypeEnum.RelativePath
     relative_path: Path = pydantic.Field(
         description="The relative path to the asset file in the local filesystem."
     )
@@ -83,7 +83,7 @@ class RelativePath(BaseAssetLocator):
         return path
 
     def open(self) -> ContextManager[IO[bytes]]:
-        raise NotImplementedError("RelativeAssetLocator must be resolved against a base path before opening.")
+        raise RuntimeError("A RelativePath cannot be opened.")
 
 
 AssetLocator = Annotated[
@@ -108,10 +108,9 @@ class BaseAsset(pydantic.BaseModel):
     Assets are meant to be used only in the Python runtime.
     """
     sha256: SHA256 = pydantic.Field(description='The SHA-256 hash of the asset file, as a hex string.')
-    media_type: MediaType = pydantic.Field(description='The IANA media (MIME) type of the asset file.')
-
+    media_type: MediaType = pydantic.Field(description='The IANA media (MIME) type of the asset.')
     locator: AssetLocator = pydantic.Field(
-        description="A claimed source of bytes for the asset file.",
+        description="A location which is a claimed source of bytes for the asset.",
     )
 
     @classmethod
@@ -156,6 +155,7 @@ class BaseAsset(pydantic.BaseModel):
                         break
                     dst_fh.write(chunk)
 
+
 # %% Public types:
 class Image(BaseAsset):
     """
@@ -186,6 +186,9 @@ class Video(BaseAsset):
 
 
 Asset = Annotated[
-    Union[Image, Video],
+    Union[
+        Image,
+        Video
+    ],
     pydantic.Field(discriminator="media_type"),
 ]

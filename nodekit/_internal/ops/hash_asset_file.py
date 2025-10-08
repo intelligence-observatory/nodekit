@@ -30,3 +30,4 @@ def get_extension(media_type: MediaType) -> str:
     if media_type not in mime_to_extension:
         raise ValueError(f"Unsupported media type: {media_type}")
     return mime_to_extension[media_type]
+

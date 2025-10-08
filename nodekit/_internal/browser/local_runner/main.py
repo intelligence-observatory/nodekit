@@ -13,10 +13,13 @@ import pydantic
 import uvicorn
 
 from nodekit._internal.browser.browser_bundle import get_browser_bundle
-from nodekit._internal.types.assets.identifiers import AssetIdentifier
+from nodekit._internal.types.assets.identifiers import Asset
 from nodekit._internal.types.events.events import Event, EventTypeEnum
 from nodekit._internal.types.trace import Trace
 from nodekit import Graph
+
+from typing import Tuple
+from nodekit._internal.types.common import MediaType, SHA256
 
 
 # %%
@@ -38,7 +41,7 @@ class LocalRunner:
         self._graph: Graph | None = None
         self._events: List[Event] = []
 
-        self.asset_id_to_file: Dict[str, AssetIdentifier] = {}
+        self.asset_id_to_file: Dict[Tuple[MediaType, SHA256], Path] = {}
 
         # Initialize FastAPI app
         self.app = self._build_app()

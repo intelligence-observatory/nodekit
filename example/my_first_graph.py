@@ -2,15 +2,13 @@ import glob
 import nodekit as nk
 from typing import Literal
 
-import nodekit._internal.types.assets.identifiers
-
 
 # %%
 def make_triplet_trial(
-        fixation_image: nodekit._internal.types.assets.identifiers.ImageIdentifier,
-        stimulus_image: nodekit._internal.types.assets.identifiers.ImageIdentifier,
-        choice_left_image: nodekit._internal.types.assets.identifiers.ImageIdentifier,
-        choice_right_image: nodekit._internal.types.assets.identifiers.ImageIdentifier,
+        fixation_image: nk.assets.Image,
+        stimulus_image: nk.assets.Image,
+        choice_left_image: nk.assets.Image,
+        choice_right_image: nk.assets.Image,
         correct_choice: Literal["L", "R"],
 ) -> nk.Graph:
     """
@@ -163,7 +161,7 @@ def make_triplet_trial(
 
 
 def make_fj_trial(
-        stimulus_image: nodekit._internal.types.assets.identifiers.ImageIdentifier,
+        stimulus_image: nk.assets.Image,
         correct_choice: Literal["f", "j"],
 ) -> nk.Graph:
     # Make main Node:
@@ -277,13 +275,14 @@ def make_fj_trial(
 # %% Load Asset Files
 my_image_files = []
 for path in sorted(glob.glob("./example_images/*")):
-    image_file = nodekit._internal.types.assets.identifiers.ImageIdentifier.from_path(path)
+    image_file = nk.assets.Image.from_path(path)
     my_image_files.append(image_file)
 
 my_video_files = []
 for path in sorted(glob.glob("./example_videos/*.mp4")):
-    video_file = nodekit._internal.types.assets.identifiers.VideoIdentifier.from_path(path)
+    video_file = nk.assets.Video.from_path(path)
     my_video_files.append(video_file)
+
 
 # %%
 my_trial = make_triplet_trial(
@@ -293,6 +292,7 @@ my_trial = make_triplet_trial(
     choice_right_image=my_image_files[3],
     correct_choice="L",
 )
+
 
 fixation_card = nk.cards.TextCard(
     x=0,
@@ -330,12 +330,18 @@ graph = nk.concat(
     [fixation_node, my_trial, my_trial, fixation_node, fj_trial, fj_trial2]
 )
 
-# %% One can pack the Graph for later:
+# %% One can pack the Graph for later, or to share:
+from pathlib import Path
+savepath = Path('my_graph.nkg')
+if savepath.exists():
+    savepath.unlink()
 nk.pack(graph, 'my_graph.nkg')
 
-# %% Unpacking the Graph:
+
+# %% Unpacking a Graph:
 graph_roundtrip = nk.unpack('my_graph.nkg')
 
+raise Exception
 # %% Play the Graph now:
 trace = nk.play(graph)
 

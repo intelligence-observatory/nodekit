@@ -1,15 +1,27 @@
 import os
+import shutil
 import zipfile
 from pathlib import Path
-from typing import Dict
+from typing import Dict, List, Tuple
 
+from nodekit import Node
 from nodekit._internal.ops.hash_asset_file import get_extension
-from nodekit._internal.types.common import (
-    MediaType,
-    SHA256,
+from nodekit._internal.types.assets.identifiers import Asset, AssetLocator, RelativePath
+from nodekit._internal.types.cards.cards import (
+    ImageCard,
+    VideoCard,
 )
-from nodekit._internal.types.graph import Graph, Manifest
+from nodekit._internal.types.common import MediaType, SHA256, NodeId
+from nodekit._internal.types.graph import Graph
 
+
+# %%
+def _get_archive_relative_path(media_type: MediaType, sha256: SHA256) -> Path:
+    """
+    Returns the relative path within the .nkg archive for a given asset.
+    """
+    extension = get_extension(media_type)
+    return Path('assets') / media_type / f"{sha256}.{extension}"
 
 # %%
 def pack(
@@ -17,40 +29,79 @@ def pack(
     path: str | os.PathLike,
 ) -> Path:
     """
-    Packs the Graph into a .nkg file, which is a .zip archive with the following structure:
+    Packs the Graph model into a .nkg file, which is the canonical representation of a Graph.
+    A .nkg file is a .zip archive with the following structure:
 
-    manifest.json
+    graph.json
     assets/
         {mime-type-1}/{mime-type-2}/{sha256}.{ext}
     """
     # Ensure the given path ends with .nkg or has no extension:
+    path = Path(path)
     if not str(path).endswith('.nkg'):
         raise ValueError(f"Path must end with .nkg: {path}")
 
-    manifest = graph._manifest
+    if path.exists():
+        raise ValueError(f"Path already exists: {path}")
 
-    # Package assets:
-    assets: Dict[MediaType, Dict[SHA256, Path]] = {}
-    for asset in asset_files:
-        if asset.media_type not in assets:
-            assets[asset.media_type] = {}
-        extension = get_extension(media_type=asset.media_type)
-        asset_path = Path('assets') / asset.media_type / f"{asset.sha256}.{extension}"
-        assets[asset.media_type][asset.sha256] = asset_path
+    if not path.parent.exists():
+        raise ValueError(f"Parent directory does not exist: {path.parent}")
 
+    # Deep copy the Graph, as we will be modifying it so that all AssetLocators are RelativePathAssetLocators:
+    graph = graph.model_copy(deep=True)
 
-    # Open a zip file for writing:
-    with zipfile.ZipFile(path, 'w', zipfile.ZIP_DEFLATED) as zf:
-        # Write manifest.json
-        manifest_json_path = 'manifest.json'
-        zf.writestr(manifest_json_path, manifest.model_dump_json())
+    # Mutate all AssetLocators in the Graph to be RelativePathAssetLocators:
+    supplied_asset_locators: Dict[Tuple[MediaType, SHA256], AssetLocator] = {}
+    relative_asset_locators: Dict[Tuple[MediaType, SHA256], RelativePath] = {}
+    for node in graph.nodes.values():
+        for card in node.cards:
+            if isinstance(card, ImageCard):
+                asset = card.image
+            elif isinstance(card, VideoCard):
+                asset = card.video
+            else:
+                continue
 
-        # Copy assets
-        for media_type in manifest.assets:
-            for sha256, asset_path in manifest.assets[media_type].items():
-                source_path = graph.asset_store. # todo
-                zf.write(source_path, asset_path)
+            # Log the asset locator if we haven't seen it before:
+            asset_key = (asset.media_type, asset.sha256)
+            if asset_key not in supplied_asset_locators:
+                supplied_asset_locators[asset_key] = asset.locator.model_copy()
+                relative_asset_locators[asset_key] = RelativePath(
+                    relative_path=_get_archive_relative_path(
+                        media_type=asset.media_type,
+                        sha256=asset.sha256
+                    )
+                )
 
+            # Mutate the AssetLocator to be a RelativePathAssetLocator:
+            asset.locator = relative_asset_locators[asset_key]
+
+    # Open a temporary zip file for writing:
+    temp_path = path.with_suffix('.nkg.tmp')
+    if temp_path.exists():
+        raise ValueError(f"Temporary path already exists: {temp_path}")
+
+    try:
+        with zipfile.ZipFile(temp_path, 'w', zipfile.ZIP_DEFLATED) as myzip:
+            # Write all asset files to the archive:
+            for asset_key, asset_locator in supplied_asset_locators.items():
+                with asset_locator.open() as src_file:
+                    media_type, sha256 = asset_key
+                    archive_relative_path = _get_archive_relative_path(media_type, sha256)
+                    with myzip.open(str(archive_relative_path), 'w') as dst_file:
+                        shutil.copyfileobj(src_file, dst_file)
+
+            # Write the graph.json file:
+            myzip.writestr(
+                'graph.json',
+                graph.model_dump_json(indent=2)
+            )
+
+        # Rename the temporary file to the final path:
+        temp_path.rename(path)
+    finally:
+        if temp_path.exists():
+            temp_path.unlink()
     return Path(path)
 
 # %%
@@ -64,17 +115,17 @@ def unpack(
     """
 
     if not str(path).endswith('.nkg'):
-        raise ValueError(f"Path must end with .nkg: {path}")
+        raise ValueError(f"Invalid path given; must end with .nkg: {path}")
 
     # Open the zip file for reading:
     with zipfile.ZipFile(path, 'r') as zf:
-        # Read graph.json, ignoring any Image.path validators
-        manifest_json_path = 'manifest.json'
-        with zf.open(manifest_json_path) as f:
+        # Read graph.json
+        with zf.open('graph.json') as f:
             manifest_json = f.read().decode('utf-8')
-            manifest = Manifest.model_validate_json(manifest_json)
+            graph  = Graph.model_validate_json(manifest_json)
 
-        # Back the AssetFiles in the Graph with the files in the zip archive:
+        # Convert the RelativePathAssetLocators in the Graph to ZipArchiveInnerPathAssetLocators
         ...
+        print('Todo')
 
     return graph
