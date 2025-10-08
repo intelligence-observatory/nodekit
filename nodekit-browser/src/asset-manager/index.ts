@@ -1,4 +1,4 @@
-import type {AssetIdentifier, AssetUrl, ImageIdentifier, VideoIdentifier} from "../types/assets";
+import type {AssetIdentifier, AssetUrl, Image, Video} from "../types/assets";
 import type {SHA256} from "../types/common.ts";
 
 type AssetKey = `${SHA256}|${string}`; // string is the mime type
@@ -28,7 +28,7 @@ export class AssetManager {
         return url
     }
 
-    async getImage(imageIdentifier: ImageIdentifier): Promise<HTMLImageElement> {
+    async getImage(imageIdentifier: Image): Promise<HTMLImageElement> {
         // Lookup:
         let imageUrl = this.lookupAssetUrl(imageIdentifier);
 
@@ -42,7 +42,7 @@ export class AssetManager {
         )
     }
 
-    async getVideo(videoIdentifier: VideoIdentifier): Promise<HTMLVideoElement> {
+    async getVideo(videoIdentifier: Video): Promise<HTMLVideoElement> {
         let videoUrl = this.lookupAssetUrl(videoIdentifier);
 
         // Preload the video asset and return the HTMLVideoElement.

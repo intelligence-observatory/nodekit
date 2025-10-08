@@ -39,7 +39,7 @@ import nodekit.actions as actions
 import nodekit.events as events
 
 # Browser:
-from nodekit._internal.browser.local_runner.main import play
+#from nodekit._internal.browser.local_runner.main import play
 from nodekit._internal.browser.browser_bundle import get_browser_bundle
 
 

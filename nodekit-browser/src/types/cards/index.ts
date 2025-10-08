@@ -1,5 +1,5 @@
 import type {ColorHexString, MarkdownString, SpatialPoint, SpatialSize, NodeTimePointMsec} from "../common.ts";
-import type {ImageIdentifier, VideoIdentifier} from "../assets";
+import type {Image, Video} from "../assets";
 
 export interface BaseCard<T extends string> {
     card_type: T
@@ -15,11 +15,11 @@ export interface BaseCard<T extends string> {
 }
 
 export interface ImageCard extends BaseCard<'ImageCard'>{
-    image: ImageIdentifier;
+    image: Image;
 }
 
 export interface VideoCard extends BaseCard<'VideoCard'>{
-    video: VideoIdentifier;
+    video: Video;
     muted: boolean;
     loop: boolean;
 }

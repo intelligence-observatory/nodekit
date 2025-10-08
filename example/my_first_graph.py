@@ -164,6 +164,8 @@ def make_fj_trial(
         stimulus_image: nk.assets.Image,
         correct_choice: Literal["f", "j"],
 ) -> nk.Graph:
+
+
     # Make main Node:
     stimulus_card = nk.cards.ImageCard(
         x=0,
@@ -326,8 +328,31 @@ fj_trial2 = make_fj_trial(
     correct_choice="j",
 )
 
+video_card = nk.cards.VideoCard(
+    x=0,
+    y=0,
+    w=0.8,
+    h=0.8,
+    video=my_video_files[0],
+)
+
+video_node = nk.Node(
+    cards=[video_card],
+    sensors={
+        'wait': nk.sensors.TimeoutSensor(timeout_msec=1000)
+    },
+)
+
 graph = nk.concat(
-    [fixation_node, my_trial, my_trial, fixation_node, fj_trial, fj_trial2]
+    [
+        fixation_node,
+        video_node,
+        my_trial,
+        my_trial,
+        fixation_node,
+        fj_trial,
+        fj_trial2
+    ]
 )
 
 # %% One can pack the Graph for later, or to share:
@@ -340,7 +365,7 @@ nk.pack(graph, 'my_graph.nkg')
 
 # %% Unpacking a Graph:
 graph_roundtrip = nk.unpack('my_graph.nkg')
-
+raise Exception
 # %% Play the Graph now:
 trace = nk.play(graph)
 
