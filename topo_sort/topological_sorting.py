@@ -5,7 +5,24 @@ from collections import defaultdict, deque
 
 
 def topological_sort(nodes: Dict[NodeId, nk.Node], transitions: Dict[NodeId, Dict[SensorId, NodeId]]) -> List[NodeId]:
-    #%% Typing should likely be updated with the NodeId and SensorID annotations:
+    """
+    Perform a topological sort over a directed graph of nodes and transitions.
+
+    Each Node object is a window with cards, and transitions define directed edges 
+    between nodes, keyed by sensor identifiers. Nodes are first ranked according 
+    to their topological order, then ties within the same rank are deterministically 
+    broken lexicologically using incoming sensor IDs. Nodes without incoming sensors (roots)
+    are prioritized first.
+
+    Args:
+    nodes : Mapping of node identifiers to Node objects representing graph vertices.
+    transitions : Mapping from each input NodeId to its outgoing transitions, where each
+        key is a SensorId and each value is the target NodeId of that transition.
+
+    Returns:
+    List[NodeId]: A list of node identifiers in topologically sorted order
+    """
+
     node_keys = [key for key in nodes]
     edges = []
     incoming_sensors = {}
