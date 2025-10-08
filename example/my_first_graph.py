@@ -341,7 +341,6 @@ nk.pack(graph, 'my_graph.nkg')
 # %% Unpacking a Graph:
 graph_roundtrip = nk.unpack('my_graph.nkg')
 
-raise Exception
 # %% Play the Graph now:
 trace = nk.play(graph)
 
