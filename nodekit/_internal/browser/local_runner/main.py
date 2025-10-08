@@ -137,7 +137,8 @@ class LocalRunner:
                 )
 
             return fastapi.responses.FileResponse(
-                path=asset_file.path, media_type=asset_file.media_type
+                path=asset_file.path,
+                media_type=asset_file.media_type
             )
 
         @app.get("/")
@@ -207,7 +208,6 @@ class LocalRunner:
 # %% Singleton instance of the LocalRunner
 _runner: LocalRunner | None = None
 
-
 def _get_runner() -> LocalRunner:
     global _runner
     if _runner is None:
@@ -227,7 +227,6 @@ class PlaySession:
         """
         runner = _get_runner()
         return runner.list_events()
-
 
 def play(
     graph: Graph,
