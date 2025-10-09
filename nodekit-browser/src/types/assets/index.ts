@@ -19,7 +19,11 @@ export interface RelativePath extends BaseLocator<"RelativePath"> {
     relative_path: string
 }
 
-type Locator = FileSystemPath | ZipArchiveInnerPath | RelativePath;
+export interface URL extends BaseLocator<"URL"> {
+    url: string
+}
+
+type Locator = FileSystemPath | ZipArchiveInnerPath | RelativePath | URL;
 
 // Asset
 export interface BaseAsset<MT extends string> {

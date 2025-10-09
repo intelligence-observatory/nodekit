@@ -20,6 +20,7 @@ class LocatorTypeEnum(str, enum.Enum):
     FileSystemPath = "FileSystemPath"
     ZipArchiveInnerPath = "ZipArchiveInnerPath"
     RelativePath = 'RelativePath'
+    URL = "URL"
 
 class BaseLocator(pydantic.BaseModel, ABC):
     locator_type: LocatorTypeEnum
@@ -85,12 +86,21 @@ class RelativePath(BaseLocator):
     def open(self) -> ContextManager[IO[bytes]]:
         raise RuntimeError("A RelativePath cannot be opened.")
 
+class URL(BaseLocator):
+    locator_type: Literal[LocatorTypeEnum.URL] = LocatorTypeEnum.URL
+    url: str = pydantic.Field(
+        description="The URL to the asset file. May be a relative or absolute URL."
+    )
+
+    def open(self) -> ContextManager[IO[bytes]]:
+        raise NotImplementedError("URL locator is not yet implemented.")
 
 AssetLocator = Annotated[
     Union[
         FileSystemPath,
         ZipArchiveInnerPath,
         RelativePath,
+        URL
     ],
     pydantic.Field(discriminator="locator_type"),
 ]
