@@ -30,10 +30,10 @@ export interface BaseAsset<MT extends string> {
 
 export interface Image extends BaseAsset<"image/png" | "image/svg+xml"> {}
 export interface Video extends BaseAsset<"video/mp4"> {}
-export type AssetIdentifier = Image | Video;
+export type Asset = Image | Video;
 
 // Asset url:
 export interface AssetUrl {
-    identifier: AssetIdentifier
+    identifier: Asset
     url: string
 }

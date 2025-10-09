@@ -17,7 +17,7 @@ export class ImageCardView extends CardView<ImageCard> {
         this.imageContainer.classList.add('image-card');
         this.root.appendChild(this.imageContainer);
 
-        this.image = await assetManager.getImage(
+        this.image = await assetManager.getImageElement(
             this.card.image
         );
 

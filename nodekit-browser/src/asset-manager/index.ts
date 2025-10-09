@@ -1,4 +1,4 @@
-import type {AssetIdentifier, AssetUrl, Image, Video} from "../types/assets";
+import type {Asset, AssetUrl, Image, Video} from "../types/assets";
 import type {SHA256} from "../types/common.ts";
 
 type AssetKey = `${SHA256}|${string}`; // string is the mime type
@@ -10,7 +10,9 @@ export class AssetManager {
         return `${sha256}|${mimeType}`;
     }
 
-    registerAsset(assetUrl: AssetUrl): void {
+    registerAsset(
+        assetUrl: AssetUrl
+    ): void {
         let sha256 = assetUrl.identifier.sha256;
         let mimeType = assetUrl.identifier.media_type;
         // Create the lookup key.
@@ -19,18 +21,18 @@ export class AssetManager {
         this.urlLookup[key] = assetUrl;
     }
 
-    private lookupAssetUrl(assetIdentifier: AssetIdentifier): AssetUrl {
-        let key = this.getKey(assetIdentifier.sha256, assetIdentifier.media_type);
+    private lookupAssetUrl(asset: Asset): AssetUrl {
+        let key = this.getKey(asset.sha256, asset.media_type);
         let url = this.urlLookup[key];
         if (!url) {
-            throw new Error(`Asset not found: ${assetIdentifier.sha256} (${assetIdentifier.media_type})`);
+            throw new Error(`Asset not found: ${asset.sha256} (${asset.media_type})`);
         }
         return url
     }
 
-    async getImage(imageIdentifier: Image): Promise<HTMLImageElement> {
+    async getImageElement(image: Image): Promise<HTMLImageElement> {
         // Lookup:
-        let imageUrl = this.lookupAssetUrl(imageIdentifier);
+        let imageUrl = this.lookupAssetUrl(image);
 
         // Ensure the image is loaded, and return it as an HTMLImageElement.
         let element = new Image();
@@ -42,8 +44,8 @@ export class AssetManager {
         )
     }
 
-    async getVideo(videoIdentifier: Video): Promise<HTMLVideoElement> {
-        let videoUrl = this.lookupAssetUrl(videoIdentifier);
+    async getVideoElement(video: Video): Promise<HTMLVideoElement> {
+        let videoUrl = this.lookupAssetUrl(video);
 
         // Preload the video asset and return the HTMLVideoElement.
         let element = document.createElement("video");

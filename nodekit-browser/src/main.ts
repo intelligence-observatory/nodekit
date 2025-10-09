@@ -3,7 +3,6 @@ import {Clock} from "./clock.ts";
 import type {Graph, Trace} from "./types/node.ts";
 import {getBrowserContext} from "./user-gates/browser-context.ts";
 import {checkDeviceIsValid} from "./user-gates/device-gate.ts";
-import type {AssetUrl} from "./types/assets";
 import type {NodeId, TimeElapsedMsec} from "./types/common.ts";
 import {createNodeKitRootDiv} from "./ui/ui-builder.ts";
 import {AssetManager} from "./asset-manager";
@@ -19,13 +18,11 @@ import {PointerStream} from "./input-streams/pointer-stream.ts";
 /**
  * Plays a Graph, returning a Trace of Events.
  * @param graph
- * @param assetUrls
  * @param onEventCallback
  * @param previousEvents
  */
 export async function play(
     graph: Graph,
-    assetUrls: AssetUrl[],
     onEventCallback: ((event: Event) => void) | null = null,
     previousEvents: Event[] = [],
 ): Promise<Trace> {

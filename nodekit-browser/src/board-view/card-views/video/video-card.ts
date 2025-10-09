@@ -14,7 +14,7 @@ export class VideoCardView extends CardView<VideoCard> {
         this.videoContainer.classList.add('video-card');
         this.root.appendChild(this.videoContainer);
 
-        this.video = await assetManager.getVideo(
+        this.video = await assetManager.getVideoElement(
             this.card.video
         );
         this.video.classList.add('video-card__content');
