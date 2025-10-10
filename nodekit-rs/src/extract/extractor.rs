@@ -1,3 +1,4 @@
+use crate::extract::audio_params::AudioParams;
 use ffmpeg_next::format::Pixel;
 use ffmpeg_next::{
     Error, Packet,
@@ -38,12 +39,12 @@ macro_rules! inner_extractor {
                         frame: [<$name Frame>]::empty()
                     })
                 }
-                
+
                 pub fn send_packet(&mut self, packet: &Packet) -> Result<(), Error> {
                      self.decoder.send_packet(packet)
                 }
 
-                pub fn extract_next_frame(&mut self, packet: &Packet) -> Result<&[u8], Error> {
+                pub fn extract_next_frame(&mut self) -> Result<&[u8], Error> {
                     self.decoder.receive_frame(&mut self.frame)?;
                     Ok(self.frame.data(0))
                 }
@@ -61,7 +62,7 @@ macro_rules! outer_extractor {
             pub fn send_packet(&mut self, packet: &Packet) -> Result<(), Error> {
                 self.extractor.send_packet(packet)
             }
-            
+
             pub fn stream_index(&self) -> usize {
                 self.extractor.stream_index
             }
@@ -82,8 +83,12 @@ impl AudioExtractor {
 
     /// Receive the next frame in the stream.
     /// Returns an error if there are no more frames.
-    pub fn extract_next_frame(&mut self, packet: &Packet) -> Result<&[u8], Error> {
-        self.extractor.extract_next_frame(packet)
+    pub fn extract_next_frame(&mut self) -> Result<&[u8], Error> {
+        self.extractor.extract_next_frame()
+    }
+
+    pub fn get_params(&self) -> AudioParams {
+        AudioParams::new(&self.extractor.decoder)
     }
 }
 
@@ -115,8 +120,8 @@ impl VideoExtractor {
 
     /// Receive the next frame in the stream.
     /// Returns an error if there are no more frames.
-    pub fn extract_next_frame(&mut self, packet: &Packet) -> Result<&[u8], Error> {
-        self.extractor.extract_next_frame(packet)?;
+    pub fn extract_next_frame(&mut self) -> Result<&[u8], Error> {
+        self.extractor.extract_next_frame()?;
         // Scale the frame.
         self.scaler.run(&self.extractor.frame, &mut self.frame)?;
         Ok(self.frame.data(0))
