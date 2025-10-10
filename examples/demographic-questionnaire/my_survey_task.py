@@ -2,12 +2,13 @@ import nodekit as nk
 
 
 # %%
-def make_multiple_choice_question_node(
+def make_mcq_node(
         question_markdown: str,
         choices_markdown: list[str],
-        minimum_choice_time_msec: int = 1000,
+        minimum_choice_time_msec: int = 2000,
 ) -> nk.Node:
     """
+    Assemble a multiple-choice question (MCQ) Node.
     The top 1/2 of the Board is dedicated to showing the question card.
     The bottom 1/2 of the Board is used to show the choice cards, stacked horizontally.
     The user clicks on a choice card to select it.
@@ -22,6 +23,7 @@ def make_multiple_choice_question_node(
         justification_horizontal='left',
         justification_vertical='center',
         start_msec=0,
+        font_size=0.04,
     )
 
 
@@ -63,8 +65,8 @@ def make_multiple_choice_question_node(
 # %% Assemble my Graph
 graph = nk.concat(
     [
-        make_multiple_choice_question_node(
-            question_markdown="# How old are you?",
+        make_mcq_node(
+            question_markdown="How old are you?",
             choices_markdown=[
                 "Under 18",
                 "18-24",
@@ -74,7 +76,25 @@ graph = nk.concat(
                 "55-64",
                 "65 or older"
             ],
-        )
+        ),
+        make_mcq_node(
+            question_markdown="What is your sex assigned at birth?",
+            choices_markdown=[
+                "Female",
+                "Male",
+                "Intersex",
+                "Prefer not to say",
+            ],
+        ),
+        make_mcq_node(
+            question_markdown="What is your gender identity?",
+            choices_markdown=[
+                "Woman",
+                "Man",
+                "Other",
+                "Prefer not to say",
+            ],
+        ),
     ]
 )
 
