@@ -9,9 +9,9 @@ def topological_sort(nodes: Dict[NodeId, nk.Node], transitions: Dict[NodeId, Dic
     Perform a topological sort over a directed graph of nodes and transitions.
 
     Each Node object is a window with cards, and transitions define directed edges 
-    between nodes, keyed by sensor identifiers. Nodes are first ranked according 
+    between nodes, keyed by SensorId identifiers. Nodes are first ranked according 
     to their topological order, then ties within the same rank are deterministically 
-    broken lexicologically using incoming sensor IDs. Nodes without incoming sensors (roots)
+    broken lexicologically using incoming SensorIds. Nodes without incoming sensors (roots)
     are prioritized first.
 
     Args:
@@ -25,11 +25,25 @@ def topological_sort(nodes: Dict[NodeId, nk.Node], transitions: Dict[NodeId, Dic
 
     node_keys = [key for key in nodes]
     edges = []
-    incoming_sensors = {}
+    incoming_sensors = {key:[] for key in nodes}
     for in_node, transition in transitions.items():
+
+        # Check if input Node from the transitions exists:
+        if in_node not in nodes:
+            raise KeyError(f"Transition refers to non-existent node '{in_node}'")
+
         for sensor, out_node in transition.items():
+
+            # Check if Sensor from the transition exists:
+            if sensor not in nodes[in_node].sensors:
+                raise KeyError(f"Sensor '{sensor}' not found in node '{in_node}'")
+
+            # Check if output Node from the transition exists:
+            if out_node not in nodes:
+                raise KeyError(f"Transition from '{in_node}' points to unknown node '{out_node}'")
+
             edges.append((in_node, out_node))
-            incoming_sensors[out_node] = sensor
+            incoming_sensors[out_node].append(sensor)
             
     rank_order = topo_sort_core(node_keys, edges)
     
