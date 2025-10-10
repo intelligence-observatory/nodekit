@@ -9,6 +9,10 @@ build: build-browser
 	rm -rf dist && \
 	uv build
 
+lint:
+	uvx ruff check --fix && \
+	uvx ruff format
+
 check:
 	uvx ty check && \
 	uvx ruff check && \

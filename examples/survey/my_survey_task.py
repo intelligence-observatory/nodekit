@@ -3,9 +3,9 @@ import nodekit as nk
 
 # %%
 def make_mcq_node(
-        question_markdown: str,
-        choices_markdown: list[str],
-        minimum_choice_time_msec: int = 2000,
+    question_markdown: str,
+    choices_markdown: list[str],
+    minimum_choice_time_msec: int = 2000,
 ) -> nk.Node:
     """
     Assemble a multiple-choice question (MCQ) Node.
@@ -20,25 +20,25 @@ def make_mcq_node(
         w=1,
         h=0.4,
         text=question_markdown,
-        justification_horizontal='left',
-        justification_vertical='center',
+        justification_horizontal="left",
+        justification_vertical="center",
         start_msec=0,
         font_size=0.04,
     )
 
-    card_height = (1/2) / len(choices_markdown) - 0.01
+    card_height = (1 / 2) / len(choices_markdown) - 0.01
 
     choice_cards = [
         nk.cards.TextCard(
             x=0,
-            y=0-(card_height+0.01)*i,
+            y=0 - (card_height + 0.01) * i,
             w=1,
             h=card_height,
             text=choice_markdown,
-            justification_horizontal='left',
-            justification_vertical='center',
+            justification_horizontal="left",
+            justification_vertical="center",
             start_msec=0,
-            background_color='#e6e6e6'
+            background_color="#e6e6e6",
         )
         for i, choice_markdown in enumerate(choices_markdown)
     ]
@@ -57,7 +57,7 @@ def make_mcq_node(
     return nk.Node(
         cards=[question_card] + choice_cards,
         sensors=choice_sensors,
-        board_color="#ffffff"
+        board_color="#ffffff",
     )
 
 
@@ -73,7 +73,7 @@ graph = nk.concat(
                 "35-44",
                 "45-54",
                 "55-64",
-                "65 or older"
+                "65 or older",
             ],
         ),
         make_mcq_node(

@@ -151,10 +151,10 @@ def make_triplet_trial(
         },
         effects=[
             nk.effects.HidePointerEffect(
-                start_msec=0, # Hide pointer during the stimulus presentation
+                start_msec=0,  # Hide pointer during the stimulus presentation
                 end_msec=200,
             )
-        ]
+        ],
     )
 
     fixation_node = make_fixation_node()
