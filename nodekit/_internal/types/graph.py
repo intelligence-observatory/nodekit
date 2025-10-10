@@ -6,7 +6,6 @@ from nodekit import Node, VERSION
 from nodekit._internal.types.common import NodeId, SensorId
 
 
-
 # %%
 class Graph(pydantic.BaseModel):
     nodekit_version: Literal["0.1.0"] = pydantic.Field(default=VERSION)
@@ -38,4 +37,3 @@ class Graph(pydantic.BaseModel):
         # Todo: check all Nodes have a path to a leaf Sensor
 
         return self
-

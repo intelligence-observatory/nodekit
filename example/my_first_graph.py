@@ -6,11 +6,11 @@ from pathlib import Path
 
 # %%
 def make_triplet_trial(
-        fixation_image: nk.assets.Image,
-        stimulus_image: nk.assets.Image,
-        choice_left_image: nk.assets.Image,
-        choice_right_image: nk.assets.Image,
-        correct_choice: Literal["L", "R"],
+    fixation_image: nk.assets.Image,
+    stimulus_image: nk.assets.Image,
+    choice_left_image: nk.assets.Image,
+    choice_right_image: nk.assets.Image,
+    correct_choice: Literal["L", "R"],
 ) -> nk.Graph:
     """
     Returns a Graph implementing a single trial of an image triplet task.
@@ -150,9 +150,7 @@ def make_triplet_trial(
         },
         start="fixation",
         transitions={
-            "fixation": {
-                "clicked-fixation": "main"
-            },
+            "fixation": {"clicked-fixation": "main"},
             "main": {
                 "R": "positive" if correct_choice == "R" else "negative",
                 "L": "positive" if correct_choice == "L" else "negative",
@@ -165,8 +163,8 @@ def make_triplet_trial(
 
 
 def make_fj_trial(
-        stimulus_image: nk.assets.Image,
-        correct_choice: Literal["f", "j"],
+    stimulus_image: nk.assets.Image,
+    correct_choice: Literal["f", "j"],
 ) -> nk.Graph:
     # Make main Node:
     stimulus_card = nk.cards.ImageCard(
@@ -342,15 +340,7 @@ video_node = nk.Node(
 )
 
 graph = nk.concat(
-    [
-        fixation_node,
-        video_node,
-        my_trial,
-        my_trial,
-        fixation_node,
-        fj_trial,
-        fj_trial2
-    ]
+    [fixation_node, video_node, my_trial, my_trial, fixation_node, fj_trial, fj_trial2]
 )
 
 # %%

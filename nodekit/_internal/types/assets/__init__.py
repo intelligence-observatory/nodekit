@@ -10,7 +10,12 @@ import PIL.Image
 import pydantic
 
 from nodekit._internal.ops.hash_asset_file import hash_asset_file, get_extension
-from nodekit._internal.types.common import SHA256, MediaType, ImageMediaType, VideoMediaType
+from nodekit._internal.types.common import (
+    SHA256,
+    MediaType,
+    ImageMediaType,
+    VideoMediaType,
+)
 
 
 # %%
@@ -110,14 +115,10 @@ class URL(BaseLocator):
 
 
 AssetLocator = Annotated[
-    Union[
-        FileSystemPath,
-        ZipArchiveInnerPath,
-        RelativePath,
-        URL
-    ],
+    Union[FileSystemPath, ZipArchiveInnerPath, RelativePath, URL],
     pydantic.Field(discriminator="locator_type"),
 ]
+
 
 # %%
 class BaseAsset(pydantic.BaseModel):
