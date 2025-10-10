@@ -2,7 +2,7 @@ import os
 import shutil
 import zipfile
 from pathlib import Path
-from typing import Dict, Tuple
+from typing import Tuple, Dict
 
 from nodekit._internal.ops.hash_asset_file import get_extension
 from nodekit._internal.types.assets import ZipArchiveInnerPath, RelativePath, AssetLocator
