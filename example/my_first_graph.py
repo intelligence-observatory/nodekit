@@ -16,7 +16,7 @@ def make_fixation_node() -> nk.Node:
         y=0,
         w=0.0375,
         h=0.0375,
-        image=nk.assets.Image.from_path('./example_images/fixation-cross.svg'),
+        image=nk.assets.Image.from_path("./example_images/fixation-cross.svg"),
     )
 
     clicked_fixation_dot_sensor = nk.sensors.ClickSensor(
@@ -29,10 +29,9 @@ def make_fixation_node() -> nk.Node:
 
     return nk.Node(
         cards=[fixation_card],
-        sensors={
-            "fixation-acquired": clicked_fixation_dot_sensor
-        },
+        sensors={"fixation-acquired": clicked_fixation_dot_sensor},
     )
+
 
 def make_positive_feedback_node() -> nk.Node:
     positive_card = nk.cards.TextCard(
@@ -56,6 +55,7 @@ def make_positive_feedback_node() -> nk.Node:
     )
     return positive_node
 
+
 def make_negative_feedback_node() -> nk.Node:
     negative_card = nk.cards.TextCard(
         text="Incorrect.",
@@ -78,6 +78,8 @@ def make_negative_feedback_node() -> nk.Node:
         sensors={"wait": negative_timeout_sensor},
     )
     return negative_node
+
+
 # %%
 def make_triplet_trial(
     stimulus_image: nk.assets.Image,
@@ -149,7 +151,6 @@ def make_triplet_trial(
         },
     )
 
-
     fixation_node = make_fixation_node()
     positive_node = make_positive_feedback_node()
     negative_node = make_negative_feedback_node()
@@ -163,9 +164,7 @@ def make_triplet_trial(
         },
         start="fixation",
         transitions={
-            "fixation": {
-                sensor_id: "main" for sensor_id in fixation_node.sensors
-            },
+            "fixation": {sensor_id: "main" for sensor_id in fixation_node.sensors},
             "main": {
                 "R": "positive" if correct_choice == "R" else "negative",
                 "L": "positive" if correct_choice == "L" else "negative",
@@ -240,9 +239,7 @@ def make_fj_trial(
         },
         start="fixation",
         transitions={
-            "fixation": {
-                sensor_id: "main" for sensor_id in fixation_node.sensors
-            },
+            "fixation": {sensor_id: "main" for sensor_id in fixation_node.sensors},
             "main": {
                 "f": "positive" if correct_choice == "f" else "negative",
                 "j": "positive" if correct_choice == "j" else "negative",
@@ -251,9 +248,9 @@ def make_fj_trial(
     )
     return trial_graph
 
-# %%
-if __name__ == '__main__':
 
+# %%
+if __name__ == "__main__":
     # %% Load Asset Files
     my_image_files = []
     for path in sorted(glob.glob("./example_images/*")):
@@ -296,15 +293,7 @@ if __name__ == '__main__':
         sensors={"wait": nk.sensors.TimeoutSensor(timeout_msec=5000)},
     )
 
-    graph = nk.concat(
-        [
-            video_node,
-            my_trial,
-            my_trial,
-            fj_trial,
-            fj_trial2
-        ]
-    )
+    graph = nk.concat([video_node, my_trial, my_trial, fj_trial, fj_trial2])
 
     # %% One can pack the Graph for later, or to share:
     savepath = Path("my_graph.nkg")
