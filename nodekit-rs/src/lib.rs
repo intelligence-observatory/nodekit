@@ -1,8 +1,8 @@
-use std::path::Path;
 use ffmpeg_next::codec::Audio;
 use ffmpeg_next::format::input;
 use ffmpeg_next::media::Type;
 use ffmpeg_next::software::scaling::Context;
+use std::path::Path;
 
 mod board;
 mod extract;
@@ -21,4 +21,3 @@ mod tests {
         assert_eq!(result, 4);
     }
 }
-
