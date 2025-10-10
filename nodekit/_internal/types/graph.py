@@ -40,3 +40,5 @@ class Graph(pydantic.BaseModel):
         # Todo: check all Nodes have a path to a leaf Sensor
 
         return self
+
+

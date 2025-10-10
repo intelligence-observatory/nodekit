@@ -165,7 +165,6 @@ def make_fj_trial(
         correct_choice: Literal["f", "j"],
 ) -> nk.Graph:
 
-
     # Make main Node:
     stimulus_card = nk.cards.ImageCard(
         x=0,
@@ -339,7 +338,7 @@ video_card = nk.cards.VideoCard(
 video_node = nk.Node(
     cards=[video_card],
     sensors={
-        'wait': nk.sensors.TimeoutSensor(timeout_msec=1000)
+        'wait': nk.sensors.TimeoutSensor(timeout_msec=5000)
     },
 )
 
@@ -365,7 +364,6 @@ nk.pack(graph, 'my_graph.nkg')
 
 # %% Unpacking a Graph:
 graph_roundtrip = nk.unpack('my_graph.nkg')
-raise Exception
 # %% Play the Graph now:
 trace = nk.play(graph)
 

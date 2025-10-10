@@ -5,7 +5,7 @@ export class AssetManager {
     private resolveAssetUrl(asset: Asset): string {
         // Throw an error if the Asset.locator is not a URL
         if (asset.locator.locator_type !== "URL") {
-            throw new Error(`Only URL locators are supported in the browser environment. Found: ${asset.locator.locator_type}`);
+            throw new Error(`Only URL locators are supported in the browser environment. Found: ${asset}`);
         }
         return asset.locator.url;
     }

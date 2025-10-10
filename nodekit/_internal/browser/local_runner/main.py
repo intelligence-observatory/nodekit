@@ -12,14 +12,13 @@ import fastapi.templating
 import pydantic
 import uvicorn
 
+from nodekit import Graph
 from nodekit._internal.browser.browser_bundle import get_browser_bundle
-from nodekit._internal.types.assets.identifiers import Asset
+from nodekit._internal.ops.gather_assets import iter_assets
+from nodekit._internal.types.assets.identifiers import Asset, URL
+from nodekit._internal.types.common import SHA256
 from nodekit._internal.types.events.events import Event, EventTypeEnum
 from nodekit._internal.types.trace import Trace
-from nodekit import Graph
-
-from typing import Tuple
-from nodekit._internal.types.common import MediaType, SHA256
 
 
 # %%
@@ -41,7 +40,7 @@ class LocalRunner:
         self._graph: Graph | None = None
         self._events: List[Event] = []
 
-        self.asset_id_to_file: Dict[Tuple[MediaType, SHA256], Path] = {}
+        self.asset_id_to_asset: Dict[SHA256, Asset] = {}
 
         # Initialize FastAPI app
         self.app = self._build_app()
@@ -79,15 +78,25 @@ class LocalRunner:
 
     def set_graph(self, graph: Graph):
         with self._lock:
+            graph = graph.model_copy(deep=True)
             # Reset Graph and Events
             self._graph = graph
             self._events = []
 
-            # Mount Graph's assets:
-            for media_type in graph.assets:
-                for sha256 in graph.assets[media_type]:
-                    asset_file = graph.assets[media_type][sha256]
-                    self.asset_id_to_file[asset_file.sha256] = asset_file
+            # Mount the Graph's assets:
+            for asset in iter_assets(graph=graph):
+                if asset.sha256 in self.asset_id_to_asset:
+                    continue
+
+                # Save a copy of the original Asset:
+                asset_disk_backed = asset.model_copy(deep=True)
+
+                # Mutate the Graph's Asset to have a URL locator:
+                asset.locator = URL(
+                    url=f"assets/{asset.sha256}"
+                )
+
+                self.asset_id_to_asset[asset.sha256] = asset_disk_backed
 
     def _build_app(self) -> fastapi.FastAPI:
         app = fastapi.FastAPI()
@@ -125,20 +134,24 @@ class LocalRunner:
         def health():
             return fastapi.Response(status_code=fastapi.status.HTTP_204_NO_CONTENT)
 
+
         @app.get("/assets/{asset_id}")
         async def get_asset(asset_id: str):
-            ...
-
             try:
-                asset_file = self.asset_id_to_file[asset_id]
+                asset = self.asset_id_to_asset[asset_id]
             except KeyError:
                 raise fastapi.HTTPException(
                     status_code=404, detail=f"Asset with ID {asset_id} not found."
                 )
 
-            return fastapi.responses.FileResponse(
-                path=asset_file.path,
-                media_type=asset_file.media_type
+            # https://fastapi.tiangolo.com/advanced/custom-response/#using-streamingresponse-with-file-like-objects
+            def iterfile():
+                with asset.locator.open() as f:
+                    yield from f
+            print(asset)
+            return fastapi.responses.StreamingResponse(
+                iterfile(),
+                media_type=asset.media_type
             )
 
         @app.get("/")
@@ -151,23 +164,11 @@ class LocalRunner:
                     detail="No Graph is currently being served. Call `nodekit.play` first.",
                 )
 
-            # Package asset urls:
-            asset_urls = []
-            for asset_id in sorted(self.asset_id_to_file.keys()):
-                asset_file = self.asset_id_to_file[asset_id]
-                asset_urls.append(
-                    dict(
-                        identifier=asset_file.model_dump(mode="json"),
-                        url=str(request.url_for("get_asset", asset_id=asset_id)),
-                    )
-                )
-
             return templates.TemplateResponse(
                 request=request,
                 name="site-template.j2",
                 context={
                     "graph": self._graph.model_dump(mode="json"),
-                    "asset_urls": asset_urls,
                     "nodekit_javascript_link": request.url_for(
                         "get_nodekit_javascript",
                         js_hash=NODEKIT_JS_HASH,
@@ -235,7 +236,6 @@ def play(
     Runs the Graph at http://localhost:{port}.
     Blocks until the Trace is complete.
     """
-
     runner = _get_runner()
     runner.ensure_running()
     runner.set_graph(graph)

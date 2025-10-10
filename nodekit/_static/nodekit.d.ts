@@ -1,19 +1,13 @@
 declare type Action = ClickAction | TimeoutAction | KeyAction;
 
-declare type AssetIdentifier = ImageIdentifier | VideoIdentifier;
-
-declare interface AssetUrl {
-    identifier: AssetIdentifier;
-    url: string;
-}
-
 declare interface BaseAction<T extends string> {
     action_type: T;
 }
 
-declare interface BaseAssetIdentifier<MT extends string> {
+declare interface BaseAsset<MT extends string> {
     sha256: SHA256;
-    mime_type: MT;
+    media_type: MT;
+    locator: Locator;
 }
 
 declare interface BaseCard<T extends string> {
@@ -37,6 +31,10 @@ declare interface BaseEvent<T extends string> {
     t: TimeElapsedMsec;
 }
 
+declare interface BaseLocator<LT extends string> {
+    locator_type: LT;
+}
+
 declare interface BaseNodeEvent<T extends string> extends BaseEvent<T> {
     node_id: NodeId;
 }
@@ -54,7 +52,7 @@ declare interface BrowserContextSampledEvent extends BaseEvent<'BrowserContextSa
     device_pixel_ratio: number;
 }
 
-declare type Card = ImageCard | TextCard | VideoCard;
+declare type Card = ImageCard | VideoCard | TextCard;
 
 declare interface ClickAction extends BaseAction<"ClickAction"> {
     x: SpatialPoint;
@@ -77,6 +75,10 @@ declare type Effect = HidePointerEffect;
 
 declare type Event_2 = TraceStartedEvent | BrowserContextSampledEvent | PageSuspendedEvent | PageResumedEvent | NodeEnteredEvent | NodeExitedEvent | PointerSampledEvent | KeySampledEvent | TraceEndedEvent;
 
+declare interface FileSystemPath extends BaseLocator<"FileSystemPath"> {
+    path: string;
+}
+
 declare interface Graph {
     nodekit_version: string;
     nodes: Record<NodeId, Node_2>;
@@ -88,11 +90,11 @@ declare interface HidePointerEffect extends BaseEffect<'HidePointerEffect'> {
     end_msec: NodeTimePointMsec;
 }
 
-declare interface ImageCard extends BaseCard<'ImageCard'> {
-    image: ImageIdentifier;
+declare interface Image_2 extends BaseAsset<"image/png" | "image/svg+xml"> {
 }
 
-declare interface ImageIdentifier extends BaseAssetIdentifier<"image/png"> {
+declare interface ImageCard extends BaseCard<'ImageCard'> {
+    image: Image_2;
 }
 
 declare interface KeyAction extends BaseAction<"KeyAction"> {
@@ -107,6 +109,8 @@ declare interface KeySampledEvent extends BaseEvent<'KeySampledEvent'> {
 declare interface KeySensor extends TemporallyBoundedSensor<'KeySensor'> {
     key: PressableKey;
 }
+
+declare type Locator = FileSystemPath | ZipArchiveInnerPath | RelativePath | URL_2;
 
 declare type MarkdownString = string & {
     __brand: 'MarkdownString';
@@ -146,11 +150,10 @@ declare interface PageSuspendedEvent extends BaseEvent<'PageSuspendedEvent'> {
 /**
  * Plays a Graph, returning a Trace of Events.
  * @param graph
- * @param assetUrls
  * @param onEventCallback
  * @param previousEvents
  */
-export declare function play(graph: Graph, assetUrls: AssetUrl[], onEventCallback?: ((event: Event_2) => void) | null, previousEvents?: Event_2[]): Promise<Trace>;
+export declare function play(graph: Graph, onEventCallback?: ((event: Event_2) => void) | null, previousEvents?: Event_2[]): Promise<Trace>;
 
 declare interface PointerSampledEvent extends BaseEvent<'PointerSampledEvent'> {
     x: SpatialPoint;
@@ -159,6 +162,10 @@ declare interface PointerSampledEvent extends BaseEvent<'PointerSampledEvent'> {
 }
 
 declare type PressableKey = string;
+
+declare interface RelativePath extends BaseLocator<"RelativePath"> {
+    relative_path: string;
+}
 
 declare type Sensor = TimeoutSensor | ClickSensor | KeySensor;
 
@@ -214,13 +221,22 @@ declare interface TraceEndedEvent extends BaseEvent<'TraceEndedEvent'> {
 declare interface TraceStartedEvent extends BaseEvent<'TraceStartedEvent'> {
 }
 
+declare interface URL_2 extends BaseLocator<"URL"> {
+    url: string;
+}
+
+declare interface Video extends BaseAsset<"video/mp4"> {
+}
+
 declare interface VideoCard extends BaseCard<'VideoCard'> {
-    video: VideoIdentifier;
+    video: Video;
     muted: boolean;
     loop: boolean;
 }
 
-declare interface VideoIdentifier extends BaseAssetIdentifier<"video/mp4"> {
+declare interface ZipArchiveInnerPath extends BaseLocator<"ZipArchiveInnerPath"> {
+    zip_archive_path: string;
+    inner_path: string;
 }
 
 export { }

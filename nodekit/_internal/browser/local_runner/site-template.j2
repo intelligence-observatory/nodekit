@@ -5,21 +5,18 @@
     <title>NodeKit Preview Page</title>
     <link rel="shortcut icon" href="">
 
-    <!-- NodeKit runtime assets -->
+    <!-- NodeKit -->
     <script src="{{ nodekit_javascript_link }}"></script>
     <link href="{{ nodekit_css_link }}" rel="stylesheet">
 
     <script>
         const graph = {{ graph | tojson(indent=4) | indent(8, first=False) }};
-        const assetUrls = {{ asset_urls | tojson(indent=4) | indent(8, first=False) }};
-
-        // Submit URL injected from FastAPI
-        const submitUrl = "{{ submit_event_url }}";
+        const eventSubmitUrl = "{{ submit_event_url }}";
 
         async function sendEvent(ev) {
             console.log(ev)
             try {
-                await fetch(submitUrl, {
+                await fetch(eventSubmitUrl, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(ev),
@@ -30,12 +27,8 @@
         }
 
         window.onload = async () => {
-            //
-
-            // Start NodeKit playback
             await NodeKit.play(
                 graph,
-                assetUrls,
                 sendEvent
             );
         };
