@@ -9,7 +9,10 @@ from typing import ContextManager, IO, Literal, Annotated, Union, Self
 import PIL.Image
 import pydantic
 
-from nodekit._internal.ops.hash_asset_file import hash_asset_file, get_extension_from_media_type
+from nodekit._internal.ops.hash_asset_file import (
+    hash_asset_file,
+    get_extension_from_media_type,
+)
 from nodekit._internal.types.common import (
     SHA256,
     MediaType,
