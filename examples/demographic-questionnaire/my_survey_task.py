@@ -26,7 +26,6 @@ def make_mcq_node(
         font_size=0.04,
     )
 
-
     card_height = (1/2) / len(choices_markdown) - 0.01
 
     choice_cards = [
@@ -100,5 +99,3 @@ graph = nk.concat(
 
 # %%
 trace = nk.play(graph)
-
-# %% Map to DataFrame format
