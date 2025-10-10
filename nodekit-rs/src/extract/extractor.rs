@@ -1,6 +1,6 @@
 use ffmpeg_next::format::Pixel;
 use ffmpeg_next::{
-    Error, Packet, Stream,
+    Error, Packet,
     codec::{
         context::Context,
         decoder::{Audio, Video},
@@ -16,16 +16,15 @@ macro_rules! inner_extractor {
     ($name:ident, $decoder:ident) => {
         paste! {
             /// Extract frames from a stream.
-            struct [<Inner $name Extractor>]<'e> {
+            struct [<Inner $name Extractor>] {
                 /// The index of this stream in the video file.
                 pub stream_index: usize,
                 decoder: $name,
                 frame: [<$name Frame>],
-                _stream: Stream<'e>
             }
 
-            impl<'e> [<Inner $name Extractor>]<'e> {
-                pub fn new(input: &'e Input) -> Result<Self, Error> {
+            impl [<Inner $name Extractor>] {
+                pub fn new(input: &Input) -> Result<Self, Error> {
                     let stream = input
                         .streams()
                         .best(Type::$name)
@@ -36,8 +35,7 @@ macro_rules! inner_extractor {
                     Ok(Self {
                         stream_index,
                         decoder,
-                        frame: [<$name Frame>]::empty(),
-                        _stream: stream
+                        frame: [<$name Frame>]::empty()
                     })
                 }
 
@@ -57,7 +55,7 @@ inner_extractor!(Video, video);
 
 macro_rules! impl_get_index {
     ($name: ident) => {
-        impl $name<'_> {
+        impl $name {
             pub fn stream_index(&self) -> usize {
                 self.extractor.stream_index
             }
@@ -66,12 +64,12 @@ macro_rules! impl_get_index {
 }
 
 /// Extract per-frame chunks of audio from a video.
-pub struct AudioExtractor<'e> {
-    extractor: InnerAudioExtractor<'e>,
+pub struct AudioExtractor {
+    extractor: InnerAudioExtractor,
 }
 
-impl<'e> AudioExtractor<'e> {
-    pub fn new(input: &'e Input) -> Result<Self, Error> {
+impl AudioExtractor {
+    pub fn new(input: &Input) -> Result<Self, Error> {
         let extractor = InnerAudioExtractor::new(input)?;
         Ok(Self { extractor })
     }
@@ -84,14 +82,14 @@ impl<'e> AudioExtractor<'e> {
 }
 
 /// Extract video frames.
-pub struct VideoExtractor<'e> {
-    extractor: InnerVideoExtractor<'e>,
+pub struct VideoExtractor {
+    extractor: InnerVideoExtractor,
     scaler: ScalingContext,
     frame: VideoFrame,
 }
 
-impl<'e> VideoExtractor<'e> {
-    pub fn new(input: &'e Input, width: u32, height: u32) -> Result<Self, Error> {
+impl VideoExtractor {
+    pub fn new(input: &Input, width: u32, height: u32) -> Result<Self, Error> {
         let extractor = InnerVideoExtractor::new(input)?;
         let scaler = ScalingContext::get(
             extractor.decoder.format(),
