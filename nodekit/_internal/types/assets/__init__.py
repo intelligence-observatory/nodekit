@@ -9,7 +9,7 @@ from typing import ContextManager, IO, Literal, Annotated, Union, Self
 import PIL.Image
 import pydantic
 
-from nodekit._internal.ops.hash_asset_file import hash_asset_file, get_extension
+from nodekit._internal.ops.hash_asset_file import hash_asset_file, get_extension_from_media_type
 from nodekit._internal.types.common import (
     SHA256,
     MediaType,
@@ -170,7 +170,7 @@ class BaseAsset(pydantic.BaseModel):
         A public method for saving the asset file to the given path on the local filesystem.
         """
         # Check if the path ends with the correct extension:
-        intended_extension = get_extension(self.media_type)
+        intended_extension = get_extension_from_media_type(self.media_type)
         if not path.name.endswith(f".{intended_extension}"):
             raise ValueError(
                 f"Path must end with .{intended_extension} for media type {self.media_type}, got: {path}"

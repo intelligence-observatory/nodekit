@@ -19,7 +19,7 @@ def hash_asset_file(path: Path) -> SHA256:
     return validated_sha256
 
 
-def get_extension(media_type: MediaType) -> str:
+def get_extension_from_media_type(media_type: MediaType) -> str:
     """
     Returns the file extension, without the leading dot, for a given media (MIME) type.
     """

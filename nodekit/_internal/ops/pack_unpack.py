@@ -4,7 +4,7 @@ import zipfile
 from pathlib import Path
 from typing import Tuple, Dict
 
-from nodekit._internal.ops.hash_asset_file import get_extension
+from nodekit._internal.ops.hash_asset_file import get_extension_from_media_type
 from nodekit._internal.types.assets import (
     ZipArchiveInnerPath,
     RelativePath,
@@ -23,7 +23,7 @@ def _get_archive_relative_path(media_type: MediaType, sha256: SHA256) -> Path:
     """
     Returns the relative path within the .nkg archive for a given asset.
     """
-    extension = get_extension(media_type)
+    extension = get_extension_from_media_type(media_type)
     return Path("assets") / media_type / f"{sha256}.{extension}"
 
 
