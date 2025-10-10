@@ -1,0 +1,196 @@
+import nodekit as nk
+from typing import Literal
+
+from enum import Enum
+
+class StroopColor(str, Enum):
+    RED = 'red'
+    GREEN = 'green'
+    BLUE = 'blue'
+    YELLOW = 'yellow'
+
+def to_hex(color: StroopColor) -> str:
+    if color == StroopColor.RED:
+        return '#FF0000'
+    elif color == StroopColor.GREEN:
+        return '#00FF00'
+    elif color == StroopColor.BLUE:
+        return '#0000FF'
+    elif color == StroopColor.YELLOW:
+        return '#FFFF00'
+    else:
+        raise ValueError(f'Unknown color: {color}')
+# %%
+def make_stroop_trial(
+        stimulus_color: StroopColor,
+        stimulus_word: StroopColor,
+        max_response_time_msec: int = 5000,
+) -> nk.Graph:
+    """
+    The correct response is always the color of the text, not the word itself.
+    """
+
+    # Make the main node
+    stimulus_card = nk.cards.TextCard(
+        x=0,
+        y=0,
+        w=0.5,
+        h=0.2,
+        text=stimulus_word.value.upper(),
+        font_size=0.1,
+        text_color=to_hex(stimulus_color),
+        justification_horizontal='center',
+        justification_vertical='center',
+        start_msec=0,
+    )
+
+    sensors = {
+        'red': nk.sensors.KeySensor(
+            key='r',
+        ),
+        'green': nk.sensors.KeySensor(
+            key='g',
+        ),
+        'blue': nk.sensors.KeySensor(
+            key='b',
+        ),
+        'yellow': nk.sensors.KeySensor(
+            key='y',
+        ),
+        'timeout': nk.sensors.TimeoutSensor(
+            timeout_msec=max_response_time_msec,
+        )
+    }
+
+    main_node = nk.Node(
+        cards=[stimulus_card],
+        sensors=sensors,
+        board_color='#FFFFFF' # White background
+    )
+
+    # Make the reinforcer nodes
+    correct_node = nk.Node(
+        cards=[
+            nk.cards.TextCard(
+                x=0,
+                y=0,
+                w=0.5,
+                h=0.2,
+                text='Correct!',
+                font_size=0.1,
+                justification_horizontal='center',
+                justification_vertical='center',
+            )],
+        sensors={
+            'wait': nk.sensors.TimeoutSensor(
+                timeout_msec=500,
+            )
+        },
+        board_color='#FFFFFF'  # White background
+    )
+    incorrect_node = nk.Node(
+        cards=[
+            nk.cards.TextCard(
+                x=0,
+                y=0,
+                w=0.5,
+                h=0.2,
+                text='Incorrect.',
+                font_size=0.1,
+                justification_horizontal='center',
+                justification_vertical='center',
+            )],
+        sensors={
+            'wait': nk.sensors.TimeoutSensor(
+                timeout_msec=2000,
+            )
+        },
+        board_color='#FFFFFF'  # White background
+    )
+
+    too_slow_node = nk.Node(
+        cards=[
+            nk.cards.TextCard(
+                x=0,
+                y=0,
+                w=0.5,
+                h=0.2,
+                text='Too slow!',
+                font_size=0.1,
+                text_color='#FFA500', # Orange
+                justification_horizontal='center',
+                justification_vertical='center',
+            )],
+        sensors={
+            'wait': nk.sensors.TimeoutSensor(
+                timeout_msec=2000,
+            )
+        },
+        board_color='#FFFFFF'  # White background
+    )
+
+    # Make the fixation node; need to press spacebar to continue
+    fixation_card = nk.cards.TextCard(
+        x=0,
+        y=0,
+        w=0.2,
+        h=0.2,
+        text='\+',
+        text_color='#000000', # Black
+        justification_horizontal='center',
+        justification_vertical='center',
+        start_msec=0,
+    )
+    fixation_sensor = nk.sensors.KeySensor(
+        key=' ',
+    )
+    fixation_node = nk.Node(
+        cards=[fixation_card],
+        sensors={
+            'fixated': fixation_sensor,
+        },
+        board_color='#FFFFFF'  # White background
+    )
+
+
+    # Connect the nodes
+    return nk.Graph(
+        nodes={
+            'fixation': fixation_node,
+            'main': main_node,
+            'correct': correct_node,
+            'incorrect': incorrect_node,
+            'too_slow': too_slow_node,
+        },
+        transitions={
+            'fixation': {
+                'fixated': 'main',
+            },
+            'main': {
+                'red': 'correct' if stimulus_color == StroopColor.RED else 'incorrect',
+                'green': 'correct' if stimulus_color == StroopColor.GREEN else 'incorrect',
+                'blue': 'correct' if stimulus_color == StroopColor.BLUE else 'incorrect',
+                'yellow': 'correct' if stimulus_color == StroopColor.YELLOW else 'incorrect',
+                'timeout': 'too_slow',
+            },
+        },
+        start='fixation',
+    )
+
+# %%
+# Make a simple Stroop task with a few trials
+import random
+random.seed(42)
+trials = [
+    make_stroop_trial(
+        stimulus_color=random.choice(list(StroopColor)),
+        stimulus_word=random.choice(list(StroopColor)),
+    )
+    for _ in range(5)
+]
+stroop_task = nk.concat(
+    trials,
+)
+
+
+nk.play(stroop_task)
