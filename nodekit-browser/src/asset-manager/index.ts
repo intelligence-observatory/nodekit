@@ -1,42 +1,22 @@
-import type {Asset, AssetUrl, Image, Video} from "../types/assets";
-import type {SHA256} from "../types/common.ts";
-
-type AssetKey = `${SHA256}|${string}`; // string is the mime type
+import type {Asset, Image, Video} from "../types/assets";
 
 export class AssetManager {
-    private urlLookup: Record<AssetKey, AssetUrl> = {};
 
-    private getKey(sha256: SHA256, mimeType: string): AssetKey {
-        return `${sha256}|${mimeType}`;
-    }
-
-    registerAsset(
-        assetUrl: AssetUrl
-    ): void {
-        let sha256 = assetUrl.identifier.sha256;
-        let mimeType = assetUrl.identifier.media_type;
-        // Create the lookup key.
-        let key = this.getKey(sha256, mimeType);
-        // Register the asset URL.
-        this.urlLookup[key] = assetUrl;
-    }
-
-    private lookupAssetUrl(asset: Asset): AssetUrl {
-        let key = this.getKey(asset.sha256, asset.media_type);
-        let url = this.urlLookup[key];
-        if (!url) {
-            throw new Error(`Asset not found: ${asset.sha256} (${asset.media_type})`);
+    private resolveAssetUrl(asset: Asset): string {
+        // Throw an error if the Asset.locator is not a URL
+        if (asset.locator.locator_type !== "URL") {
+            throw new Error(`Only URL locators are supported in the browser environment. Found: ${asset.locator.locator_type}`);
         }
-        return url
+        return asset.locator.url;
     }
 
     async getImageElement(image: Image): Promise<HTMLImageElement> {
         // Lookup:
-        let imageUrl = this.lookupAssetUrl(image);
+        let imageUrl = this.resolveAssetUrl(image);
 
         // Ensure the image is loaded, and return it as an HTMLImageElement.
         let element = new Image();
-        element.src = imageUrl.url;
+        element.src = imageUrl;
         return new Promise((resolve, reject) => {
                 element.onload = () => resolve(element);
                 element.onerror = (error) => reject(error);
@@ -45,7 +25,7 @@ export class AssetManager {
     }
 
     async getVideoElement(video: Video): Promise<HTMLVideoElement> {
-        let videoUrl = this.lookupAssetUrl(video);
+        let videoUrl = this.resolveAssetUrl(video)
 
         // Preload the video asset and return the HTMLVideoElement.
         let element = document.createElement("video");
@@ -59,7 +39,7 @@ export class AssetManager {
             element.onerror = (error) => reject(error);
         });
         // ...And now, assign the source URL:
-        element.src = videoUrl.url;
+        element.src = videoUrl;
         // Reset the element to its initial state.
         element.load();
         return promise;

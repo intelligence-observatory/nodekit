@@ -55,13 +55,7 @@ export async function play(
     }
 
     shellUI.showSessionConnectingOverlay()
-    // Todo: await preload assets
     const assetManager = new AssetManager();
-    for (const assetUrl of assetUrls) {
-        assetManager.registerAsset(assetUrl)
-    }
-    shellUI.hideSessionConnectingOverlay()
-
     const clock = new Clock();
 
     // Initialize KeyStream:
@@ -97,6 +91,8 @@ export async function play(
         }
     )
 
+    shellUI.hideSessionConnectingOverlay()
+
     // Start screen:
     await shellUI.playStartScreen()
     clock.start()
@@ -109,13 +105,14 @@ export async function play(
     // Add a listener for the LeaveEvent:
     function onVisibilityChange() {
         if (document.visibilityState === "hidden") {
+            // Triggered when the document becomes hidden (e.g., user switches tabs or minimizes the window)
             const leaveEvent: PageSuspendedEvent = {
                 event_type: "PageSuspendedEvent",
                 t: clock.now(),
             };
             eventArray.push(leaveEvent);
         } else if (document.visibilityState === "visible") {
-            // Optionally handle when the document becomes visible again
+            // Triggered when the document becomes visible again
             const returnEvent: PageResumedEvent = {
                 event_type: "PageResumedEvent",
                 t: clock.now(),
