@@ -90,9 +90,7 @@ class LocalRunner:
                     asset_disk_backed = asset.model_copy(deep=True)
 
                     # Mutate the Graph's Asset to have a URL locator:
-                    asset.locator = URL(
-                        url=f"assets/{asset.sha256}"
-                    )
+                    asset.locator = URL(url=f"assets/{asset.sha256}")
                     self.asset_id_to_asset[asset.sha256] = asset_disk_backed
 
     def _build_app(self) -> fastapi.FastAPI:
@@ -131,7 +129,6 @@ class LocalRunner:
         def health():
             return fastapi.Response(status_code=fastapi.status.HTTP_204_NO_CONTENT)
 
-
         @app.get("/assets/{asset_id}")
         async def get_asset(asset_id: str):
             try:
@@ -143,15 +140,14 @@ class LocalRunner:
 
             # Hardcode
             with asset.locator.open() as f:
-                savepath = Path(f'/tmp/{asset_id}')
-                with open(savepath, 'wb') as out:
+                savepath = Path(f"/tmp/{asset_id}")
+                with open(savepath, "wb") as out:
                     out.write(f.read())
                 print(f"Saved asset to {savepath}")
             return fastapi.responses.FileResponse(
                 path=savepath,
                 media_type=asset.media_type,
             )
-
 
         @app.get("/")
         def site(
@@ -208,6 +204,7 @@ class LocalRunner:
 # %% Singleton instance of the LocalRunner
 _runner: LocalRunner | None = None
 
+
 def _get_runner() -> LocalRunner:
     global _runner
     if _runner is None:
@@ -227,6 +224,7 @@ class PlaySession:
         """
         runner = _get_runner()
         return runner.list_events()
+
 
 def play(
     graph: Graph,

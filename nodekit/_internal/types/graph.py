@@ -11,7 +11,8 @@ class Graph(pydantic.BaseModel):
     """
     The Python runtime view of a NodeKit Graph.
     """
-    nodekit_version: Literal['0.1.0'] = pydantic.Field(default=VERSION)
+
+    nodekit_version: Literal["0.1.0"] = pydantic.Field(default=VERSION)
     start: NodeId
     nodes: Dict[NodeId, Node]
     transitions: Dict[NodeId, Dict[SensorId, NodeId]] = pydantic.Field(
@@ -20,7 +21,7 @@ class Graph(pydantic.BaseModel):
 
     @pydantic.model_validator(mode="after")
     def check_graph_is_valid(
-            self,
+        self,
     ) -> Self:
         if self.start not in self.nodes:
             raise ValueError(f"Graph start node {self.start} not in nodes.")
@@ -40,5 +41,3 @@ class Graph(pydantic.BaseModel):
         # Todo: check all Nodes have a path to a leaf Sensor
 
         return self
-
-

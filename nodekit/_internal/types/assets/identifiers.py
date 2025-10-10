@@ -6,7 +6,12 @@ import pydantic
 import enum
 
 from nodekit._internal.ops.hash_asset_file import hash_asset_file, get_extension
-from nodekit._internal.types.common import SHA256, MediaType, ImageMediaType, VideoMediaType
+from nodekit._internal.types.common import (
+    SHA256,
+    MediaType,
+    ImageMediaType,
+    VideoMediaType,
+)
 from typing import Literal
 from abc import ABC, abstractmethod
 import zipfile
@@ -15,12 +20,14 @@ import PIL.Image
 import contextlib
 from typing import ContextManager, IO
 
+
 # %% Locators
 class LocatorTypeEnum(str, enum.Enum):
     FileSystemPath = "FileSystemPath"
     ZipArchiveInnerPath = "ZipArchiveInnerPath"
-    RelativePath = 'RelativePath'
+    RelativePath = "RelativePath"
     URL = "URL"
+
 
 class BaseLocator(pydantic.BaseModel, ABC):
     locator_type: LocatorTypeEnum
@@ -32,11 +39,15 @@ class BaseLocator(pydantic.BaseModel, ABC):
         """
         ...
 
+
 class FileSystemPath(BaseLocator):
     """
     A locator which points to an absolute filepath on the viewer's local file system.
     """
-    locator_type: Literal[LocatorTypeEnum.FileSystemPath] = LocatorTypeEnum.FileSystemPath
+
+    locator_type: Literal[LocatorTypeEnum.FileSystemPath] = (
+        LocatorTypeEnum.FileSystemPath
+    )
     path: pydantic.FilePath = pydantic.Field(
         description="The absolute path to the asset file in the local filesystem."
     )
@@ -48,10 +59,17 @@ class FileSystemPath(BaseLocator):
     def open(self) -> ContextManager[IO[bytes]]:
         return self.path.open("rb")
 
+
 class ZipArchiveInnerPath(BaseLocator):
-    locator_type: Literal[LocatorTypeEnum.ZipArchiveInnerPath] = LocatorTypeEnum.ZipArchiveInnerPath
-    zip_archive_path: pydantic.FilePath = pydantic.Field(description="The path to the zip archive file on the local filesystem")
-    inner_path: Path = pydantic.Field(description="The internal path within the zip archive to the asset file.")
+    locator_type: Literal[LocatorTypeEnum.ZipArchiveInnerPath] = (
+        LocatorTypeEnum.ZipArchiveInnerPath
+    )
+    zip_archive_path: pydantic.FilePath = pydantic.Field(
+        description="The path to the zip archive file on the local filesystem"
+    )
+    inner_path: Path = pydantic.Field(
+        description="The internal path within the zip archive to the asset file."
+    )
 
     @pydantic.field_validator("zip_archive_path", mode="after")
     def ensure_zip_path_absolute(cls, path: Path) -> Path:
@@ -63,6 +81,7 @@ class ZipArchiveInnerPath(BaseLocator):
             with zipfile.ZipFile(self.zip_archive_path, "r") as zf:
                 with zf.open(str(self.inner_path), "r") as fh:
                     yield fh
+
         return open_stream()
 
 
@@ -72,6 +91,7 @@ class RelativePath(BaseLocator):
     This is useful for assets that are bundled alongside a graph file, e.g., in a zip archive.
     The viewer must resolve the relative path against a known base path.
     """
+
     locator_type: Literal[LocatorTypeEnum.RelativePath] = LocatorTypeEnum.RelativePath
     relative_path: Path = pydantic.Field(
         description="The relative path to the asset file in the local filesystem."
@@ -86,6 +106,7 @@ class RelativePath(BaseLocator):
     def open(self) -> ContextManager[IO[bytes]]:
         raise RuntimeError("A RelativePath cannot be opened.")
 
+
 class URL(BaseLocator):
     locator_type: Literal[LocatorTypeEnum.URL] = LocatorTypeEnum.URL
     url: str = pydantic.Field(
@@ -95,15 +116,12 @@ class URL(BaseLocator):
     def open(self) -> ContextManager[IO[bytes]]:
         raise NotImplementedError("URL locator is not yet implemented.")
 
+
 AssetLocator = Annotated[
-    Union[
-        FileSystemPath,
-        ZipArchiveInnerPath,
-        RelativePath,
-        URL
-    ],
+    Union[FileSystemPath, ZipArchiveInnerPath, RelativePath, URL],
     pydantic.Field(discriminator="locator_type"),
 ]
+
 
 # %%
 class BaseAsset(pydantic.BaseModel):
@@ -117,8 +135,13 @@ class BaseAsset(pydantic.BaseModel):
 
     Assets are meant to be used only in the Python runtime.
     """
-    sha256: SHA256 = pydantic.Field(description='The SHA-256 hash of the asset file, as a hex string.')
-    media_type: MediaType = pydantic.Field(description='The IANA media (MIME) type of the asset.')
+
+    sha256: SHA256 = pydantic.Field(
+        description="The SHA-256 hash of the asset file, as a hex string."
+    )
+    media_type: MediaType = pydantic.Field(
+        description="The IANA media (MIME) type of the asset."
+    )
     locator: AssetLocator = pydantic.Field(
         description="A location which is a claimed source of bytes for the asset.",
     )
@@ -142,7 +165,7 @@ class BaseAsset(pydantic.BaseModel):
         return cls(
             sha256=sha256,
             media_type=guessed_media_type,
-            locator=FileSystemPath(path=path)
+            locator=FileSystemPath(path=path),
         )
 
     def save(self, path: Path) -> None:
@@ -151,7 +174,7 @@ class BaseAsset(pydantic.BaseModel):
         """
         # Check if the path ends with the correct extension:
         intended_extension = get_extension(self.media_type)
-        if not path.name.endswith(f'.{intended_extension}'):
+        if not path.name.endswith(f".{intended_extension}"):
             raise ValueError(
                 f"Path must end with .{intended_extension} for media type {self.media_type}, got: {path}"
             )
@@ -171,7 +194,10 @@ class Image(BaseAsset):
     """
     An image asset identifier which is bound to a concrete source of bytes for the image.
     """
-    media_type: ImageMediaType = pydantic.Field(description='The IANA media (MIME) type of the image file.')
+
+    media_type: ImageMediaType = pydantic.Field(
+        description="The IANA media (MIME) type of the image file."
+    )
 
     def to_pil(self) -> PIL.Image.Image:
         """
@@ -188,17 +214,18 @@ class Image(BaseAsset):
 
         return image
 
+
 class Video(BaseAsset):
     """
     A video asset identifier which is bound to a concrete source of bytes for the video.
     """
-    media_type: VideoMediaType = pydantic.Field(description='The IANA media (MIME) type of the video file.')
+
+    media_type: VideoMediaType = pydantic.Field(
+        description="The IANA media (MIME) type of the video file."
+    )
 
 
 Asset = Annotated[
-    Union[
-        Image,
-        Video
-    ],
+    Union[Image, Video],
     pydantic.Field(discriminator="media_type"),
 ]

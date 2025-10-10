@@ -9,7 +9,6 @@ from nodekit._internal.types.common import (
     TimeElapsedMsec,
     NodeId,
     SensorId,
-    PressableKey,
     SpatialPoint,
 )
 

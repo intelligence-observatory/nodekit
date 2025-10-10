@@ -1,15 +1,16 @@
 import glob
 import nodekit as nk
 from typing import Literal
+from pathlib import Path
 
 
 # %%
 def make_triplet_trial(
-        fixation_image: nk.assets.Image,
-        stimulus_image: nk.assets.Image,
-        choice_left_image: nk.assets.Image,
-        choice_right_image: nk.assets.Image,
-        correct_choice: Literal["L", "R"],
+    fixation_image: nk.assets.Image,
+    stimulus_image: nk.assets.Image,
+    choice_left_image: nk.assets.Image,
+    choice_right_image: nk.assets.Image,
+    correct_choice: Literal["L", "R"],
 ) -> nk.Graph:
     """
     Returns a Graph implementing a single trial of an image triplet task.
@@ -161,10 +162,9 @@ def make_triplet_trial(
 
 
 def make_fj_trial(
-        stimulus_image: nk.assets.Image,
-        correct_choice: Literal["f", "j"],
+    stimulus_image: nk.assets.Image,
+    correct_choice: Literal["f", "j"],
 ) -> nk.Graph:
-
     # Make main Node:
     stimulus_card = nk.cards.ImageCard(
         x=0,
@@ -337,40 +337,30 @@ video_card = nk.cards.VideoCard(
 
 video_node = nk.Node(
     cards=[video_card],
-    sensors={
-        'wait': nk.sensors.TimeoutSensor(timeout_msec=5000)
-    },
+    sensors={"wait": nk.sensors.TimeoutSensor(timeout_msec=5000)},
 )
 
 graph = nk.concat(
-    [
-        fixation_node,
-        video_node,
-        my_trial,
-        my_trial,
-        fixation_node,
-        fj_trial,
-        fj_trial2
-    ]
+    [fixation_node, video_node, my_trial, my_trial, fixation_node, fj_trial, fj_trial2]
 )
 
 # %%
 with my_video_files[0].locator.open() as f:
     # Write
-    savepath = 'test.mp4'
-    with open(savepath, 'wb') as out:
+    savepath = "test.mp4"
+    with open(savepath, "wb") as out:
         out.write(f.read())
 
 # %% One can pack the Graph for later, or to share:
-from pathlib import Path
-savepath = Path('my_graph.nkg')
+
+savepath = Path("my_graph.nkg")
 if savepath.exists():
     savepath.unlink()
-nk.pack(graph, 'my_graph.nkg')
+nk.pack(graph, "my_graph.nkg")
 
 
 # %% Unpacking a Graph:
-graph_roundtrip = nk.unpack('my_graph.nkg')
+graph_roundtrip = nk.unpack("my_graph.nkg")
 
 # %% Play the Graph now:
 trace = nk.play(graph_roundtrip)
@@ -379,5 +369,3 @@ trace = nk.play(graph_roundtrip)
 print(f"Observed {len(trace.events)} events:")
 for event in trace.events:
     print(event.event_type)
-
-

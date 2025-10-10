@@ -18,6 +18,7 @@ def hash_asset_file(path: Path) -> SHA256:
     validated_sha256 = type_adapter.validate_python(sha256_hexdigest)
     return validated_sha256
 
+
 def get_extension(media_type: MediaType) -> str:
     """
     Returns the file extension, without the leading dot, for a given media (MIME) type.
@@ -30,4 +31,3 @@ def get_extension(media_type: MediaType) -> str:
     if media_type not in mime_to_extension:
         raise ValueError(f"Unsupported media type: {media_type}")
     return mime_to_extension[media_type]
-
