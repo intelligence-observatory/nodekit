@@ -1,8 +1,9 @@
-import nodekit as nk
-from typing import Literal
-
 from enum import Enum
+from pathlib import Path
 
+import nodekit as nk
+
+# %%
 class StroopColor(str, Enum):
     RED = 'red'
     GREEN = 'green'
@@ -20,7 +21,39 @@ def to_hex(color: StroopColor) -> str:
         return '#FFFF00'
     else:
         raise ValueError(f'Unknown color: {color}')
+
 # %%
+def make_stroop_instructions() -> nk.Node:
+    markdown_instructions = Path('my_stroop_instructions.md').read_text()
+
+    instructions_card = nk.cards.TextCard(
+        x=0, y=0, w=1, h=0.8,
+        text=str(markdown_instructions),
+        justification_horizontal='left',
+    )
+    next_card = nk.cards.TextCard(
+        x=0, y=-0.4, w=0.3, h=0.1,
+        text="Press to start",
+        justification_horizontal='center',
+        start_msec=2000,
+        background_color='#e6e6e6',
+    )
+    next_sensor = nk.sensors.ClickSensor(
+        x=next_card.x,
+        y=next_card.y,
+        w=next_card.w,
+        h=next_card.h,
+        start_msec=next_card.start_msec,
+    )
+    return nk.Node(
+        cards=[instructions_card, next_card],
+        sensors={
+            'done-reading-instructions': next_sensor,
+        },
+        board_color='#FFFFFF'  # White background
+    )
+
+
 def make_stroop_trial(
         stimulus_color: StroopColor,
         stimulus_word: StroopColor,
@@ -117,7 +150,6 @@ def make_stroop_trial(
                 h=0.2,
                 text='Too slow!',
                 font_size=0.1,
-                text_color='#FFA500', # Orange
                 justification_horizontal='center',
                 justification_vertical='center',
             )],
@@ -136,7 +168,7 @@ def make_stroop_trial(
         w=0.2,
         h=0.2,
         text='\+',
-        text_color='#000000', # Black
+        font_size=0.1,
         justification_horizontal='center',
         justification_vertical='center',
         start_msec=0,
@@ -189,7 +221,7 @@ trials = [
     for _ in range(5)
 ]
 stroop_task = nk.concat(
-    trials,
+    [    make_stroop_instructions()] + trials,
 )
 
 
