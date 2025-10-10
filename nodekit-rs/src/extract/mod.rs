@@ -13,11 +13,15 @@ pub fn extract<P: AsRef<Path>>(src: P, width: u32, height: u32) -> Result<(), Er
     for (stream, packet) in input.packets() {
         let index = stream.index();
         if index == audio.stream_index() {
-            let b = audio.extract_next_frame(&packet)?;
-            println!("audio {}", b.len());
+            audio.send_packet(&packet)?;
+            while let Ok(b) = audio.extract_next_frame(&packet) {
+                println!("audio {}", b.len());
+            }
         } else if index == video.stream_index() {
-            let b = video.extract_next_frame(&packet)?;
-            println!("video {}", b.len());
+            video.send_packet(&packet)?;
+            while let Ok(b) = video.extract_next_frame(&packet) {
+                println!("video {}", b.len());
+            }
         }
     }
     Ok(())

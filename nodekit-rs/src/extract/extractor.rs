@@ -38,10 +38,12 @@ macro_rules! inner_extractor {
                         frame: [<$name Frame>]::empty()
                     })
                 }
+                
+                pub fn send_packet(&mut self, packet: &Packet) -> Result<(), Error> {
+                     self.decoder.send_packet(packet)
+                }
 
                 pub fn extract_next_frame(&mut self, packet: &Packet) -> Result<&[u8], Error> {
-                    self.decoder.send_packet(packet)?;
-
                     self.decoder.receive_frame(&mut self.frame)?;
                     Ok(self.frame.data(0))
                 }
@@ -53,9 +55,13 @@ macro_rules! inner_extractor {
 inner_extractor!(Audio, audio);
 inner_extractor!(Video, video);
 
-macro_rules! impl_get_index {
+macro_rules! outer_extractor {
     ($name: ident) => {
         impl $name {
+            pub fn send_packet(&mut self, packet: &Packet) -> Result<(), Error> {
+                self.extractor.send_packet(packet)
+            }
+            
             pub fn stream_index(&self) -> usize {
                 self.extractor.stream_index
             }
@@ -117,5 +123,5 @@ impl VideoExtractor {
     }
 }
 
-impl_get_index!(AudioExtractor);
-impl_get_index!(VideoExtractor);
+outer_extractor!(AudioExtractor);
+outer_extractor!(VideoExtractor);
