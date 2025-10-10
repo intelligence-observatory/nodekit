@@ -22,8 +22,6 @@ def make_multiple_choice_question_node(
         justification_horizontal='left',
         justification_vertical='center',
         start_msec=0,
-        #background_color='#f2f0f0'
-
     )
 
 
@@ -39,7 +37,7 @@ def make_multiple_choice_question_node(
             justification_horizontal='left',
             justification_vertical='center',
             start_msec=0,
-            background_color='#d9d9d9'
+            background_color='#e6e6e6'
         )
         for i, choice_markdown in enumerate(choices_markdown)
     ]
@@ -66,7 +64,7 @@ def make_multiple_choice_question_node(
 graph = nk.concat(
     [
         make_multiple_choice_question_node(
-            question_markdown="# How old are you?\n Bla bla bla.",
+            question_markdown="# How old are you?",
             choices_markdown=[
                 "Under 18",
                 "18-24",
