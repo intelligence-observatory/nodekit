@@ -6,7 +6,7 @@ from typing import Dict, Tuple
 
 from nodekit._internal.ops.hash_asset_file import get_extension
 from nodekit._internal.types.assets import ZipArchiveInnerPath, RelativePath, AssetLocator
-from nodekit._internal.types.cards.cards import (
+from nodekit._internal.types.cards import (
     ImageCard,
     VideoCard,
 )

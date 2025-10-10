@@ -2,7 +2,7 @@ from typing import Dict, List
 
 import pydantic
 
-from nodekit._internal.types.cards.cards import Card
+from nodekit._internal.types.cards import Card
 from nodekit._internal.types.common import SensorId, ColorHexString
 from nodekit._internal.types.effects.effects import Effect
 from nodekit._internal.types.sensors.sensors import Sensor
