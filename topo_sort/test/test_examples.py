@@ -138,8 +138,10 @@ def test_multiple_roots_tie_break():
         "B": {"b": "C"},
     }
     result = ts.topological_sort(nodes, transitions)
+
     # A and B both roots, check deterministic order based on incoming_sensors:
-    assert result.index("A") < result.index("B") or result.index("B") < result.index("A")
+    assert result.index("A") < result.index("B")
+    assert result.index("A") < result.index("C")
     assert result[-1] == "C"
 
 
