@@ -4,7 +4,7 @@ __all__ = [
     "TextCard",
 ]
 
-from nodekit._internal.types.cards.cards import (
+from nodekit._internal.types.cards import (
     ImageCard,
     VideoCard,
     TextCard,

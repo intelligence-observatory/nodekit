@@ -16,6 +16,8 @@ __all__ = [
     "get_browser_bundle",
     # Ops
     "concat",
+    "pack",
+    "unpack",
 ]
 
 # Version
@@ -40,3 +42,4 @@ from nodekit._internal.browser.browser_bundle import get_browser_bundle
 
 # Ops:
 from nodekit._internal.ops.concat import concat
+from nodekit._internal.ops.pack_unpack import pack, unpack

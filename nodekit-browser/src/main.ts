@@ -3,7 +3,6 @@ import {Clock} from "./clock.ts";
 import type {Graph, Trace} from "./types/node.ts";
 import {getBrowserContext} from "./user-gates/browser-context.ts";
 import {checkDeviceIsValid} from "./user-gates/device-gate.ts";
-import type {AssetUrl} from "./types/assets";
 import type {NodeId, TimeElapsedMsec} from "./types/common.ts";
 import {createNodeKitRootDiv} from "./ui/ui-builder.ts";
 import {AssetManager} from "./asset-manager";
@@ -19,13 +18,11 @@ import {PointerStream} from "./input-streams/pointer-stream.ts";
 /**
  * Plays a Graph, returning a Trace of Events.
  * @param graph
- * @param assetUrls
  * @param onEventCallback
  * @param previousEvents
  */
 export async function play(
     graph: Graph,
-    assetUrls: AssetUrl[],
     onEventCallback: ((event: Event) => void) | null = null,
     previousEvents: Event[] = [],
 ): Promise<Trace> {
@@ -58,13 +55,7 @@ export async function play(
     }
 
     shellUI.showSessionConnectingOverlay()
-    // Todo: await preload assets
     const assetManager = new AssetManager();
-    for (const assetUrl of assetUrls) {
-        assetManager.registerAsset(assetUrl)
-    }
-    shellUI.hideSessionConnectingOverlay()
-
     const clock = new Clock();
 
     // Initialize KeyStream:
@@ -100,6 +91,8 @@ export async function play(
         }
     )
 
+    shellUI.hideSessionConnectingOverlay()
+
     // Start screen:
     await shellUI.playStartScreen()
     clock.start()
@@ -112,13 +105,14 @@ export async function play(
     // Add a listener for the LeaveEvent:
     function onVisibilityChange() {
         if (document.visibilityState === "hidden") {
+            // Triggered when the document becomes hidden (e.g., user switches tabs or minimizes the window)
             const leaveEvent: PageSuspendedEvent = {
                 event_type: "PageSuspendedEvent",
                 t: clock.now(),
             };
             eventArray.push(leaveEvent);
         } else if (document.visibilityState === "visible") {
-            // Optionally handle when the document becomes visible again
+            // Triggered when the document becomes visible again
             const returnEvent: PageResumedEvent = {
                 event_type: "PageResumedEvent",
                 t: clock.now(),
@@ -202,6 +196,8 @@ export async function play(
 
     // End screen:
     await shellUI.playEndScreen()
+    keyStream.destroy()
+    pointerStream.destroy()
 
     // Generate the EndEvent:
     const endEvent: TraceEndedEvent = {

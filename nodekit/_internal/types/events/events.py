@@ -9,7 +9,6 @@ from nodekit._internal.types.common import (
     TimeElapsedMsec,
     NodeId,
     SensorId,
-    PressableKey,
     SpatialPoint,
 )
 
@@ -82,7 +81,7 @@ class PointerSampledEvent(BaseEvent):
 
 class KeySampledEvent(BaseEvent):
     event_type: Literal[EventTypeEnum.KeySampledEvent] = EventTypeEnum.KeySampledEvent
-    key: PressableKey
+    key: str
     kind: Literal["down", "up"]
 
 
