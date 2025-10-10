@@ -18,7 +18,7 @@ macro_rules! inner_extractor {
             /// Extract frames from a stream.
             struct [<Inner $name Extractor>] {
                 /// The index of this stream in the video file.
-                pub stream_index: usize,
+                stream_index: usize,
                 decoder: $name,
                 frame: [<$name Frame>],
             }
