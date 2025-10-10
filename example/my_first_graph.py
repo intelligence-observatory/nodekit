@@ -343,21 +343,15 @@ graph = nk.concat(
     [fixation_node, video_node, my_trial, my_trial, fixation_node, fj_trial, fj_trial2]
 )
 
-# %%
-with my_video_files[0].locator.open() as f:
-    # Write
-    savepath = "test.mp4"
-    with open(savepath, "wb") as out:
-        out.write(f.read())
 
 # %% One can pack the Graph for later, or to share:
 savepath = Path("my_graph.nkg")
 if savepath.exists():
     savepath.unlink()
-nk.pack(graph, "my_graph.nkg")
+nk.pack(graph, savepath)
 
 # %% Unpacking a Graph:
-graph_roundtrip = nk.unpack("my_graph.nkg")
+graph_roundtrip = nk.unpack(savepath)
 
 # %% Play the Graph now:
 trace = nk.play(graph)
