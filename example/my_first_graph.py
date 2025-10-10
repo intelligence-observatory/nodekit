@@ -15,6 +15,7 @@ def make_triplet_trial(
     """
     Returns a Graph implementing a single trial of an image triplet task.
     """
+
     # Make fixation Node:
     fixation_card = nk.cards.ImageCard(
         x=0,
@@ -149,7 +150,9 @@ def make_triplet_trial(
         },
         start="fixation",
         transitions={
-            "fixation": {"clicked-fixation": "main"},
+            "fixation": {
+                "clicked-fixation": "main"
+            },
             "main": {
                 "R": "positive" if correct_choice == "R" else "negative",
                 "L": "positive" if correct_choice == "L" else "negative",
