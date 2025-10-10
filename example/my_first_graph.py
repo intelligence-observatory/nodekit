@@ -5,24 +5,18 @@ from pathlib import Path
 
 
 # %%
-def make_triplet_trial(
-    fixation_image: nk.assets.Image,
-    stimulus_image: nk.assets.Image,
-    choice_left_image: nk.assets.Image,
-    choice_right_image: nk.assets.Image,
-    correct_choice: Literal["L", "R"],
-) -> nk.Graph:
+def make_fixation_node() -> nk.Node:
     """
-    Returns a Graph implementing a single trial of an image triplet task.
+    Returns a Node implementing a fixation screen, where the participant must click on a white dot
+    in the center of the Board.
     """
 
-    # Make fixation Node:
     fixation_card = nk.cards.ImageCard(
         x=0,
         y=0,
         w=0.0375,
         h=0.0375,
-        image=fixation_image,
+        image=nk.assets.Image.from_path('./example_images/fixation-cross.svg'),
     )
 
     clicked_fixation_dot_sensor = nk.sensors.ClickSensor(
@@ -33,10 +27,67 @@ def make_triplet_trial(
         h=fixation_card.h,
     )
 
-    fixation_node = nk.Node(
+    return nk.Node(
         cards=[fixation_card],
-        sensors={"clicked-fixation": clicked_fixation_dot_sensor},
+        sensors={
+            "fixation-acquired": clicked_fixation_dot_sensor
+        },
     )
+
+def make_positive_feedback_node() -> nk.Node:
+    positive_card = nk.cards.TextCard(
+        text="Correct!",
+        font_size=0.05,
+        x=0,
+        y=0,
+        w=0.5,
+        h=0.5,
+        background_color="#32a852",
+        text_color="#ffffff",
+        justification_horizontal="center",
+        justification_vertical="center",
+    )
+    positive_timeout_sensor = nk.sensors.TimeoutSensor(
+        timeout_msec=500,
+    )
+    positive_node = nk.Node(
+        cards=[positive_card],
+        sensors={"wait": positive_timeout_sensor},
+    )
+    return positive_node
+
+def make_negative_feedback_node() -> nk.Node:
+    negative_card = nk.cards.TextCard(
+        text="Incorrect.",
+        font_size=0.05,
+        x=0,
+        y=0,
+        w=0.5,
+        h=0.5,
+        background_color="#a83232",
+        text_color="#ffffff",
+        justification_horizontal="center",
+        justification_vertical="center",
+    )
+    negative_timeout_sensor = nk.sensors.TimeoutSensor(
+        timeout_msec=1000,
+    )
+
+    negative_node = nk.Node(
+        cards=[negative_card],
+        sensors={"wait": negative_timeout_sensor},
+    )
+    return negative_node
+# %%
+def make_triplet_trial(
+    stimulus_image: nk.assets.Image,
+    choice_left_image: nk.assets.Image,
+    choice_right_image: nk.assets.Image,
+    correct_choice: Literal["L", "R"],
+) -> nk.Graph:
+    """
+    Returns a Graph implementing a single trial of an image triplet task.
+    """
 
     # Make main Node:
     stimulus_card = nk.cards.ImageCard(
@@ -98,48 +149,10 @@ def make_triplet_trial(
         },
     )
 
-    # Make positive feedback Node:
-    positive_card = nk.cards.TextCard(
-        text="Correct!",
-        font_size=0.05,
-        x=0,
-        y=0,
-        w=0.5,
-        h=0.5,
-        background_color="#32a852",
-        text_color="#ffffff",
-        justification_horizontal="center",
-        justification_vertical="center",
-    )
-    positive_timeout_sensor = nk.sensors.TimeoutSensor(
-        timeout_msec=500,
-    )
-    positive_node = nk.Node(
-        cards=[positive_card],
-        sensors={"wait": positive_timeout_sensor},
-    )
 
-    # Make negative feedback Node:
-    negative_card = nk.cards.TextCard(
-        text="Incorrect.",
-        font_size=0.05,
-        x=0,
-        y=0,
-        w=0.5,
-        h=0.5,
-        background_color="#a83232",
-        text_color="#ffffff",
-        justification_horizontal="center",
-        justification_vertical="center",
-    )
-    negative_timeout_sensor = nk.sensors.TimeoutSensor(
-        timeout_msec=1000,
-    )
-
-    negative_node = nk.Node(
-        cards=[negative_card],
-        sensors={"wait": negative_timeout_sensor},
-    )
+    fixation_node = make_fixation_node()
+    positive_node = make_positive_feedback_node()
+    negative_node = make_negative_feedback_node()
 
     trial_graph = nk.Graph(
         nodes={
@@ -150,7 +163,9 @@ def make_triplet_trial(
         },
         start="fixation",
         transitions={
-            "fixation": {"clicked-fixation": "main"},
+            "fixation": {
+                sensor_id: "main" for sensor_id in fixation_node.sensors
+            },
             "main": {
                 "R": "positive" if correct_choice == "R" else "negative",
                 "L": "positive" if correct_choice == "L" else "negative",
@@ -158,7 +173,6 @@ def make_triplet_trial(
             },
         },
     )
-
     return trial_graph
 
 
@@ -202,6 +216,7 @@ def make_fj_trial(
         start_msec=200,
     )
 
+    fixation_node = make_fixation_node()
     main_node = nk.Node(
         cards=[
             stimulus_card,
@@ -213,58 +228,21 @@ def make_fj_trial(
             "j": right_sensor,
         },
     )
-
-    # Make positive feedback Node:
-    positive_card = nk.cards.TextCard(
-        text="Correct!",
-        font_size=0.05,
-        x=0,
-        y=0,
-        w=0.5,
-        h=0.5,
-        background_color="#32a852",
-        text_color="#ffffff",
-        justification_horizontal="center",
-        justification_vertical="center",
-    )
-    positive_timeout_sensor = nk.sensors.TimeoutSensor(
-        timeout_msec=500,
-    )
-    positive_node = nk.Node(
-        cards=[positive_card],
-        sensors={"wait": positive_timeout_sensor},
-    )
-
-    # Make negative feedback Node:
-    negative_card = nk.cards.TextCard(
-        text="Incorrect.",
-        font_size=0.05,
-        x=0,
-        y=0,
-        w=0.5,
-        h=0.5,
-        background_color="#a83232",
-        text_color="#ffffff",
-        justification_horizontal="center",
-        justification_vertical="center",
-    )
-    negative_timeout_sensor = nk.sensors.TimeoutSensor(
-        timeout_msec=1000,
-    )
-
-    negative_node = nk.Node(
-        cards=[negative_card],
-        sensors={"wait": negative_timeout_sensor},
-    )
+    positive_node = make_positive_feedback_node()
+    negative_node = make_negative_feedback_node()
 
     trial_graph = nk.Graph(
         nodes={
+            "fixation": fixation_node,
             "main": main_node,
             "positive": positive_node,
             "negative": negative_node,
         },
-        start="main",
+        start="fixation",
         transitions={
+            "fixation": {
+                sensor_id: "main" for sensor_id in fixation_node.sensors
+            },
             "main": {
                 "f": "positive" if correct_choice == "f" else "negative",
                 "j": "positive" if correct_choice == "j" else "negative",
@@ -273,90 +251,74 @@ def make_fj_trial(
     )
     return trial_graph
 
-
-# %% Load Asset Files
-my_image_files = []
-for path in sorted(glob.glob("./example_images/*")):
-    image_file = nk.assets.Image.from_path(path)
-    my_image_files.append(image_file)
-
-my_video_files = []
-for path in sorted(glob.glob("./example_videos/*.mp4")):
-    video_file = nk.assets.Video.from_path(path)
-    my_video_files.append(video_file)
-
 # %%
-my_trial = make_triplet_trial(
-    fixation_image=my_image_files[0],
-    stimulus_image=my_image_files[1],
-    choice_left_image=my_image_files[2],
-    choice_right_image=my_image_files[3],
-    correct_choice="L",
-)
+if __name__ == '__main__':
 
-fixation_card = nk.cards.TextCard(
-    x=0,
-    y=0,
-    w=0.2,
-    h=0.2,
-    text="click me!",
-    background_color="#32a852",
-)
+    # %% Load Asset Files
+    my_image_files = []
+    for path in sorted(glob.glob("./example_images/*")):
+        image_file = nk.assets.Image.from_path(path)
+        my_image_files.append(image_file)
 
-clicked_fixation_dot_sensor = nk.sensors.ClickSensor(
-    mask="ellipse",
-    x=fixation_card.x,
-    y=fixation_card.y,
-    w=fixation_card.w,
-    h=fixation_card.h,
-)
+    my_video_files = []
+    for path in sorted(glob.glob("./example_videos/*.mp4")):
+        video_file = nk.assets.Video.from_path(path)
+        my_video_files.append(video_file)
 
-fixation_node = nk.Node(
-    cards=[fixation_card],
-    sensors={"clicked-fixation": clicked_fixation_dot_sensor},
-)
+    # %%
+    my_trial = make_triplet_trial(
+        stimulus_image=my_image_files[1],
+        choice_left_image=my_image_files[2],
+        choice_right_image=my_image_files[3],
+        correct_choice="L",
+    )
 
-fj_trial = make_fj_trial(
-    stimulus_image=my_image_files[4],
-    correct_choice="f",
-)
+    fj_trial = make_fj_trial(
+        stimulus_image=my_image_files[4],
+        correct_choice="f",
+    )
 
-fj_trial2 = make_fj_trial(
-    stimulus_image=my_image_files[5],
-    correct_choice="j",
-)
+    fj_trial2 = make_fj_trial(
+        stimulus_image=my_image_files[5],
+        correct_choice="j",
+    )
 
-video_card = nk.cards.VideoCard(
-    x=0,
-    y=0,
-    w=0.8,
-    h=0.8,
-    video=my_video_files[0],
-)
+    video_card = nk.cards.VideoCard(
+        x=0,
+        y=0,
+        w=0.8,
+        h=0.8,
+        video=my_video_files[0],
+    )
 
-video_node = nk.Node(
-    cards=[video_card],
-    sensors={"wait": nk.sensors.TimeoutSensor(timeout_msec=5000)},
-)
+    video_node = nk.Node(
+        cards=[video_card],
+        sensors={"wait": nk.sensors.TimeoutSensor(timeout_msec=5000)},
+    )
 
-graph = nk.concat(
-    [fixation_node, video_node, my_trial, my_trial, fixation_node, fj_trial, fj_trial2]
-)
+    graph = nk.concat(
+        [
+            video_node,
+            my_trial,
+            my_trial,
+            fj_trial,
+            fj_trial2
+        ]
+    )
 
+    # %% One can pack the Graph for later, or to share:
+    savepath = Path("my_graph.nkg")
+    if savepath.exists():
+        savepath.unlink()
+    nk.pack(graph, savepath)
 
-# %% One can pack the Graph for later, or to share:
-savepath = Path("my_graph.nkg")
-if savepath.exists():
-    savepath.unlink()
-nk.pack(graph, savepath)
+    # %% Unpacking a Graph:
+    graph_roundtrip = nk.unpack(savepath)
 
-# %% Unpacking a Graph:
-graph_roundtrip = nk.unpack(savepath)
+    # %% Play the Graph now:
+    trace = nk.play(graph)
 
-# %% Play the Graph now:
-trace = nk.play(graph)
-
-# %%
-print(f"Observed {len(trace.events)} events:")
-for event in trace.events:
-    print(event.event_type)
+    # %%
+    print(f"Observed {len(trace.events)} events:")
+    for event in trace.events:
+        print(event.event_type)
