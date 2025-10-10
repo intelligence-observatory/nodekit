@@ -24,7 +24,8 @@ export class AssetManager {
         // Ensure the image is loaded, and return it as an HTMLImageElement.
         let element = new Image();
         element.src = imageUrl;
-        return new Promise((resolve, reject) => {
+        return new Promise(
+            (resolve, reject) => {
                 element.onload = () => resolve(element);
                 element.onerror = (error) => reject(error);
             }

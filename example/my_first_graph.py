@@ -371,8 +371,9 @@ nk.pack(graph, 'my_graph.nkg')
 
 # %% Unpacking a Graph:
 graph_roundtrip = nk.unpack('my_graph.nkg')
+
 # %% Play the Graph now:
-trace = nk.play(graph)
+trace = nk.play(graph_roundtrip)
 
 # %%
 print(f"Observed {len(trace.events)} events:")

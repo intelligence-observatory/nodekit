@@ -85,18 +85,15 @@ class LocalRunner:
 
             # Mount the Graph's assets:
             for asset in iter_assets(graph=graph):
-                if asset.sha256 in self.asset_id_to_asset:
-                    continue
+                if not isinstance(asset.locator, URL):
+                    # Save a copy of the original Asset:
+                    asset_disk_backed = asset.model_copy(deep=True)
 
-                # Save a copy of the original Asset:
-                asset_disk_backed = asset.model_copy(deep=True)
-
-                # Mutate the Graph's Asset to have a URL locator:
-                asset.locator = URL(
-                    url=f"assets/{asset.sha256}"
-                )
-
-                self.asset_id_to_asset[asset.sha256] = asset_disk_backed
+                    # Mutate the Graph's Asset to have a URL locator:
+                    asset.locator = URL(
+                        url=f"assets/{asset.sha256}"
+                    )
+                    self.asset_id_to_asset[asset.sha256] = asset_disk_backed
 
     def _build_app(self) -> fastapi.FastAPI:
         app = fastapi.FastAPI()
@@ -144,15 +141,17 @@ class LocalRunner:
                     status_code=404, detail=f"Asset with ID {asset_id} not found."
                 )
 
-            # https://fastapi.tiangolo.com/advanced/custom-response/#using-streamingresponse-with-file-like-objects
-            def iterfile():
-                with asset.locator.open() as f:
-                    yield from f
-            print(asset)
-            return fastapi.responses.StreamingResponse(
-                iterfile(),
-                media_type=asset.media_type
+            # Hardcode
+            with asset.locator.open() as f:
+                savepath = Path(f'/tmp/{asset_id}')
+                with open(savepath, 'wb') as out:
+                    out.write(f.read())
+                print(f"Saved asset to {savepath}")
+            return fastapi.responses.FileResponse(
+                path=savepath,
+                media_type=asset.media_type,
             )
+
 
         @app.get("/")
         def site(
@@ -244,7 +243,6 @@ def play(
 
     # Wait until the End Event is observed:
     while True:
-        # Todo: make this better; add a timeout
         events = runner.list_events()
         if any([e.event_type == EventTypeEnum.TraceEndedEvent for e in events]):
             break

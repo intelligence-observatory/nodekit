@@ -1560,9 +1560,13 @@ function Aa() {
 }
 class Ca {
   resolveAssetUrl(e) {
-    if (e.locator.locator_type !== "URL")
-      throw new Error(`Only URL locators are supported in the browser environment. Found: ${e}`);
-    return console.log(e), e.locator.url;
+    if (e.locator.locator_type == "URL")
+      return e.locator.url;
+    if (e.locator.locator_type == "RelativePath") {
+      let t = document.baseURI;
+      return console.log(t), new URL(e.locator.relative_path, t).toString();
+    }
+    throw new Error(`Unsupported locator for the browser environment. Found: ${e}`);
   }
   async getImageElement(e) {
     let t = this.resolveAssetUrl(e), r = new Image();
@@ -6745,12 +6749,12 @@ async function $c(n, e = null, t = []) {
       break;
     F = n.transitions[F][se.sensorId];
   }
-  await o.playEndScreen();
+  await o.playEndScreen(), l.destroy(), u.destroy();
   const K = {
     event_type: "TraceEndedEvent",
     t: c.now()
   };
-  r.push(K), document.removeEventListener("visibilitychange", g), l.destroy(), u.destroy();
+  r.push(K), document.removeEventListener("visibilitychange", g);
   const ie = {
     nodekit_version: Jn,
     events: r.events
