@@ -6,11 +6,11 @@ from pathlib import Path
 
 # %%
 def make_triplet_trial(
-    fixation_image: nk.assets.Image,
-    stimulus_image: nk.assets.Image,
-    choice_left_image: nk.assets.Image,
-    choice_right_image: nk.assets.Image,
-    correct_choice: Literal["L", "R"],
+        fixation_image: nk.assets.Image,
+        stimulus_image: nk.assets.Image,
+        choice_left_image: nk.assets.Image,
+        choice_right_image: nk.assets.Image,
+        correct_choice: Literal["L", "R"],
 ) -> nk.Graph:
     """
     Returns a Graph implementing a single trial of an image triplet task.
@@ -162,8 +162,8 @@ def make_triplet_trial(
 
 
 def make_fj_trial(
-    stimulus_image: nk.assets.Image,
-    correct_choice: Literal["f", "j"],
+        stimulus_image: nk.assets.Image,
+        correct_choice: Literal["f", "j"],
 ) -> nk.Graph:
     # Make main Node:
     stimulus_card = nk.cards.ImageCard(
@@ -284,7 +284,6 @@ for path in sorted(glob.glob("./example_videos/*.mp4")):
     video_file = nk.assets.Video.from_path(path)
     my_video_files.append(video_file)
 
-
 # %%
 my_trial = make_triplet_trial(
     fixation_image=my_image_files[0],
@@ -293,7 +292,6 @@ my_trial = make_triplet_trial(
     choice_right_image=my_image_files[3],
     correct_choice="L",
 )
-
 
 fixation_card = nk.cards.TextCard(
     x=0,
@@ -341,7 +339,15 @@ video_node = nk.Node(
 )
 
 graph = nk.concat(
-    [fixation_node, video_node, my_trial, my_trial, fixation_node, fj_trial, fj_trial2]
+    [
+        fixation_node,
+        video_node,
+        my_trial,
+        my_trial,
+        fixation_node,
+        fj_trial,
+        fj_trial2
+    ]
 )
 
 # %%
@@ -352,18 +358,16 @@ with my_video_files[0].locator.open() as f:
         out.write(f.read())
 
 # %% One can pack the Graph for later, or to share:
-
 savepath = Path("my_graph.nkg")
 if savepath.exists():
     savepath.unlink()
 nk.pack(graph, "my_graph.nkg")
 
-
 # %% Unpacking a Graph:
 graph_roundtrip = nk.unpack("my_graph.nkg")
 
 # %% Play the Graph now:
-trace = nk.play(graph_roundtrip)
+trace = nk.play(graph)
 
 # %%
 print(f"Observed {len(trace.events)} events:")

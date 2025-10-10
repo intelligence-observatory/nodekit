@@ -5,11 +5,7 @@ from pathlib import Path
 from typing import Dict, Tuple
 
 from nodekit._internal.ops.hash_asset_file import get_extension
-from nodekit._internal.types.assets.identifiers import (
-    AssetLocator,
-    RelativePath,
-    ZipArchiveInnerPath,
-)
+from nodekit._internal.types.assets import ZipArchiveInnerPath, RelativePath, AssetLocator
 from nodekit._internal.types.cards.cards import (
     ImageCard,
     VideoCard,

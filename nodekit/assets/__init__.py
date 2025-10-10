@@ -3,4 +3,4 @@ __all__ = [
     "Video",
 ]
 
-from nodekit._internal.types.assets.identifiers import Image, Video
+from nodekit._internal.types.assets import Image, Video
