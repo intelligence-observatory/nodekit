@@ -108,4 +108,9 @@ export class PointerStream {
             }
         )
     }
+
+    public destroy(){
+        this.subscriptions = [];
+
+    }
 }

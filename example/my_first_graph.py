@@ -354,6 +354,13 @@ graph = nk.concat(
     ]
 )
 
+# %%
+with my_video_files[0].locator.open() as f:
+    # Write
+    savepath = 'test.mp4'
+    with open(savepath, 'wb') as out:
+        out.write(f.read())
+
 # %% One can pack the Graph for later, or to share:
 from pathlib import Path
 savepath = Path('my_graph.nkg')

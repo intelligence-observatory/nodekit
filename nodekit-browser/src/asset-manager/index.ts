@@ -4,10 +4,17 @@ export class AssetManager {
 
     private resolveAssetUrl(asset: Asset): string {
         // Throw an error if the Asset.locator is not a URL
-        if (asset.locator.locator_type !== "URL") {
-            throw new Error(`Only URL locators are supported in the browser environment. Found: ${asset}`);
+        if (asset.locator.locator_type == "URL") {
+            return asset.locator.url;
         }
-        return asset.locator.url;
+        else if (asset.locator.locator_type == "RelativePath") {
+            // Resolve relative to the current document location.
+            let baseUrl = document.baseURI;
+            console.log(baseUrl)
+            return new URL(asset.locator.relative_path, baseUrl).toString();
+        }
+
+        throw new Error(`Unsupported locator for the browser environment. Found: ${asset}`);
     }
 
     async getImageElement(image: Image): Promise<HTMLImageElement> {

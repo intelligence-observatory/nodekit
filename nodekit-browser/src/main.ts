@@ -196,6 +196,8 @@ export async function play(
 
     // End screen:
     await shellUI.playEndScreen()
+    keyStream.destroy()
+    pointerStream.destroy()
 
     // Generate the EndEvent:
     const endEvent: TraceEndedEvent = {
