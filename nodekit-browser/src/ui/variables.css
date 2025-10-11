@@ -1,5 +1,6 @@
 @import "@fontsource/inter/400.css";
 @import "@fontsource/inter/700.css";
+@import "@fontsource-variable/inconsolata";
 @import 'board-views-ui/board-views-ui.css';
 
 :root {
@@ -25,7 +26,7 @@
 
     /* System Text */
     --font-family-sans: 'Inter';
-    --font-family-mono: monospace;
+    --font-family-mono: 'Inconsolata Variable', monospace;
     --system-text-background-color: hsl(0, 0%, 90%);
     --system-text-muted-background-color: hsl(0, 0%, 80%);
     --system-text-default-color-on-light: hsl(0, 0%, 15%);
@@ -104,5 +105,4 @@ html, body {
 
     /* Default Text */
     font-family: var(--font-family-sans), sans-serif;
-
 }

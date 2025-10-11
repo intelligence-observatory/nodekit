@@ -32,7 +32,6 @@ export class FreeTextEntryView extends CardView<FreeTextEntryCard> {
 
         this.root.appendChild(this.freeTextInputElement);
 
-
     }
 
     onStart() {

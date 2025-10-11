@@ -12,4 +12,6 @@
     outline: none;
     appearance: none;
 
+    font-family: var(--font-family-mono), monospace;
+
 }

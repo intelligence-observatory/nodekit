@@ -16,6 +16,7 @@
     "test": "./tests/test.sh"
   },
   "dependencies": {
+    "@fontsource-variable/inconsolata": "^5.2.8",
     "@fontsource/inter": "^5.2.5",
     "dompurify": "^3.2.6",
     "highlight.js": "^11.11.1",
