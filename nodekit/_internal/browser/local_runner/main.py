@@ -20,7 +20,6 @@ from nodekit._internal.types.common import SHA256
 from nodekit._internal.types.events.events import Event, EventTypeEnum
 from nodekit._internal.types.trace import Trace
 
-
 # %%
 class LocalRunner:
     def __init__(
@@ -140,9 +139,10 @@ class LocalRunner:
             # Hardcode
             with asset.locator.open() as f:
                 savepath = Path(f"/tmp/{asset_id}")
-                with open(savepath, "wb") as out:
-                    out.write(f.read())
-                print(f"Saved asset to {savepath}")
+                if not savepath.exists():
+                    with open(savepath, "wb") as out:
+                        out.write(f.read())
+                    print(f"Saved asset to {savepath}")
             return fastapi.responses.FileResponse(
                 path=savepath,
                 media_type=asset.media_type,
@@ -243,7 +243,7 @@ def play(
         events = runner.list_events()
         if any([e.event_type == EventTypeEnum.TraceEndedEvent for e in events]):
             break
-        time.sleep(5)
+        time.sleep(1)
 
     # Shut down the server:
     runner.shutdown()
