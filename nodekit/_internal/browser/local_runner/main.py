@@ -200,7 +200,6 @@ class LocalRunner:
             return list(self._events)
 
 
-
 # %%
 def play(
     graph: Graph,
