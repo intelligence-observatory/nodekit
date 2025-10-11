@@ -200,31 +200,8 @@ class LocalRunner:
             return list(self._events)
 
 
-# %% Singleton instance of the LocalRunner
-_runner: LocalRunner | None = None
-
-
-def _get_runner() -> LocalRunner:
-    global _runner
-    if _runner is None:
-        _runner = LocalRunner()
-    return _runner
-
 
 # %%
-@dataclasses.dataclass
-class PlaySession:
-    url: str
-
-    def list_events(self) -> List[Event]:
-        """
-        Returns the Events for the current session.
-        Todo: this might diverge if `nodekit.play` is called again.
-        """
-        runner = _get_runner()
-        return runner.list_events()
-
-
 def play(
     graph: Graph,
 ) -> Trace:
@@ -232,7 +209,7 @@ def play(
     Runs the Graph at http://localhost:{port}.
     Blocks until the Trace is complete.
     """
-    runner = _get_runner()
+    runner = LocalRunner()
     runner.ensure_running()
     runner.set_graph(graph)
 
