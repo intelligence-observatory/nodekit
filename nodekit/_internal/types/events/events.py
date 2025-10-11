@@ -102,11 +102,13 @@ class CardShownEvent(BaseNodeEvent):
         description="Identifies the Card in the Node that was shown."
     )
 
+
 class CardHiddenEvent(BaseNodeEvent):
     event_type: Literal[EventTypeEnum.CardHiddenEvent] = EventTypeEnum.CardHiddenEvent
     card_id: str = pydantic.Field(
         description="Identifies the Card in the Node that was hidden."
     )
+
 
 class SensorArmedEvent(BaseNodeEvent):
     event_type: Literal[EventTypeEnum.SensorArmedEvent] = EventTypeEnum.SensorArmedEvent
@@ -114,12 +116,14 @@ class SensorArmedEvent(BaseNodeEvent):
         description="Identifies the Sensor in the Node that was armed."
     )
 
+
 class SensorFiredEvent(BaseNodeEvent):
     event_type: Literal[EventTypeEnum.SensorFiredEvent] = EventTypeEnum.SensorFiredEvent
     sensor_id: SensorId = pydantic.Field(
         description="Identifies the Sensor in the Node that was triggered."
     )
     action: Action
+
 
 class SensorDisarmedEvent(BaseNodeEvent):
     event_type: Literal[EventTypeEnum.SensorFiredEvent] = EventTypeEnum.SensorFiredEvent

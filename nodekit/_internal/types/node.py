@@ -11,9 +11,7 @@ from nodekit._internal.types.sensors.sensors import Sensor
 # %%
 class Node(pydantic.BaseModel):
     cards: Dict[CardId, Card] = pydantic.Field(
-        description=(
-            "Set of Cards placed on the Board."
-        ),
+        description=("Set of Cards placed on the Board."),
     )
 
     sensors: Dict[SensorId, Sensor] = pydantic.Field(

@@ -92,7 +92,6 @@ class LocalRunner:
                     # Mutate the Graph's Asset to have a URL locator:
                     asset.locator = URL(url=f"assets/{asset.sha256}")
 
-
     def _build_app(self) -> fastapi.FastAPI:
         app = fastapi.FastAPI()
 

@@ -11,13 +11,7 @@ def make_fixation_node() -> nk.Node:
     in the center of the Board.
     """
 
-    fixation_card = nk.cards.TextCard(
-        x=0,
-        y=0,
-        w=0.0375,
-        h=0.0375,
-        text=r"\+"
-    )
+    fixation_card = nk.cards.TextCard(x=0, y=0, w=0.0375, h=0.0375, text=r"\+")
 
     clicked_fixation_dot_sensor = nk.sensors.ClickSensor(
         mask="ellipse",
@@ -28,9 +22,7 @@ def make_fixation_node() -> nk.Node:
     )
 
     return nk.Node(
-        cards={
-            "fixation":fixation_card
-        },
+        cards={"fixation": fixation_card},
         sensors={"fixation-acquired": clicked_fixation_dot_sensor},
     )
 
@@ -52,9 +44,7 @@ def make_positive_feedback_node() -> nk.Node:
         timeout_msec=500,
     )
     positive_node = nk.Node(
-        cards={
-            "feedback_message": positive_card
-        },
+        cards={"feedback_message": positive_card},
         sensors={"wait": positive_timeout_sensor},
     )
     return positive_node
@@ -78,9 +68,7 @@ def make_negative_feedback_node() -> nk.Node:
     )
 
     negative_node = nk.Node(
-        cards={
-            "feedback_message":negative_card
-        },
+        cards={"feedback_message": negative_card},
         sensors={"wait": negative_timeout_sensor},
     )
     return negative_node
@@ -233,7 +221,7 @@ def make_fj_trial(
     main_node = nk.Node(
         cards={
             "stimulus": stimulus_card,
-            "left":choice_left_card,
+            "left": choice_left_card,
             "right": choice_right_card,
         },
         sensors={
@@ -324,13 +312,7 @@ if __name__ == "__main__":
         },
     )
 
-    graph = nk.concat([
-        video_node,
-        my_trial,
-        my_trial,
-        fj_trial,
-        fj_trial2
-    ])
+    graph = nk.concat([video_node, my_trial, my_trial, fj_trial, fj_trial2])
 
     # %% One can pack the Graph for later, or to share:
     savepath = Path("my_graph.nkg")

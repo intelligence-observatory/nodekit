@@ -22,7 +22,6 @@ SpatialSize = Annotated[
 SpatialPoint = Annotated[float, pydantic.Field(strict=True, ge=-0.5, le=0.5)]
 
 
-
 Mask = Annotated[
     Literal["rectangle", "ellipse"],
     pydantic.Field(
