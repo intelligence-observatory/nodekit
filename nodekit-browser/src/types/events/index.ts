@@ -45,9 +45,7 @@ export interface SensorDisarmedEvent extends BaseNodeEvent<'SensorDisarmedEvent'
     sensor_id: SensorId, // Graph.nodes[node_id].sensors[sensor_id]
 }
 
-export interface NodeExitedEvent extends BaseNodeEvent<'NodeExitedEvent'>{
-    sensor_id: SensorId, // Graph.nodes[node_id].sensors[sensor_id] is the Sensor that fired
-}
+export interface NodeExitedEvent extends BaseNodeEvent<'NodeExitedEvent'>{}
 
 export interface PointerSampledEvent extends BaseEvent<'PointerSampledEvent'>{
     x: SpatialPoint,
