@@ -297,22 +297,35 @@ if __name__ == "__main__":
     video_card = nk.cards.VideoCard(
         x=0,
         y=0,
-        w=0.8,
-        h=0.8,
+        w=0.6,
+        h=0.6,
         video=my_video_files[0],
     )
 
     video_node = nk.Node(
         cards={
-            "video": video_card
+            "video": video_card,
+            "advertisement": nk.cards.TextCard(
+                x=0,
+                y=-0.4,
+                w=0.6,
+                h=0.1,
+                text="Press space to continue.",
+                font_size=0.03,
+                background_color="#E6E6E6",
+                text_color="#000000",
+                justification_horizontal="center",
+                justification_vertical="center",
+            ),
         },
         sensors={
-            "wait": nk.sensors.TimeoutSensor(timeout_msec=5000)
+            "wait": nk.sensors.TimeoutSensor(timeout_msec=5000),
+            "press": nk.sensors.KeySensor(key=" "),
         },
     )
 
     graph = nk.concat([
-        #video_node,
+        video_node,
         my_trial,
         my_trial,
         fj_trial,

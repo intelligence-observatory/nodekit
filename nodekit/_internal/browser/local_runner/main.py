@@ -91,7 +91,6 @@ class LocalRunner:
 
                     # Mutate the Graph's Asset to have a URL locator:
                     asset.locator = URL(url=f"assets/{asset.sha256}")
-                    print(asset.locator)
 
 
     def _build_app(self) -> fastapi.FastAPI:
@@ -237,7 +236,6 @@ def play(
     runner = _get_runner()
     runner.ensure_running()
     runner.set_graph(graph)
-    print(graph)
 
     print("Play the Graph at:\n", runner.url)
 
