@@ -4,6 +4,7 @@ export type SpatialPoint = number & { __brand: 'SpatialPoint' };
 export type NodeTimePointMsec = number & { __brand: 'NodeTimePointMsec' };
 export type TimeElapsedMsec = number & { __brand: 'TimeElapsedMsec' };
 
+export type PlainString = string & { __brand: 'PlainString' };
 export type MarkdownString = string & { __brand: 'MarkdownString'}
 export type ColorHexString = string & { __brand: 'ColorHexString' };
 

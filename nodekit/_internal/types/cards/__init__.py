@@ -2,6 +2,7 @@ from abc import ABC
 from typing import Literal, Annotated, Union
 
 import pydantic
+from typing import Dict
 
 from nodekit._internal.types.assets import Image, Video
 from nodekit._internal.types.common import (
@@ -87,11 +88,61 @@ class VideoCard(BaseCard):
 
 
 # %%
+class SliderCard(BaseCard):
+    card_type: Literal["SliderCard"] = "SliderCard"
+
+    num_bins: int = pydantic.Field(
+        description="The number of discrete bins in the slider.",
+        ge=2,
+        default=7
+    )
+
+    orientation: Literal["horizontal", "vertical"] = pydantic.Field(
+        description="The orientation of the slider. In the horizontal orientation, the slider positional index grows left to right. In the vertical orientation, the slider positional index grows bottom to top.",
+        default="horizontal"
+    )
+
+# %%
+class FreeTextEntryCard(BaseCard):
+    card_type: Literal["FreeTextEntryCard"] = "FreeTextEntryCard"
+
+    prompt: str = pydantic.Field(
+        description="The initial placeholder text shown in the free text response box. It disappears when the user selects the element.",
+        default=""
+    )
+
+    font_size: SpatialSize = pydantic.Field(
+        description="The height of the em-box, in Board units.",
+        default=0.02,
+    )
+
+    text_color: ColorHexString = pydantic.Field(
+        default="#000000",
+        validate_default=True
+    )
+    background_color: ColorHexString = pydantic.Field(
+        default="#ffffff",  # White by default
+        validate_default=True,
+        description="The background color of the entry field.",
+    )
+
+    max_length: int | None = pydantic.Field(
+        description="The maximum number of characters the user can enter. If None, no limit.",
+        default=None,
+        ge=1,
+        le=10000,
+    )
+
+# RegionSelectionCard
+
+# %%
 Card = Annotated[
     Union[
         ImageCard,
         VideoCard,
         TextCard,
+        SliderCard,
+        FreeTextEntryCard
     ],
     pydantic.Field(discriminator="card_type"),
 ]

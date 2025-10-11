@@ -12,6 +12,8 @@ import {VideoCardView} from "./card-views/video/video-card.ts";
 import {PointerStream} from "../input-streams/pointer-stream.ts";
 import {KeyStream} from "../input-streams/key-stream.ts";
 import type {Clock} from "../clock.ts";
+import {SliderCardView} from "./card-views/slider/slider-card-view.ts";
+import {FreeTextEntryView} from "./card-views/free-text-entry/free-text-entry.ts";
 
 type CardViewId = string & { __brand: 'CardViewId' };
 
@@ -184,8 +186,18 @@ export class BoardView {
                     card, boardCoords
                 )
                 break
+            case "SliderCard":
+                cardView = new SliderCardView(
+                    card, boardCoords,
+                )
+                break
+            case "FreeTextEntryCard":
+                cardView = new FreeTextEntryView(
+                    card, boardCoords,
+                )
+                break
             default:
-                throw new Error(`Unsupported Card type: ${card}`);
+                throw new Error(`Unsupported Card type: ${JSON.stringify(card)}`);
         }
 
         // Load all Card resources:

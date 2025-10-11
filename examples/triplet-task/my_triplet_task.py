@@ -282,17 +282,15 @@ if __name__ == "__main__":
         correct_choice="j",
     )
 
-    video_card = nk.cards.VideoCard(
-        x=0,
-        y=0,
-        w=0.6,
-        h=0.6,
-        video=my_video_files[0],
-    )
-
     video_node = nk.Node(
         cards={
-            "video": video_card,
+            "video": nk.cards.VideoCard(
+                x=0,
+                y=0,
+                w=0.3,
+                h=0.3,
+                video=my_video_files[0],
+            ),
             "advertisement": nk.cards.TextCard(
                 x=0,
                 y=-0.4,
@@ -305,6 +303,18 @@ if __name__ == "__main__":
                 justification_horizontal="center",
                 justification_vertical="center",
             ),
+            "free-text-test": nk.cards.FreeTextEntryCard(
+                x=0,
+                y=0.4,
+                h=0.2,
+                w = 0.6,
+            ),
+            "slider-test": nk.cards.SliderCard(
+                x=0,
+                y=0.4,
+                h=0.2,
+                w = 0.6,
+            )
         },
         sensors={
             "wait": nk.sensors.TimeoutSensor(timeout_msec=5000),
