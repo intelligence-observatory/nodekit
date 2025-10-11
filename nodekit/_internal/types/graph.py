@@ -8,12 +8,12 @@ from nodekit._internal.types.common import NodeId, SensorId
 
 # %%
 class Graph(pydantic.BaseModel):
-    nodekit_version: Literal["0.1.0"] = pydantic.Field(default=VERSION)
     start: NodeId
     nodes: Dict[NodeId, Node]
     transitions: Dict[NodeId, Dict[SensorId, NodeId]] = pydantic.Field(
         description="A mapping from (NodeId, SensorId) to the next Node that will be transitioned if the Sensor is triggered in that Node."
     )
+    nodekit_version: Literal["0.1.0"] = pydantic.Field(default=VERSION)
 
     @pydantic.model_validator(mode="after")
     def check_graph_is_valid(

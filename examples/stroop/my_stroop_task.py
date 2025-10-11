@@ -56,7 +56,10 @@ def make_stroop_instructions() -> nk.Node:
         start_msec=next_card.start_msec,
     )
     return nk.Node(
-        cards=[instructions_card, next_card],
+        cards={
+            "instructions":instructions_card,
+            "next-button": next_card
+        },
         sensors={
             "done-reading-instructions": next_sensor,
         },
@@ -106,15 +109,17 @@ def make_stroop_trial(
     }
 
     main_node = nk.Node(
-        cards=[stimulus_card],
+        cards={
+            'stroop-stimulus': stimulus_card
+        },
         sensors=sensors,
         board_color="#FFFFFF",  # White background
     )
 
     # Make the reinforcer nodes
     correct_node = nk.Node(
-        cards=[
-            nk.cards.TextCard(
+        cards={
+            "feedback-message": nk.cards.TextCard(
                 x=0,
                 y=0,
                 w=0.5,
@@ -124,8 +129,8 @@ def make_stroop_trial(
                 justification_horizontal="center",
                 justification_vertical="center",
             )
-        ],
-        sensors={
+        },
+                    sensors={
             "wait": nk.sensors.TimeoutSensor(
                 timeout_msec=500,
             )
@@ -133,8 +138,8 @@ def make_stroop_trial(
         board_color="#FFFFFF",  # White background
     )
     incorrect_node = nk.Node(
-        cards=[
-            nk.cards.TextCard(
+        cards={
+            "feedback-message":nk.cards.TextCard(
                 x=0,
                 y=0,
                 w=0.5,
@@ -144,7 +149,7 @@ def make_stroop_trial(
                 justification_horizontal="center",
                 justification_vertical="center",
             )
-        ],
+        },
         sensors={
             "wait": nk.sensors.TimeoutSensor(
                 timeout_msec=2000,
@@ -154,8 +159,8 @@ def make_stroop_trial(
     )
 
     too_slow_node = nk.Node(
-        cards=[
-            nk.cards.TextCard(
+        cards={
+            "feedback-message":nk.cards.TextCard(
                 x=0,
                 y=0,
                 w=0.5,
@@ -165,7 +170,7 @@ def make_stroop_trial(
                 justification_horizontal="center",
                 justification_vertical="center",
             )
-        ],
+        },
         sensors={
             "wait": nk.sensors.TimeoutSensor(
                 timeout_msec=2000,
@@ -190,7 +195,9 @@ def make_stroop_trial(
         key=" ",
     )
     fixation_node = nk.Node(
-        cards=[fixation_card],
+        cards={
+            'fixation-cross':fixation_card,
+        },
         sensors={
             "fixated": fixation_sensor,
         },
@@ -226,7 +233,6 @@ def make_stroop_trial(
         },
         start="fixation",
     )
-
 
 # %%
 if __name__ == "__main__":

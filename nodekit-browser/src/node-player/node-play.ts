@@ -6,7 +6,7 @@ import {type EffectBinding, HideCursorEffectBinding} from "../board-view/effect-
 
 import type {AssetManager} from "../asset-manager";
 
-import type {SensorId, TimeElapsedMsec} from "../types/common.ts";
+import type {CardId, SensorId, TimeElapsedMsec} from "../types/common.ts";
 import type {KeyStream} from "../input-streams/key-stream.ts";
 import type {PointerStream} from "../input-streams/pointer-stream.ts";
 import type {Clock} from "../clock.ts";
@@ -72,8 +72,8 @@ export class NodePlay {
     ) {
 
         // Prepare and schedule Cards:
-        for (let cardIndex = 0; cardIndex < this.node.cards.length; cardIndex++) {
-            const card = this.node.cards[cardIndex];
+        for (let cardId in this.node.cards) {
+            const card = this.node.cards[cardId as CardId];
             // Prepare Cards:
             const cardViewId = await this.boardView.prepareCard(
                 card,
