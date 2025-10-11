@@ -13,6 +13,7 @@ from nodekit._internal.types.assets import (
 from nodekit._internal.types.cards import (
     ImageCard,
     VideoCard,
+    Card,
 )
 from nodekit._internal.types.common import MediaType, SHA256
 from nodekit._internal.types.graph import Graph
@@ -58,7 +59,8 @@ def pack(
     supplied_asset_locators: Dict[Tuple[MediaType, SHA256], AssetLocator] = {}
     relative_asset_locators: Dict[Tuple[MediaType, SHA256], RelativePath] = {}
     for node in graph.nodes.values():
-        for card in node.cards:
+        for card in node.cards.values():
+            card: Card
             if isinstance(card, ImageCard):
                 asset = card.image
             elif isinstance(card, VideoCard):
