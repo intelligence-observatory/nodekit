@@ -1,5 +1,5 @@
 import type {Action} from "../actions";
-import type {NodeId, PressableKey, SensorId, SpatialPoint, TimeElapsedMsec} from "../common.ts";
+import type {CardId, NodeId, PressableKey, SensorId, SpatialPoint, TimeElapsedMsec} from "../common.ts";
 
 interface BaseEvent<T extends string> {
     event_type: T,
@@ -26,9 +26,27 @@ interface BaseNodeEvent<T extends string> extends BaseEvent<T> {
 
 export interface NodeEnteredEvent extends BaseNodeEvent<'NodeEnteredEvent'>{}
 
-export interface NodeExitedEvent extends BaseNodeEvent<'NodeExitedEvent'>{
+export interface CardShownEvent extends BaseNodeEvent<'CardShownEvent'>{
+    card_id: CardId, // Graph.nodes[node_id].cards[card_id] is the Card that was shown
+}
+export interface CardHiddenEvent extends BaseNodeEvent<'CardHiddenEvent'>{
+    card_id: CardId, // Graph.nodes[node_id].cards[card_id] is the Card that was hidden
+}
+
+export interface SensorArmedEvent extends BaseNodeEvent<'SensorArmedEvent'>{
+    sensor_id: SensorId, // Graph.nodes[node_id].sensors[sensor_id]
+}
+export interface SensorFiredEvent extends BaseNodeEvent<'SensorFiredEvent'>{
     sensor_id: SensorId, // Graph.nodes[node_id].sensors[sensor_id] is the Sensor that fired
     action: Action,
+}
+
+export interface SensorDisarmedEvent extends BaseNodeEvent<'SensorDisarmedEvent'>{
+    sensor_id: SensorId, // Graph.nodes[node_id].sensors[sensor_id]
+}
+
+export interface NodeExitedEvent extends BaseNodeEvent<'NodeExitedEvent'>{
+    sensor_id: SensorId, // Graph.nodes[node_id].sensors[sensor_id] is the Sensor that fired
 }
 
 export interface PointerSampledEvent extends BaseEvent<'PointerSampledEvent'>{
@@ -49,6 +67,11 @@ export type Event =
     PageSuspendedEvent |
     PageResumedEvent |
     NodeEnteredEvent |
+    CardShownEvent |
+    CardHiddenEvent |
+    SensorArmedEvent |
+    SensorFiredEvent |
+    SensorDisarmedEvent |
     NodeExitedEvent |
     PointerSampledEvent |
     KeySampledEvent |
