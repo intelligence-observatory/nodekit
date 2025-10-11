@@ -11,13 +11,7 @@ def make_fixation_node() -> nk.Node:
     in the center of the Board.
     """
 
-    fixation_card = nk.cards.ImageCard(
-        x=0,
-        y=0,
-        w=0.0375,
-        h=0.0375,
-        image=nk.assets.Image.from_path("./example_images/fixation-cross.svg"),
-    )
+    fixation_card = nk.cards.TextCard(x=0, y=0, w=0.0375, h=0.0375, text=r"\+")
 
     clicked_fixation_dot_sensor = nk.sensors.ClickSensor(
         mask="ellipse",
@@ -28,7 +22,7 @@ def make_fixation_node() -> nk.Node:
     )
 
     return nk.Node(
-        cards=[fixation_card],
+        cards={"fixation": fixation_card},
         sensors={"fixation-acquired": clicked_fixation_dot_sensor},
     )
 
@@ -50,7 +44,7 @@ def make_positive_feedback_node() -> nk.Node:
         timeout_msec=500,
     )
     positive_node = nk.Node(
-        cards=[positive_card],
+        cards={"feedback_message": positive_card},
         sensors={"wait": positive_timeout_sensor},
     )
     return positive_node
@@ -74,7 +68,7 @@ def make_negative_feedback_node() -> nk.Node:
     )
 
     negative_node = nk.Node(
-        cards=[negative_card],
+        cards={"feedback_message": negative_card},
         sensors={"wait": negative_timeout_sensor},
     )
     return negative_node
@@ -139,16 +133,22 @@ def make_triplet_trial(
         timeout_msec=2000,
     )
     main_node = nk.Node(
-        cards=[
-            stimulus_card,
-            choice_left_card,
-            choice_right_card,
-        ],
+        cards={
+            "stimulus": stimulus_card,
+            "choice_left": choice_left_card,
+            "choice_right": choice_right_card,
+        },
         sensors={
             "L": left_sensor,
             "R": right_sensor,
             "TO": timeout_sensor,
         },
+        effects=[
+            nk.effects.HidePointerEffect(
+                start_msec=0,  # Hide pointer during the stimulus presentation
+                end_msec=200,
+            )
+        ],
     )
 
     fixation_node = make_fixation_node()
@@ -196,6 +196,7 @@ def make_fj_trial(
         h=0.2,
         text="F",
         start_msec=200,
+        background_color="#e6e6e6",
     )
     choice_right_card = nk.cards.TextCard(
         x=0.25,
@@ -204,6 +205,7 @@ def make_fj_trial(
         h=0.2,
         text="J",
         start_msec=200,
+        background_color="#e6e6e6",
     )
 
     left_sensor = nk.sensors.KeySensor(
@@ -217,11 +219,11 @@ def make_fj_trial(
 
     fixation_node = make_fixation_node()
     main_node = nk.Node(
-        cards=[
-            stimulus_card,
-            choice_left_card,
-            choice_right_card,
-        ],
+        cards={
+            "stimulus": stimulus_card,
+            "left": choice_left_card,
+            "right": choice_right_card,
+        },
         sensors={
             "f": left_sensor,
             "j": right_sensor,
@@ -283,14 +285,31 @@ if __name__ == "__main__":
     video_card = nk.cards.VideoCard(
         x=0,
         y=0,
-        w=0.8,
-        h=0.8,
+        w=0.6,
+        h=0.6,
         video=my_video_files[0],
     )
 
     video_node = nk.Node(
-        cards=[video_card],
-        sensors={"wait": nk.sensors.TimeoutSensor(timeout_msec=5000)},
+        cards={
+            "video": video_card,
+            "advertisement": nk.cards.TextCard(
+                x=0,
+                y=-0.4,
+                w=0.6,
+                h=0.1,
+                text="Press space to continue.",
+                font_size=0.03,
+                background_color="#E6E6E6",
+                text_color="#000000",
+                justification_horizontal="center",
+                justification_vertical="center",
+            ),
+        },
+        sensors={
+            "wait": nk.sensors.TimeoutSensor(timeout_msec=5000),
+            "press": nk.sensors.KeySensor(key=" "),
+        },
     )
 
     graph = nk.concat([video_node, my_trial, my_trial, fj_trial, fj_trial2])

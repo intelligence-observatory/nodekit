@@ -1,5 +1,4 @@
 import atexit
-import dataclasses
 import hashlib
 import threading
 import time
@@ -87,11 +86,10 @@ class LocalRunner:
             for asset in iter_assets(graph=graph):
                 if not isinstance(asset.locator, URL):
                     # Save a copy of the original Asset:
-                    asset_disk_backed = asset.model_copy(deep=True)
+                    self.asset_id_to_asset[asset.sha256] = asset.model_copy(deep=True)
 
                     # Mutate the Graph's Asset to have a URL locator:
                     asset.locator = URL(url=f"assets/{asset.sha256}")
-                    self.asset_id_to_asset[asset.sha256] = asset_disk_backed
 
     def _build_app(self) -> fastapi.FastAPI:
         app = fastapi.FastAPI()
@@ -141,9 +139,10 @@ class LocalRunner:
             # Hardcode
             with asset.locator.open() as f:
                 savepath = Path(f"/tmp/{asset_id}")
-                with open(savepath, "wb") as out:
-                    out.write(f.read())
-                print(f"Saved asset to {savepath}")
+                if not savepath.exists():
+                    with open(savepath, "wb") as out:
+                        out.write(f.read())
+                    print(f"Saved asset to {savepath}")
             return fastapi.responses.FileResponse(
                 path=savepath,
                 media_type=asset.media_type,
@@ -201,31 +200,7 @@ class LocalRunner:
             return list(self._events)
 
 
-# %% Singleton instance of the LocalRunner
-_runner: LocalRunner | None = None
-
-
-def _get_runner() -> LocalRunner:
-    global _runner
-    if _runner is None:
-        _runner = LocalRunner()
-    return _runner
-
-
 # %%
-@dataclasses.dataclass
-class PlaySession:
-    url: str
-
-    def list_events(self) -> List[Event]:
-        """
-        Returns the Events for the current session.
-        Todo: this might diverge if `nodekit.play` is called again.
-        """
-        runner = _get_runner()
-        return runner.list_events()
-
-
 def play(
     graph: Graph,
 ) -> Trace:
@@ -233,7 +208,7 @@ def play(
     Runs the Graph at http://localhost:{port}.
     Blocks until the Trace is complete.
     """
-    runner = _get_runner()
+    runner = LocalRunner()
     runner.ensure_running()
     runner.set_graph(graph)
 
@@ -244,7 +219,7 @@ def play(
         events = runner.list_events()
         if any([e.event_type == EventTypeEnum.TraceEndedEvent for e in events]):
             break
-        time.sleep(5)
+        time.sleep(1)
 
     # Shut down the server:
     runner.shutdown()

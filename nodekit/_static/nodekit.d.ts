@@ -54,6 +54,18 @@ declare interface BrowserContextSampledEvent extends BaseEvent<'BrowserContextSa
 
 declare type Card = ImageCard | VideoCard | TextCard;
 
+declare interface CardHiddenEvent extends BaseNodeEvent<'CardHiddenEvent'> {
+    card_id: CardId;
+}
+
+declare type CardId = string & {
+    __brand: 'CardId';
+};
+
+declare interface CardShownEvent extends BaseNodeEvent<'CardShownEvent'> {
+    card_id: CardId;
+}
+
 declare interface ClickAction extends BaseAction<"ClickAction"> {
     x: SpatialPoint;
     y: SpatialPoint;
@@ -73,7 +85,7 @@ declare type ColorHexString = string & {
 
 declare type Effect = HidePointerEffect;
 
-declare type Event_2 = TraceStartedEvent | BrowserContextSampledEvent | PageSuspendedEvent | PageResumedEvent | NodeEnteredEvent | NodeExitedEvent | PointerSampledEvent | KeySampledEvent | TraceEndedEvent;
+declare type Event_2 = TraceStartedEvent | BrowserContextSampledEvent | PageSuspendedEvent | PageResumedEvent | NodeEnteredEvent | CardShownEvent | CardHiddenEvent | SensorArmedEvent | SensorFiredEvent | SensorDisarmedEvent | NodeExitedEvent | PointerSampledEvent | KeySampledEvent | TraceEndedEvent;
 
 declare interface FileSystemPath extends BaseLocator<"FileSystemPath"> {
     path: string;
@@ -119,7 +131,7 @@ declare type MarkdownString = string & {
 declare type Mask = 'rectangle' | 'ellipse';
 
 declare interface Node_2 {
-    cards: Card[];
+    cards: Record<CardId, Card>;
     sensors: Record<SensorId, Sensor>;
     effects: Effect[];
     board_color: ColorHexString;
@@ -129,8 +141,6 @@ declare interface NodeEnteredEvent extends BaseNodeEvent<'NodeEnteredEvent'> {
 }
 
 declare interface NodeExitedEvent extends BaseNodeEvent<'NodeExitedEvent'> {
-    sensor_id: SensorId;
-    action: Action;
 }
 
 declare type NodeId = string & {
@@ -168,6 +178,19 @@ declare interface RelativePath extends BaseLocator<"RelativePath"> {
 }
 
 declare type Sensor = TimeoutSensor | ClickSensor | KeySensor;
+
+declare interface SensorArmedEvent extends BaseNodeEvent<'SensorArmedEvent'> {
+    sensor_id: SensorId;
+}
+
+declare interface SensorDisarmedEvent extends BaseNodeEvent<'SensorDisarmedEvent'> {
+    sensor_id: SensorId;
+}
+
+declare interface SensorFiredEvent extends BaseNodeEvent<'SensorFiredEvent'> {
+    sensor_id: SensorId;
+    action: Action;
+}
 
 declare type SensorId = string & {
     __brand: 'SensorId';

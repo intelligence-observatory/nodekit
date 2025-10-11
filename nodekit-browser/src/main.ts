@@ -1,4 +1,4 @@
-import type {BrowserContextSampledEvent, TraceEndedEvent, Event, PageSuspendedEvent, NodeEnteredEvent, NodeExitedEvent, PageResumedEvent, TraceStartedEvent} from "./types/events";
+import type {BrowserContextSampledEvent, Event, PageResumedEvent, PageSuspendedEvent, TraceEndedEvent, TraceStartedEvent} from "./types/events";
 import {Clock} from "./clock.ts";
 import type {Graph, Trace} from "./types/node.ts";
 import {getBrowserContext} from "./user-gates/browser-context.ts";
@@ -145,6 +145,7 @@ export async function play(
         // Prepare the Node:
         const node = nodes[currentNodeId];
         const nodePlay = new NodePlay(
+            currentNodeId,
             node,
         )
 
@@ -155,28 +156,11 @@ export async function play(
             keyStream,
             pointerStream,
             clock,
+            eventArray,
         )
 
         // Play the Node:
-        let result = await nodePlay.run(clock);
-
-        // Emit the NodeStartEvent: todo: emit immediately when actually started?
-        const nodeStartEvent: NodeEnteredEvent = {
-            event_type: "NodeEnteredEvent",
-            t: result.tStart,
-            node_id: currentNodeId,
-        }
-        eventArray.push(nodeStartEvent);
-
-        // Emit NodeExitEvent: todo: emit immediately
-        const nodeExitEvent: NodeExitedEvent = {
-            event_type: "NodeExitedEvent",
-            t: result.tAction,
-            node_id: currentNodeId,
-            sensor_id: result.sensorId,
-            action: result.action,
-        }
-        eventArray.push(nodeExitEvent);
+        let result = await nodePlay.run(clock, eventArray);
 
         // Clear the rootBoardContainerDiv of all children:
         while (boardViewsContainerDiv.firstChild) {

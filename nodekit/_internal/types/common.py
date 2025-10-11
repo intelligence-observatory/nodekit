@@ -21,6 +21,7 @@ SpatialSize = Annotated[
 ]
 SpatialPoint = Annotated[float, pydantic.Field(strict=True, ge=-0.5, le=0.5)]
 
+
 Mask = Annotated[
     Literal["rectangle", "ellipse"],
     pydantic.Field(
@@ -128,6 +129,12 @@ SensorId = Annotated[
     ),
 ]
 
+CardId = Annotated[
+    str,
+    pydantic.Field(
+        description="An identifier for a Card which is unique within a Node.",
+    ),
+]
 # %% Money
 AmountUsdStr = Annotated[
     str,
