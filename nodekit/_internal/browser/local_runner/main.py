@@ -87,11 +87,12 @@ class LocalRunner:
             for asset in iter_assets(graph=graph):
                 if not isinstance(asset.locator, URL):
                     # Save a copy of the original Asset:
-                    asset_disk_backed = asset.model_copy(deep=True)
+                    self.asset_id_to_asset[asset.sha256] = asset.model_copy(deep=True)
 
                     # Mutate the Graph's Asset to have a URL locator:
                     asset.locator = URL(url=f"assets/{asset.sha256}")
-                    self.asset_id_to_asset[asset.sha256] = asset_disk_backed
+                    print(asset.locator)
+
 
     def _build_app(self) -> fastapi.FastAPI:
         app = fastapi.FastAPI()
@@ -236,6 +237,7 @@ def play(
     runner = _get_runner()
     runner.ensure_running()
     runner.set_graph(graph)
+    print(graph)
 
     print("Play the Graph at:\n", runner.url)
 

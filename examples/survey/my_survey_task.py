@@ -27,11 +27,12 @@ def make_mcq_node(
     )
 
     card_height = (1 / 2) / len(choices_markdown) - 0.01
-
-    choice_cards = [
-        nk.cards.TextCard(
+    cards = {"question": question_card}
+    choice_sensors = {}
+    for i_choice, choice_markdown in enumerate(choices_markdown):
+        choice_card = nk.cards.TextCard(
             x=0,
-            y=0 - (card_height + 0.01) * i,
+            y=0 - (card_height + 0.01) * i_choice,
             w=1,
             h=card_height,
             text=choice_markdown,
@@ -40,11 +41,8 @@ def make_mcq_node(
             start_msec=0,
             background_color="#e6e6e6",
         )
-        for i, choice_markdown in enumerate(choices_markdown)
-    ]
+        cards[f"choice {i_choice}"] = choice_card
 
-    choice_sensors = {}
-    for i_choice, choice_card in enumerate(choice_cards):
         choice_sensor = nk.sensors.ClickSensor(
             x=choice_card.x,
             y=choice_card.y,
@@ -55,7 +53,7 @@ def make_mcq_node(
         choice_sensors[str(i_choice)] = choice_sensor
 
     return nk.Node(
-        cards=[question_card] + choice_cards,
+        cards=cards,
         sensors=choice_sensors,
         board_color="#ffffff",
     )

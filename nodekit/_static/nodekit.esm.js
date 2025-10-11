@@ -1566,7 +1566,7 @@ class Ca {
       let t = document.baseURI;
       return console.log(t), new URL(e.locator.relative_path, t).toString();
     }
-    throw new Error(`Unsupported locator for the browser environment. Found: ${e}`);
+    throw new Error("Unsupported locator for the browser environment. Found:" + JSON.stringify(e));
   }
   async getImageElement(e) {
     let t = this.resolveAssetUrl(e), r = new Image();

@@ -14,7 +14,7 @@ export class AssetManager {
             return new URL(asset.locator.relative_path, baseUrl).toString();
         }
 
-        throw new Error(`Unsupported locator for the browser environment. Found: ${asset}`);
+        throw new Error('Unsupported locator for the browser environment. Found:' + JSON.stringify(asset));
     }
 
     async getImageElement(image: Image): Promise<HTMLImageElement> {
