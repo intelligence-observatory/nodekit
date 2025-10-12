@@ -36,8 +36,7 @@ export interface TextCard extends BaseCard<'TextCard'>{
 export interface SliderCard extends BaseCard<'SliderCard'>{
     num_bins: number;
     orientation: 'horizontal' | 'vertical';
-    track_color: ColorHexString;
-    thumb_color: ColorHexString;
+    show_bin_markers: boolean;
 }
 
 export interface FreeTextEntryCard extends BaseCard<'FreeTextEntryCard'>{

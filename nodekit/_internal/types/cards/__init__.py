@@ -102,15 +102,11 @@ class SliderCard(BaseCard):
         default="horizontal"
     )
 
-    thumb_color: ColorHexString = pydantic.Field(
-        default='#505050',
-        validate_default=True,
+    show_bin_markers: bool = pydantic.Field(
+        description="Whether to show the bin markers on the slider. This is best used for sliders with a small number of bins.",
+        default=False,
     )
 
-    track_color: ColorHexString = pydantic.Field(
-        default='#d6d8db',
-        validate_default=True,
-    )
 
 # %%
 class FreeTextEntryCard(BaseCard):

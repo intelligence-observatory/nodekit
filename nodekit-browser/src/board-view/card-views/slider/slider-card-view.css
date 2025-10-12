@@ -14,9 +14,9 @@
 
 /* Track */
 .slider-card__track {
+    position: relative;
     border-radius: 8px;
     background-color: rgba(214, 216, 219, 1);
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.08);
 }
 
 .slider-card__track--horizontal{
@@ -27,6 +27,11 @@
 .slider-card__track--vertical{
     width: 70%;
     height: 100%;
+}
+
+.slider-card__track-tick {
+    position: absolute;
+    background-color: rgba(150, 150, 150, 0.5);
 }
 
 /* Thumb */
@@ -43,14 +48,12 @@
 .slider-card__thumb--horizontal{
     width: 8px;
     height: 100%;
-    /*transform: translate(-50%, 0%);*/
     left: 50%;
 }
 
 .slider-card__thumb--vertical{
     width: 100%;
     height: 8px;
-    /*transform: translate(0%, -50%);*/
     top:50%;
 }
 

@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Slider Track with Hairline Groove Illusion</title>
+    <style>
+        :root{
+            --tray:#d6d8db;         /* your tray color */
+            --thumb:#f4f4f4;        /* light thumb */
+            --thumb-edge:rgba(0,0,0,.15);
+            --pct:50%;              /* 0%..100% position */
+            --track-h:8px;
+            --thumb-d:20px;
+        }
+
+        body{margin:0; font:14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, sans-serif; color:#111}
+        .wrap{max-width:760px; margin:24px auto; padding:0 16px}
+        h1{font-size:16px; margin:0 0 8px}
+        .note{color:#666; margin:0 0 16px}
+
+        .demo {
+            border-radius:12px; padding:24px; margin:16px 0;
+            box-shadow: inset 0 0 0 1px rgba(0,0,0,.05);
+        }
+        .demo.gray { background:#f2f3f5; }
+        .demo.white{ background:#fff;    }
+
+        /* Control row */
+        .row{display:flex; align-items:center; gap:12px; margin:10px 0 18px}
+        .row input[type=range]{width:260px}
+
+        /* --- Slider --- */
+        .slider {
+            position: relative;
+            height: 40px;
+            overflow: hidden;
+        }
+
+        /* Track (“tray”) */
+        .slider__track{
+            position:absolute;
+            left:10px; right:10px; top:50%;
+            height: var(--track-h);
+            transform: translateY(-50%);
+            background: var(--tray);
+            border-radius: 999px;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,.06); /* soft depth */
+        }
+
+        /* Hairline groove illusion: light line above, dark line on center */
+        .slider__track::before,
+        .slider__track::after{
+            content:"";
+            position:absolute; left:0; width:100%; height:1px; pointer-events:none;
+        }
+        .slider__track::before{ top: calc(50% - 1px); background: rgba(255,255,255,.6); }
+        .slider__track::after { top: 50%;            background: rgba(0,0,0,.15);      }
+
+        /* Fill (optional, very subtle) */
+        .slider__fill{
+            position:absolute; top:50%; left:10px; height:var(--track-h);
+            width: calc((100% - 20px) * (var(--pct) / 100));
+            transform: translateY(-50%);
+            background: #c4c7cb; border-radius:999px;
+            opacity:.65;
+        }
+
+        /* Thumb (container so we can add a center line) */
+        .slider__thumb{
+            position:absolute; top:50%;
+            left: calc(10px + (100% - 20px) * (var(--pct) / 100));
+            transform: translate(-50%,-50%);
+            width: var(--thumb-d); height: var(--thumb-d);
+            display:flex; align-items:center; justify-content:center;
+            cursor: grab;
+        }
+        .slider__thumb-body{
+            width:100%; height:100%;
+            background: var(--thumb);
+            border: 1px solid var(--thumb-edge);
+            border-radius: 10px;
+            box-shadow: 0 1px 2px rgba(0,0,0,.25);
+        }
+        .slider__thumb-line{
+            position:absolute; left:50%; top:-999px; bottom:-999px; width:2px;
+            transform: translateX(-50%);
+            background: #222; opacity:.45;
+        }
+
+        /* Hover/active polish */
+        .slider__thumb:hover .slider__thumb-body{ filter: brightness(1.03); }
+        .slider__thumb.is-dragging .slider__thumb-body{
+            box-shadow: 0 2px 6px rgba(0,0,0,.35);
+        }
+        .slider:has(.slider__thumb.is-dragging) .slider__track{ filter: brightness(.98); }
+
+        /* Range input styling (just to look tidy) */
+        input[type=range]{ -webkit-appearance:none; appearance:none; height:4px; background:#ddd; border-radius:999px; }
+        input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; width:14px; height:14px; border-radius:50%; background:#555; }
+        input[type=range]::-moz-range-thumb{ width:14px; height:14px; border-radius:50%; background:#555; border:0; }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <h1>Slider track with “hairline groove”</h1>
+    <p class="note">Two 1-pixel lines (a light highlight and a subtle shadow) create the illusion of a cut line through the tray—simple, reliable, and fast.</p>
+
+    <!-- Demo on white -->
+    <div class="demo white">
+        <div class="row">
+            <label for="r1">Position</label>
+            <input id="r1" type="range" min="0" max="100" value="50">
+        </div>
+        <div class="slider" id="s1" style="--pct:50%">
+            <div class="slider__track"></div>
+            <div class="slider__fill" aria-hidden="true"></div>
+            <div class="slider__thumb" tabindex="0">
+                <div class="slider__thumb-body"></div>
+                <div class="slider__thumb-line"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Demo on gray -->
+    <div class="demo gray">
+        <div class="row">
+            <label for="r2">Position</label>
+            <input id="r2" type="range" min="0" max="100" value="35">
+        </div>
+        <div class="slider" id="s2" style="--pct:35%">
+            <div class="slider__track"></div>
+            <div class="slider__fill" aria-hidden="true"></div>
+            <div class="slider__thumb" tabindex="0">
+                <div class="slider__thumb-body"></div>
+                <div class="slider__thumb-line"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Simple “scrub the CSS variable” bindings so you can see the effect
+    const bind = (rangeId, sliderId) => {
+        const r = document.getElementById(rangeId);
+        const s = document.getElementById(sliderId);
+        const thumb = s.querySelector('.slider__thumb');
+
+        const update = () => s.style.setProperty('--pct', r.value);
+        r.addEventListener('input', update);
+        update();
+
+        // Tiny drag affordance (visual only; real logic would use Pointer Events)
+        thumb.addEventListener('pointerdown', e => {
+            thumb.classList.add('is-dragging');
+            const onMove = (ev) => {
+                const rect = s.getBoundingClientRect();
+                const x = Math.min(Math.max(ev.clientX, rect.left), rect.right);
+                const pct = ((x - rect.left) / rect.width) * 100;
+                s.style.setProperty('--pct', pct.toFixed(2));
+                r.value = pct.toFixed(0);
+            };
+            const onUp = () => {
+                thumb.classList.remove('is-dragging');
+                window.removeEventListener('pointermove', onMove);
+                window.removeEventListener('pointerup', onUp);
+            };
+            window.addEventListener('pointermove', onMove);
+            window.addEventListener('pointerup', onUp);
+        });
+    };
+    bind('r1','s1');
+    bind('r2','s2');
+</script>
+</body>
+</html>

@@ -2,45 +2,10 @@ import './slider-card-view.css'
 import {CardView} from "../card-view.ts";
 import type {SliderCard} from "../../../types/cards";
 
-export class SliderCardView2 extends CardView<SliderCard> {
-    sliderElement: HTMLInputElement | undefined;
-
-    async prepare() {
-        // Add a slider element to the root
-        this.sliderElement = document.createElement('input');
-        this.sliderElement.type = 'range';
-        this.sliderElement.classList.add('slider-card');
-
-        // Set the number of bins:
-        this.sliderElement.min = '1';
-        this.sliderElement.step = '1';
-        this.sliderElement.max = (this.card.num_bins).toString();
-
-        // Set orientation:
-        if (this.card.orientation === 'horizontal')
-            this.sliderElement.classList.add('slider-card--horizontal');
-        else {
-            this.sliderElement.classList.add('slider-card--vertical');
-        }
-
-        // Set initial value to middle bin
-        const middleBin = (this.card.num_bins / 2);
-        this.sliderElement.value = middleBin.toString();
-
-        // Mount
-        this.root.appendChild(this.sliderElement);
-    }
-
-    onStart() {
-        // Set the card to interactive
-        this.setInteractivity(true);
-    }
-}
-
 
 // Slider:
 type BinIndex = number // 0 to num_bins - 1
-type BinSubscriber = (binIndex: BinIndex) => void;
+type BinSubscriber = (binIndex: BinIndex, domTimestamp: DOMHighResTimeStamp) => void;
 
 export class SliderCardView extends CardView<SliderCard> {
     sliderContainer!: HTMLDivElement;
@@ -67,13 +32,11 @@ export class SliderCardView extends CardView<SliderCard> {
         this.sliderTrack = document.createElement('div');
         this.sliderTrack.classList.add('slider-card__track');
         this.sliderContainer.appendChild(this.sliderTrack);
-        this.sliderTrack.style.backgroundColor = this.card.track_color;
 
         // Make thumb:
         this.sliderThumb = document.createElement('div');
         this.sliderThumb.classList.add('slider-card__thumb');
         this.sliderContainer.appendChild(this.sliderThumb);
-        this.sliderThumb.style.backgroundColor = this.card.thumb_color;
 
         // Set orientation:
         if (this.card.orientation === 'horizontal') {
@@ -99,6 +62,9 @@ export class SliderCardView extends CardView<SliderCard> {
             return Math.round(exactBin);
         }
 
+        // Draw ticks if needed:
+        this.renderTicks();
+
         // Always initialize the thumb to the exact middle, even if num_bins is even:
         this.scheduleThumbMove(0.5)
 
@@ -123,6 +89,55 @@ export class SliderCardView extends CardView<SliderCard> {
                 (e.target as HTMLElement).releasePointerCapture(e.pointerId);
             }
         });
+    }
+
+    private renderTicks() {
+        // Draw tick marks on the track if show_bin_markers is true
+        if (!this.card.show_bin_markers) return;
+        if (!this.sliderTrack) return;
+        this.sliderTrack.querySelectorAll('.slider-card__track-tick').forEach(n => n.remove());
+
+        const bins = this.card.num_bins;
+        const isHorizontal = this.card.orientation === 'horizontal';
+
+        // create all ticks in a fragment (fewer reflows)
+        const frag = document.createDocumentFragment();
+
+        for (let i = 0; i < bins; i++) {
+            // SKip first and last ticks (they are the ends of the track)
+            if (i === 0 || i === bins - 1) continue;
+            // Calculate position:
+            const pct = (i / (bins - 1)) * 100;
+
+            const tick = document.createElement('div');
+            tick.classList.add('slider-card__track-tick');
+
+            // common: don’t block pointer events
+            tick.style.pointerEvents = 'none';
+
+            // Style
+            const tickExtent ='50%'; // The length of the tick perpendicular to the track
+
+            if (isHorizontal) {
+                // vertical hairline centered on the track
+                tick.style.width = '1px';           // hairline; adjust if you want 0.5px on WebKit
+                tick.style.height = tickExtent;         // match track thickness
+                tick.style.left = `${pct}%`;
+                tick.style.top = '50%';
+                tick.style.transform = 'translate(-50%, -50%)';
+            } else {
+                // horizontal hairline centered on the track
+                tick.style.width = tickExtent;
+                tick.style.height = '1px';
+                tick.style.top = `${pct}%`;
+                tick.style.left = '50%';
+                tick.style.transform = 'translate(-50%, -50%)';
+            }
+
+            frag.appendChild(tick);
+        }
+        this.sliderTrack.appendChild(frag);
+
     }
 
     private onPointerDownThumb = (e: PointerEvent) => {
@@ -228,7 +243,8 @@ export class SliderCardView extends CardView<SliderCard> {
             this.sliderThumb.style.left = `${left}px`;
         } else {
             // Reverse, as 100% is at the top for vertical:
-            const top = sliderRect.height - thumbRect.height - this.pendingThumbPosition * (sliderRect.height - thumbRect.height);;
+            const top = sliderRect.height - thumbRect.height - this.pendingThumbPosition * (sliderRect.height - thumbRect.height);
+            ;
             this.sliderThumb.style.top = `${top}px`;
         }
 
@@ -242,7 +258,6 @@ export class SliderCardView extends CardView<SliderCard> {
     }
 
     onStop() {
-
         // Set the card to non-interactive
         this.setInteractivity(false);
         // Cancel any pending animation frame
@@ -265,10 +280,9 @@ export class SliderCardView extends CardView<SliderCard> {
         // Only emit if changed
         if (this.currentBinIndex === binIndex) return;
         this.currentBinIndex = binIndex;
-        console.log(binIndex)
         // Emit to all subscribers
         for (let callback of this.binChangeSubscribers) {
-            callback(binIndex);
+            callback(binIndex, performance.now());
         }
     }
 
