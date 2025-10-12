@@ -307,14 +307,14 @@ if __name__ == "__main__":
                 x=0,
                 y=0.4,
                 h=0.2,
-                w = 0.6,
+                w=0.6,
             ),
             "slider-test": nk.cards.SliderCard(
                 x=0,
                 y=0.4,
                 h=0.2,
-                w = 0.6,
-            )
+                w=0.6,
+            ),
         },
         sensors={
             "wait": nk.sensors.TimeoutSensor(timeout_msec=5000),

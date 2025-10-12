@@ -96,8 +96,10 @@ class BaseNodeEvent(BaseEvent):
 class NodeEnteredEvent(BaseNodeEvent):
     event_type: Literal[EventTypeEnum.NodeEnteredEvent] = EventTypeEnum.NodeEnteredEvent
 
+
 class NodeExitedEvent(BaseNodeEvent):
     event_type: Literal[EventTypeEnum.NodeExitedEvent] = EventTypeEnum.NodeExitedEvent
+
 
 # %%
 class CardShownEvent(BaseNodeEvent):
@@ -106,8 +108,10 @@ class CardShownEvent(BaseNodeEvent):
         description="Identifies the Card in the Node that was shown."
     )
 
+
 # Some cards emit other events to the EventStream, like SliderCard. This should be called...
 # ...
+
 
 class CardHiddenEvent(BaseNodeEvent):
     event_type: Literal[EventTypeEnum.CardHiddenEvent] = EventTypeEnum.CardHiddenEvent
@@ -133,12 +137,12 @@ class SensorFiredEvent(BaseNodeEvent):
 
 
 class SensorDisarmedEvent(BaseNodeEvent):
-    event_type: Literal[EventTypeEnum.SensorDisarmedEvent] = EventTypeEnum.SensorDisarmedEvent
+    event_type: Literal[EventTypeEnum.SensorDisarmedEvent] = (
+        EventTypeEnum.SensorDisarmedEvent
+    )
     sensor_id: SensorId = pydantic.Field(
         description="Identifies the Sensor in the Node that was disarmed."
     )
-
-
 
 
 # %%
