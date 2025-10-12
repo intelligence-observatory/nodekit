@@ -1,9 +1,18 @@
 .slider-card {
     /* Sizing */
     box-sizing: border-box;
-    padding-left: 1rem;
-    padding-right: 1rem;
     width: 100%;
     height: 100%;
-    background-color: red; /* Temporary debug color */
+    margin: 0;
+
+    /* Visual appearance */
+    background: transparent;
+}
+
+.slider-card--vertical{
+    writing-mode: vertical-rl;
+}
+
+.slider-card--horizontal{
+    writing-mode: horizontal-tb;
 }
