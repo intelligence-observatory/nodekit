@@ -102,6 +102,16 @@ class SliderCard(BaseCard):
         default="horizontal"
     )
 
+    thumb_color: ColorHexString = pydantic.Field(
+        default='#505050',
+        validate_default=True,
+    )
+
+    track_color: ColorHexString = pydantic.Field(
+        default='#d6d8db',
+        validate_default=True,
+    )
+
 # %%
 class FreeTextEntryCard(BaseCard):
     card_type: Literal["FreeTextEntryCard"] = "FreeTextEntryCard"

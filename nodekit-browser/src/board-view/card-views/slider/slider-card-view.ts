@@ -41,6 +41,7 @@ export class SliderCardView2 extends CardView<SliderCard> {
 // Slider:
 type BinIndex = number // 0 to num_bins - 1
 type BinSubscriber = (binIndex: BinIndex) => void;
+
 export class SliderCardView extends CardView<SliderCard> {
     sliderContainer!: HTMLDivElement;
     sliderTrack!: HTMLDivElement;
@@ -54,6 +55,7 @@ export class SliderCardView extends CardView<SliderCard> {
     private binIndexToProportion!: (binIndex: BinIndex) => number;
     private proportionToNearestBin!: (proportion: number) => BinIndex;
     private binChangeSubscribers: Set<BinSubscriber> = new Set();
+    private isDraggingThumb: boolean = false;
 
     async prepare() {
 
@@ -65,11 +67,13 @@ export class SliderCardView extends CardView<SliderCard> {
         this.sliderTrack = document.createElement('div');
         this.sliderTrack.classList.add('slider-card__track');
         this.sliderContainer.appendChild(this.sliderTrack);
+        this.sliderTrack.style.backgroundColor = this.card.track_color;
 
         // Make thumb:
         this.sliderThumb = document.createElement('div');
         this.sliderThumb.classList.add('slider-card__thumb');
         this.sliderContainer.appendChild(this.sliderThumb);
+        this.sliderThumb.style.backgroundColor = this.card.thumb_color;
 
         // Set orientation:
         if (this.card.orientation === 'horizontal') {
@@ -111,20 +115,26 @@ export class SliderCardView extends CardView<SliderCard> {
             if (this.isDraggingThumb) {
                 e.preventDefault();
                 this.isDraggingThumb = false;
+
+                // Remove CSS class to indicate
+                this.sliderThumb.classList.remove('slider-card__thumb--active');
+
                 // Release pointer capture:
                 (e.target as HTMLElement).releasePointerCapture(e.pointerId);
             }
         });
     }
 
-    private isDraggingThumb: boolean = false;
-
     private onPointerDownThumb = (e: PointerEvent) => {
         e.preventDefault();
         this.isDraggingThumb = true;
+        // Add CSS class to indicate dragging:
+        this.sliderThumb.classList.add('slider-card__thumb--active');
+
         // Capture pointer to continue receiving events outside the thumb:
         (e.target as HTMLElement).setPointerCapture(e.pointerId);
     }
+
     private onPointerMoveDocument = (e: PointerEvent) => {
         if (!this.isDraggingThumb) return;
         e.preventDefault();
@@ -177,10 +187,15 @@ export class SliderCardView extends CardView<SliderCard> {
             this.isDraggingThumb = false;
             // Release pointer capture:
             (e.target as HTMLElement).releasePointerCapture(e.pointerId);
+
+            // Remove CSS class to indicate
+            this.sliderThumb.classList.remove('slider-card__thumb--active');
         }
         // Otherwise, start a drag operation:
         else {
             this.isDraggingThumb = true;
+            // Add CSS class to indicate
+            this.sliderThumb.classList.add('slider-card__thumb--active');
             // Capture pointer to continue receiving events outside the thumb:
             (e.target as HTMLElement).setPointerCapture(e.pointerId);
         }
@@ -205,7 +220,6 @@ export class SliderCardView extends CardView<SliderCard> {
             return
         }
 
-
         const thumbRect = this.sliderThumb.getBoundingClientRect();
         const sliderRect = this.sliderContainer.getBoundingClientRect();
 
@@ -217,6 +231,7 @@ export class SliderCardView extends CardView<SliderCard> {
             const top = sliderRect.height - thumbRect.height - this.pendingThumbPosition * (sliderRect.height - thumbRect.height);;
             this.sliderThumb.style.top = `${top}px`;
         }
+
         this.pendingThumbPosition = null;
     }
 
