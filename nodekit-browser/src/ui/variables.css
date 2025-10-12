@@ -39,7 +39,7 @@
     /* Cognition */
     --cognition-strong-color: hsl(208,100%,80%);
     --cognition-standard-color: hsl(207, 90%, 83%);
-    --cognition-faint-color: hsla(207, 32%, 84%);
+    --cognition-faint-color: hsl(207, 32%, 84%);
 
     --cognition-standard-color-alpha-high: hsla(207, 100%, 82%, 0.9);
     --cognition-standard-color-alpha-medium: hsla(207, 100%, 82%, 0.4);

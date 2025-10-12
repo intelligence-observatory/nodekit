@@ -19,6 +19,7 @@
     background-color: rgba(214, 216, 219, 1);
 }
 
+
 .slider-card__track--horizontal{
     width: 100%;
     height: 70%;
@@ -43,7 +44,7 @@
 }
 
 .slider-card__thumb--active {
-    background-color: var(--cognition-standard-color)
+    background-color: var(--cognition-standard-color);
 }
 
 .slider-card__thumb--horizontal{
