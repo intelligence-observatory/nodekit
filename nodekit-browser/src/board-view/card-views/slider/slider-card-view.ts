@@ -5,8 +5,7 @@ import type {SliderCard} from "../../../types/cards";
 export class SliderCardView2 extends CardView<SliderCard> {
     sliderElement: HTMLInputElement | undefined;
 
-    async prepare(
-    ) {
+    async prepare() {
         // Add a slider element to the root
         this.sliderElement = document.createElement('input');
         this.sliderElement.type = 'range';
@@ -20,7 +19,7 @@ export class SliderCardView2 extends CardView<SliderCard> {
         // Set orientation:
         if (this.card.orientation === 'horizontal')
             this.sliderElement.classList.add('slider-card--horizontal');
-        else{
+        else {
             this.sliderElement.classList.add('slider-card--vertical');
         }
 
@@ -41,6 +40,7 @@ export class SliderCardView2 extends CardView<SliderCard> {
 
 // Slider:
 type BinIndex = number // 0 to num_bins - 1
+type BinSubscriber = (binIndex: BinIndex) => void;
 export class SliderCardView extends CardView<SliderCard> {
     sliderContainer: HTMLDivElement | undefined;
     sliderTrack: HTMLDivElement | undefined;
@@ -50,12 +50,12 @@ export class SliderCardView extends CardView<SliderCard> {
     private rafId: number | null = null;
     private frameRequested: boolean = false;
 
-    public currentBinIndex: BinIndex | null = null;
+    private currentBinIndex: BinIndex | null = null;
     private binIndexToProportion!: (binIndex: BinIndex) => number;
     private proportionToNearestBin!: (proportion: number) => BinIndex;
+    private binChangeSubscribers: Set<BinSubscriber> = new Set();
 
-    async prepare(
-    ) {
+    async prepare() {
 
         // Make container
         this.sliderContainer = document.createElement('div');
@@ -75,8 +75,7 @@ export class SliderCardView extends CardView<SliderCard> {
         if (this.card.orientation === 'horizontal') {
             this.sliderTrack.classList.add('slider-card__track--horizontal');
             this.sliderThumb.classList.add('slider-card__thumb--horizontal');
-        }
-        else{
+        } else {
             this.sliderTrack.classList.add('slider-card__track--vertical');
             this.sliderThumb.classList.add('slider-card__thumb--vertical');
         }
@@ -144,7 +143,7 @@ export class SliderCardView extends CardView<SliderCard> {
 
         // Snap to nearest bin:
         const nearestBin = this.proportionToNearestBin(proportion);
-        this.currentBinIndex = nearestBin;
+        this.emitBinChange(nearestBin);
         const snappedProportion = this.binIndexToProportion(nearestBin);
 
         this.scheduleThumbMove(snappedProportion);
@@ -168,7 +167,7 @@ export class SliderCardView extends CardView<SliderCard> {
 
         // Snap to nearest bin:
         const nearestBin = this.proportionToNearestBin(proportion);
-        this.currentBinIndex = nearestBin;
+        this.emitBinChange(nearestBin);
         const snappedProportion = this.binIndexToProportion(nearestBin);
 
         this.scheduleThumbMove(snappedProportion);
@@ -187,7 +186,7 @@ export class SliderCardView extends CardView<SliderCard> {
         }
     }
 
-    private scheduleThumbMove(proportion: number){
+    private scheduleThumbMove(proportion: number) {
         // Requests that the thumb be moved to the given proportion (0 to 1) on the next animation frame.
         // Overrides any previously requested move.
         this.pendingThumbPosition = Math.max(0, Math.min(1, proportion)); // Clamp between 0 and 1
@@ -205,11 +204,11 @@ export class SliderCardView extends CardView<SliderCard> {
         if (this.pendingThumbPosition == null) {
             return
         }
-        if(this.card.orientation === 'horizontal'){
-            if(this.sliderThumb)
+        if (this.card.orientation === 'horizontal') {
+            if (this.sliderThumb)
                 this.sliderThumb.style.left = `${this.pendingThumbPosition * 100}%`;
         } else {
-            if(this.sliderThumb)
+            if (this.sliderThumb)
                 this.sliderThumb.style.top = `${(1 - this.pendingThumbPosition) * 100}%`;
         }
         this.pendingThumbPosition = null;
@@ -220,6 +219,7 @@ export class SliderCardView extends CardView<SliderCard> {
         // Set the card to interactive
         this.setInteractivity(true);
     }
+
     onStop() {
 
         // Set the card to non-interactive
@@ -232,12 +232,27 @@ export class SliderCardView extends CardView<SliderCard> {
             this.pendingThumbPosition = null;
         }
     }
-    
+
     onDestroy() {
         super.onDestroy();
-        
+
         // Remove event listeners
         this.sliderTrack?.removeEventListener('pointerdown', this.onClickTrack);
-        
+    }
+
+    private emitBinChange(binIndex: BinIndex) {
+        // Only emit if changed
+        if (this.currentBinIndex === binIndex) return;
+        this.currentBinIndex = binIndex;
+        console.log(binIndex)
+        // Emit to all subscribers
+        for (let callback of this.binChangeSubscribers) {
+            callback(binIndex);
+        }
+    }
+
+    public subscribeToBinChanges(callback: BinSubscriber) {
+        // Add to subscribers
+        this.binChangeSubscribers.add(callback);
     }
 }

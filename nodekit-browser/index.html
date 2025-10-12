@@ -829,6 +829,9 @@
         let trace = await play(
             graph,
             (event) => {
+                if ("PointerSampledEvent" === event.event_type) {
+                    return; // too much noise in the log
+                }
                 console.log(event);
             }
         )
