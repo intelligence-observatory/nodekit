@@ -4,16 +4,16 @@ import type {SliderCard} from "../../../types/cards";
 
 
 // Slider:
-type BinIndex = number // 0 to num_bins - 1
-type SliderPosition = number // 0 to 1 (left to right, and bottom to top)
+type SliderBinIndex = number // 0 to num_bins - 1
+type SliderNormalizedPosition = number // 0 to 1 (left to right, and bottom to top)
 
 export type SliderSample = {
-    sliderPosition: SliderPosition,
-    binIndex: BinIndex,
+    sliderNormalizedPosition: SliderNormalizedPosition,
+    binIndex: SliderBinIndex,
     domTimestamp: DOMHighResTimeStamp,
 }
 
-type BinSubscriber = (sample: SliderSample) => void;
+type SliderSubscriber = (sample: SliderSample) => void;
 
 export class SliderCardView extends CardView<SliderCard> {
     sliderContainer!: HTMLDivElement;
@@ -24,10 +24,10 @@ export class SliderCardView extends CardView<SliderCard> {
     private rafId: number | null = null;
     private frameRequested: boolean = false;
 
-    private currentBinIndex: BinIndex | null = null;
-    private binIndexToProportion!: (binIndex: BinIndex) => number;
-    private proportionToNearestBin!: (proportion: number) => BinIndex;
-    private binChangeSubscribers: Set<BinSubscriber> = new Set();
+    private currentBinIndex: SliderBinIndex | null = null;
+    private binIndexToProportion!: (binIndex: SliderBinIndex) => number;
+    private proportionToNearestBin!: (proportion: number) => SliderBinIndex;
+    private subscribers: Set<SliderSubscriber> = new Set();
     private isDraggingThumb: boolean = false;
 
     async prepare() {
@@ -58,13 +58,13 @@ export class SliderCardView extends CardView<SliderCard> {
         this.root.appendChild(this.sliderContainer);
 
         // Calculate bin index to proportion function:
-        this.binIndexToProportion = (binIndex: BinIndex): number => {
+        this.binIndexToProportion = (binIndex: SliderBinIndex): number => {
             if (this.card.num_bins <= 1) return 0;
             return binIndex / (this.card.num_bins - 1);
         }
 
         // Calculate snap function:
-        this.proportionToNearestBin = (proportion: number): BinIndex => {
+        this.proportionToNearestBin = (proportion: number): SliderBinIndex => {
             if (this.card.num_bins <= 1) return 0;
             const exactBin = proportion * (this.card.num_bins - 1);
             return Math.round(exactBin);
@@ -176,7 +176,7 @@ export class SliderCardView extends CardView<SliderCard> {
 
         // Snap to nearest bin:
         const nearestBin = this.proportionToNearestBin(proportion);
-        this.emitBinChange(nearestBin);
+        this.emitSliderChange(nearestBin);
         const snappedProportion = this.binIndexToProportion(nearestBin);
 
         this.scheduleThumbMove(snappedProportion);
@@ -199,7 +199,7 @@ export class SliderCardView extends CardView<SliderCard> {
 
         // Snap to nearest bin:
         const nearestBin = this.proportionToNearestBin(proportion);
-        this.emitBinChange(nearestBin);
+        this.emitSliderChange(nearestBin);
         const snappedProportion = this.binIndexToProportion(nearestBin);
 
         this.scheduleThumbMove(snappedProportion);
@@ -283,25 +283,25 @@ export class SliderCardView extends CardView<SliderCard> {
         this.sliderTrack?.removeEventListener('pointerdown', this.onClickTrack);
     }
 
-    private emitBinChange(binIndex: BinIndex) {
+    private emitSliderChange(binIndex: SliderBinIndex) {
         // Only emit if changed
         if (this.currentBinIndex === binIndex) return;
         this.currentBinIndex = binIndex;
         // Create sample
         const sample: SliderSample = {
-            sliderPosition: binIndex / (this.card.num_bins - 1),
+            sliderNormalizedPosition: binIndex / (this.card.num_bins - 1),
             binIndex: binIndex,
             domTimestamp: performance.now(),
         }
-        console.log(sample)
+
         // Emit to all subscribers
-        for (let callback of this.binChangeSubscribers) {
+        for (let callback of this.subscribers) {
             callback(sample);
         }
     }
 
-    public subscribeToBinChanges(callback: BinSubscriber) {
+    public subscribeToSlider(callback: SliderSubscriber) {
         // Add to subscribers
-        this.binChangeSubscribers.add(callback);
+        this.subscribers.add(callback);
     }
 }
