@@ -2,11 +2,7 @@ import './slider-card-view.css'
 import {CardView} from "../card-view.ts";
 import type {SliderCard} from "../../../types/cards";
 
-/**
- * A card which displays left-justified Markdown text on a light background.
- * Offers a scrollbar if the content is too long.
- */
-export class SliderCardView extends CardView<SliderCard> {
+export class SliderCardView2 extends CardView<SliderCard> {
     sliderElement: HTMLInputElement | undefined;
 
     async prepare(
@@ -39,5 +35,209 @@ export class SliderCardView extends CardView<SliderCard> {
     onStart() {
         // Set the card to interactive
         this.setInteractivity(true);
+    }
+}
+
+
+// Slider:
+type BinIndex = number // 0 to num_bins - 1
+export class SliderCardView extends CardView<SliderCard> {
+    sliderContainer: HTMLDivElement | undefined;
+    sliderTrack: HTMLDivElement | undefined;
+    sliderThumb: HTMLDivElement | undefined;
+
+    private pendingThumbPosition: number | null = null;
+    private rafId: number | null = null;
+    private frameRequested: boolean = false;
+
+    public currentBinIndex: BinIndex | null = null;
+    private binIndexToProportion!: (binIndex: BinIndex) => number;
+    private proportionToNearestBin!: (proportion: number) => BinIndex;
+
+    async prepare(
+    ) {
+
+        // Make container
+        this.sliderContainer = document.createElement('div');
+        this.sliderContainer.classList.add('slider-card');
+
+        // Make track:
+        this.sliderTrack = document.createElement('div');
+        this.sliderTrack.classList.add('slider-card__track');
+        this.sliderContainer.appendChild(this.sliderTrack);
+
+        // Make thumb:
+        this.sliderThumb = document.createElement('div');
+        this.sliderThumb.classList.add('slider-card__thumb');
+        this.sliderContainer.appendChild(this.sliderThumb);
+
+        // Set orientation:
+        if (this.card.orientation === 'horizontal') {
+            this.sliderTrack.classList.add('slider-card__track--horizontal');
+            this.sliderThumb.classList.add('slider-card__thumb--horizontal');
+        }
+        else{
+            this.sliderTrack.classList.add('slider-card__track--vertical');
+            this.sliderThumb.classList.add('slider-card__thumb--vertical');
+        }
+
+        this.root.appendChild(this.sliderContainer);
+
+        // Calculate bin index to proportion function:
+        this.binIndexToProportion = (binIndex: BinIndex): number => {
+            if (this.card.num_bins <= 1) return 0;
+            return binIndex / (this.card.num_bins - 1);
+        }
+
+        // Calculate snap function:
+        this.proportionToNearestBin = (proportion: number): BinIndex => {
+            if (this.card.num_bins <= 1) return 0;
+            const exactBin = proportion * (this.card.num_bins - 1);
+            return Math.round(exactBin);
+        }
+
+        // Always initialize the thumb to the exact middle, even if num_bins is even:
+        this.scheduleThumbMove(0.5)
+
+        // Add event listener for pointer down on the track:
+        this.sliderTrack?.addEventListener('pointerdown', this.onClickTrack);
+
+        // Add event listener for pointer down on the thumb:
+        this.sliderThumb?.addEventListener('pointerdown', this.onPointerDownThumb);
+        // Add event listener for pointer move and up on the document:
+        document.addEventListener('pointermove', this.onPointerMoveDocument);
+
+        // Add event listener for pointer up on the document:
+        document.addEventListener('pointerup', (e) => {
+            if (this.isDraggingThumb) {
+                e.preventDefault();
+                this.isDraggingThumb = false;
+                // Release pointer capture:
+                (e.target as HTMLElement).releasePointerCapture(e.pointerId);
+            }
+        });
+    }
+
+    private isDraggingThumb: boolean = false;
+
+    private onPointerDownThumb = (e: PointerEvent) => {
+        e.preventDefault();
+        this.isDraggingThumb = true;
+        // Capture pointer to continue receiving events outside the thumb:
+        (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    }
+    private onPointerMoveDocument = (e: PointerEvent) => {
+        if (!this.isDraggingThumb) return;
+        e.preventDefault();
+        if (!this.sliderTrack) return;
+
+        const rect = this.sliderTrack.getBoundingClientRect();
+        let proportion: number;
+        if (this.card.orientation === 'horizontal') {
+            const x = e.clientX - rect.left;
+            proportion = x / rect.width;
+        } else {
+            const y = e.clientY - rect.top;
+            proportion = 1 - (y / rect.height); // Invert for vertical
+        }
+        proportion = Math.max(0, Math.min(1, proportion)); // Clamp between 0 and 1
+
+        // Snap to nearest bin:
+        const nearestBin = this.proportionToNearestBin(proportion);
+        this.currentBinIndex = nearestBin;
+        const snappedProportion = this.binIndexToProportion(nearestBin);
+
+        this.scheduleThumbMove(snappedProportion);
+    }
+
+    private onClickTrack = (e: PointerEvent) => {
+        e.preventDefault();
+        if (!this.sliderTrack) return;
+
+
+        const rect = this.sliderTrack.getBoundingClientRect();
+        let proportion: number;
+        if (this.card.orientation === 'horizontal') {
+            const x = e.clientX - rect.left;
+            proportion = x / rect.width;
+        } else {
+            const y = e.clientY - rect.top;
+            proportion = 1 - (y / rect.height); // Invert for vertical
+        }
+        proportion = Math.max(0, Math.min(1, proportion)); // Clamp between 0 and 1
+
+        // Snap to nearest bin:
+        const nearestBin = this.proportionToNearestBin(proportion);
+        this.currentBinIndex = nearestBin;
+        const snappedProportion = this.binIndexToProportion(nearestBin);
+
+        this.scheduleThumbMove(snappedProportion);
+
+        // If we were dragging the thumb, stop dragging:
+        if (this.isDraggingThumb) {
+            this.isDraggingThumb = false;
+            // Release pointer capture:
+            (e.target as HTMLElement).releasePointerCapture(e.pointerId);
+        }
+        // Otherwise, start a drag operation:
+        else {
+            this.isDraggingThumb = true;
+            // Capture pointer to continue receiving events outside the thumb:
+            (e.target as HTMLElement).setPointerCapture(e.pointerId);
+        }
+    }
+
+    private scheduleThumbMove(proportion: number){
+        // Requests that the thumb be moved to the given proportion (0 to 1) on the next animation frame.
+        // Overrides any previously requested move.
+        this.pendingThumbPosition = Math.max(0, Math.min(1, proportion)); // Clamp between 0 and 1
+
+        if (!this.frameRequested) {
+            this.frameRequested = true;
+            this.rafId = requestAnimationFrame(() => {
+                this.frameRequested = false;
+                this.flushThumbUpdate();
+            });
+        }
+    }
+
+    private flushThumbUpdate() {
+        if (this.pendingThumbPosition == null) {
+            return
+        }
+        if(this.card.orientation === 'horizontal'){
+            if(this.sliderThumb)
+                this.sliderThumb.style.left = `${this.pendingThumbPosition * 100}%`;
+        } else {
+            if(this.sliderThumb)
+                this.sliderThumb.style.top = `${(1 - this.pendingThumbPosition) * 100}%`;
+        }
+        this.pendingThumbPosition = null;
+    }
+
+
+    onStart() {
+        // Set the card to interactive
+        this.setInteractivity(true);
+    }
+    onStop() {
+
+        // Set the card to non-interactive
+        this.setInteractivity(false);
+        // Cancel any pending animation frame
+        if (this.rafId !== null) {
+            cancelAnimationFrame(this.rafId);
+            this.rafId = null;
+            this.frameRequested = false;
+            this.pendingThumbPosition = null;
+        }
+    }
+    
+    onDestroy() {
+        super.onDestroy();
+        
+        // Remove event listeners
+        this.sliderTrack?.removeEventListener('pointerdown', this.onClickTrack);
+        
     }
 }

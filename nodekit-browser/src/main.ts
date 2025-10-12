@@ -94,7 +94,7 @@ export async function play(
     shellUI.hideSessionConnectingOverlay()
 
     // Start screen:
-    await shellUI.playStartScreen()
+    //await shellUI.playStartScreen() // todo - disabled for now
     clock.start()
     const startEvent: TraceStartedEvent = {
         event_type: "TraceStartedEvent",

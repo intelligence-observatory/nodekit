@@ -276,7 +276,6 @@ export class NodePlay {
         this.scheduler.stop();
 
         // Emit SensorFiredEvent:
-        // Emit SensorFiredEvent:
         const sensorFiredEvent: SensorFiredEvent = {
             event_type: "SensorFiredEvent",
             t: sensorFiring.t,

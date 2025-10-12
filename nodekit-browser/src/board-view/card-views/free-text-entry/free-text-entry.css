@@ -14,5 +14,5 @@
 
     font-family: var(--font-family-sans), sans-serif;
 
-    box-shadow: inset 0 0 4px 0 rgba(0, 0, 0, 0.1);
+    box-shadow: inset 0 0 3px 0 rgba(50, 50, 50, 0.8);
 }
