@@ -42,9 +42,9 @@ export class SliderCardView2 extends CardView<SliderCard> {
 type BinIndex = number // 0 to num_bins - 1
 type BinSubscriber = (binIndex: BinIndex) => void;
 export class SliderCardView extends CardView<SliderCard> {
-    sliderContainer: HTMLDivElement | undefined;
-    sliderTrack: HTMLDivElement | undefined;
-    sliderThumb: HTMLDivElement | undefined;
+    sliderContainer!: HTMLDivElement;
+    sliderTrack!: HTMLDivElement;
+    sliderThumb!: HTMLDivElement;
 
     private pendingThumbPosition: number | null = null;
     private rafId: number | null = null;
@@ -204,12 +204,18 @@ export class SliderCardView extends CardView<SliderCard> {
         if (this.pendingThumbPosition == null) {
             return
         }
+
+
+        const thumbRect = this.sliderThumb.getBoundingClientRect();
+        const sliderRect = this.sliderContainer.getBoundingClientRect();
+
         if (this.card.orientation === 'horizontal') {
-            if (this.sliderThumb)
-                this.sliderThumb.style.left = `${this.pendingThumbPosition * 100}%`;
+            const left = this.pendingThumbPosition * (sliderRect.width - thumbRect.width);
+            this.sliderThumb.style.left = `${left}px`;
         } else {
-            if (this.sliderThumb)
-                this.sliderThumb.style.top = `${(1 - this.pendingThumbPosition) * 100}%`;
+            // Reverse, as 100% is at the top for vertical:
+            const top = sliderRect.height - thumbRect.height - this.pendingThumbPosition * (sliderRect.height - thumbRect.height);;
+            this.sliderThumb.style.top = `${top}px`;
         }
         this.pendingThumbPosition = null;
     }
