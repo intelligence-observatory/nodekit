@@ -16,3 +16,14 @@
 .slider-card--horizontal{
     writing-mode: horizontal-tb;
 }
+
+
+.slider-card::-moz-range-track {
+    background-color: rgba(169, 169, 169, 0.5); /* darkgrey with some transparency */
+    box-shadow: none;
+}
+
+.slider-card::-webkit-slider-runnable-track {
+    background-color: rgba(169, 169, 169, 0.5);
+    box-shadow: none;
+}
