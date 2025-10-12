@@ -5,7 +5,15 @@ import type {SliderCard} from "../../../types/cards";
 
 // Slider:
 type BinIndex = number // 0 to num_bins - 1
-type BinSubscriber = (binIndex: BinIndex, domTimestamp: DOMHighResTimeStamp) => void;
+type SliderPosition = number // 0 to 1 (left to right, and bottom to top)
+
+export type SliderSample = {
+    sliderPosition: SliderPosition,
+    binIndex: BinIndex,
+    domTimestamp: DOMHighResTimeStamp,
+}
+
+type BinSubscriber = (sample: SliderSample) => void;
 
 export class SliderCardView extends CardView<SliderCard> {
     sliderContainer!: HTMLDivElement;
@@ -106,6 +114,7 @@ export class SliderCardView extends CardView<SliderCard> {
         for (let i = 0; i < bins; i++) {
             // SKip first and last ticks (they are the ends of the track)
             if (i === 0 || i === bins - 1) continue;
+
             // Calculate position:
             const pct = (i / (bins - 1)) * 100;
 
@@ -116,7 +125,7 @@ export class SliderCardView extends CardView<SliderCard> {
             tick.style.pointerEvents = 'none';
 
             // Style
-            const tickExtent ='50%'; // The length of the tick perpendicular to the track
+            const tickExtent ='75%'; // The length of the tick perpendicular to the track
 
             if (isHorizontal) {
                 // vertical hairline centered on the track
@@ -137,7 +146,6 @@ export class SliderCardView extends CardView<SliderCard> {
             frag.appendChild(tick);
         }
         this.sliderTrack.appendChild(frag);
-
     }
 
     private onPointerDownThumb = (e: PointerEvent) => {
@@ -177,7 +185,6 @@ export class SliderCardView extends CardView<SliderCard> {
     private onClickTrack = (e: PointerEvent) => {
         e.preventDefault();
         if (!this.sliderTrack) return;
-
 
         const rect = this.sliderTrack.getBoundingClientRect();
         let proportion: number;
@@ -280,9 +287,16 @@ export class SliderCardView extends CardView<SliderCard> {
         // Only emit if changed
         if (this.currentBinIndex === binIndex) return;
         this.currentBinIndex = binIndex;
+        // Create sample
+        const sample: SliderSample = {
+            sliderPosition: binIndex / (this.card.num_bins - 1),
+            binIndex: binIndex,
+            domTimestamp: performance.now(),
+        }
+        console.log(sample)
         // Emit to all subscribers
         for (let callback of this.binChangeSubscribers) {
-            callback(binIndex, performance.now());
+            callback(sample);
         }
     }
 

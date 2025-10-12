@@ -32,6 +32,7 @@
 .slider-card__track-tick {
     position: absolute;
     background-color: rgba(150, 150, 150, 0.5);
+    border-radius: 1px;
 }
 
 /* Thumb */
