@@ -206,6 +206,8 @@ export class BoardView {
         // Mount CardView to BoardView:
         this.root.appendChild(cardView.root);
 
+        // Have the EventStream subscribe to any relevant events from the CardView
+
         // Issue a new CardViewId:
         const cardId = crypto.randomUUID() as CardViewId;
         this.cardViews.set(cardId, cardView);
