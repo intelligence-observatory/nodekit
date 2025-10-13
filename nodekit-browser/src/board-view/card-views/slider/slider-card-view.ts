@@ -74,7 +74,13 @@ export class SliderCardView extends CardView<SliderCard> {
         this.renderTicks();
 
         // Always initialize the thumb to the exact middle, even if num_bins is even:
-        this.scheduleThumbMove(0.5)
+        let initial= this.binIndexToProportion(this.card.initial_bin_index)
+        if(isNaN(initial) || !isFinite(initial)){
+            initial = 0.5 // fallback
+        }
+        console.log("initial", initial)
+
+        this.scheduleThumbMove(initial)
 
         // Add event listener for pointer down on the track:
         this.sliderTrack?.addEventListener('pointerdown', this.onClickTrack);

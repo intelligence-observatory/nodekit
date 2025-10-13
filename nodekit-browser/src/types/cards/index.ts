@@ -1,4 +1,4 @@
-import type {ColorHexString, MarkdownString, PlainString, SpatialPoint, SpatialSize, NodeTimePointMsec} from "../common.ts";
+import type {ColorHexString, MarkdownString, PlainString, SpatialPoint, SpatialSize, NodeTimePointMsec, CardId} from "../common.ts";
 import type {Image, Video} from "../assets";
 
 export interface BaseCard<T extends string> {
@@ -35,8 +35,9 @@ export interface TextCard extends BaseCard<'TextCard'>{
 
 export interface SliderCard extends BaseCard<'SliderCard'>{
     num_bins: number;
-    orientation: 'horizontal' | 'vertical';
     show_bin_markers: boolean;
+    initial_bin_index: number;
+    orientation: 'horizontal' | 'vertical';
 }
 
 export interface FreeTextEntryCard extends BaseCard<'FreeTextEntryCard'>{
@@ -45,6 +46,13 @@ export interface FreeTextEntryCard extends BaseCard<'FreeTextEntryCard'>{
     text_color: ColorHexString;
     background_color: ColorHexString;
     max_length: number | null; // Maximum number of characters allowed
+}
+
+
+export interface ConfirmCard extends BaseCard<'ConfirmCard'>{
+    inactive_text: PlainString;
+    active_text: PlainString;
+    sources: CardId[] // Form cards that the ConfirmCard is confirming
 }
 
 export type Card = ImageCard | VideoCard | TextCard | SliderCard | FreeTextEntryCard;
