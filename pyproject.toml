@@ -42,4 +42,4 @@ dev = [
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
-testpaths = ["topo_sort/test"]
+testpaths = ["tests"]
