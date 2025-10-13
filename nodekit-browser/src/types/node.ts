@@ -18,7 +18,6 @@ export interface Graph {
     start: NodeId;
 }
 
-
 export interface Trace {
     nodekit_version: string;
     events: Event[];
