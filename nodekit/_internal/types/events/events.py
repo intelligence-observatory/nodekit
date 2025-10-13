@@ -9,7 +9,6 @@ from nodekit._internal.types.common import (
     TimeElapsedMsec,
     NodeId,
     SensorId,
-    PressableKey,
     SpatialPoint,
 )
 
@@ -20,6 +19,11 @@ class EventTypeEnum(str, enum.Enum):
     TraceEndedEvent = "TraceEndedEvent"
 
     NodeEnteredEvent = "NodeEnteredEvent"
+    CardShownEvent = "CardShownEvent"
+    CardHiddenEvent = "CardHiddenEvent"
+    SensorArmedEvent = "SensorArmedEvent"
+    SensorFiredEvent = "SensorFiredEvent"
+    SensorDisarmedEvent = "SensorDisarmedEvent"
     NodeExitedEvent = "NodeExitedEvent"
 
     PointerSampledEvent = "PointerSampledEvent"
@@ -50,8 +54,6 @@ class TraceEndedEvent(BaseEvent):
 
 
 # %%
-
-
 class PageSuspendedEvent(BaseEvent):
     """
     Emitted when a Participant suspends the page (e.g., closes the tab or navigates away).
@@ -82,7 +84,7 @@ class PointerSampledEvent(BaseEvent):
 
 class KeySampledEvent(BaseEvent):
     event_type: Literal[EventTypeEnum.KeySampledEvent] = EventTypeEnum.KeySampledEvent
-    key: PressableKey
+    key: str
     kind: Literal["down", "up"]
 
 
@@ -97,10 +99,50 @@ class NodeEnteredEvent(BaseNodeEvent):
 
 class NodeExitedEvent(BaseNodeEvent):
     event_type: Literal[EventTypeEnum.NodeExitedEvent] = EventTypeEnum.NodeExitedEvent
+
+
+# %%
+class CardShownEvent(BaseNodeEvent):
+    event_type: Literal[EventTypeEnum.CardShownEvent] = EventTypeEnum.CardShownEvent
+    card_id: str = pydantic.Field(
+        description="Identifies the Card in the Node that was shown."
+    )
+
+
+# Some cards emit other events to the EventStream, like SliderCard. This should be called...
+# ...
+
+
+class CardHiddenEvent(BaseNodeEvent):
+    event_type: Literal[EventTypeEnum.CardHiddenEvent] = EventTypeEnum.CardHiddenEvent
+    card_id: str = pydantic.Field(
+        description="Identifies the Card in the Node that was hidden."
+    )
+
+
+# %%
+class SensorArmedEvent(BaseNodeEvent):
+    event_type: Literal[EventTypeEnum.SensorArmedEvent] = EventTypeEnum.SensorArmedEvent
+    sensor_id: SensorId = pydantic.Field(
+        description="Identifies the Sensor in the Node that was armed."
+    )
+
+
+class SensorFiredEvent(BaseNodeEvent):
+    event_type: Literal[EventTypeEnum.SensorFiredEvent] = EventTypeEnum.SensorFiredEvent
     sensor_id: SensorId = pydantic.Field(
         description="Identifies the Sensor in the Node that was triggered."
     )
     action: Action
+
+
+class SensorDisarmedEvent(BaseNodeEvent):
+    event_type: Literal[EventTypeEnum.SensorDisarmedEvent] = (
+        EventTypeEnum.SensorDisarmedEvent
+    )
+    sensor_id: SensorId = pydantic.Field(
+        description="Identifies the Sensor in the Node that was disarmed."
+    )
 
 
 # %%
@@ -133,7 +175,13 @@ Event = Annotated[
         # Graph flow:
         TraceStartedEvent,
         TraceEndedEvent,
+        # Node flow:
         NodeEnteredEvent,
+        CardShownEvent,
+        CardHiddenEvent,
+        SensorArmedEvent,
+        SensorFiredEvent,
+        SensorDisarmedEvent,
         NodeExitedEvent,
         # Input streams:
         PointerSampledEvent,

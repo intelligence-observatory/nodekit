@@ -12,6 +12,6 @@
     justify-content: center;
     overflow: hidden; /* Prevents overflow from child elements */
 
-    /* Cursor */
-    cursor: crosshair;
+    border: none;
+    box-shadow: none;
 }

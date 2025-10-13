@@ -1,16 +1,18 @@
-import nodekit as nk
 from nodekit._internal.types.common import SensorId, NodeId
+from nodekit._internal.types.node import Node
 from typing import Dict, List, Tuple
 from collections import defaultdict, deque
 
 
-def topological_sort(nodes: Dict[NodeId, nk.Node], transitions: Dict[NodeId, Dict[SensorId, NodeId]]) -> List[NodeId]:
+def topological_sort(
+    nodes: Dict[NodeId, Node], transitions: Dict[NodeId, Dict[SensorId, NodeId]]
+) -> List[NodeId]:
     """
     Perform a topological sort over a directed graph of nodes and transitions.
 
-    Each Node object is a window with cards, and transitions define directed edges 
-    between nodes, keyed by SensorId identifiers. Nodes are first ranked according 
-    to their topological order, then ties within the same rank are deterministically 
+    Each Node object is a window with cards, and transitions define directed edges
+    between nodes, keyed by SensorId identifiers. Nodes are first ranked according
+    to their topological order, then ties within the same rank are deterministically
     broken lexicologically using incoming SensorIds. Nodes without incoming sensors (roots)
     are prioritized first.
 
@@ -25,28 +27,28 @@ def topological_sort(nodes: Dict[NodeId, nk.Node], transitions: Dict[NodeId, Dic
 
     node_keys = [key for key in nodes]
     edges = []
-    incoming_sensors = {key:[] for key in nodes}
+    incoming_sensors = {key: [] for key in nodes}
     for in_node, transition in transitions.items():
-
         # Check if input Node from the transitions exists:
         if in_node not in nodes:
             raise KeyError(f"Transition refers to non-existent node '{in_node}'")
 
         for sensor, out_node in transition.items():
-
             # Check if Sensor from the transition exists:
             if sensor not in nodes[in_node].sensors:
                 raise KeyError(f"Sensor '{sensor}' not found in node '{in_node}'")
 
             # Check if output Node from the transition exists:
             if out_node not in nodes:
-                raise KeyError(f"Transition from '{in_node}' points to unknown node '{out_node}'")
+                raise KeyError(
+                    f"Transition from '{in_node}' points to unknown node '{out_node}'"
+                )
 
             edges.append((in_node, out_node))
             incoming_sensors[out_node].append(sensor)
-            
-    rank_order = topo_sort_core(node_keys, edges)
-    
+
+    rank_order = _topo_sort_core(node_keys, edges)
+
     # Group by rank and apply tie-breaker:
     rank_groups = defaultdict(list)
     for key, rank in zip(node_keys, rank_order):
@@ -57,15 +59,19 @@ def topological_sort(nodes: Dict[NodeId, nk.Node], transitions: Dict[NodeId, Dic
         group = rank_groups[rank]
         # Tie-break sorts nodes alphabetically but puts nodes with no incoming sensors (root nodes) first
         group.sort(
-            key = lambda node: (incoming_sensors.get(node) is None,
-                                incoming_sensors.get(node))
+            key=lambda node: (
+                incoming_sensors.get(node) is None,
+                incoming_sensors.get(node),
+            )
         )
         ordered.extend(group)
 
     return ordered
 
-    
-def topo_sort_core(node_keys: List[NodeId], edges: List[Tuple[NodeId, NodeId]]) -> List[int]:
+
+def _topo_sort_core(
+    node_keys: List[NodeId], edges: List[Tuple[NodeId, NodeId]]
+) -> List[int]:
     """
     Perform topological sorting and return a list of ranks for each node key.
 
@@ -106,4 +112,4 @@ def topo_sort_core(node_keys: List[NodeId], edges: List[Tuple[NodeId, NodeId]]) 
         raise ValueError("Loop present in Graph, please reconfigure the structure")
 
     # Return ranks in the same order as node_keys:
-    return [rank_map[key] for key in node_keys]    
+    return [rank_map[key] for key in node_keys]
