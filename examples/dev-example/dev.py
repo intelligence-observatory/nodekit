@@ -4,7 +4,6 @@ import nodekit as nk
 
 # %%
 if __name__ == "__main__":
-
     # Assemble an "all-in-one" Node which showcases multiple Cards simultaneously
     dev_node = nk.Node(
         cards={
@@ -13,14 +12,14 @@ if __name__ == "__main__":
                 y=0,
                 w=0.3,
                 h=0.3,
-                video=nk.assets.Video.from_path('test-video.mp4'),
+                video=nk.assets.Video.from_path("test-video.mp4"),
             ),
             "image": nk.cards.ImageCard(
                 x=0.25,
                 y=0,
                 w=0.1,
                 h=0.1,
-                image=nk.assets.Image.from_path('fixation-cross.svg')
+                image=nk.assets.Image.from_path("fixation-cross.svg"),
             ),
             "advertisement": nk.cards.TextCard(
                 x=-0.4,
@@ -40,7 +39,7 @@ if __name__ == "__main__":
                 h=0.2,
                 w=0.6,
                 prompt="I am a FreeTextEntryCard. Try typing into me.",
-                text_color= "#ce3a3a",
+                text_color="#ce3a3a",
             ),
             "slider-horizontal": nk.cards.SliderCard(
                 x=0,
@@ -49,7 +48,7 @@ if __name__ == "__main__":
                 w=1,
                 num_bins=7,
                 initial_bin_index=5,
-                orientation='horizontal',
+                orientation="horizontal",
                 show_bin_markers=True,
             ),
             "slider-horizontal2": nk.cards.SliderCard(
@@ -59,7 +58,7 @@ if __name__ == "__main__":
                 w=1,
                 num_bins=100,
                 initial_bin_index=25,
-                orientation='horizontal',
+                orientation="horizontal",
                 show_bin_markers=True,
             ),
             "slider-vertical": nk.cards.SliderCard(
@@ -69,12 +68,12 @@ if __name__ == "__main__":
                 w=0.1,
                 num_bins=100,
                 initial_bin_index=80,
-                orientation='vertical',
+                orientation="vertical",
                 show_bin_markers=True,
             ),
         },
         sensors={
-            #"wait": nk.sensors.TimeoutSensor(timeout_msec=5000),
+            # "wait": nk.sensors.TimeoutSensor(timeout_msec=5000),
             "press": nk.sensors.KeySensor(key=" "),
         },
     )

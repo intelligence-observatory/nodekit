@@ -11,7 +11,9 @@ def make_fixation_node() -> nk.Node:
     in the center of the Board.
     """
 
-    fixation_card = nk.cards.TextCard(x=0, y=0, w=0.0375, h=0.0375, text=r"\+", font_size=0.03)
+    fixation_card = nk.cards.TextCard(
+        x=0, y=0, w=0.0375, h=0.0375, text=r"\+", font_size=0.03
+    )
 
     clicked_fixation_dot_sensor = nk.sensors.ClickSensor(
         mask="ellipse",
@@ -173,6 +175,7 @@ def make_triplet_trial(
         },
     )
     return trial_graph
+
 
 # %%
 if __name__ == "__main__":
