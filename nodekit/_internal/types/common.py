@@ -5,9 +5,9 @@ import pydantic
 # %% Assets
 SHA256 = Annotated[str, pydantic.Field(pattern=r"^[a-f0-9]{64}$")]
 
-ImageMimeType = Literal["image/png", "image/svg+xml"]
-VideoMimeType = Literal["video/mp4"]
-MimeType = ImageMimeType | VideoMimeType
+ImageMediaType = Literal["image/png", "image/svg+xml"]
+VideoMediaType = Literal["video/mp4"]
+MediaType = ImageMediaType | VideoMediaType
 
 # %% Space
 SpatialSize = Annotated[
@@ -20,6 +20,7 @@ SpatialSize = Annotated[
     ),
 ]
 SpatialPoint = Annotated[float, pydantic.Field(strict=True, ge=-0.5, le=0.5)]
+
 
 Mask = Annotated[
     Literal["rectangle", "ellipse"],
@@ -128,6 +129,12 @@ SensorId = Annotated[
     ),
 ]
 
+CardId = Annotated[
+    str,
+    pydantic.Field(
+        description="An identifier for a Card which is unique within a Node.",
+    ),
+]
 # %% Money
 AmountUsdStr = Annotated[
     str,

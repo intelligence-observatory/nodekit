@@ -12,13 +12,3 @@
     pointer-events: none;
     user-select: none;
 }
-
-.card--clickable {
-    cursor: pointer;
-}
-
-.card--clickable:hover {
-}
-
-.card--clickable:active {
-}

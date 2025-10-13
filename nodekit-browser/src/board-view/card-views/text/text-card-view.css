@@ -14,8 +14,7 @@ A fixed-sized box which displays text information.
     /* Overflow */
     overflow: clip; /* Text cards don't offer scrollbars. */
     /*scrollbar-gutter: stable; /* Ensures gutter space even when no scroll */
-    background: var(--system-text-background-color);
-    border-radius: 1rem;
+    border-radius: 8px;
     user-select: none;     /* disables text selection */
     -webkit-user-select: none; /* Safari disable text selection */
 

@@ -11,6 +11,7 @@ export interface TextContentParameters {
     justificationVertical: 'top' | 'center' | 'bottom'
 }
 
+
 export function renderTextContent(
     textContentParameters: TextContentParameters,
     fontSizeToCSS: (fontSize: SpatialSize) => string

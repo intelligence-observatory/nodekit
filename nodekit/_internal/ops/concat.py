@@ -16,6 +16,9 @@ def concat(
     A convenience method for returning a Graph which executes the given List[Node | Graph]  in the given order.
     The items are automatically issued namespace ids '0', '1', ... in order, unless `ids` is given.
     """
+    #
+    if len(sequence) == 0:
+        raise ValueError("Sequence must have at least one item.")
 
     # Generate IDs:
     if ids and len(ids) != len(sequence):
@@ -93,8 +96,16 @@ def concat(
                         if sensor_id not in transitions[prev_node_id]:
                             transitions[prev_node_id][sensor_id] = start_node_id
 
+    # Derive the start node id
+    if isinstance(sequence[0], Node):
+        start_node_id = ids[0]
+    elif isinstance(sequence[0], Graph):
+        start_node_id = f"{ids[0]}/{sequence[0].start}"
+    else:
+        raise ValueError(f"Invalid item in sequence: {sequence[0]}")
+
     return Graph(
         nodes=nodes,
-        start=ids[0],
+        start=start_node_id,
         transitions=transitions,
     )

@@ -1,19 +1,13 @@
 declare type Action = ClickAction | TimeoutAction | KeyAction;
 
-declare type AssetIdentifier = ImageIdentifier | VideoIdentifier;
-
-declare interface AssetUrl {
-    identifier: AssetIdentifier;
-    url: string;
-}
-
 declare interface BaseAction<T extends string> {
     action_type: T;
 }
 
-declare interface BaseAssetIdentifier<MT extends string> {
+declare interface BaseAsset<MT extends string> {
     sha256: SHA256;
-    mime_type: MT;
+    media_type: MT;
+    locator: Locator;
 }
 
 declare interface BaseCard<T extends string> {
@@ -37,6 +31,10 @@ declare interface BaseEvent<T extends string> {
     t: TimeElapsedMsec;
 }
 
+declare interface BaseLocator<LT extends string> {
+    locator_type: LT;
+}
+
 declare interface BaseNodeEvent<T extends string> extends BaseEvent<T> {
     node_id: NodeId;
 }
@@ -54,7 +52,31 @@ declare interface BrowserContextSampledEvent extends BaseEvent<'BrowserContextSa
     device_pixel_ratio: number;
 }
 
-declare type Card = ImageCard | TextCard | VideoCard;
+declare type Card = ImageCard | VideoCard | TextCard | SliderCard | FreeTextEntryCard;
+
+declare interface CardHiddenEvent extends BaseNodeEvent<'CardHiddenEvent'> {
+    card_id: CardId;
+}
+
+declare type CardId = string & {
+    __brand: 'CardId';
+};
+
+declare interface CardShownEvent extends BaseNodeEvent<'CardShownEvent'> {
+    card_id: CardId;
+}
+
+declare interface CardHiddenEvent extends BaseNodeEvent<'CardHiddenEvent'> {
+    card_id: CardId;
+}
+
+declare type CardId = string & {
+    __brand: 'CardId';
+};
+
+declare interface CardShownEvent extends BaseNodeEvent<'CardShownEvent'> {
+    card_id: CardId;
+}
 
 declare interface ClickAction extends BaseAction<"ClickAction"> {
     x: SpatialPoint;
@@ -75,7 +97,19 @@ declare type ColorHexString = string & {
 
 declare type Effect = HidePointerEffect;
 
-declare type Event_2 = TraceStartedEvent | BrowserContextSampledEvent | PageSuspendedEvent | PageResumedEvent | NodeEnteredEvent | NodeExitedEvent | PointerSampledEvent | KeySampledEvent | TraceEndedEvent;
+declare type Event_2 = TraceStartedEvent | BrowserContextSampledEvent | PageSuspendedEvent | PageResumedEvent | NodeEnteredEvent | CardShownEvent | CardHiddenEvent | SensorArmedEvent | SensorFiredEvent | SensorDisarmedEvent | NodeExitedEvent | PointerSampledEvent | KeySampledEvent | TraceEndedEvent;
+
+declare interface FileSystemPath extends BaseLocator<"FileSystemPath"> {
+    path: string;
+}
+
+declare interface FreeTextEntryCard extends BaseCard<'FreeTextEntryCard'> {
+    prompt: PlainString;
+    font_size: SpatialSize;
+    text_color: ColorHexString;
+    background_color: ColorHexString;
+    max_length: number | null;
+}
 
 declare interface Graph {
     nodekit_version: string;
@@ -94,11 +128,11 @@ declare interface HidePointerEffect extends BaseEffect<'HidePointerEffect'> {
     end_msec: NodeTimePointMsec;
 }
 
-declare interface ImageCard extends BaseCard<'ImageCard'> {
-    image: ImageIdentifier;
+declare interface Image_2 extends BaseAsset<"image/png" | "image/svg+xml"> {
 }
 
-declare interface ImageIdentifier extends BaseAssetIdentifier<"image/png"> {
+declare interface ImageCard extends BaseCard<'ImageCard'> {
+    image: Image_2;
 }
 
 declare interface KeyAction extends BaseAction<"KeyAction"> {
@@ -114,6 +148,8 @@ declare interface KeySensor extends TemporallyBoundedSensor<'KeySensor'> {
     key: PressableKey;
 }
 
+declare type Locator = FileSystemPath | ZipArchiveInnerPath | RelativePath | URL_2;
+
 declare type MarkdownString = string & {
     __brand: 'MarkdownString';
 };
@@ -121,7 +157,7 @@ declare type MarkdownString = string & {
 declare type Mask = 'rectangle' | 'ellipse';
 
 declare interface Node_2 {
-    cards: Card[];
+    cards: Record<CardId, Card>;
     sensors: Record<SensorId, Sensor>;
     effects: Effect[];
     board_color: ColorHexString;
@@ -131,8 +167,6 @@ declare interface NodeEnteredEvent extends BaseNodeEvent<'NodeEnteredEvent'> {
 }
 
 declare interface NodeExitedEvent extends BaseNodeEvent<'NodeExitedEvent'> {
-    sensor_id: SensorId;
-    action: Action;
 }
 
 declare type NodeId = string & {
@@ -149,14 +183,17 @@ declare interface PageResumedEvent extends BaseEvent<'PageResumedEvent'> {
 declare interface PageSuspendedEvent extends BaseEvent<'PageSuspendedEvent'> {
 }
 
+declare type PlainString = string & {
+    __brand: 'PlainString';
+};
+
 /**
  * Plays a Graph, returning a Trace of Events.
  * @param graph
- * @param assetUrls
  * @param onEventCallback
  * @param previousEvents
  */
-export declare function play(graph: Graph, assetUrls: AssetUrl[], onEventCallback?: ((event: Event_2) => void) | null, previousEvents?: Event_2[]): Promise<Trace>;
+export declare function play(graph: Graph, onEventCallback?: ((event: Event_2) => void) | null, previousEvents?: Event_2[]): Promise<Trace>;
 
 declare interface PointerSampledEvent extends BaseEvent<'PointerSampledEvent'> {
     x: SpatialPoint;
@@ -166,7 +203,24 @@ declare interface PointerSampledEvent extends BaseEvent<'PointerSampledEvent'> {
 
 declare type PressableKey = string;
 
+declare interface RelativePath extends BaseLocator<"RelativePath"> {
+    relative_path: string;
+}
+
 declare type Sensor = TimeoutSensor | ClickSensor | KeySensor;
+
+declare interface SensorArmedEvent extends BaseNodeEvent<'SensorArmedEvent'> {
+    sensor_id: SensorId;
+}
+
+declare interface SensorDisarmedEvent extends BaseNodeEvent<'SensorDisarmedEvent'> {
+    sensor_id: SensorId;
+}
+
+declare interface SensorFiredEvent extends BaseNodeEvent<'SensorFiredEvent'> {
+    sensor_id: SensorId;
+    action: Action;
+}
 
 declare type SensorId = string & {
     __brand: 'SensorId';
@@ -175,6 +229,13 @@ declare type SensorId = string & {
 declare type SHA256 = string & {
     __brand: 'SHA256';
 };
+
+declare interface SliderCard extends BaseCard<'SliderCard'> {
+    num_bins: number;
+    show_bin_markers: boolean;
+    initial_bin_index: number;
+    orientation: 'horizontal' | 'vertical';
+}
 
 declare type SpatialPoint = number & {
     __brand: 'SpatialPoint';
@@ -220,13 +281,22 @@ declare interface TraceEndedEvent extends BaseEvent<'TraceEndedEvent'> {
 declare interface TraceStartedEvent extends BaseEvent<'TraceStartedEvent'> {
 }
 
+declare interface URL_2 extends BaseLocator<"URL"> {
+    url: string;
+}
+
+declare interface Video extends BaseAsset<"video/mp4"> {
+}
+
 declare interface VideoCard extends BaseCard<'VideoCard'> {
-    video: VideoIdentifier;
+    video: Video;
     muted: boolean;
     loop: boolean;
 }
 
-declare interface VideoIdentifier extends BaseAssetIdentifier<"video/mp4"> {
+declare interface ZipArchiveInnerPath extends BaseLocator<"ZipArchiveInnerPath"> {
+    zip_archive_path: string;
+    inner_path: string;
 }
 
 export { }
