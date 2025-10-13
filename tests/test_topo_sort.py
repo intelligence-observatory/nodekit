@@ -24,7 +24,7 @@ def generate_stimulus_node():
 
 def generate_response_node():
     left_sensor = nk.sensors.ClickSensor(mask="rectangle", x=-0.5, y=0, w=0.1, h=0.1)
-    right_sensor = nk.sensors.ClickSensor(mask="rectangle", x=0.5, y=0, w =0.1, h=0.1)
+    right_sensor = nk.sensors.ClickSensor(mask="rectangle", x=0.5, y=0, w=0.1, h=0.1)
     timeout_sensor = nk.sensors.TimeoutSensor(timeout_msec=2000)
 
     return nk.Node(
@@ -45,7 +45,6 @@ def generate_positive_node():
 
 
 def generate_negative_node():
-
     return nk.Node(
         cards={},
         sensors={"wait": nk.sensors.TimeoutSensor(timeout_msec=5000)},
@@ -53,6 +52,7 @@ def generate_negative_node():
 
 
 # %% Topology tests:
+
 
 def test_example_pass():
     # Example 1:
@@ -110,7 +110,7 @@ def test_example_pass():
     assert result.index("negative_1") < result.index("fixation_2")
 
 
-def test_example_fail(my_image_files):
+def test_example_fail():
     # Example 1:
     # Visual structure:
     #          n[f1] ────┐
@@ -126,10 +126,6 @@ def test_example_fail(my_image_files):
     #          n[s2]
 
     # Pick images for the test:
-    fixation_img = my_image_files[0].identifier
-    left_img = my_image_files[1].identifier
-    right_img = my_image_files[2].identifier
-    stim_img = my_image_files[3].identifier
 
     # Random correct answer:
     correct = ["left"]
