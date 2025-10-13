@@ -1,11 +1,11 @@
-import nodekit as nk
 from nodekit._internal.types.common import SensorId, NodeId
+from nodekit._internal.types.node import Node
 from typing import Dict, List, Tuple
 from collections import defaultdict, deque
 
 
 def topological_sort(
-    nodes: Dict[NodeId, nk.Node], transitions: Dict[NodeId, Dict[SensorId, NodeId]]
+    nodes: Dict[NodeId, Node], transitions: Dict[NodeId, Dict[SensorId, NodeId]]
 ) -> List[NodeId]:
     """
     Perform a topological sort over a directed graph of nodes and transitions.
@@ -47,7 +47,7 @@ def topological_sort(
             edges.append((in_node, out_node))
             incoming_sensors[out_node].append(sensor)
 
-    rank_order = topo_sort_core(node_keys, edges)
+    rank_order = _topo_sort_core(node_keys, edges)
 
     # Group by rank and apply tie-breaker:
     rank_groups = defaultdict(list)
@@ -69,7 +69,7 @@ def topological_sort(
     return ordered
 
 
-def topo_sort_core(
+def _topo_sort_core(
     node_keys: List[NodeId], edges: List[Tuple[NodeId, NodeId]]
 ) -> List[int]:
     """
