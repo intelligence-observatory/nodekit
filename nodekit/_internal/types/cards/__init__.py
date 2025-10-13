@@ -94,7 +94,7 @@ class SliderCard(BaseCard):
         description="The number of discrete bins in the slider.", ge=2, default=7
     )
 
-    initial_bin_index: int = pydantic.Field(
+    initial_bin_index: int = pydantic.Field(  # ty: ignore
         description="The initial bin index that the slider is set to when it first appears. The default is the middle bin.",
         ge=0,
         default=None,
