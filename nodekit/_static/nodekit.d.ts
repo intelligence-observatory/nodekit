@@ -66,6 +66,18 @@ declare interface CardShownEvent extends BaseNodeEvent<'CardShownEvent'> {
     card_id: CardId;
 }
 
+declare interface CardHiddenEvent extends BaseNodeEvent<'CardHiddenEvent'> {
+    card_id: CardId;
+}
+
+declare type CardId = string & {
+    __brand: 'CardId';
+};
+
+declare interface CardShownEvent extends BaseNodeEvent<'CardShownEvent'> {
+    card_id: CardId;
+}
+
 declare interface ClickAction extends BaseAction<"ClickAction"> {
     x: SpatialPoint;
     y: SpatialPoint;
