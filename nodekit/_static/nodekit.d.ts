@@ -52,7 +52,19 @@ declare interface BrowserContextSampledEvent extends BaseEvent<'BrowserContextSa
     device_pixel_ratio: number;
 }
 
-declare type Card = ImageCard | VideoCard | TextCard;
+declare type Card = ImageCard | VideoCard | TextCard | SliderCard | FreeTextEntryCard;
+
+declare interface CardHiddenEvent extends BaseNodeEvent<'CardHiddenEvent'> {
+    card_id: CardId;
+}
+
+declare type CardId = string & {
+    __brand: 'CardId';
+};
+
+declare interface CardShownEvent extends BaseNodeEvent<'CardShownEvent'> {
+    card_id: CardId;
+}
 
 declare interface CardHiddenEvent extends BaseNodeEvent<'CardHiddenEvent'> {
     card_id: CardId;
@@ -89,6 +101,14 @@ declare type Event_2 = TraceStartedEvent | BrowserContextSampledEvent | PageSusp
 
 declare interface FileSystemPath extends BaseLocator<"FileSystemPath"> {
     path: string;
+}
+
+declare interface FreeTextEntryCard extends BaseCard<'FreeTextEntryCard'> {
+    prompt: PlainString;
+    font_size: SpatialSize;
+    text_color: ColorHexString;
+    background_color: ColorHexString;
+    max_length: number | null;
 }
 
 declare interface Graph {
@@ -157,6 +177,10 @@ declare interface PageResumedEvent extends BaseEvent<'PageResumedEvent'> {
 declare interface PageSuspendedEvent extends BaseEvent<'PageSuspendedEvent'> {
 }
 
+declare type PlainString = string & {
+    __brand: 'PlainString';
+};
+
 /**
  * Plays a Graph, returning a Trace of Events.
  * @param graph
@@ -199,6 +223,13 @@ declare type SensorId = string & {
 declare type SHA256 = string & {
     __brand: 'SHA256';
 };
+
+declare interface SliderCard extends BaseCard<'SliderCard'> {
+    num_bins: number;
+    show_bin_markers: boolean;
+    initial_bin_index: number;
+    orientation: 'horizontal' | 'vertical';
+}
 
 declare type SpatialPoint = number & {
     __brand: 'SpatialPoint';

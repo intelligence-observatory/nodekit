@@ -1,5 +1,6 @@
 @import "@fontsource/inter/400.css";
 @import "@fontsource/inter/700.css";
+@import "@fontsource-variable/inconsolata";
 @import 'board-views-ui/board-views-ui.css';
 
 :root {
@@ -20,13 +21,9 @@
     /* System Scrollbars */
     --system-scroll-color: rgba(128,128,128, 0.1);
 
-    /* System Shadows */
-    --system-box-shadow: 0 0 2px rgba(0, 0,0, 0.2);
-
     /* System Text */
     --font-family-sans: 'Inter';
-    --font-family-mono: monospace;
-    --system-text-background-color: hsl(0, 0%, 90%);
+    --font-family-mono: 'Inconsolata Variable', monospace;
     --system-text-muted-background-color: hsl(0, 0%, 80%);
     --system-text-default-color-on-light: hsl(0, 0%, 15%);
     --system-text-default-color-on-dark: hsl(210, 0%, 75%);
@@ -42,7 +39,7 @@
     /* Cognition */
     --cognition-strong-color: hsl(208,100%,80%);
     --cognition-standard-color: hsl(207, 90%, 83%);
-    --cognition-faint-color: hsla(207, 32%, 84%);
+    --cognition-faint-color: hsl(207, 32%, 84%);
 
     --cognition-standard-color-alpha-high: hsla(207, 100%, 82%, 0.9);
     --cognition-standard-color-alpha-medium: hsla(207, 100%, 82%, 0.4);
@@ -104,5 +101,4 @@ html, body {
 
     /* Default Text */
     font-family: var(--font-family-sans), sans-serif;
-
 }

@@ -194,17 +194,7 @@ export class NodePlay {
                         triggerTimeMsec: sensor.timeout_msec,
                         triggerFunc: () => {
                             this.boardView.startSensor(sensorBindingId);
-                            // Emit SensorFiredEvent:
-                            const sensorFiredEvent: SensorFiredEvent = {
-                                event_type: "SensorFiredEvent",
-                                t: clock.now(),
-                                node_id: this.nodeId,
-                                sensor_id: sensorId as SensorId,
-                                action: {
-                                    action_type: 'TimeoutAction'
-                                },
-                            }
-                            eventArray.push(sensorFiredEvent);
+
                         },
                     }
                 )
@@ -286,6 +276,14 @@ export class NodePlay {
         this.scheduler.stop();
 
         // Emit SensorFiredEvent:
+        const sensorFiredEvent: SensorFiredEvent = {
+            event_type: "SensorFiredEvent",
+            t: sensorFiring.t,
+            node_id: this.nodeId,
+            sensor_id: sensorFiring.sensorId,
+            action: sensorFiring.action,
+        }
+        eventArray.push(sensorFiredEvent);
 
         // Clean up board
         this.boardView.reset();

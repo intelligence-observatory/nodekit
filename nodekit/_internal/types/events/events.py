@@ -23,6 +23,7 @@ class EventTypeEnum(str, enum.Enum):
     CardHiddenEvent = "CardHiddenEvent"
     SensorArmedEvent = "SensorArmedEvent"
     SensorFiredEvent = "SensorFiredEvent"
+    SensorDisarmedEvent = "SensorDisarmedEvent"
     NodeExitedEvent = "NodeExitedEvent"
 
     PointerSampledEvent = "PointerSampledEvent"
@@ -96,11 +97,20 @@ class NodeEnteredEvent(BaseNodeEvent):
     event_type: Literal[EventTypeEnum.NodeEnteredEvent] = EventTypeEnum.NodeEnteredEvent
 
 
+class NodeExitedEvent(BaseNodeEvent):
+    event_type: Literal[EventTypeEnum.NodeExitedEvent] = EventTypeEnum.NodeExitedEvent
+
+
+# %%
 class CardShownEvent(BaseNodeEvent):
     event_type: Literal[EventTypeEnum.CardShownEvent] = EventTypeEnum.CardShownEvent
     card_id: str = pydantic.Field(
         description="Identifies the Card in the Node that was shown."
     )
+
+
+# Some cards emit other events to the EventStream, like SliderCard. This should be called...
+# ...
 
 
 class CardHiddenEvent(BaseNodeEvent):
@@ -110,6 +120,7 @@ class CardHiddenEvent(BaseNodeEvent):
     )
 
 
+# %%
 class SensorArmedEvent(BaseNodeEvent):
     event_type: Literal[EventTypeEnum.SensorArmedEvent] = EventTypeEnum.SensorArmedEvent
     sensor_id: SensorId = pydantic.Field(
@@ -126,14 +137,12 @@ class SensorFiredEvent(BaseNodeEvent):
 
 
 class SensorDisarmedEvent(BaseNodeEvent):
-    event_type: Literal[EventTypeEnum.SensorFiredEvent] = EventTypeEnum.SensorFiredEvent
+    event_type: Literal[EventTypeEnum.SensorDisarmedEvent] = (
+        EventTypeEnum.SensorDisarmedEvent
+    )
     sensor_id: SensorId = pydantic.Field(
         description="Identifies the Sensor in the Node that was disarmed."
     )
-
-
-class NodeExitedEvent(BaseNodeEvent):
-    event_type: Literal[EventTypeEnum.NodeExitedEvent] = EventTypeEnum.NodeExitedEvent
 
 
 # %%
@@ -172,6 +181,7 @@ Event = Annotated[
         CardHiddenEvent,
         SensorArmedEvent,
         SensorFiredEvent,
+        SensorDisarmedEvent,
         NodeExitedEvent,
         # Input streams:
         PointerSampledEvent,
