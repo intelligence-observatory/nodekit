@@ -214,8 +214,9 @@ declare type SHA256 = string & {
 
 declare interface SliderCard extends BaseCard<'SliderCard'> {
     num_bins: number;
-    orientation: 'horizontal' | 'vertical';
     show_bin_markers: boolean;
+    initial_bin_index: number;
+    orientation: 'horizontal' | 'vertical';
 }
 
 declare type SpatialPoint = number & {

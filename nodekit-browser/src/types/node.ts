@@ -11,7 +11,6 @@ export interface Node {
     board_color: ColorHexString;
 }
 
-
 export interface Graph {
     nodekit_version: string;
     nodes: Record<NodeId, Node>;

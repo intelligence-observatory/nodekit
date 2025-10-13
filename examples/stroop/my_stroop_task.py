@@ -38,25 +38,27 @@ def make_stroop_instructions() -> nk.Node:
         text=str(markdown_instructions),
         justification_horizontal="left",
     )
-    next_card = nk.cards.TextCard(
+    press_spacebar_card = nk.cards.TextCard(
         x=0,
         y=-0.4,
-        w=0.3,
+        w=0.5,
         h=0.1,
-        text="Press to start",
+        text="Press the **spacebar** to begin.",
+        font_size=0.02,
+        background_color="#e8e8e8",
         justification_horizontal="center",
-        start_msec=2000,
-        background_color="#e6e6e6",
+        justification_vertical="center",
+        start_msec=4000,
     )
-    next_sensor = nk.sensors.ClickSensor(
-        x=next_card.x,
-        y=next_card.y,
-        w=next_card.w,
-        h=next_card.h,
-        start_msec=next_card.start_msec,
+    next_sensor = nk.sensors.KeySensor(
+        key=" ",
+        start_msec=press_spacebar_card.start_msec,
     )
     return nk.Node(
-        cards={"instructions": instructions_card, "next-button": next_card},
+        cards={
+            "instructions": instructions_card,
+            "press-spacebar": press_spacebar_card,
+        },
         sensors={
             "done-reading-instructions": next_sensor,
         },
