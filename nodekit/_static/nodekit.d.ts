@@ -118,12 +118,6 @@ declare interface Graph {
     start: NodeId;
 }
 
-declare interface Graph {
-    nodekit_version: string;
-    nodes: Node_2[];
-    transitions: Transition[];
-}
-
 declare interface HidePointerEffect extends BaseEffect<'HidePointerEffect'> {
     end_msec: NodeTimePointMsec;
 }
