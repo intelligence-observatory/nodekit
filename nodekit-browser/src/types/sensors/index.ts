@@ -1,4 +1,4 @@
-import type {PressableKey, SpatialPoint, SpatialSize, NodeTimePointMsec, Mask} from "../common.ts";
+import type {PressableKey, SpatialPoint, SpatialSize, NodeTimePointMsec, Mask, CardId} from "../common.ts";
 
 
 interface BaseSensor<T extends string> {
@@ -28,6 +28,8 @@ export interface KeySensor extends TemporallyBoundedSensor<'KeySensor'> {
 }
 
 export interface SliderSensor extends BaseSensor<'SliderSensor'> {
-    card_id: string; // The CardId of a SliderCard in the same Node
+    slider_id: CardId; // The CardId of a SliderCard in the same Node
+    submitter_id: CardId | null; // The CardId of a TextCard in the same Node that acts as the "Submit" button. If null, the sensor submits as soon as the slider is moved.
 }
+
 export type Sensor = TimeoutSensor | ClickSensor | KeySensor | SliderSensor;

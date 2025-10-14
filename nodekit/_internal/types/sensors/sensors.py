@@ -86,8 +86,12 @@ class KeySensor(TemporallyBoundedSensor):
 # %%
 class SliderSensor(BaseSensor):
     sensor_type: Literal["SliderSensor"] = "SliderSensor"
-    card_id: CardId = pydantic.Field(
+    slider_id: CardId = pydantic.Field(
         description="The ID of the SliderCard that this Sensor is associated with."
+    )
+    submitter_id: CardId | None = pydantic.Field(
+        default=None,
+        description="The ID of the Card (e.g., a ButtonCard) that submits the Slider value. If None, the Sensor triggers immediately when the Slider value changes.",
     )
 
 
