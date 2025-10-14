@@ -9,10 +9,14 @@ import {renderTextContent, type TextContentParameters} from "../../../utils.ts";
  * A card which displays left-justified Markdown text on a light background.
  * Offers a scrollbar if the content is too long.
  */
+
+type CardSelectedSubscriber = (selected: boolean) => void;
+
 export class TextCardView extends CardView<TextCard> {
     textContainer: HTMLDivElement | undefined;
 
-    selected: boolean = false;
+    private selected: boolean = false;
+    private subscribers: Set<CardSelectedSubscriber> = new Set()
 
     async prepare(
     ) {
@@ -64,7 +68,10 @@ export class TextCardView extends CardView<TextCard> {
                 else {
                     this.textContainer!.classList.remove('text-card--selected');
                 }
-            });
+
+                this.emitSelectionState()
+            }
+            );
         }
     }
     onStart() {
@@ -72,7 +79,13 @@ export class TextCardView extends CardView<TextCard> {
         this.setInteractivity(true)
     }
 
+    private emitSelectionState(){
+        this.subscribers.forEach((callback) => {
+            callback(this.selected);
+        });
+    }
 
-
-
+    public subscribeToSelectionChanges(callback: CardSelectedSubscriber){
+        this.subscribers.add(callback);
+    }
 }

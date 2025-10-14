@@ -51,10 +51,7 @@ class BaseCard(pydantic.BaseModel, ABC):
 
 # %% Mixins
 class SelectableMixin(pydantic.BaseModel):
-    hover_color: ColorHexString | None = pydantic.Field(default=None)
-    selected_color: ColorHexString | None = pydantic.Field(default=None)
-    unselectable_color: ColorHexString | None = pydantic.Field(default=None)
-
+    selectable: bool = pydantic.Field(default=False)
 
 # %%
 class ImageCard(BaseCard):
