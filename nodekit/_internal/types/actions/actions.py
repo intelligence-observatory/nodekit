@@ -1,9 +1,9 @@
 from abc import ABC
-from typing import Literal, Union, Annotated
+from typing import Literal, Union, Annotated, Dict
 
 import pydantic
 
-from nodekit._internal.types.common import PressableKey, SpatialPoint
+from nodekit._internal.types.common import PressableKey, SpatialPoint, CardId
 
 
 # %%
@@ -34,16 +34,20 @@ class KeyAction(BaseAction):
 
 
 # %%
-class SliderAction(BaseAction):
-    action_type: Literal["SliderAction"] = "SliderAction"
-    value: float = pydantic.Field(description="The value of the slider, in normalized units.", ge=0, le=1)
-    bin_index: int = pydantic.Field(description="The index of the bin that was selected.", ge=0)
+class SliderState(pydantic.BaseModel):
+    slider_normalized_position: float = pydantic.Field(description="The value of the slider, in normalized units.", ge=0, le=1)
+    slider_bin_index: int = pydantic.Field(description="The index of the bin that was selected.", ge=0)
 
 
-# %%
-class FreeTextEntryAction(BaseAction):
-    action_type: Literal["FreeTextEntryAction"] = "FreeTextEntryAction"
+class FreeTextEntryState(pydantic.BaseModel):
     text: str = pydantic.Field(description="The text that was entered.")
+
+class SubmitAction(BaseAction):
+    action_type: Literal["SubmitAction"] = "SubmitAction"
+    submitted_values: Dict[CardId, SliderState | FreeTextEntryState] = pydantic.Field(
+        description="A mapping from CardId to the corresponding Action (SliderAction or FreeTextEntryAction) that was submitted."
+    )
+
 
 # %%
 Action = Annotated[
@@ -51,8 +55,7 @@ Action = Annotated[
         ClickAction,
         KeyAction,
         TimeoutAction,
-        SliderAction,
-        FreeTextEntryAction,
+        SubmitAction,
     ],
     pydantic.Field(discriminator="action_type"),
 ]

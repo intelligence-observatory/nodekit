@@ -1,4 +1,4 @@
-import type {PressableKey, SpatialPoint} from "../common.ts";
+import type {CardId, PressableKey, SpatialPoint} from "../common.ts";
 import type {SliderBinIndex, SliderNormalizedPosition} from "../../board-view/card-views/slider/slider-card-view.ts";
 
 export interface BaseAction<T extends string> {
@@ -16,13 +16,19 @@ export interface KeyAction extends BaseAction<"KeyAction"> {
 
 export interface TimeoutAction extends BaseAction<"TimeoutAction"> {}
 
-export interface SliderAction extends BaseAction<"SliderAction"> {
-    value: SliderNormalizedPosition // between 0 and 1
-    bin_index: SliderBinIndex
+// SubmitAction
+export interface SliderState {
+    slider_normalized_position: SliderNormalizedPosition // between 0 and 1
+    slider_bin_index: SliderBinIndex
 }
 
-export interface FreeTextEntryAction extends BaseAction<"FreeTextEntryAction"> {
+export interface FreeTextEntryState {
     text: string
 }
 
-export type Action = ClickAction | TimeoutAction | KeyAction | SliderAction;
+export interface SubmitAction extends BaseAction<"SubmitAction"> {
+    submitted_values: Record<CardId, FreeTextEntryState | SliderState>
+}
+
+// Union
+export type Action = ClickAction | TimeoutAction | KeyAction | SubmitAction;

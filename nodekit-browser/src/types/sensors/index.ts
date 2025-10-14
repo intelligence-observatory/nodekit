@@ -27,16 +27,10 @@ export interface KeySensor extends TemporallyBoundedSensor<'KeySensor'> {
     key: PressableKey
 }
 
-export interface SliderSensor extends BaseSensor<'SliderSensor'> {
-    slider_id: CardId; // The CardId of a SliderCard in the same Node
-    submitter_id: CardId | null; // The CardId of a TextCard in the same Node that acts as the "Submit" button. If null, the sensor submits as soon as the slider is moved.
-}
-
-export interface FreeTextEntrySensor extends BaseSensor<'FreeTextEntrySensor'> {
-    free_text_entry_id: CardId; // The CardId of a FreeTextEntryCard in the same Node
-    submitter_id: CardId | null; // The CardId of a TextCard in the same Node that acts as the "Submit" button. If null, the sensor submits when the user presses Enter.
+export interface SubmitSensor extends BaseSensor<'SubmitSensor'> {
+    source_ids: CardId[]; // The CardId of SliderCard or FreeTextEntryCard in the same Node
+    submitter_id: CardId; // The CardId of a TextCard in the same Node that acts as the "Submit" button.
 }
 
 
-
-export type Sensor = TimeoutSensor | ClickSensor | KeySensor | SliderSensor | FreeTextEntrySensor;
+export type Sensor = TimeoutSensor | ClickSensor | KeySensor | SubmitSensor;

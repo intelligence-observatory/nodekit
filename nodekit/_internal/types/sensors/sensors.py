@@ -1,5 +1,5 @@
 from abc import ABC
-from typing import Literal, Annotated, Union
+from typing import Literal, Annotated, Union, List
 
 import pydantic
 
@@ -84,27 +84,25 @@ class KeySensor(TemporallyBoundedSensor):
 
 
 # %%
-class SliderSensor(BaseSensor):
-    sensor_type: Literal["SliderSensor"] = "SliderSensor"
-    slider_id: CardId = pydantic.Field(
-        description="The ID of the SliderCard that this Sensor is associated with."
+class SubmitSensor(BaseSensor):
+    """
+    A Sensor that triggers when a submit button is initiated.
+     It reports the values of one or more associated SliderCards or FreeTextEntryCards
+    """
+    sensor_type: Literal["SubmitSensor"] = "SubmitSensor"
+    source_ids: List[CardId] = pydantic.Field(
+        description="The CardIds of the SliderCards or FreeTextEntryCards that this Sensor is associated with.",
+        min_length=1,
     )
-    submitter_id: CardId | None = pydantic.Field(
-        default=None,
-        description="The ID of the Card (e.g., a ButtonCard) that submits the Slider value. If None, the Sensor triggers immediately when the Slider value changes.",
-    )
-
-# %%
-class FreeTextEntrySensor(BaseSensor):
-    sensor_type: Literal["SliderSensor"] = "FreeTextEntrySensor"
-    free_text_entry_id: CardId = pydantic.Field(
-        description="The ID of the FreeTextEntryCard that this Sensor is associated with."
-    )
-    submitter_id: CardId | None = pydantic.Field(
-        default=None,
-        description="The ID of the Card (e.g., a ButtonCard) that submits the Slider value. If None, the Sensor triggers immediately when the Slider value changes.",
+    submitter_id: CardId = pydantic.Field(
+        description="The ID of the TextCard that submits the Slider value. If None, the Sensor triggers immediately when the Slider value changes.",
     )
 
+    @pydantic.field_validator("source_ids")
+    def ensure_unique_source_ids(cls, v):
+        if len(v) != len(set(v)):
+            raise ValueError("source_ids must contain unique CardIds.")
+        return v
 
 # %%
 Sensor = Annotated[
@@ -112,8 +110,7 @@ Sensor = Annotated[
         TimeoutSensor,
         ClickSensor,
         KeySensor,
-        SliderSensor,
-        FreeTextEntrySensor,
+        SubmitSensor,
     ],
     pydantic.Field(discriminator="sensor_type"),
 ]

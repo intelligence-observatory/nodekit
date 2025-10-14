@@ -47,7 +47,6 @@ export class TextCardView extends CardView<TextCard> {
         this.textContainer.appendChild(textContentDiv);
 
         // Add event listener for hover effect
-        console.log(this.card )
         if (this.card.selectable) {
             this.textContainer.addEventListener('mouseenter', () => {
                 this.textContainer!.style.background = 'var(--cognition-faint-color)'; // Just hardcode; CSS class switches weren't working. Todo: fix
