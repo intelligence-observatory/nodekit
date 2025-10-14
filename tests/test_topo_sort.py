@@ -3,7 +3,6 @@ import pytest
 import nodekit as nk
 import nodekit._internal.ops.topological_sorting as ts
 
-
 # %% Helper functions
 def generate_fixation_node() -> nk.Node:
     click_sensor = nk.sensors.ClickSensor(
@@ -94,7 +93,9 @@ def test_example_pass():
     transitions["positive_1"] = {"wait": "fixation_2"}
     transitions["negative_1"] = {"wait": "fixation_2"}
 
-    result = ts.topological_sort(nodes, transitions)
+    graph = nk.Graph(nodes=nodes, start='fixation_1', transitions=transitions)
+    
+    result = ts.topological_sort(graph)
 
     assert set(result) == set(nodes), "Output nodes do not match input nodes"
     for src, transition_map in transitions.items():
@@ -151,8 +152,10 @@ def test_example_fail():
     transitions["positive_1"] = {"wait": "fixation_2"}
     transitions["negative_1"] = {"wait": "fixation_1"}
 
+    graph = nk.Graph(nodes=nodes, start='fixation_1', transitions=transitions)
+
     with pytest.raises(ValueError, match="Loop present in Graph"):
-        ts.topological_sort(nodes, transitions)
+        ts.topological_sort(graph)
 
 
 # %% Node, Sensor and transition checks:
@@ -166,7 +169,9 @@ def test_multiple_roots_tie_break():
         "A": {"a": "C"},
         "B": {"b": "C"},
     }
-    result = ts.topological_sort(nodes, transitions)
+
+    graph = nk.Graph(nodes=nodes, start='A', transitions=transitions)
+    result = ts.topological_sort(graph)
 
     # A and B both roots, check deterministic order based on incoming_sensors:
     assert result.index("A") < result.index("B")
@@ -183,8 +188,10 @@ def test_invalid_sensor_reference():
 
     # Add transition from undefined sensor:
     transitions = {"B": {"s": "C"}, "A": {"r": "B"}}
+
+    graph = nk.Graph(nodes=nodes, start='A', transitions=transitions)
     with pytest.raises(KeyError, match="Sensor 'r' not found"):
-        ts.topological_sort(nodes, transitions)
+        ts.topological_sort(graph)
 
 
 def test_invalid_transition_node():
@@ -194,5 +201,7 @@ def test_invalid_transition_node():
 
     # Add transitions with non-existent Node
     transitions = {"A": {"s": "B"}}
+
+    graph = nk.Graph(nodes=nodes, start='A', transitions=transitions)
     with pytest.raises(KeyError, match="unknown node 'B'"):
-        ts.topological_sort(nodes, transitions)
+        ts.topological_sort(graph)

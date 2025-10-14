@@ -1,11 +1,11 @@
 from nodekit._internal.types.common import SensorId, NodeId
-from nodekit._internal.types.node import Node
 from typing import Dict, List, Tuple
 from collections import defaultdict, deque
+from nodekit import Graph, Node
 
 
 def topological_sort(
-    nodes: Dict[NodeId, Node], transitions: Dict[NodeId, Dict[SensorId, NodeId]]
+    graph: Graph,
 ) -> List[NodeId]:
     """
     Perform a topological sort over a directed graph of nodes and transitions.
@@ -17,13 +17,12 @@ def topological_sort(
     are prioritized first.
 
     Args:
-    nodes : Mapping of node identifiers to Node objects representing graph vertices.
-    transitions : Mapping from each input NodeId to its outgoing transitions, where each
-        key is a SensorId and each value is the target NodeId of that transition.
-
+        graph: The nk.Graph object containing nodes and transitions.
     Returns:
-    List[NodeId]: A list of node identifiers in topologically sorted order
+        List[NodeId]: A list of node identifiers in topologically sorted order
     """
+
+    nodes, transitions = graph.nodes, graph.transitions
 
     node_keys = [key for key in nodes]
     edges = []
