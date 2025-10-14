@@ -19,7 +19,6 @@ from nodekit._internal.types.common import SHA256
 from nodekit._internal.types.events.events import Event, EventTypeEnum
 from nodekit._internal.types.trace import Trace
 
-
 # %%
 class LocalRunner:
     def __init__(

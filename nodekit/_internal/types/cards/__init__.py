@@ -49,6 +49,12 @@ class BaseCard(pydantic.BaseModel, ABC):
         default=None,
     )
 
+# %% Mixins
+class SelectableMixin(pydantic.BaseModel):
+    hover_color: ColorHexString | None = pydantic.Field(default=None)
+    selected_color: ColorHexString | None = pydantic.Field(default=None)
+    unselectable_color: ColorHexString | None = pydantic.Field(default=None)
+
 
 # %%
 class ImageCard(BaseCard):
@@ -57,7 +63,7 @@ class ImageCard(BaseCard):
 
 
 # %%
-class TextCard(BaseCard):
+class TextCard(BaseCard, SelectableMixin):
     card_type: Literal["TextCard"] = "TextCard"
     text: MarkdownString = pydantic.Field(min_length=1)
     font_size: SpatialSize = pydantic.Field(

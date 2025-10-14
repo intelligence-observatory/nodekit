@@ -39,5 +39,20 @@ export class TextCardView extends CardView<TextCard> {
             }
         )
         this.textContainer.appendChild(textContentDiv);
+
+        // Add event listener for hover
+        console.log(this.card )
+        if (this.card.hover_color) {
+            this.textContainer.addEventListener('mouseenter', () => {
+                this.textContainer!.style.backgroundColor = this.card.hover_color!;
+            });
+            this.textContainer.addEventListener('mouseleave', () => {
+                this.textContainer!.style.backgroundColor = this.card.background_color;
+            });
+        }
+    }
+    onStart() {
+        super.onStart();
+        this.setInteractivity(true)
     }
 }
