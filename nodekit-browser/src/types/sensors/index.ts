@@ -27,4 +27,7 @@ export interface KeySensor extends TemporallyBoundedSensor<'KeySensor'> {
     key: PressableKey
 }
 
-export type Sensor = TimeoutSensor | ClickSensor | KeySensor;
+export interface SliderSensor extends BaseSensor<'SliderSensor'> {
+    card_id: string; // The CardId of a SliderCard in the same Node
+}
+export type Sensor = TimeoutSensor | ClickSensor | KeySensor | SliderSensor;

@@ -4,8 +4,8 @@ import type {SliderCard} from "../../../types/cards";
 
 
 // Slider:
-type SliderBinIndex = number // 0 to num_bins - 1
-type SliderNormalizedPosition = number // 0 to 1 (left to right, and bottom to top)
+export type SliderBinIndex = number // 0 to num_bins - 1
+export type SliderNormalizedPosition = number // 0 to 1 (left to right, and bottom to top)
 
 export type SliderSample = {
     sliderNormalizedPosition: SliderNormalizedPosition,
