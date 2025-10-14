@@ -32,4 +32,6 @@ export interface SliderSensor extends BaseSensor<'SliderSensor'> {
     submitter_id: CardId | null; // The CardId of a TextCard in the same Node that acts as the "Submit" button. If null, the sensor submits as soon as the slider is moved.
 }
 
+
+
 export type Sensor = TimeoutSensor | ClickSensor | KeySensor | SliderSensor;

@@ -94,6 +94,9 @@ class SliderSensor(BaseSensor):
         description="The ID of the Card (e.g., a ButtonCard) that submits the Slider value. If None, the Sensor triggers immediately when the Slider value changes.",
     )
 
+# %%
+class FreeTextEntrySensor()
+
 
 # %%
 Sensor = Annotated[
