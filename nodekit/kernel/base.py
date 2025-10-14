@@ -9,7 +9,7 @@ from nodekit._internal.types.common import (
     ColorHexString,
 )
 
-# %%
+# %% Blots
 class BaseBlot(pydantic.BaseModel):
     x: SpatialPoint
     y: SpatialPoint
@@ -68,7 +68,12 @@ RegisterId = str # Uniquely identifies a Register in the Node. Always of form {B
 #type RegisterValueType = Union of all the types of fields in the Blots above
 
 
+# The kernel itself should own a few registers, not tied to cards:
+# pointer
+# key(s)
+
 # %% Expressions.
+# Expression[T] evaluates to a value of type T
 """
 We have constants (e.g. true, false, 3, "hello", "#FF0000", 42, 3.14)
 We have register references (e.g. StimulusImage.visible, StimulusSlider.bin_index)
@@ -88,6 +93,8 @@ class Value(pydantic.BaseModel):
     ...
 
 # %% Predicates. e.g. P = (StimulusImage.visible == true AND StimulusSlider.bin_index == 3)
+# Predicates are Expression[bool]
+
 """
 These operate on expressions (see above) and return a boolean value.
 
@@ -139,7 +146,7 @@ Back compat: first priorities
 [Priority B] Timeout
 * Transition to terminal state 
 
-[Priority C] Hover 
+[Priority D] Hover 
 * Transition a blot to hover / unhovered based on pointer location
 
 
