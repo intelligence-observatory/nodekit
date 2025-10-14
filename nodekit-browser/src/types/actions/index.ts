@@ -21,4 +21,8 @@ export interface SliderAction extends BaseAction<"SliderAction"> {
     bin_index: SliderBinIndex
 }
 
+export interface FreeTextEntryAction extends BaseAction<"FreeTextEntryAction"> {
+    text: string
+}
+
 export type Action = ClickAction | TimeoutAction | KeyAction | SliderAction;

@@ -41,12 +41,18 @@ class SliderAction(BaseAction):
 
 
 # %%
+class FreeTextEntryAction(BaseAction):
+    action_type: Literal["FreeTextEntryAction"] = "FreeTextEntryAction"
+    text: str = pydantic.Field(description="The text that was entered.")
+
+# %%
 Action = Annotated[
     Union[
         ClickAction,
         KeyAction,
         TimeoutAction,
         SliderAction,
+        FreeTextEntryAction,
     ],
     pydantic.Field(discriminator="action_type"),
 ]

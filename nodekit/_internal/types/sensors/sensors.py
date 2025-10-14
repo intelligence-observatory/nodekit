@@ -95,7 +95,15 @@ class SliderSensor(BaseSensor):
     )
 
 # %%
-class FreeTextEntrySensor()
+class FreeTextEntrySensor(BaseSensor):
+    sensor_type: Literal["SliderSensor"] = "FreeTextEntrySensor"
+    free_text_entry_id: CardId = pydantic.Field(
+        description="The ID of the FreeTextEntryCard that this Sensor is associated with."
+    )
+    submitter_id: CardId | None = pydantic.Field(
+        default=None,
+        description="The ID of the Card (e.g., a ButtonCard) that submits the Slider value. If None, the Sensor triggers immediately when the Slider value changes.",
+    )
 
 
 # %%
@@ -105,6 +113,7 @@ Sensor = Annotated[
         ClickSensor,
         KeySensor,
         SliderSensor,
+        FreeTextEntrySensor,
     ],
     pydantic.Field(discriminator="sensor_type"),
 ]
