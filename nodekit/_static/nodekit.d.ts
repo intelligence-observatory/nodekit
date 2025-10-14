@@ -190,9 +190,7 @@ declare interface RelativePath extends BaseLocator<"RelativePath"> {
 }
 
 declare interface SelectableMixin {
-    hover_color: ColorHexString | null;
-    selected_color: ColorHexString | null;
-    unselectable_color: ColorHexString | null;
+    selectable: boolean;
 }
 
 declare type Sensor = TimeoutSensor | ClickSensor | KeySensor;

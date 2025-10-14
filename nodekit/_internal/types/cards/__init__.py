@@ -49,9 +49,11 @@ class BaseCard(pydantic.BaseModel, ABC):
         default=None,
     )
 
+
 # %% Mixins
 class SelectableMixin(pydantic.BaseModel):
     selectable: bool = pydantic.Field(default=False)
+
 
 # %%
 class ImageCard(BaseCard):
