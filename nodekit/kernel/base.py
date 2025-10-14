@@ -9,28 +9,36 @@ from nodekit._internal.types.common import (
     ColorHexString,
 )
 
+
 # %% Blots
 class BaseBlot(pydantic.BaseModel):
+    """
+    Blots are stateful, logical entities which have a visual representation on the Board.
+    Each Blot has a set of properties (fields) which can be read and written by *Rules.
+    """
+    blot_type: str
     x: SpatialPoint
     y: SpatialPoint
     width: SpatialSize
     height: SpatialSize
+    placed: bool # Whether it currently exists on the Board. (Pedantry: note this is necessary but not sufficient for visibility)
 
 class SelectableBlotMixin(pydantic.BaseModel):
     """
     Rendered as an overlay on the BaseBlot. z = 1.
     """
-    selected_color: ColorHexString
-    unselected_color: ColorHexString
-    unselectable_color: ColorHexString
+    selected_color: ColorHexString | None # if None, no selected effect
+    unselected_color: ColorHexString | None # if None, no unselected effect
+    unselectable_color: ColorHexString | None # if None, no unselectable effect
     selection_state: Literal['selected', 'unselected', 'unselectable']
+
 
 class HoverableBlotMixin(pydantic.BaseModel):
     """
     Rendered as an overlay on the BaseBlot. z = 2.
     """
-    hover_color: ColorHexString
-    hover_state: Literal['hovered', 'unhovered']
+    hover_color: ColorHexString | None # if None, no hover effect
+    # hover_state: Literal['hovered', 'unhovered'] # derive from pointer input
 
 # %%
 class SliderBlot(BaseBlot):
@@ -68,9 +76,9 @@ RegisterId = str # Uniquely identifies a Register in the Node. Always of form {B
 #type RegisterValueType = Union of all the types of fields in the Blots above
 
 
-# The kernel itself should own a few registers, not tied to cards:
+# The rendering function itself should also accept inputs:
 # pointer
-# key(s)
+
 
 # %% Expressions.
 # Expression[T] evaluates to a value of type T
