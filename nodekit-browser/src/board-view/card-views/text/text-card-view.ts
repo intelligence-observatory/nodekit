@@ -12,6 +12,8 @@ import {renderTextContent, type TextContentParameters} from "../../../utils.ts";
 export class TextCardView extends CardView<TextCard> {
     textContainer: HTMLDivElement | undefined;
 
+    selected: boolean = false;
+
     async prepare(
     ) {
         this.textContainer = document.createElement('div');
@@ -40,14 +42,28 @@ export class TextCardView extends CardView<TextCard> {
         )
         this.textContainer.appendChild(textContentDiv);
 
-        // Add event listener for hover
+        // Add event listener for hover effect
         console.log(this.card )
-        if (this.card.hover_color) {
+        if (this.card.selectable) {
             this.textContainer.addEventListener('mouseenter', () => {
-                this.textContainer!.style.backgroundColor = this.card.hover_color!;
+                this.textContainer!.style.background = 'var(--cognition-faint-color)'; // Just hardcode; CSS class switches weren't working. Todo: fix
             });
+
             this.textContainer.addEventListener('mouseleave', () => {
-                this.textContainer!.style.backgroundColor = this.card.background_color;
+                this.textContainer!.style.background = this.card.background_color;
+            });
+        }
+
+        // Add event listener for selection
+        if (this.card.selectable) {
+            this.textContainer.addEventListener('click', () => {
+                this.selected = !this.selected;
+                if (this.selected) {
+                    this.textContainer!.classList.add('text-card--selected');
+                }
+                else {
+                    this.textContainer!.classList.remove('text-card--selected');
+                }
             });
         }
     }
@@ -55,4 +71,8 @@ export class TextCardView extends CardView<TextCard> {
         super.onStart();
         this.setInteractivity(true)
     }
+
+
+
+
 }

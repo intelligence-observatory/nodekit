@@ -15,9 +15,7 @@ export interface BaseCard<T extends string> {
 }
 
 export interface SelectableMixin {
-    hover_color: ColorHexString | null; // If null, no hover effect
-    selected_color: ColorHexString | null; // If null, no selection effect
-    unselectable_color: ColorHexString | null;
+    selectable: boolean; // If true, adds hover and selection effects to the Card
 }
 
 export interface ImageCard extends BaseCard<'ImageCard'>{

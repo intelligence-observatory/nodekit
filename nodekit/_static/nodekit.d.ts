@@ -66,18 +66,6 @@ declare interface CardShownEvent extends BaseNodeEvent<'CardShownEvent'> {
     card_id: CardId;
 }
 
-declare interface CardHiddenEvent extends BaseNodeEvent<'CardHiddenEvent'> {
-    card_id: CardId;
-}
-
-declare type CardId = string & {
-    __brand: 'CardId';
-};
-
-declare interface CardShownEvent extends BaseNodeEvent<'CardShownEvent'> {
-    card_id: CardId;
-}
-
 declare interface ClickAction extends BaseAction<"ClickAction"> {
     x: SpatialPoint;
     y: SpatialPoint;
@@ -201,6 +189,12 @@ declare interface RelativePath extends BaseLocator<"RelativePath"> {
     relative_path: string;
 }
 
+declare interface SelectableMixin {
+    hover_color: ColorHexString | null;
+    selected_color: ColorHexString | null;
+    unselectable_color: ColorHexString | null;
+}
+
 declare type Sensor = TimeoutSensor | ClickSensor | KeySensor;
 
 declare interface SensorArmedEvent extends BaseNodeEvent<'SensorArmedEvent'> {
@@ -244,7 +238,7 @@ declare interface TemporallyBoundedSensor<T extends string> extends BaseSensor<T
     end_msec: NodeTimePointMsec | null;
 }
 
-declare interface TextCard extends BaseCard<'TextCard'> {
+declare interface TextCard extends BaseCard<'TextCard'>, SelectableMixin {
     text: MarkdownString;
     font_size: SpatialSize;
     justification_horizontal: 'left' | 'center' | 'right';
