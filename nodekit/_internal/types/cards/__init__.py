@@ -115,6 +115,11 @@ class SliderCard(BaseCard):
         default=False,
     )
 
+    confirm_button: TextCard | None = pydantic.Field(
+        default = None,
+        description= "An optional button that emits the slider state when pressed. Otherwise, the slider state is emitted when the user first moves the slider."
+    )
+
     @pydantic.model_validator(mode="after")
     def set_initial_bin_index(self) -> Self:
         if self.initial_bin_index is None:

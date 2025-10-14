@@ -9,6 +9,7 @@ from nodekit._internal.types.common import (
     SpatialPoint,
     SpatialSize,
     Mask,
+    CardId,
 )
 
 
@@ -33,7 +34,6 @@ class TimeoutSensor(BaseSensor):
         description="The number of milliseconds from the start of the Node when the Sensor triggers.",
         gt=0,
     )
-
 
 # %%
 class TemporallyBoundedSensor(BaseSensor, ABC):
@@ -84,11 +84,20 @@ class KeySensor(TemporallyBoundedSensor):
 
 
 # %%
+class SliderSensor(BaseSensor):
+    sensor_type: Literal["SliderSensor"] = "SliderSensor"
+    card_id: CardId = pydantic.Field(
+        description="The ID of the SliderCard that this Sensor is associated with."
+    )
+
+
+# %%
 Sensor = Annotated[
     Union[
         TimeoutSensor,
         ClickSensor,
         KeySensor,
+        SliderSensor,
     ],
     pydantic.Field(discriminator="sensor_type"),
 ]
