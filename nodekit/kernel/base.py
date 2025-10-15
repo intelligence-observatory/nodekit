@@ -23,6 +23,7 @@ class BaseBlot(pydantic.BaseModel):
     height: SpatialSize
     placed: bool # Whether it currently exists on the Board. (Pedantry: note this is necessary but not sufficient for visibility)
 
+
 class SelectableBlotMixin(pydantic.BaseModel):
     """
     Rendered as an overlay on the BaseBlot. z = 1.
@@ -30,7 +31,8 @@ class SelectableBlotMixin(pydantic.BaseModel):
     selected_color: ColorHexString | None # if None, no selected effect
     unselected_color: ColorHexString | None # if None, no unselected effect
     unselectable_color: ColorHexString | None # if None, no unselectable effect
-    selection_state: Literal['selected', 'unselected', 'unselectable']
+    selection_state: Literal['selected', 'unselected']
+    selectable: bool # whether it can be toggled or not
 
 
 class HoverableBlotMixin(pydantic.BaseModel):
@@ -38,7 +40,7 @@ class HoverableBlotMixin(pydantic.BaseModel):
     Rendered as an overlay on the BaseBlot. z = 2.
     """
     hover_color: ColorHexString | None # if None, no hover effect
-    # hover_state: Literal['hovered', 'unhovered'] # derive from pointer input
+    # hover_state: Literal['hovered', 'unhovered'] # can always be derived instantaneously from current pointer input + registers; no need to store
 
 # %%
 class SliderBlot(BaseBlot):
@@ -82,6 +84,7 @@ RegisterId = str # Uniquely identifies a Register in the Node. Always of form {B
 
 # %% Expressions.
 # Expression[T] evaluates to a value of type T
+# Should use AST JSON for this.
 """
 We have constants (e.g. true, false, 3, "hello", "#FF0000", 42, 3.14)
 We have register references (e.g. StimulusImage.visible, StimulusSlider.bin_index)
