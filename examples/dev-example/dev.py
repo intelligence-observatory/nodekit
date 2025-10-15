@@ -105,10 +105,10 @@ if __name__ == "__main__":
     savepath = Path("my_graph.nkg")
     if savepath.exists():
         savepath.unlink()
-    nk.pack(graph, savepath)
+    nk.save_graph(graph, savepath)
 
     # %% Unpacking a Graph:
-    graph_roundtrip = nk.unpack(savepath)
+    graph_roundtrip = nk.load_graph(savepath)
 
     # %% Play the Graph now:
     trace = nk.play(graph)

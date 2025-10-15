@@ -17,6 +17,7 @@ from nodekit._internal.types.cards import (
 )
 from nodekit._internal.types.common import MediaType, SHA256
 from nodekit._internal.types.graph import Graph
+from nodekit._internal.types.node import Node
 
 
 # %%
@@ -29,7 +30,7 @@ def _get_archive_relative_path(media_type: MediaType, sha256: SHA256) -> Path:
 
 
 # %%
-def pack(
+def save_graph(
     graph: Graph,
     path: str | os.PathLike,
 ) -> Path:
@@ -110,7 +111,7 @@ def pack(
 
 
 # %%
-def unpack(
+def load_graph(
     path: str | os.PathLike,
 ) -> Graph:
     """
@@ -130,7 +131,7 @@ def unpack(
 
         # Mutate all AssetLocators in the Graph from RelativePath to ZipArchiveInnerPath:
         for node in graph.nodes.values():
-            for card in node.cards:
+            for card in node.cards.values():
                 if isinstance(card, ImageCard):
                     asset = card.image
                 elif isinstance(card, VideoCard):
@@ -148,5 +149,6 @@ def unpack(
                 asset.locator = ZipArchiveInnerPath(
                     zip_archive_path=Path(path), inner_path=asset.locator.relative_path
                 )
+                print('mutated', asset.locator)
 
     return graph
