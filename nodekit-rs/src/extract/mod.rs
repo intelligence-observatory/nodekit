@@ -36,25 +36,26 @@ impl Extractor {
         stream: FfmpegStream,
         packet: Packet,
     ) -> Result<Option<Frames>, ffmpeg_next::Error> {
-        if let Some(audio) = self.audio.as_mut() {
-            if stream.index() == audio.stream_index() {
-                let mut frames = Vec::default();
-                audio.send_packet(&packet)?;
-                while let Ok(frame) = audio.extract_next_frame() {
-                    frames.push(frame);
-                }
-                return Ok(Some(Frames::Audio(frames)));
+        if let Some(audio) = self.audio.as_mut()
+            && stream.index() == audio.stream_index()
+        {
+            let mut frames = Vec::default();
+            audio.send_packet(&packet)?;
+            while let Ok(frame) = audio.extract_next_frame() {
+                frames.push(frame);
             }
+            Ok(Some(Frames::Audio(frames)))
         }
-        let video_stream_index = self.video.stream_index();
-        if stream.index() == video_stream_index {
+        else if stream.index() == self.video.stream_index() {
             let mut frames = Vec::default();
             self.video.send_packet(&packet)?;
             while let Ok(frame) = self.video.extract_next_frame() {
                 frames.push(frame);
             }
-            return Ok(Some(Frames::Video(frames)));
+            Ok(Some(Frames::Video(frames)))
         }
-        Ok(None)
+        else {
+            Ok(None)
+        }
     }
 }
