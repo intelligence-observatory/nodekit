@@ -92,12 +92,13 @@ class SubmitSensor(TemporallyBoundedSensor):
     """
 
     sensor_type: Literal["SubmitSensor"] = "SubmitSensor"
+    submitter_id: CardId = pydantic.Field(
+        description="The ID of the TextCard that submits the Slider value. If None, the Sensor triggers immediately when the Slider value changes.",
+    )
+
     source_ids: List[CardId] = pydantic.Field(
         description="The CardIds of the SliderCards or FreeTextEntryCards that this Sensor is associated with.",
         min_length=1,
-    )
-    submitter_id: CardId = pydantic.Field(
-        description="The ID of the TextCard that submits the Slider value. If None, the Sensor triggers immediately when the Slider value changes.",
     )
 
     @pydantic.field_validator("source_ids")
