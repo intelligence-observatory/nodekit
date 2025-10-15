@@ -1,4 +1,3 @@
-use crate::extract::audio_params::AudioParams;
 use ffmpeg_next::format::Pixel;
 use ffmpeg_next::{
     Error, Packet,
@@ -21,7 +20,6 @@ macro_rules! inner_extractor {
                 /// The index of this stream in the video file.
                 stream_index: usize,
                 decoder: $name,
-                frame: [<$name Frame>],
             }
 
             impl [<Inner $name Extractor>] {
@@ -36,7 +34,6 @@ macro_rules! inner_extractor {
                     Ok(Self {
                         stream_index,
                         decoder,
-                        frame: [<$name Frame>]::empty()
                     })
                 }
 
@@ -44,9 +41,10 @@ macro_rules! inner_extractor {
                      self.decoder.send_packet(packet)
                 }
 
-                pub fn extract_next_frame(&mut self) -> Result<&[u8], Error> {
-                    self.decoder.receive_frame(&mut self.frame)?;
-                    Ok(self.frame.data(0))
+                pub fn extract_next_frame<'f>(&mut self) -> Result<[<$name Frame>], Error> {
+                    let mut frame = [<$name Frame>]::empty();
+                    self.decoder.receive_frame(&mut frame)?;
+                    Ok(frame)
                 }
             }
         }
@@ -83,12 +81,8 @@ impl AudioExtractor {
 
     /// Receive the next frame in the stream.
     /// Returns an error if there are no more frames.
-    pub fn extract_next_frame(&mut self) -> Result<&[u8], Error> {
+    pub fn extract_next_frame(&mut self) -> Result<AudioFrame, Error> {
         self.extractor.extract_next_frame()
-    }
-
-    pub fn get_params(&self) -> AudioParams {
-        AudioParams::new(&self.extractor.decoder)
     }
 }
 
@@ -96,7 +90,6 @@ impl AudioExtractor {
 pub struct VideoExtractor {
     extractor: InnerVideoExtractor,
     scaler: ScalingContext,
-    frame: VideoFrame,
 }
 
 impl VideoExtractor {
@@ -111,20 +104,17 @@ impl VideoExtractor {
             height,
             Flags::BILINEAR,
         )?;
-        Ok(Self {
-            extractor,
-            scaler,
-            frame: VideoFrame::empty(),
-        })
+        Ok(Self { extractor, scaler })
     }
 
     /// Receive the next frame in the stream.
     /// Returns an error if there are no more frames.
-    pub fn extract_next_frame(&mut self) -> Result<&[u8], Error> {
-        self.extractor.extract_next_frame()?;
+    pub fn extract_next_frame(&mut self) -> Result<VideoFrame, Error> {
+        let frame = self.extractor.extract_next_frame()?;
         // Scale the frame.
-        self.scaler.run(&self.extractor.frame, &mut self.frame)?;
-        Ok(self.frame.data(0))
+        let mut scaled_frame = VideoFrame::empty();
+        self.scaler.run(&frame, &mut scaled_frame)?;
+        Ok(scaled_frame)
     }
 }
 
