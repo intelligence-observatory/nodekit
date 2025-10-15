@@ -2,11 +2,10 @@ mod extractor;
 mod frames;
 
 use extractor::{AudioExtractor, VideoExtractor};
-use ffmpeg_next::format::context::Input;
 use ffmpeg_next::format::input;
 use ffmpeg_next::{Packet, Stream as FfmpegStream};
 use std::path::Path;
-use ffmpeg_next::format::context::input::PacketIter;
+use crate::packet_iter::PacketIter;
 pub use frames::Frames;
 
 pub struct Extractor<'e> {
@@ -21,10 +20,10 @@ impl Extractor<'_> {
         width: u32,
         height: u32,
     ) -> Result<Self, ffmpeg_next::Error> {
-        let mut input = input(path.as_ref())?;
+        let input = input(path.as_ref())?;
         let audio = AudioExtractor::new(&input).ok();
         let video = VideoExtractor::new(&input, width, height)?;
-        let packet_iter = input.packets();
+        let packet_iter = PacketIter::from(input);
         Ok(Self {
             packet_iter,
             audio,
@@ -34,27 +33,30 @@ impl Extractor<'_> {
 
     pub fn next_frames(
         &mut self,
-        stream: FfmpegStream,
-        packet: Packet,
     ) -> Result<Option<Frames>, ffmpeg_next::Error> {
-        if let Some(audio) = self.audio.as_mut()
-            && stream.index() == audio.stream_index()
-        {
-            let mut frames = Vec::default();
-            audio.send_packet(&packet)?;
-            while let Ok(frame) = audio.extract_next_frame() {
-                frames.push(frame);
+        match self.packet_iter.next() {
+            Some((stream, packet)) => {
+                if let Some(audio) = self.audio.as_mut()
+                    && stream.index() == audio.stream_index()
+                {
+                    let mut frames = Vec::default();
+                    audio.send_packet(&packet)?;
+                    while let Ok(frame) = audio.extract_next_frame() {
+                        frames.push(frame);
+                    }
+                    Ok(Some(Frames::Audio(frames)))
+                } else if stream.index() == self.video.stream_index() {
+                    let mut frames = Vec::default();
+                    self.video.send_packet(&packet)?;
+                    while let Ok(frame) = self.video.extract_next_frame() {
+                        frames.push(frame);
+                    }
+                    Ok(Some(Frames::Video(frames)))
+                } else {
+                    Ok(None)
+                }
             }
-            Ok(Some(Frames::Audio(frames)))
-        } else if stream.index() == self.video.stream_index() {
-            let mut frames = Vec::default();
-            self.video.send_packet(&packet)?;
-            while let Ok(frame) = self.video.extract_next_frame() {
-                frames.push(frame);
-            }
-            Ok(Some(Frames::Video(frames)))
-        } else {
-            Ok(None)
+            None => Ok(None)
         }
     }
 }

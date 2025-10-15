@@ -1,6 +1,7 @@
 mod extract;
 mod state;
 mod video;
+mod packet_iter;
 
 pub use extract::{Extractor, Frames};
 

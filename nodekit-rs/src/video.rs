@@ -3,13 +3,13 @@ use blittle::*;
 use ffmpeg_next::format::context::input::PacketIter;
 use crate::{Board, Extractor, Frames, BOARD_D};
 
-pub struct Video {
+pub struct Video<'v> {
     pub position: PositionU,
     pub size: Size,
-    pub extractor: Extractor,
+    pub extractor: Extractor<'v>,
 }
 
-impl Video {
+impl Video<'_> {
     pub fn new<P: AsRef<Path>>(path: P, position: PositionI, mut size: Size) -> Result<Self, ffmpeg_next::Error> {
         let board_size = Size {
             w: BOARD_D,
@@ -25,7 +25,8 @@ impl Video {
     }
     
     pub fn blit(&mut self, board: &mut Board) -> Result<(), ffmpeg_next::Error> {
-        let packets = self.extractor.input.packets();
-        let frames = self.extractor.next_frames()
+        if let Some(frames) = self.extractor.next_frames()? {
+            
+        }
     }
 }
