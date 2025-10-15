@@ -93,8 +93,8 @@ if __name__ == "__main__":
                     "free-text-test",
                     "slider-horizontal",
                     "slider-horizontal2",
-                    "slider-vertical"
-                ]
+                    "slider-vertical",
+                ],
             )
         },
     )

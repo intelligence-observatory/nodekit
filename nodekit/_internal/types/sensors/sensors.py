@@ -35,6 +35,7 @@ class TimeoutSensor(BaseSensor):
         gt=0,
     )
 
+
 # %%
 class TemporallyBoundedSensor(BaseSensor, ABC):
     """
@@ -89,6 +90,7 @@ class SubmitSensor(TemporallyBoundedSensor):
     A Sensor that triggers when a submit button is initiated.
      It reports the values of one or more associated SliderCards or FreeTextEntryCards
     """
+
     sensor_type: Literal["SubmitSensor"] = "SubmitSensor"
     source_ids: List[CardId] = pydantic.Field(
         description="The CardIds of the SliderCards or FreeTextEntryCards that this Sensor is associated with.",
@@ -103,6 +105,7 @@ class SubmitSensor(TemporallyBoundedSensor):
         if len(v) != len(set(v)):
             raise ValueError("source_ids must contain unique CardIds.")
         return v
+
 
 # %%
 Sensor = Annotated[

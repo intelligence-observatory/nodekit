@@ -41,7 +41,6 @@ def make_mcq_node(
             start_msec=0,
             background_color="#e6e6e6",
             selectable=True,
-
         )
         cards[f"choice {i_choice}"] = choice_card
 

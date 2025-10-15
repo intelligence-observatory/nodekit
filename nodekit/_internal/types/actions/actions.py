@@ -35,12 +35,17 @@ class KeyAction(BaseAction):
 
 # %%
 class SliderState(pydantic.BaseModel):
-    slider_normalized_position: float = pydantic.Field(description="The value of the slider, in normalized units.", ge=0, le=1)
-    slider_bin_index: int = pydantic.Field(description="The index of the bin that was selected.", ge=0)
+    slider_normalized_position: float = pydantic.Field(
+        description="The value of the slider, in normalized units.", ge=0, le=1
+    )
+    slider_bin_index: int = pydantic.Field(
+        description="The index of the bin that was selected.", ge=0
+    )
 
 
 class FreeTextEntryState(pydantic.BaseModel):
     text: str = pydantic.Field(description="The text that was entered.")
+
 
 class SubmitAction(BaseAction):
     action_type: Literal["SubmitAction"] = "SubmitAction"
