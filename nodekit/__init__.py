@@ -18,6 +18,7 @@ __all__ = [
     "concat",
     "save_graph",
     "load_graph",
+    "iter_assets",
 ]
 
 # Version
@@ -43,3 +44,4 @@ from nodekit._internal.browser.browser_bundle import get_browser_bundle
 # Ops:
 from nodekit._internal.ops.concat import concat
 from nodekit._internal.ops.save_graph_load_graph import save_graph, load_graph
+from nodekit._internal.ops.iter_assets import iter_assets

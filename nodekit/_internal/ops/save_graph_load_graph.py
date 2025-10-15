@@ -4,8 +4,8 @@ import zipfile
 from pathlib import Path
 from typing import Tuple, Dict
 
-from nodekit._internal.ops.hash_asset_file import get_extension_from_media_type
-from nodekit._internal.ops.gather_assets import iter_assets
+from nodekit._internal.ops.hash_file import get_extension_from_media_type
+from nodekit._internal.ops.iter_assets import iter_assets
 
 from nodekit._internal.types.assets import (
     ZipArchiveInnerPath,
