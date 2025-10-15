@@ -24,7 +24,6 @@ def topological_sort(
 
     nodes, transitions = graph.nodes, graph.transitions
 
-    node_keys = [key for key in nodes]
     edges = []
     incoming_sensors = {key: [] for key in nodes}
     for in_node, transition in transitions.items():
@@ -46,11 +45,11 @@ def topological_sort(
             edges.append((in_node, out_node))
             incoming_sensors[out_node].append(sensor)
 
-    rank_order = _topo_sort_core(node_keys, edges)
+    rank_order = _topo_sort_core(incoming_sensors.keys(), edges)
 
     # Group by rank and apply tie-breaker:
     rank_groups = defaultdict(list)
-    for key, rank in zip(node_keys, rank_order):
+    for key, rank in zip(incoming_sensors.keys(), rank_order):
         rank_groups[rank].append(key)
 
     ordered = []
