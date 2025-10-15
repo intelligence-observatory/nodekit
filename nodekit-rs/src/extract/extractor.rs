@@ -41,7 +41,7 @@ macro_rules! inner_extractor {
                      self.decoder.send_packet(packet)
                 }
 
-                pub fn extract_next_frame<'f>(&mut self) -> Result<[<$name Frame>], Error> {
+                pub fn extract_next_frame(&mut self) -> Result<[<$name Frame>], Error> {
                     let mut frame = [<$name Frame>]::empty();
                     self.decoder.receive_frame(&mut frame)?;
                     Ok(frame)

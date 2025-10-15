@@ -1,4 +1,3 @@
-mod error;
 mod extractor;
 mod frames;
 

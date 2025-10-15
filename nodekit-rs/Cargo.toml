@@ -6,4 +6,3 @@ edition = "2024"
 [dependencies]
 ffmpeg-next = "8.0.0"
 paste = "1.0.15"
-thiserror = "2.0.17"
