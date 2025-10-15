@@ -9,8 +9,8 @@ from typing import ContextManager, IO, Literal, Annotated, Union, Self
 import PIL.Image
 import pydantic
 
-from nodekit._internal.ops.hash_asset_file import (
-    hash_asset_file,
+from nodekit._internal.ops.hash_file import (
+    hash_file,
     get_extension_from_media_type,
 )
 from nodekit._internal.types.common import (
@@ -153,7 +153,7 @@ class BaseAsset(pydantic.BaseModel):
         This is I/O bound, as it computes the SHA-256 hash of the file.
         """
         path = Path(path)
-        sha256 = hash_asset_file(path)
+        sha256 = hash_file(path)
         guessed_media_type, _ = mimetypes.guess_type(path, strict=True)
         if not guessed_media_type:
             raise ValueError(

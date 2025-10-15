@@ -4,7 +4,7 @@ from pathlib import Path
 import hashlib
 
 
-def hash_asset_file(path: Path) -> SHA256:
+def hash_file(path: Path) -> SHA256:
     """
     Compute the SHA-256 hash of a file at the given path.
     """

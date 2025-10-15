@@ -4,16 +4,13 @@ import zipfile
 from pathlib import Path
 from typing import Tuple, Dict
 
-from nodekit._internal.ops.hash_asset_file import get_extension_from_media_type
+from nodekit._internal.ops.hash_file import get_extension_from_media_type
+from nodekit._internal.ops.iter_assets import iter_assets
+
 from nodekit._internal.types.assets import (
     ZipArchiveInnerPath,
     RelativePath,
     AssetLocator,
-)
-from nodekit._internal.types.cards import (
-    ImageCard,
-    VideoCard,
-    Card,
 )
 from nodekit._internal.types.common import MediaType, SHA256
 from nodekit._internal.types.graph import Graph
@@ -29,7 +26,7 @@ def _get_archive_relative_path(media_type: MediaType, sha256: SHA256) -> Path:
 
 
 # %%
-def pack(
+def save_graph(
     graph: Graph,
     path: str | os.PathLike,
 ) -> Path:
@@ -58,28 +55,19 @@ def pack(
     # Mutate all AssetLocators in the Graph to be RelativePathAssetLocators:
     supplied_asset_locators: Dict[Tuple[MediaType, SHA256], AssetLocator] = {}
     relative_asset_locators: Dict[Tuple[MediaType, SHA256], RelativePath] = {}
-    for node in graph.nodes.values():
-        for card in node.cards.values():
-            card: Card
-            if isinstance(card, ImageCard):
-                asset = card.image
-            elif isinstance(card, VideoCard):
-                asset = card.video
-            else:
-                continue
-
-            # Log the asset locator if we haven't seen it before:
-            asset_key = (asset.media_type, asset.sha256)
-            if asset_key not in supplied_asset_locators:
-                supplied_asset_locators[asset_key] = asset.locator.model_copy()
-                relative_asset_locators[asset_key] = RelativePath(
-                    relative_path=_get_archive_relative_path(
-                        media_type=asset.media_type, sha256=asset.sha256
-                    )
+    for asset in iter_assets(graph=graph):
+        # Log the asset locator if we haven't seen it before:
+        asset_key = (asset.media_type, asset.sha256)
+        if asset_key not in supplied_asset_locators:
+            supplied_asset_locators[asset_key] = asset.locator.model_copy()
+            relative_asset_locators[asset_key] = RelativePath(
+                relative_path=_get_archive_relative_path(
+                    media_type=asset.media_type, sha256=asset.sha256
                 )
+            )
 
-            # Mutate the AssetLocator to be a RelativePathAssetLocator:
-            asset.locator = relative_asset_locators[asset_key]
+        # Mutate the AssetLocator to be a RelativePathAssetLocator:
+        asset.locator = relative_asset_locators[asset_key]
 
     # Open a temporary zip file for writing:
     temp_path = path.with_suffix(".nkg.tmp")
@@ -110,7 +98,7 @@ def pack(
 
 
 # %%
-def unpack(
+def load_graph(
     path: str | os.PathLike,
 ) -> Graph:
     """
@@ -129,24 +117,16 @@ def unpack(
             graph = Graph.model_validate_json(f.read().decode("utf-8"))
 
         # Mutate all AssetLocators in the Graph from RelativePath to ZipArchiveInnerPath:
-        for node in graph.nodes.values():
-            for card in node.cards:
-                if isinstance(card, ImageCard):
-                    asset = card.image
-                elif isinstance(card, VideoCard):
-                    asset = card.video
-                else:
-                    continue
-
-                # Raise a ValueError if the asset locator is not a RelativePath:
-                if not isinstance(asset.locator, RelativePath):
-                    raise ValueError(
-                        f".nkg encoding error: Asset's locator is not a RelativePath: {asset}"
-                    )
-
-                # Mutate the asset locator
-                asset.locator = ZipArchiveInnerPath(
-                    zip_archive_path=Path(path), inner_path=asset.locator.relative_path
+        for asset in iter_assets(graph=graph):
+            # Raise a ValueError if the asset locator is not a RelativePath:
+            if not isinstance(asset.locator, RelativePath):
+                raise ValueError(
+                    f".nkg encoding error: Asset's locator is not a RelativePath: {asset}"
                 )
+
+            # Mutate the asset locator
+            asset.locator = ZipArchiveInnerPath(
+                zip_archive_path=Path(path), inner_path=asset.locator.relative_path
+            )
 
     return graph
