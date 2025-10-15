@@ -1,4 +1,4 @@
-from typing import List, Union, Dict
+from typing import List, Union, Dict, Tuple
 
 from nodekit._internal.types.graph import Graph
 from nodekit._internal.types.node import Node
@@ -31,6 +31,7 @@ def concat(
     # Assemble Graph:
     nodes: Dict[NodeId, Node] = {}
     transitions: Dict[NodeId, Dict[SensorId, NodeId]] = {}
+    connections: List[Tuple[List[NodeId], NodeId]]
 
     for i_child, child in enumerate(sequence):
         if isinstance(child, Node):
@@ -38,15 +39,19 @@ def concat(
             current_node_id = ids[i_child]
             nodes[current_node_id] = child
 
-            # Get pointer to the entry port for this Node:
-            start_node_id = current_node_id
+            if i_child > 0:
+                connections.append()
+        
         elif isinstance(child, Graph):
             # Register nodes with namespaced ids:
             current_node_namespace = ids[i_child]
+            terminal_in_graph = []
             for node_id, node in child.nodes.items():
                 # Add namespace prefix
                 new_id = f"{current_node_namespace}/{node_id}"
                 nodes[new_id] = node
+
+            terminal_nodes.append(terminal_in_graph)
 
             # Add transitions that describe the internal structure of this sub-graph:
             for from_id, sensor_map in child.transitions.items():
@@ -56,45 +61,22 @@ def concat(
                     for sensor_id, to_id in sensor_map.items()
                 }
 
-            # Get pointer to the entry port for this sub-graph:
-            start_node_id = f"{current_node_namespace}/{child.start}"
+            if i_child > 0:
+                start_nodes.append(f"{current_node_namespace}/{child.start}")
+
         else:
             raise ValueError(f"Invalid item in sequence: {child}")
-
-        # Connect outgoing ports of previous Node | Graph to the start Node of this Node | Graph:
-        if i_child > 0:
-            prev_namespace = ids[i_child - 1]
-
-            # Todo: this is a slow O(N^2) approach
-
-            # Connect terminal Sensors in previous namespace to this Node:
-            for prev_node_id in nodes.keys():
-                prev_node = nodes[prev_node_id]
-
-                if (
-                    prev_node_id == prev_namespace
-                ):  # The previous item in sequence was a Node
-                    # Should not have any transitions yet
-                    assert prev_node_id not in transitions
-                    transitions[prev_node_id] = {}
-
-                    # Connect all its sensors to the start of this Node
-                    for sensor_id in prev_node.sensors.keys():
-                        transitions[prev_node_id][sensor_id] = start_node_id
-
-                    break  # No need to check other Nodes
-
-                if prev_node_id.startswith(
-                    f"{prev_namespace}/"
-                ):  # The previous item in sequence was a Graph; this is one of its Nodes
-                    # Connect any of this Node's terminal sensors to the start of this Node
-                    for sensor_id in prev_node.sensors.keys():
-                        # If this sensor_id does not have a transition, add one linking it here
-                        if prev_node_id not in transitions:
-                            transitions[prev_node_id] = {}
-
-                        if sensor_id not in transitions[prev_node_id]:
-                            transitions[prev_node_id][sensor_id] = start_node_id
+    
+    print(start_nodes, terminal_nodes)
+    # Add transitions that describe the connections between items in sequence:
+    for src, dst in zip(terminal_nodes, start_nodes):
+        if isinstance(src, List):
+            for s in src:
+                current_sensors = nodes[s].sensors
+                transitions[s] = {sensor: dst for sensor in current_sensors}
+        else:
+            current_sensors = nodes[src].sensors
+            transitions[src] = {sensor: dst for sensor in current_sensors}
 
     # Derive the start node id
     if isinstance(sequence[0], Node):
