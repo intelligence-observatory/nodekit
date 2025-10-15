@@ -45,7 +45,7 @@ def topological_sort(
             edges.append((in_node, out_node))
             incoming_sensors[out_node].append(sensor)
 
-    rank_order = _topo_sort_core(incoming_sensors.keys(), edges)
+    rank_order = _topo_sort_core(list(incoming_sensors.keys()), edges)
 
     # Group by rank and apply tie-breaker:
     rank_groups = defaultdict(list)
