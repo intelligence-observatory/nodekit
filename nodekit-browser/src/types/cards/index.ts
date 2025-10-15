@@ -14,6 +14,10 @@ export interface BaseCard<T extends string> {
     end_msec: NodeTimePointMsec | null;
 }
 
+export interface SelectableMixin {
+    selectable: boolean; // If true, adds hover and selection effects to the Card
+}
+
 export interface ImageCard extends BaseCard<'ImageCard'>{
     image: Image;
 }
@@ -24,7 +28,7 @@ export interface VideoCard extends BaseCard<'VideoCard'>{
     loop: boolean;
 }
 
-export interface TextCard extends BaseCard<'TextCard'>{
+export interface TextCard extends BaseCard<'TextCard'>, SelectableMixin{
     text: MarkdownString
     font_size: SpatialSize; // The height of the em-box (in Board units)
     justification_horizontal: 'left' | 'center' | 'right';
@@ -49,5 +53,3 @@ export interface FreeTextEntryCard extends BaseCard<'FreeTextEntryCard'>{
 }
 
 export type Card = ImageCard | VideoCard | TextCard | SliderCard | FreeTextEntryCard;
-
-// Tmp: Forms

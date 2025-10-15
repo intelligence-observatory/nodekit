@@ -36,6 +36,8 @@ A fixed-sized box which displays text information.
     text-align: left;
     display: flex;
     flex-direction: column;
+}
 
-
+.text-card--selected {
+    border: 2px solid rgba(50, 50, 50, 0.9);
 }

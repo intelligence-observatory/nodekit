@@ -24,7 +24,7 @@ jobs:
           source .venv/bin/activate
       - name: Install nodekit
         run: |
-          uv pip install -e .
+          uv sync --group dev --locked
       - name: Check
         run: |
           make check

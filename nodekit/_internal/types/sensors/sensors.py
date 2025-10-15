@@ -1,5 +1,5 @@
 from abc import ABC
-from typing import Literal, Annotated, Union
+from typing import Literal, Annotated, Union, List
 
 import pydantic
 
@@ -9,6 +9,7 @@ from nodekit._internal.types.common import (
     SpatialPoint,
     SpatialSize,
     Mask,
+    CardId,
 )
 
 
@@ -84,11 +85,36 @@ class KeySensor(TemporallyBoundedSensor):
 
 
 # %%
+class SubmitSensor(TemporallyBoundedSensor):
+    """
+    A Sensor that triggers when a submit button is initiated.
+    It reports the values of one or more associated SliderCards or FreeTextEntryCards
+    """
+
+    sensor_type: Literal["SubmitSensor"] = "SubmitSensor"
+    submitter_id: CardId = pydantic.Field(
+        description="The ID of the TextCard that submits the Slider value. If None, the Sensor triggers immediately when the Slider value changes.",
+    )
+
+    source_ids: List[CardId] = pydantic.Field(
+        description="The CardIds of the SliderCards or FreeTextEntryCards that this Sensor is associated with.",
+        min_length=1,
+    )
+
+    @pydantic.field_validator("source_ids")
+    def ensure_unique_source_ids(cls, v):
+        if len(v) != len(set(v)):
+            raise ValueError("source_ids must contain unique CardIds.")
+        return v
+
+
+# %%
 Sensor = Annotated[
     Union[
         TimeoutSensor,
         ClickSensor,
         KeySensor,
+        SubmitSensor,
     ],
     pydantic.Field(discriminator="sensor_type"),
 ]

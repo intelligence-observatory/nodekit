@@ -1,4 +1,4 @@
-declare type Action = ClickAction | TimeoutAction | KeyAction;
+declare type Action = ClickAction | TimeoutAction | KeyAction | SubmitAction;
 
 declare interface BaseAction<T extends string> {
     action_type: T;
@@ -66,18 +66,6 @@ declare interface CardShownEvent extends BaseNodeEvent<'CardShownEvent'> {
     card_id: CardId;
 }
 
-declare interface CardHiddenEvent extends BaseNodeEvent<'CardHiddenEvent'> {
-    card_id: CardId;
-}
-
-declare type CardId = string & {
-    __brand: 'CardId';
-};
-
-declare interface CardShownEvent extends BaseNodeEvent<'CardShownEvent'> {
-    card_id: CardId;
-}
-
 declare interface ClickAction extends BaseAction<"ClickAction"> {
     x: SpatialPoint;
     y: SpatialPoint;
@@ -109,6 +97,10 @@ declare interface FreeTextEntryCard extends BaseCard<'FreeTextEntryCard'> {
     text_color: ColorHexString;
     background_color: ColorHexString;
     max_length: number | null;
+}
+
+declare interface FreeTextEntryState {
+    text: string;
 }
 
 declare interface Graph {
@@ -201,7 +193,11 @@ declare interface RelativePath extends BaseLocator<"RelativePath"> {
     relative_path: string;
 }
 
-declare type Sensor = TimeoutSensor | ClickSensor | KeySensor;
+declare interface SelectableMixin {
+    selectable: boolean;
+}
+
+declare type Sensor = TimeoutSensor | ClickSensor | KeySensor | SubmitSensor;
 
 declare interface SensorArmedEvent extends BaseNodeEvent<'SensorArmedEvent'> {
     sensor_id: SensorId;
@@ -224,11 +220,20 @@ declare type SHA256 = string & {
     __brand: 'SHA256';
 };
 
+declare type SliderBinIndex = number;
+
 declare interface SliderCard extends BaseCard<'SliderCard'> {
     num_bins: number;
     show_bin_markers: boolean;
     initial_bin_index: number;
     orientation: 'horizontal' | 'vertical';
+}
+
+declare type SliderNormalizedPosition = number;
+
+declare interface SliderState {
+    slider_normalized_position: SliderNormalizedPosition;
+    slider_bin_index: SliderBinIndex;
 }
 
 declare type SpatialPoint = number & {
@@ -239,12 +244,21 @@ declare type SpatialSize = number & {
     __brand: 'SpatialSize';
 };
 
+declare interface SubmitAction extends BaseAction<"SubmitAction"> {
+    submitted_values: Record<CardId, FreeTextEntryState | SliderState>;
+}
+
+declare interface SubmitSensor extends TemporallyBoundedSensor<'SubmitSensor'> {
+    source_ids: CardId[];
+    submitter_id: CardId;
+}
+
 declare interface TemporallyBoundedSensor<T extends string> extends BaseSensor<T> {
     start_msec: NodeTimePointMsec;
     end_msec: NodeTimePointMsec | null;
 }
 
-declare interface TextCard extends BaseCard<'TextCard'> {
+declare interface TextCard extends BaseCard<'TextCard'>, SelectableMixin {
     text: MarkdownString;
     font_size: SpatialSize;
     justification_horizontal: 'left' | 'center' | 'right';

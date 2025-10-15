@@ -10,10 +10,10 @@ build: build-browser
 	uv build
 
 lint:
-	uvx ruff check --fix && \
-	uvx ruff format
+	uv run ruff check --fix && \
+	uv run ruff format
 
 check:
-	uvx ty check && \
-	uvx ruff check && \
-	uvx ruff format --check
+	uv run ty check && \
+	uv run ruff check && \
+	uv run ruff format --check

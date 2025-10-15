@@ -3,7 +3,7 @@ import './free-text-entry.css'
 import {CardView} from "../card-view.ts";
 import type {FreeTextEntryCard} from "../../../types/cards";
 
-export class FreeTextEntryView extends CardView<FreeTextEntryCard> {
+export class FreeTextEntryCardView extends CardView<FreeTextEntryCard> {
     freeTextInputElement: HTMLTextAreaElement | undefined;
 
     async prepare() {
@@ -45,5 +45,12 @@ export class FreeTextEntryView extends CardView<FreeTextEntryCard> {
     }
     onDestroy() {
         // Called when the Card is destroyed
+    }
+
+    getCurrentText(): string {
+        if (!this.freeTextInputElement){
+            return '';
+        }
+        return this.freeTextInputElement.value;
     }
 }

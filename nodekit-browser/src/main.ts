@@ -94,7 +94,11 @@ export async function play(
     shellUI.hideSessionConnectingOverlay()
 
     // Start screen:
-    await shellUI.playStartScreen()
+    if (false){
+        // Tmp remove
+        await shellUI.playStartScreen()
+    }
+
     clock.start()
     const startEvent: TraceStartedEvent = {
         event_type: "TraceStartedEvent",
