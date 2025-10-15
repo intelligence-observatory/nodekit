@@ -76,10 +76,14 @@ export class NodePlay {
     ) {
 
         // Prepare and schedule Cards:
-        for (let cardId in this.node.cards) {
-            const card = this.node.cards[cardId as CardId];
+        for (let cardIdUnbranded in this.node.cards) {
+            // Type annotate cardId:
+            let cardId = cardIdUnbranded as CardId;
+
+            const card = this.node.cards[cardId];
             // Prepare Cards:
-            const cardViewId = await this.boardView.prepareCard(
+            await this.boardView.prepareCard(
+                cardId,
                 card,
                 assetManager,
             )
@@ -89,7 +93,7 @@ export class NodePlay {
                 {
                     triggerTimeMsec: card.start_msec,
                     triggerFunc: () => {
-                        this.boardView.startCard(cardViewId);
+                        this.boardView.startCard(cardId);
                         // Emit CardShownEvent:
                         const cardShownEvent: CardShownEvent = {
                             event_type: "CardShownEvent",
@@ -108,7 +112,7 @@ export class NodePlay {
                     {
                         triggerTimeMsec: card.end_msec,
                         triggerFunc: () => {
-                            this.boardView.stopCard(cardViewId)
+                            this.boardView.stopCard(cardId)
 
                             // Emit CardHiddenEvent:
                             const cardHiddenEvent: CardHiddenEvent = {
@@ -125,7 +129,7 @@ export class NodePlay {
 
             // Schedule Card destruction:
             this.scheduler.scheduleOnStop(
-                () => {this.boardView.destroyCard(cardViewId)}
+                () => {this.boardView.destroyCard(cardId)}
             )
         }
 

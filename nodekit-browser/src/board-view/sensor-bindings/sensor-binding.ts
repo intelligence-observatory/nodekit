@@ -3,6 +3,9 @@ import type {Mask, PressableKey, SpatialPoint, SpatialSize, TimeElapsedMsec} fro
 import type {PointerSample, PointerStream} from "../../input-streams/pointer-stream.ts";
 import type {KeySample, KeyStream} from "../../input-streams/key-stream.ts";
 import type {Clock} from "../../clock.ts";
+import type {TextCardView} from "../card-views/text/text-card-view.ts";
+import type {FreeTextEntryCardView} from "../card-views/free-text-entry/free-text-entry.ts";
+import type {SliderCardView} from "../card-views/slider/slider-card-view.ts";
 
 // Generic contract:
 export interface SensorBinding {
@@ -179,3 +182,18 @@ export class KeySensorBinding implements SensorBinding {
     }
 }
 
+export class SubmitSensorBinding implements SensorBinding {
+    constructor(
+        submitterCardView: TextCardView,
+        sourceCardViews: (FreeTextEntryCardView | SliderCardView)[],
+    ){
+
+    }
+    arm() {
+
+    }
+    destroy(): void {
+
+    }
+
+}
