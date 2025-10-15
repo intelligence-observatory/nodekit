@@ -45,16 +45,14 @@ impl Extractor {
                 frames.push(frame);
             }
             Ok(Some(Frames::Audio(frames)))
-        }
-        else if stream.index() == self.video.stream_index() {
+        } else if stream.index() == self.video.stream_index() {
             let mut frames = Vec::default();
             self.video.send_packet(&packet)?;
             while let Ok(frame) = self.video.extract_next_frame() {
                 frames.push(frame);
             }
             Ok(Some(Frames::Video(frames)))
-        }
-        else {
+        } else {
             Ok(None)
         }
     }
