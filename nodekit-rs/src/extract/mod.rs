@@ -6,26 +6,27 @@ use ffmpeg_next::format::context::Input;
 use ffmpeg_next::format::input;
 use ffmpeg_next::{Packet, Stream as FfmpegStream};
 use std::path::Path;
-
+use ffmpeg_next::format::context::input::PacketIter;
 pub use frames::Frames;
 
-pub struct Extractor {
-    pub input: Input,
+pub struct Extractor<'e> {
+    packet_iter: PacketIter<'e>,
     audio: Option<AudioExtractor>,
     video: VideoExtractor,
 }
 
-impl Extractor {
+impl Extractor<'_> {
     pub fn new<P: AsRef<Path>>(
         path: P,
         width: u32,
         height: u32,
     ) -> Result<Self, ffmpeg_next::Error> {
-        let input = input(path.as_ref())?;
+        let mut input = input(path.as_ref())?;
         let audio = AudioExtractor::new(&input).ok();
         let video = VideoExtractor::new(&input, width, height)?;
+        let packet_iter = input.packets();
         Ok(Self {
-            input,
+            packet_iter,
             audio,
             video,
         })

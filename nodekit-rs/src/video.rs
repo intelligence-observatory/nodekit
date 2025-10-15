@@ -1,0 +1,31 @@
+use std::path::Path;
+use blittle::*;
+use ffmpeg_next::format::context::input::PacketIter;
+use crate::{Board, Extractor, Frames, BOARD_D};
+
+pub struct Video {
+    pub position: PositionU,
+    pub size: Size,
+    pub extractor: Extractor,
+}
+
+impl Video {
+    pub fn new<P: AsRef<Path>>(path: P, position: PositionI, mut size: Size) -> Result<Self, ffmpeg_next::Error> {
+        let board_size = Size {
+            w: BOARD_D,
+            h: BOARD_D
+        };
+        let position = clip(&position, &board_size, &mut size);
+        let extractor = Extractor::new(path, size.w as u32, size.h as u32)?;
+        Ok(Self {
+            position,
+            size,
+            extractor,
+        })
+    }
+    
+    pub fn blit(&mut self, board: &mut Board) -> Result<(), ffmpeg_next::Error> {
+        let packets = self.extractor.input.packets();
+        let frames = self.extractor.next_frames()
+    }
+}
