@@ -7,6 +7,7 @@ pub struct Video<'v> {
     pub position: PositionU,
     pub size: Size,
     pub extractor: Extractor<'v>,
+    pub frames: Vec<Frames>,
 }
 
 impl Video<'_> {
@@ -21,12 +22,14 @@ impl Video<'_> {
             position,
             size,
             extractor,
+            frames: Vec::default(),
         })
     }
-    
-    pub fn blit(&mut self, board: &mut Board) -> Result<(), ffmpeg_next::Error> {
+
+    pub fn extract(&mut self) -> Result<(), ffmpeg_next::Error> {
         if let Some(frames) = self.extractor.next_frames()? {
-            
+            self.frames.push(frames);
         }
+        Ok(())
     }
 }
