@@ -5,7 +5,7 @@ import nodekit._internal.ops.topological_sorting as ts
 
 
 # %% Helper functions
-def generate_fixation_node() -> nk.Node:
+def get_fixation_node() -> nk.Node:
     click_sensor = nk.sensors.ClickSensor(
         mask="ellipse",
         x=0,
@@ -16,13 +16,13 @@ def generate_fixation_node() -> nk.Node:
     return nk.Node(cards={}, sensors={"fixation": click_sensor})
 
 
-def generate_stimulus_node():
+def get_stimulus_node():
     timeout_sensor = nk.sensors.TimeoutSensor(timeout_msec=2000)
 
     return nk.Node(cards={}, sensors={"TO": timeout_sensor})
 
 
-def generate_response_node():
+def get_response_node():
     left_sensor = nk.sensors.ClickSensor(mask="rectangle", x=-0.5, y=0, w=0.1, h=0.1)
     right_sensor = nk.sensors.ClickSensor(mask="rectangle", x=0.5, y=0, w=0.1, h=0.1)
     timeout_sensor = nk.sensors.TimeoutSensor(timeout_msec=2000)
@@ -37,14 +37,14 @@ def generate_response_node():
     )
 
 
-def generate_positive_node():
+def get_positive_node():
     return nk.Node(
         cards={},
         sensors={"wait": nk.sensors.TimeoutSensor(timeout_msec=1000)},
     )
 
 
-def generate_negative_node():
+def get_negative_node():
     return nk.Node(
         cards={},
         sensors={"wait": nk.sensors.TimeoutSensor(timeout_msec=5000)},
@@ -75,13 +75,13 @@ def test_example_pass():
 
     # Generate Nodes and transitions:
     nodes = {}
-    nodes["stimulus_1"] = generate_stimulus_node()
-    nodes["stimulus_2"] = generate_stimulus_node()
-    nodes["response_1"] = generate_response_node()
-    nodes["fixation_1"] = generate_fixation_node()
-    nodes["fixation_2"] = generate_fixation_node()
-    nodes["positive_1"] = generate_positive_node()
-    nodes["negative_1"] = generate_negative_node()
+    nodes["stimulus_1"] = get_stimulus_node()
+    nodes["stimulus_2"] = get_stimulus_node()
+    nodes["response_1"] = get_response_node()
+    nodes["fixation_1"] = get_fixation_node()
+    nodes["fixation_2"] = get_fixation_node()
+    nodes["positive_1"] = get_positive_node()
+    nodes["negative_1"] = get_negative_node()
 
     transitions = {}
     transitions["response_1"] = {
@@ -134,13 +134,13 @@ def test_example_fail():
 
     # Generate Nodes and transitions:
     nodes = {}
-    nodes["stimulus_1"] = generate_stimulus_node()
-    nodes["stimulus_2"] = generate_stimulus_node()
-    nodes["response_1"] = generate_response_node()
-    nodes["fixation_1"] = generate_fixation_node()
-    nodes["fixation_2"] = generate_fixation_node()
-    nodes["positive_1"] = generate_positive_node()
-    nodes["negative_1"] = generate_negative_node()
+    nodes["stimulus_1"] = get_stimulus_node()
+    nodes["stimulus_2"] = get_stimulus_node()
+    nodes["response_1"] = get_response_node()
+    nodes["fixation_1"] = get_fixation_node()
+    nodes["fixation_2"] = get_fixation_node()
+    nodes["positive_1"] = get_positive_node()
+    nodes["negative_1"] = get_negative_node()
 
     transitions = {}
     transitions["response_1"] = {
