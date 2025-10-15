@@ -17,7 +17,6 @@ from nodekit._internal.types.cards import (
 )
 from nodekit._internal.types.common import MediaType, SHA256
 from nodekit._internal.types.graph import Graph
-from nodekit._internal.types.node import Node
 
 
 # %%
@@ -149,6 +148,6 @@ def load_graph(
                 asset.locator = ZipArchiveInnerPath(
                     zip_archive_path=Path(path), inner_path=asset.locator.relative_path
                 )
-                print('mutated', asset.locator)
+                print("mutated", asset.locator)
 
     return graph
