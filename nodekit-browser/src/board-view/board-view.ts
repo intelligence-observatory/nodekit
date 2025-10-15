@@ -280,7 +280,30 @@ export class BoardView {
                 throw new Error(`SubmitSensor has invalid submitter_id: ${sensor.submitter_id}`);
             }
 
-            sensorBinding = new SubmitSensorBinding()
+            if (submitterCardView.card.card_type !== 'TextCard') {
+                throw new Error(`SubmitSensor's submitter_id must refer to a TextCard, but got: ${JSON.stringify(submitterCardView.card)}`);
+            }
+
+            // Load source CardViews:
+            let sourceCardViews: Record<CardId, FreeTextEntryCardView | SliderCardView> = {};
+            for (let sourceCardId of sensor.source_ids){
+                const sourceCardView = this.cardViews.get(sourceCardId);
+                if (!sourceCardView) {
+                    throw new Error(`SubmitSensor has invalid source_id: ${sourceCardId}`);
+                }
+                if (sourceCardView.card.card_type !== 'SliderCard' && sourceCardView.card.card_type !== 'FreeTextEntryCard') {
+                    throw new Error(`SubmitSensor's source_ids must refer to SliderCard or FreeTextEntryCard, but got: ${JSON.stringify(sourceCardView.card)}`);
+                }
+                // Cast
+                sourceCardViews[sourceCardId] = sourceCardView as FreeTextEntryCardView | SliderCardView;
+            }
+            console.log(sourceCardViews)
+            sensorBinding = new SubmitSensorBinding(
+                onSensorFired,
+                submitterCardView as TextCardView,
+                sourceCardViews,
+                clock,
+            )
         }
         else {
             // Add a never check here so TS complians if I missed a sensor type:

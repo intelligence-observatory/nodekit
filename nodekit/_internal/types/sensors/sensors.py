@@ -84,7 +84,7 @@ class KeySensor(TemporallyBoundedSensor):
 
 
 # %%
-class SubmitSensor(BaseSensor):
+class SubmitSensor(TemporallyBoundedSensor):
     """
     A Sensor that triggers when a submit button is initiated.
      It reports the values of one or more associated SliderCards or FreeTextEntryCards

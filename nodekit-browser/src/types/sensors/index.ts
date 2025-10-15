@@ -27,7 +27,7 @@ export interface KeySensor extends TemporallyBoundedSensor<'KeySensor'> {
     key: PressableKey
 }
 
-export interface SubmitSensor extends BaseSensor<'SubmitSensor'> {
+export interface SubmitSensor extends TemporallyBoundedSensor<'SubmitSensor'> {
     source_ids: CardId[]; // The CardId of SliderCard or FreeTextEntryCard in the same Node
     submitter_id: CardId; // The CardId of a TextCard in the same Node that acts as the "Submit" button.
 }

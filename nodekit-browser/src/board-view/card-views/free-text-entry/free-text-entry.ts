@@ -46,4 +46,11 @@ export class FreeTextEntryCardView extends CardView<FreeTextEntryCard> {
     onDestroy() {
         // Called when the Card is destroyed
     }
+
+    getCurrentText(): string {
+        if (!this.freeTextInputElement){
+            return '';
+        }
+        return this.freeTextInputElement.value;
+    }
 }

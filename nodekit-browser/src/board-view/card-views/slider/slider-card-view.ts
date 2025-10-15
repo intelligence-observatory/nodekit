@@ -78,7 +78,6 @@ export class SliderCardView extends CardView<SliderCard> {
         if(isNaN(initial) || !isFinite(initial)){
             initial = 0.5 // fallback
         }
-        console.log("initial", initial)
 
         this.scheduleThumbMove(initial)
 
@@ -309,5 +308,19 @@ export class SliderCardView extends CardView<SliderCard> {
     public subscribeToSlider(callback: SliderSubscriber) {
         // Add to subscribers
         this.subscribers.add(callback);
+    }
+
+    getCurrentNormalizedPosition(): SliderNormalizedPosition {
+        if (this.currentBinIndex === null) {
+            return this.binIndexToProportion(this.card.initial_bin_index);
+        }
+        return this.binIndexToProportion(this.currentBinIndex);
+    }
+
+    getCurrentBinIndex(): SliderBinIndex {
+        if (this.currentBinIndex === null) {
+            return this.card.initial_bin_index;
+        }
+        return this.currentBinIndex;
     }
 }

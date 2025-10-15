@@ -150,7 +150,7 @@ export class NodePlay {
             )
 
             // Schedule Sensor arming, if a TemporallyBoundedSensor:
-            if (sensor.sensor_type === 'ClickSensor' || sensor.sensor_type === 'KeySensor') {
+            if (sensor.sensor_type === 'ClickSensor' || sensor.sensor_type === 'KeySensor' || sensor.sensor_type === 'SubmitSensor') {
                 this.scheduler.scheduleEvent(
                     {
                         triggerTimeMsec: sensor.start_msec,
@@ -190,9 +190,8 @@ export class NodePlay {
 
                 }
             }
-
             // Schedule Sensor firing if a TimeoutSensor:
-            if (sensor.sensor_type === 'TimeoutSensor') {
+            else if (sensor.sensor_type === 'TimeoutSensor') {
                 this.scheduler.scheduleEvent(
                     {
                         triggerTimeMsec: sensor.timeout_msec,
@@ -202,6 +201,11 @@ export class NodePlay {
                         },
                     }
                 )
+            }
+
+            else {
+                const neverSensor: never = sensor;
+                throw new Error(`Unknown Sensor type: ${JSON.stringify(neverSensor)}`);
             }
 
             // Schedule Sensor destruction at Node end:
