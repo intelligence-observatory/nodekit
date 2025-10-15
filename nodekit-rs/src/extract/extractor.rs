@@ -37,7 +37,7 @@ macro_rules! fns {
             self.decoder.send_packet(packet)
         }
 
-        pub fn stream_index(&self) -> usize {
+        pub const fn stream_index(&self) -> usize {
             self.stream_index
         }
     };
