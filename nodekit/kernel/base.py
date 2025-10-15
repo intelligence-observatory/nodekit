@@ -123,7 +123,28 @@ class UpdateRule(pydantic.BaseModel):
 
 class ExitRule(pydantic.BaseModel):
     when: Predicate
-    action_expression: Expression # Payload to calculate; useful for immediate consumption of Trace. Calculated after the assign step.
+    #action_expression: Expression # Payload to calculate; useful for immediate consumption of Trace. Calculated after the assign step.
+
+
+"""
+Examples:  
+
+Update rule: turning a card on:
+WHEN input.clock_time >= 0 AND stimulus_image.visible == false
+ASSIGN stimulus_image.visible = true
+
+Update rule: turning a card off: 
+WHEN input.clock_time >= 1000 AND stimulus_image.visible == true
+ASSIGN stimulus_image.visible = false
+
+Exit rule: ballistic selection
+WHEN stimulus_image.selection_state == true
+
+
+
+
+"""
+
 
 
 # %%
@@ -140,10 +161,10 @@ class NodeV2(pydantic.BaseModel):
 class ActionEvent(pydantic.BaseModel):
     node_id: NodeId
     exit_id: ExitId
-    action: Value # The evaluated action_expression from the triggered Sensor
+    #action: Value # The evaluated action_expression from the triggered Sensor
 
 
-# %% Example
+# %% Examples
 """
 Back compat: first priorities
 
@@ -162,14 +183,23 @@ Back compat: first priorities
 
 
 [Priority C] Slider flow
+* Set a slider value (either required or not) 
+* Confirm
 
 [Priority C] Free text entry flow
+* Set a free text entry value (either required or not)
+* Activate confirm button, perhaps based on regex predicate
+* Termination: Press confirm button
 
 
 [Priority D] Multi-select flow
 * Transition a blot to unselected (from unselectable) based on t
 * Transition choice blots to selected (from unselected) based on click, and maybe a guard predicate (min n to max k selected, out of N total)
 * Transition the submit blot to terminal (from unselected) based on click, and a guard predicate (min n to max k selected, out of N total)
+
+[Priority E] (e.g.) Color matching flow
+* Based on a 'button' press, change the value of a blot property (e.g. luminance) upward or downward by a fixed increment, within bounds
+* Confirm flow
 
 """
 
