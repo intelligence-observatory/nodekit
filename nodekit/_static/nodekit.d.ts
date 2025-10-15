@@ -1,4 +1,4 @@
-declare type Action = ClickAction | TimeoutAction | KeyAction;
+declare type Action = ClickAction | TimeoutAction | KeyAction | SubmitAction;
 
 declare interface BaseAction<T extends string> {
     action_type: T;
@@ -99,6 +99,10 @@ declare interface FreeTextEntryCard extends BaseCard<'FreeTextEntryCard'> {
     max_length: number | null;
 }
 
+declare interface FreeTextEntryState {
+    text: string;
+}
+
 declare interface Graph {
     nodekit_version: string;
     nodes: Record<NodeId, Node_2>;
@@ -193,7 +197,7 @@ declare interface SelectableMixin {
     selectable: boolean;
 }
 
-declare type Sensor = TimeoutSensor | ClickSensor | KeySensor;
+declare type Sensor = TimeoutSensor | ClickSensor | KeySensor | SubmitSensor;
 
 declare interface SensorArmedEvent extends BaseNodeEvent<'SensorArmedEvent'> {
     sensor_id: SensorId;
@@ -216,11 +220,20 @@ declare type SHA256 = string & {
     __brand: 'SHA256';
 };
 
+declare type SliderBinIndex = number;
+
 declare interface SliderCard extends BaseCard<'SliderCard'> {
     num_bins: number;
     show_bin_markers: boolean;
     initial_bin_index: number;
     orientation: 'horizontal' | 'vertical';
+}
+
+declare type SliderNormalizedPosition = number;
+
+declare interface SliderState {
+    slider_normalized_position: SliderNormalizedPosition;
+    slider_bin_index: SliderBinIndex;
 }
 
 declare type SpatialPoint = number & {
@@ -230,6 +243,15 @@ declare type SpatialPoint = number & {
 declare type SpatialSize = number & {
     __brand: 'SpatialSize';
 };
+
+declare interface SubmitAction extends BaseAction<"SubmitAction"> {
+    submitted_values: Record<CardId, FreeTextEntryState | SliderState>;
+}
+
+declare interface SubmitSensor extends TemporallyBoundedSensor<'SubmitSensor'> {
+    source_ids: CardId[];
+    submitter_id: CardId;
+}
 
 declare interface TemporallyBoundedSensor<T extends string> extends BaseSensor<T> {
     start_msec: NodeTimePointMsec;

@@ -191,7 +191,6 @@ export class SubmitSensorBinding implements SensorBinding {
         clock: Clock,
     ){
 
-        //
         const submitButtonStateChanged = (selected: boolean)=> {
             console.log('yo', selected)
             if (!selected){
@@ -230,6 +229,7 @@ export class SubmitSensorBinding implements SensorBinding {
                 onSensorFired(action, clock.now());
             }
         }
+
         // Subscribe to the submitterCardView's submit event:
         submitterCardView.subscribeToSelectionChanges(submitButtonStateChanged)
 
@@ -237,8 +237,6 @@ export class SubmitSensorBinding implements SensorBinding {
 
     arm() {
         this.armed=true;
-
-        // Toggle the submitter card view to be selectable. Spaghetti!
     }
     destroy(): void {
 
