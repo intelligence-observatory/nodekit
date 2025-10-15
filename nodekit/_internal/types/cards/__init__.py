@@ -100,9 +100,9 @@ class SliderCard(BaseCard):
     )
 
     initial_bin_index: int = pydantic.Field(
-        description="The initial bin index that the slider is set to when it first appears. The default is the middle bin.",
+        description="The initial bin index that the slider is set to when it first appears.",
         ge=0,
-        default=None,
+        default=0,
     )
 
     orientation: Literal["horizontal", "vertical"] = pydantic.Field(
