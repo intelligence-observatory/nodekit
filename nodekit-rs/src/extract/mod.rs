@@ -4,7 +4,6 @@ mod frames;
 use extractor::{AudioExtractor, VideoExtractor};
 use ffmpeg_next::format::context::Input;
 use ffmpeg_next::format::input;
-use ffmpeg_next::util::frame::{audio::Audio, video::Video};
 use ffmpeg_next::{Packet, Stream as FfmpegStream};
 use std::path::Path;
 
@@ -14,8 +13,6 @@ pub struct Extractor {
     pub input: Input,
     audio: Option<AudioExtractor>,
     video: VideoExtractor,
-    audio_frame: Audio,
-    video_frame: Video,
 }
 
 impl Extractor {
@@ -31,8 +28,6 @@ impl Extractor {
             input,
             audio,
             video,
-            video_frame: Video::empty(),
-            audio_frame: Audio::empty(),
         })
     }
 
