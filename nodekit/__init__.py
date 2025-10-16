@@ -11,14 +11,15 @@ __all__ = [
     "effects",
     "actions",
     "events",
-    # Browser runtime methods:
+    # Ops:
     "play",
-    "get_browser_bundle",
-    # Ops
     "concat",
+    "get_browser_bundle",
     "save_graph",
     "load_graph",
+    # Convenience ops:
     "iter_assets",
+    "stream_asset_bytes"
 ]
 
 # Version
@@ -47,3 +48,4 @@ from nodekit._internal.ops.save_graph_load_graph import save_graph, load_graph
 
 #
 from nodekit._internal.ops.iter_assets import iter_assets
+from nodekit._internal.ops.stream_asset_bytes import stream_asset_bytes

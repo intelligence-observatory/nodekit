@@ -13,6 +13,7 @@ from nodekit._internal.types.assets import (
 import urllib.request
 import urllib.error
 
+from nodekit._internal.ops.hash_file import hash_file, hash_byte_stream
 
 # %%
 def stream_asset_bytes(
@@ -27,7 +28,6 @@ def stream_asset_bytes(
     if isinstance(locator, FileSystemPath):
         return open(locator.path, "rb")
     elif isinstance(locator, URL):
-
         @contextlib.contextmanager
         def open_url_stream():
             req = urllib.request.Request(locator.url)
@@ -49,7 +49,6 @@ def stream_asset_bytes(
         return open_url_stream()
 
     elif isinstance(locator, ZipArchiveInnerPath):
-
         @contextlib.contextmanager
         def open_stream():
             with zipfile.ZipFile(locator.zip_archive_path, "r") as zf:
