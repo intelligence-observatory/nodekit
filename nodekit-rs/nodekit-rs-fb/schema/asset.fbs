@@ -1,0 +1,20 @@
+table Path {
+    path:string;
+}
+
+table ZipArchivePath {
+    zip_archive_path:string;
+    inner_path:string;
+}
+
+union Locator { Path, ZipArchivePath }
+
+enum MediaType : ubyte {
+    Image = 1,
+    Video
+}
+
+table Asset {
+    locator:Locator;
+    media_type:MediaType = 1;
+}

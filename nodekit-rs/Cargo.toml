@@ -1,8 +1,17 @@
+[workspace]
+members = ["nodekit-rs-fb"]
+
 [package]
 name = "nodekit-rs"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+blittle.workspace = true
+ffmpeg-next.workspace = true
+nodekit-rs-fb = { path = "nodekit-rs-fb" }
+
+[workspace.dependencies]
 blittle = "0.1.0"
 ffmpeg-next = "8.0.0"
+flatbuffers = "25.9.23"

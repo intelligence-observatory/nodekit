@@ -1,0 +1,16 @@
+include "asset.fbs";
+include "text.fbs";
+
+union CardType { Asset, Text }
+
+table Card {
+    x:float32;
+    y:float32;
+    w:float32;
+    h:float32;
+    start_msec:int32;
+    end_msec:int32 = null;
+    card_type:CardType;
+}
+
+root_type Card;
