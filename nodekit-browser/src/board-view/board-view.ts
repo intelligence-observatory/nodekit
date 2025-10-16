@@ -1,11 +1,11 @@
 import type {AssetManager} from "../asset-manager";
 import type {Card} from "../types/cards";
-import type {ColorHexString, SpatialPoint, SpatialSize, TimeElapsedMsec} from "../types/common.ts";
+import type {CardId, ColorHexString, SpatialPoint, SpatialSize, TimeElapsedMsec} from "../types/common.ts";
 import type {Sensor} from "../types/sensors";
 import type {Action} from "../types/actions";
 import './board-view.css'
 import type {CardView} from "./card-views/card-view.ts";
-import {ClickSensorBinding, KeySensorBinding, type SensorBinding, TimeoutSensorBinding} from "./sensor-bindings/sensor-binding.ts";
+import {ClickSensorBinding, KeySensorBinding, type SensorBinding, SubmitSensorBinding, TimeoutSensorBinding} from "./sensor-bindings/sensor-binding.ts";
 import {ImageCardView} from "./card-views/image/image-card.ts";
 import {TextCardView} from "./card-views/text/text-card-view.ts";
 import {VideoCardView} from "./card-views/video/video-card.ts";
@@ -13,9 +13,7 @@ import {PointerStream} from "../input-streams/pointer-stream.ts";
 import {KeyStream} from "../input-streams/key-stream.ts";
 import type {Clock} from "../clock.ts";
 import {SliderCardView} from "./card-views/slider/slider-card-view.ts";
-import {FreeTextEntryView} from "./card-views/free-text-entry/free-text-entry.ts";
-
-type CardViewId = string & { __brand: 'CardViewId' };
+import {FreeTextEntryCardView} from "./card-views/free-text-entry/free-text-entry.ts";
 
 
 export type SensorBindingId = string & { __brand: 'SensorBindingId' };
@@ -99,7 +97,7 @@ export class BoardCoordinateSystem {
 
 export class BoardView {
     root: HTMLDivElement
-    cardViews: Map<CardViewId, CardView> = new Map(); // Map of card ID to CardView
+    cardViews: Map<CardId, CardView> = new Map(); // Map of card ID to CardView
     sensorBindings: Map<SensorBindingId, SensorBinding> = new Map(); // Map of sensor ID to SensorBinding
 
     constructor(
@@ -153,7 +151,7 @@ export class BoardView {
         }
     }
 
-    private getCardView(cardId: CardViewId): CardView {
+    private getCardView(cardId: CardId): CardView {
         const cardView = this.cardViews.get(cardId);
         if (!cardView) {
             throw new Error(`CardView with ID ${cardId} not found.`);
@@ -162,9 +160,10 @@ export class BoardView {
     }
 
     async prepareCard(
+        cardId: CardId,
         card: Card,
         assetManager: AssetManager,
-    ): Promise<CardViewId> {
+    ): Promise<void> {
         // Dynamic dispatch
         const boardCoords = this.getCoordinateSystem();
         let cardView: CardView | null = null;
@@ -192,7 +191,7 @@ export class BoardView {
                 )
                 break
             case "FreeTextEntryCard":
-                cardView = new FreeTextEntryView(
+                cardView = new FreeTextEntryCardView(
                     card, boardCoords,
                 )
                 break
@@ -206,29 +205,25 @@ export class BoardView {
         // Mount CardView to BoardView:
         this.root.appendChild(cardView.root);
 
-        // Have the EventStream subscribe to any relevant events from the CardView
-
         // Issue a new CardViewId:
-        const cardId = crypto.randomUUID() as CardViewId;
         this.cardViews.set(cardId, cardView);
-        return cardId
     }
 
-    startCard(cardId: CardViewId) {
+    startCard(cardId: CardId) {
         // Show and start the CardView
         const cardView = this.getCardView(cardId);
         cardView.setVisibility(true);
         cardView.onStart();
     }
 
-    stopCard(cardId: CardViewId) {
+    stopCard(cardId: CardId) {
         // Hide and stop the CardView
         const cardView = this.getCardView(cardId);
         cardView.setVisibility(false);
         cardView.onStop();
     }
 
-    destroyCard(cardId: CardViewId) {
+    destroyCard(cardId: CardId) {
         // Unload and remove the CardView
         const cardView = this.getCardView(cardId);
         cardView.onDestroy();
@@ -278,8 +273,42 @@ export class BoardView {
                 pointerStream,
             )
         }
+        else if (sensor.sensor_type == "SubmitSensor"){
+            // Check that source_ids and submitter_id are valid CardIds in the current Node:
+            const submitterCardView = this.cardViews.get(sensor.submitter_id);
+            if (!submitterCardView) {
+                throw new Error(`SubmitSensor has invalid submitter_id: ${sensor.submitter_id}`);
+            }
+
+            if (submitterCardView.card.card_type !== 'TextCard') {
+                throw new Error(`SubmitSensor's submitter_id must refer to a TextCard, but got: ${JSON.stringify(submitterCardView.card)}`);
+            }
+
+            // Load source CardViews:
+            let sourceCardViews: Record<CardId, FreeTextEntryCardView | SliderCardView> = {};
+            for (let sourceCardId of sensor.source_ids){
+                const sourceCardView = this.cardViews.get(sourceCardId);
+                if (!sourceCardView) {
+                    throw new Error(`SubmitSensor has invalid source_id: ${sourceCardId}`);
+                }
+                if (sourceCardView.card.card_type !== 'SliderCard' && sourceCardView.card.card_type !== 'FreeTextEntryCard') {
+                    throw new Error(`SubmitSensor's source_ids must refer to SliderCard or FreeTextEntryCard, but got: ${JSON.stringify(sourceCardView.card)}`);
+                }
+                // Cast
+                sourceCardViews[sourceCardId] = sourceCardView as FreeTextEntryCardView | SliderCardView;
+            }
+            console.log(sourceCardViews)
+            sensorBinding = new SubmitSensorBinding(
+                onSensorFired,
+                submitterCardView as TextCardView,
+                sourceCardViews,
+                clock,
+            )
+        }
         else {
-            throw new Error(`Unknown Sensor provided: ${sensor}`);
+            // Add a never check here so TS complians if I missed a sensor type:
+            const never: never = sensor;
+            throw new Error(`Unknown Sensor provided: ${JSON.stringify(never)}`);
         }
         // Issue a new SensorBindingId (a UUID):
         const sensorBindingId = crypto.randomUUID() as SensorBindingId;

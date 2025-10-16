@@ -49,6 +49,7 @@
                         "justification_vertical": "center",
                         "text_color": "#000000ff",
                         "background_color": "#e6e6e6ff"
+
                     },
                     "free-text-test": {
                         "card_type": "FreeTextEntryCard",
@@ -130,7 +131,8 @@
                         "justification_horizontal": "center",
                         "justification_vertical": "center",
                         "text_color": "#000000ff",
-                        "background_color": "#e6e6e6ff"
+                        "background_color": "#e6e6e6ff",
+                        "selectable": true,
                     },
                 },
                 "sensors": {
@@ -143,6 +145,20 @@
                         "w": 0.0375,
                         "h": 0.0375,
                         "mask": "ellipse"
+                    },
+                    "submit": {
+                        "sensor_type": "SubmitSensor",
+                        "start_msec": 0,
+                        "end_msec": null,
+                        "submitter_id": "submit-button",
+                        "source_ids": [
+                            "free-text-test",
+                            "slider-test",
+                            "slider-test2",
+                            "slider-vertical",
+                            "slider-vertical2"
+                        ]
+
                     }
                 },
                 "effects": [],

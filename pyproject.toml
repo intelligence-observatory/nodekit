@@ -10,7 +10,7 @@ authors = [
 ]
 readme = "README.md"
 license = { file = "LICENSE" }
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 
 dependencies = [
     "pillow>=10.4",
@@ -38,6 +38,8 @@ nodekit = [
 [dependency-groups]
 dev = [
     "pytest>=8.3",
+    "ruff>=0.14.0",
+    "ty>=0.0.1a22",
 ]
 
 [tool.pytest.ini_options]

@@ -50,6 +50,11 @@ class BaseCard(pydantic.BaseModel, ABC):
     )
 
 
+# %% Mixins
+class SelectableMixin(pydantic.BaseModel):
+    selectable: bool = pydantic.Field(default=False)
+
+
 # %%
 class ImageCard(BaseCard):
     card_type: Literal["ImageCard"] = "ImageCard"
@@ -57,7 +62,7 @@ class ImageCard(BaseCard):
 
 
 # %%
-class TextCard(BaseCard):
+class TextCard(BaseCard, SelectableMixin):
     card_type: Literal["TextCard"] = "TextCard"
     text: MarkdownString = pydantic.Field(min_length=1)
     font_size: SpatialSize = pydantic.Field(
@@ -94,8 +99,8 @@ class SliderCard(BaseCard):
         description="The number of discrete bins in the slider.", ge=2, default=7
     )
 
-    initial_bin_index: int = pydantic.Field(  # ty: ignore
-        description="The initial bin index that the slider is set to when it first appears. The default is the middle bin.",
+    initial_bin_index: int | None = pydantic.Field(
+        description="The initial bin index that the slider is set to when it first appears. If None, defaults to the middle bin.",
         ge=0,
         default=None,
     )

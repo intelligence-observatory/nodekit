@@ -41,6 +41,19 @@ if __name__ == "__main__":
                 prompt="I am a FreeTextEntryCard. Try typing into me.",
                 text_color="#ce3a3a",
             ),
+            "submit-button": nk.cards.TextCard(
+                x=0,
+                y=-0.4,
+                w=0.2,
+                h=0.1,
+                text="Submit",
+                font_size=0.03,
+                background_color="#4CAF50",
+                text_color="#ffffff",
+                justification_horizontal="center",
+                justification_vertical="center",
+                selectable=True,
+            ),
             "slider-horizontal": nk.cards.SliderCard(
                 x=0,
                 y=-0.25,
@@ -74,7 +87,15 @@ if __name__ == "__main__":
         },
         sensors={
             # "wait": nk.sensors.TimeoutSensor(timeout_msec=5000),
-            "press": nk.sensors.KeySensor(key=" "),
+            "submit": nk.sensors.SubmitSensor(
+                submitter_id="submit-button",
+                source_ids=[
+                    "free-text-test",
+                    "slider-horizontal",
+                    "slider-horizontal2",
+                    "slider-vertical",
+                ],
+            )
         },
     )
 
@@ -84,10 +105,10 @@ if __name__ == "__main__":
     savepath = Path("my_graph.nkg")
     if savepath.exists():
         savepath.unlink()
-    nk.pack(graph, savepath)
+    nk.save_graph(graph, savepath)
 
     # %% Unpacking a Graph:
-    graph_roundtrip = nk.unpack(savepath)
+    graph_roundtrip = nk.load_graph(savepath)
 
     # %% Play the Graph now:
     trace = nk.play(graph)
