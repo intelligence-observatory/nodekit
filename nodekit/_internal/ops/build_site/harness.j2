@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>NodeKit</title>
+    <link rel="shortcut icon" href="">
+
+    <!-- NodeKit -->
+    <script src="{{ js_path }}"></script>
+    <link href="{{ css_path }}" rel="stylesheet">
+
+    <script>
+        const graph = {{ graph | tojson(indent=4) | indent(8, first=False) }};
+
+        window.onload = async () => {
+            const trace = await NodeKit.play(graph);
+        };
+    </script>
+</head>
+<body></body>
+</html>

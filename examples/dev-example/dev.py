@@ -110,6 +110,11 @@ if __name__ == "__main__":
     # %% Unpacking a Graph:
     graph_roundtrip = nk.load_graph(savepath)
 
+    # %% Build a site
+    build_result = nk.build_site(graph_roundtrip, 'my-site')
+    print(build_result)
+    raise Exception
+
     # %% Play the Graph now:
     trace = nk.play(graph)
 
@@ -117,3 +122,5 @@ if __name__ == "__main__":
     print(f"Observed {len(trace.events)} events:")
     for event in trace.events:
         print(event.event_type)
+
+

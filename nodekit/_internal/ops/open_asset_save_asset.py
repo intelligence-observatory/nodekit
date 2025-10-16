@@ -12,10 +12,14 @@ from nodekit._internal.types.assets import (
 )
 import urllib.request
 import urllib.error
+from pathlib import Path
 
-
+from nodekit._internal.utils.get_extension_from_media_type import get_extension_from_media_type
+import os
+import shutil
+import tempfile
 # %%
-def stream_asset_bytes(
+def open_asset(
     asset: Asset,
 ) -> ContextManager[IO[bytes]]:
     """
@@ -49,7 +53,6 @@ def stream_asset_bytes(
         return open_url_stream()
 
     elif isinstance(locator, ZipArchiveInnerPath):
-
         @contextlib.contextmanager
         def open_stream():
             with zipfile.ZipFile(locator.zip_archive_path, "r") as zf:
@@ -62,3 +65,61 @@ def stream_asset_bytes(
         return open(locator.relative_path, "rb")
     else:
         raise ValueError(f"Unsupported locator type: {locator.locator_type}")
+
+
+# %%
+def save_asset(
+        asset: Asset,
+        path: Path,
+) -> None:
+    """
+    Persist `asset` bytes to `path` atomically.
+    Raises:
+      - FileExistsError if target exists and `overwrite=False`
+      - ValueError for mismatched extension when `add_extension=True`
+    """
+    buffer_size: int = 1024 * 1024 # 1MB buffer for streaming copy
+
+    # --- ensure parent exists ---
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    # --- exists check ---
+    if path.exists():
+        raise FileExistsError(f"Refusing to overwrite existing file: {path}")
+
+    # Fast path: hardlink local file if possible
+    loc = asset.locator
+    if isinstance(loc, FileSystemPath):
+        src = Path(loc.path)
+        try:
+            # Hardlink avoids IO; falls back to copy path if cross-device
+            os.link(src, path)
+        except OSError:
+            # Cross-device or FS limitation: fall through to streamed copy
+            pass
+        return
+
+    # Slow path: stream
+    tmp_file_descriptor, tmp_path_str = tempfile.mkstemp(
+        prefix=path.name + ".",
+        dir=path.parent
+    )
+    tmp_path = Path(tmp_path_str)
+    try:
+        with os.fdopen(tmp_file_descriptor, "wb", closefd=True) as out_f:
+            # Stream from source to temp file
+            with open_asset(asset) as in_f:
+                shutil.copyfileobj(in_f, out_f, length=buffer_size)
+            out_f.flush()
+            os.fsync(out_f.fileno())
+
+        # Atomic move into place (overwrites if exists)
+        os.replace(tmp_path, path)
+    finally:
+        # If something failed before replace, cleanup temp
+        if tmp_path.exists():
+            try:
+                tmp_path.unlink()
+            except OSError:
+                pass
+

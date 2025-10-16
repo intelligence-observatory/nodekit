@@ -6,7 +6,7 @@ from typing import Literal, Annotated, Union, Self
 
 import pydantic
 
-from nodekit._internal.ops.hash_file import (
+from nodekit._internal.utils.hashing import (
     hash_file,
 )
 from nodekit._internal.types.common import (
