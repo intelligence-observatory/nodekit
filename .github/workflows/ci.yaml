@@ -9,7 +9,7 @@ on:
       - pyproject.toml
       - Makefile
 jobs:
-  lint_and_type_check:
+  NodeKit-CI:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository code
