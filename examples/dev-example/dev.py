@@ -111,7 +111,7 @@ if __name__ == "__main__":
     graph_roundtrip = nk.load_graph(savepath)
 
     # %% Build a site
-    build_result = nk.build_site(graph_roundtrip, 'my-site')
+    build_result = nk.build_site(graph_roundtrip, "my-site")
     print(build_result)
 
     # %% Play the Graph now:
@@ -121,5 +121,3 @@ if __name__ == "__main__":
     print(f"Observed {len(trace.events)} events:")
     for event in trace.events:
         print(event.event_type)
-
-

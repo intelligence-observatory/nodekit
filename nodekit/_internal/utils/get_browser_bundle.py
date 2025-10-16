@@ -5,6 +5,7 @@ import pydantic
 from nodekit._internal.utils.hashing import hash_string
 from nodekit._internal.types.common import SHA256
 
+
 # %%
 class NodeKitBrowserBundle(pydantic.BaseModel):
     css: str

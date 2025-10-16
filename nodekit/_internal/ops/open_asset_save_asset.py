@@ -14,10 +14,11 @@ import urllib.request
 import urllib.error
 from pathlib import Path
 
-from nodekit._internal.utils.get_extension_from_media_type import get_extension_from_media_type
 import os
 import shutil
 import tempfile
+
+
 # %%
 def open_asset(
     asset: Asset,
@@ -53,6 +54,7 @@ def open_asset(
         return open_url_stream()
 
     elif isinstance(locator, ZipArchiveInnerPath):
+
         @contextlib.contextmanager
         def open_stream():
             with zipfile.ZipFile(locator.zip_archive_path, "r") as zf:
@@ -69,8 +71,8 @@ def open_asset(
 
 # %%
 def save_asset(
-        asset: Asset,
-        path: Path,
+    asset: Asset,
+    path: Path,
 ) -> None:
     """
     Persist `asset` bytes to `path` atomically.
@@ -78,7 +80,7 @@ def save_asset(
       - FileExistsError if target exists and `overwrite=False`
       - ValueError for mismatched extension when `add_extension=True`
     """
-    buffer_size: int = 1024 * 1024 # 1MB buffer for streaming copy
+    buffer_size: int = 1024 * 1024  # 1MB buffer for streaming copy
 
     # --- ensure parent exists ---
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -101,8 +103,7 @@ def save_asset(
 
     # Slow path: stream
     tmp_file_descriptor, tmp_path_str = tempfile.mkstemp(
-        prefix=path.name + ".",
-        dir=path.parent
+        prefix=path.name + ".", dir=path.parent
     )
     tmp_path = Path(tmp_path_str)
     try:
@@ -122,4 +123,3 @@ def save_asset(
                 tmp_path.unlink()
             except OSError:
                 pass
-

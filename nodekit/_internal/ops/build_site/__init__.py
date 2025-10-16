@@ -8,21 +8,29 @@ from nodekit._internal.ops.open_asset_save_asset import save_asset
 from nodekit._internal.types.assets import RelativePath
 from nodekit._internal.types.graph import Graph
 from nodekit._internal.utils.get_browser_bundle import get_browser_bundle
-from nodekit._internal.utils.get_extension_from_media_type import get_extension_from_media_type
+from nodekit._internal.utils.get_extension_from_media_type import (
+    get_extension_from_media_type,
+)
 from nodekit._internal.utils.hashing import hash_string
 from nodekit._internal.utils.iter_assets import iter_assets
 
 
 # %%
 class BuildSiteResult(pydantic.BaseModel):
-    site_root: Path = pydantic.Field(description='The absolute path to the folder containing the site.')
-    entrypoint: Path = pydantic.Field(description='The path of the index html (relative to the root).')
-    dependencies: list[Path] = pydantic.Field(description='List of paths to all files needed by the index html, relative to the root.')
+    site_root: Path = pydantic.Field(
+        description="The absolute path to the folder containing the site."
+    )
+    entrypoint: Path = pydantic.Field(
+        description="The path of the index html (relative to the root)."
+    )
+    dependencies: list[Path] = pydantic.Field(
+        description="List of paths to all files needed by the index html, relative to the root."
+    )
 
 
 def build_site(
-        graph: Graph,
-        savedir: os.PathLike | str,
+    graph: Graph,
+    savedir: os.PathLike | str,
 ) -> BuildSiteResult:
     """
     Builds a static website for the given Graph, saving all assets and the HTML file to the given directory.
@@ -62,11 +70,14 @@ def build_site(
         js_abs_path.parent.mkdir(parents=True, exist_ok=True)
         js_abs_path.write_text(browser_bundle.js)
 
-
     # Ensure all assets saved to the appropriate location:
     graph = graph.model_copy(deep=True)
     for asset in iter_assets(graph=graph):
-        asset_relative_path = Path("assets") / asset.media_type / f"{asset.sha256}.{get_extension_from_media_type(asset.media_type)}"
+        asset_relative_path = (
+            Path("assets")
+            / asset.media_type
+            / f"{asset.sha256}.{get_extension_from_media_type(asset.media_type)}"
+        )
         asset_abs_path = savedir / asset_relative_path
         dependencies.append(asset_relative_path)
         if not asset_abs_path.exists():
@@ -78,7 +89,7 @@ def build_site(
             )
 
         # Mutate the asset locator in the graph to be a RelativePath - relative to the graph!:
-        asset.locator = RelativePath(relative_path=Path('../..') / asset_relative_path)
+        asset.locator = RelativePath(relative_path=Path("../..") / asset_relative_path)
 
     # Render the HTML site using the Jinja2 template:
     jinja2_location = Path(__file__).parent / "harness.j2"
@@ -86,9 +97,9 @@ def build_site(
     jinja2_env = jinja2.Environment(loader=jinja2_loader)
     template = jinja2_env.get_template(jinja2_location.name)
     rendered_html = template.render(
-        graph=graph.model_dump(mode='json'),
-        css_path=Path('../..') / css_relative_path,
-        js_path=Path('../..') / js_relative_path,
+        graph=graph.model_dump(mode="json"),
+        css_path=Path("../..") / css_relative_path,
+        js_path=Path("../..") / js_relative_path,
     )
 
     # Save the graph site:
@@ -104,5 +115,3 @@ def build_site(
         entrypoint=graph_html_path.relative_to(savedir),
         dependencies=dependencies,
     )
-
-
