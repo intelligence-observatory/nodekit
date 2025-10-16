@@ -6,15 +6,15 @@ from typing import Tuple, Dict
 
 from nodekit._internal.ops.hash_file import get_extension_from_media_type
 from nodekit._internal.ops.iter_assets import iter_assets
-
 from nodekit._internal.types.assets import (
     ZipArchiveInnerPath,
     RelativePath,
-    AssetLocator,
+    BaseLocator,
+    Asset,
 )
 from nodekit._internal.types.common import MediaType, SHA256
 from nodekit._internal.types.graph import Graph
-
+from nodekit._internal.ops.asset_io import stream_asset_bytes
 
 # %%
 def _get_archive_relative_path(media_type: MediaType, sha256: SHA256) -> Path:
@@ -53,13 +53,13 @@ def save_graph(
     graph = graph.model_copy(deep=True)
 
     # Mutate all AssetLocators in the Graph to be RelativePathAssetLocators:
-    supplied_asset_locators: Dict[Tuple[MediaType, SHA256], AssetLocator] = {}
+    supplied_assets: Dict[Tuple[MediaType, SHA256], Asset] = {}
     relative_asset_locators: Dict[Tuple[MediaType, SHA256], RelativePath] = {}
     for asset in iter_assets(graph=graph):
         # Log the asset locator if we haven't seen it before:
         asset_key = (asset.media_type, asset.sha256)
-        if asset_key not in supplied_asset_locators:
-            supplied_asset_locators[asset_key] = asset.locator.model_copy()
+        if asset_key not in supplied_assets:
+            supplied_assets[asset_key] = asset.model_copy()
             relative_asset_locators[asset_key] = RelativePath(
                 relative_path=_get_archive_relative_path(
                     media_type=asset.media_type, sha256=asset.sha256
@@ -77,8 +77,8 @@ def save_graph(
     try:
         with zipfile.ZipFile(temp_path, "w", zipfile.ZIP_DEFLATED) as myzip:
             # Write all asset files to the archive:
-            for asset_key, asset_locator in supplied_asset_locators.items():
-                with asset_locator.open() as src_file:
+            for asset_key, asset_locator in supplied_assets.items():
+                with stream_asset_bytes(asset_locator) as src_file:
                     media_type, sha256 = asset_key
                     archive_relative_path = _get_archive_relative_path(
                         media_type, sha256
