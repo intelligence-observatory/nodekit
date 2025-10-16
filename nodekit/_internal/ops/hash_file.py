@@ -13,9 +13,7 @@ def hash_file(path: Path) -> SHA256:
         return hash_byte_stream(f)
 
 
-def hash_byte_stream(
-        byte_stream: BinaryIO
-) -> SHA256:
+def hash_byte_stream(byte_stream: BinaryIO) -> SHA256:
     """
     Compute the SHA-256 hash of a byte stream.
     """
@@ -26,7 +24,7 @@ def hash_byte_stream(
     h = hashlib.sha256()
     for chunk in iter(lambda: byte_stream.read(1024 * 1024), b""):  # 1 MB chunks
         h.update(chunk)
-    byte_stream.seek(initial_position) # Reset stream to the beginning again
+    byte_stream.seek(initial_position)  # Reset stream to the beginning again
 
     sha256_hexdigest = h.hexdigest()
     type_adapter = pydantic.TypeAdapter(SHA256)

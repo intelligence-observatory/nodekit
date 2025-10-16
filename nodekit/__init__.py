@@ -19,7 +19,7 @@ __all__ = [
     "load_graph",
     # Convenience ops:
     "iter_assets",
-    "stream_asset_bytes"
+    "stream_asset_bytes",
 ]
 
 # Version
