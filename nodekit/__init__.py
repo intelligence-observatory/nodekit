@@ -37,8 +37,8 @@ import nodekit.actions as actions
 import nodekit.events as events
 
 # Browser:
-from nodekit._internal.browser.local_runner.main import play
-from nodekit._internal.browser.browser_bundle import get_browser_bundle
+from nodekit._internal.ops.play import play
+from nodekit._internal.ops.get_browser_bundle import get_browser_bundle
 
 
 # Top-level authoring ops:

@@ -12,7 +12,7 @@ import pydantic
 import uvicorn
 
 from nodekit import Graph
-from nodekit._internal.browser.browser_bundle import get_browser_bundle
+from nodekit._internal.ops.get_browser_bundle import get_browser_bundle
 from nodekit._internal.ops.iter_assets import iter_assets
 from nodekit._internal.types.assets import URL, Asset
 from nodekit._internal.types.common import SHA256

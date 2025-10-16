@@ -6,8 +6,9 @@ from nodekit._internal.types.assets import (
     AssetLocator,
     URL,
     RelativePath,
-    ZipArchiveInnerPath, FileSystemPath,
-    Asset
+    ZipArchiveInnerPath,
+    FileSystemPath,
+    Asset,
 )
 import urllib.request
 import urllib.error
@@ -15,7 +16,7 @@ import urllib.error
 
 # %%
 def stream_asset_bytes(
-        asset: Asset,
+    asset: Asset,
 ) -> ContextManager[IO[bytes]]:
     """
     Streams the bytes of the given Asset.
@@ -26,6 +27,7 @@ def stream_asset_bytes(
     if isinstance(locator, FileSystemPath):
         return open(locator.path, "rb")
     elif isinstance(locator, URL):
+
         @contextlib.contextmanager
         def open_url_stream():
             req = urllib.request.Request(locator.url)
@@ -35,14 +37,19 @@ def stream_asset_bytes(
                     # Raise on non-2xx if you want stricter behavior:
                     status = getattr(resp, "status", 200)
                     if not (200 <= status < 300):
-                        raise urllib.error.HTTPError(locator.url, status, "Bad HTTP status", resp.headers, None)
+                        raise urllib.error.HTTPError(
+                            locator.url, status, "Bad HTTP status", resp.headers, None
+                        )
                     yield resp  # file-like, binary
             except urllib.error.URLError as e:
-                raise RuntimeError(f"Failed to stream Asset from URL: {locator.url}") from e
+                raise RuntimeError(
+                    f"Failed to stream Asset from URL: {locator.url}"
+                ) from e
 
         return open_url_stream()
 
     elif isinstance(locator, ZipArchiveInnerPath):
+
         @contextlib.contextmanager
         def open_stream():
             with zipfile.ZipFile(locator.zip_archive_path, "r") as zf:
