@@ -1,8 +1,11 @@
-import type {Action, ClickAction, KeyAction, TimeoutAction} from "../../types/actions";
-import type {Mask, PressableKey, SpatialPoint, SpatialSize, TimeElapsedMsec} from "../../types/common.ts";
+import type {Action, ClickAction, FreeTextEntryState, KeyAction, SliderState, TimeoutAction} from "../../types/actions";
+import type {CardId, Mask, PressableKey, SpatialPoint, SpatialSize, TimeElapsedMsec} from "../../types/common.ts";
 import type {PointerSample, PointerStream} from "../../input-streams/pointer-stream.ts";
 import type {KeySample, KeyStream} from "../../input-streams/key-stream.ts";
 import type {Clock} from "../../clock.ts";
+import type {TextCardView} from "../card-views/text/text-card-view.ts";
+import type {FreeTextEntryCardView} from "../card-views/free-text-entry/free-text-entry.ts";
+import type {SliderCardView} from "../card-views/slider/slider-card-view.ts";
 
 // Generic contract:
 export interface SensorBinding {
@@ -179,3 +182,64 @@ export class KeySensorBinding implements SensorBinding {
     }
 }
 
+export class SubmitSensorBinding implements SensorBinding {
+    private armed: boolean = false;
+    constructor(
+        onSensorFired: (action: Action, tAction: TimeElapsedMsec) => void,
+        submitterCardView: TextCardView,
+        sourceCardViews: Record<CardId, FreeTextEntryCardView | SliderCardView>,
+        clock: Clock,
+    ){
+
+        const submitButtonStateChanged = (selected: boolean)=> {
+            console.log('yo', selected)
+            if (!selected){
+                return;
+            }
+
+            if (!this.armed){
+                return;
+            }
+
+            let submittedValues: Record<CardId, FreeTextEntryState | SliderState> = {};
+            if (selected){
+                // Gather form values
+                for (const sourceCardId of Object.keys(sourceCardViews) as CardId[]) {
+                    const sourceCardView = sourceCardViews[sourceCardId];
+
+                    if (sourceCardView.card.card_type == 'FreeTextEntryCard'){
+                        const freeTextEntryCardView = sourceCardView as FreeTextEntryCardView;
+                        submittedValues[sourceCardId] = {"text": freeTextEntryCardView.getCurrentText()}
+                    }
+
+                    if (sourceCardView.card.card_type == 'SliderCard'){
+                        const sliderCardView = sourceCardView as SliderCardView;
+                        submittedValues[sourceCardId] = {
+                            "slider_normalized_position": sliderCardView.getCurrentNormalizedPosition(),
+                            "slider_bin_index": sliderCardView.getCurrentBinIndex(),
+                        }
+                    }
+                }
+
+                // Fire
+                const action: Action = {
+                    action_type: "SubmitAction",
+                    submitted_values: submittedValues,
+                }
+                onSensorFired(action, clock.now());
+            }
+        }
+
+        // Subscribe to the submitterCardView's submit event:
+        submitterCardView.subscribeToSelectionChanges(submitButtonStateChanged)
+
+    }
+
+    arm() {
+        this.armed=true;
+    }
+    destroy(): void {
+
+    }
+
+}

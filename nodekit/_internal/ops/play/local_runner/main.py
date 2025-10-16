@@ -12,12 +12,13 @@ import pydantic
 import uvicorn
 
 from nodekit import Graph
-from nodekit._internal.browser.browser_bundle import get_browser_bundle
-from nodekit._internal.ops.gather_assets import iter_assets
+from nodekit._internal.utils.get_browser_bundle import get_browser_bundle
+from nodekit._internal.utils.iter_assets import iter_assets
 from nodekit._internal.types.assets import URL, Asset
 from nodekit._internal.types.common import SHA256
 from nodekit._internal.types.events.events import Event, EventTypeEnum
 from nodekit._internal.types.trace import Trace
+from nodekit._internal.ops.open_asset_save_asset import open_asset
 
 
 # %%
@@ -137,7 +138,7 @@ class LocalRunner:
                 )
 
             # Hardcode
-            with asset.locator.open() as f:
+            with open_asset(asset) as f:
                 savepath = Path(f"/tmp/{asset_id}")
                 if not savepath.exists():
                     with open(savepath, "wb") as out:

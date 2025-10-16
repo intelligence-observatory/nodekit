@@ -95,6 +95,7 @@ export async function play(
 
     // Start screen:
     await shellUI.playStartScreen()
+
     clock.start()
     const startEvent: TraceStartedEvent = {
         event_type: "TraceStartedEvent",
