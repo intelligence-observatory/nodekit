@@ -18,7 +18,8 @@ from nodekit._internal.types.assets import URL, Asset
 from nodekit._internal.types.common import SHA256
 from nodekit._internal.types.events.events import Event, EventTypeEnum
 from nodekit._internal.types.trace import Trace
-from nodekit._internal.ops.asset_io import stream_asset_bytes
+from nodekit._internal.ops.stream_asset_bytes import stream_asset_bytes
+
 
 # %%
 class LocalRunner:

@@ -87,6 +87,7 @@ class URL(BaseLocator):
         description="The URL to the asset file. May be a relative or absolute URL."
     )
 
+
 type AssetLocator = Annotated[
     Union[FileSystemPath, ZipArchiveInnerPath, RelativePath, URL],
     pydantic.Field(discriminator="locator_type"),
@@ -98,7 +99,7 @@ class BaseAsset(pydantic.BaseModel):
     """
     An Asset is:
     - An identifier for an asset file (its SHA-256 hash and media type)
-    - A source of bytes that are claimed to hash to the identifier. The locator must be valid, but the bytes at the location  are not guaranteed to match the identifier.
+    - A locator of bytes that are claimed to hash to the identifier.
     """
 
     sha256: SHA256 = pydantic.Field(
@@ -108,7 +109,7 @@ class BaseAsset(pydantic.BaseModel):
         description="The IANA media (MIME) type of the asset."
     )
     locator: AssetLocator = pydantic.Field(
-        description="A location which is a claimed source of bytes for the asset.",
+        description="A location which is a claimed source of valid bytes for this Asset.",
     )
 
     @classmethod

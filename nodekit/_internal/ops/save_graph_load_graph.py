@@ -4,17 +4,16 @@ import zipfile
 from pathlib import Path
 from typing import Tuple, Dict
 
-from nodekit._internal.ops.hash_file import get_extension_from_media_type
 from nodekit._internal.ops.iter_assets import iter_assets
+from nodekit._internal.ops.stream_asset_bytes import stream_asset_bytes
 from nodekit._internal.types.assets import (
     ZipArchiveInnerPath,
     RelativePath,
-    BaseLocator,
     Asset,
 )
 from nodekit._internal.types.common import MediaType, SHA256
 from nodekit._internal.types.graph import Graph
-from nodekit._internal.ops.asset_io import stream_asset_bytes
+
 
 # %%
 def _get_archive_relative_path(media_type: MediaType, sha256: SHA256) -> Path:
@@ -23,6 +22,20 @@ def _get_archive_relative_path(media_type: MediaType, sha256: SHA256) -> Path:
     """
     extension = get_extension_from_media_type(media_type)
     return Path("assets") / media_type / f"{sha256}.{extension}"
+
+
+def get_extension_from_media_type(media_type: MediaType) -> str:
+    """
+    Returns the file extension, without the leading dot, for a given media (MIME) type.
+    """
+    mime_to_extension = {
+        "image/png": "png",
+        "image/svg+xml": "svg",
+        "video/mp4": "mp4",
+    }
+    if media_type not in mime_to_extension:
+        raise ValueError(f"Unsupported media type: {media_type}")
+    return mime_to_extension[media_type]
 
 
 # %%
