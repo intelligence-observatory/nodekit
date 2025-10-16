@@ -113,7 +113,6 @@ if __name__ == "__main__":
     # %% Build a site
     build_result = nk.build_site(graph_roundtrip, 'my-site')
     print(build_result)
-    raise Exception
 
     # %% Play the Graph now:
     trace = nk.play(graph)

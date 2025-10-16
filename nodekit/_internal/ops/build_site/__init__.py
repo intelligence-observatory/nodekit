@@ -36,6 +36,7 @@ def build_site(
     graphs/
         {graph_digest}/
             index.html
+            graph.json
     """
     savedir = Path(savedir)
     if not savedir.exists():
