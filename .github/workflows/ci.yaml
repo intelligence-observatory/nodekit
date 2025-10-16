@@ -5,7 +5,7 @@ on:
       - main
     paths:
       - nodekit/**/*.py
-      - ci.yaml
+      - .github/workflows/ci.yaml
       - pyproject.toml
       - Makefile
 jobs:
