@@ -6943,7 +6943,7 @@ async function Uc(n, e = null, t = []) {
         }
       );
     }
-  ), o.hideSessionConnectingOverlay(), c.start();
+  ), o.hideSessionConnectingOverlay(), await o.playStartScreen(), c.start();
   const p = {
     event_type: "TraceStartedEvent",
     t: 0

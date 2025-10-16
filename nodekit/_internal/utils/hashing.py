@@ -31,3 +31,16 @@ def hash_byte_stream(byte_stream: BinaryIO) -> SHA256:
     validated_sha256 = type_adapter.validate_python(sha256_hexdigest)
 
     return validated_sha256
+
+
+def hash_string(s: str) -> SHA256:
+    """
+    Compute the SHA-256 hash of a string.
+    """
+    h = hashlib.sha256()
+    h.update(s.encode("utf-8"))
+    sha256_hexdigest = h.hexdigest()
+    type_adapter = pydantic.TypeAdapter(SHA256)
+    validated_sha256 = type_adapter.validate_python(sha256_hexdigest)
+
+    return validated_sha256
