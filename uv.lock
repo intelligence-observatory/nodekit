@@ -328,7 +328,6 @@ dependencies = [
     { name = "jinja2" },
     { name = "pillow" },
     { name = "pydantic" },
-    { name = "pytest" },
 ]
 
 [package.dev-dependencies]
@@ -344,7 +343,6 @@ requires-dist = [
     { name = "jinja2", specifier = ">=3.1.4" },
     { name = "pillow", specifier = ">=10.4" },
     { name = "pydantic", specifier = ">=2.9.2" },
-    { name = "pytest", specifier = ">=8.4.2" },
 ]
 
 [package.metadata.requires-dev]

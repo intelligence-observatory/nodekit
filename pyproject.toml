@@ -17,14 +17,11 @@ dependencies = [
     "pydantic>=2.9.2",
     "Jinja2>=3.1.4",
     "fastapi[standard]>=0.116.1",
-    "pytest>=8.4.2",
 ]
 
 [project.urls]
 repository = "https://github.com/intelligence-observatory/nodekit"
 
-[tool.ty.src]
-exclude =["tests"]
 
 [tool.setuptools.packages.find]
 where = ["."]
@@ -42,7 +39,3 @@ dev = [
     "ruff>=0.14.0",
     "ty>=0.0.1a22",
 ]
-
-[tool.pytest.ini_options]
-pythonpath = ["."]
-testpaths = ["tests"]
