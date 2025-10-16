@@ -113,9 +113,9 @@
 
             // attach a runId to allow for Experimenters to map HITs to Sessions
             const inputRunId = document.createElement('input')
-            inputRunId.name = 'trace'
-            inputRunId.value = trace
-            inputRunId.hidden = true
+            inputRunId.name = 'trace';
+            inputRunId.value = JSON.stringify(trace);
+            inputRunId.hidden = true;
             form.appendChild(inputRunId)
 
             // attach the form to the HTML document and trigger submission
@@ -125,6 +125,7 @@
             form.submit()
         }
     </script>
+
     <script>
         const graph = {{ graph | tojson(indent=4) | indent(8, first=False) }};
 
@@ -143,9 +144,13 @@
             const trace = await NodeKit.play(graph);
 
             // Handle close down procedures, based on the inferred context:
-
-
-
+            if(turkContext && turkContext.previewMode === false){
+                submitToTurk(
+                    trace,
+                    turkContext.context.assignmentId,
+                    turkContext.context.turkSubmitTo,
+                )
+            }
         };
     </script>
 </head>
