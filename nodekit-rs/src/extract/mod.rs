@@ -1,17 +1,20 @@
 mod extractor;
-mod frames;
+mod frame;
 
+use crate::packet_iter::PacketIter;
 use extractor::{AudioExtractor, VideoExtractor};
 use ffmpeg_next::format::input;
-use ffmpeg_next::{Packet, Stream as FfmpegStream};
+use ffmpeg_next::util::frame::{audio::Audio as AudioFrame, video::Video as VideoFrame};
+pub use frame::Frame;
+use std::collections::VecDeque;
 use std::path::Path;
-use crate::packet_iter::PacketIter;
-pub use frames::Frames;
 
 pub struct Extractor<'e> {
     packet_iter: PacketIter<'e>,
     audio: Option<AudioExtractor>,
     video: VideoExtractor,
+    video_frames: VecDeque<VideoFrame>,
+    audio_frames: VecDeque<AudioFrame>,
 }
 
 impl Extractor<'_> {
@@ -28,35 +31,40 @@ impl Extractor<'_> {
             packet_iter,
             audio,
             video,
+            video_frames: VecDeque::default(),
+            audio_frames: VecDeque::default(),
         })
     }
 
-    pub fn next_frames(
-        &mut self,
-    ) -> Result<Option<Frames>, ffmpeg_next::Error> {
-        match self.packet_iter.next() {
-            Some((stream, packet)) => {
-                if let Some(audio) = self.audio.as_mut()
-                    && stream.index() == audio.stream_index()
-                {
-                    let mut frames = Vec::default();
-                    audio.send_packet(&packet)?;
-                    while let Ok(frame) = audio.extract_next_frame() {
-                        frames.push(frame);
-                    }
-                    Ok(Some(Frames::Audio(frames)))
-                } else if stream.index() == self.video.stream_index() {
-                    let mut frames = Vec::default();
-                    self.video.send_packet(&packet)?;
-                    while let Ok(frame) = self.video.extract_next_frame() {
-                        frames.push(frame);
-                    }
-                    Ok(Some(Frames::Video(frames)))
-                } else {
-                    Ok(None)
+    pub fn get_next_frame(&mut self) -> Result<Option<Frame>, ffmpeg_next::Error> {
+        if let Some((stream, packet)) = self.packet_iter.next() {
+            if let Some(audio) = self.audio.as_mut()
+                && stream.index() == audio.stream_index()
+            {
+                audio.send_packet(&packet)?;
+                while let Ok(frame) = audio.extract_next_frame() {
+                    self.audio_frames.push_back(frame);
+                }
+            } else if stream.index() == self.video.stream_index() {
+                self.video.send_packet(&packet)?;
+                while let Ok(frame) = self.video.extract_next_frame() {
+                    self.video_frames.push_back(frame);
                 }
             }
-            None => Ok(None)
+        }
+        // There is a video frame.
+        // There is an expected audio frame.
+        let have_audio_frame = if self.audio.is_some() {
+            !self.audio_frames.is_empty()
+        } else {
+            true
+        };
+        if !self.video_frames.is_empty() && have_audio_frame {
+            let video = self.video_frames.pop_front().unwrap();
+            let audio = self.audio_frames.pop_front();
+            Ok(Some(Frame { video, audio }))
+        } else {
+            Ok(None)
         }
     }
 }

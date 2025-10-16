@@ -1,18 +1,18 @@
-use std::marker::PhantomData;
-use std::mem;
 use ffmpeg_next::format::context::Input;
 use ffmpeg_next::{Error, Packet, Stream};
+use std::marker::PhantomData;
+use std::mem;
 
 pub struct PacketIter<'a> {
     context: Input,
-    _a: PhantomData<&'a ()>
+    _a: PhantomData<&'a ()>,
 }
 
 impl From<Input> for PacketIter<'_> {
     fn from(value: Input) -> Self {
         Self {
             context: value,
-            _a: Default::default()
+            _a: Default::default(),
         }
     }
 }

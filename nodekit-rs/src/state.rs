@@ -1,4 +1,4 @@
-use crate::{Frames, Board, video::Video};
+use crate::{Board, video::Video};
 
 pub struct State<'s> {
     pub board: Board,
@@ -6,8 +6,5 @@ pub struct State<'s> {
 }
 
 impl State<'_> {
-    pub fn step() {
-        
-    }
+    pub fn step() {}
 }
-

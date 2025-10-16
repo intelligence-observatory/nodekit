@@ -1,9 +1,14 @@
 mod extract;
+mod packet_iter;
 mod state;
 mod video;
-mod packet_iter;
 
-pub use extract::{Extractor, Frames};
+use blittle::Size;
+pub use extract::Extractor;
 
 pub(crate) const BOARD_D: usize = 768;
+pub(crate) const BOARD_SIZE: Size = Size {
+    w: BOARD_D,
+    h: BOARD_D,
+};
 pub(crate) type Board = [u8; BOARD_D * BOARD_D * 3];
