@@ -10,27 +10,36 @@ from nodekit._internal.types.common import (
 )
 
 
-# %% Blots
-class BaseBlot(pydantic.BaseModel):
+# %% Cards
+class BaseCard(pydantic.BaseModel):
     """
-    Blots are stateful, logical entities which have a visual representation on the Board.
-    Each Blot has a set of properties (fields) which can be read and written by *Rules.
+    Cards are finite state machines, whose state has an associated view projection on the Board.
+    Whenever a Card receives an input, it may evolve its state and may emit an output.
+
+    At a conceptual level, Cards accept inputs from a global context. The global context may provide
+    inputs of the following types:
+    - User pointer
+    - User key press
+    - Update commands. (Each Card exposes its own command input types)
+    - Clock
+
+    At a conceptual level, any given Card type is fully defined by the following:
+    - Its input type, state type, and output type.
+    - A rendering function that deterministically maps its current state to a visual representation.
+    - A transition function that maps its current input to its next state and any outputs.
     """
-    blot_type: str
+    card_type: str
     x: SpatialPoint
     y: SpatialPoint
     width: SpatialSize
     height: SpatialSize
+    placed: bool = True # Whether it is currently placed on the Board.
 
-    placed: bool = True # Whether it currently exists on the Board. (Pedantry: note this is necessary but not sufficient for visibility)
-
+# %% Mixins for Card affordances
 type SelectionState = bool
 class SelectableBlotMixin(pydantic.BaseModel):
-    """
-    Rendered as an overlay on the BaseBlot. z = 1.
-    """
     selected: SelectionState = False
-    selectable: bool = False  # whether it can be toggled or not
+    selectable: bool = False  # whether its selection state can be toggled or not
 
     # Visuals
     selected_color: ColorHexString | None # if None, no selected effect
@@ -46,52 +55,51 @@ class DraggableBlotMixin(pydantic.BaseModel):
 
 
 # %%
-class ShapeBlot(BaseBlot):
-    shape: Literal['ellipse', 'rectangle']
+class ShapeCard(BaseCard):
+    shape: Literal['ellipse', 'rectangle'] # The shape of the filled region of the shape.
     color: ColorHexString  # current color
+    border_color: ColorHexString | None
+    border_width: SpatialSize
 
-class SliderBlot(BaseBlot):
+class SliderCard(BaseCard):
     num_ticks: Annotated[int, pydantic.Field(gt=1, lt=1000)]
-    tick_index: Annotated[int, pydantic.Field(ge=0)] # Current tick index
+    tick_index: Annotated[int, pydantic.Field(ge=0)]
     show_ticks: bool
 
     orientation: Literal['horizontal', 'vertical']
     track_color: ColorHexString
     thumb_color: ColorHexString
 
-class FreeTextEntryBlot(BaseBlot):
+class FreeTextEntryCard(BaseCard):
     prompt_text: Annotated[str, pydantic.Field(min_length=0, max_length=1000)] # static prompt text shown if text == ''
     text: Annotated[str, pydantic.Field(min_length=0, max_length=10000)] # current text
     text_color: ColorHexString # current text color
 
-class ImageBlot(BaseBlot, SelectableBlotMixin, HoverableBlotMixin):
-    image: str # URL or base64-encoded image data or identifier. Cannot be changed on the fly
+class ImageCard(BaseCard, SelectableBlotMixin, HoverableBlotMixin, DraggableBlotMixin):
+    image: str # URL or base64-encoded image data or identifier. Cannot be changed after instantiation.
 
-class MovieBlot(BaseBlot, SelectableBlotMixin, HoverableBlotMixin):
-    movie: str # URL or base64-encoded movie data or identifier. Cannot be changed on the fly
-    loop: bool
-    muted: bool
+class MovieCard(BaseCard, SelectableBlotMixin, HoverableBlotMixin, DraggableBlotMixin):
+    movie: str # URL or base64-encoded movie data or identifier. Cannot be changed after instantiation.
+    muted: bool = True
     elapsed_msec: TimeElapsedMsec = 0 # current elapsed time in movie
+    playing: bool = True
 
-class TextBlot(BaseBlot, SelectableBlotMixin, HoverableBlotMixin):
+class TextCard(BaseCard, SelectableBlotMixin, HoverableBlotMixin, DraggableBlotMixin):
     text: Annotated[str, pydantic.Field(min_length=0, max_length=10000)]  # current text
     text_color: ColorHexString  # current text color
     background_color: ColorHexString  # current background color
-
+    font_size: SpatialSize = 0.0375
 
 type BinSelections = Dict[int, Set[int]] # mapping from horizontal bin index to set of vertical bin indices
-class DoodleBlot(BaseBlot):
+class DoodleCard(BaseCard):
     num_bins_horizontal: int = pydantic.Field(ge=1) # cannot be changed at runtime
     num_bins_vertical: int = pydantic.Field(ge=1) # cannot be changed at runtime
-
-    stroke_color: ColorHexString # should probably be transparent
-
+    stroke_color: ColorHexString
     selected_bins: BinSelections = pydantic.Field(
         description="The set of (i_h, i_w) coordinates that are currently stroked.",
     )
 
-
-# %% Actions. These are emitted by Cards, following new Participant input in the InputStream.
+# %% CardOutputs
 class CardEvent[T: str](pydantic.BaseModel):
     card_event_type: T
     t: TimeElapsedMsec
@@ -112,71 +120,47 @@ class TextEntered(CardEvent[Literal['TextEntered']]):
 class Doodled(CardEvent[Literal['Doodled']]):
     selected_bins: BinSelections
 
-# %% Expressions.
-# Expression[T] evaluates to a value of type T
-# Should use AST JSON for this.
-"""
-We have constants (e.g. true, false, 3, "hello", "#FF0000", 42, 3.14)
-We have register references (e.g. StimulusImage.visible, StimulusSlider.bin_index)
-We have the current input event
-We have operators (e.g. +, -, *, /, AND, OR, NOT, ==, !=, <, <=, >, >=) which take one or two arguments and return a value
-We have parentheses for grouping (e.g ( ... ) )
-
-These evaluate to *values*, including structs.
-"""
-class Expression(pydantic.BaseModel):
-    pass
-
-class Value(pydantic.BaseModel):
-    """
-    The result of evaluating an Expression.
-    """
-    ...
-
-# %% Predicates. e.g. P = (StimulusImage.visible == true AND StimulusSlider.bin_index == 3)
-# Predicates are Expression[bool]
-
-"""
-These operate on expressions (see above) and return a boolean value.
-
-Operators: 
-AND, OR, NOT
-"""
-class Predicate(pydantic.BaseModel):
-    pass
 
 # %% Registers
 RegisterId = str # Uniquely identifies a Register in the Node. Always of form {CardId}.{property}
 #type RegisterValueType = Union of all the types of fields in the Blots above
 
-
-# The rendering function itself should also accept inputs:
-# pointer
-
 # %%
+"""
+Types of update rules in the flows I've noticed so far: 
+- "Starting and stopping cards": WHEN t  >= t, ASSIGN .placed
+- "Activating a submit button": WHEN {source card expression}, ASSIGN .selectable
+- "Preventing further selections": WHEN {source card expression}, ASSIGN .selectable 
+- "Snapping a dragged card": WHEN {drag ends}, ASSIGN {expression which assigns x,y to l2 distance minimal snap position}
+- "Looping a movie": WHEN {movie cards ends expression}, set .elapsed_msec = 0
+- "Pausing a movie":
+"""
 class UpdateRule(pydantic.BaseModel):
     when: Predicate
     assign: Dict[RegisterId, Expression]
 
 # %%
+"""
+In the same way Cards emit an Output, Nodes emit an Output. But:
+ 1. What is the output type?
+    - Fact: The full trace of CardEvents is preserved by default, but should be considered optional.
+    - Fact: the output type should be derivable from the Events; it is a projection. 
+    - Fact: the output should have a semantic tag determined by a scheme provided by the user. 
+ 2. When is the output emitted?
+    - Fact: The output is emitted _once_.
+    - Fact: the output is emitted when an ExitRule (Sensor?) is fired. 
+
+I think I want Exits to be semantic, so they can determine between-Node flow. 
+Up til this point, I had been implementing "trials" as compositions of Nodes...Hmm...I should think 
+through the following inter-Node flows: 
+- Staircase. If correct, transition to the next Node with distinct parameters; needs to be a global register
+- Feedback screen contingent on user Actions (e.g. fixing the doodle; playing back?)
+
+"""
 class ExitRule(pydantic.BaseModel):
     when: Predicate
 
 
-"""
-Examples:  
-
-Update rule: turning a card on:
-WHEN input.clock_time >= 0 AND stimulus_image.visible == false
-ASSIGN stimulus_image.visible = true
-
-Update rule: turning a card off: 
-WHEN input.clock_time >= 1000 AND stimulus_image.visible == true
-ASSIGN stimulus_image.visible = false
-
-Exit rule: ballistic selection
-WHEN stimulus_image.selection_state == true
-"""
 
 
 
@@ -187,53 +171,8 @@ ExitId = str
 NodeId = str
 
 class NodeV2(pydantic.BaseModel):
-    cards: Dict[CardId, BaseBlot]
+    cards: Dict[CardId, BaseCard]
     update_rules: Dict[UpdateId, UpdateRule]
     exit_rules: Dict[ExitId, ExitRule]
 
 
-# %% Examples
-"""
-Back compat: first priorities
-
-[Priority A] Core: card lifecycle
-* Transition a blot to visible at time t by setting .visible = true
-* Transition a blot to invisible at time t by setting .visible = false
-
-[Priority B] Ballistic selection (key or click)
-* Transition based on click / key to terminal (if click, set selectable register)
-
-[Priority B] Timeout
-* Transition to terminal state 
-
-[Priority D] Hover 
-* Transition a blot to hover / unhovered based on pointer location
-
-
-[Priority C] Slider flow
-* Set a slider value (either required or not) 
-* Confirm
-
-[Priority C] Free text entry flow
-* Set a free text entry value (either required or not)
-* Activate confirm button, perhaps based on regex predicate
-* Termination: Press confirm button
-
-
-[Priority D] Multi-select flow
-* Transition a blot to unselected (from unselectable) based on t
-* Transition choice blots to selected (from unselected) based on click, and maybe a guard predicate (min n to max k selected, out of N total)
-* Transition the submit blot to terminal (from unselected) based on click, and a guard predicate (min n to max k selected, out of N total)
-
-[Priority E] (e.g.) Color matching flow
-* Based on a 'button' press, change the value of a blot property (e.g. luminance) upward or downward by a fixed increment, within bounds
-* Confirm flow
-
-"""
-
-# %%
-
-"""
-Kernel proceeds in logical ticks. 
-One possible invariant is that 1 tick = 1 rule execution.
-"""
