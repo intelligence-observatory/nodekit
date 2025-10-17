@@ -1,0 +1,8 @@
+include "card.fbs";
+
+table Graph {
+    cards:[Card];
+}
+
+root_type Graph;
+file_identifier "graf";

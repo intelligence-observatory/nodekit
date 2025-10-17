@@ -4,4 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+blittle.workspace = true
 slotmap.workspace = true
+nodekit-rs-board = { path = "../nodekit-rs-board" }
+nodekit-rs-fb = { path = "../nodekit-rs-fb" }

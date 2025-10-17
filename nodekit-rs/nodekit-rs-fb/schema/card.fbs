@@ -12,5 +12,3 @@ table Card {
     end_msec:int32 = null;
     card_type:CardType;
 }
-
-root_type Card;

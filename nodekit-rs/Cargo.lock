@@ -183,6 +183,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "nodekit-rs-board"
+version = "0.1.0"
+
+[[package]]
 name = "nodekit-rs-fb"
 version = "0.1.0"
 dependencies = [
@@ -193,6 +197,9 @@ dependencies = [
 name = "nodekit-rs-node"
 version = "0.1.0"
 dependencies = [
+ "blittle",
+ "nodekit-rs-board",
+ "nodekit-rs-fb",
  "slotmap",
 ]
 
