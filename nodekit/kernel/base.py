@@ -156,6 +156,34 @@ through the following inter-Node flows:
 - Staircase. If correct, transition to the next Node with distinct parameters; needs to be a global register
 - Feedback screen contingent on user Actions (e.g. fixing the doodle; playing back?)
 
+I guess I'm okay living with the idea that Node outputs are basically enums (accompanied by nonfunctional 
+semantic fact derivations – Actions ) where the enum values set by the author, not arbitrary values.
+
+i.e., we can observe that any Action consists of _the value itself_ and a function which tags it 
+into an enum value (or no-ops).
+
+As for the Action value specification itself, let's keep it simple; it's always an ADT 
+of the CardEvents. 
+
+Maybe we can roll up all the typical flows (compositions of UpdateRules / ExitRules) in a concept 
+called a "Sensor". A Sensor 'wires' Cards together in the global context, and defines an exit condition. 
+One Sensor maps to one exit. Sensors are author-space concepts.
+
+SelectSensor:
+    card_id: SelectableCard 
+    when:
+    
+MultiSelectSensor:
+    selectable_ids: Dict[CardId, bool] 
+    min_choices: bool
+    max_choices: bool
+
+SliderSensor: 
+    
+
+ConfirmSensor:
+    sensor: 
+    confirm_card: SelectableCard
 """
 class ExitRule(pydantic.BaseModel):
     when: Predicate
