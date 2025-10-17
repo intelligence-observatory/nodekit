@@ -9,10 +9,11 @@ edition = "2024"
 [dependencies]
 blittle.workspace = true
 ffmpeg-next.workspace = true
-nodekit-rs-fb = { path = "nodekit-rs-fb" }
 
 [workspace.dependencies]
 blittle = "0.1.0"
 ffmpeg-next = "8.0.0"
 flatbuffers = "25.9.23"
+reqwest = "0.12.24"
 slotmap = "1.0.7"
+url = "2.5.7"
