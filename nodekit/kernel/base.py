@@ -1,5 +1,5 @@
 import pydantic
-from typing import Literal , Dict, Annotated
+from typing import Literal , Dict, Annotated, Tuple, Set
 
 from nodekit._internal.types.common import (
     SpatialPoint,
@@ -21,39 +21,48 @@ class BaseBlot(pydantic.BaseModel):
     y: SpatialPoint
     width: SpatialSize
     height: SpatialSize
-    placed: bool # Whether it currently exists on the Board. (Pedantry: note this is necessary but not sufficient for visibility)
 
+    placed: bool = True # Whether it currently exists on the Board. (Pedantry: note this is necessary but not sufficient for visibility)
 
+type SelectionState = bool
 class SelectableBlotMixin(pydantic.BaseModel):
     """
     Rendered as an overlay on the BaseBlot. z = 1.
     """
+    selected: SelectionState = False
+    selectable: bool = False  # whether it can be toggled or not
+
+    # Visuals
     selected_color: ColorHexString | None # if None, no selected effect
     unselected_color: ColorHexString | None # if None, no unselected effect
     unselectable_color: ColorHexString | None # if None, no unselectable effect
-    selection_state: Literal['selected', 'unselected']
-    selectable: bool # whether it can be toggled or not
-
 
 class HoverableBlotMixin(pydantic.BaseModel):
-    """
-    Rendered as an overlay on the BaseBlot. z = 2.
-    """
-    hover_color: ColorHexString | None # if None, no hover effect
-    # hover_state: Literal['hovered', 'unhovered'] # can always be derived instantaneously from current pointer input + registers; no need to store
+    hoverable: bool = False
+    hover_color: ColorHexString | None  # if None, no hover effect
+
+class DraggableBlotMixin(pydantic.BaseModel):
+    draggable: bool = False
+
 
 # %%
+class ShapeBlot(BaseBlot):
+    shape: Literal['ellipse', 'rectangle']
+    color: ColorHexString  # current color
+
 class SliderBlot(BaseBlot):
+    num_ticks: Annotated[int, pydantic.Field(gt=1, lt=1000)]
+    tick_index: Annotated[int, pydantic.Field(ge=0)] # Current tick index
+    show_ticks: bool
+
     orientation: Literal['horizontal', 'vertical']
     track_color: ColorHexString
     thumb_color: ColorHexString
-    num_bins: Annotated[int, pydantic.Field(gt=1, lt=1000)]
-    bin_index: Annotated[int, pydantic.Field(ge=0)] # 0-indexed # Current
 
-# %%
-class RegionBlot(BaseBlot, SelectableBlotMixin, HoverableBlotMixin):
-    color: ColorHexString # current color
-    mask: Literal['circle', 'ellipse']
+class FreeTextEntryBlot(BaseBlot):
+    prompt_text: Annotated[str, pydantic.Field(min_length=0, max_length=1000)] # static prompt text shown if text == ''
+    text: Annotated[str, pydantic.Field(min_length=0, max_length=10000)] # current text
+    text_color: ColorHexString # current text color
 
 class ImageBlot(BaseBlot, SelectableBlotMixin, HoverableBlotMixin):
     image: str # URL or base64-encoded image data or identifier. Cannot be changed on the fly
@@ -62,25 +71,46 @@ class MovieBlot(BaseBlot, SelectableBlotMixin, HoverableBlotMixin):
     movie: str # URL or base64-encoded movie data or identifier. Cannot be changed on the fly
     loop: bool
     muted: bool
+    elapsed_msec: TimeElapsedMsec = 0 # current elapsed time in movie
 
 class TextBlot(BaseBlot, SelectableBlotMixin, HoverableBlotMixin):
     text: Annotated[str, pydantic.Field(min_length=0, max_length=10000)]  # current text
     text_color: ColorHexString  # current text color
     background_color: ColorHexString  # current background color
 
-# %%
-class FreeTextEntryBlot(BaseBlot):
-    text: Annotated[str, pydantic.Field(min_length=0, max_length=10000)] # current text
-    text_color: ColorHexString # current text color
 
-# %% Registers
-RegisterId = str # Uniquely identifies a Register in the Node. Always of form {BlotId}.{property}
-#type RegisterValueType = Union of all the types of fields in the Blots above
+type BinSelections = Dict[int, Set[int]] # mapping from horizontal bin index to set of vertical bin indices
+class DoodleBlot(BaseBlot):
+    num_bins_horizontal: int = pydantic.Field(ge=1) # cannot be changed at runtime
+    num_bins_vertical: int = pydantic.Field(ge=1) # cannot be changed at runtime
+
+    stroke_color: ColorHexString # should probably be transparent
+
+    selected_bins: BinSelections = pydantic.Field(
+        description="The set of (i_h, i_w) coordinates that are currently stroked.",
+    )
 
 
-# The rendering function itself should also accept inputs:
-# pointer
+# %% Actions. These are emitted by Cards, following new Participant input in the InputStream.
+class CardEvent[T: str](pydantic.BaseModel):
+    card_event_type: T
+    t: TimeElapsedMsec
 
+class Selected(CardEvent[Literal['Selected']]):
+    selection_state: SelectionState
+
+class Dragged(CardEvent[Literal['Dragged']]):
+    x: SpatialPoint = pydantic.Field(description='The x-coordinate of the drag event, in Board units.')
+    y: SpatialPoint = pydantic.Field(description='The y-coordinate of the drag event, in Board units.')
+
+class SliderMoved(CardEvent[Literal['SliderMoved']]):
+    tick_index: int
+
+class TextEntered(CardEvent[Literal['TextEntered']]):
+    text: str
+
+class Doodled(CardEvent[Literal['Doodled']]):
+    selected_bins: BinSelections
 
 # %% Expressions.
 # Expression[T] evaluates to a value of type T
@@ -115,15 +145,22 @@ AND, OR, NOT
 class Predicate(pydantic.BaseModel):
     pass
 
+# %% Registers
+RegisterId = str # Uniquely identifies a Register in the Node. Always of form {CardId}.{property}
+#type RegisterValueType = Union of all the types of fields in the Blots above
+
+
+# The rendering function itself should also accept inputs:
+# pointer
 
 # %%
 class UpdateRule(pydantic.BaseModel):
     when: Predicate
     assign: Dict[RegisterId, Expression]
 
+# %%
 class ExitRule(pydantic.BaseModel):
     when: Predicate
-    #action_expression: Expression # Payload to calculate; useful for immediate consumption of Trace. Calculated after the assign step.
 
 
 """
@@ -139,29 +176,20 @@ ASSIGN stimulus_image.visible = false
 
 Exit rule: ballistic selection
 WHEN stimulus_image.selection_state == true
-
-
-
-
 """
 
 
 
 # %%
-BlotId = str # Uniquely identifies a Blot in the Node. Always of form {NodeId}.{BlotName}
+CardId = str # Uniquely identifies a Blot in the Node. Always of form {NodeId}.{BlotName}
 UpdateId = str
 ExitId = str
 NodeId = str
 
 class NodeV2(pydantic.BaseModel):
-    cards: Dict[BlotId, BaseBlot]
+    cards: Dict[CardId, BaseBlot]
     update_rules: Dict[UpdateId, UpdateRule]
     exit_rules: Dict[ExitId, ExitRule]
-
-class ActionEvent(pydantic.BaseModel):
-    node_id: NodeId
-    exit_id: ExitId
-    #action: Value # The evaluated action_expression from the triggered Sensor
 
 
 # %% Examples
