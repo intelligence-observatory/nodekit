@@ -1,5 +1,5 @@
 [workspace]
-members = ["nodekit-rs-fb"]
+members = ["nodekit-rs-fb", "nodekit-rs-node"]
 
 [package]
 name = "nodekit-rs"
@@ -15,3 +15,4 @@ nodekit-rs-fb = { path = "nodekit-rs-fb" }
 blittle = "0.1.0"
 ffmpeg-next = "8.0.0"
 flatbuffers = "25.9.23"
+slotmap = "1.0.7"
