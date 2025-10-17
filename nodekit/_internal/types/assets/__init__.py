@@ -1,122 +1,153 @@
+import enum
 import mimetypes
+from abc import ABC
 from pathlib import Path
-from typing import Self, Annotated, Union
+from typing import Literal, Annotated, Union, Self
 
 import pydantic
 
-from nodekit._internal.ops.hash_asset_file import hash_asset_file
+from nodekit._internal.utils.hashing import (
+    hash_file,
+)
 from nodekit._internal.types.common import (
-    MimeType,
-    ImageMimeType,
-    VideoMimeType,
     SHA256,
+    MediaType,
+    ImageMediaType,
+    VideoMediaType,
 )
 
 
 # %%
-class BaseAssetIdentifier(pydantic.BaseModel):
-    sha256: SHA256
-    mime_type: MimeType
+class LocatorTypeEnum(str, enum.Enum):
+    FileSystemPath = "FileSystemPath"
+    ZipArchiveInnerPath = "ZipArchiveInnerPath"
+    RelativePath = "RelativePath"
+    URL = "URL"
 
 
-class ImageIdentifier(BaseAssetIdentifier):
-    mime_type: ImageMimeType
+class BaseLocator(pydantic.BaseModel, ABC):
+    locator_type: LocatorTypeEnum
 
 
-class VideoIdentifier(BaseAssetIdentifier):
-    mime_type: VideoMimeType
+class FileSystemPath(BaseLocator):
+    """
+    A locator which points to an absolute filepath on the viewer's local file system.
+    """
+
+    locator_type: Literal[LocatorTypeEnum.FileSystemPath] = (
+        LocatorTypeEnum.FileSystemPath
+    )
+    path: pydantic.FilePath = pydantic.Field(
+        description="The absolute path to the asset file in the local filesystem."
+    )
+
+    @pydantic.field_validator("path", mode="after")
+    def ensure_path_absolute(cls, path: Path) -> Path:
+        return path.resolve()
 
 
-AssetIdentifier = Annotated[
-    Union[
-        ImageIdentifier,
-        VideoIdentifier,
-    ],
-    pydantic.Field(discriminator="mime_type"),
+class ZipArchiveInnerPath(BaseLocator):
+    locator_type: Literal[LocatorTypeEnum.ZipArchiveInnerPath] = (
+        LocatorTypeEnum.ZipArchiveInnerPath
+    )
+    zip_archive_path: pydantic.FilePath = pydantic.Field(
+        description="The path to the zip archive file on the local filesystem"
+    )
+    inner_path: Path = pydantic.Field(
+        description="The internal path within the zip archive to the asset file."
+    )
+
+    @pydantic.field_validator("zip_archive_path", mode="after")
+    def ensure_zip_path_absolute(cls, path: Path) -> Path:
+        return path.resolve()
+
+
+class RelativePath(BaseLocator):
+    """
+    A locator which points to a relative path on the viewer's local file system.
+    This is useful for assets that are bundled alongside a graph file, e.g., in a zip archive.
+    The viewer must resolve the relative path against a known base path.
+    """
+
+    locator_type: Literal[LocatorTypeEnum.RelativePath] = LocatorTypeEnum.RelativePath
+    relative_path: Path = pydantic.Field(
+        description="The relative path to the asset file in the local filesystem."
+    )
+
+    @pydantic.field_validator("relative_path", mode="after")
+    def ensure_path_not_absolute(cls, path: Path) -> Path:
+        if path.is_absolute():
+            raise ValueError("RelativePath must be a relative path, got absolute path.")
+        return path
+
+
+class URL(BaseLocator):
+    locator_type: Literal[LocatorTypeEnum.URL] = LocatorTypeEnum.URL
+    url: str = pydantic.Field(
+        description="The URL to the asset file. May be a relative or absolute URL."
+    )
+
+
+type AssetLocator = Annotated[
+    Union[FileSystemPath, ZipArchiveInnerPath, RelativePath, URL],
+    pydantic.Field(discriminator="locator_type"),
 ]
 
 
 # %%
-class BaseAssetFile(pydantic.BaseModel):
+class BaseAsset(pydantic.BaseModel):
     """
-    Points to an asset file located on the user's filesystem,
-    along with the user's assertion of the file's SHA-256 hash and mime type.
-    These assertions will be later validated in a pre-run stage.
+    An Asset is:
+    - An identifier for an asset file (its SHA-256 hash and media type)
+    - A locator of bytes that are claimed to hash to the identifier.
     """
 
-    identifier: AssetIdentifier
-    path: pydantic.FilePath
-
-    @pydantic.field_validator("path", mode="after")
-    def make_absolute_path(cls, path: Path) -> Path:
-        return path.resolve()
-
-    @pydantic.model_validator(mode="after")
-    def check_file_extension(self) -> Self:
-        """
-        Validate that the path ends with the expected file extension
-        """
-        extension = mimetypes.guess_extension(
-            type=self.identifier.mime_type, strict=True
-        )
-        if not extension:
-            raise ValueError(
-                f"Could not determine file extension for mime type {self.identifier.mime_type}."
-            )
-
-        if not str(self.path).endswith(extension):
-            raise ValueError(
-                f"Asset path {self.path} does not end with the expected file extension {extension}."
-            )
-
-        return self
+    sha256: SHA256 = pydantic.Field(
+        description="The SHA-256 hash of the asset file, as a hex string."
+    )
+    media_type: MediaType = pydantic.Field(
+        description="The IANA media (MIME) type of the asset."
+    )
+    locator: AssetLocator = pydantic.Field(
+        description="A location which is a claimed source of valid bytes for this Asset.",
+    )
 
     @classmethod
     def from_path(cls, path: Path | str) -> Self:
         """
-        A convenience method to create an Asset from a file path.
-        This is I/O intensive, as it computes the SHA-256 hash of the file.
+        A public convenience method to create an Asset from a file path on the user's local file system.
+        This is I/O bound, as it computes the SHA-256 hash of the file.
         """
         path = Path(path)
-        sha256 = hash_asset_file(path)
-        guessed_mime_type, _ = mimetypes.guess_type(path, strict=True)
-        if not guessed_mime_type:
+        sha256 = hash_file(path)
+        guessed_media_type, _ = mimetypes.guess_type(path, strict=True)
+        if not guessed_media_type:
             raise ValueError(
                 f"Could not determine MIME type for file at {path}\n Does it have a valid file extension?"
             )
 
-        guessed_mime_type: MimeType
+        guessed_media_type: MediaType
 
-        type_adapter = pydantic.TypeAdapter(AssetIdentifier)
-        identifier = type_adapter.validate_python(
-            {
-                "sha256": sha256,
-                "mime_type": guessed_mime_type,
-            }
+        return cls(
+            sha256=sha256,
+            media_type=guessed_media_type,
+            locator=FileSystemPath(path=path),
         )
 
-        return cls(identifier=identifier, path=path.resolve())
+
+class Image(BaseAsset):
+    media_type: ImageMediaType = pydantic.Field(
+        description="The IANA media (MIME) type of the image file."
+    )
 
 
-# %%
-class ImageFile(BaseAssetFile):
-    identifier: ImageIdentifier
+class Video(BaseAsset):
+    media_type: VideoMediaType = pydantic.Field(
+        description="The IANA media (MIME) type of the video file."
+    )
 
 
-class VideoFile(BaseAssetFile):
-    identifier: VideoIdentifier
-
-
-AssetFile = ImageFile | VideoFile
-
-
-# %%
-class AssetUrl(pydantic.BaseModel):
-    """
-    Points to an asset file located at a URL,
-    along with the user's assertion of the file's SHA-256 hash and mime type.
-    These assertions will be later validated in a pre-run stage.
-    """
-
-    identifier: AssetIdentifier
-    url: pydantic.AnyUrl
+type Asset = Annotated[
+    Union[Image, Video],
+    pydantic.Field(discriminator="media_type"),
+]

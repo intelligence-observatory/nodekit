@@ -9,7 +9,11 @@ build: build-browser
 	rm -rf dist && \
 	uv build
 
+lint:
+	uv run ruff check --fix && \
+	uv run ruff format
+
 check:
-	uvx ty check && \
-	uvx ruff check && \
-	uvx ruff format --check
+	uv run ty check && \
+	uv run ruff check && \
+	uv run ruff format --check
