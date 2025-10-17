@@ -1,0 +1,5 @@
+table Transition {
+    from:string;
+    sensor:string;
+    to:string;
+}

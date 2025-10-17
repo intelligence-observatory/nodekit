@@ -1,5 +1,46 @@
-include "asset.fbs";
-include "text.fbs";
+include "timer.fbs";
+
+enum JustificationHorizontal : ubyte {
+    Left = 1,
+    Center,
+    Right
+}
+
+enum JustificationVertical : ubyte {
+    Top = 1,
+    Center,
+    Bottom
+}
+
+
+table Text {
+    text:string;
+    font_size:float32;
+    justification_horizontal:JustificationHorizontal = 1;
+    justification_vertical:JustificationVertical = 1;
+    background_color:string;
+}
+
+table Path {
+    path:string;
+}
+
+table ZipArchivePath {
+    zip_archive_path:string;
+    inner_path:string;
+}
+
+union Locator { Path, ZipArchivePath }
+
+enum MediaType : ubyte {
+    Image = 1,
+    Video
+}
+
+table Asset {
+    locator:Locator;
+    media_type:MediaType = 1;
+}
 
 union CardType { Asset, Text }
 
@@ -8,7 +49,7 @@ table Card {
     y:float32;
     w:float32;
     h:float32;
-    start_msec:int32;
-    end_msec:int32 = null;
+    timer:Timer;
     card_type:CardType;
+    id:string;
 }

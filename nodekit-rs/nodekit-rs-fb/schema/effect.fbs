@@ -1,0 +1,13 @@
+include "timer.fbs";
+
+table HidePointerEffect {
+    end_msec:int32;
+}
+
+union EffectType { HidePointerEffect }
+
+table Effect {
+    effect_type:EffectType;
+    timer:Timer;
+    id:string;
+}

@@ -1,7 +1,11 @@
-include "card.fbs";
+include "node.fbs";
+include "transition.fbs";
 
 table Graph {
-    cards:[Card];
+    start:string;
+    nodes:[Node];
+    transitions:[Transition];
+    nodekit_version:string;
 }
 
 root_type Graph;

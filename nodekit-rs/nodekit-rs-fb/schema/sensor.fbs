@@ -1,0 +1,41 @@
+include "timer.fbs";
+
+enum ClickSensorMask : ubyte {
+    Rectangle = 1,
+    Ellipse
+}
+
+table ClickSensor {
+    x:float32;
+    y:float32;
+    w:float32;
+    h:float32;
+    mask:ClickSensorMask = 1;
+}
+
+table KeySensor {
+    key:string;
+}
+
+table SubmitSensor {
+    submitter_id:string;
+    source_ids:[string];
+}
+
+union TemporallyBoundedSensorType { ClickSensor, KeySensor, SubmitSensor }
+
+table TemporallyBoundedSensor {
+    sensor:TemporallyBoundedSensorType;
+    timer:Timer;
+}
+
+table TimeoutSensor {
+    timeout_msec:int32;
+}
+
+union SensorType { TemporallyBoundedSensor, TimeoutSensor }
+
+table Sensor {
+    sensor_type:SensorType;
+    id:string;
+}
