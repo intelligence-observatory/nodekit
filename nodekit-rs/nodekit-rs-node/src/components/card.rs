@@ -17,19 +17,20 @@ impl<'c> From<&nodekit_rs_fb::Card<'c>> for Card {
     fn from(value: &nodekit_rs_fb::Card<'c>) -> Self {
         let position = PositionI {
             x: Self::as_coordinate(value.x()) as isize,
-            y: Self::as_coordinate(value.y()) as isize
+            y: Self::as_coordinate(value.y()) as isize,
         };
         let mut size = Size {
             w: Self::as_coordinate(value.w()) as usize,
-            h: Self::as_coordinate(value.h()) as usize
+            h: Self::as_coordinate(value.h()) as usize,
         };
-        let position = clip(&position, &Size {
-            w: BOARD_D,
-            h: BOARD_D
-        }, &mut size);
-        Self {
-            position,
-            size
-        }
+        let position = clip(
+            &position,
+            &Size {
+                w: BOARD_D,
+                h: BOARD_D,
+            },
+            &mut size,
+        );
+        Self { position, size }
     }
 }

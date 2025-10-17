@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 blittle.workspace = true
+flatbuffers.workspace = true
 nodekit-rs-board = { path = "../nodekit-rs-board" }
 nodekit-rs-fb = { path = "../nodekit-rs-fb" }
 reqwest.workspace = true

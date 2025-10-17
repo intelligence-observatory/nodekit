@@ -717,6 +717,7 @@ name = "nodekit-rs-node"
 version = "0.1.0"
 dependencies = [
  "blittle",
+ "flatbuffers",
  "nodekit-rs-board",
  "nodekit-rs-fb",
  "reqwest",
