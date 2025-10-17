@@ -10,6 +10,12 @@ pub use node::{Node, NodeKey};
 use slotmap::{SecondaryMap, SlotMap};
 pub use transition::Transition;
 
+/// An ECS-ish representation of a `nodekit` graph.
+/// The data is laid out very differently than in the Python library
+/// so that Rust can efficiently query and update.
+/// In the Python library, IDs of elements are strings.
+/// In `Graph`, IDs of elements are `slotmap` keys.
+/// No hashmaps, just very fast SlotMaps and slightly less fast SecondaryMaps.
 pub struct Graph {
     pub start: NodeKey,
     pub nodes: SlotMap<NodeKey, Node>,
