@@ -1,3 +1,5 @@
+#![deny(clippy::all)]
+
 mod card;
 mod effect;
 mod graph;
