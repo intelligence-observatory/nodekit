@@ -3,15 +3,15 @@ import uuid
 from decimal import Decimal
 from pathlib import Path
 from typing import Iterable
+import glob
+import pydantic
 
 import nodekit as nk
 from nodekit.experimental.recruitment_services.base import (
     RecruiterServiceClient,
     CreateHitRequest,
-    ListAssignmentsItem, SendBonusPaymentRequest
+    SendBonusPaymentRequest
 )
-
-import pydantic
 from nodekit.experimental.s3 import S3Client
 
 # %%
@@ -50,11 +50,6 @@ class Helper:
         self.s3_client = s3_client
         self.local_cachedir = Path(local_cachedir)
 
-    def list_hits(self) -> Iterable[HitId]:
-        """
-        Lists all HITs in the cache.
-        """
-        ...
 
     def create_hit(
             self,
@@ -112,6 +107,15 @@ class Helper:
 
         return hit_id
 
+    def list_hits(self) -> list[HitId]:
+        # Just read off the local cache
+        savedir = Path(self.local_cachedir) / 'hits'
+        savedir.mkdir(parents=True, exist_ok=True)
+        hit_ids: list[HitId] = []
+        for path in glob.glob(str(savedir / '*.json')):
+            hit_ids.append(Path(path).stem.split('*.json')[0])
+        return hit_ids
+
 
     def upload_graph_site(self, graph: nk.Graph) -> str:
         """
@@ -153,9 +157,10 @@ class Helper:
         """
         for asn in self.recruiter_service_client.iter_assignments(hit_id=hit_id):
             # Ensure assignment is approved
-            self.recruiter_service_client.approve_assignment(
-                assignment_id=asn.assignment_id,
-            )
+            if asn.status != 'Approved':
+                self.recruiter_service_client.approve_assignment(
+                    assignment_id=asn.assignment_id,
+                )
             try:
                 trace = nk.Trace.model_validate_json(asn.submission_payload)
             except pydantic.ValidationError as e:

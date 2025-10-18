@@ -198,7 +198,6 @@ class S3Client:
         try:
             head = self._client.head_object(Bucket=self.config.bucket_name, Key=key)
             if head.get("ContentLength") == p.stat().st_size and not force:
-                print(f'Skipping file {p.name}')
                 return url
         except self._client.exceptions.ClientError as e:
             if e.response.get("Error", {}).get("Code") != "404":
