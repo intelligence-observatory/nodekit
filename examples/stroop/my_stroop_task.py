@@ -4,7 +4,8 @@ from pathlib import Path
 import nodekit as nk
 import random
 import pandas as pd
-
+import pydantic
+import matplotlib.pyplot as plt
 # %%
 class StroopColor(str, Enum):
     RED = "red"
@@ -186,7 +187,6 @@ def make_stroop_trial(
         font_size=0.1,
         justification_horizontal="center",
         justification_vertical="center",
-        start_msec=0,
     )
     fixation_sensor = nk.sensors.KeySensor(
         key=" ",
@@ -233,6 +233,14 @@ def make_stroop_trial(
 
 
 # %%
+class StroopTrialResult(pydantic.BaseModel):
+    text: StroopColor
+    text_color: StroopColor
+    report: StroopColor
+    reaction_time_msec: int = pydantic.Field(ge = 0)
+
+
+# %%
 if __name__ == "__main__":
     # Make a simple Stroop task with a few trials
     random.seed(42)
@@ -247,4 +255,7 @@ if __name__ == "__main__":
         [make_stroop_instructions()] + trials,
     )
 
-    nk.play(stroop_task)
+    trace = nk.play(stroop_task)
+
+    # Project a tidy DataFrame from the Trace
+

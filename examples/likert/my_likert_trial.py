@@ -6,7 +6,6 @@ def make_likert_trial(
     question_markdown: str,
     ordinal_choice_descriptions: list[str],
     initial_index: int,
-    min_choice_time_msec: int = 2000,
 ) -> nk.Node:
     """
     Assemble a Graph which elicits a Likert-style response to a question.
@@ -51,7 +50,6 @@ def make_likert_trial(
             y=-0.475,
             w=0.25,
             h=0.05,
-            start_msec=min_choice_time_msec,
             text="**Submit**",
             background_color="#d0d2d6",
         ),
