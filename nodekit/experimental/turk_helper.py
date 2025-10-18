@@ -3,12 +3,14 @@ import botocore
 import nodekit as nk
 from typing import Dict , Iterable
 import boto3
+import pydantic
 
 # %%
 type HitId = str
 type AssignmentId = str
 
 # %%
+
 class TurkClient:
     """
     Experimental; this might be moved to PsyHub.
@@ -35,8 +37,9 @@ class TurkClient:
     def create_hit(
             self,
             graph: nk.Graph,
-            title: str,
+            num_assignments: int,
             base_payment_usd: str,
+            title: str,
     ) -> HitId:
         """
         Creates a HIT based on the given Graph.
