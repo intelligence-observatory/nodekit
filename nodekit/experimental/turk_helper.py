@@ -1,12 +1,11 @@
-import botocore
+import os
+import uuid
+from decimal import Decimal
+from pathlib import Path
+from typing import Iterable
 
 import nodekit as nk
-from typing import Dict , Iterable
-import boto3
-import pydantic
-import os
-from pathlib import Path
-from nodekit.experimental.recruitment_services.base import RecruiterServiceClient
+from nodekit.experimental.recruitment_services.base import RecruiterServiceClient, CreateHitRequest
 from nodekit.experimental.s3 import S3Client
 
 # %%
@@ -17,7 +16,7 @@ type AssignmentId = str
 
 class Helper:
     """
-    Experimental; this might be moved to PsyHub.
+    Experimental; this might be moved to PsyHub / PsychoScope.
     """
     def __init__(
             self,
@@ -41,6 +40,8 @@ class Helper:
             num_assignments: int,
             base_payment_usd: str,
             title: str,
+            duration_sec: int,
+            unique_request_token: str = None,
     ) -> HitId:
         """
         Creates a HIT based on the given Graph.
@@ -49,6 +50,25 @@ class Helper:
         """
 
         graph_site_url = self.upload_graph_site(graph=graph)
+        if unique_request_token is None:
+            unique_request_token = uuid.uuid4().hex
+
+        response = self.recruiter_service_client.create_hit(
+            request=CreateHitRequest(
+                entrypoint_url=graph_site_url,
+                title=title,
+                description=title,
+                keywords=['psychology', 'task', 'cognitive', 'science', 'game'],
+                num_assignments=num_assignments,
+                duration_sec=duration_sec,
+                completion_reward_usd=Decimal(base_payment_usd),
+                unique_request_token=unique_request_token,
+                allowed_participant_ids=[],
+            )
+        )
+        hit_id: HitId =  response.hit_id
+        print(hit_id)
+        return hit_id
 
     def upload_graph_site(self, graph: nk.Graph) -> str:
         """
