@@ -3,7 +3,7 @@ from pathlib import Path
 
 import nodekit as nk
 import random
-
+import pandas as pd
 
 # %%
 class StroopColor(str, Enum):
