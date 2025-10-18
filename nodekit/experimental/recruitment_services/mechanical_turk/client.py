@@ -59,6 +59,11 @@ class MturkClient(RecruiterServiceClient):
         except Exception as e:
             raise RecruiterCredentialsError from e
 
+    def get_recruiter_service_name(self) -> str:
+        if self.sandbox:
+            return "MTurkSandbox"
+        else:
+            return "MTurk"
     def create_hit(
         self,
         request: CreateHitRequest,

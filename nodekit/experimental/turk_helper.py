@@ -50,6 +50,8 @@ class Helper:
         self.s3_client = s3_client
         self.local_cachedir = Path(local_cachedir)
 
+    def _get_hit_cachedir(self) -> Path:
+        return self.local_cachedir / "hits" / self.recruiter_service_client.get_recruiter_service_name()
 
     def create_hit(
             self,
@@ -98,7 +100,7 @@ class Helper:
                 unique_request_token=unique_request_token,
                 hit_id = hit_id,
             )
-            savepath = self.local_cachedir / 'hits' / f'{hit_id}.json'
+            savepath = self._get_hit_cachedir() / f'{hit_id}.json'
             if not savepath.parent.exists():
                 savepath.parent.mkdir(parents=True)
             savepath.write_text(hit_request.model_dump_json(indent=2))
@@ -109,7 +111,7 @@ class Helper:
 
     def list_hits(self) -> list[HitId]:
         # Just read off the local cache
-        savedir = Path(self.local_cachedir) / 'hits'
+        savedir = self._get_hit_cachedir()
         savedir.mkdir(parents=True, exist_ok=True)
         hit_ids: list[HitId] = []
         for path in glob.glob(str(savedir / '*.json')):
@@ -194,7 +196,7 @@ class Helper:
         Loads the Graph associated with the given HIT ID.
         (Hit the local cache)
         """
-        savepath = self.local_cachedir / 'hits' / f'{hit_id}.json'
+        savepath = self._get_hit_cachedir()  / f'{hit_id}.json'
         if not savepath.parent.exists():
             raise Exception(f'Could not save Graph for HIT {hit_id}.')
 

@@ -45,6 +45,10 @@ class SendBonusPaymentRequest(pydantic.BaseModel):
 # %%
 class RecruiterServiceClient(ABC):
     @abstractmethod
+    def get_recruiter_service_name(self) -> str:
+        ...
+
+    @abstractmethod
     def create_hit(
         self,
         request: CreateHitRequest,
