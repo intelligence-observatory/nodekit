@@ -2,27 +2,15 @@
 
 This document outlines functionality that NodeKit might implement.
 
-# Synthesis
-* Are selectable regions RegionCards? Yes; maybe just call this BlankCard; or have a plain Card with an optional .content parameter
-* ProgressBarCard? Not yet.
-* Cards emit atomic Actions. Cards undergo two types of state changes 
-  * Type 1: state changes that were causally initiated by the UserEventStream. Call these Actions.
-  * Type 2: state changes that were causally initiated by a rule. Call these CardEvents
-* ButtonCard? No; TextCard with .selectable.
-* Z-index. Yes.
-* Thinking ahead to models; abstract UserEventStream -> ActionAttempt stream 
-* Really not too many types of termination: 
-  * Ballistic termination, keyed on first Action
-  * Multi-action ballistic, keyed on first legal multi-Action. A multi-Action is the folded-up history of individual Actions to date.
-  * *-Confirm, which takes a (multi)-Action and affirms it with a confirm flow, and discloses the (folded-up) history.
-  * Terminations also have a time predication dimension; e.g. termination only legal within an envelope.
-  * Exception to this is the carousel flow. 
-
 # Flow template
-
 * Cards: 
 * UpdateRules:
-* ExitRules:
+  * Placing and un-placing Cards at timepoints
+  * Placing and un-placing Cards, contingent on a Card state becoming realized 
+  * 
+* ExitRules: (Sensors?)
+  * Predicates on the ActionStream (i.e., the current state of Cards)
+  * Predicates on the KeyStream
 * Semantic Action: 
 
 ## Flow: Ballistic. click (in one of N regions) or key press (one of N keys); 
@@ -124,5 +112,7 @@ Not supported. Snapping here would be too hard, for not enough payoff. Also, thi
 
 
 
-# Control flow
-## Flow: staircas 
+# Control flows
+## Flow: choose a reinforcer
+## Flow: supervised feedback
+## Flow: staircase

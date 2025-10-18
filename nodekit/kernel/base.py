@@ -31,6 +31,7 @@ class BaseCard(pydantic.BaseModel):
     card_type: str
     x: SpatialPoint
     y: SpatialPoint
+    #z: SpatialPoint
     width: SpatialSize
     height: SpatialSize
     placed: bool = True # Whether it is currently placed on the Board.
@@ -65,6 +66,7 @@ class SliderCard(BaseCard):
     num_ticks: Annotated[int, pydantic.Field(gt=1, lt=1000)]
     tick_index: Annotated[int, pydantic.Field(ge=0)]
     show_ticks: bool
+    activated: bool = pydantic.Field(description='Whether the thumb has been activated. One-way transition.')
 
     orientation: Literal['horizontal', 'vertical']
     track_color: ColorHexString
@@ -84,12 +86,6 @@ class MovieCard(BaseCard, SelectableBlotMixin, HoverableBlotMixin, DraggableBlot
     elapsed_msec: TimeElapsedMsec = 0 # current elapsed time in movie
     playing: bool = True
 
-class TextCard(BaseCard, SelectableBlotMixin, HoverableBlotMixin, DraggableBlotMixin):
-    text: Annotated[str, pydantic.Field(min_length=0, max_length=10000)]  # current text
-    text_color: ColorHexString  # current text color
-    background_color: ColorHexString  # current background color
-    font_size: SpatialSize = 0.0375
-
 type BinSelections = Dict[int, Set[int]] # mapping from horizontal bin index to set of vertical bin indices
 class DoodleCard(BaseCard):
     num_bins_horizontal: int = pydantic.Field(ge=1) # cannot be changed at runtime
@@ -98,6 +94,13 @@ class DoodleCard(BaseCard):
     selected_bins: BinSelections = pydantic.Field(
         description="The set of (i_h, i_w) coordinates that are currently stroked.",
     )
+
+class TextCard(BaseCard, SelectableBlotMixin, HoverableBlotMixin, DraggableBlotMixin):
+    text: Annotated[str, pydantic.Field(min_length=0, max_length=10000)]  # current text
+    text_color: ColorHexString  # current text color
+    background_color: ColorHexString  # current background color
+    font_size: SpatialSize = 0.0375
+
 
 # %% CardOutputs
 class CardEvent[T: str](pydantic.BaseModel):
@@ -135,6 +138,15 @@ Types of update rules in the flows I've noticed so far:
 - "Looping a movie": WHEN {movie cards ends expression}, set .elapsed_msec = 0
 - "Pausing a movie":
 """
+
+class Predicate(...):
+    ...
+    # WHEN clock.t >= T
+    # WHEN slider.touched
+    # WHEN card.selected
+    #
+
+
 class UpdateRule(pydantic.BaseModel):
     when: Predicate
     assign: Dict[RegisterId, Expression]
