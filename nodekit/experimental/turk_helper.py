@@ -5,6 +5,7 @@ from typing import Dict , Iterable
 import boto3
 import pydantic
 
+from nodekit.experimental.s3 import S3Client
 # %%
 type HitId = str
 type AssignmentId = str
@@ -14,16 +15,11 @@ type AssignmentId = str
 class TurkClient:
     """
     Experimental; this might be moved to PsyHub.
-
-    Before you use:
-    - Ensure you created the S3 bucket, and your s3_client has write access to it, and can set public ACLs on objects in the bucket.
-    - Ensure your turk_client has enough money
     """
     def __init__(
             self,
             turk_client,
-            s3_client,
-            s3_bucket_name: str,
+            s3_client: S3Client,
             local_cachedir: str | None = None
     ):
         ...
