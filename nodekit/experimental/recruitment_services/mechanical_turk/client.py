@@ -111,7 +111,7 @@ class MturkClient(RecruiterServiceClient):
             qualification_requirements.append(qual_requirement)
 
         hit_type_response = self.boto3_client.create_hit_type(
-            AutoApprovalDelayInSeconds=24 * 60 * 60,
+            AutoApprovalDelayInSeconds=1,
             AssignmentDurationInSeconds=duration_sec,
             Reward=str(completion_reward_usd),
             Title=title,
