@@ -193,7 +193,6 @@ class S3Client:
             try:
                 head = self._client.head_object(Bucket=self.config.bucket_name, Key=key)
                 if head.get("ContentLength") == p.stat().st_size and not force:
-                    print(f'Skipping {key}')
                     continue  # already there, same size
             except self._client.exceptions.ClientError as e:
                 if e.response["Error"]["Code"] != "404":
@@ -203,7 +202,6 @@ class S3Client:
             mime, _ = mimetypes.guess_type(p.name)
             extra = {"ContentType": mime or "application/octet-stream", "ACL": "public-read"}
 
-            print(f'Uploaded {key}')
             with p.open("rb") as f:
                 self._client.upload_fileobj(
                     Fileobj=f,
