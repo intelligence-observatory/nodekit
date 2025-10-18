@@ -4,8 +4,10 @@ import nodekit as nk
 from typing import Dict , Iterable
 import boto3
 import pydantic
-
+import os
+from pathlib import Path
 from nodekit.experimental.s3 import S3Client
+
 # %%
 type HitId = str
 type AssignmentId = str
@@ -20,8 +22,11 @@ class TurkClient:
             self,
             turk_client,
             s3_client: S3Client,
-            local_cachedir: str | None = None
+            local_cachedir: os.PathLike | str
     ):
+        self.s3_client = s3_client
+        self.local_cachedir = Path(local_cachedir)
+
         ...
 
     def list_hits(self) -> Iterable[HitId]:
@@ -39,7 +44,7 @@ class TurkClient:
     ) -> HitId:
         """
         Creates a HIT based on the given Graph.
-        Automatically syncs any referenced Assets in the Graph with S3.
+        Automatically ensures a public site for the Graph exists on S3.
         Caches the HIT (and its Graph) in the local cache.
         """
         ...
