@@ -151,8 +151,7 @@ class Helper:
     ) -> Iterable[TraceResult]:
         """
         Iterate the Traces collected under the given HIT ID.
-        Automatically approves any newly un-approved assignments, and saves
-        them in the local cache.
+        Automatically approves any unapproved assignments.
 
         """
         for asn in self.recruiter_service_client.iter_assignments(hit_id=hit_id):
