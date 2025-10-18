@@ -26,6 +26,16 @@ class TraceResult(pydantic.BaseModel):
     worker_id: WorkerId
     trace: nk.Trace | None # If None, validation failed
 
+class HitRequest(pydantic.BaseModel):
+    graph: nk.Graph
+    num_assignments: int
+    base_payment_usd: str
+    title: str
+    duration_sec: int = pydantic.Field(gt=0)
+    unique_request_token: str | None
+    hit_id: HitId
+
+
 class Helper:
     """
     Experimental; this might be moved to PsyHub / PsychoScope.
@@ -53,8 +63,9 @@ class Helper:
             base_payment_usd: str,
             title: str,
             duration_sec: int,
-            unique_request_token: str = None,
+            unique_request_token: str | None = None,
     ) -> HitId:
+
         """
         Creates a HIT based on the given Graph.
         Automatically ensures a public site for the Graph exists on S3.
@@ -62,6 +73,7 @@ class Helper:
         """
 
         graph_site_url = self.upload_graph_site(graph=graph)
+
         if unique_request_token is None:
             unique_request_token = uuid.uuid4().hex
 
@@ -79,8 +91,27 @@ class Helper:
             )
         )
         hit_id: HitId =  response.hit_id
-        print(hit_id)
+
+        # Just save the raw wire model, and hope the asset refs don't change. Todo: !
+        try:
+            hit_request = HitRequest(
+                graph=graph,
+                num_assignments=num_assignments,
+                base_payment_usd=base_payment_usd,
+                title=title,
+                duration_sec=duration_sec,
+                unique_request_token=unique_request_token,
+                hit_id = hit_id,
+            )
+            savepath = self.local_cachedir / 'hits' / f'{hit_id}.json'
+            if not savepath.parent.exists():
+                savepath.parent.mkdir(parents=True)
+            savepath.write_text(hit_request.model_dump_json(indent=2))
+        except Exception as e:
+            raise Exception(f'Could not save Graph for HIT ({hit_id}) to local cache.') from e
+
         return hit_id
+
 
     def upload_graph_site(self, graph: nk.Graph) -> str:
         """
@@ -125,11 +156,16 @@ class Helper:
             self.recruiter_service_client.approve_assignment(
                 assignment_id=asn.assignment_id,
             )
+            try:
+                trace = nk.Trace.model_validate_json(asn.submission_payload)
+            except pydantic.ValidationError as e:
+                trace = None
+
             yield TraceResult(
                 hit_id=hit_id,
                 assignment_id=asn.assignment_id,
                 worker_id=asn.worker_id,
-                trace=nk.Trace.model_validate_json(asn.submission_payload)
+                trace=trace,
             )
 
     def pay_bonus(
@@ -146,13 +182,17 @@ class Helper:
             )
         )
 
-
-    def get_graph(
+    def get_hit(
             self,
             hit_id: HitId,
-    ) -> nk.Graph:
+    ) -> HitRequest:
         """
         Loads the Graph associated with the given HIT ID.
         (Hit the local cache)
         """
-        raise NotImplementedError
+        savepath = self.local_cachedir / 'hits' / f'{hit_id}.json'
+        if not savepath.parent.exists():
+            raise Exception(f'Could not save Graph for HIT {hit_id}.')
+
+        hit_request = HitRequest.model_validate_json(savepath.read_text())
+        return hit_request
