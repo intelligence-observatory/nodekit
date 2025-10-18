@@ -17,6 +17,7 @@ class ListAssignmentsItem(pydantic.BaseModel):
     worker_id: str
     assignment_id: str
     status: Literal["Submitted", "Approved", "Rejected"]
+    submission_payload: str
 
 
 class CreateHitRequest(pydantic.BaseModel):

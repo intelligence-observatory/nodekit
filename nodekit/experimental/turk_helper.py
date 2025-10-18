@@ -5,14 +5,26 @@ from pathlib import Path
 from typing import Iterable
 
 import nodekit as nk
-from nodekit.experimental.recruitment_services.base import RecruiterServiceClient, CreateHitRequest
+from nodekit.experimental.recruitment_services.base import (
+    RecruiterServiceClient,
+    CreateHitRequest,
+    ListAssignmentsItem, SendBonusPaymentRequest
+)
+
+import pydantic
 from nodekit.experimental.s3 import S3Client
 
 # %%
 type HitId = str
 type AssignmentId = str
+type WorkerId = str
 
 # %%
+class TraceResult(pydantic.BaseModel):
+    hit_id: HitId
+    assignment_id: AssignmentId
+    worker_id: WorkerId
+    trace: nk.Trace | None # If None, validation failed
 
 class Helper:
     """
@@ -98,24 +110,41 @@ class Helper:
 
         return index_url
 
-    def list_assignments(
+    def iter_traces(
             self,
             hit_id: HitId,
-    ) -> Iterable[AssignmentId]:
+    ) -> Iterable[TraceResult]:
         """
-        Lists assignments associated with the given HIT ID.
+        Iterate the Traces collected under the given HIT ID.
         Automatically approves any newly un-approved assignments, and saves
         them in the local cache.
 
         """
-        ...
+        for asn in self.recruiter_service_client.iter_assignments(hit_id=hit_id):
+            # Ensure assignment is approved
+            self.recruiter_service_client.approve_assignment(
+                assignment_id=asn.assignment_id,
+            )
+            yield TraceResult(
+                hit_id=hit_id,
+                assignment_id=asn.assignment_id,
+                worker_id=asn.worker_id,
+                trace=nk.Trace.model_validate_json(asn.submission_payload)
+            )
 
     def pay_bonus(
             self,
+            worker_id: WorkerId,
             assignment_id: AssignmentId,
             amount_usd: str,
     ) -> None:
-        ...
+        self.recruiter_service_client.send_bonus_payment(
+            request=SendBonusPaymentRequest(
+                assignment_id=assignment_id,
+                amount_usd=Decimal(amount_usd),
+                worker_id=worker_id
+            )
+        )
 
 
     def get_graph(
@@ -124,11 +153,6 @@ class Helper:
     ) -> nk.Graph:
         """
         Loads the Graph associated with the given HIT ID.
+        (Hit the local cache)
         """
-        ...
-
-    def get_trace(
-            self,
-            assignment_id: AssignmentId,
-    ) -> nk.Trace:
-        ...
+        raise NotImplementedError

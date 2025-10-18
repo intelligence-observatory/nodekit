@@ -16,7 +16,18 @@ import nodekit.experimental.recruitment_services.mechanical_turk.models as boto3
 from uuid import uuid4
 
 import datetime
+import re, json
+from urllib.parse import unquote_plus
 
+def extract_trace(xml: str) -> str:
+    # pull the contents of the <FreeText> element
+    m = re.search(r"<FreeText>(.*?)</FreeText>", xml, re.DOTALL)
+    if not m:
+        raise ValueError("No <FreeText> found")
+    raw = m.group(1)
+
+    # MTurk sometimes form-encodes it (+ for space, %xx etc.)
+    return raw
 
 # %%
 class MturkClient(RecruiterServiceClient):
@@ -177,6 +188,7 @@ class MturkClient(RecruiterServiceClient):
                     worker_id=assignment.WorkerId,
                     assignment_id=assignment.AssignmentId,
                     status=assignment.AssignmentStatus,
+                    submission_payload = extract_trace(assignment.Answer),
                 )
 
                 yield item
