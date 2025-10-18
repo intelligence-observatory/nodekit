@@ -10,8 +10,15 @@ export class AssetManager {
         else if (asset.locator.locator_type == "RelativePath") {
             // Resolve relative to the current document location.
             let baseUrl = document.baseURI;
-            console.log(baseUrl)
-            return new URL(asset.locator.relative_path, baseUrl).toString();
+            const rawPath = asset.locator.relative_path.replace(/\\/g, "/"); // just in case
+            const safePath = rawPath
+                .split("/")
+                .map(seg => encodeURIComponent(seg))
+                .join("/");
+
+            const fullUrl = new URL(safePath, baseUrl).toString();
+            console.log('fullUrl', fullUrl)
+            return fullUrl
         }
 
         throw new Error('Unsupported locator for the browser environment. Found:' + JSON.stringify(asset));

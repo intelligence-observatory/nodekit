@@ -1,4 +1,4 @@
-from typing import Literal, Annotated
+from typing import Literal, Annotated, Union
 
 import pydantic
 
@@ -143,3 +143,7 @@ AmountUsdStr = Annotated[
         description="A decimal number with at most five decimal places, representing an amount in USD (negative or positive). ",
     ),
 ]
+
+
+# %% JSON
+type JsonValue = str | int | float | bool | None | list[JsonValue] | dict[str, JsonValue]

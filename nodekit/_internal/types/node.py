@@ -1,9 +1,9 @@
-from typing import Dict, List
+from typing import Dict, List, Union
 
 import pydantic
 
 from nodekit._internal.types.cards import Card
-from nodekit._internal.types.common import CardId, SensorId, ColorHexString
+from nodekit._internal.types.common import CardId, SensorId, ColorHexString, JsonValue
 from nodekit._internal.types.effects.effects import Effect
 from nodekit._internal.types.sensors.sensors import Sensor
 
@@ -25,3 +25,23 @@ class Node(pydantic.BaseModel):
         default="#808080ff",
         validate_default=True,
     )
+
+    # Optional:
+    annotation: JsonValue = pydantic.Field(
+        default = None,
+        description="An optional, author-supplied annotation for this Node. May be used for arbitrary purposes.",
+    )
+
+# %%
+"""
+Example:
+
+{
+    tag: 'bla'
+    stimulus: 
+    
+}
+ 
+"""
+
+

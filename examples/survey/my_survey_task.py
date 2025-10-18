@@ -5,7 +5,6 @@ import nodekit as nk
 def make_mcq_node(
     question_markdown: str,
     choices_markdown: list[str],
-    minimum_choice_time_msec: int = 2000,
 ) -> nk.Node:
     """
     Assemble a multiple-choice question (MCQ) Node.
@@ -49,7 +48,6 @@ def make_mcq_node(
             y=choice_card.y,
             w=choice_card.w,
             h=choice_card.h,
-            start_msec=minimum_choice_time_msec,
         )
         choice_sensors[str(i_choice)] = choice_sensor
 
