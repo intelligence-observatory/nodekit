@@ -1,7 +1,7 @@
 from decimal import Decimal
 from typing import List, Iterable
 
-import boto3
+from boto3.session import Session
 
 
 from nodekit.experimental.recruitment_services.base import (
@@ -16,8 +16,8 @@ import nodekit.experimental.recruitment_services.mechanical_turk.models as boto3
 from uuid import uuid4
 
 import datetime
-import re, json
-from urllib.parse import unquote_plus
+import re
+
 
 def extract_trace(xml: str) -> str:
     # pull the contents of the <FreeText> element
@@ -28,6 +28,7 @@ def extract_trace(xml: str) -> str:
 
     # MTurk sometimes form-encodes it (+ for space, %xx etc.)
     return raw
+
 
 # %%
 class MturkClient(RecruiterServiceClient):
@@ -43,7 +44,7 @@ class MturkClient(RecruiterServiceClient):
         else:
             endpoint_url = "https://mturk-requester.us-east-1.amazonaws.com"
 
-        session = boto3.session.Session(
+        session = Session(
             aws_access_key_id=aws_access_key_id,
             aws_secret_access_key=aws_secret_access_key,
         )
@@ -64,6 +65,7 @@ class MturkClient(RecruiterServiceClient):
             return "MTurkSandbox"
         else:
             return "MTurk"
+
     def create_hit(
         self,
         request: CreateHitRequest,
@@ -193,7 +195,7 @@ class MturkClient(RecruiterServiceClient):
                     worker_id=assignment.WorkerId,
                     assignment_id=assignment.AssignmentId,
                     status=assignment.AssignmentStatus,
-                    submission_payload = extract_trace(assignment.Answer),
+                    submission_payload=extract_trace(assignment.Answer),
                 )
 
                 yield item

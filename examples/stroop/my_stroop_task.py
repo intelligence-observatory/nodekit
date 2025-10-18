@@ -3,9 +3,9 @@ from pathlib import Path
 
 import nodekit as nk
 import random
-import pandas as pd
 import pydantic
-import matplotlib.pyplot as plt
+
+
 # %%
 class StroopColor(str, Enum):
     RED = "red"
@@ -237,7 +237,7 @@ class StroopTrialResult(pydantic.BaseModel):
     text: StroopColor
     text_color: StroopColor
     report: StroopColor
-    reaction_time_msec: int = pydantic.Field(ge = 0)
+    reaction_time_msec: int = pydantic.Field(ge=0)
 
 
 # %%
@@ -258,4 +258,3 @@ if __name__ == "__main__":
     trace = nk.play(stroop_task)
 
     # Project a tidy DataFrame from the Trace
-

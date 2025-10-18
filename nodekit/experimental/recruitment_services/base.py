@@ -4,6 +4,7 @@ from typing import List, Iterable, Literal
 
 import pydantic
 
+
 # %%
 class RecruiterCredentialsError(Exception):
     """Exception raised for errors in the recruiter credentials."""
@@ -45,8 +46,7 @@ class SendBonusPaymentRequest(pydantic.BaseModel):
 # %%
 class RecruiterServiceClient(ABC):
     @abstractmethod
-    def get_recruiter_service_name(self) -> str:
-        ...
+    def get_recruiter_service_name(self) -> str: ...
 
     @abstractmethod
     def create_hit(

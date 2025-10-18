@@ -10,7 +10,7 @@ import nodekit as nk
 from nodekit.experimental.recruitment_services.base import (
     RecruiterServiceClient,
     CreateHitRequest,
-    SendBonusPaymentRequest
+    SendBonusPaymentRequest,
 )
 from nodekit.experimental.s3 import S3Client
 
@@ -19,12 +19,14 @@ type HitId = str
 type AssignmentId = str
 type WorkerId = str
 
+
 # %%
 class TraceResult(pydantic.BaseModel):
     hit_id: HitId
     assignment_id: AssignmentId
     worker_id: WorkerId
-    trace: nk.Trace | None # If None, validation failed
+    trace: nk.Trace | None  # If None, validation failed
+
 
 class HitRequest(pydantic.BaseModel):
     graph: nk.Graph
@@ -40,29 +42,33 @@ class Helper:
     """
     Experimental; this might be moved to PsyHub / PsychoScope.
     """
+
     def __init__(
-            self,
-            recruiter_service_client:RecruiterServiceClient,
-            s3_client: S3Client,
-            local_cachedir: os.PathLike | str
+        self,
+        recruiter_service_client: RecruiterServiceClient,
+        s3_client: S3Client,
+        local_cachedir: os.PathLike | str,
     ):
         self.recruiter_service_client = recruiter_service_client
         self.s3_client = s3_client
         self.local_cachedir = Path(local_cachedir)
 
     def _get_hit_cachedir(self) -> Path:
-        return self.local_cachedir / "hits" / self.recruiter_service_client.get_recruiter_service_name()
+        return (
+            self.local_cachedir
+            / "hits"
+            / self.recruiter_service_client.get_recruiter_service_name()
+        )
 
     def create_hit(
-            self,
-            graph: nk.Graph,
-            num_assignments: int,
-            base_payment_usd: str,
-            title: str,
-            duration_sec: int,
-            unique_request_token: str | None = None,
+        self,
+        graph: nk.Graph,
+        num_assignments: int,
+        base_payment_usd: str,
+        title: str,
+        duration_sec: int,
+        unique_request_token: str | None = None,
     ) -> HitId:
-
         """
         Creates a HIT based on the given Graph.
         Automatically ensures a public site for the Graph exists on S3.
@@ -79,7 +85,7 @@ class Helper:
                 entrypoint_url=graph_site_url,
                 title=title,
                 description=title,
-                keywords=['psychology', 'task', 'cognitive', 'science', 'game'],
+                keywords=["psychology", "task", "cognitive", "science", "game"],
                 num_assignments=num_assignments,
                 duration_sec=duration_sec,
                 completion_reward_usd=Decimal(base_payment_usd),
@@ -87,7 +93,7 @@ class Helper:
                 allowed_participant_ids=[],
             )
         )
-        hit_id: HitId =  response.hit_id
+        hit_id: HitId = response.hit_id
 
         # Just save the raw wire model, and hope the asset refs don't change. Todo: !
         try:
@@ -98,14 +104,16 @@ class Helper:
                 title=title,
                 duration_sec=duration_sec,
                 unique_request_token=unique_request_token,
-                hit_id = hit_id,
+                hit_id=hit_id,
             )
-            savepath = self._get_hit_cachedir() / f'{hit_id}.json'
+            savepath = self._get_hit_cachedir() / f"{hit_id}.json"
             if not savepath.parent.exists():
                 savepath.parent.mkdir(parents=True)
             savepath.write_text(hit_request.model_dump_json(indent=2))
         except Exception as e:
-            raise Exception(f'Could not save Graph for HIT ({hit_id}) to local cache.') from e
+            raise Exception(
+                f"Could not save Graph for HIT ({hit_id}) to local cache."
+            ) from e
 
         return hit_id
 
@@ -114,10 +122,9 @@ class Helper:
         savedir = self._get_hit_cachedir()
         savedir.mkdir(parents=True, exist_ok=True)
         hit_ids: list[HitId] = []
-        for path in glob.glob(str(savedir / '*.json')):
-            hit_ids.append(Path(path).stem.split('*.json')[0])
+        for path in glob.glob(str(savedir / "*.json")):
+            hit_ids.append(Path(path).stem.split("*.json")[0])
         return hit_ids
-
 
     def upload_graph_site(self, graph: nk.Graph) -> str:
         """
@@ -132,8 +139,8 @@ class Helper:
         index_url = self.s3_client.sync_file(
             local_path=index_path,
             local_root=build_site_result.site_root,
-            bucket_root='',
-            force=False
+            bucket_root="",
+            force=False,
         )
 
         # Ensure deps are sync'd
@@ -141,15 +148,15 @@ class Helper:
             self.s3_client.sync_file(
                 local_path=build_site_result.site_root / dep,
                 local_root=build_site_result.site_root,
-                bucket_root='',
-                force=False
+                bucket_root="",
+                force=False,
             )
 
         return index_url
 
     def iter_traces(
-            self,
-            hit_id: HitId,
+        self,
+        hit_id: HitId,
     ) -> Iterable[TraceResult]:
         """
         Iterate the Traces collected under the given HIT ID.
@@ -158,13 +165,13 @@ class Helper:
         """
         for asn in self.recruiter_service_client.iter_assignments(hit_id=hit_id):
             # Ensure assignment is approved
-            if asn.status != 'Approved':
+            if asn.status != "Approved":
                 self.recruiter_service_client.approve_assignment(
                     assignment_id=asn.assignment_id,
                 )
             try:
                 trace = nk.Trace.model_validate_json(asn.submission_payload)
-            except pydantic.ValidationError as e:
+            except pydantic.ValidationError:
                 trace = None
 
             yield TraceResult(
@@ -175,30 +182,30 @@ class Helper:
             )
 
     def pay_bonus(
-            self,
-            worker_id: WorkerId,
-            assignment_id: AssignmentId,
-            amount_usd: str,
+        self,
+        worker_id: WorkerId,
+        assignment_id: AssignmentId,
+        amount_usd: str,
     ) -> None:
         self.recruiter_service_client.send_bonus_payment(
             request=SendBonusPaymentRequest(
                 assignment_id=assignment_id,
                 amount_usd=Decimal(amount_usd),
-                worker_id=worker_id
+                worker_id=worker_id,
             )
         )
 
     def get_hit(
-            self,
-            hit_id: HitId,
+        self,
+        hit_id: HitId,
     ) -> HitRequest:
         """
         Loads the Graph associated with the given HIT ID.
         (Hit the local cache)
         """
-        savepath = self._get_hit_cachedir()  / f'{hit_id}.json'
+        savepath = self._get_hit_cachedir() / f"{hit_id}.json"
         if not savepath.parent.exists():
-            raise Exception(f'Could not save Graph for HIT {hit_id}.')
+            raise Exception(f"Could not save Graph for HIT {hit_id}.")
 
         hit_request = HitRequest.model_validate_json(savepath.read_text())
         return hit_request

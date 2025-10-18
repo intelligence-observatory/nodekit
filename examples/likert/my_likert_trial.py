@@ -107,4 +107,4 @@ graph = nk.concat(
 trace = nk.play(graph)
 
 # %%
-nk.save_graph(graph, 'likert-graph.nkg')
+nk.save_graph(graph, "likert-graph.nkg")

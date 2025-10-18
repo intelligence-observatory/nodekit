@@ -1,4 +1,4 @@
-from typing import Literal, Annotated, Union
+from typing import Literal, Annotated
 
 import pydantic
 
@@ -146,4 +146,6 @@ AmountUsdStr = Annotated[
 
 
 # %% JSON
-type JsonValue = str | int | float | bool | None | list[JsonValue] | dict[str, JsonValue]
+type JsonValue = (
+    str | int | float | bool | None | list[JsonValue] | dict[str, JsonValue]
+)

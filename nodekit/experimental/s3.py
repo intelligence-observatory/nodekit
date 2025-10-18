@@ -7,10 +7,7 @@ from typing import BinaryIO
 import hashlib
 import mimetypes
 
-from nodekit._internal.types.common import (
-    SHA256,
-    MediaType
-)
+from nodekit._internal.types.common import SHA256, MediaType
 import os
 from pathlib import Path
 
@@ -32,11 +29,11 @@ class S3Client:
         aws_secret_access_key: pydantic.SecretStr
 
     def __init__(
-            self,
-            bucket_name: str,
-            region_name: str,
-            aws_access_key_id: str,
-            aws_secret_access_key: str,
+        self,
+        bucket_name: str,
+        region_name: str,
+        aws_access_key_id: str,
+        aws_secret_access_key: str,
     ):
         self.config = self.Config(
             bucket_name=bucket_name,
@@ -53,8 +50,8 @@ class S3Client:
 
     @staticmethod
     def _derive_s3_key(
-            sha256: SHA256,
-            mime_type: MediaType,
+        sha256: SHA256,
+        mime_type: MediaType,
     ) -> str:
         ext = mimetypes.guess_extension(mime_type)
         if ext is None:
@@ -68,9 +65,9 @@ class S3Client:
         return pydantic.HttpUrl(url)
 
     def maybe_resolve_asset(
-            self,
-            sha256: SHA256,
-            mime_type: MediaType,
+        self,
+        sha256: SHA256,
+        mime_type: MediaType,
     ) -> UploadAssetResult | None:
         # Derive S3 key
         key = self._derive_s3_key(sha256=sha256, mime_type=mime_type)
@@ -94,10 +91,10 @@ class S3Client:
         )
 
     def upload_asset(
-            self,
-            claimed_sha256: SHA256,
-            file: BinaryIO,
-            mime_type: MediaType,
+        self,
+        claimed_sha256: SHA256,
+        file: BinaryIO,
+        mime_type: MediaType,
     ) -> UploadAssetResult:
         """
         Stream `file` directly to S3 with the given MIME type, and returns it public link.
@@ -157,16 +154,16 @@ class S3Client:
         # Package return model
         return UploadAssetResult(
             sha256=sha256,
-            asset_url = asset_url,
+            asset_url=asset_url,
             mime_type=mime_type,
         )
 
     def sync_file(
-            self,
-            local_path: os.PathLike | str,
-            local_root: os.PathLike | str,
-            bucket_root: os.PathLike | str,
-            force: bool = False,
+        self,
+        local_path: os.PathLike | str,
+        local_root: os.PathLike | str,
+        bucket_root: os.PathLike | str,
+        force: bool = False,
     ) -> str:
         """
         Upload a single file to S3 under the key derived from its path relative to `local_root`,
@@ -205,7 +202,10 @@ class S3Client:
 
         # Upload
         mime, _ = mimetypes.guess_type(p.name)
-        extra = {"ContentType": mime or "application/octet-stream", "ACL": "public-read"}
+        extra = {
+            "ContentType": mime or "application/octet-stream",
+            "ACL": "public-read",
+        }
         with p.open("rb") as f:
             self._client.upload_fileobj(
                 Fileobj=f,
@@ -214,6 +214,6 @@ class S3Client:
                 ExtraArgs=extra,
             )
 
-        print(f'Uploaded {p.name} to S3')
+        print(f"Uploaded {p.name} to S3")
 
         return url

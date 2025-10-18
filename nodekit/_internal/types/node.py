@@ -1,4 +1,4 @@
-from typing import Dict, List, Union
+from typing import Dict, List
 
 import pydantic
 
@@ -28,9 +28,10 @@ class Node(pydantic.BaseModel):
 
     # Optional:
     annotation: JsonValue = pydantic.Field(
-        default = None,
+        default=None,
         description="An optional, author-supplied annotation for this Node. May be used for arbitrary purposes.",
     )
+
 
 # %%
 """
@@ -43,5 +44,3 @@ Example:
 }
  
 """
-
-
