@@ -19,8 +19,6 @@ import datetime
 
 
 # %%
-
-# %%
 class MturkClient(RecruiterServiceClient):
     def __init__(
         self,

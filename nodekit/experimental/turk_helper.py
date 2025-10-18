@@ -6,6 +6,7 @@ import boto3
 import pydantic
 import os
 from pathlib import Path
+from nodekit.experimental.recruitment_services.base import RecruiterServiceClient
 from nodekit.experimental.s3 import S3Client
 
 # %%
@@ -14,20 +15,19 @@ type AssignmentId = str
 
 # %%
 
-class TurkClient:
+class Helper:
     """
     Experimental; this might be moved to PsyHub.
     """
     def __init__(
             self,
-            turk_client,
+            recruiter_service_client:RecruiterServiceClient,
             s3_client: S3Client,
             local_cachedir: os.PathLike | str
     ):
+        self.recruiter_service_client = recruiter_service_client
         self.s3_client = s3_client
         self.local_cachedir = Path(local_cachedir)
-
-        ...
 
     def list_hits(self) -> Iterable[HitId]:
         """
@@ -47,7 +47,36 @@ class TurkClient:
         Automatically ensures a public site for the Graph exists on S3.
         Caches the HIT (and its Graph) in the local cache.
         """
-        ...
+
+        graph_site_url = self.upload_graph_site(graph=graph)
+
+    def upload_graph_site(self, graph: nk.Graph) -> str:
+        """
+        Returns a URL to a public Graph site.
+        """
+
+        # Build the Graph site
+        build_site_result = nk.build_site(graph=graph, savedir=self.local_cachedir)
+
+        # Ensure index is sync'd
+        index_path = build_site_result.site_root / build_site_result.entrypoint
+        index_url = self.s3_client.sync_file(
+            local_path=index_path,
+            local_root=build_site_result.site_root,
+            bucket_root='',
+            force=False
+        )
+
+        # Ensure deps are sync'd
+        for dep in build_site_result.dependencies:
+            self.s3_client.sync_file(
+                local_path=build_site_result.site_root / dep,
+                local_root=build_site_result.site_root,
+                bucket_root='',
+                force=False
+            )
+
+        return index_url
 
     def list_assignments(
             self,

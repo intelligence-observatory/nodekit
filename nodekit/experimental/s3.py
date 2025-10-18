@@ -14,6 +14,9 @@ from nodekit._internal.types.common import (
 import os
 from pathlib import Path
 
+from urllib.parse import quote
+
+
 # %%
 class UploadAssetResult(pydantic.BaseModel):
     sha256: SHA256
@@ -158,56 +161,57 @@ class S3Client:
             mime_type=mime_type,
         )
 
-    class UploadDirectoryResult(pydantic.BaseModel):
-        directory_root_url: pydantic.AnyHttpUrl
-        # Full URLs are formed by joining with the directory_root_url
-
-    def upload_directory(
+    def sync_file(
             self,
-            path: os.PathLike | str,
-            bucket_directory_name: str = '',
+            local_path: os.PathLike | str,
+            local_root: os.PathLike | str,
+            bucket_root: os.PathLike | str,
             force: bool = False,
-    ) -> UploadDirectoryResult:
+    ) -> str:
         """
-        Uploads the given directory to the S3 bucket at the given bucket directory name.
-        All files will be public. Skips upload if an existing object has the same size.
+        Upload a single file to S3 under the key derived from its path relative to `local_root`,
+        prefixed by `bucket_root`. Skips upload if an object already exists with the same size,
+        unless `force=True`. Makes the object public-read and sets ContentType.
+
+        Returns the public URL of the object.
         """
-        path = Path(path)
-        if not path.is_dir():
-            raise ValueError(f"Not a directory: {path}")
+        p = Path(local_path)
+        local_root = Path(local_root)
+        if not p.is_file() or p.is_symlink():
+            raise ValueError(f"Unsupported file type: {p}")
 
-        prefix = bucket_directory_name.strip("/")
-        base_url = self._client.meta.endpoint_url.rstrip("/")
-        directory_root = f"{base_url}/{self.config.bucket_name}" + (f"/{prefix}" if prefix else "")
+        # Derive S3 key (prefix + rel path), then URL-encode it (keep '/' separators)
+        rel = p.relative_to(local_root).as_posix()
+        prefix = str(bucket_root).strip("/")
+        key = f"{prefix}/{rel}" if prefix else rel
+        encoded_key = quote(key, safe="/")
 
-        for p in path.rglob("*"):
-            if p.is_dir():
-                continue
-            if p.is_symlink() or not p.is_file():
-                raise ValueError(f"Unsupported file type: {p}")
+        # Compute URL (prefer virtual-hosted-style for AWS, path-style for custom endpoints)
+        endpoint = self._client.meta.endpoint_url.rstrip("/")
+        if "amazonaws.com" in endpoint:
+            url = f"https://{self.config.bucket_name}.s3.{self.config.region_name}.amazonaws.com/{encoded_key}"
+        else:
+            # e.g., MinIO or custom S3-compatible endpoint
+            url = f"{endpoint}/{self.config.bucket_name}/{encoded_key}"
 
-            rel = p.relative_to(path).as_posix()
-            key = f"{prefix}/{rel}" if prefix else rel
+        # Skip if already present with same size (unless force)
+        try:
+            head = self._client.head_object(Bucket=self.config.bucket_name, Key=key)
+            if head.get("ContentLength") == p.stat().st_size and not force:
+                return url
+        except self._client.exceptions.ClientError as e:
+            if e.response.get("Error", {}).get("Code") != "404":
+                raise  # unexpected error → bubble up
 
-            # --- skip if already exists with same size
-            try:
-                head = self._client.head_object(Bucket=self.config.bucket_name, Key=key)
-                if head.get("ContentLength") == p.stat().st_size and not force:
-                    continue  # already there, same size
-            except self._client.exceptions.ClientError as e:
-                if e.response["Error"]["Code"] != "404":
-                    raise  # re-raise unexpected errors
+        # Upload
+        mime, _ = mimetypes.guess_type(p.name)
+        extra = {"ContentType": mime or "application/octet-stream", "ACL": "public-read"}
+        with p.open("rb") as f:
+            self._client.upload_fileobj(
+                Fileobj=f,
+                Bucket=self.config.bucket_name,
+                Key=key,
+                ExtraArgs=extra,
+            )
 
-            # --- upload
-            mime, _ = mimetypes.guess_type(p.name)
-            extra = {"ContentType": mime or "application/octet-stream", "ACL": "public-read"}
-
-            with p.open("rb") as f:
-                self._client.upload_fileobj(
-                    Fileobj=f,
-                    Bucket=self.config.bucket_name,
-                    Key=key,
-                    ExtraArgs=extra,
-                )
-
-        return self.UploadDirectoryResult(directory_root_url=pydantic.AnyHttpUrl(directory_root))
+        return url
