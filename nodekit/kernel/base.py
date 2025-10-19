@@ -7,6 +7,7 @@ from nodekit._internal.types.common import (
     TimeElapsedMsec,
     NodeTimePointMsec,
     ColorHexString,
+PressableKey,
 )
 
 
@@ -197,22 +198,84 @@ ConfirmSensor:
     sensor: 
     confirm_card: SelectableCard
 """
-class ExitRule(pydantic.BaseModel):
-    when: Predicate
-
-
-
-
-
 # %%
 CardId = str # Uniquely identifies a Blot in the Node. Always of form {NodeId}.{BlotName}
 UpdateId = str
 ExitId = str
 NodeId = str
+SensorId = str
 
+
+class BaseSensor(pydantic.BaseModel):
+    ...
+
+class SelectSensor(BaseSensor):
+    selectable_card_ids: Set[CardId]
+    pattern: str | None # Describes the subset of selections which will fire this sensor. DNF.
+    min_choices: int = 1
+    max_choices: int | None = None # Fires whenever a valid selection of (min_choices, max_choices) cards is made
+
+    # Action reported:
+    """
+    SelectAction:
+        {
+            card_id: bool
+        } 
+    """
+
+class FreeTextEntrySensor(BaseSensor):
+    card_id: CardId  # Of a FreeTextEntryCard
+    pattern: str | None # text entry predicate (as regex) which must be matched before the Sensor fires. If None, fires on text change
+
+    # Action reported:
+    """
+    FreeTextEntryAction: 
+        {
+            card_id: text
+        }
+    """
+
+class DoodleSensor(BaseSensor):
+    card_id: CardId  # of the doodle sensor
+    pattern: str | None # todo; doodle predicate which must be matched before Sensor fires. If None, fires whenever any stroke  is made.
+
+    """
+    DoodleAction: 
+        {
+            card_id: text
+        }
+    """
+
+class SliderSensor(BaseSensor):
+    card_id: CardId # Of SliderSensor
+    pattern: int | None # The subset of ticks for which this Sensor will fire. If None, will fire whenever the slider is moved.
+
+class KeySensor(BaseSensor):
+    keys: Set[PressableKey] # Fires whenever any one of these keys are pressed.
+
+class TimeoutSensor(BaseSensor):
+    """
+    Sensor which fires when the given amount of time has elapsed.
+    """
+    timeout_msec: NodeTimePointMsec
+
+class CompositeSensor(BaseSensor):
+    """
+    A 'composite' Sensor which wraps other Sensors and collects their emissions. This Sensor fires when it has collected at least
+    one emission from each of its source Sensors, and its associated Card has been selected.
+
+    The Action it reports collects the latest emissions from its source Sensors a struct:
+    {
+        sensor_id: SensorAction
+    }
+    """
+    confirm_card_id: CardId # The ID of a selectable card which, when selected, confirms the source sensors. Sets .selectable=True only when all required sources have fired.
+    source_sensors: Set[SensorId]
+
+# %%
 class NodeV2(pydantic.BaseModel):
     cards: Dict[CardId, BaseCard]
     update_rules: Dict[UpdateId, UpdateRule]
-    exit_rules: Dict[ExitId, ExitRule]
+    sensors: Dict[SensorId, BaseSensor]
 
 
