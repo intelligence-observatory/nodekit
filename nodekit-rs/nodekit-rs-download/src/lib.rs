@@ -53,7 +53,7 @@ impl Downloader {
         let filename = url
             .path_segments()
             .ok_or_else(|| Error::NoFilename(url.clone()))?
-            .last()
+            .next_back()
             .ok_or_else(|| Error::NoFilename(url.clone()))?;
         let path = self.directory.join(filename);
 
@@ -86,7 +86,7 @@ impl Downloader {
         )
         .await
         .into_iter()
-        .map(|response| Self::write(response))
+        .map(Self::write)
         .collect()
     }
 
