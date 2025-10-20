@@ -38,6 +38,7 @@ def make_physion_trial(
         y=0,
         w=0.5,
         h=0.5,
+        z_index=1,
         video=video,
     )
     mask = nk.cards.ImageCard(
@@ -45,6 +46,7 @@ def make_physion_trial(
         y=video_card.y,
         w=video_card.w,
         h=video_card.h,
+        z_index=10,
         image=selector_mask,
     )
     main_node = nk.Node(
