@@ -1,5 +1,5 @@
 [workspace]
-members = ["nodekit-rs-board", "nodekit-rs-download","nodekit-rs-fb", "nodekit-rs-graph", "nodekit-rs-video"]
+members = ["nodekit-rs-download","nodekit-rs-fb", "nodekit-rs-graph", "nodekit-rs-video"]
 
 [package]
 name = "nodekit-rs"

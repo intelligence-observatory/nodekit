@@ -857,10 +857,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "nodekit-rs-board"
-version = "0.1.0"
-
-[[package]]
 name = "nodekit-rs-download"
 version = "0.1.0"
 dependencies = [
