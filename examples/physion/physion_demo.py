@@ -3,7 +3,7 @@ Reproduces the paradigm described in "Physion..." by Bear et al. Neurips 2021
 https://cogtoolslab.github.io/pdf/BWMB_neurips_2021.pdf
 
 * Show fixation cross between 500 and 1500 ms
-  * Show first frame of video for 2000 msec. During this time, flash an overlay on/off at 2 Hz – i.e. 4 times
+  * Show first frame of video for 2000 msec. During this time, flash an overlay on/off at 2 Hz – i.e. 4 cycles
   * Then play video for 1500 msec
   * Then remove the video and activate yes/no buttons; randomized order.
     * I will also add a text prompt.
@@ -41,19 +41,23 @@ def make_physion_trial(
         z_index=1,
         video=video,
     )
-    mask = nk.cards.ImageCard(
+
+    # Schedule the mask flickers
+    make_mask_card = lambda i: nk.cards.ImageCard(
         x=video_card.x,
         y=video_card.y,
         w=video_card.w,
         h=video_card.h,
         z_index=10,
         image=selector_mask,
+        start_msec=i*1000,
+        end_msec=i*1000 + 500,
     )
     main_node = nk.Node(
         cards={
-            'mask': mask,
             'video': video_card,
-
+        } | {
+            f'mask-frame-{i}': make_mask_card(i) for i in range(2)
         },
         sensors={
             'fixated': nk.sensors.TimeoutSensor(
@@ -87,4 +91,8 @@ if __name__ == '__main__':
         correct_answer=False,
     )
 
+    # %%
+    #nk.save_graph(trial, 'physion-demo.nkg')
+
+    # %%
     trace = nk.play(trial)
