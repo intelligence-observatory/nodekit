@@ -31,6 +31,8 @@ class BaseCard(pydantic.BaseModel, ABC):
         description="The y-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in y moves up."
     )
 
+    z_index: int | None = None
+
     # Shape:
     w: SpatialSize = pydantic.Field(
         description="The width of the Card, in Board units."

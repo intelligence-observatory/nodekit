@@ -6,6 +6,7 @@ export interface BaseCard<T extends string> {
 
     x: SpatialPoint
     y: SpatialPoint
+    z_index: number | null;
 
     w: SpatialSize
     h: SpatialSize

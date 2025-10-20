@@ -205,6 +205,12 @@ export class BoardView {
         // Mount CardView to BoardView:
         this.root.appendChild(cardView.root);
 
+        // If a z_index property is present in card, inject it manually here. // Todo this is hack
+        if (typeof card.z_index ==='number'){
+            cardView.root.style.zIndex = card.z_index.toString()
+        }
+
+
         // Issue a new CardViewId:
         this.cardViews.set(cardId, cardView);
     }
