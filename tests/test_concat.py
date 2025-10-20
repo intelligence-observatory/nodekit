@@ -91,16 +91,70 @@ def test_example_pass():
     fix_2 = get_fixation_node()
     stim_2 = get_stimulus_node()
 
+    ids = ['fixation_1', 'stimulus_1', 'trial_1', 'fixation_2', 'stimulus_2']
     graph = nk.concat(
         [fix_1, stim_1, response, fix_2, stim_2],
-        ids=['fixation_1', 'stimulus_1', 'trial_1', 'fixation_2', 'stimulus_2']
+        ids=ids
         )
 
-    for t in graph.transitions.items():
-        print(t)
+    # Check basic Graph properties:
+    assert isinstance(graph, nk.Graph)
+    assert graph.start == "fixation_1", "Start node should match the first element’s id"
 
-    # transitions["fixation_2"] = {"fixation": "stimulus_2"}
-    # transitions["fixation_1"] = {"fixation": "stimulus_1"}
-    # transitions["stimulus_1"] = {"TO": "response_1"}
+    # Check all nodes are present with correct namespacing:
+    assert set(graph.nodes.keys()) == {
+        "fixation_1",
+        "stimulus_1",
+        "trial_1/response_1",
+        "trial_1/positive_1",
+        "trial_1/negative_1",
+        "fixation_2",
+        "stimulus_2",
+    }, "All nodes should be present with correct namespacing"
 
-test_example_pass()
+    # Check full connection in all elements of sequence except the last:
+    for i in range(len(ids) - 1):
+        prefix = ids[i]
+
+        # Check all sensors in the node are in transitions:
+        for node_id, node in graph.nodes.items():
+            if node_id == prefix or node_id.startswith(f"{prefix}/"):
+                sensors = set(node.sensors.keys())
+                outgoing = set(graph.transitions.get(node_id, {}).keys())
+
+                missing = sensors - outgoing
+                assert not missing, (
+                    f"Node {node_id} has unconnected sensors: {missing}"
+                )
+
+
+def test_concat_invalid_element():
+    fix = nk.Node(cards={}, sensors={"s": nk.sensors.TimeoutSensor(timeout_msec=1)})
+    stim = nk.Node(cards={}, sensors={"s": nk.sensors.TimeoutSensor(timeout_msec=1)})
+    bad_item = "not_a_graph"
+
+    with pytest.raises(TypeError, match="must be `Node` or `Graph`"):
+        nk.concat([fix, stim, bad_item])
+
+
+def test_concat_duplicate_ids():
+    fix = nk.Node(cards={}, sensors={"s": nk.sensors.TimeoutSensor(timeout_msec=1)})
+    stim = nk.Node(cards={}, sensors={"s": nk.sensors.TimeoutSensor(timeout_msec=1)})
+
+    with pytest.raises(ValueError, match="must be unique"):
+        nk.concat([fix, stim], ids=["same", "same"])
+
+
+def test_concat_preserves_internal_edges():
+    node_a = nk.Node(cards={}, sensors={"x": nk.sensors.TimeoutSensor(timeout_msec=1)})
+    node_b = nk.Node(cards={}, sensors={"y": nk.sensors.TimeoutSensor(timeout_msec=1)})
+
+    g = nk.Graph(nodes={"A": node_a, "B": node_b}, start="A", transitions={"A": {"x": "B"}})
+
+    extra = nk.Node(cards={}, sensors={"z": nk.sensors.TimeoutSensor(timeout_msec=1)})
+
+    result = nk.concat([g, extra], ids=["trial", "next"])
+    transitions = result.transitions
+
+    # Internal transition still present
+    assert "trial/A" in transitions and "x" in transitions["trial/A"]
