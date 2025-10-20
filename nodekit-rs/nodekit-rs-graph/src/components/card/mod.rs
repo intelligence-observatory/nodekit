@@ -16,11 +16,11 @@ pub struct Card {
 
 impl<'c> From<&nodekit_rs_fb::Card<'c>> for Card {
     fn from(value: &nodekit_rs_fb::Card<'c>) -> Self {
-       Self {
-           x: value.x(),
-           y: value.y(),
-           w: value.w(),
-           h: value.h()
-       }
+        Self {
+            x: value.x(),
+            y: value.y(),
+            w: value.w(),
+            h: value.h(),
+        }
     }
 }
