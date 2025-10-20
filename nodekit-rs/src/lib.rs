@@ -1,3 +1,1 @@
-mod state;
-
-use blittle::Size;
+pub fn ok(){}
