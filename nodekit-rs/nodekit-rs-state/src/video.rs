@@ -1,6 +1,8 @@
-use crate::{BOARD_SIZE, Board, Extractor};
+use crate::{BOARD_SIZE, Board};
 use blittle::*;
 use std::path::Path;
+use nodekit_rs_video::FrameExtractor;
+use crate::error::Error;
 
 pub struct BlitResult {
     pub blitted: bool,
@@ -10,7 +12,7 @@ pub struct BlitResult {
 pub struct Video<'v> {
     pub position: PositionU,
     pub size: Size,
-    pub extractor: Extractor<'v>,
+    pub extractor: FrameExtractor<'v>,
 }
 
 impl Video<'_> {
@@ -18,9 +20,9 @@ impl Video<'_> {
         path: P,
         position: PositionI,
         mut size: Size,
-    ) -> Result<Self, ffmpeg_next::Error> {
+    ) -> Result<Self, Error> {
         let position = clip(&position, &BOARD_SIZE, &mut size);
-        let extractor = Extractor::new(path, size.w as u32, size.h as u32)?;
+        let extractor = FrameExtractor::new(path, size.w as u32, size.h as u32).map_err(Error::FrameExtractor)?;
         Ok(Self {
             position,
             size,

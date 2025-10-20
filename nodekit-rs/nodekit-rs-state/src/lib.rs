@@ -1,16 +1,12 @@
 mod timer;
+mod video;
+mod error;
 
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
-}
+use blittle::Size;
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
-}
+pub(crate) const BOARD_D: usize = 768;
+pub(crate) const BOARD_SIZE: Size = Size {
+    w: BOARD_D,
+    h: BOARD_D,
+};
+pub(crate) type Board = [u8; BOARD_D * BOARD_D * 3];

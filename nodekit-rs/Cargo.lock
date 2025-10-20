@@ -894,8 +894,12 @@ dependencies = [
 name = "nodekit-rs-state"
 version = "0.1.0"
 dependencies = [
+ "blittle",
+ "ffmpeg-next",
  "nodekit-rs-graph",
  "nodekit-rs-video",
+ "slotmap",
+ "thiserror",
 ]
 
 [[package]]
