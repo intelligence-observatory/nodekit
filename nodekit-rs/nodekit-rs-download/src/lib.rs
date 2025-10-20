@@ -108,3 +108,47 @@ impl Downloader {
         Ok(downloadable)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs::File;
+    use std::io::BufReader;
+    use jpeg_decoder::Decoder;
+    use tempdir::TempDir;
+    use uuid::Uuid;
+
+    #[tokio::test]
+    async fn test_downloads() {
+        let temp_dir = TempDir::new(&Uuid::new_v4().to_string()).unwrap();
+        let directory = temp_dir.path().to_path_buf();
+        let mut downloader = Downloader::new(directory).unwrap();
+
+        let url = Url::parse("https://images.pdimagearchive.org/collections/highlights-from-the-20000-maps-made-freely-available-online-by-new-york-public-library/13540188983_fa3794cab9_b.jpg?width=760&height=800").unwrap();
+        let hash = *b"\xb7R\xddb\x18}_:JRk\x81B\xd4j1\"\xb7\x84\x84\xbf[p\xd5\xa1\x8a\x02\xb4\xa0\xa3\x1f\xce";
+        downloader
+            .add_download(url, hash, MediaType::Image)
+            .unwrap();
+
+        let url = Url::parse("https://images.pdimagearchive.org/collections/maps-of-the-lower-mississippi-harold-fisk/fisk08-edit.jpg?width=1000&height=800").unwrap();
+        let hash = *b"\xbd\xf5\xdeW\x9c>!\x08\x1b\xc8c4\xdc\xb2\xdb9%\xc3\xb3\x864\x19\x8ed@\xb6\x02\x19\xc6u,\x92";
+        downloader
+            .add_download(url, hash, MediaType::Image)
+            .unwrap();
+
+        downloader
+            .download()
+            .await
+            .into_iter()
+            .map(|d| d.unwrap())
+            .for_each(|d| {
+                assert_eq!(d.media_type, MediaType::Image);
+                assert!(d.path.exists());
+
+                // Test whether this is a valid png.
+                Decoder::new(BufReader::new(File::open(&d.path).unwrap()))
+                    .read_info()
+                    .unwrap();
+            });
+    }
+}

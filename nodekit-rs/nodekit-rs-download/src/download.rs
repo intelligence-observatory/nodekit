@@ -2,7 +2,6 @@ use crate::media_type::MediaType;
 use std::path::PathBuf;
 use url::Url;
 
-/// A pending download.
 pub struct Download {
     /// The source URL.
     pub url: Url,
