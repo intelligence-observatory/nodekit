@@ -880,7 +880,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "nodekit-rs-node"
+name = "nodekit-rs-graph"
 version = "0.1.0"
 dependencies = [
  "hashbrown",
@@ -888,6 +888,14 @@ dependencies = [
  "paste",
  "slotmap",
  "url",
+]
+
+[[package]]
+name = "nodekit-rs-state"
+version = "0.1.0"
+dependencies = [
+ "nodekit-rs-graph",
+ "nodekit-rs-video",
 ]
 
 [[package]]

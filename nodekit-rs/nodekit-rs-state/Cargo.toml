@@ -1,0 +1,8 @@
+[package]
+name = "nodekit-rs-state"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+nodekit-rs-graph = { path = "../nodekit-rs-graph" }
+nodekit-rs-video = { path = "../nodekit-rs-video" }
