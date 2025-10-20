@@ -1,7 +1,7 @@
-mod asset_loader;
+mod asset;
 mod text;
 
-pub use asset_loader::AssetLoader;
+pub use asset::*;
 use slotmap::new_key_type;
 pub use text::*;
 

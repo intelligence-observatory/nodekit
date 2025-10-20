@@ -1,4 +1,4 @@
-use crate::{AssetLoader, Card, CardKey, Text, Timer, deserialize_system};
+use crate::{Card, CardKey, Text, Timer, deserialize_system, Asset};
 use nodekit_rs_fb::MediaType;
 use slotmap::{SecondaryMap, SlotMap};
 
@@ -6,9 +6,9 @@ use slotmap::{SecondaryMap, SlotMap};
 pub struct Cards {
     pub cards: SlotMap<CardKey, Card>,
     pub timers: SecondaryMap<CardKey, Timer>,
-    pub images: SecondaryMap<CardKey, AssetLoader>,
+    pub images: SecondaryMap<CardKey, Asset>,
     pub text: SecondaryMap<CardKey, Text>,
-    pub videos: SecondaryMap<CardKey, AssetLoader>,
+    pub videos: SecondaryMap<CardKey, Asset>,
 }
 
 impl Cards {
@@ -32,14 +32,14 @@ impl Cards {
     }
 
     fn deserialize_asset(&mut self, card_key: CardKey, card: &nodekit_rs_fb::Card) -> Option<()> {
-        let asset = card.card_type_as_asset()?;
-        let asset_loader = AssetLoader::new(&asset)?;
-        match asset.media_type() {
+        let fb_asset = card.card_type_as_asset()?;
+        let asset = Asset::new(&fb_asset)?;
+        match fb_asset.media_type() {
             MediaType::Image => {
-                self.images.insert(card_key, asset_loader);
+                self.images.insert(card_key, asset);
             }
             MediaType::Video => {
-                self.videos.insert(card_key, asset_loader);
+                self.videos.insert(card_key, asset);
             }
             other => unreachable!("Invalid media type: {}", other.0),
         }

@@ -39,6 +39,7 @@ enum MediaType : ubyte {
 
 table Asset {
     locator:Locator;
+    hash:string;
     media_type:MediaType = 1;
 }
 
