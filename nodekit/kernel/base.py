@@ -137,6 +137,7 @@ class SliderSensor(BaseSensor):
     track_color: ColorHexString
     thumb_color: ColorHexString
 
+
 # %%
 class NodeV2(pydantic.BaseModel):
     """
@@ -150,19 +151,47 @@ class NodeV2(pydantic.BaseModel):
     """
     cards: Dict[CardId, BaseCard]
     sensors: Dict[SensorId, BaseSensor]
-    submit_button: BaseCard | None = None # Whether to participant must use a submit button to affirm their choices. Hoverable and selectable only when all required Sensors have fired. If None, Node ends on timeout OR when all required Sensors have fired
+    submit_button: TextCard | None = None # Whether to participant must use a submit button to affirm their choices. Hoverable and selectable only when all required Sensors have fired. If None, Node ends on timeout OR when all required Sensors have fired
     background_color: ColorHexString | None
     timeout_msec: NodeTimePointMsec | None
 
+# %%
+class Predicate(pydantic.BaseModel):
+    """
+    A boolean-valued Expression that is applied to an Action
+    Expression[bool]
+        - Timeout reached (current Sensor states are reported, as is)
+    - Submit button pressed, affirming current Sensor states (current  Sensor states are reported, as is)
+    - Auto-submit, triggered on All required Sensors have been interacted with satisfactorily (some Sensors have Guards, like regexes)
+
+    """
+    ...
+
+
+# %%
+class GraphV2(pydantic.BaseModel):
+    nodes: Dict[NodeId, NodeV2]
+    transitions: Dict[NodeId, Dict[SensorId, NodeId]]
 
 # %%
 from pydantic import BaseModel, Field, model_validator
 from typing import Literal, List, Union
 
-class Lit(BaseModel): op: Literal["lit"]; value: object
-class SetLit(BaseModel): op: Literal["set"]; values: List[Lit]
-class Ref(BaseModel): op: Literal["ref"]; path: List[str]
 
+BaseValue = bool | int | float
+
+class Lit[V: BaseValue](BaseModel):
+    op: Literal["lit"]  = 'lit'
+    value: V
+class SetLit(BaseModel):
+    op: Literal["set"]
+    values: List[Lit]
+
+class Ref(BaseModel):
+    op: Literal["ref"] = 'ref'
+    path: List[str] # {sensor_id}.{value}
+
+# Boolean-valued expressions:
 class Cmp(BaseModel):
     op: Literal["eq","ne","lt","le","gt","ge"]
     left: "Expr"
@@ -179,28 +208,28 @@ class Between(BaseModel):
     lo: Lit
     hi: Lit
 
-class IsValid(BaseModel): op: Literal["is_valid"]; ref: Ref
-class SeenOnce(BaseModel): op: Literal["seen_once"]; ref: Ref
-class ReasonIs(BaseModel): op: Literal["reason_is"]; value: Literal["submitted","timeout","cancelled"]
+# Boolean connectives:
+class And(BaseModel):
+    op: Literal["and"]
+    args: List["Expr"]
+class Or(BaseModel):
+    op: Literal["or"]
+    args: List["Expr"]
+class Not(BaseModel):
+    op: Literal["not"]
+    arg: "Expr"
 
-class And(BaseModel): op: Literal["and"]; args: List["Expr"]
-class Or(BaseModel):  op: Literal["or"];  args: List["Expr"]
-class Not(BaseModel): op: Literal["not"]; arg: "Expr"
+Expr = Annotated[
+    Union[Lit, SetLit, Ref, Cmp, InOp, Between, And, Or, Not],
+    pydantic.Field(discriminator='op')
+]
 
-Expr = Union[Lit, SetLit, Ref, Cmp, InOp, Between, IsValid, SeenOnce, ReasonIs, And, Or, Not]
-
-class Predicate(pydantic.BaseModel):
-    """
-    A boolean-valued Expression that is applied to an Action
-    Expression[bool]
-        - Timeout reached (current Sensor states are reported, as is)
-    - Submit button pressed, affirming current Sensor states (current  Sensor states are reported, as is)
-    - Auto-submit, triggered on All required Sensors have been interacted with satisfactorily (some Sensors have Guards, like regexes)
-
-    """
-    ...
-
-# %%
-class GraphV2(pydantic.BaseModel):
-    nodes: Dict[NodeId, NodeV2]
-    transitions: Dict[NodeId, Dict[Predicate, NodeId]]
+chose_correct = Cmp(
+    op='eq',
+    left=Ref(
+        path=['choice', 'left-choice'] # bool
+    ),
+    right=Lit(
+        value=True,
+    )
+)

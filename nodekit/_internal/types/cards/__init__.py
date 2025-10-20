@@ -64,7 +64,7 @@ class ImageCard(BaseCard):
 # %%
 class TextCard(BaseCard, SelectableMixin):
     card_type: Literal["TextCard"] = "TextCard"
-    text: MarkdownString = pydantic.Field(min_length=1)
+    text: MarkdownString
     font_size: SpatialSize = pydantic.Field(
         default=0.02, description="The height of the em-box, in Board units."
     )

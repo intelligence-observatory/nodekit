@@ -161,8 +161,9 @@ class Helper:
         """
         Iterate the Traces collected under the given HIT ID.
         Automatically approves any unapproved assignments.
-
         """
+
+        # Pull new assignments
         for asn in self.recruiter_service_client.iter_assignments(hit_id=hit_id):
             # Ensure assignment is approved
             if asn.status != "Approved":
@@ -172,6 +173,7 @@ class Helper:
             try:
                 trace = nk.Trace.model_validate_json(asn.submission_payload)
             except pydantic.ValidationError:
+                print(f'\n\n{asn.assignment_id}: Error validating submission payload:', asn.submission_payload)
                 trace = None
 
             yield TraceResult(

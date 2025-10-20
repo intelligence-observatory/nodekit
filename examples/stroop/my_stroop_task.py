@@ -89,6 +89,13 @@ def make_stroop_trial(
         justification_vertical="center",
         start_msec=0,
     )
+    key_reminder_card = nk.cards.TextCard(
+        x=0,
+        y=-0.2,
+        w=1,
+        h=0.1,
+        text="Is the ink color (r)ed, (g)reen, (b)lue, or (y)ellow?",
+    )
 
     sensors = {
         "red": nk.sensors.KeySensor(
@@ -109,7 +116,7 @@ def make_stroop_trial(
     }
 
     main_node = nk.Node(
-        cards={"stroop-stimulus": stimulus_card},
+        cards={"stroop-stimulus": stimulus_card, 'key-reminder': key_reminder_card},
         sensors=sensors,
         board_color="#FFFFFF",  # White background
     )
