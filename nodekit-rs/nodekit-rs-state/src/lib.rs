@@ -1,4 +1,3 @@
-mod timer;
 mod video;
 mod error;
 
