@@ -40,8 +40,8 @@ export class VideoCardView extends CardView<VideoCard> {
         // Timeout after two frames:
         let timeout = new Promise((_, reject) => {
             setTimeout(() => {
-                reject(new Error("Video failed to play within 2 frames!"))
-            }, 33);
+                reject(new Error("Video failed to play within 4 frames!"))
+            }, 66);
         });
         // Check if the video is playing:
         let playing = new Promise((resolve, _) => {
@@ -53,13 +53,16 @@ export class VideoCardView extends CardView<VideoCard> {
            }
         });
         // Start playing the video now. Throw an error if it doesn't start within two frames:
-        this.video.play()
-        let startedSuccessfully = Promise.race([playing, timeout]);
+        if (this.card.start){ // todo: remove this hack and expose start/stop/scrub public methods on VideoCard
+            this.video.play()
+            let startedSuccessfully = Promise.race([playing, timeout]);
 
-        // Catch a playback error, but just keep going:
-        startedSuccessfully.catch((e) => {
-            console.error(e);
-        })
+            // Catch a playback error, but just keep going:
+            startedSuccessfully.catch((e) => {
+                console.error(e);
+            })
+        }
+
     }
 
     onStop() {

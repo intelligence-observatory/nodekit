@@ -301,6 +301,7 @@ declare interface VideoCard extends BaseCard<'VideoCard'> {
     video: Video;
     muted: boolean;
     loop: boolean;
+    start: boolean;
 }
 
 declare interface ZipArchiveInnerPath extends BaseLocator<"ZipArchiveInnerPath"> {

@@ -5253,20 +5253,20 @@ class ic extends Ln {
   onStart() {
     if (!this.video)
       throw new Error("Video not initialized. Did you forget to call load()?");
-    let e = new Promise((r, o) => {
+    let e = new Promise((i, r) => {
       setTimeout(() => {
-        o(new Error("Video failed to play within 2 frames!"));
-      }, 33);
-    }), t = new Promise((r, o) => {
+        r(new Error("Video failed to play within 4 frames!"));
+      }, 66);
+    }), t = new Promise((i, r) => {
       if (!this.video)
         throw new Error("Video not initialized. Did you forget to call load()?");
       this.video.onplaying = () => {
-        r(null);
+        i(null);
       };
     });
-    this.video.play(), Promise.race([t, e]).catch((r) => {
+    this.card.start && (this.video.play(), Promise.race([t, e]).catch((r) => {
       console.error(r);
-    });
+    }));
   }
   onStop() {
     this.video && (this.video.pause(), this.video.currentTime = 0);

@@ -12,19 +12,20 @@ https://cogtoolslab.github.io/pdf/BWMB_neurips_2021.pdf
 
 import nodekit as nk
 import random
-from typing import Literal
+
 def make_physion_trial(
         seed: int,
         selector_mask: nk.assets.Image,
         video: nk.assets.Video,
-        correct_answer: bool, # yes / no
-        prompt: str = 'Will the red object touch the yellow object?'
+        prompt: str = 'Will the **red object** touch the **yellow object**?'
 ) -> nk.Graph:
     gen = random.Random(seed)
 
     fixation_node = nk.Node(
         cards={
-            'fixation-cross': nk.cards.TextCard(text='+', font_size=0.02, x=0, y=0, w=0.05, h=0.05),
+            'fixation-cross': nk.cards.TextCard(
+                x=0, y=0, w=0.0375, h=0.0375, text=r"\+", font_size=0.03
+            )
         },
         sensors={
             'fixated': nk.sensors.TimeoutSensor(
@@ -40,6 +41,59 @@ def make_physion_trial(
         h=0.5,
         z_index=1,
         video=video,
+        start_msec=0,
+        end_msec=3501,
+        start=False,
+    )
+
+    # hack
+    video_card_playing = nk.cards.VideoCard(
+        x=0,
+        y=0,
+        w=0.5,
+        h=0.5,
+        z_index=2,
+        video=video,
+        start_msec=2000,
+        end_msec=3500,
+        start=True,
+    )
+
+    background_color = '#d4d2d2'
+    prompt_card = nk.cards.TextCard(
+        start_msec=3500,
+        end_msec=None,
+        text=prompt,
+        x=0,
+        y=-0.3,
+        w=0.7,
+        h=0.075,
+        background_color=background_color,
+        font_size=0.02,
+    )
+
+    yes_card = nk.cards.TextCard(
+        start_msec=3500,
+        end_msec=None,
+        text='Yes',
+        x=0.35,
+        y=-0.42,
+        w=0.1,
+        h=0.1,
+        background_color=background_color,
+        selectable=True,
+    )
+
+    no_card = nk.cards.TextCard(
+        start_msec=3500,
+        end_msec=None,
+        text='No',
+        x=-0.35,
+        y=-0.42,
+        w=0.1,
+        h=0.1,
+        background_color=background_color,
+        selectable=True,
     )
 
     # Schedule the mask flickers
@@ -56,12 +110,29 @@ def make_physion_trial(
     main_node = nk.Node(
         cards={
             'video': video_card,
+            'video-playing': video_card_playing,
+            'prompt': prompt_card,
+            'yes-card': yes_card,
+            'no_card': no_card,
         } | {
-            f'mask-frame-{i}': make_mask_card(i) for i in range(2)
+            f'selector-frame-{i}': make_mask_card(i) for i in range(2)
         },
         sensors={
-            'fixated': nk.sensors.TimeoutSensor(
-                timeout_msec=60000
+            'yes': nk.sensors.ClickSensor(
+                start_msec=yes_card.start_msec,
+                end_msec=yes_card.end_msec,
+                x=yes_card.x,
+                y=yes_card.y,
+                w=yes_card.w,
+                h=yes_card.h,
+            ),
+            'no': nk.sensors.ClickSensor(
+                start_msec=no_card.start_msec,
+                end_msec=no_card.end_msec,
+                x=no_card.x,
+                y=no_card.y,
+                w=no_card.w,
+                h=no_card.h,
             )
         }
     )
@@ -73,7 +144,7 @@ def make_physion_trial(
         },
         start='fixation',
         transitions = {
-            'fixation': {'fixated':'main'}
+            'fixation': {'fixated':'main'},
         }
     )
 
@@ -88,7 +159,6 @@ if __name__ == '__main__':
         seed=0,
         selector_mask=image_mask,
         video=video,
-        correct_answer=False,
     )
 
     # %%

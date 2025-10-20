@@ -27,6 +27,7 @@ export interface VideoCard extends BaseCard<'VideoCard'>{
     video: Video;
     muted: boolean;
     loop: boolean;
+    start: boolean;
 }
 
 export interface TextCard extends BaseCard<'TextCard'>, SelectableMixin{
