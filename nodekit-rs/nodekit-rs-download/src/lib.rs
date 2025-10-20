@@ -15,6 +15,8 @@ use std::fs::{create_dir_all, read, write};
 use std::path::{Path, PathBuf};
 use url::Url;
 
+const HASH_LEN: usize = 32;
+
 /// Queue up downloads and then download them in parallel.
 pub struct Downloader {
     directory: PathBuf,
@@ -45,7 +47,7 @@ impl Downloader {
     pub fn add_download(
         &mut self,
         url: Url,
-        hash: [u8; 32],
+        hash: [u8; HASH_LEN],
         media_type: MediaType,
     ) -> Result<bool, Error> {
         let filename = url
@@ -88,6 +90,18 @@ impl Downloader {
         .collect()
     }
 
+    /// Convert a SHA-256 hex string to a byte array.
+    pub fn sha256_string_to_hash(s: &str) -> Result<[u8; HASH_LEN], Error> {
+        let bytes = s.as_bytes();
+        if bytes.len() == HASH_LEN {
+            let mut hash = [0; 32];
+            hash.copy_from_slice(bytes);
+            Ok(hash)
+        } else {
+            Err(Error::BadHash(s.to_string()))
+        }
+    }
+
     /// Download from a single URL.
     async fn download_from_url(download: Download) -> Result<(Download, Bytes), Error> {
         let response = Client::new()
@@ -112,9 +126,9 @@ impl Downloader {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use jpeg_decoder::Decoder;
     use std::fs::File;
     use std::io::BufReader;
-    use jpeg_decoder::Decoder;
     use tempdir::TempDir;
     use uuid::Uuid;
 

@@ -11,4 +11,6 @@ pub enum Error {
     Reqwest(reqwest::Error),
     #[error("Failed to write file to cache directory: {0}")]
     Write(std::io::Error),
+    #[error("Invalid hash: {0}")]
+    BadHash(String),
 }
