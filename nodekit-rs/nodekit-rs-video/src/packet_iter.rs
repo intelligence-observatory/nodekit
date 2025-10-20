@@ -3,6 +3,7 @@ use ffmpeg_next::{Error, Packet, Stream};
 use std::marker::PhantomData;
 use std::mem;
 
+/// A rewrite of `PacketIter` in `ffmpeg-next` that consumes the input context.
 pub struct PacketIter<'a> {
     context: Input,
     _a: PhantomData<&'a ()>,

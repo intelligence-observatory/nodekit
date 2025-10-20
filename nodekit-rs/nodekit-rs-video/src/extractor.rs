@@ -1,14 +1,17 @@
-use ffmpeg_next::format::Pixel;
 use ffmpeg_next::{
-    Error, Packet,
+    format::{
+        Pixel,
+        context::Input
+    },
+    Error,
+    Packet,
     codec::{
         context::Context,
         decoder::{Audio, Video},
     },
-    format::context::Input,
     media::Type,
     software::scaling::{Context as ScalingContext, Flags},
-    util::frame::{audio::Audio as AudioFrame, video::Video as VideoFrame},
+    util::frame::{audio::Audio as AudioFrame, video::Video as VideoFrame}
 };
 
 macro_rules! decoder {
@@ -43,7 +46,7 @@ macro_rules! fns {
     };
 }
 
-/// Extract frames from a stream.
+/// Extract audio frames from a stream.
 pub struct AudioExtractor {
     /// The index of this stream in the video file.
     stream_index: usize,
@@ -66,7 +69,7 @@ impl AudioExtractor {
     fns!(Audio, audio);
 }
 
-/// Extract video frames.
+/// Extract video frames from a stream.
 pub struct VideoExtractor {
     /// The index of this stream in the video file.
     stream_index: usize,

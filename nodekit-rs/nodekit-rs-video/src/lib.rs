@@ -1,23 +1,38 @@
+//! This crate provides the means of extracting frame data from a video.
+//! It doesn't provide any blitting or processing functionality.
+
 mod extractor;
 mod frame;
+mod packet_iter;
 
-use crate::packet_iter::PacketIter;
 use extractor::{AudioExtractor, VideoExtractor};
-use ffmpeg_next::format::input;
-use ffmpeg_next::util::frame::{audio::Audio as AudioFrame, video::Video as VideoFrame};
+use packet_iter::PacketIter;
+use ffmpeg_next::{
+    format::input,
+    util::frame::{audio::Audio as AudioFrame, video::Video as VideoFrame}
+};
 pub use frame::Frame;
-use std::collections::VecDeque;
-use std::path::Path;
+use std::{
+    collections::VecDeque,
+    path::Path
+};
 
-pub struct Extractor<'e> {
+/// Extract frames from a video.
+/// This opens a video and keeps it open until `FrameExtractor` is dropped.
+pub struct FrameExtractor<'e> {
     packet_iter: PacketIter<'e>,
+    /// None if the video doesn't have audio.
     audio: Option<AudioExtractor>,
     video: VideoExtractor,
+    /// Pending video frames. The extractors can extract more than one frame.
     video_frames: VecDeque<VideoFrame>,
+    /// Pending audio frames. The extractors can extract more than one frame.
     audio_frames: VecDeque<AudioFrame>,
 }
 
-impl Extractor<'_> {
+impl FrameExtractor<'_> {
+    /// - `path` is the path to the video.
+    /// - `width` and `height` are the dimensions that we want to scale each video frame to.
     pub fn new<P: AsRef<Path>>(
         path: P,
         width: u32,
@@ -36,6 +51,10 @@ impl Extractor<'_> {
         })
     }
 
+    /// Read packets and try to get a new frame.
+    /// 
+    /// Returns an error if there was an underlying extraction error or if it's the end of the file.
+    /// Returns None if there are no frames yet.
     pub fn get_next_frame(&mut self) -> Result<Option<Frame>, ffmpeg_next::Error> {
         if let Some((stream, packet)) = self.packet_iter.next() {
             if let Some(audio) = self.audio.as_mut()
