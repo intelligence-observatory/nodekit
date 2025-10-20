@@ -23,8 +23,13 @@ def concat(
     # Generate IDs:
     if ids and len(ids) != len(sequence):
         raise ValueError("If ids are given, must be the same length as sequence.")
+
+    if ids is not None and len(set(ids)) != len(ids):
+        raise ValueError("If ids are given, they must be unique.")
+
     if not ids:
         ids: List[NodeId] = [f"{i}" for i in range(len(sequence))]
+
     if len(set(ids)) != len(ids):
         raise ValueError("If ids are given, they must be unique.")
     
