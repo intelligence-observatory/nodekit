@@ -1,0 +1,6 @@
+table Display {
+    image:[ubyte];
+}
+
+root_type Display;
+file_identifier "disp";
