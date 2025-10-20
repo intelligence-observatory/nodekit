@@ -1,17 +1,13 @@
 use ffmpeg_next::{
-    format::{
-        Pixel,
-        context::Input
-    },
-    Error,
-    Packet,
+    Error, Packet,
     codec::{
         context::Context,
         decoder::{Audio, Video},
     },
+    format::{Pixel, context::Input},
     media::Type,
     software::scaling::{Context as ScalingContext, Flags},
-    util::frame::{audio::Audio as AudioFrame, video::Video as VideoFrame}
+    util::frame::{audio::Audio as AudioFrame, video::Video as VideoFrame},
 };
 
 macro_rules! decoder {

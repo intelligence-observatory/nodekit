@@ -6,16 +6,13 @@ mod frame;
 mod packet_iter;
 
 use extractor::{AudioExtractor, VideoExtractor};
-use packet_iter::PacketIter;
 use ffmpeg_next::{
     format::input,
-    util::frame::{audio::Audio as AudioFrame, video::Video as VideoFrame}
+    util::frame::{audio::Audio as AudioFrame, video::Video as VideoFrame},
 };
 pub use frame::Frame;
-use std::{
-    collections::VecDeque,
-    path::Path
-};
+use packet_iter::PacketIter;
+use std::{collections::VecDeque, path::Path};
 
 /// Extract frames from a video.
 /// This opens a video and keeps it open until `FrameExtractor` is dropped.
@@ -52,7 +49,7 @@ impl FrameExtractor<'_> {
     }
 
     /// Read packets and try to get a new frame.
-    /// 
+    ///
     /// Returns an error if there was an underlying extraction error or if it's the end of the file.
     /// Returns None if there are no frames yet.
     pub fn get_next_frame(&mut self) -> Result<Option<Frame>, ffmpeg_next::Error> {

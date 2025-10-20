@@ -44,9 +44,6 @@ impl Asset {
     pub fn new(asset: &nodekit_rs_fb::Asset) -> Option<Self> {
         let path = AssetPath::new(asset)?;
         let hash = asset.hash()?.to_string();
-        Some(Self {
-            path, 
-            hash
-        })
+        Some(Self { path, hash })
     }
 }

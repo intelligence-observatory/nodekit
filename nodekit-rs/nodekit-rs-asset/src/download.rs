@@ -1,21 +1,25 @@
-//! Download files in parallel and sort them by media type.
-
-mod download;
-mod error;
-mod media_type;
-
+use crate::asset::Asset;
+use crate::error::Error;
+use crate::media_type::MediaType;
+use crate::{HASH_LEN, Hash};
 use bytes::Bytes;
-use download::Download;
-pub use error::Error;
 use futures::future::join_all;
-pub use media_type::MediaType;
 use reqwest::Client;
 use sha2::{Digest, Sha256};
-use std::fs::{create_dir_all, read, write};
-use std::path::{Path, PathBuf};
+use std::{
+    fs::{read, write},
+    path::{Path, PathBuf},
+};
 use url::Url;
 
-const HASH_LEN: usize = 32;
+pub(crate) struct Download {
+    /// The source URL.
+    pub url: Url,
+    pub hash: Hash,
+    /// The returned data will be written to this path.
+    pub path: PathBuf,
+    pub media_type: MediaType,
+}
 
 /// Queue up downloads and then download them in parallel.
 pub struct Downloader {
@@ -26,12 +30,11 @@ pub struct Downloader {
 impl Downloader {
     /// `directory` is a path on your local machine.
     /// All downloads will write to this directory.
-    pub fn new<P: AsRef<Path>>(directory: P) -> Result<Self, Error> {
-        create_dir_all(directory.as_ref()).map_err(Error::CreateDir)?;
-        Ok(Self {
+    pub fn new<P: AsRef<Path>>(directory: P) -> Self {
+        Self {
             directory: directory.as_ref().to_path_buf(),
             downloads: Vec::default(),
-        })
+        }
     }
 
     /// Add a new download.
@@ -44,7 +47,7 @@ impl Downloader {
     ///
     /// Returns true if a download was added.
     /// Returns false if the file already exists.
-    pub fn add_download(
+    pub fn add(
         &mut self,
         url: Url,
         hash: [u8; HASH_LEN],
@@ -52,9 +55,9 @@ impl Downloader {
     ) -> Result<bool, Error> {
         let filename = url
             .path_segments()
-            .ok_or_else(|| Error::NoFilename(url.clone()))?
+            .ok_or_else(|| Error::NoUrlFilename(url.clone()))?
             .next_back()
-            .ok_or_else(|| Error::NoFilename(url.clone()))?;
+            .ok_or_else(|| Error::NoUrlFilename(url.clone()))?;
         let path = self.directory.join(filename);
 
         // If the path exists, the file is readable, and the file has the same hash as `hash`, don't download.
@@ -68,13 +71,14 @@ impl Downloader {
                 url,
                 path,
                 media_type,
+                hash,
             });
             Ok(true)
         }
     }
 
-    /// Download in parallel every URL that you added in [`Self::add_download()`]
-    pub async fn download(&mut self) -> Vec<Result<Download, Error>> {
+    /// Download in parallel every URL that you added in [`Self::add()`]
+    pub async fn download(&mut self) -> Vec<Result<Asset, Error>> {
         // Drain the downloads because otherwise we'd need to move `self.downloads`.
         let mut downloads = Vec::default();
         downloads.append(&mut self.downloads);
@@ -88,18 +92,6 @@ impl Downloader {
         .into_iter()
         .map(Self::write)
         .collect()
-    }
-
-    /// Convert a SHA-256 hex string to a byte array.
-    pub fn sha256_string_to_hash(s: &str) -> Result<[u8; HASH_LEN], Error> {
-        let bytes = s.as_bytes();
-        if bytes.len() == HASH_LEN {
-            let mut hash = [0; 32];
-            hash.copy_from_slice(bytes);
-            Ok(hash)
-        } else {
-            Err(Error::BadHash(s.to_string()))
-        }
     }
 
     /// Download from a single URL.
@@ -116,10 +108,10 @@ impl Downloader {
     }
 
     /// Try to write the downloaded content to disk.
-    fn write(result: Result<(Download, Bytes), Error>) -> Result<Download, Error> {
-        let (downloadable, bytes) = result?;
-        write(&downloadable.path, bytes.as_ref()).map_err(Error::Write)?;
-        Ok(downloadable)
+    fn write(result: Result<(Download, Bytes), Error>) -> Result<Asset, Error> {
+        let (download, bytes) = result?;
+        write(&download.path, bytes.as_ref()).map_err(Error::Write)?;
+        Ok(Asset::from(download))
     }
 }
 
@@ -136,19 +128,15 @@ mod tests {
     async fn test_downloads() {
         let temp_dir = TempDir::new(&Uuid::new_v4().to_string()).unwrap();
         let directory = temp_dir.path().to_path_buf();
-        let mut downloader = Downloader::new(directory).unwrap();
+        let mut downloader = Downloader::new(directory);
 
         let url = Url::parse("https://images.pdimagearchive.org/collections/highlights-from-the-20000-maps-made-freely-available-online-by-new-york-public-library/13540188983_fa3794cab9_b.jpg?width=760&height=800").unwrap();
         let hash = *b"\xb7R\xddb\x18}_:JRk\x81B\xd4j1\"\xb7\x84\x84\xbf[p\xd5\xa1\x8a\x02\xb4\xa0\xa3\x1f\xce";
-        downloader
-            .add_download(url, hash, MediaType::Image)
-            .unwrap();
+        downloader.add(url, hash, MediaType::Image).unwrap();
 
         let url = Url::parse("https://images.pdimagearchive.org/collections/maps-of-the-lower-mississippi-harold-fisk/fisk08-edit.jpg?width=1000&height=800").unwrap();
         let hash = *b"\xbd\xf5\xdeW\x9c>!\x08\x1b\xc8c4\xdc\xb2\xdb9%\xc3\xb3\x864\x19\x8ed@\xb6\x02\x19\xc6u,\x92";
-        downloader
-            .add_download(url, hash, MediaType::Image)
-            .unwrap();
+        downloader.add(url, hash, MediaType::Image).unwrap();
 
         downloader
             .download()

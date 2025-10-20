@@ -1,5 +1,5 @@
-mod video;
 mod error;
+mod video;
 
 use blittle::Size;
 

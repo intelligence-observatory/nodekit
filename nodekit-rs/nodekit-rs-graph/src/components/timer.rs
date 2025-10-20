@@ -4,7 +4,7 @@ pub enum TimerState {
     StartedNow,
     Running,
     EndedNow,
-    Finished
+    Finished,
 }
 pub struct Timer {
     t0: u32,
@@ -20,13 +20,13 @@ impl Timer {
             self.state = TimerState::StartedNow;
         }
         // End.
-        else if let Some(t1) = self.t1 && self.t == t1 {
+        else if let Some(t1) = self.t1
+            && self.t == t1
+        {
             self.state = TimerState::EndedNow;
-        }
-        else if self.state == TimerState::StartedNow {
+        } else if self.state == TimerState::StartedNow {
             self.state = TimerState::Running;
-        }
-        else if self.state == TimerState::EndedNow {
+        } else if self.state == TimerState::EndedNow {
             self.state = TimerState::Finished;
         }
         self.t += 1;
@@ -37,7 +37,7 @@ impl Timer {
             t0,
             t1,
             t: 0,
-            state: TimerState::NotStarted
+            state: TimerState::NotStarted,
         }
     }
 }

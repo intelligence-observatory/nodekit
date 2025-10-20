@@ -1,4 +1,4 @@
-use crate::{Card, CardKey, Text, Timer, deserialize_system, Asset};
+use crate::{Asset, Card, CardKey, Text, Timer, deserialize_system};
 use nodekit_rs_fb::MediaType;
 use slotmap::{SecondaryMap, SlotMap};
 
