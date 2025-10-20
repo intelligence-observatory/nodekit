@@ -1,6 +1,7 @@
 import pytest
 import nodekit as nk
 
+
 # %% Helper functions
 def get_fixation_node() -> nk.Node:
     click_sensor = nk.sensors.ClickSensor(
@@ -48,7 +49,6 @@ def get_negative_node():
     )
 
 
-
 def test_example_pass():
     # Example 1:
     # Visual structure:
@@ -74,7 +74,6 @@ def test_example_pass():
     nodes["negative_1"] = get_negative_node()
     nodes["positive_1"] = get_positive_node()
 
-
     transitions = {}
     transitions["response_1"] = {
         "left": "positive_1" if correct[0] == "left" else "negative_1",
@@ -82,20 +81,18 @@ def test_example_pass():
     }
 
     response = nk.Graph(
-        nodes=nodes, start="response_1", 
+        nodes=nodes,
+        start="response_1",
         transitions=transitions,
-        )
+    )
 
     fix_1 = get_fixation_node()
     stim_1 = get_stimulus_node()
     fix_2 = get_fixation_node()
     stim_2 = get_stimulus_node()
 
-    ids = ['fixation_1', 'stimulus_1', 'trial_1', 'fixation_2', 'stimulus_2']
-    graph = nk.concat(
-        [fix_1, stim_1, response, fix_2, stim_2],
-        ids=ids
-        )
+    ids = ["fixation_1", "stimulus_1", "trial_1", "fixation_2", "stimulus_2"]
+    graph = nk.concat([fix_1, stim_1, response, fix_2, stim_2], ids=ids)
 
     # Check basic Graph properties:
     assert isinstance(graph, nk.Graph)
@@ -123,9 +120,7 @@ def test_example_pass():
                 outgoing = set(graph.transitions.get(node_id, {}).keys())
 
                 missing = sensors - outgoing
-                assert not missing, (
-                    f"Node {node_id} has unconnected sensors: {missing}"
-                )
+                assert not missing, f"Node {node_id} has unconnected sensors: {missing}"
 
 
 def test_concat_invalid_element():
@@ -134,7 +129,7 @@ def test_concat_invalid_element():
     bad_item = "not_a_graph"
 
     with pytest.raises(TypeError, match="must be `Node` or `Graph`"):
-        nk.concat([fix, stim, bad_item])
+        nk.concat([fix, stim, bad_item])  # type: ignore[arg-type]
 
 
 def test_concat_duplicate_ids():
@@ -149,7 +144,9 @@ def test_concat_preserves_internal_edges():
     node_a = nk.Node(cards={}, sensors={"x": nk.sensors.TimeoutSensor(timeout_msec=1)})
     node_b = nk.Node(cards={}, sensors={"y": nk.sensors.TimeoutSensor(timeout_msec=1)})
 
-    g = nk.Graph(nodes={"A": node_a, "B": node_b}, start="A", transitions={"A": {"x": "B"}})
+    g = nk.Graph(
+        nodes={"A": node_a, "B": node_b}, start="A", transitions={"A": {"x": "B"}}
+    )
 
     extra = nk.Node(cards={}, sensors={"z": nk.sensors.TimeoutSensor(timeout_msec=1)})
 

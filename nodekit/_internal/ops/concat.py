@@ -32,7 +32,7 @@ def concat(
 
     if len(set(ids)) != len(ids):
         raise ValueError("If ids are given, they must be unique.")
-    
+
     # Validate sequence items:
     if any(not isinstance(x, (Node, Graph)) for x in sequence):
         raise TypeError("All elements in sequence must be `Node` or `Graph`.")
@@ -48,9 +48,7 @@ def concat(
             nodes[current_node_id] = child
 
             # Add connection with NodeId and SensorId pair for the node:
-            connections.append([
-                (current_node_id, sensor) for sensor in child.sensors
-            ])
+            connections.append([(current_node_id, sensor) for sensor in child.sensors])
 
         elif isinstance(child, Graph):
             # Register nodes with namespaced ids:
@@ -85,11 +83,12 @@ def concat(
         from_list = connections[i]
 
         # Get next node id:
-        if isinstance(sequence[i + 1], Node):
+        next_element = sequence[i + 1]
+        if isinstance(next_element, Node):
             to_node = ids[i + 1]
 
-        if isinstance(sequence[i + 1], Graph):
-            to_node = f"{ids[i + 1]}/{sequence[i + 1].start}"
+        if isinstance(next_element, Graph):
+            to_node = f"{ids[i + 1]}/{next_element.start}"
 
         # From connections create transitions to next node:
         for from_id, sensor_id in from_list:
