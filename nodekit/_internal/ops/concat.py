@@ -16,7 +16,7 @@ def concat(
     A convenience method for returning a Graph which executes the given List[Node | Graph]  in the given order.
     The items are automatically issued namespace ids '0', '1', ... in order, unless `ids` is given.
     """
-    #
+    # Check sequence length:
     if len(sequence) == 0:
         raise ValueError("Sequence must have at least one item.")
 
@@ -27,33 +27,44 @@ def concat(
         ids: List[NodeId] = [f"{i}" for i in range(len(sequence))]
     if len(set(ids)) != len(ids):
         raise ValueError("If ids are given, they must be unique.")
+    
+    # Validate sequence items:
+    if any(not isinstance(x, (Node, Graph)) for x in sequence):
+        raise TypeError("All elements in sequence must be `Node` or `Graph`.")
 
     # Assemble Graph:
     nodes: Dict[NodeId, Node] = {}
     transitions: Dict[NodeId, Dict[SensorId, NodeId]] = {}
-    connections: List[Tuple[List[NodeId], NodeId]]
+    connections: List[List[Tuple[NodeId, SensorId]]] = []
 
     for i_child, child in enumerate(sequence):
         if isinstance(child, Node):
-            # Register the Node
             current_node_id = ids[i_child]
             nodes[current_node_id] = child
 
-            if i_child > 0:
-                connections.append()
-        
+            # Add connection with NodeId and SensorId pair for the node:
+            connections.append([
+                (current_node_id, sensor) for sensor in child.sensors
+            ])
+
         elif isinstance(child, Graph):
             # Register nodes with namespaced ids:
             current_node_namespace = ids[i_child]
-            terminal_in_graph = []
+            terminal: List[Tuple[NodeId, SensorId]] = []
+
             for node_id, node in child.nodes.items():
-                # Add namespace prefix
+                # Add namespace prefix:
                 new_id = f"{current_node_namespace}/{node_id}"
                 nodes[new_id] = node
 
-            terminal_nodes.append(terminal_in_graph)
+                # Add connection with NodeId and SensorId pair for terminal nodes and nodes with hanging sensors:
+                for sensor in node.sensors:
+                    if sensor not in child.transitions.get(node_id, {}):
+                        terminal.append((new_id, sensor))
 
-            # Add transitions that describe the internal structure of this sub-graph:
+            connections.append(terminal)
+
+            # Redo internal transitions with namespaced ids:
             for from_id, sensor_map in child.transitions.items():
                 new_from_id = f"{current_node_namespace}/{from_id}"
                 transitions[new_from_id] = {
@@ -61,30 +72,30 @@ def concat(
                     for sensor_id, to_id in sensor_map.items()
                 }
 
-            if i_child > 0:
-                start_nodes.append(f"{current_node_namespace}/{child.start}")
-
         else:
             raise ValueError(f"Invalid item in sequence: {child}")
-    
-    print(start_nodes, terminal_nodes)
-    # Add transitions that describe the connections between items in sequence:
-    for src, dst in zip(terminal_nodes, start_nodes):
-        if isinstance(src, List):
-            for s in src:
-                current_sensors = nodes[s].sensors
-                transitions[s] = {sensor: dst for sensor in current_sensors}
-        else:
-            current_sensors = nodes[src].sensors
-            transitions[src] = {sensor: dst for sensor in current_sensors}
+
+    # Create transitions between items in sequence:
+    for i in range(len(connections) - 1):
+        from_list = connections[i]
+
+        # Get next node id:
+        if isinstance(sequence[i + 1], Node):
+            to_node = ids[i + 1]
+
+        if isinstance(sequence[i + 1], Graph):
+            to_node = f"{ids[i + 1]}/{sequence[i + 1].start}"
+
+        # From connections create transitions to next node:
+        for from_id, sensor_id in from_list:
+            transitions.setdefault(from_id, {})[sensor_id] = to_node
 
     # Derive the start node id
     if isinstance(sequence[0], Node):
         start_node_id = ids[0]
-    elif isinstance(sequence[0], Graph):
+
+    if isinstance(sequence[0], Graph):
         start_node_id = f"{ids[0]}/{sequence[0].start}"
-    else:
-        raise ValueError(f"Invalid item in sequence: {sequence[0]}")
 
     return Graph(
         nodes=nodes,
