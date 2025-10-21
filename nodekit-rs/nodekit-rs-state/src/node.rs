@@ -1,19 +1,20 @@
 use hashbrown::HashMap;
 use slotmap::new_key_type;
 use crate::components::SensorKey;
+use crate::systems::*;
 
 new_key_type! { pub struct NodeKey; }
 
 #[derive(Default)]
-pub struct Node {
-    pub cards: Cards,
+pub struct Node<'n> {
+    pub cards: Cards<'n>,
     pub sensors: Sensors,
     pub effects: Effects,
     pub board_color: [u8; 3],
 }
 
 pub struct ReturnedNode<'n> {
-    pub node: Node,
+    pub node: Node<'n>,
     pub sensor_ids: HashMap<&'n str, SensorKey>,
     pub id: String,
 }
