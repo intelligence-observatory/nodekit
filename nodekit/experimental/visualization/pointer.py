@@ -59,8 +59,8 @@ def make_animation(
     tau_size_ms_up = tau_alpha_ms_up
 
     # Sizes (scatter 's' is points^2)
-    down_size0 = 180.0 * scale ** 2
-    up_size0   = 800.0 * scale ** 2
+    down_size0 = 90.0 * scale ** 2
+    up_size0   = 400.0 * scale ** 2
 
 
     # Line widths
