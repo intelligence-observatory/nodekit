@@ -91,9 +91,9 @@ def make_trial(
         start_msec=stimulus_duration + post_stimulus_delay,
         x=0,
         y=0.35,
-        w=0.7,
+        w=0.35,
         h=0.1,
-        # background_color='#c8c8c8',
+        background_color='#c8c8c8',
     )
 
     click_left = nk.sensors.ClickSensor(
