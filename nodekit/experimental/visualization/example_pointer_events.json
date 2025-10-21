@@ -1,0 +1,7570 @@
+{
+  "30OG32W0SHHGM06WQ8T6E28CDO6NEI": [
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 437,
+      "kind": "move",
+      "x": -0.052734375,
+      "y": -0.0494791667
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 483,
+      "kind": "move",
+      "x": -0.044921875,
+      "y": -0.0481770833
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 517,
+      "kind": "move",
+      "x": -0.0384114583,
+      "y": -0.046875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 567,
+      "kind": "move",
+      "x": 0.0045572917,
+      "y": -0.0846354167
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 617,
+      "kind": "move",
+      "x": 0.0358072917,
+      "y": -0.1236979167
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 669,
+      "kind": "move",
+      "x": 0.068359375,
+      "y": -0.1302083333
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 719,
+      "kind": "move",
+      "x": 0.0904947917,
+      "y": -0.1119791667
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 767,
+      "kind": "move",
+      "x": 0.1634114583,
+      "y": -0.1119791667
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 817,
+      "kind": "move",
+      "x": 0.1647135417,
+      "y": -0.1106770833
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 871,
+      "kind": "move",
+      "x": 0.1647135417,
+      "y": -0.109375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1038,
+      "kind": "move",
+      "x": 0.1673177083,
+      "y": -0.1080729167
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1080,
+      "kind": "down",
+      "x": 0.1712239583,
+      "y": -0.1067708333
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1245,
+      "kind": "move",
+      "x": 0.169921875,
+      "y": -0.1067708333
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1303,
+      "kind": "move",
+      "x": 0.142578125,
+      "y": -0.1067708333
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1368,
+      "kind": "move",
+      "x": 0.1295572917,
+      "y": -0.1067708333
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1404,
+      "kind": "move",
+      "x": 0.126953125,
+      "y": -0.1067708333
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1436,
+      "kind": "move",
+      "x": 0.1217447917,
+      "y": -0.1067708333
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1476,
+      "kind": "move",
+      "x": 0.1204427083,
+      "y": -0.1067708333
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1518,
+      "kind": "move",
+      "x": 0.1126302083,
+      "y": -0.1067708333
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1570,
+      "kind": "move",
+      "x": 0.087890625,
+      "y": -0.1067708333
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1620,
+      "kind": "move",
+      "x": 0.0657552083,
+      "y": -0.1067708333
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1670,
+      "kind": "move",
+      "x": 0.0579427083,
+      "y": -0.1067708333
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1756,
+      "kind": "up",
+      "x": 0.0579427083,
+      "y": -0.1067708333
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1772,
+      "kind": "move",
+      "x": 0.0579427083,
+      "y": -0.1067708333
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1971,
+      "kind": "move",
+      "x": 0.056640625,
+      "y": -0.1080729167
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2019,
+      "kind": "move",
+      "x": 0.0592447917,
+      "y": -0.1119791667
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2071,
+      "kind": "move",
+      "x": 0.060546875,
+      "y": -0.1119791667
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2398,
+      "kind": "move",
+      "x": 0.0657552083,
+      "y": -0.1145833333
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2454,
+      "kind": "move",
+      "x": 0.1217447917,
+      "y": -0.1145833333
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2504,
+      "kind": "move",
+      "x": 0.2545572917,
+      "y": -0.1145833333
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2537,
+      "kind": "move",
+      "x": 0.2858072917,
+      "y": -0.1145833333
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2577,
+      "kind": "move",
+      "x": 0.2923177083,
+      "y": -0.1145833333
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2997,
+      "kind": "move",
+      "x": 0.2923177083,
+      "y": -0.11328125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3068,
+      "kind": "move",
+      "x": 0.291015625,
+      "y": -0.11328125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3116,
+      "kind": "move",
+      "x": 0.2884114583,
+      "y": -0.11328125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3189,
+      "kind": "move",
+      "x": 0.2845052083,
+      "y": -0.1145833333
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3717,
+      "kind": "down",
+      "x": 0.2845052083,
+      "y": -0.1145833333
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3916,
+      "kind": "up",
+      "x": 0.2845052083,
+      "y": -0.1145833333
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3974,
+      "kind": "move",
+      "x": 0.2845052083,
+      "y": -0.1158854167
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4024,
+      "kind": "move",
+      "x": 0.283203125,
+      "y": -0.1171875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4061,
+      "kind": "move",
+      "x": 0.279296875,
+      "y": -0.1184895833
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4181,
+      "kind": "move",
+      "x": 0.275390625,
+      "y": -0.1184895833
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4238,
+      "kind": "move",
+      "x": 0.2727864583,
+      "y": -0.1223958333
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4291,
+      "kind": "move",
+      "x": 0.2584635417,
+      "y": -0.1380208333
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4341,
+      "kind": "move",
+      "x": 0.1920572917,
+      "y": -0.1940104167
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4374,
+      "kind": "move",
+      "x": 0.1178385417,
+      "y": -0.2682291667
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4424,
+      "kind": "move",
+      "x": 0.0514322917,
+      "y": -0.375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4474,
+      "kind": "move",
+      "x": 0.0045572917,
+      "y": -0.4440104167
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4524,
+      "kind": "move",
+      "x": 0.0006510417,
+      "y": -0.4791666667
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4645,
+      "kind": "move",
+      "x": -0.001953125,
+      "y": -0.48828125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4765,
+      "kind": "down",
+      "x": -0.001953125,
+      "y": -0.48828125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4884,
+      "kind": "up",
+      "x": -0.001953125,
+      "y": -0.48828125
+    }
+  ],
+  "31EUONYN2I9F6WSUMDITTVW33TEVOB": [
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 161,
+      "kind": "move",
+      "x": 0.0045572917,
+      "y": -0.0763346354
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 718,
+      "kind": "move",
+      "x": 0.009765625,
+      "y": -0.0906575521
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 811,
+      "kind": "move",
+      "x": 0.2037760417,
+      "y": -0.0893554688
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 842,
+      "kind": "move",
+      "x": 0.3600260417,
+      "y": -0.0411783854
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 890,
+      "kind": "move",
+      "x": 0.4029947917,
+      "y": -0.0112304688
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 948,
+      "kind": "move",
+      "x": 0.322265625,
+      "y": 0.0030924479
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1077,
+      "kind": "move",
+      "x": 0.2623697917,
+      "y": 0.0096028646
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1078,
+      "kind": "move",
+      "x": 0.2610677083,
+      "y": 0.0083007813
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1159,
+      "kind": "move",
+      "x": 0.2662760417,
+      "y": -0.0437825521
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1198,
+      "kind": "move",
+      "x": 0.216796875,
+      "y": -0.0932617188
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1275,
+      "kind": "move",
+      "x": -0.0865885417,
+      "y": -0.1557617188
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1426,
+      "kind": "move",
+      "x": 0.1165364583,
+      "y": -0.1166992188
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1607,
+      "kind": "move",
+      "x": -0.0475260417,
+      "y": -0.1049804688
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1688,
+      "kind": "move",
+      "x": -0.0045572917,
+      "y": -0.1258138021
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1768,
+      "kind": "move",
+      "x": -0.1490885417,
+      "y": -0.1557617188
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1889,
+      "kind": "move",
+      "x": -0.0904947917,
+      "y": -0.1557617188
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2022,
+      "kind": "move",
+      "x": 0.064453125,
+      "y": -0.1557617188
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2057,
+      "kind": "move",
+      "x": 0.228515625,
+      "y": -0.1557617188
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2136,
+      "kind": "move",
+      "x": 0.216796875,
+      "y": -0.1544596354
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2400,
+      "kind": "move",
+      "x": 0.216796875,
+      "y": -0.1505533854
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2624,
+      "kind": "move",
+      "x": 0.1985677083,
+      "y": -0.1414388021
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2698,
+      "kind": "move",
+      "x": 0.1959635417,
+      "y": -0.1401367188
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2731,
+      "kind": "move",
+      "x": 0.193359375,
+      "y": -0.1375325521
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2916,
+      "kind": "move",
+      "x": 0.1920572917,
+      "y": -0.1375325521
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3011,
+      "kind": "move",
+      "x": 0.189453125,
+      "y": -0.1375325521
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3455,
+      "kind": "down",
+      "x": 0.1881510417,
+      "y": -0.1375325521
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3621,
+      "kind": "move",
+      "x": 0.189453125,
+      "y": -0.1380208333
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3742,
+      "kind": "move",
+      "x": 0.197265625,
+      "y": -0.1380208333
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3896,
+      "kind": "up",
+      "x": 0.197265625,
+      "y": -0.1380208333
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3926,
+      "kind": "move",
+      "x": 0.197265625,
+      "y": -0.1375325521
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4219,
+      "kind": "move",
+      "x": 0.009765625,
+      "y": -0.4422200521
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4277,
+      "kind": "move",
+      "x": 0.0123697917,
+      "y": -0.4435221354
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4323,
+      "kind": "move",
+      "x": 0.0123697917,
+      "y": -0.4487304688
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4406,
+      "kind": "move",
+      "x": 0.0123697917,
+      "y": -0.4552408854
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4428,
+      "kind": "move",
+      "x": 0.0123697917,
+      "y": -0.4578450521
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4479,
+      "kind": "move",
+      "x": 0.005859375,
+      "y": -0.4747721354
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4541,
+      "kind": "move",
+      "x": 0.001953125,
+      "y": -0.4812825521
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4595,
+      "kind": "move",
+      "x": 0.001953125,
+      "y": -0.4825846354
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4666,
+      "kind": "move",
+      "x": 0.0813802083,
+      "y": -0.4487304688
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4702,
+      "kind": "move",
+      "x": 0.1829427083,
+      "y": -0.3354492188
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4760,
+      "kind": "move",
+      "x": 0.2545572917,
+      "y": -0.0594075521
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4834,
+      "kind": "move",
+      "x": 0.2506510417,
+      "y": -0.0489908854
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4889,
+      "kind": "move",
+      "x": 0.232421875,
+      "y": -0.0489908854
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4961,
+      "kind": "move",
+      "x": 0.212890625,
+      "y": -0.0515950521
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5000,
+      "kind": "move",
+      "x": 0.2115885417,
+      "y": -0.0515950521
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5042,
+      "kind": "move",
+      "x": 0.201171875,
+      "y": -0.0724283854
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5103,
+      "kind": "move",
+      "x": 0.1829427083,
+      "y": -0.0971679688
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5165,
+      "kind": "move",
+      "x": 0.1829427083,
+      "y": -0.0984700521
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5294,
+      "kind": "down",
+      "x": 0.1829427083,
+      "y": -0.0984700521
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5356,
+      "kind": "move",
+      "x": 0.1829427083,
+      "y": -0.1002604167
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5416,
+      "kind": "move",
+      "x": 0.2311197917,
+      "y": -0.1002604167
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5489,
+      "kind": "move",
+      "x": 0.263671875,
+      "y": -0.1002604167
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5747,
+      "kind": "move",
+      "x": 0.2649739583,
+      "y": -0.1002604167
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6035,
+      "kind": "move",
+      "x": 0.2688802083,
+      "y": -0.1002604167
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6063,
+      "kind": "up",
+      "x": 0.2766927083,
+      "y": -0.1002604167
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6116,
+      "kind": "move",
+      "x": 0.2858072917,
+      "y": -0.0984700521
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6322,
+      "kind": "move",
+      "x": 0.287109375,
+      "y": -0.0984700521
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6448,
+      "kind": "down",
+      "x": 0.287109375,
+      "y": -0.0984700521
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6540,
+      "kind": "up",
+      "x": 0.287109375,
+      "y": -0.0984700521
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6687,
+      "kind": "move",
+      "x": 0.2740885417,
+      "y": -0.1036783854
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6745,
+      "kind": "move",
+      "x": 0.2272135417,
+      "y": -0.1635742188
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6866,
+      "kind": "move",
+      "x": 0.224609375,
+      "y": -0.1739908854
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6916,
+      "kind": "move",
+      "x": 0.2037760417,
+      "y": -0.1778971354
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 7010,
+      "kind": "move",
+      "x": 0.2024739583,
+      "y": -0.1909179688
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 7041,
+      "kind": "move",
+      "x": 0.1868489583,
+      "y": -0.2416992188
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 7104,
+      "kind": "move",
+      "x": 0.1139322917,
+      "y": -0.3146158854
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 7150,
+      "kind": "move",
+      "x": 0.111328125,
+      "y": -0.3185221354
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 7280,
+      "kind": "move",
+      "x": 0.083984375,
+      "y": -0.3901367188
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 7554,
+      "kind": "move",
+      "x": 0.0032552083,
+      "y": -0.4903971354
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 7787,
+      "kind": "down",
+      "x": 0.0032552083,
+      "y": -0.4838867188
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 7789,
+      "kind": "up",
+      "x": 0.0032552083,
+      "y": -0.4838867188
+    }
+  ],
+  "3IKZ72A5BRM8SE6SLJDCWKTCPPLNF0": [
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 187,
+      "kind": "move",
+      "x": 0.0060764352,
+      "y": 0.0173611244
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 254,
+      "kind": "move",
+      "x": 0.1050347686,
+      "y": 0.0156249603
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 289,
+      "kind": "move",
+      "x": 0.1276041865,
+      "y": 0.012152791
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 890,
+      "kind": "move",
+      "x": 0.1432291865,
+      "y": 0.012152791
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 949,
+      "kind": "move",
+      "x": -0.3585069378,
+      "y": -0.065972209
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1010,
+      "kind": "move",
+      "x": -0.4071180622,
+      "y": -0.0694444577
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1073,
+      "kind": "move",
+      "x": -0.4019097288,
+      "y": -0.065972209
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1136,
+      "kind": "move",
+      "x": -0.3914930622,
+      "y": -0.0607638756
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1198,
+      "kind": "move",
+      "x": -0.2647569378,
+      "y": -0.0798611244
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1229,
+      "kind": "move",
+      "x": -0.0251735648,
+      "y": -0.090277791
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1292,
+      "kind": "move",
+      "x": 0.0338541865,
+      "y": -0.0642361244
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1329,
+      "kind": "move",
+      "x": 0.0477431019,
+      "y": -0.0451388756
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1386,
+      "kind": "move",
+      "x": 0.0668402712,
+      "y": -0.0416667064
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1417,
+      "kind": "move",
+      "x": 0.0668402712,
+      "y": -0.0486111244
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1477,
+      "kind": "move",
+      "x": 0.0685764352,
+      "y": -0.0486111244
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1775,
+      "kind": "move",
+      "x": 0.4539931019,
+      "y": -0.0711805423
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1824,
+      "kind": "move",
+      "x": 0.4227431019,
+      "y": -0.0642361244
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1886,
+      "kind": "move",
+      "x": 0.3897569378,
+      "y": -0.059027791
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1917,
+      "kind": "move",
+      "x": 0.2439236045,
+      "y": -0.0451388756
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1979,
+      "kind": "move",
+      "x": 0.1258681019,
+      "y": -0.0451388756
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2089,
+      "kind": "move",
+      "x": 0.1258681019,
+      "y": -0.0451388756
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2126,
+      "kind": "move",
+      "x": 0.1276041865,
+      "y": -0.0451388756
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2167,
+      "kind": "move",
+      "x": 0.1397569378,
+      "y": -0.0694444577
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2209,
+      "kind": "move",
+      "x": 0.1536458532,
+      "y": -0.081597209
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2292,
+      "kind": "move",
+      "x": 0.2092014352,
+      "y": -0.1076388756
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2323,
+      "kind": "move",
+      "x": 0.2057291865,
+      "y": -0.1041667064
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2385,
+      "kind": "move",
+      "x": 0.1970486045,
+      "y": -0.0937500397
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2448,
+      "kind": "move",
+      "x": 0.1935764352,
+      "y": -0.0937500397
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2480,
+      "kind": "move",
+      "x": 0.1935764352,
+      "y": -0.0920138756
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2542,
+      "kind": "move",
+      "x": 0.1848958532,
+      "y": -0.0920138756
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2732,
+      "kind": "move",
+      "x": 0.1831597686,
+      "y": -0.0920138756
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2792,
+      "kind": "move",
+      "x": 0.1796875199,
+      "y": -0.0920138756
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2877,
+      "kind": "down",
+      "x": 0.1796875199,
+      "y": -0.0920138756
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2936,
+      "kind": "move",
+      "x": 0.1814236045,
+      "y": -0.0920138756
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3010,
+      "kind": "move",
+      "x": 0.1901041865,
+      "y": -0.0920138756
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3042,
+      "kind": "move",
+      "x": 0.2092014352,
+      "y": -0.0920138756
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3104,
+      "kind": "move",
+      "x": 0.3359375199,
+      "y": -0.0920138756
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3136,
+      "kind": "move",
+      "x": 0.4539931019,
+      "y": -0.1024305423
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3369,
+      "kind": "move",
+      "x": 0.4835069378,
+      "y": -0.105902791
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3369,
+      "kind": "up",
+      "x": 0.4835069378,
+      "y": -0.105902791
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3495,
+      "kind": "move",
+      "x": 0.4817708532,
+      "y": -0.105902791
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3542,
+      "kind": "move",
+      "x": 0.3289931019,
+      "y": -0.105902791
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3573,
+      "kind": "move",
+      "x": 0.2682291865,
+      "y": -0.1006944577
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3850,
+      "kind": "move",
+      "x": 0.2074652712,
+      "y": -0.0850694577
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3926,
+      "kind": "move",
+      "x": 0.2074652712,
+      "y": -0.0833333731
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4011,
+      "kind": "move",
+      "x": 0.2248264352,
+      "y": -0.1666667064
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4073,
+      "kind": "move",
+      "x": 0.2265625199,
+      "y": -0.3454861244
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4136,
+      "kind": "move",
+      "x": 0.1241319378,
+      "y": -0.4739583731
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4605,
+      "kind": "move",
+      "x": 0.0651041865,
+      "y": -0.4947917064
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4730,
+      "kind": "move",
+      "x": 0.0598958532,
+      "y": -0.4774305423
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4770,
+      "kind": "down",
+      "x": 0.0598958532,
+      "y": -0.4774305423
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4885,
+      "kind": "up",
+      "x": 0.0598958532,
+      "y": -0.4774305423
+    }
+  ],
+  "3II4UPYCO6DWXR5OA5A3CELWINSDQ2": [
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1195,
+      "kind": "move",
+      "x": -0.0802966537,
+      "y": -0.0024640607
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1239,
+      "kind": "move",
+      "x": -0.0094040739,
+      "y": 0.1682566161
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1294,
+      "kind": "move",
+      "x": 0.0759562446,
+      "y": 0.3143819463
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1339,
+      "kind": "move",
+      "x": 0.1121257903,
+      "y": 0.346211222
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1415,
+      "kind": "move",
+      "x": 0.1193596995,
+      "y": 0.3476580118
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1450,
+      "kind": "move",
+      "x": 0.151188995,
+      "y": 0.3259562248
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1494,
+      "kind": "move",
+      "x": 0.1873586997,
+      "y": 0.2666380427
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1535,
+      "kind": "move",
+      "x": 0.1974861089,
+      "y": 0.1914051731
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1584,
+      "kind": "move",
+      "x": 0.1757843815,
+      "y": 0.0481734224
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1617,
+      "kind": "move",
+      "x": 0.1714439724,
+      "y": 0.0062166382
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1667,
+      "kind": "move",
+      "x": 0.1714439724,
+      "y": -0.0183787085
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1700,
+      "kind": "move",
+      "x": 0.1685504723,
+      "y": -0.0444208053
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1758,
+      "kind": "move",
+      "x": 0.1193596995,
+      "y": -0.1008454873
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1810,
+      "kind": "move",
+      "x": 0.0788497447,
+      "y": -0.1254407942
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1876,
+      "kind": "move",
+      "x": 0.0745094946,
+      "y": -0.1268876237
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1944,
+      "kind": "move",
+      "x": 0.0687223355,
+      "y": -0.1283343738
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1979,
+      "kind": "move",
+      "x": 0.0571480173,
+      "y": -0.1283343738
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2025,
+      "kind": "move",
+      "x": 0.0267654718,
+      "y": -0.1138665555
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2060,
+      "kind": "move",
+      "x": -0.0224251422,
+      "y": -0.0979519077
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2100,
+      "kind": "move",
+      "x": -0.0875305628,
+      "y": -0.0632290326
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2134,
+      "kind": "move",
+      "x": -0.1468487449,
+      "y": -0.0096979699
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2179,
+      "kind": "move",
+      "x": -0.1699973018,
+      "y": 0.0698752293
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2219,
+      "kind": "move",
+      "x": -0.1931458588,
+      "y": 0.1942987526
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2276,
+      "kind": "move",
+      "x": -0.206166927,
+      "y": 0.2304683778
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2327,
+      "kind": "move",
+      "x": -0.2018265974,
+      "y": 0.242042696
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2360,
+      "kind": "move",
+      "x": -0.1323809266,
+      "y": 0.2565105143
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2394,
+      "kind": "move",
+      "x": -0.0195316421,
+      "y": 0.2391491164
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2443,
+      "kind": "move",
+      "x": 0.1034451311,
+      "y": 0.1812776844
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2474,
+      "kind": "move",
+      "x": 0.1439550859,
+      "y": 0.1234062523
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2519,
+      "kind": "move",
+      "x": 0.1714439724,
+      "y": 0.0279184451
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2554,
+      "kind": "move",
+      "x": 0.1801247905,
+      "y": -0.0111447596
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2602,
+      "kind": "move",
+      "x": 0.1902521997,
+      "y": -0.031399737
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2635,
+      "kind": "move",
+      "x": 0.2090604271,
+      "y": -0.0502079644
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2685,
+      "kind": "move",
+      "x": 0.2264219044,
+      "y": -0.0617822826
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2757,
+      "kind": "move",
+      "x": 0.2336558135,
+      "y": -0.0748033508
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2811,
+      "kind": "move",
+      "x": 0.2336558135,
+      "y": -0.0950583282
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2874,
+      "kind": "move",
+      "x": 0.2351025636,
+      "y": -0.0979519077
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2912,
+      "kind": "move",
+      "x": 0.2379962226,
+      "y": -0.0993986578
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2974,
+      "kind": "move",
+      "x": 0.2466768818,
+      "y": -0.0993986578
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3040,
+      "kind": "move",
+      "x": 0.2495703818,
+      "y": -0.0979519077
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3095,
+      "kind": "move",
+      "x": 0.2524640409,
+      "y": -0.0965050782
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3145,
+      "kind": "move",
+      "x": 0.2553575409,
+      "y": -0.0965050782
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3174,
+      "kind": "move",
+      "x": 0.2611447,
+      "y": -0.0965050782
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3214,
+      "kind": "move",
+      "x": 0.2625914501,
+      "y": -0.0965050782
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3255,
+      "kind": "down",
+      "x": 0.2625914501,
+      "y": -0.0965050782
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3374,
+      "kind": "up",
+      "x": 0.2625914501,
+      "y": -0.0965050782
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3434,
+      "kind": "move",
+      "x": 0.2611447,
+      "y": -0.0979519077
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3478,
+      "kind": "move",
+      "x": 0.2379962226,
+      "y": -0.1341215329
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3539,
+      "kind": "move",
+      "x": 0.2191879952,
+      "y": -0.1847590558
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3590,
+      "kind": "move",
+      "x": 0.1685504723,
+      "y": -0.3482457838
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3639,
+      "kind": "move",
+      "x": 0.152635904,
+      "y": -0.4914775344
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4065,
+      "kind": "move",
+      "x": 0.0354462899,
+      "y": -0.4929242844
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4125,
+      "kind": "move",
+      "x": 0.0354462899,
+      "y": -0.4856903753
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4155,
+      "kind": "move",
+      "x": 0.0354462899,
+      "y": -0.4842436253
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4434,
+      "kind": "move",
+      "x": 0.0354462899,
+      "y": -0.4827967958
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4434,
+      "kind": "down",
+      "x": 0.0354462899,
+      "y": -0.4827967958
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4559,
+      "kind": "up",
+      "x": 0.0354462899,
+      "y": -0.4827967958
+    }
+  ],
+  "3PM8NZGV8LMAVXA515BF6LOOY54QXH": [
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 397,
+      "kind": "move",
+      "x": 0.0442708333,
+      "y": 0.1005859375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 432,
+      "kind": "move",
+      "x": 0.0455729167,
+      "y": 0.0901692708
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 499,
+      "kind": "move",
+      "x": 0.0455729167,
+      "y": 0.0823567708
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 561,
+      "kind": "move",
+      "x": 0.0455729167,
+      "y": 0.0771484375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 624,
+      "kind": "move",
+      "x": 0.0455729167,
+      "y": 0.0706380208
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 655,
+      "kind": "move",
+      "x": 0.0455729167,
+      "y": 0.0693359375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1380,
+      "kind": "move",
+      "x": 0.0455729167,
+      "y": 0.0680338542
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1436,
+      "kind": "move",
+      "x": 0.0286458333,
+      "y": 0.0068359375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1499,
+      "kind": "move",
+      "x": 0.0052083333,
+      "y": -0.0569661458
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1576,
+      "kind": "move",
+      "x": 0.00390625,
+      "y": -0.0595703125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1656,
+      "kind": "move",
+      "x": 0.00390625,
+      "y": -0.0556640625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1718,
+      "kind": "move",
+      "x": 0.015625,
+      "y": -0.0152994792
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1835,
+      "kind": "down",
+      "x": 0.015625,
+      "y": -0.0139973958
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1926,
+      "kind": "up",
+      "x": 0.015625,
+      "y": -0.0139973958
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2000,
+      "kind": "move",
+      "x": 0.0182291667,
+      "y": -0.0139973958
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2055,
+      "kind": "move",
+      "x": 0.3151041667,
+      "y": -0.0856119792
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2468,
+      "kind": "move",
+      "x": 0.33203125,
+      "y": -0.3538411458
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2499,
+      "kind": "move",
+      "x": -0.1393229167,
+      "y": -0.2770182292
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2561,
+      "kind": "move",
+      "x": -0.2981770833,
+      "y": -0.1962890625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2624,
+      "kind": "move",
+      "x": -0.109375,
+      "y": -0.1155598958
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2686,
+      "kind": "move",
+      "x": 0.1796875,
+      "y": 0.0198567708
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2718,
+      "kind": "move",
+      "x": 0.2864583333,
+      "y": 0.0328776042
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2780,
+      "kind": "move",
+      "x": 0.3138020833,
+      "y": 0.0211588542
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2843,
+      "kind": "move",
+      "x": 0.3229166667,
+      "y": -0.1038411458
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2905,
+      "kind": "move",
+      "x": 0.3229166667,
+      "y": -0.1168619792
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2952,
+      "kind": "move",
+      "x": 0.3216145833,
+      "y": -0.1168619792
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2999,
+      "kind": "move",
+      "x": 0.2682291667,
+      "y": -0.1103515625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3061,
+      "kind": "move",
+      "x": 0.2486979167,
+      "y": -0.1012369792
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3123,
+      "kind": "move",
+      "x": 0.2473958333,
+      "y": -0.0960286458
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3155,
+      "kind": "move",
+      "x": 0.25,
+      "y": -0.0934244792
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3218,
+      "kind": "move",
+      "x": 0.2942708333,
+      "y": -0.0921223958
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3280,
+      "kind": "move",
+      "x": 0.3346354167,
+      "y": -0.0921223958
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3342,
+      "kind": "move",
+      "x": 0.3411458333,
+      "y": -0.0934244792
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3456,
+      "kind": "move",
+      "x": 0.3411458333,
+      "y": -0.0947265625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3457,
+      "kind": "down",
+      "x": 0.3411458333,
+      "y": -0.0947265625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3575,
+      "kind": "up",
+      "x": 0.3411458333,
+      "y": -0.0947265625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3696,
+      "kind": "move",
+      "x": 0.3411458333,
+      "y": -0.0960286458
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3780,
+      "kind": "move",
+      "x": 0.3229166667,
+      "y": -0.1012369792
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3843,
+      "kind": "move",
+      "x": 0.2786458333,
+      "y": -0.1064453125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3906,
+      "kind": "move",
+      "x": 0.2708333333,
+      "y": -0.1077473958
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3967,
+      "kind": "move",
+      "x": 0.2682291667,
+      "y": -0.1090494792
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3999,
+      "kind": "move",
+      "x": 0.265625,
+      "y": -0.1090494792
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4061,
+      "kind": "move",
+      "x": 0.23828125,
+      "y": -0.1025390625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4124,
+      "kind": "move",
+      "x": 0.2265625,
+      "y": -0.0999348958
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6200,
+      "kind": "move",
+      "x": 0.2252604167,
+      "y": -0.0999348958
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6249,
+      "kind": "move",
+      "x": 0.2018229167,
+      "y": -0.1285807292
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6311,
+      "kind": "move",
+      "x": 0.1119791667,
+      "y": -0.2639973958
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6390,
+      "kind": "move",
+      "x": 0.0729166667,
+      "y": -0.3251953125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6437,
+      "kind": "move",
+      "x": 0.0625,
+      "y": -0.3486328125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6498,
+      "kind": "move",
+      "x": 0.0546875,
+      "y": -0.3694661458
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6530,
+      "kind": "move",
+      "x": 0.0481770833,
+      "y": -0.4007161458
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6562,
+      "kind": "move",
+      "x": 0.0455729167,
+      "y": -0.4111328125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6624,
+      "kind": "move",
+      "x": 0.0364583333,
+      "y": -0.4514973958
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6686,
+      "kind": "move",
+      "x": 0.0338541667,
+      "y": -0.4697265625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6749,
+      "kind": "move",
+      "x": 0.0325520833,
+      "y": -0.4788411458
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6797,
+      "kind": "move",
+      "x": 0.0325520833,
+      "y": -0.4801432292
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6874,
+      "kind": "move",
+      "x": 0.02734375,
+      "y": -0.4879557292
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 7520,
+      "kind": "down",
+      "x": 0.02734375,
+      "y": -0.4879557292
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 7679,
+      "kind": "up",
+      "x": 0.02734375,
+      "y": -0.4879557292
+    }
+  ],
+  "3RGU30DZTXEIFY7OS8PXY3W4D6SJMZ": [
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 24,
+      "kind": "move",
+      "x": 0.0513608582,
+      "y": -0.0812460139
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 80,
+      "kind": "move",
+      "x": 0.0499141082,
+      "y": -0.0812460139
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 994,
+      "kind": "move",
+      "x": 0.03978654,
+      "y": -0.0841395934
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1111,
+      "kind": "move",
+      "x": 0.0354462899,
+      "y": -0.0855864229
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1325,
+      "kind": "move",
+      "x": 0.0339993809,
+      "y": -0.0855864229
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1721,
+      "kind": "move",
+      "x": 0.0325526309,
+      "y": -0.0855864229
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1948,
+      "kind": "move",
+      "x": 0.0267654718,
+      "y": -0.0407360591
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2068,
+      "kind": "move",
+      "x": -0.0397866195,
+      "y": 0.0504114185
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2111,
+      "kind": "move",
+      "x": -0.0585948468,
+      "y": 0.0359435605
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2174,
+      "kind": "move",
+      "x": -0.071615915,
+      "y": 0.0258160718
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2294,
+      "kind": "move",
+      "x": -0.1019983811,
+      "y": 0.0070078842
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2296,
+      "kind": "move",
+      "x": -0.125146938,
+      "y": -0.0146939226
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2362,
+      "kind": "move",
+      "x": -0.1208066084,
+      "y": -0.0595442865
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2589,
+      "kind": "move",
+      "x": -0.0542545172,
+      "y": -0.0740121047
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2614,
+      "kind": "move",
+      "x": 0.1092322902,
+      "y": -0.0797992638
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2649,
+      "kind": "move",
+      "x": 0.1150194493,
+      "y": -0.0812460139
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3192,
+      "kind": "move",
+      "x": 0.1786780405,
+      "y": -0.1000542412
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3610,
+      "kind": "down",
+      "x": 0.1844650406,
+      "y": -0.1000542412
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3612,
+      "kind": "up",
+      "x": 0.1844650406,
+      "y": -0.1000542412
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3643,
+      "kind": "move",
+      "x": 0.3016546548,
+      "y": -0.0928203321
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3706,
+      "kind": "move",
+      "x": 0.3088887229,
+      "y": -0.0928203321
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3824,
+      "kind": "down",
+      "x": 0.3088887229,
+      "y": -0.0928203321
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3978,
+      "kind": "up",
+      "x": 0.3088887229,
+      "y": -0.0928203321
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4368,
+      "kind": "move",
+      "x": 0.3103354729,
+      "y": -0.0957139116
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4410,
+      "kind": "move",
+      "x": 0.3103354729,
+      "y": -0.0971606617
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4751,
+      "kind": "move",
+      "x": 0.1960393588,
+      "y": -0.2317117531
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4859,
+      "kind": "move",
+      "x": 0.1425083359,
+      "y": -0.2765620374
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4897,
+      "kind": "move",
+      "x": 0.094764472,
+      "y": -0.3026041739
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4986,
+      "kind": "move",
+      "x": 0.0238719717,
+      "y": -0.3445609582
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5049,
+      "kind": "move",
+      "x": 0.0108509034,
+      "y": -0.3691563446
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5080,
+      "kind": "move",
+      "x": 0.0094041534,
+      "y": -0.3763902537
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5112,
+      "kind": "move",
+      "x": 0.0050637443,
+      "y": -0.3836241629
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5292,
+      "kind": "move",
+      "x": 0.0007233353,
+      "y": -0.3995388107
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5296,
+      "kind": "move",
+      "x": -0.0050638238,
+      "y": -0.416900288
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5367,
+      "kind": "move",
+      "x": -0.0094040739,
+      "y": -0.4241341971
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5431,
+      "kind": "move",
+      "x": -0.0108509829,
+      "y": -0.4313681063
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5509,
+      "kind": "move",
+      "x": -0.0166379831,
+      "y": -0.4443891745
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5582,
+      "kind": "move",
+      "x": -0.0166379831,
+      "y": -0.4603038223
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6011,
+      "kind": "move",
+      "x": -0.0195316421,
+      "y": -0.4718781405
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6011,
+      "kind": "down",
+      "x": -0.0195316421,
+      "y": -0.4718781405
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6011,
+      "kind": "up",
+      "x": -0.0195316421,
+      "y": -0.4718781405
+    }
+  ],
+  "3U088ZLJV7Z7I40GA2LEPWJZCZ0W0W": [
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1026,
+      "kind": "move",
+      "x": 0.0499132474,
+      "y": 0.011284709
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1080,
+      "kind": "move",
+      "x": 0.051649332,
+      "y": 0.0321180423
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1120,
+      "kind": "move",
+      "x": 0.0533854167,
+      "y": 0.0460069378
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1160,
+      "kind": "move",
+      "x": 0.0551215808,
+      "y": 0.0494791667
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1200,
+      "kind": "move",
+      "x": 0.05859375,
+      "y": 0.0598958333
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1257,
+      "kind": "move",
+      "x": 0.0620659987,
+      "y": 0.0633680423
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1280,
+      "kind": "move",
+      "x": 0.0638020833,
+      "y": 0.0651041667
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3640,
+      "kind": "move",
+      "x": 0.0786458651,
+      "y": 0.0739583174
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3686,
+      "kind": "move",
+      "x": 0.1098958651,
+      "y": -0.0052083532
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3720,
+      "kind": "move",
+      "x": 0.1473958492,
+      "y": -0.0770833294
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3769,
+      "kind": "move",
+      "x": 0.1661458015,
+      "y": -0.118749996
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3803,
+      "kind": "move",
+      "x": 0.1703124841,
+      "y": -0.1437500119
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3881,
+      "kind": "move",
+      "x": 0.1703124841,
+      "y": -0.162500004
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3980,
+      "kind": "move",
+      "x": 0.1682291826,
+      "y": -0.1677083373
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4031,
+      "kind": "move",
+      "x": 0.1682291826,
+      "y": -0.1562500199
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4065,
+      "kind": "move",
+      "x": 0.1682291826,
+      "y": -0.1302083532
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4100,
+      "kind": "move",
+      "x": 0.1682291826,
+      "y": -0.118749996
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4165,
+      "kind": "move",
+      "x": 0.1682291826,
+      "y": -0.1072916786
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4200,
+      "kind": "move",
+      "x": 0.1703124841,
+      "y": -0.1020833453
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4240,
+      "kind": "move",
+      "x": 0.1703124841,
+      "y": -0.100000004
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4320,
+      "kind": "move",
+      "x": 0.1723958651,
+      "y": -0.0979166627
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4366,
+      "kind": "move",
+      "x": 0.1744791667,
+      "y": -0.0979166627
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4400,
+      "kind": "move",
+      "x": 0.1765624682,
+      "y": -0.0979166627
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4480,
+      "kind": "move",
+      "x": 0.1786458492,
+      "y": -0.0979166627
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4680,
+      "kind": "down",
+      "x": 0.1786458492,
+      "y": -0.0979166627
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4728,
+      "kind": "move",
+      "x": 0.1807291508,
+      "y": -0.0979166627
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4763,
+      "kind": "move",
+      "x": 0.1848958333,
+      "y": -0.0979166627
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4795,
+      "kind": "move",
+      "x": 0.1911458174,
+      "y": -0.0979166627
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4845,
+      "kind": "move",
+      "x": 0.1994791826,
+      "y": -0.0979166627
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4880,
+      "kind": "move",
+      "x": 0.2057291667,
+      "y": -0.0979166627
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4939,
+      "kind": "move",
+      "x": 0.2223958174,
+      "y": -0.0979166627
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5005,
+      "kind": "move",
+      "x": 0.2369791667,
+      "y": -0.0979166627
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5039,
+      "kind": "move",
+      "x": 0.2453125318,
+      "y": -0.0979166627
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5089,
+      "kind": "move",
+      "x": 0.2515625159,
+      "y": -0.0979166627
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5155,
+      "kind": "move",
+      "x": 0.2557291985,
+      "y": -0.0979166627
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5221,
+      "kind": "move",
+      "x": 0.2598958015,
+      "y": -0.0979166627
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5380,
+      "kind": "move",
+      "x": 0.2619791826,
+      "y": -0.0979166627
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5460,
+      "kind": "move",
+      "x": 0.2640624841,
+      "y": -0.0979166627
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5522,
+      "kind": "move",
+      "x": 0.2703124682,
+      "y": -0.0979166627
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5571,
+      "kind": "move",
+      "x": 0.2744791508,
+      "y": -0.0979166627
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5605,
+      "kind": "move",
+      "x": 0.2807291349,
+      "y": -0.0979166627
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5652,
+      "kind": "move",
+      "x": 0.2953124841,
+      "y": -0.0979166627
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5679,
+      "kind": "move",
+      "x": 0.2973958651,
+      "y": -0.0979166627
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5727,
+      "kind": "move",
+      "x": 0.3015624682,
+      "y": -0.0979166627
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5915,
+      "kind": "up",
+      "x": 0.3015624682,
+      "y": -0.0979166627
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5946,
+      "kind": "move",
+      "x": 0.3015624682,
+      "y": -0.0979166627
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6615,
+      "kind": "move",
+      "x": 0.3015624682,
+      "y": -0.100000004
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6660,
+      "kind": "move",
+      "x": 0.2911458015,
+      "y": -0.1093750199
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6695,
+      "kind": "move",
+      "x": 0.2828125159,
+      "y": -0.1114583611
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6735,
+      "kind": "move",
+      "x": 0.2765625318,
+      "y": -0.1135416627
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6795,
+      "kind": "move",
+      "x": 0.2661458651,
+      "y": -0.1135416627
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6890,
+      "kind": "down",
+      "x": 0.2619791826,
+      "y": -0.1135416627
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 7080,
+      "kind": "up",
+      "x": 0.2619791826,
+      "y": -0.1135416627
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 7880,
+      "kind": "move",
+      "x": 0.2619791826,
+      "y": -0.1166666945
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 7941,
+      "kind": "move",
+      "x": 0.4390625159,
+      "y": -0.0958333611
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 8840,
+      "kind": "move",
+      "x": 0.4848957856,
+      "y": -0.0625000199
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 8880,
+      "kind": "move",
+      "x": 0.4390625159,
+      "y": -0.0625000199
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 8940,
+      "kind": "move",
+      "x": 0.3890624841,
+      "y": -0.0625000199
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 8980,
+      "kind": "move",
+      "x": 0.3786458174,
+      "y": -0.0625000199
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 9025,
+      "kind": "move",
+      "x": 0.3578124841,
+      "y": -0.0677083532
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 9100,
+      "kind": "move",
+      "x": 0.3453125159,
+      "y": -0.071874996
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 9146,
+      "kind": "move",
+      "x": 0.3411458333,
+      "y": -0.0750000278
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 9175,
+      "kind": "move",
+      "x": 0.3390625318,
+      "y": -0.0791666706
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 9229,
+      "kind": "move",
+      "x": 0.3369791508,
+      "y": -0.0906250278
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 9260,
+      "kind": "move",
+      "x": 0.3369791508,
+      "y": -0.1020833453
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 9340,
+      "kind": "down",
+      "x": 0.3369791508,
+      "y": -0.1020833453
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 9435,
+      "kind": "up",
+      "x": 0.3369791508,
+      "y": -0.1020833453
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 9500,
+      "kind": "move",
+      "x": 0.3432291349,
+      "y": -0.1052083373
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 10185,
+      "kind": "move",
+      "x": 0.4890625477,
+      "y": -0.1302083532
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 10233,
+      "kind": "move",
+      "x": 0.4036459128,
+      "y": -0.1166666945
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 10266,
+      "kind": "move",
+      "x": 0.1598958174,
+      "y": -0.0604166786
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 10300,
+      "kind": "move",
+      "x": 0.0411458015,
+      "y": -0.0354166627
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 10340,
+      "kind": "move",
+      "x": 0.0161458651,
+      "y": -0.0281250278
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 10380,
+      "kind": "move",
+      "x": -0.0036458174,
+      "y": -0.0302083294
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 10420,
+      "kind": "move",
+      "x": -0.0328125159,
+      "y": -0.0468750199
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 10466,
+      "kind": "move",
+      "x": -0.0682291985,
+      "y": -0.0979166627
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 10495,
+      "kind": "move",
+      "x": -0.0723958015,
+      "y": -0.1052083373
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 10540,
+      "kind": "move",
+      "x": -0.0723958015,
+      "y": -0.1093750199
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 10585,
+      "kind": "move",
+      "x": -0.0473958651,
+      "y": -0.1260416706
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 10640,
+      "kind": "move",
+      "x": 0.2140625318,
+      "y": -0.1677083373
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 10699,
+      "kind": "move",
+      "x": 0.4078125159,
+      "y": -0.2135416865
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 10735,
+      "kind": "move",
+      "x": 0.4807291826,
+      "y": -0.2260416945
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 10775,
+      "kind": "move",
+      "x": 0.4890625477,
+      "y": -0.2260416945
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 10920,
+      "kind": "move",
+      "x": 0.4911458492,
+      "y": -0.2260416945
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 10980,
+      "kind": "move",
+      "x": 0.4848957856,
+      "y": -0.228124996
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 11100,
+      "kind": "move",
+      "x": 0.4848957856,
+      "y": -0.2260416945
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 11171,
+      "kind": "move",
+      "x": 0.4848957856,
+      "y": -0.2166666786
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 11210,
+      "kind": "move",
+      "x": 0.474479119,
+      "y": -0.2166666786
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 11288,
+      "kind": "move",
+      "x": 0.4661459128,
+      "y": -0.2229166627
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 11380,
+      "kind": "move",
+      "x": 0.4661459128,
+      "y": -0.2208333611
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 13555,
+      "kind": "move",
+      "x": 0.4088541667,
+      "y": -0.1282552083
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 13610,
+      "kind": "move",
+      "x": 0.1848958333,
+      "y": -0.279296875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 13655,
+      "kind": "move",
+      "x": 0.1510416667,
+      "y": -0.337890625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 13695,
+      "kind": "move",
+      "x": 0.1302083333,
+      "y": -0.3639322917
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 13738,
+      "kind": "move",
+      "x": 0.1197916667,
+      "y": -0.3717447917
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 13815,
+      "kind": "move",
+      "x": 0.0989583333,
+      "y": -0.392578125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 13860,
+      "kind": "move",
+      "x": 0.0859375,
+      "y": -0.3977864583
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 13920,
+      "kind": "move",
+      "x": 0.0703125,
+      "y": -0.4186197917
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 13977,
+      "kind": "move",
+      "x": 0.0651041667,
+      "y": -0.4329427083
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 14000,
+      "kind": "move",
+      "x": 0.0625,
+      "y": -0.4420572917
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 14100,
+      "kind": "move",
+      "x": 0.0546875,
+      "y": -0.4654947917
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 14660,
+      "kind": "down",
+      "x": 0.0494791667,
+      "y": -0.470703125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 14765,
+      "kind": "up",
+      "x": 0.0494791667,
+      "y": -0.470703125
+    }
+  ],
+  "31LM9EDVO8YOXGSO494XBIL4IW2JNZ": [
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 961,
+      "kind": "move",
+      "x": -0.0130208333,
+      "y": -0.009765625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1003,
+      "kind": "move",
+      "x": 0.0234375,
+      "y": -0.017578125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1053,
+      "kind": "move",
+      "x": 0.08984375,
+      "y": -0.0423177083
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1086,
+      "kind": "move",
+      "x": 0.1171875,
+      "y": -0.056640625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1136,
+      "kind": "move",
+      "x": 0.1614583333,
+      "y": -0.0748697917
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1201,
+      "kind": "move",
+      "x": 0.1731770833,
+      "y": -0.0787760417
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1248,
+      "kind": "move",
+      "x": 0.1809895833,
+      "y": -0.0787760417
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1286,
+      "kind": "move",
+      "x": 0.1953125,
+      "y": -0.0787760417
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1330,
+      "kind": "move",
+      "x": 0.2265625,
+      "y": -0.0813802083
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1366,
+      "kind": "move",
+      "x": 0.2330729167,
+      "y": -0.0826822917
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1412,
+      "kind": "move",
+      "x": 0.2447916667,
+      "y": -0.087890625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1459,
+      "kind": "down",
+      "x": 0.2447916667,
+      "y": -0.087890625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1592,
+      "kind": "up",
+      "x": 0.2447916667,
+      "y": -0.087890625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3494,
+      "kind": "move",
+      "x": 0.2447916667,
+      "y": -0.0891927083
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3543,
+      "kind": "move",
+      "x": 0.2408854167,
+      "y": -0.0891927083
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3565,
+      "kind": "move",
+      "x": 0.23828125,
+      "y": -0.0904947917
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3607,
+      "kind": "move",
+      "x": 0.2330729167,
+      "y": -0.0930989583
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3653,
+      "kind": "move",
+      "x": 0.2174479167,
+      "y": -0.0930989583
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3706,
+      "kind": "move",
+      "x": 0.19140625,
+      "y": -0.0930989583
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3820,
+      "kind": "down",
+      "x": 0.1861979167,
+      "y": -0.0930989583
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3920,
+      "kind": "move",
+      "x": 0.1875,
+      "y": -0.091796875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3964,
+      "kind": "move",
+      "x": 0.19140625,
+      "y": -0.091796875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3977,
+      "kind": "up",
+      "x": 0.1940104167,
+      "y": -0.0904947917
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4019,
+      "kind": "move",
+      "x": 0.19921875,
+      "y": -0.0891927083
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4053,
+      "kind": "move",
+      "x": 0.2057291667,
+      "y": -0.0865885417
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4103,
+      "kind": "move",
+      "x": 0.2109375,
+      "y": -0.083984375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4118,
+      "kind": "down",
+      "x": 0.2109375,
+      "y": -0.083984375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4152,
+      "kind": "move",
+      "x": 0.2161458333,
+      "y": -0.083984375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4198,
+      "kind": "move",
+      "x": 0.2200520833,
+      "y": -0.083984375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4265,
+      "kind": "move",
+      "x": 0.2239583333,
+      "y": -0.083984375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4290,
+      "kind": "up",
+      "x": 0.234375,
+      "y": -0.083984375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4305,
+      "kind": "move",
+      "x": 0.2486979167,
+      "y": -0.0826822917
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4346,
+      "kind": "move",
+      "x": 0.2708333333,
+      "y": -0.0787760417
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4414,
+      "kind": "down",
+      "x": 0.2734375,
+      "y": -0.0813802083
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4482,
+      "kind": "move",
+      "x": 0.2747395833,
+      "y": -0.0813802083
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4569,
+      "kind": "move",
+      "x": 0.2760416667,
+      "y": -0.0813802083
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4569,
+      "kind": "up",
+      "x": 0.2760416667,
+      "y": -0.0813802083
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4625,
+      "kind": "move",
+      "x": 0.3333333333,
+      "y": -0.080078125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4675,
+      "kind": "move",
+      "x": 0.3658854167,
+      "y": -0.0904947917
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4701,
+      "kind": "move",
+      "x": 0.3697916667,
+      "y": -0.0904947917
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4702,
+      "kind": "down",
+      "x": 0.3697916667,
+      "y": -0.0904947917
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4866,
+      "kind": "up",
+      "x": 0.3697916667,
+      "y": -0.0904947917
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4941,
+      "kind": "move",
+      "x": 0.3671875,
+      "y": -0.0904947917
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4976,
+      "kind": "move",
+      "x": 0.3619791667,
+      "y": -0.0930989583
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5009,
+      "kind": "move",
+      "x": 0.35546875,
+      "y": -0.095703125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5056,
+      "kind": "move",
+      "x": 0.3463541667,
+      "y": -0.095703125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5102,
+      "kind": "move",
+      "x": 0.3346354167,
+      "y": -0.095703125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5142,
+      "kind": "move",
+      "x": 0.3307291667,
+      "y": -0.095703125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5150,
+      "kind": "down",
+      "x": 0.3307291667,
+      "y": -0.095703125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5342,
+      "kind": "up",
+      "x": 0.3307291667,
+      "y": -0.095703125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5667,
+      "kind": "move",
+      "x": 0.3294270833,
+      "y": -0.095703125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5733,
+      "kind": "move",
+      "x": 0.3268229167,
+      "y": -0.0970052083
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5783,
+      "kind": "move",
+      "x": 0.3255208333,
+      "y": -0.0970052083
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5865,
+      "kind": "move",
+      "x": 0.32421875,
+      "y": -0.0970052083
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6121,
+      "kind": "move",
+      "x": 0.3229166667,
+      "y": -0.0970052083
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6172,
+      "kind": "move",
+      "x": 0.2994791667,
+      "y": -0.091796875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6216,
+      "kind": "move",
+      "x": 0.2786458333,
+      "y": -0.0865885417
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6267,
+      "kind": "move",
+      "x": 0.2578125,
+      "y": -0.076171875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6316,
+      "kind": "move",
+      "x": 0.2330729167,
+      "y": -0.0631510417
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6359,
+      "kind": "move",
+      "x": 0.1666666667,
+      "y": -0.029296875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6409,
+      "kind": "move",
+      "x": 0.12890625,
+      "y": -0.0045572917
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6459,
+      "kind": "move",
+      "x": 0.0846354167,
+      "y": 0.0188802083
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6492,
+      "kind": "move",
+      "x": 0.0625,
+      "y": 0.0319010417
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6703,
+      "kind": "move",
+      "x": 0.0611979167,
+      "y": 0.0345052083
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 8873,
+      "kind": "move",
+      "x": 0.0963541667,
+      "y": 0.0373263756
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 11005,
+      "kind": "move",
+      "x": 0.28125,
+      "y": 0.0729166667
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 11078,
+      "kind": "move",
+      "x": 0.2708333333,
+      "y": 0.0677083333
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 11282,
+      "kind": "move",
+      "x": 0.2708333333,
+      "y": 0.0625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 11326,
+      "kind": "move",
+      "x": 0.2708333333,
+      "y": -0.171875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 11385,
+      "kind": "move",
+      "x": 0.2552083333,
+      "y": -0.3020833333
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 11428,
+      "kind": "move",
+      "x": 0.2135416667,
+      "y": -0.3385416667
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 11481,
+      "kind": "move",
+      "x": 0.1458333333,
+      "y": -0.390625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 11529,
+      "kind": "move",
+      "x": 0.0885416667,
+      "y": -0.40625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 11562,
+      "kind": "move",
+      "x": 0.0416666667,
+      "y": -0.421875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 11645,
+      "kind": "move",
+      "x": 0.0052083333,
+      "y": -0.4270833333
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 11686,
+      "kind": "move",
+      "x": -0.0052083333,
+      "y": -0.4375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 11745,
+      "kind": "move",
+      "x": -0.015625,
+      "y": -0.4427083333
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 11773,
+      "kind": "move",
+      "x": -0.0208333333,
+      "y": -0.4427083333
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 11821,
+      "kind": "move",
+      "x": -0.03125,
+      "y": -0.453125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 11894,
+      "kind": "down",
+      "x": -0.03125,
+      "y": -0.453125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 12003,
+      "kind": "up",
+      "x": -0.03125,
+      "y": -0.453125
+    }
+  ],
+  "3GA6AFUKOBUL264OYQHXQR7J0N7H3C": [
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 903,
+      "kind": "move",
+      "x": 0.0185546875,
+      "y": -0.0185546875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 955,
+      "kind": "move",
+      "x": 0.0791015625,
+      "y": -0.0576171875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1017,
+      "kind": "move",
+      "x": 0.1083984375,
+      "y": -0.0771484375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1049,
+      "kind": "move",
+      "x": 0.1142578125,
+      "y": -0.0810546875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1109,
+      "kind": "move",
+      "x": 0.1669921875,
+      "y": -0.0947265625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1174,
+      "kind": "move",
+      "x": 0.2919921875,
+      "y": -0.0986328125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1234,
+      "kind": "move",
+      "x": 0.3212890625,
+      "y": -0.0947265625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1265,
+      "kind": "move",
+      "x": 0.3095703125,
+      "y": -0.0908203125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1329,
+      "kind": "move",
+      "x": 0.2998046875,
+      "y": -0.0888671875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1371,
+      "kind": "move",
+      "x": 0.2978515625,
+      "y": -0.0888671875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1618,
+      "kind": "down",
+      "x": 0.2958984375,
+      "y": -0.0888671875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1734,
+      "kind": "up",
+      "x": 0.2958984375,
+      "y": -0.0888671875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2289,
+      "kind": "move",
+      "x": 0.2919921875,
+      "y": -0.0888671875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2361,
+      "kind": "move",
+      "x": 0.2490234375,
+      "y": -0.0830078125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2422,
+      "kind": "move",
+      "x": 0.2373046875,
+      "y": -0.0849609375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3025,
+      "kind": "move",
+      "x": 0.2373046875,
+      "y": -0.0888671875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3081,
+      "kind": "move",
+      "x": 0.1982421875,
+      "y": -0.1689453125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3142,
+      "kind": "move",
+      "x": 0.0439453125,
+      "y": -0.4619140625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3288,
+      "kind": "move",
+      "x": 0.0380859375,
+      "y": -0.4931640625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3445,
+      "kind": "down",
+      "x": 0.0380859375,
+      "y": -0.4931640625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3584,
+      "kind": "up",
+      "x": 0.0380859375,
+      "y": -0.4931640625
+    }
+  ],
+  "3137ONMDK3BAC8PA34GBOIZFCCKEG1": [
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 49,
+      "kind": "move",
+      "x": -0.0332760854,
+      "y": -0.0086807188
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 297,
+      "kind": "move",
+      "x": -0.0332760854,
+      "y": -0.007233929
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 343,
+      "kind": "move",
+      "x": -0.0679989605,
+      "y": 0.1099556851
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 386,
+      "kind": "move",
+      "x": -0.0708924606,
+      "y": 0.1432317506
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 425,
+      "kind": "move",
+      "x": -0.0723392901,
+      "y": 0.1562528189
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 816,
+      "kind": "move",
+      "x": -0.066552131,
+      "y": 0.14757211
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 857,
+      "kind": "move",
+      "x": -0.0115742785,
+      "y": 0.0448503439
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 905,
+      "kind": "move",
+      "x": 0.0202550171,
+      "y": -0.0130210682
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 953,
+      "kind": "move",
+      "x": 0.0303825058,
+      "y": -0.028935716
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1003,
+      "kind": "move",
+      "x": 0.043403574,
+      "y": -0.0419568041
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1048,
+      "kind": "move",
+      "x": 0.0925942674,
+      "y": -0.059318202
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1098,
+      "kind": "move",
+      "x": 0.1331042222,
+      "y": -0.0694456906
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1148,
+      "kind": "move",
+      "x": 0.1504656995,
+      "y": -0.0752328497
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1185,
+      "kind": "move",
+      "x": 0.1851884951,
+      "y": -0.0925942873
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1224,
+      "kind": "move",
+      "x": 0.1982095634,
+      "y": -0.0940410771
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1264,
+      "kind": "move",
+      "x": 0.1996563929,
+      "y": -0.0954878271
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1448,
+      "kind": "move",
+      "x": 0.1982095634,
+      "y": -0.0969346169
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1497,
+      "kind": "move",
+      "x": 0.1851884951,
+      "y": -0.0911474975
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1696,
+      "kind": "move",
+      "x": 0.1837417451,
+      "y": -0.088253918
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1713,
+      "kind": "down",
+      "x": 0.1851884951,
+      "y": -0.088253918
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1748,
+      "kind": "move",
+      "x": 0.1909756542,
+      "y": -0.088253918
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1784,
+      "kind": "move",
+      "x": 0.1996563929,
+      "y": -0.088253918
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1835,
+      "kind": "move",
+      "x": 0.230038859,
+      "y": -0.0897007078
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1884,
+      "kind": "move",
+      "x": 0.2546342454,
+      "y": -0.0897007078
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1951,
+      "kind": "move",
+      "x": 0.2835699614,
+      "y": -0.0940410771
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2000,
+      "kind": "move",
+      "x": 0.2908038706,
+      "y": -0.0940410771
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2135,
+      "kind": "up",
+      "x": 0.2908038706,
+      "y": -0.0940410771
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2154,
+      "kind": "move",
+      "x": 0.2908038706,
+      "y": -0.0940410771
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2208,
+      "kind": "move",
+      "x": 0.289357041,
+      "y": -0.0940410771
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2262,
+      "kind": "move",
+      "x": 0.2821231319,
+      "y": -0.0940410771
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2801,
+      "kind": "move",
+      "x": 0.2792295524,
+      "y": -0.0940410771
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3007,
+      "kind": "move",
+      "x": 0.2777828023,
+      "y": -0.0940410771
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3064,
+      "kind": "move",
+      "x": 0.2705488932,
+      "y": -0.0940410771
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3103,
+      "kind": "move",
+      "x": 0.2676553136,
+      "y": -0.0940410771
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3145,
+      "kind": "move",
+      "x": 0.2647617341,
+      "y": -0.0940410771
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3240,
+      "kind": "move",
+      "x": 0.2647617341,
+      "y": -0.0925942873
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3820,
+      "kind": "move",
+      "x": 0.2633149046,
+      "y": -0.0925942873
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 7136,
+      "kind": "move",
+      "x": 0.4661458333,
+      "y": -0.1861979167
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 7184,
+      "kind": "move",
+      "x": 0.3828125,
+      "y": -0.2200520833
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 7224,
+      "kind": "move",
+      "x": 0.359375,
+      "y": -0.23046875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 7268,
+      "kind": "move",
+      "x": 0.3151041667,
+      "y": -0.2486979167
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 7318,
+      "kind": "move",
+      "x": 0.265625,
+      "y": -0.2747395833
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 7368,
+      "kind": "move",
+      "x": 0.2213541667,
+      "y": -0.3059895833
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 7401,
+      "kind": "move",
+      "x": 0.1458333333,
+      "y": -0.3528645833
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 7441,
+      "kind": "move",
+      "x": 0.1015625,
+      "y": -0.3841145833
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 7485,
+      "kind": "move",
+      "x": 0.0651041667,
+      "y": -0.4309895833
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 7536,
+      "kind": "move",
+      "x": 0.0208333333,
+      "y": -0.4856770833
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 7617,
+      "kind": "move",
+      "x": 0.0078125,
+      "y": -0.4856770833
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 7776,
+      "kind": "down",
+      "x": 0.0026041667,
+      "y": -0.4856770833
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 7871,
+      "kind": "up",
+      "x": 0.0026041667,
+      "y": -0.4856770833
+    }
+  ],
+  "3OVHNO1VET75BJ6FX1TG37X0NQDDZW": [
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 33,
+      "kind": "move",
+      "x": 0.1613166427,
+      "y": -0.0318292658
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1420,
+      "kind": "move",
+      "x": 0.1584229836,
+      "y": -0.0347228453
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1468,
+      "kind": "move",
+      "x": 0.1265936881,
+      "y": -0.0954878569
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1500,
+      "kind": "move",
+      "x": 0.120806529,
+      "y": -0.1085089252
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1540,
+      "kind": "move",
+      "x": 0.120806529,
+      "y": -0.1128492547
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1755,
+      "kind": "move",
+      "x": 0.120806529,
+      "y": -0.1157428343
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1801,
+      "kind": "move",
+      "x": 0.1439551654,
+      "y": -0.1316574424
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1869,
+      "kind": "move",
+      "x": 0.2018265974,
+      "y": -0.1287639423
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1900,
+      "kind": "move",
+      "x": 0.2076137565,
+      "y": -0.1244235332
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1985,
+      "kind": "move",
+      "x": 0.2076137565,
+      "y": -0.1215299537
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2047,
+      "kind": "move",
+      "x": 0.2018265974,
+      "y": -0.1128492547
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2081,
+      "kind": "move",
+      "x": 0.1960394383,
+      "y": -0.1128492547
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2160,
+      "kind": "move",
+      "x": 0.1873587791,
+      "y": -0.1085089252
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2220,
+      "kind": "move",
+      "x": 0.18157162,
+      "y": -0.1056153456
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2304,
+      "kind": "move",
+      "x": 0.1757844609,
+      "y": -0.1056153456
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2304,
+      "kind": "down",
+      "x": 0.1757844609,
+      "y": -0.1056153456
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2555,
+      "kind": "move",
+      "x": 0.18157162,
+      "y": -0.1056153456
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2600,
+      "kind": "move",
+      "x": 0.233655893,
+      "y": -0.1056153456
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2650,
+      "kind": "move",
+      "x": 0.2568043705,
+      "y": -0.1056153456
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3020,
+      "kind": "move",
+      "x": 0.2539108704,
+      "y": -0.1056153456
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3092,
+      "kind": "move",
+      "x": 0.2394430521,
+      "y": -0.1085089252
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3142,
+      "kind": "move",
+      "x": 0.2278687339,
+      "y": -0.1128492547
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3209,
+      "kind": "move",
+      "x": 0.2162944157,
+      "y": -0.1157428343
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3360,
+      "kind": "up",
+      "x": 0.2162944157,
+      "y": -0.1157428343
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3396,
+      "kind": "move",
+      "x": 0.2162944157,
+      "y": -0.1157428343
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3570,
+      "kind": "move",
+      "x": 0.2134009156,
+      "y": -0.1215299537
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3620,
+      "kind": "move",
+      "x": 0.1902522792,
+      "y": -0.2705488634
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3670,
+      "kind": "move",
+      "x": 0.1613166427,
+      "y": -0.44126958
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3738,
+      "kind": "move",
+      "x": 0.1468486654,
+      "y": -0.4774392051
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3770,
+      "kind": "move",
+      "x": 0.1323808472,
+      "y": -0.4962474325
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3960,
+      "kind": "move",
+      "x": 0.1034452106,
+      "y": -0.4962474325
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4014,
+      "kind": "move",
+      "x": 0.0860837333,
+      "y": -0.4644181369
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4180,
+      "kind": "move",
+      "x": 0.0831902332,
+      "y": -0.4644181369
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4220,
+      "kind": "down",
+      "x": 0.0802965742,
+      "y": -0.4644181369
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4349,
+      "kind": "up",
+      "x": 0.0802965742,
+      "y": -0.4644181369
+    }
+  ],
+  "3GFK2QRXXWN6DBMH78RQ6RFQT7BW5H": [
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 382,
+      "kind": "move",
+      "x": -0.09375,
+      "y": 0.005859375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 420,
+      "kind": "move",
+      "x": -0.0325520833,
+      "y": 0.0240885417
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 457,
+      "kind": "move",
+      "x": 0.0364583333,
+      "y": 0.041015625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 503,
+      "kind": "move",
+      "x": 0.0611979167,
+      "y": 0.041015625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 952,
+      "kind": "move",
+      "x": 0.0638020833,
+      "y": 0.0397135417
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1002,
+      "kind": "move",
+      "x": 0.0794270833,
+      "y": -0.0279947917
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1052,
+      "kind": "move",
+      "x": 0.1419270833,
+      "y": -0.0657552083
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1102,
+      "kind": "move",
+      "x": 0.19140625,
+      "y": -0.083984375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1158,
+      "kind": "move",
+      "x": 0.2096354167,
+      "y": -0.0852864583
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1214,
+      "kind": "move",
+      "x": 0.21484375,
+      "y": -0.0852864583
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1249,
+      "kind": "move",
+      "x": 0.2213541667,
+      "y": -0.083984375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1358,
+      "kind": "move",
+      "x": 0.23046875,
+      "y": -0.0826822917
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1359,
+      "kind": "down",
+      "x": 0.23046875,
+      "y": -0.0826822917
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1494,
+      "kind": "up",
+      "x": 0.23046875,
+      "y": -0.0826822917
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1641,
+      "kind": "move",
+      "x": 0.2317708333,
+      "y": -0.0826822917
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1689,
+      "kind": "move",
+      "x": 0.2526041667,
+      "y": -0.0852864583
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1727,
+      "kind": "move",
+      "x": 0.2565104167,
+      "y": -0.0852864583
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1768,
+      "kind": "move",
+      "x": 0.26171875,
+      "y": -0.0891927083
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1830,
+      "kind": "move",
+      "x": 0.26171875,
+      "y": -0.0904947917
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1887,
+      "kind": "move",
+      "x": 0.2356770833,
+      "y": -0.095703125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1921,
+      "kind": "move",
+      "x": 0.2135416667,
+      "y": -0.095703125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2214,
+      "kind": "move",
+      "x": 0.2018229167,
+      "y": -0.095703125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2278,
+      "kind": "move",
+      "x": 0.1953125,
+      "y": -0.0930989583
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2344,
+      "kind": "move",
+      "x": 0.1875,
+      "y": -0.0891927083
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2398,
+      "kind": "move",
+      "x": 0.18359375,
+      "y": -0.0891927083
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2544,
+      "kind": "down",
+      "x": 0.18359375,
+      "y": -0.0891927083
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2647,
+      "kind": "move",
+      "x": 0.1848958333,
+      "y": -0.0891927083
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2702,
+      "kind": "move",
+      "x": 0.1953125,
+      "y": -0.0904947917
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2752,
+      "kind": "move",
+      "x": 0.2057291667,
+      "y": -0.0930989583
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2785,
+      "kind": "move",
+      "x": 0.2252604167,
+      "y": -0.0970052083
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2835,
+      "kind": "move",
+      "x": 0.2708333333,
+      "y": -0.1022135417
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2869,
+      "kind": "move",
+      "x": 0.2786458333,
+      "y": -0.1022135417
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3102,
+      "kind": "move",
+      "x": 0.2799479167,
+      "y": -0.1022135417
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3102,
+      "kind": "up",
+      "x": 0.2799479167,
+      "y": -0.1022135417
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3318,
+      "kind": "move",
+      "x": 0.2786458333,
+      "y": -0.1022135417
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3362,
+      "kind": "move",
+      "x": 0.2721354167,
+      "y": -0.1022135417
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3396,
+      "kind": "move",
+      "x": 0.2682291667,
+      "y": -0.1022135417
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3447,
+      "kind": "move",
+      "x": 0.2578125,
+      "y": -0.099609375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3502,
+      "kind": "move",
+      "x": 0.2434895833,
+      "y": -0.099609375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3584,
+      "kind": "move",
+      "x": 0.2486979167,
+      "y": -0.099609375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3639,
+      "kind": "move",
+      "x": 0.26953125,
+      "y": -0.099609375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3687,
+      "kind": "down",
+      "x": 0.26953125,
+      "y": -0.099609375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3849,
+      "kind": "up",
+      "x": 0.26953125,
+      "y": -0.099609375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4151,
+      "kind": "move",
+      "x": 0.2721354167,
+      "y": -0.099609375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4201,
+      "kind": "move",
+      "x": 0.2877604167,
+      "y": -0.1048177083
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4374,
+      "kind": "move",
+      "x": 0.2955729167,
+      "y": -0.1048177083
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4487,
+      "kind": "down",
+      "x": 0.2955729167,
+      "y": -0.1048177083
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4637,
+      "kind": "up",
+      "x": 0.2955729167,
+      "y": -0.1048177083
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4649,
+      "kind": "move",
+      "x": 0.28515625,
+      "y": -0.099609375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4697,
+      "kind": "move",
+      "x": 0.2265625,
+      "y": -0.0891927083
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4761,
+      "kind": "move",
+      "x": 0.2174479167,
+      "y": -0.087890625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4795,
+      "kind": "move",
+      "x": 0.21484375,
+      "y": -0.0865885417
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4845,
+      "kind": "move",
+      "x": 0.20703125,
+      "y": -0.0852864583
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4878,
+      "kind": "move",
+      "x": 0.2044270833,
+      "y": -0.0852864583
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4928,
+      "kind": "move",
+      "x": 0.203125,
+      "y": -0.0852864583
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4961,
+      "kind": "move",
+      "x": 0.2005208333,
+      "y": -0.0852864583
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5011,
+      "kind": "move",
+      "x": 0.1940104167,
+      "y": -0.0826822917
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5061,
+      "kind": "move",
+      "x": 0.1888020833,
+      "y": -0.0813802083
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5129,
+      "kind": "move",
+      "x": 0.1861979167,
+      "y": -0.0813802083
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5191,
+      "kind": "move",
+      "x": 0.1861979167,
+      "y": -0.080078125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 10567,
+      "kind": "move",
+      "x": 0.2939453125,
+      "y": -0.1318359375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 10620,
+      "kind": "move",
+      "x": 0.4267578125,
+      "y": -0.1552734375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 11159,
+      "kind": "move",
+      "x": 0.4697265625,
+      "y": -0.2197265625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 11201,
+      "kind": "move",
+      "x": 0.3095703125,
+      "y": -0.1591796875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 11251,
+      "kind": "move",
+      "x": 0.2373046875,
+      "y": -0.1513671875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 11290,
+      "kind": "move",
+      "x": 0.2314453125,
+      "y": -0.1513671875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 11356,
+      "kind": "move",
+      "x": 0.2255859375,
+      "y": -0.1513671875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 11389,
+      "kind": "move",
+      "x": 0.2060546875,
+      "y": -0.1748046875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 11417,
+      "kind": "move",
+      "x": 0.2021484375,
+      "y": -0.1806640625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 11462,
+      "kind": "move",
+      "x": 0.1845703125,
+      "y": -0.1845703125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 11520,
+      "kind": "move",
+      "x": 0.1220703125,
+      "y": -0.1767578125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 11558,
+      "kind": "move",
+      "x": 0.0849609375,
+      "y": -0.1728515625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 11609,
+      "kind": "move",
+      "x": 0.0712890625,
+      "y": -0.1728515625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 11656,
+      "kind": "move",
+      "x": 0.0634765625,
+      "y": -0.2412109375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 11706,
+      "kind": "move",
+      "x": 0.0634765625,
+      "y": -0.2744140625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 11756,
+      "kind": "move",
+      "x": 0.0791015625,
+      "y": -0.2998046875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 11823,
+      "kind": "move",
+      "x": 0.1005859375,
+      "y": -0.3037109375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 11856,
+      "kind": "move",
+      "x": 0.1298828125,
+      "y": -0.2861328125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 11939,
+      "kind": "move",
+      "x": 0.1708984375,
+      "y": -0.2646484375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 14567,
+      "kind": "move",
+      "x": 0.2265625,
+      "y": -0.3580729167
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 14661,
+      "kind": "move",
+      "x": 0.2213541667,
+      "y": -0.3580729167
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 14710,
+      "kind": "move",
+      "x": 0.1640625,
+      "y": -0.37109375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 14760,
+      "kind": "move",
+      "x": 0.0260416667,
+      "y": -0.4596354167
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 15072,
+      "kind": "down",
+      "x": 0.0104166667,
+      "y": -0.4752604167
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 15134,
+      "kind": "up",
+      "x": 0.0104166667,
+      "y": -0.4752604167
+    }
+  ],
+  "3D4CH1LGEXZTHCYTVT0PW4Y4LF4G9T": [
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 885,
+      "kind": "move",
+      "x": 0.0436197917,
+      "y": -0.0120442708
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 964,
+      "kind": "move",
+      "x": -0.021484375,
+      "y": -0.1214192708
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1027,
+      "kind": "move",
+      "x": 0.0462239583,
+      "y": -0.1513671875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1058,
+      "kind": "move",
+      "x": 0.306640625,
+      "y": -0.1735026042
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1120,
+      "kind": "move",
+      "x": 0.3912760417,
+      "y": -0.1761067708
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1183,
+      "kind": "move",
+      "x": 0.3509114583,
+      "y": -0.1617838542
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1246,
+      "kind": "move",
+      "x": 0.3196614583,
+      "y": -0.1539713542
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1308,
+      "kind": "move",
+      "x": 0.298828125,
+      "y": -0.1305338542
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1371,
+      "kind": "move",
+      "x": 0.240234375,
+      "y": -0.0979817708
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1433,
+      "kind": "move",
+      "x": 0.119140625,
+      "y": -0.0719401042
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1565,
+      "kind": "move",
+      "x": 0.123046875,
+      "y": -0.0732421875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1621,
+      "kind": "move",
+      "x": 0.208984375,
+      "y": -0.0914713542
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1652,
+      "kind": "move",
+      "x": 0.2298177083,
+      "y": -0.0953776042
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1690,
+      "kind": "move",
+      "x": 0.228515625,
+      "y": -0.0953776042
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1746,
+      "kind": "move",
+      "x": 0.2115885417,
+      "y": -0.0953776042
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1777,
+      "kind": "move",
+      "x": 0.2076822917,
+      "y": -0.0966796875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1840,
+      "kind": "move",
+      "x": 0.205078125,
+      "y": -0.0979817708
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1902,
+      "kind": "move",
+      "x": 0.2024739583,
+      "y": -0.0979817708
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1960,
+      "kind": "move",
+      "x": 0.201171875,
+      "y": -0.0979817708
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2027,
+      "kind": "move",
+      "x": 0.1920572917,
+      "y": -0.1005859375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2152,
+      "kind": "move",
+      "x": 0.1907552083,
+      "y": -0.1031901042
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2312,
+      "kind": "down",
+      "x": 0.189453125,
+      "y": -0.1031901042
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2359,
+      "kind": "move",
+      "x": 0.1881510417,
+      "y": -0.103515625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2410,
+      "kind": "move",
+      "x": 0.189453125,
+      "y": -0.103515625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2465,
+      "kind": "move",
+      "x": 0.2063802083,
+      "y": -0.103515625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2527,
+      "kind": "move",
+      "x": 0.2376302083,
+      "y": -0.103515625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2559,
+      "kind": "move",
+      "x": 0.2532552083,
+      "y": -0.103515625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2621,
+      "kind": "move",
+      "x": 0.2884114583,
+      "y": -0.1048177083
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2684,
+      "kind": "move",
+      "x": 0.2975260417,
+      "y": -0.1048177083
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2715,
+      "kind": "move",
+      "x": 0.302734375,
+      "y": -0.1048177083
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2777,
+      "kind": "move",
+      "x": 0.310546875,
+      "y": -0.1048177083
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2840,
+      "kind": "move",
+      "x": 0.3430989583,
+      "y": -0.1048177083
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2902,
+      "kind": "move",
+      "x": 0.3561197917,
+      "y": -0.1048177083
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2933,
+      "kind": "move",
+      "x": 0.3600260417,
+      "y": -0.1048177083
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2996,
+      "kind": "move",
+      "x": 0.3704427083,
+      "y": -0.1048177083
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3059,
+      "kind": "move",
+      "x": 0.3795572917,
+      "y": -0.1048177083
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3100,
+      "kind": "move",
+      "x": 0.3821614583,
+      "y": -0.1048177083
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3152,
+      "kind": "move",
+      "x": 0.384765625,
+      "y": -0.1048177083
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3214,
+      "kind": "move",
+      "x": 0.388671875,
+      "y": -0.1048177083
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3277,
+      "kind": "move",
+      "x": 0.392578125,
+      "y": -0.1048177083
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3370,
+      "kind": "move",
+      "x": 0.392578125,
+      "y": -0.1061197917
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3370,
+      "kind": "up",
+      "x": 0.392578125,
+      "y": -0.1061197917
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3433,
+      "kind": "move",
+      "x": 0.3912760417,
+      "y": -0.1083984375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3496,
+      "kind": "move",
+      "x": 0.1842447917,
+      "y": -0.3857421875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3527,
+      "kind": "move",
+      "x": 0.0696614583,
+      "y": -0.4560546875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3589,
+      "kind": "move",
+      "x": 0.0240885417,
+      "y": -0.4781901042
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3751,
+      "kind": "move",
+      "x": 0.0240885417,
+      "y": -0.4768880208
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3882,
+      "kind": "down",
+      "x": 0.0240885417,
+      "y": -0.4742838542
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3999,
+      "kind": "up",
+      "x": 0.0240885417,
+      "y": -0.4742838542
+    }
+  ],
+  "3WJEQKOXAV8AIGIV5GTMLC5IP841AU": [
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 42,
+      "kind": "move",
+      "x": -0.0122976535,
+      "y": 0.1132787835
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5030,
+      "kind": "move",
+      "x": -0.0455729167,
+      "y": 0.3322753906
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5065,
+      "kind": "move",
+      "x": -0.0091145833,
+      "y": 0.118733724
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5113,
+      "kind": "move",
+      "x": 0.1002604167,
+      "y": -0.0791829427
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5164,
+      "kind": "move",
+      "x": 0.1940104167,
+      "y": -0.193766276
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5214,
+      "kind": "move",
+      "x": 0.24609375,
+      "y": -0.2458496094
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5244,
+      "kind": "move",
+      "x": 0.33984375,
+      "y": -0.2458496094
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5335,
+      "kind": "move",
+      "x": 0.3450520833,
+      "y": -0.2458496094
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5378,
+      "kind": "move",
+      "x": 0.2252604167,
+      "y": -0.1052246094
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5443,
+      "kind": "move",
+      "x": 0.18359375,
+      "y": -0.0583496094
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5487,
+      "kind": "move",
+      "x": 0.15234375,
+      "y": -0.0583496094
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5545,
+      "kind": "move",
+      "x": 0.1315104167,
+      "y": -0.0583496094
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5596,
+      "kind": "move",
+      "x": 0.1158854167,
+      "y": -0.0635579427
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5744,
+      "kind": "move",
+      "x": 0.0846354167,
+      "y": -0.0791829427
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5760,
+      "kind": "down",
+      "x": 0.0846354167,
+      "y": -0.0791829427
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5885,
+      "kind": "move",
+      "x": 0.0833333333,
+      "y": -0.0859375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5901,
+      "kind": "up",
+      "x": 0.0833333333,
+      "y": -0.0911458333
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5936,
+      "kind": "move",
+      "x": 0.1002604167,
+      "y": -0.1052246094
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5974,
+      "kind": "move",
+      "x": 0.1106770833,
+      "y": -0.2145996094
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6014,
+      "kind": "move",
+      "x": 0.1106770833,
+      "y": -0.2458496094
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6074,
+      "kind": "move",
+      "x": 0.1106770833,
+      "y": -0.256266276
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6468,
+      "kind": "move",
+      "x": 0.1106770833,
+      "y": -0.271891276
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6501,
+      "kind": "move",
+      "x": 0.1106770833,
+      "y": -0.318766276
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6556,
+      "kind": "move",
+      "x": 0.1106770833,
+      "y": -0.334391276
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6605,
+      "kind": "move",
+      "x": 0.0846354167,
+      "y": -0.3760579427
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6642,
+      "kind": "move",
+      "x": 0.07421875,
+      "y": -0.4020996094
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6685,
+      "kind": "move",
+      "x": 0.07421875,
+      "y": -0.412516276
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6730,
+      "kind": "move",
+      "x": 0.0690104167,
+      "y": -0.4229329427
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6768,
+      "kind": "move",
+      "x": 0.0690104167,
+      "y": -0.428141276
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6813,
+      "kind": "move",
+      "x": 0.0690104167,
+      "y": -0.4385579427
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6953,
+      "kind": "move",
+      "x": 0.0638020833,
+      "y": -0.4541829427
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 7004,
+      "kind": "move",
+      "x": 0.05859375,
+      "y": -0.4541829427
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 7086,
+      "kind": "move",
+      "x": 0.05859375,
+      "y": -0.459391276
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 7133,
+      "kind": "move",
+      "x": 0.0533854167,
+      "y": -0.4645996094
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 7218,
+      "kind": "down",
+      "x": 0.0533854167,
+      "y": -0.4645996094
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 7363,
+      "kind": "up",
+      "x": 0.0533854167,
+      "y": -0.4645996094
+    }
+  ],
+  "3TESA3PJ3OG8G6D9V52PEVOLH0NMM6": [
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 113,
+      "kind": "move",
+      "x": -0.0227864583,
+      "y": 0.0777994792
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 349,
+      "kind": "move",
+      "x": -0.0227864583,
+      "y": 0.0764973958
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 531,
+      "kind": "move",
+      "x": -0.021484375,
+      "y": 0.0751953125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 589,
+      "kind": "move",
+      "x": -0.021484375,
+      "y": 0.0738932292
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 635,
+      "kind": "move",
+      "x": 0.013671875,
+      "y": -0.1513671875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 706,
+      "kind": "move",
+      "x": 0.0201822917,
+      "y": -0.1682942708
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 741,
+      "kind": "move",
+      "x": 0.0201822917,
+      "y": -0.1669921875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 791,
+      "kind": "move",
+      "x": 0.0188802083,
+      "y": -0.1513671875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 854,
+      "kind": "move",
+      "x": 0.017578125,
+      "y": -0.1422526042
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 885,
+      "kind": "move",
+      "x": 0.0149739583,
+      "y": -0.0979817708
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1036,
+      "kind": "move",
+      "x": 0.017578125,
+      "y": -0.0849609375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1091,
+      "kind": "move",
+      "x": 0.0865885417,
+      "y": -0.0979817708
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1136,
+      "kind": "move",
+      "x": 0.2350260417,
+      "y": -0.0940755208
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1198,
+      "kind": "move",
+      "x": 0.2532552083,
+      "y": -0.0888671875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1230,
+      "kind": "move",
+      "x": 0.2766927083,
+      "y": -0.0810546875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1429,
+      "kind": "down",
+      "x": 0.2858072917,
+      "y": -0.0784505208
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1520,
+      "kind": "up",
+      "x": 0.2858072917,
+      "y": -0.0784505208
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1701,
+      "kind": "move",
+      "x": 0.2845052083,
+      "y": -0.0784505208
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1794,
+      "kind": "move",
+      "x": 0.271484375,
+      "y": -0.0823567708
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1794,
+      "kind": "down",
+      "x": 0.271484375,
+      "y": -0.0823567708
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1853,
+      "kind": "move",
+      "x": 0.271484375,
+      "y": -0.083984375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1886,
+      "kind": "move",
+      "x": 0.2701822917,
+      "y": -0.083984375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1913,
+      "kind": "up",
+      "x": 0.2701822917,
+      "y": -0.083984375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1916,
+      "kind": "move",
+      "x": 0.2701822917,
+      "y": -0.0849609375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1996,
+      "kind": "move",
+      "x": 0.2662760417,
+      "y": -0.0888671875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2042,
+      "kind": "move",
+      "x": 0.2298177083,
+      "y": -0.0953776042
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2073,
+      "kind": "move",
+      "x": 0.2037760417,
+      "y": -0.0992838542
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2221,
+      "kind": "move",
+      "x": 0.201171875,
+      "y": -0.0992838542
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2261,
+      "kind": "move",
+      "x": 0.1998697917,
+      "y": -0.0992838542
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2354,
+      "kind": "move",
+      "x": 0.1946614583,
+      "y": -0.1057942708
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2416,
+      "kind": "move",
+      "x": 0.048828125,
+      "y": -0.4156901042
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2854,
+      "kind": "move",
+      "x": 0.0475260417,
+      "y": -0.4807942708
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2989,
+      "kind": "down",
+      "x": 0.0475260417,
+      "y": -0.4807942708
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3071,
+      "kind": "up",
+      "x": 0.0475260417,
+      "y": -0.4807942708
+    }
+  ],
+  "3RGU30DZTXEIFY7OS8PXY3W4D6SMJ2": [
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 50,
+      "kind": "move",
+      "x": 0.0416666667,
+      "y": 0.046875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 105,
+      "kind": "move",
+      "x": 0.0572916667,
+      "y": 0.046875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 143,
+      "kind": "move",
+      "x": 0.078125,
+      "y": 0.0520833333
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1100,
+      "kind": "move",
+      "x": 0.0885416667,
+      "y": 0.0520833333
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1147,
+      "kind": "move",
+      "x": 0.125,
+      "y": -0.0520833333
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1195,
+      "kind": "move",
+      "x": 0.1666666667,
+      "y": -0.1510416667
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1505,
+      "kind": "move",
+      "x": 0.171875,
+      "y": -0.15625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1555,
+      "kind": "move",
+      "x": 0.1875,
+      "y": -0.140625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1933,
+      "kind": "move",
+      "x": 0.1927083333,
+      "y": -0.140625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1972,
+      "kind": "move",
+      "x": 0.140625,
+      "y": -0.234375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2006,
+      "kind": "move",
+      "x": 0.1041666667,
+      "y": -0.2916666667
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2051,
+      "kind": "move",
+      "x": 0.0833333333,
+      "y": -0.3229166667
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2109,
+      "kind": "move",
+      "x": 0.0572916667,
+      "y": -0.3645833333
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2163,
+      "kind": "move",
+      "x": 0.046875,
+      "y": -0.390625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2200,
+      "kind": "move",
+      "x": 0.0364583333,
+      "y": -0.4114583333
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2264,
+      "kind": "move",
+      "x": 0.0208333333,
+      "y": -0.4479166667
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2322,
+      "kind": "move",
+      "x": 0.0208333333,
+      "y": -0.46875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2364,
+      "kind": "move",
+      "x": 0.0208333333,
+      "y": -0.4791666667
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2655,
+      "kind": "move",
+      "x": 0.015625,
+      "y": -0.4895833333
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2735,
+      "kind": "down",
+      "x": 0.015625,
+      "y": -0.4895833333
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2819,
+      "kind": "up",
+      "x": 0.015625,
+      "y": -0.4895833333
+    }
+  ],
+  "3VW6495TL66844R1XBEB2LYZZKFYYY": [
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1195,
+      "kind": "move",
+      "x": -0.0585942483,
+      "y": -0.1641538194
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1229,
+      "kind": "move",
+      "x": 0.0332376604,
+      "y": -0.1230350466
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1505,
+      "kind": "move",
+      "x": 0.0620208292,
+      "y": -0.1120700432
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1543,
+      "kind": "move",
+      "x": 0.1045102424,
+      "y": -0.1079582017
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1660,
+      "kind": "move",
+      "x": 0.1319227311,
+      "y": -0.105216921
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1706,
+      "kind": "move",
+      "x": 0.099027681,
+      "y": -0.105216921
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1753,
+      "kind": "move",
+      "x": 0.0469439048,
+      "y": -0.1093288023
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1972,
+      "kind": "down",
+      "x": 0.0332376604,
+      "y": -0.1093288023
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2153,
+      "kind": "up",
+      "x": 0.0332376604,
+      "y": -0.1093288023
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2297,
+      "kind": "move",
+      "x": 0.0318670598,
+      "y": -0.1093288023
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2714,
+      "kind": "move",
+      "x": 0.0250138979,
+      "y": -0.1093288023
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2769,
+      "kind": "move",
+      "x": 0.0250138979,
+      "y": -0.1134406835
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2820,
+      "kind": "move",
+      "x": 0.026384578,
+      "y": -0.1819719848
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2873,
+      "kind": "move",
+      "x": 0.0318670598,
+      "y": -0.234055761
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2906,
+      "kind": "move",
+      "x": 0.0318670598,
+      "y": -0.2696920122
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2985,
+      "kind": "move",
+      "x": 0.0318670598,
+      "y": -0.2888808179
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3196,
+      "kind": "move",
+      "x": 0.0318670598,
+      "y": -0.2861395372
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3279,
+      "kind": "move",
+      "x": 0.0318670598,
+      "y": -0.2847689367
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3332,
+      "kind": "move",
+      "x": 0.0277551786,
+      "y": -0.282027656
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3431,
+      "kind": "move",
+      "x": 0.0236432973,
+      "y": -0.2806570554
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3465,
+      "kind": "move",
+      "x": 0.0017132905,
+      "y": -0.2806570554
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 3556,
+      "kind": "move",
+      "x": -0.0106223533,
+      "y": -0.2806570554
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4957,
+      "kind": "move",
+      "x": -0.0134548346,
+      "y": -0.3352050781
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5003,
+      "kind": "move",
+      "x": -0.0065104167,
+      "y": -0.4081217448
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5043,
+      "kind": "move",
+      "x": -0.004774332,
+      "y": -0.4254829089
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5090,
+      "kind": "move",
+      "x": -0.004774332,
+      "y": -0.4358995756
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5143,
+      "kind": "move",
+      "x": -0.003038168,
+      "y": -0.4428439935
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5197,
+      "kind": "move",
+      "x": -0.003038168,
+      "y": -0.4532606602
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5249,
+      "kind": "move",
+      "x": -0.003038168,
+      "y": -0.4549967448
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5299,
+      "kind": "move",
+      "x": -0.003038168,
+      "y": -0.4706217448
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5331,
+      "kind": "move",
+      "x": -0.0065104167,
+      "y": -0.4879829089
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5587,
+      "kind": "move",
+      "x": -0.0065104167,
+      "y": -0.4914550781
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5588,
+      "kind": "down",
+      "x": -0.0065104167,
+      "y": -0.4914550781
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5772,
+      "kind": "up",
+      "x": -0.0065104167,
+      "y": -0.4914550781
+    }
+  ],
+  "3W2LOLRXLYL4NYQYF1LQLHQRYIRRKU": [
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 785,
+      "kind": "move",
+      "x": 0.0146484375,
+      "y": -0.0107421875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 832,
+      "kind": "move",
+      "x": 0.0224609375,
+      "y": -0.0302734375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 882,
+      "kind": "move",
+      "x": 0.0341796875,
+      "y": -0.0458984375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 923,
+      "kind": "move",
+      "x": 0.0400390625,
+      "y": -0.0517578125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 969,
+      "kind": "move",
+      "x": 0.0537109375,
+      "y": -0.0556640625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1002,
+      "kind": "move",
+      "x": 0.0654296875,
+      "y": -0.0556640625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1035,
+      "kind": "move",
+      "x": 0.0908203125,
+      "y": -0.0615234375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1068,
+      "kind": "move",
+      "x": 0.1201171875,
+      "y": -0.0673828125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1118,
+      "kind": "move",
+      "x": 0.1376953125,
+      "y": -0.0712890625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1152,
+      "kind": "move",
+      "x": 0.1552734375,
+      "y": -0.0751953125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1185,
+      "kind": "move",
+      "x": 0.1630859375,
+      "y": -0.0751953125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1255,
+      "kind": "move",
+      "x": 0.1689453125,
+      "y": -0.0791015625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1344,
+      "kind": "move",
+      "x": 0.1708984375,
+      "y": -0.0810546875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1390,
+      "kind": "move",
+      "x": 0.1748046875,
+      "y": -0.0830078125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1440,
+      "kind": "move",
+      "x": 0.1748046875,
+      "y": -0.0849609375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1473,
+      "kind": "move",
+      "x": 0.1787109375,
+      "y": -0.0869140625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1727,
+      "kind": "move",
+      "x": 0.1826171875,
+      "y": -0.0888671875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1740,
+      "kind": "down",
+      "x": 0.1845703125,
+      "y": -0.0908203125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1787,
+      "kind": "move",
+      "x": 0.2001953125,
+      "y": -0.0927734375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1834,
+      "kind": "move",
+      "x": 0.2197265625,
+      "y": -0.0927734375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1884,
+      "kind": "move",
+      "x": 0.3154296875,
+      "y": -0.0927734375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1917,
+      "kind": "move",
+      "x": 0.3466796875,
+      "y": -0.0927734375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 1961,
+      "kind": "move",
+      "x": 0.3583984375,
+      "y": -0.0927734375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2024,
+      "kind": "move",
+      "x": 0.3623046875,
+      "y": -0.0927734375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2088,
+      "kind": "move",
+      "x": 0.3662109375,
+      "y": -0.0927734375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2088,
+      "kind": "up",
+      "x": 0.3662109375,
+      "y": -0.0927734375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 2420,
+      "kind": "move",
+      "x": 0.3642578125,
+      "y": -0.0947265625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4195,
+      "kind": "move",
+      "x": 0.3623046875,
+      "y": -0.0966796875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4257,
+      "kind": "move",
+      "x": 0.3564453125,
+      "y": -0.0966796875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4305,
+      "kind": "move",
+      "x": 0.3486328125,
+      "y": -0.1005859375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4358,
+      "kind": "move",
+      "x": 0.3369140625,
+      "y": -0.1025390625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4404,
+      "kind": "move",
+      "x": 0.3095703125,
+      "y": -0.1025390625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4443,
+      "kind": "move",
+      "x": 0.2763671875,
+      "y": -0.1025390625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4483,
+      "kind": "move",
+      "x": 0.2685546875,
+      "y": -0.1025390625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4520,
+      "kind": "move",
+      "x": 0.2607421875,
+      "y": -0.1025390625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4556,
+      "kind": "move",
+      "x": 0.2568359375,
+      "y": -0.1025390625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 4642,
+      "kind": "move",
+      "x": 0.2529296875,
+      "y": -0.1025390625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5635,
+      "kind": "move",
+      "x": 0.2509765625,
+      "y": -0.1025390625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5674,
+      "kind": "move",
+      "x": 0.2392578125,
+      "y": -0.1064453125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5714,
+      "kind": "move",
+      "x": 0.2333984375,
+      "y": -0.1083984375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5747,
+      "kind": "move",
+      "x": 0.2275390625,
+      "y": -0.1103515625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5800,
+      "kind": "move",
+      "x": 0.2158203125,
+      "y": -0.1162109375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5889,
+      "kind": "move",
+      "x": 0.2080078125,
+      "y": -0.1181640625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5947,
+      "kind": "move",
+      "x": 0.2041015625,
+      "y": -0.1181640625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 5988,
+      "kind": "move",
+      "x": 0.1982421875,
+      "y": -0.1181640625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6681,
+      "kind": "move",
+      "x": 0.1962890625,
+      "y": -0.1240234375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6721,
+      "kind": "move",
+      "x": 0.1865234375,
+      "y": -0.1689453125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 6777,
+      "kind": "move",
+      "x": 0.1806640625,
+      "y": -0.2021484375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 7514,
+      "kind": "down",
+      "x": 0.1806640625,
+      "y": -0.2060546875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 7640,
+      "kind": "up",
+      "x": 0.1806640625,
+      "y": -0.2060546875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 8394,
+      "kind": "down",
+      "x": 0.1806640625,
+      "y": -0.2060546875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 8507,
+      "kind": "up",
+      "x": 0.1806640625,
+      "y": -0.2060546875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 8608,
+      "kind": "down",
+      "x": 0.1806640625,
+      "y": -0.2060546875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 8697,
+      "kind": "up",
+      "x": 0.1806640625,
+      "y": -0.2060546875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 8772,
+      "kind": "move",
+      "x": 0.1806640625,
+      "y": -0.1982421875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 8816,
+      "kind": "move",
+      "x": 0.1396484375,
+      "y": 0.0380859375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 8866,
+      "kind": "move",
+      "x": 0.1083984375,
+      "y": 0.1513671875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 8950,
+      "kind": "move",
+      "x": 0.0986328125,
+      "y": 0.1650390625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 8978,
+      "kind": "move",
+      "x": 0.0966796875,
+      "y": 0.1669921875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 9019,
+      "kind": "move",
+      "x": 0.0927734375,
+      "y": 0.1728515625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 9050,
+      "kind": "move",
+      "x": 0.0888671875,
+      "y": 0.1767578125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 9089,
+      "kind": "move",
+      "x": 0.0869140625,
+      "y": 0.1767578125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 9144,
+      "kind": "move",
+      "x": 0.0634765625,
+      "y": 0.1884765625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 9178,
+      "kind": "move",
+      "x": 0.0400390625,
+      "y": 0.2060546875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 9242,
+      "kind": "move",
+      "x": 0.0244140625,
+      "y": 0.2177734375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 9242,
+      "kind": "down",
+      "x": 0.0244140625,
+      "y": 0.2177734375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 9362,
+      "kind": "move",
+      "x": 0.0244140625,
+      "y": 0.2197265625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 9368,
+      "kind": "up",
+      "x": 0.0244140625,
+      "y": 0.2197265625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 9402,
+      "kind": "move",
+      "x": 0.0322265625,
+      "y": 0.2216796875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 9456,
+      "kind": "move",
+      "x": 0.0478515625,
+      "y": 0.2119140625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 9626,
+      "kind": "move",
+      "x": 0.0498046875,
+      "y": 0.2041015625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 9706,
+      "kind": "move",
+      "x": 0.0498046875,
+      "y": 0.2001953125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 9753,
+      "kind": "move",
+      "x": 0.0517578125,
+      "y": 0.2001953125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 9786,
+      "kind": "move",
+      "x": 0.1025390625,
+      "y": 0.2060546875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 9835,
+      "kind": "move",
+      "x": 0.1865234375,
+      "y": 0.2197265625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 9886,
+      "kind": "move",
+      "x": 0.2294921875,
+      "y": 0.2294921875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 9919,
+      "kind": "move",
+      "x": 0.2490234375,
+      "y": 0.2353515625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 9969,
+      "kind": "move",
+      "x": 0.2744140625,
+      "y": 0.2431640625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 10020,
+      "kind": "move",
+      "x": 0.2763671875,
+      "y": 0.2431640625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 10020,
+      "kind": "down",
+      "x": 0.2763671875,
+      "y": 0.2431640625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 10122,
+      "kind": "up",
+      "x": 0.2763671875,
+      "y": 0.2431640625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 10304,
+      "kind": "move",
+      "x": 0.2744140625,
+      "y": 0.2431640625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 10354,
+      "kind": "move",
+      "x": 0.2080078125,
+      "y": 0.1767578125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 10387,
+      "kind": "move",
+      "x": 0.1474609375,
+      "y": 0.0986328125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 10426,
+      "kind": "move",
+      "x": 0.1064453125,
+      "y": 0.0341796875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 10471,
+      "kind": "move",
+      "x": 0.0947265625,
+      "y": 0.0166015625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 10520,
+      "kind": "move",
+      "x": 0.0771484375,
+      "y": 0.0009765625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 10570,
+      "kind": "move",
+      "x": 0.0517578125,
+      "y": -0.0185546875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 10604,
+      "kind": "move",
+      "x": 0.0302734375,
+      "y": -0.0302734375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 10637,
+      "kind": "move",
+      "x": 0.0224609375,
+      "y": -0.0361328125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 10672,
+      "kind": "move",
+      "x": 0.0107421875,
+      "y": -0.0439453125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 10721,
+      "kind": "move",
+      "x": -0.0009765625,
+      "y": -0.0576171875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 10770,
+      "kind": "move",
+      "x": -0.0107421875,
+      "y": -0.0693359375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 10820,
+      "kind": "move",
+      "x": -0.0205078125,
+      "y": -0.0888671875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 10875,
+      "kind": "down",
+      "x": -0.0205078125,
+      "y": -0.0908203125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 10993,
+      "kind": "up",
+      "x": -0.0205078125,
+      "y": -0.0908203125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 11249,
+      "kind": "move",
+      "x": -0.0205078125,
+      "y": -0.0927734375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 11300,
+      "kind": "move",
+      "x": -0.0126953125,
+      "y": -0.0888671875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 11331,
+      "kind": "move",
+      "x": -0.0068359375,
+      "y": -0.0888671875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 11383,
+      "kind": "move",
+      "x": -0.0009765625,
+      "y": -0.0849609375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 11480,
+      "kind": "move",
+      "x": 0.0029296875,
+      "y": -0.0849609375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 11738,
+      "kind": "move",
+      "x": 0.0048828125,
+      "y": -0.0849609375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 11783,
+      "kind": "move",
+      "x": 0.0771484375,
+      "y": -0.0849609375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 11833,
+      "kind": "move",
+      "x": 0.1474609375,
+      "y": -0.0849609375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 11905,
+      "kind": "move",
+      "x": 0.1533203125,
+      "y": -0.0849609375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 11960,
+      "kind": "move",
+      "x": 0.1572265625,
+      "y": -0.0849609375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 12034,
+      "kind": "down",
+      "x": 0.1572265625,
+      "y": -0.0849609375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 12054,
+      "kind": "move",
+      "x": 0.1591796875,
+      "y": -0.0849609375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 12103,
+      "kind": "move",
+      "x": 0.1669921875,
+      "y": -0.0830078125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 12137,
+      "kind": "move",
+      "x": 0.1865234375,
+      "y": -0.0830078125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 12187,
+      "kind": "move",
+      "x": 0.2099609375,
+      "y": -0.0830078125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 12237,
+      "kind": "move",
+      "x": 0.2333984375,
+      "y": -0.0830078125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 12287,
+      "kind": "move",
+      "x": 0.2451171875,
+      "y": -0.0830078125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 12337,
+      "kind": "move",
+      "x": 0.2548828125,
+      "y": -0.0830078125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 12387,
+      "kind": "move",
+      "x": 0.3212890625,
+      "y": -0.0830078125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 12430,
+      "kind": "move",
+      "x": 0.3486328125,
+      "y": -0.0830078125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 12480,
+      "kind": "move",
+      "x": 0.3857421875,
+      "y": -0.0830078125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 12529,
+      "kind": "move",
+      "x": 0.4091796875,
+      "y": -0.0830078125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 12579,
+      "kind": "move",
+      "x": 0.4365234375,
+      "y": -0.0830078125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 12647,
+      "kind": "move",
+      "x": 0.4482421875,
+      "y": -0.0830078125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 12682,
+      "kind": "move",
+      "x": 0.4541015625,
+      "y": -0.0830078125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 12720,
+      "kind": "up",
+      "x": 0.4541015625,
+      "y": -0.0830078125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 12751,
+      "kind": "move",
+      "x": 0.4541015625,
+      "y": -0.0830078125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 13076,
+      "kind": "move",
+      "x": 0.4541015625,
+      "y": -0.0849609375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 13160,
+      "kind": "move",
+      "x": 0.4501953125,
+      "y": -0.0869140625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 13228,
+      "kind": "move",
+      "x": 0.4423828125,
+      "y": -0.0908203125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 13264,
+      "kind": "move",
+      "x": 0.4345703125,
+      "y": -0.0927734375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 13313,
+      "kind": "move",
+      "x": 0.4267578125,
+      "y": -0.0986328125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 13361,
+      "kind": "move",
+      "x": 0.4150390625,
+      "y": -0.1025390625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 13402,
+      "kind": "move",
+      "x": 0.3955078125,
+      "y": -0.1083984375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 13475,
+      "kind": "down",
+      "x": 0.3876953125,
+      "y": -0.1123046875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 13561,
+      "kind": "up",
+      "x": 0.3876953125,
+      "y": -0.1123046875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 14635,
+      "kind": "move",
+      "x": 0.3857421875,
+      "y": -0.1123046875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 14684,
+      "kind": "move",
+      "x": 0.3740234375,
+      "y": -0.1181640625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 14751,
+      "kind": "move",
+      "x": 0.3642578125,
+      "y": -0.1201171875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 14800,
+      "kind": "move",
+      "x": 0.2919921875,
+      "y": -0.1103515625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 14834,
+      "kind": "move",
+      "x": 0.1611328125,
+      "y": -0.1025390625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 14884,
+      "kind": "move",
+      "x": 0.0791015625,
+      "y": -0.1025390625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 14933,
+      "kind": "move",
+      "x": 0.0537109375,
+      "y": -0.1025390625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 14969,
+      "kind": "move",
+      "x": 0.0478515625,
+      "y": -0.1025390625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 17145,
+      "kind": "move",
+      "x": 0.0458984375,
+      "y": -0.1025390625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 17200,
+      "kind": "move",
+      "x": 0.0166015625,
+      "y": -0.1044921875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 17233,
+      "kind": "move",
+      "x": 0.0146484375,
+      "y": -0.0986328125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 17304,
+      "kind": "move",
+      "x": 0.0185546875,
+      "y": -0.0986328125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 17350,
+      "kind": "move",
+      "x": 0.0400390625,
+      "y": -0.1005859375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 17399,
+      "kind": "move",
+      "x": 0.0419921875,
+      "y": -0.1005859375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 17457,
+      "kind": "move",
+      "x": 0.0419921875,
+      "y": -0.1044921875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 17504,
+      "kind": "move",
+      "x": 0.0478515625,
+      "y": -0.1181640625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 17552,
+      "kind": "move",
+      "x": 0.0908203125,
+      "y": -0.1083984375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 17632,
+      "kind": "move",
+      "x": 0.0927734375,
+      "y": -0.1083984375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 17683,
+      "kind": "move",
+      "x": 0.0966796875,
+      "y": -0.1630859375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 17723,
+      "kind": "move",
+      "x": 0.1181640625,
+      "y": -0.1748046875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 17767,
+      "kind": "move",
+      "x": 0.1767578125,
+      "y": -0.1220703125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 17798,
+      "kind": "move",
+      "x": 0.1845703125,
+      "y": -0.1123046875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 17832,
+      "kind": "move",
+      "x": 0.1806640625,
+      "y": -0.1123046875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 17883,
+      "kind": "move",
+      "x": 0.1591796875,
+      "y": -0.1220703125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 17933,
+      "kind": "move",
+      "x": 0.1748046875,
+      "y": -0.1259765625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 18010,
+      "kind": "move",
+      "x": 0.1884765625,
+      "y": -0.1181640625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 18044,
+      "kind": "move",
+      "x": 0.1748046875,
+      "y": -0.1318359375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 18089,
+      "kind": "move",
+      "x": 0.1748046875,
+      "y": -0.1455078125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 18235,
+      "kind": "move",
+      "x": 0.1767578125,
+      "y": -0.1455078125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 18281,
+      "kind": "move",
+      "x": 0.2666015625,
+      "y": -0.1318359375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 18335,
+      "kind": "move",
+      "x": 0.3525390625,
+      "y": -0.1318359375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 18377,
+      "kind": "move",
+      "x": 0.3974609375,
+      "y": -0.1318359375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 18427,
+      "kind": "move",
+      "x": 0.4228515625,
+      "y": -0.1318359375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 18672,
+      "kind": "move",
+      "x": 0.4208984375,
+      "y": -0.1318359375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 18720,
+      "kind": "move",
+      "x": 0.4013671875,
+      "y": -0.1337890625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 18768,
+      "kind": "move",
+      "x": 0.3798828125,
+      "y": -0.1396484375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 18883,
+      "kind": "move",
+      "x": 0.3740234375,
+      "y": -0.1396484375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 18884,
+      "kind": "down",
+      "x": 0.3740234375,
+      "y": -0.1396484375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 18968,
+      "kind": "move",
+      "x": 0.3798828125,
+      "y": -0.1396484375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 19016,
+      "kind": "move",
+      "x": 0.4365234375,
+      "y": -0.1279296875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 19066,
+      "kind": "move",
+      "x": 0.4599609375,
+      "y": -0.1240234375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 19111,
+      "kind": "move",
+      "x": 0.4736328125,
+      "y": -0.1220703125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 19111,
+      "kind": "up",
+      "x": 0.4736328125,
+      "y": -0.1220703125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 19368,
+      "kind": "move",
+      "x": 0.4736328125,
+      "y": -0.1220703125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 19432,
+      "kind": "move",
+      "x": 0.4345703125,
+      "y": -0.1201171875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 19483,
+      "kind": "move",
+      "x": 0.3447265625,
+      "y": -0.1044921875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 19536,
+      "kind": "move",
+      "x": 0.2880859375,
+      "y": -0.1025390625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 19641,
+      "kind": "move",
+      "x": 0.2841796875,
+      "y": -0.1005859375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 19682,
+      "kind": "move",
+      "x": 0.2861328125,
+      "y": -0.1025390625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 19749,
+      "kind": "move",
+      "x": 0.2861328125,
+      "y": -0.1083984375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 19819,
+      "kind": "move",
+      "x": 0.2861328125,
+      "y": -0.1162109375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 19981,
+      "kind": "move",
+      "x": 0.2998046875,
+      "y": -0.1103515625
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 22834,
+      "kind": "move",
+      "x": 0.3984375,
+      "y": -0.15234375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 22873,
+      "kind": "move",
+      "x": 0.3854166667,
+      "y": -0.15234375
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 22914,
+      "kind": "move",
+      "x": 0.3046875,
+      "y": -0.19921875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 22959,
+      "kind": "move",
+      "x": 0.1822916667,
+      "y": -0.26953125
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 23018,
+      "kind": "move",
+      "x": 0.1171875,
+      "y": -0.3294270833
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 23056,
+      "kind": "move",
+      "x": 0.0729166667,
+      "y": -0.38671875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 23104,
+      "kind": "move",
+      "x": 0.0442708333,
+      "y": -0.4283854167
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 23171,
+      "kind": "move",
+      "x": 0.0390625,
+      "y": -0.44921875
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 23223,
+      "kind": "move",
+      "x": 0.03125,
+      "y": -0.4622395833
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 23361,
+      "kind": "down",
+      "x": 0.03125,
+      "y": -0.4674479167
+    },
+    {
+      "event_type": "PointerSampledEvent",
+      "t": 23466,
+      "kind": "up",
+      "x": 0.03125,
+      "y": -0.4674479167
+    }
+  ]
+}

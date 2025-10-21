@@ -44,10 +44,10 @@ class Helper:
     """
 
     def __init__(
-        self,
-        recruiter_service_client: RecruiterServiceClient,
-        s3_client: S3Client,
-        local_cachedir: os.PathLike | str,
+            self,
+            recruiter_service_client: RecruiterServiceClient,
+            s3_client: S3Client,
+            local_cachedir: os.PathLike | str,
     ):
         self.recruiter_service_client = recruiter_service_client
         self.s3_client = s3_client
@@ -55,19 +55,21 @@ class Helper:
 
     def _get_hit_cachedir(self) -> Path:
         return (
-            self.local_cachedir
-            / "hits"
-            / self.recruiter_service_client.get_recruiter_service_name()
+                self.local_cachedir
+                / "hits"
+                / self.recruiter_service_client.get_recruiter_service_name()
         )
 
     def create_hit(
-        self,
-        graph: nk.Graph,
-        num_assignments: int,
-        base_payment_usd: str,
-        title: str,
-        duration_sec: int,
-        unique_request_token: str | None = None,
+            self,
+            graph: nk.Graph,
+            num_assignments: int,
+            base_payment_usd: str,
+            title: str,
+            duration_sec: int,
+            project_name: str,
+            unique_request_token: str | None = None,
+
     ) -> HitId:
         """
         Creates a HIT based on the given Graph.
@@ -106,7 +108,7 @@ class Helper:
                 unique_request_token=unique_request_token,
                 hit_id=hit_id,
             )
-            savepath = self._get_hit_cachedir() / f"{hit_id}.json"
+            savepath = self._get_hit_cachedir() / project_name /  f"{hit_id}.json"
             if not savepath.parent.exists():
                 savepath.parent.mkdir(parents=True)
             savepath.write_text(hit_request.model_dump_json(indent=2))
@@ -117,12 +119,18 @@ class Helper:
 
         return hit_id
 
-    def list_hits(self) -> list[HitId]:
+    def list_hits(self, project_name: str = None) -> list[HitId]:
         # Just read off the local cache
         savedir = self._get_hit_cachedir()
         savedir.mkdir(parents=True, exist_ok=True)
         hit_ids: list[HitId] = []
-        for path in glob.glob(str(savedir / "*.json")):
+
+        if project_name is None:
+            search_results = glob.glob(str(savedir / "**/*.json"), recursive=True)
+        else:
+            search_results = glob.glob(str(savedir / f"{project_name}/*.json"))
+
+        for path in search_results:
             hit_ids.append(Path(path).stem.split("*.json")[0])
         return hit_ids
 
@@ -155,8 +163,8 @@ class Helper:
         return index_url
 
     def iter_traces(
-        self,
-        hit_id: HitId,
+            self,
+            hit_id: HitId,
     ) -> Iterable[TraceResult]:
         """
         Iterate the Traces collected under the given HIT ID.
@@ -184,10 +192,10 @@ class Helper:
             )
 
     def pay_bonus(
-        self,
-        worker_id: WorkerId,
-        assignment_id: AssignmentId,
-        amount_usd: str,
+            self,
+            worker_id: WorkerId,
+            assignment_id: AssignmentId,
+            amount_usd: str,
     ) -> None:
         self.recruiter_service_client.send_bonus_payment(
             request=SendBonusPaymentRequest(
@@ -198,8 +206,8 @@ class Helper:
         )
 
     def get_hit(
-        self,
-        hit_id: HitId,
+            self,
+            hit_id: HitId,
     ) -> HitRequest:
         """
         Loads the Graph associated with the given HIT ID.
