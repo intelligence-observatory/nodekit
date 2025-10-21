@@ -60,13 +60,13 @@ impl Copier {
         }
     }
 
-    pub fn add<P: AsRef<Path>>(&mut self, from: P, media_type: MediaType) -> Result<(), Error> {
+    pub fn add<P: AsRef<Path>>(&mut self, from: P, media_type: MediaType) -> Result<bool, Error> {
         if let Some(to_copy) =
             ToCopy::new(&self.directory, from.as_ref().to_path_buf(), media_type)?
         {
             self.to_copy.push(to_copy);
         }
-        Ok(())
+        Ok(true)
     }
 
     pub async fn copy(&mut self) -> Vec<Result<Asset, Error>> {

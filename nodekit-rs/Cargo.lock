@@ -1087,12 +1087,14 @@ dependencies = [
  "blittle",
  "ffmpeg-next",
  "hashbrown 0.16.0",
+ "nodekit-rs-asset",
  "nodekit-rs-board",
  "nodekit-rs-graph",
  "nodekit-rs-image",
  "nodekit-rs-video",
  "slotmap",
  "thiserror",
+ "url",
 ]
 
 [[package]]

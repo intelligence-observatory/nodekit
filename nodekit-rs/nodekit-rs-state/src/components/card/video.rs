@@ -2,8 +2,10 @@ use crate::error::Error;
 use blittle::*;
 use nodekit_rs_board::*;
 use nodekit_rs_video::FrameExtractor;
-use std::path::Path;
 use slotmap::new_key_type;
+use std::path::Path;
+use nodekit_rs_graph::VideoCard;
+use crate::components::Card;
 
 new_key_type! { pub struct VideoKey; }
 
@@ -14,36 +16,41 @@ pub struct BlitResult {
 
 #[derive(Default)]
 pub struct Video<'v> {
-    position: PositionU,
-    size: Size,
     extractor: Option<FrameExtractor<'v>>,
+    muted: bool,
+    looping: bool,
+}
+
+impl From<&VideoCard> for Video<'_> {
+    fn from(value: &VideoCard) -> Self {
+        Self {
+            muted: value.muted,
+            looping: value.loop_,
+            extractor: None
+        }
+    }
 }
 
 impl Video<'_> {
-    pub fn new<P: AsRef<Path>>(
+    pub fn load<P: AsRef<Path>>(
+        &mut self,
         path: P,
-        position: PositionI,
-        mut size: Size,
-    ) -> Result<Self, Error> {
-        let position = clip(&position, &BOARD_SIZE, &mut size);
-        let extractor = FrameExtractor::new(path, size.w as u32, size.h as u32)
-            .map_err(Error::FrameExtractor)?;
-        Ok(Self {
-            position,
-            size,
-            extractor: Some(extractor),
-        })
+        card: &Card,
+    ) -> Result<(), Error> {
+        self.extractor = Some(FrameExtractor::new(path, card.size.w as u32, card.size.h as u32)
+            .map_err(Error::FrameExtractor)?);
+        Ok(())
     }
 
-    pub fn blit(&mut self, board: &mut Board) -> Result<BlitResult, ffmpeg_next::Error> {
+    pub fn blit(&mut self, card: &Card, board: &mut Board) -> Result<BlitResult, ffmpeg_next::Error> {
         match self.extractor.as_mut().unwrap().get_next_frame()? {
             Some(frame) => {
                 // Blit the video frame.
                 blit(
                     frame.video.data(0),
-                    &self.size,
+                    &card.size,
                     board,
-                    &self.position,
+                    &card.position,
                     &BOARD_SIZE,
                     3,
                 );

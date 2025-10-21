@@ -1,4 +1,6 @@
 use slotmap::new_key_type;
+use nodekit_rs_graph::NodeCardsValue;
+use crate::components::Card;
 
 new_key_type! { pub struct TimerKey; }
 
@@ -11,9 +13,9 @@ pub enum TimerState {
     Finished,
 }
 pub struct Timer {
-    t0: u32,
-    pub(crate) t1: Option<u32>,
-    t: u32,
+    t0: u64,
+    pub(crate) t1: Option<u64>,
+    t: u64,
     pub state: TimerState,
 }
 
@@ -36,12 +38,30 @@ impl Timer {
         self.t += 1;
     }
 
-    fn new(t0: u32, t1: Option<u32>) -> Self {
+    fn new(t0: u64, t1: Option<u64>) -> Self {
         Self {
             t0,
             t1,
             t: 0,
             state: TimerState::NotStarted,
+        }
+    }
+}
+
+macro_rules! from_raw {
+    ($card:ident) => {
+        Self::new($card.start_msec, $card.end_msec)
+    };
+}
+
+impl From<&NodeCardsValue> for Timer {
+    fn from(value: &NodeCardsValue) -> Self {
+        match value {
+            NodeCardsValue::FreeTextEntryCard(card) => from_raw!(card),
+            NodeCardsValue::ImageCard(card) => from_raw!(card),
+            NodeCardsValue::SliderCard(card) => from_raw!(card),
+            NodeCardsValue::TextCard(card) => from_raw!(card),
+            NodeCardsValue::VideoCard(card) => from_raw!(card),
         }
     }
 }

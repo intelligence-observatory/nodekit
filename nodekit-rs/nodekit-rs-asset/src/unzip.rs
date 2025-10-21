@@ -72,7 +72,7 @@ impl<'z> Unzipper<'z> {
         archive_path: P,
         inner_path: &'z str,
         media_type: MediaType,
-    ) -> Result<(), Error> {
+    ) -> Result<bool, Error> {
         if archive_path.as_ref().exists() {
             let archive_path = archive_path.as_ref().to_path_buf();
             let archive_stem = archive_path
@@ -95,7 +95,7 @@ impl<'z> Unzipper<'z> {
                 path,
                 archive_path: archive_path.clone(),
             });
-            Ok(())
+            Ok(true)
         } else {
             Err(Error::NoZip(archive_path.as_ref().to_path_buf()))
         }

@@ -1,6 +1,6 @@
 use crate::components::*;
-use slotmap::SlotMap;
 use crate::systems::SubSystem;
+use slotmap::SlotMap;
 
 #[derive(Default)]
 pub struct Sensors {

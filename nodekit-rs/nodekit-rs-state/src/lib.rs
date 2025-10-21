@@ -4,10 +4,10 @@ mod node;
 mod systems;
 mod transition;
 
-use blittle::Size;
-use slotmap::{SecondaryMap, SlotMap};
 use crate::node::{Node, NodeKey};
 use crate::transition::Transition;
+use blittle::Size;
+use slotmap::{SecondaryMap, SlotMap};
 
 pub struct State<'s> {
     start: NodeKey,

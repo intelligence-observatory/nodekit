@@ -1,5 +1,5 @@
-use slotmap::new_key_type;
 use crate::components::CardKey;
+use slotmap::new_key_type;
 
 new_key_type! { pub struct SensorKey; }
 new_key_type! { pub struct TimeoutSensorKey; }
@@ -14,7 +14,7 @@ pub struct TimeoutSensor(u32);
 pub enum ClickSensorMask {
     #[default]
     Rectangle,
-    Ellipse
+    Ellipse,
 }
 
 #[derive(Default)]

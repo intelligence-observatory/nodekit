@@ -7,9 +7,11 @@ edition = "2024"
 blittle.workspace = true
 ffmpeg-next.workspace = true
 hashbrown.workspace = true
+nodekit-rs-asset = { path = "../nodekit-rs-asset" }
 nodekit-rs-board = { path = "../nodekit-rs-board" }
 nodekit-rs-graph = { path = "../nodekit-rs-graph" }
 nodekit-rs-image = { path = "../nodekit-rs-image" }
 nodekit-rs-video = { path = "../nodekit-rs-video" }
 slotmap.workspace = true
 thiserror.workspace = true
+url.workspace = true

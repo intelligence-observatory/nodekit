@@ -7,7 +7,7 @@ pub enum JustificationHorizontal {
     #[default]
     Left,
     Center,
-    Right
+    Right,
 }
 
 #[derive(Default)]
@@ -15,7 +15,7 @@ pub enum JustificationVertical {
     #[default]
     Top,
     Center,
-    Bottom
+    Bottom,
 }
 
 #[derive(Default)]
