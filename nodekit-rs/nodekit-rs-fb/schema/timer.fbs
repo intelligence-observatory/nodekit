@@ -1,4 +1,0 @@
-table Timer {
-    start_msec:int32;
-    end_msec:int32 = null;
-}
