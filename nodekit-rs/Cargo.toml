@@ -1,5 +1,5 @@
 [workspace]
-members = ["nodekit-rs-board", "nodekit-rs-asset","nodekit-rs-fb", "nodekit-rs-graph", "nodekit-rs-state", "nodekit-rs-video"]
+members = ["nodekit-rs-board", "nodekit-rs-asset","nodekit-rs-fb", "nodekit-rs-graph", "nodekit-rs-state", "nodekit-rs-video", "nodekit-rs-image"]
 
 [package]
 name = "nodekit-rs"
@@ -14,12 +14,14 @@ ffmpeg-next.workspace = true
 async_zip = { version = "0.0.18",  features = ["deflate", "bzip2", "lzma", "zstd", "xz", "tokio"]}
 blittle = "0.2.0"
 bytes = "1.10.1"
+bytemuck = "1.24.0"
 ffmpeg-next = "8.0.0"
 flatbuffers = "25.9.23"
 futures = "0.3.31"
 hashbrown = "0.16.0"
 jpeg-decoder = "0.3.2"
 paste = "1.0.15"
+png = "0.18.0"
 regress = "0.10.4"
 reqwest = "0.12.24"
 serde = { version = "1.0.228", features = ["derive"] }

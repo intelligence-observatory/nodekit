@@ -1,0 +1,10 @@
+[package]
+name = "nodekit-rs-image"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+blittle.workspace = true
+bytemuck.workspace = true
+png.workspace = true
+thiserror.workspace = true
