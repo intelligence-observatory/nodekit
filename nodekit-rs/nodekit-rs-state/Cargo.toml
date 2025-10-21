@@ -6,7 +6,7 @@ edition = "2024"
 [dependencies]
 blittle.workspace = true
 ffmpeg-next.workspace = true
-nodekit-rs-graph = { path = "../nodekit-rs-graph-temp" }
+nodekit-rs-graph = { path = "../nodekit-rs-graph" }
 nodekit-rs-video = { path = "../nodekit-rs-video" }
 slotmap.workspace = true
 thiserror.workspace = true
