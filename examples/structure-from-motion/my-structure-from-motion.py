@@ -3,6 +3,7 @@ import glob
 import nodekit as nk
 from typing import Literal
 from pathlib import Path
+
 """
 This example is inspired by an experiment designed by by T. O'Connell and Y. Bai at MIT BCS. They 
 also kindly provided the instructions text and example stimuli.  
@@ -253,9 +254,9 @@ def make_sfm_instructions() -> nk.Graph:
         page = Path(page).read_text()
         nodes[f'page{i_page}'] = make_page(page, i_page)
 
-    # Wire up transitions
+    # Wire up transitions (manually, bla)
     transitions = {
-        'page0':{
+        'page0': {
             'next': 'page1'
         },
         'page1': {
@@ -280,13 +281,25 @@ def make_sfm_instructions() -> nk.Graph:
 
 # %%
 instructions = make_sfm_instructions()
-trial = make_trial(
+easy_trial = make_trial(
     stimulus=nk.assets.Video.from_path('./stimuli/gestalt_0/1.mp4'),
     left=nk.assets.Video.from_path('./stimuli/gestalt_0/2.mp4'),
     right=nk.assets.Video.from_path('./stimuli/gestalt_0/8.mp4'),
     correct_choice='left',
 )
-graph = nk.concat([instructions, trial])
+test_trial = make_trial(
+    stimulus=nk.assets.Video.from_path('./stimuli/test/1687.mp4'),
+    left=nk.assets.Video.from_path('./stimuli/test/1722.mp4'),
+    right=nk.assets.Video.from_path('./stimuli/test/1680.mp4'),
+    correct_choice='right',
+)
+graph = nk.concat(
+    [
+        instructions,
+        easy_trial,
+        # test_trial,
+    ]
+)
 
 nk.build_site(graph, 'to-share')
 # %%
