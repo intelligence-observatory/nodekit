@@ -11,6 +11,7 @@ use std::io::{BufReader, ErrorKind};
 use std::path::Path;
 
 /// A raw RGB24 pixel map and the image's dimensions.
+#[derive(Default)]
 pub struct Image {
     pub bytes: Vec<u8>,
     pub size: Size,

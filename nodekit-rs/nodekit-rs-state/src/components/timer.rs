@@ -1,3 +1,7 @@
+use slotmap::new_key_type;
+
+new_key_type! { pub struct TimerKey; }
+
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum TimerState {
     NotStarted,
@@ -39,14 +43,6 @@ impl Timer {
             t: 0,
             state: TimerState::NotStarted,
         }
-    }
-}
-
-impl<'c> From<nodekit_rs_fb::Timer<'c>> for Timer {
-    fn from(value: nodekit_rs_fb::Timer<'c>) -> Self {
-        let t0 = value.start_msec().unsigned_abs();
-        let t1 = value.end_msec().map(|v| v.unsigned_abs());
-        Self::new(t0, t1)
     }
 }
 

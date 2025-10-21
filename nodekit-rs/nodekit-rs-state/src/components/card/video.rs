@@ -1,18 +1,22 @@
 use crate::error::Error;
-use crate::{BOARD_SIZE, Board};
 use blittle::*;
+use nodekit_rs_board::*;
 use nodekit_rs_video::FrameExtractor;
 use std::path::Path;
+use slotmap::new_key_type;
+
+new_key_type! { pub struct VideoKey; }
 
 pub struct BlitResult {
     pub blitted: bool,
     pub audio: Option<Vec<u8>>,
 }
 
+#[derive(Default)]
 pub struct Video<'v> {
-    pub position: PositionU,
-    pub size: Size,
-    pub extractor: FrameExtractor<'v>,
+    position: PositionU,
+    size: Size,
+    extractor: Option<FrameExtractor<'v>>,
 }
 
 impl Video<'_> {
@@ -27,12 +31,12 @@ impl Video<'_> {
         Ok(Self {
             position,
             size,
-            extractor,
+            extractor: Some(extractor),
         })
     }
 
     pub fn blit(&mut self, board: &mut Board) -> Result<BlitResult, ffmpeg_next::Error> {
-        match self.extractor.get_next_frame()? {
+        match self.extractor.as_mut().unwrap().get_next_frame()? {
             Some(frame) => {
                 // Blit the video frame.
                 blit(
