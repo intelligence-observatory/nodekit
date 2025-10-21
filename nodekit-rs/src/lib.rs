@@ -1,1 +1,1 @@
-pub fn ok(){}
+pub fn ok() {}

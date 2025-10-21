@@ -2,18 +2,18 @@
 
 mod error;
 
-use std::fs::File;
-use std::io::{BufReader, ErrorKind};
-pub use error::Error;
-use std::path::Path;
 use blittle::Size;
 use bytemuck::cast_slice;
+pub use error::Error;
 use png::{ColorType, Decoder, DecodingError, Transformations};
+use std::fs::File;
+use std::io::{BufReader, ErrorKind};
+use std::path::Path;
 
 /// A raw RGB24 pixel map and the image's dimensions.
 pub struct Image {
     pub bytes: Vec<u8>,
-    pub size: Size
+    pub size: Size,
 }
 
 impl Image {
@@ -31,9 +31,15 @@ impl Image {
         let (width, height) = info.size();
         let size = Size {
             w: width as usize,
-            h: height as usize
+            h: height as usize,
         };
-        let output_size = reader.output_buffer_size().ok_or(DecodingError::IoError(std::io::Error::new(ErrorKind::InvalidData, "Invalid output buffer size")))?;
+        let output_size =
+            reader
+                .output_buffer_size()
+                .ok_or(DecodingError::IoError(std::io::Error::new(
+                    ErrorKind::InvalidData,
+                    "Invalid output buffer size",
+                )))?;
         let mut buffer = vec![0; output_size];
         let info = reader.next_frame(&mut buffer)?;
         let bytes = &buffer[..info.buffer_size()];
@@ -44,10 +50,7 @@ impl Image {
             ColorType::Rgb => bytes.to_vec(),
             ColorType::Rgba => Self::rgba_to_rgb(bytes),
         };
-        Ok(Self {
-            bytes,
-            size
-        })
+        Ok(Self { bytes, size })
     }
 
     fn grayscale_to_rgb(bytes: &[u8]) -> Vec<u8> {

@@ -3430,8 +3430,8 @@ pub mod builder {
         pub fn nodes<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<
-                ::std::collections::HashMap<::std::string::String, super::Node>,
-            >,
+                    ::std::collections::HashMap<::std::string::String, super::Node>,
+                >,
             T::Error: ::std::fmt::Display,
         {
             self.nodes = value
@@ -3452,11 +3452,11 @@ pub mod builder {
         pub fn transitions<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<
-                ::std::collections::HashMap<
-                    ::std::string::String,
-                    ::std::collections::HashMap<::std::string::String, ::std::string::String>,
+                    ::std::collections::HashMap<
+                        ::std::string::String,
+                        ::std::collections::HashMap<::std::string::String, ::std::string::String>,
+                    >,
                 >,
-            >,
             T::Error: ::std::fmt::Display,
         {
             self.transitions = value
@@ -3878,8 +3878,8 @@ pub mod builder {
         pub fn cards<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<
-                ::std::collections::HashMap<::std::string::String, super::NodeCardsValue>,
-            >,
+                    ::std::collections::HashMap<::std::string::String, super::NodeCardsValue>,
+                >,
             T::Error: ::std::fmt::Display,
         {
             self.cards = value
@@ -3900,8 +3900,8 @@ pub mod builder {
         pub fn sensors<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<
-                ::std::collections::HashMap<::std::string::String, super::NodeSensorsValue>,
-            >,
+                    ::std::collections::HashMap<::std::string::String, super::NodeSensorsValue>,
+                >,
             T::Error: ::std::fmt::Display,
         {
             self.sensors = value
