@@ -1,4 +1,3 @@
-use crate::Hash;
 use crate::copy::ToCopy;
 use crate::download::Download;
 use crate::media_type::MediaType;
@@ -8,16 +7,16 @@ use std::path::PathBuf;
 pub struct Asset {
     /// The path to the asset in the cache directory.
     pub path: PathBuf,
-    pub hash: Hash,
+    pub id: u64,
     pub media_type: MediaType,
 }
 
-impl Asset {
-    pub(crate) fn from_zipped(z: Zipped, hash: Hash) -> Self {
+impl From<Zipped<'_>> for Asset {
+    fn from(value: Zipped<'_>) -> Self {
         Self {
-            path: z.path.clone(),
-            hash,
-            media_type: z.media_type,
+            path: value.path.clone(),
+            id: value.id,
+            media_type: value.media_type,
         }
     }
 }
@@ -26,7 +25,7 @@ impl From<Download> for Asset {
     fn from(value: Download) -> Self {
         Self {
             path: value.path,
-            hash: value.hash,
+            id: value.id,
             media_type: value.media_type,
         }
     }
@@ -36,7 +35,7 @@ impl From<ToCopy> for Asset {
     fn from(value: ToCopy) -> Self {
         Self {
             path: value.to,
-            hash: value.hash,
+            id: value.id,
             media_type: value.media_type,
         }
     }

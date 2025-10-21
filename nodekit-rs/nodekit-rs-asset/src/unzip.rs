@@ -1,10 +1,8 @@
-use crate::Hash;
 use crate::asset::Asset;
 use crate::error::Error;
 use crate::media_type::MediaType;
 use async_zip::tokio::read::seek::ZipFileReader;
 use futures::future::join_all;
-use sha2::{Digest, Sha256};
 use std::fs::write;
 use std::path::{Path, PathBuf};
 use tokio::{fs::File, io::BufReader};
@@ -14,6 +12,7 @@ pub(crate) struct Zipped<'z> {
     pub inner_path: &'z str,
     pub media_type: MediaType,
     pub path: PathBuf,
+    pub id: u64,
 }
 
 impl Zipped<'_> {
@@ -42,13 +41,12 @@ impl Zipped<'_> {
             .ok_or(Error::MissingEntry(self.inner_path.to_string()))??;
         let mut reader = zip.reader_with_entry(index).await.map_err(Error::Zip)?;
         let mut buffer = Vec::default();
-        let hash: Hash = *Sha256::digest(&buffer).as_ref();
         reader
             .read_to_end_checked(&mut buffer)
             .await
             .map_err(Error::Zip)?;
         write(&self.path, buffer).map_err(Error::Write)?;
-        Ok(Asset::from_zipped(self, hash))
+        Ok(Asset::from(self))
     }
 }
 
@@ -72,6 +70,7 @@ impl<'z> Unzipper<'z> {
         archive_path: P,
         inner_path: &'z str,
         media_type: MediaType,
+        id: u64,
     ) -> Result<bool, Error> {
         if archive_path.as_ref().exists() {
             let archive_path = archive_path.as_ref().to_path_buf();
@@ -94,6 +93,7 @@ impl<'z> Unzipper<'z> {
                 media_type,
                 path,
                 archive_path: archive_path.clone(),
+                id,
             });
             Ok(true)
         } else {

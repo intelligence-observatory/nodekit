@@ -1,4 +1,5 @@
 use crate::components::*;
 use slotmap::SlotMap;
 
-pub struct Timers(SlotMap<TimerKey, Timer>);
+#[derive(Default)]
+pub struct Timers(pub SlotMap<TimerKey, Timer>);

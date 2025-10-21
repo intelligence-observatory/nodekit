@@ -8,8 +8,8 @@ use tokio::fs::copy;
 pub struct ToCopy {
     pub from: PathBuf,
     pub to: PathBuf,
-    pub hash: Hash,
     pub media_type: MediaType,
+    pub id: u64,
 }
 
 impl ToCopy {
@@ -17,6 +17,7 @@ impl ToCopy {
         directory: &Path,
         from: PathBuf,
         media_type: MediaType,
+        id: u64,
     ) -> Result<Option<Self>, Error> {
         if from.exists() {
             let filename = from
@@ -29,8 +30,8 @@ impl ToCopy {
                     Some(Self {
                         from,
                         to,
-                        hash,
                         media_type,
+                        id,
                     })
                 } else {
                     None
@@ -60,13 +61,21 @@ impl Copier {
         }
     }
 
-    pub fn add<P: AsRef<Path>>(&mut self, from: P, media_type: MediaType) -> Result<bool, Error> {
-        if let Some(to_copy) =
-            ToCopy::new(&self.directory, from.as_ref().to_path_buf(), media_type)?
-        {
-            self.to_copy.push(to_copy);
-        }
-        Ok(true)
+    pub fn add<P: AsRef<Path>>(
+        &mut self,
+        from: P,
+        media_type: MediaType,
+        id: u64,
+    ) -> Result<bool, Error> {
+        Ok(
+            match ToCopy::new(&self.directory, from.as_ref().to_path_buf(), media_type, id)? {
+                Some(to_copy) => {
+                    self.to_copy.push(to_copy);
+                    true
+                }
+                None => false,
+            },
+        )
     }
 
     pub async fn copy(&mut self) -> Vec<Result<Asset, Error>> {

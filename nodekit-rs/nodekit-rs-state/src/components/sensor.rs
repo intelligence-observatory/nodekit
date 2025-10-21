@@ -1,4 +1,6 @@
 use crate::components::CardKey;
+use crate::rect::Rect;
+use nodekit_rs_graph::Mask;
 use slotmap::new_key_type;
 
 new_key_type! { pub struct SensorKey; }
@@ -8,27 +10,47 @@ new_key_type! { pub struct KeySensorKey; }
 new_key_type! { pub struct SubmitSensorKey; }
 
 #[derive(Default)]
-pub struct TimeoutSensor(u32);
+pub struct TimeoutSensor {
+    t: u64,
+    t1: u64,
+}
 
-#[derive(Default)]
-pub enum ClickSensorMask {
-    #[default]
-    Rectangle,
-    Ellipse,
+impl From<&nodekit_rs_graph::TimeoutSensor> for TimeoutSensor {
+    fn from(value: &nodekit_rs_graph::TimeoutSensor) -> Self {
+        Self {
+            t: 0,
+            t1: value.timeout_msec.get(),
+        }
+    }
 }
 
 #[derive(Default)]
 pub struct ClickSensor {
-    pub x: f32,
-    pub y: f32,
-    pub w: f32,
-    pub h: f32,
-    pub mask: ClickSensorMask,
+    pub rect: Rect,
+    pub mask: Mask,
+}
+
+impl From<&nodekit_rs_graph::ClickSensor> for ClickSensor {
+    fn from(value: &nodekit_rs_graph::ClickSensor) -> Self {
+        let rect = Rect::new(value.x, value.y, value.w, value.h);
+        Self {
+            rect,
+            mask: value.mask,
+        }
+    }
 }
 
 #[derive(Default)]
 pub struct KeySensor {
     pub key: String,
+}
+
+impl From<&nodekit_rs_graph::KeySensor> for KeySensor {
+    fn from(value: &nodekit_rs_graph::KeySensor) -> Self {
+        Self {
+            key: value.key.to_string(),
+        }
+    }
 }
 
 #[derive(Default)]

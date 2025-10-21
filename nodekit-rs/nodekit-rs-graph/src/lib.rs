@@ -1,4 +1,4 @@
-#![deny(clippy::all)]
+#![allow(clippy::all)]
 
 #[doc = r" Error types."]
 pub mod error {

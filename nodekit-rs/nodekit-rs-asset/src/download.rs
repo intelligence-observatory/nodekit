@@ -1,7 +1,7 @@
+use crate::HASH_LEN;
 use crate::asset::Asset;
 use crate::error::Error;
 use crate::media_type::MediaType;
-use crate::{HASH_LEN, Hash};
 use bytes::Bytes;
 use futures::future::join_all;
 use reqwest::Client;
@@ -15,10 +15,10 @@ use url::Url;
 pub(crate) struct Download {
     /// The source URL.
     pub url: Url,
-    pub hash: Hash,
     /// The returned data will be written to this path.
     pub path: PathBuf,
     pub media_type: MediaType,
+    pub id: u64,
 }
 
 /// Queue up downloads and then download them in parallel.
@@ -52,6 +52,7 @@ impl Downloader {
         url: Url,
         hash: [u8; HASH_LEN],
         media_type: MediaType,
+        id: u64,
     ) -> Result<bool, Error> {
         let filename = url
             .path_segments()
@@ -71,7 +72,7 @@ impl Downloader {
                 url,
                 path,
                 media_type,
-                hash,
+                id,
             });
             Ok(true)
         }
@@ -132,11 +133,11 @@ mod tests {
 
         let url = Url::parse("https://images.pdimagearchive.org/collections/highlights-from-the-20000-maps-made-freely-available-online-by-new-york-public-library/13540188983_fa3794cab9_b.jpg?width=760&height=800").unwrap();
         let hash = *b"\xb7R\xddb\x18}_:JRk\x81B\xd4j1\"\xb7\x84\x84\xbf[p\xd5\xa1\x8a\x02\xb4\xa0\xa3\x1f\xce";
-        downloader.add(url, hash, MediaType::Image).unwrap();
+        downloader.add(url, hash, MediaType::Image, 0).unwrap();
 
         let url = Url::parse("https://images.pdimagearchive.org/collections/maps-of-the-lower-mississippi-harold-fisk/fisk08-edit.jpg?width=1000&height=800").unwrap();
         let hash = *b"\xbd\xf5\xdeW\x9c>!\x08\x1b\xc8c4\xdc\xb2\xdb9%\xc3\xb3\x864\x19\x8ed@\xb6\x02\x19\xc6u,\x92";
-        downloader.add(url, hash, MediaType::Image).unwrap();
+        downloader.add(url, hash, MediaType::Image, 1).unwrap();
 
         downloader
             .download()

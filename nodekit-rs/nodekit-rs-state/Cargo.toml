@@ -7,6 +7,7 @@ edition = "2024"
 blittle.workspace = true
 ffmpeg-next.workspace = true
 hashbrown.workspace = true
+hex_color.workspace = true
 nodekit-rs-asset = { path = "../nodekit-rs-asset" }
 nodekit-rs-board = { path = "../nodekit-rs-board" }
 nodekit-rs-graph = { path = "../nodekit-rs-graph" }
