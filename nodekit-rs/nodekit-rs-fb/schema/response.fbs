@@ -9,7 +9,6 @@ enum State : ubyte {
 table Response {
     board:[ubyte];
     audio:[ubyte];
-    sensor:string;
     state:State=1;
 }
 

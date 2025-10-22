@@ -137,8 +137,7 @@ impl<'a> flatbuffers::Follow<'a> for Response<'a> {
 impl<'a> Response<'a> {
     pub const VT_BOARD: flatbuffers::VOffsetT = 4;
     pub const VT_AUDIO: flatbuffers::VOffsetT = 6;
-    pub const VT_SENSOR: flatbuffers::VOffsetT = 8;
-    pub const VT_STATE: flatbuffers::VOffsetT = 10;
+    pub const VT_STATE: flatbuffers::VOffsetT = 8;
 
     #[inline]
     pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
@@ -150,9 +149,6 @@ impl<'a> Response<'a> {
         args: &'args ResponseArgs<'args>,
     ) -> flatbuffers::WIPOffset<Response<'bldr>> {
         let mut builder = ResponseBuilder::new(_fbb);
-        if let Some(x) = args.sensor {
-            builder.add_sensor(x);
-        }
         if let Some(x) = args.audio {
             builder.add_audio(x);
         }
@@ -190,16 +186,6 @@ impl<'a> Response<'a> {
         }
     }
     #[inline]
-    pub fn sensor(&self) -> Option<&'a str> {
-        // Safety:
-        // Created from valid Table for this object
-        // which contains a valid value in this slot
-        unsafe {
-            self._tab
-                .get::<flatbuffers::ForwardsUOffset<&str>>(Response::VT_SENSOR, None)
-        }
-    }
-    #[inline]
     pub fn state(&self) -> State {
         // Safety:
         // Created from valid Table for this object
@@ -230,7 +216,6 @@ impl flatbuffers::Verifiable for Response<'_> {
                 Self::VT_AUDIO,
                 false,
             )?
-            .visit_field::<flatbuffers::ForwardsUOffset<&str>>("sensor", Self::VT_SENSOR, false)?
             .visit_field::<State>("state", Self::VT_STATE, false)?
             .finish();
         Ok(())
@@ -239,7 +224,6 @@ impl flatbuffers::Verifiable for Response<'_> {
 pub struct ResponseArgs<'a> {
     pub board: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, u8>>>,
     pub audio: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, u8>>>,
-    pub sensor: Option<flatbuffers::WIPOffset<&'a str>>,
     pub state: State,
 }
 impl<'a> Default for ResponseArgs<'a> {
@@ -248,7 +232,6 @@ impl<'a> Default for ResponseArgs<'a> {
         ResponseArgs {
             board: None,
             audio: None,
-            sensor: None,
             state: State::Pending,
         }
     }
@@ -268,11 +251,6 @@ impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> ResponseBuilder<'a, 'b, A> {
     pub fn add_audio(&mut self, audio: flatbuffers::WIPOffset<flatbuffers::Vector<'b, u8>>) {
         self.fbb_
             .push_slot_always::<flatbuffers::WIPOffset<_>>(Response::VT_AUDIO, audio);
-    }
-    #[inline]
-    pub fn add_sensor(&mut self, sensor: flatbuffers::WIPOffset<&'b str>) {
-        self.fbb_
-            .push_slot_always::<flatbuffers::WIPOffset<_>>(Response::VT_SENSOR, sensor);
     }
     #[inline]
     pub fn add_state(&mut self, state: State) {
@@ -299,7 +277,6 @@ impl core::fmt::Debug for Response<'_> {
         let mut ds = f.debug_struct("Response");
         ds.field("board", &self.board());
         ds.field("audio", &self.audio());
-        ds.field("sensor", &self.sensor());
         ds.field("state", &self.state());
         ds.finish()
     }

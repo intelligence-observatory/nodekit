@@ -44,7 +44,6 @@ impl Connection {
         let args = ResponseArgs {
             board: result.board.map(|board| fbb.create_vector(&board)),
             audio: result.audio.map(|audio| fbb.create_vector(&audio)),
-            sensor: result.sensor.map(|sensor| fbb.create_string(&sensor.id)),
             state: match result.state {
                 EntityState::Pending => response::State::Pending,
                 EntityState::StartedNow => response::State::StartedNow,
