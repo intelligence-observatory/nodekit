@@ -84,3 +84,20 @@ impl FrameExtractor<'_> {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_video_extraction() {
+        let mut extractor = FrameExtractor::new("../BigBuckBunny_320x180.mp4", 320, 180).unwrap();
+        let mut num_frames = 0u64;
+        while let Ok(frame) = extractor.get_next_frame() {
+            if frame.is_some() {
+                num_frames += 1;
+            }
+        }
+        assert_eq!(num_frames, 100);
+    }
+}
