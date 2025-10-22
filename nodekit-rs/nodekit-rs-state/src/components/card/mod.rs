@@ -3,7 +3,6 @@ mod text;
 mod video;
 
 use crate::rect::Rect;
-use blittle::*;
 pub use image::*;
 use nodekit_rs_board::*;
 use nodekit_rs_graph::NodeCardsValue;
@@ -13,7 +12,10 @@ pub use video::*;
 
 new_key_type! { pub struct CardKey; }
 
-pub struct Card(pub Rect);
+pub struct Card {
+    pub rect: Rect,
+    pub active: bool,
+}
 
 impl Card {
     pub const fn spatial_coordinate(c: f64) -> isize {
@@ -25,29 +27,24 @@ impl Card {
     }
 }
 
-macro_rules! from_raw {
+macro_rules! from_schema_card {
     ($card:ident) => {{
-        let position = PositionI {
-            x: Self::spatial_coordinate($card.x),
-            y: Self::spatial_coordinate($card.y),
-        };
-        let mut size = Size {
-            w: Self::size_coordinate($card.w),
-            h: Self::size_coordinate($card.h),
-        };
-        let position = clip(&position, &BOARD_SIZE, &mut size);
-        Self(Rect { position, size })
+        let rect = Rect::new($card.x, $card.y, $card.w, $card.h);
+        Self {
+            rect,
+            active: false,
+        }
     }};
 }
 
 impl From<&NodeCardsValue> for Card {
     fn from(value: &NodeCardsValue) -> Self {
         match value {
-            NodeCardsValue::FreeTextEntryCard(card) => from_raw!(card),
-            NodeCardsValue::ImageCard(card) => from_raw!(card),
-            NodeCardsValue::SliderCard(card) => from_raw!(card),
-            NodeCardsValue::TextCard(card) => from_raw!(card),
-            NodeCardsValue::VideoCard(card) => from_raw!(card),
+            NodeCardsValue::FreeTextEntryCard(card) => from_schema_card!(card),
+            NodeCardsValue::ImageCard(card) => from_schema_card!(card),
+            NodeCardsValue::SliderCard(card) => from_schema_card!(card),
+            NodeCardsValue::TextCard(card) => from_schema_card!(card),
+            NodeCardsValue::VideoCard(card) => from_schema_card!(card),
         }
     }
 }

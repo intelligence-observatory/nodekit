@@ -34,7 +34,7 @@ impl From<&VideoCard> for Video<'_> {
 impl Video<'_> {
     pub fn load<P: AsRef<Path>>(&mut self, path: P, card: &Card) -> Result<(), Error> {
         self.extractor = Some(
-            FrameExtractor::new(path, card.0.size.w as u32, card.0.size.h as u32)
+            FrameExtractor::new(path, card.rect.size.w as u32, card.rect.size.h as u32)
                 .map_err(Error::FrameExtractor)?,
         );
         Ok(())
@@ -50,9 +50,9 @@ impl Video<'_> {
                 // Blit the video frame.
                 blit(
                     frame.video.data(0),
-                    &card.0.size,
+                    &card.rect.size,
                     board,
-                    &card.0.position,
+                    &card.rect.position,
                     &BOARD_SIZE,
                     3,
                 );
