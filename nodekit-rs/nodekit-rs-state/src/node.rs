@@ -1,12 +1,16 @@
 use crate::components::*;
+use crate::tick_result::TickResult;
 use crate::{error::Error, systems::*};
+use blittle::blit;
+use bytemuck::cast_slice;
 use hashbrown::HashMap;
 use hex_color::HexColor;
+use nodekit_rs_asset::MediaType;
+use nodekit_rs_board::BOARD_SIZE;
 use nodekit_rs_graph::{NodeCardsValue, NodeSensorsValue};
+use nodekit_rs_image::Image;
 use slotmap::new_key_type;
 use std::path::Path;
-use nodekit_rs_asset::MediaType;
-use nodekit_rs_image::Image;
 
 new_key_type! { pub struct NodeKey; }
 
@@ -86,7 +90,12 @@ impl<'n> Node<'n> {
                             let image_key = self.assets.images[&asset.id];
                             let card = &self.cards.cards[self.cards.image_cards[image_key]];
                             // Load the image.
-                            self.cards.images[image_key] = Image::load(&asset.path, card.rect.size.w as u32, card.rect.size.h as u32).map_err(Error::Image)?;
+                            self.cards.images[image_key] = Image::load(
+                                &asset.path,
+                                card.rect.size.w as u32,
+                                card.rect.size.h as u32,
+                            )
+                            .map_err(Error::Image)?;
                         }
                         MediaType::Video => {
                             // Find the video.
@@ -105,42 +114,86 @@ impl<'n> Node<'n> {
         }
         if got_error {
             Err(Error::LoadAssets(errors))
-        }
-        else {
+        } else {
             Ok(())
         }
     }
 
-    pub fn tick(&mut self) {
+    pub fn tick(&mut self, board: &mut [u8]) -> Result<TickResult, Error> {
         self.tick_timers();
+        let blit = self.tick_cards(board)?;
+        let tick_result = TickResult {
+            blit,
+            sensor_triggered: None,
+        };
+        // TODO sensors.
+        Ok(tick_result)
     }
 
     fn tick_timers(&mut self) {
-        let tick_result = self.timers.tick();
-        for k in tick_result.started {
-            self.set_active(k, true);
-        }
-        for k in tick_result.ended {
-            self.set_active(k, false);
+        self.timers.tick();
+        for (timer_key, timer) in self.timers.timers.iter() {
+            match self.timers.entities[timer_key] {
+                TimedEntityKey::Card(key) => {
+                    self.cards.cards[key].state = timer.state;
+                }
+                TimedEntityKey::Sensor(key) => {
+                    self.sensors.sensors[key].state = timer.state;
+                }
+            }
         }
     }
 
-    fn tick_cards(&mut self) {
-        // Iterate through active cards.
-        for (key, card) in self.cards.cards.iter().filter(|(_, card)| card.active) {
-            
-        }
-    }
-
-    fn set_active(&mut self, k: TimedEntityKey, active: bool) {
-        match k {
-            TimedEntityKey::Card(key) => {
-                self.cards.cards[key].active = active;
+    fn tick_cards(&mut self, board: &mut [u8]) -> Result<BlitResult, Error> {
+        let mut result = BlitResult::default();
+        for (card_key, card) in self.cards.cards.iter() {
+            match &card.state {
+                // Ignore inactive cards.
+                EntityState::Pending | EntityState::Finished => (),
+                EntityState::StartedNow => match &self.cards.components[card_key] {
+                    CardComponentKey::Image(image_key) => {
+                        let image = &self.cards.images[*image_key];
+                        blit(
+                            &image.bytes,
+                            &image.size,
+                            board,
+                            &card.rect.position,
+                            &BOARD_SIZE,
+                            3,
+                        );
+                        result.blitted = true;
+                    }
+                    CardComponentKey::Video(video_key) => {
+                        result = self.cards.videos[*video_key]
+                            .blit(card, board)
+                            .map_err(Error::Video)?;
+                    }
+                    CardComponentKey::Text(_) => todo!("blit text"),
+                },
+                EntityState::Active => {
+                    if let CardComponentKey::Video(video_key) = &self.cards.components[card_key] {
+                        result = self.cards.videos[*video_key]
+                            .blit(card, board)
+                            .map_err(Error::Video)?;
+                    }
+                }
+                // Erase the video.
+                EntityState::EndedNow => {
+                    let clear = vec![self.board_color; card.rect.size.w * card.rect.size.h];
+                    let src = cast_slice::<[u8; 3], u8>(&clear);
+                    blit(
+                        src,
+                        &card.rect.size,
+                        board,
+                        &card.rect.position,
+                        &BOARD_SIZE,
+                        3,
+                    );
+                    result.blitted = true;
+                }
             }
-            TimedEntityKey::Sensor(key) => {
-                self.sensors.sensors[key].active = active;
-            }
         }
+        Ok(result)
     }
 
     fn add_cards<'c, P: AsRef<Path>>(

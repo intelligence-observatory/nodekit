@@ -2,6 +2,7 @@ mod image;
 mod text;
 mod video;
 
+use super::entity_state::EntityState;
 use crate::rect::Rect;
 pub use image::*;
 use nodekit_rs_board::*;
@@ -14,7 +15,7 @@ new_key_type! { pub struct CardKey; }
 
 pub struct Card {
     pub rect: Rect,
-    pub active: bool,
+    pub state: EntityState,
 }
 
 impl Card {
@@ -32,7 +33,7 @@ macro_rules! from_schema_card {
         let rect = Rect::new($card.x, $card.y, $card.w, $card.h);
         Self {
             rect,
-            active: false,
+            state: EntityState::default(),
         }
     }};
 }

@@ -1112,6 +1112,7 @@ name = "nodekit-rs-state"
 version = "0.1.0"
 dependencies = [
  "blittle",
+ "bytemuck",
  "ffmpeg-next",
  "hashbrown 0.16.0",
  "hex_color",

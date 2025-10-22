@@ -43,7 +43,7 @@ impl Video<'_> {
                 card.rect.size.h as u32,
                 self.muted,
             )
-            .map_err(Error::FrameExtractor)?,
+            .map_err(Error::Video)?,
         );
         Ok(())
     }

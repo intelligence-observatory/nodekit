@@ -1,3 +1,4 @@
+use super::entity_state::EntityState;
 use nodekit_rs_graph::NodeCardsValue;
 use slotmap::new_key_type;
 
@@ -9,36 +10,28 @@ macro_rules! from_raw {
     };
 }
 
-#[derive(Copy, Clone, Debug, Eq, PartialEq)]
-pub enum TimerState {
-    NotStarted,
-    StartedNow,
-    Running,
-    EndedNow,
-    Finished,
-}
 pub struct Timer {
     t0: u64,
     pub(crate) t1: Option<u64>,
     t: u64,
-    pub state: TimerState,
+    pub state: EntityState,
 }
 
 impl Timer {
     pub fn advance(&mut self) {
         // Start.
         if self.t == self.t0 {
-            self.state = TimerState::StartedNow;
+            self.state = EntityState::StartedNow;
         }
         // End.
         else if let Some(t1) = self.t1
             && self.t == t1
         {
-            self.state = TimerState::EndedNow;
-        } else if self.state == TimerState::StartedNow {
-            self.state = TimerState::Running;
-        } else if self.state == TimerState::EndedNow {
-            self.state = TimerState::Finished;
+            self.state = EntityState::EndedNow;
+        } else if self.state == EntityState::StartedNow {
+            self.state = EntityState::Active;
+        } else if self.state == EntityState::EndedNow {
+            self.state = EntityState::Finished;
         }
         self.t += 1;
     }
@@ -48,7 +41,7 @@ impl Timer {
             t0,
             t1,
             t: 0,
-            state: TimerState::NotStarted,
+            state: EntityState::default(),
         }
     }
 }
@@ -72,29 +65,29 @@ mod tests {
     #[test]
     fn test_timer() {
         let mut timer = Timer::new(0, None);
-        assert_eq!(timer.state, TimerState::NotStarted);
+        assert_eq!(timer.state, EntityState::Pending);
         timer.advance();
-        assert_eq!(timer.state, TimerState::StartedNow);
+        assert_eq!(timer.state, EntityState::StartedNow);
         assert_eq!(timer.t, 1);
 
         let t0 = 10;
         let t1 = Some(20);
         timer = Timer::new(t0, t1);
-        assert_eq!(timer.state, TimerState::NotStarted);
+        assert_eq!(timer.state, EntityState::Pending);
         (0..t0).for_each(|t| {
             timer.advance();
-            assert_eq!(timer.state, TimerState::NotStarted);
+            assert_eq!(timer.state, EntityState::Pending);
             assert_eq!(timer.t, t + 1);
         });
         timer.advance();
-        assert_eq!(timer.state, TimerState::StartedNow);
+        assert_eq!(timer.state, EntityState::StartedNow);
         (0..t0 - 1).for_each(|_| {
             timer.advance();
-            assert_eq!(timer.state, TimerState::Running);
+            assert_eq!(timer.state, EntityState::Active);
         });
         timer.advance();
-        assert_eq!(timer.state, TimerState::EndedNow);
+        assert_eq!(timer.state, EntityState::EndedNow);
         timer.advance();
-        assert_eq!(timer.state, TimerState::Finished);
+        assert_eq!(timer.state, EntityState::Finished);
     }
 }

@@ -1,4 +1,4 @@
-use crate::components::CardKey;
+use crate::components::{CardKey, EntityState};
 use crate::rect::Rect;
 use nodekit_rs_graph::Mask;
 use slotmap::new_key_type;
@@ -11,7 +11,7 @@ new_key_type! { pub struct SubmitSensorKey; }
 
 #[derive(Default)]
 pub struct Sensor {
-    pub active: bool,
+    pub state: EntityState,
 }
 
 #[derive(Default)]

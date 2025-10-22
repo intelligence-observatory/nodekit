@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 blittle.workspace = true
+bytemuck.workspace = true
 ffmpeg-next.workspace = true
 hashbrown.workspace = true
 hex_color.workspace = true

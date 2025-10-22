@@ -1,6 +1,6 @@
 use crate::components::*;
-use slotmap::{SecondaryMap, SlotMap};
 use nodekit_rs_image::Image;
+use slotmap::{SecondaryMap, SlotMap};
 
 pub enum CardComponentKey {
     Image(ImageKey),
@@ -16,5 +16,5 @@ pub struct Cards<'c> {
     pub image_cards: SecondaryMap<ImageKey, CardKey>,
     pub text: SlotMap<TextKey, Text>,
     pub videos: SlotMap<VideoKey, Video<'c>>,
-    pub video_cards: SecondaryMap<VideoKey, CardKey>
+    pub video_cards: SecondaryMap<VideoKey, CardKey>,
 }

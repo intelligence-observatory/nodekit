@@ -3,6 +3,7 @@ mod error;
 mod node;
 mod rect;
 mod systems;
+mod tick_result;
 mod transition;
 
 use crate::node::{Node, NodeKey};
@@ -13,6 +14,7 @@ use nodekit_rs_graph::Graph;
 use slotmap::{SecondaryMap, SlotMap};
 use std::collections::HashMap;
 use std::path::Path;
+pub use tick_result::TickResult;
 
 pub struct State<'s> {
     pub start: NodeKey,
@@ -57,8 +59,7 @@ impl<'s> State<'s> {
         })
     }
 
-    pub fn tick(&mut self) {
-        let node = &mut self.nodes[self.current];
-        node.tick();
+    pub fn tick(&mut self, board: &mut [u8]) -> Result<TickResult, Error> {
+        self.nodes[self.current].tick(board)
     }
 }

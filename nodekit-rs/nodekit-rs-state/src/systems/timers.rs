@@ -7,15 +7,10 @@ pub enum TimedEntityKey {
     Sensor(SensorKey),
 }
 
-pub struct TickResult {
-    pub started: Vec<TimedEntityKey>,
-    pub ended: Vec<TimedEntityKey>,
-}
-
 #[derive(Default)]
 pub struct Timers {
-    timers: SlotMap<TimerKey, Timer>,
-    entities: SecondaryMap<TimerKey, TimedEntityKey>,
+    pub timers: SlotMap<TimerKey, Timer>,
+    pub entities: SecondaryMap<TimerKey, TimedEntityKey>,
 }
 
 impl Timers {
@@ -31,21 +26,20 @@ impl Timers {
             .insert(timer_key, TimedEntityKey::Sensor(sensor_key));
     }
 
-    pub fn tick(&mut self) -> TickResult {
+    pub fn tick(&mut self) {
         // Advance all timers.
         self.timers
             .values_mut()
-            .filter(|timer| timer.state != TimerState::Finished)
+            .filter(|timer| timer.state != EntityState::Finished)
             .for_each(|timer| timer.advance());
         let mut started = Vec::default();
         let mut ended = Vec::default();
         for (key, timer) in self.timers.iter() {
             match &timer.state {
-                TimerState::StartedNow => started.push(self.entities[key]),
-                TimerState::EndedNow => ended.push(self.entities[key]),
+                EntityState::StartedNow => started.push(self.entities[key]),
+                EntityState::EndedNow => ended.push(self.entities[key]),
                 _ => (),
             }
         }
-        TickResult { started, ended }
     }
 }
