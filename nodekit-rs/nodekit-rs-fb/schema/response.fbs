@@ -1,0 +1,17 @@
+enum State : ubyte {
+    Pending = 1,
+    StartedNow,
+    Active,
+    EndedNow,
+    Finished,
+}
+
+table Response {
+    board:[ubyte];
+    audio:[ubyte];
+    sensor:string;
+    state:State=1;
+}
+
+root_type Response;
+file_identifier "repl";

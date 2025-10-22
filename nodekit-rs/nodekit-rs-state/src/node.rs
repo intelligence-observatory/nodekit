@@ -17,7 +17,11 @@ new_key_type! { pub struct NodeKey; }
 macro_rules! sensor {
     ($sensor:ident, $sensors:ident, $timers:ident, $sub_sensors:ident, $sensor_type:ident, $sensor_ids:ident, $sensor_id:ident) => {{
         // Add the sensor.
-        let sensor_key = $sensors.sensors.insert(Sensor::default());
+        let sensor = Sensor {
+            state: EntityState::default(),
+            id: $sensor_id.clone()
+        };
+        let sensor_key = $sensors.sensors.insert(sensor);
         let sub_sensor_key = $sensors
             .$sub_sensors
             .components
@@ -30,6 +34,21 @@ macro_rules! sensor {
         // Add a timer.
         $timers.add_sensor(Timer::new($sensor.start_msec, $sensor.end_msec), sensor_key);
         $sensor_ids.insert($sensor_id, sensor_key);
+    }};
+}
+
+macro_rules! blit_video {
+    ($self:ident, $video_key:ident, $card:ident, $board:ident, $blitted:ident, $result:ident) => {{
+        let video_result = $self.cards.videos[*$video_key]
+            .blit($card, $board)
+            .map_err(Error::Video)?;
+        if video_result.blitted {
+            $blitted = true;
+        }
+        // TODO overlay.
+        if let Some(audio) = video_result.audio {
+            $result.audio = Some(audio);
+        }
     }};
 }
 
@@ -51,6 +70,7 @@ pub struct Node<'n> {
     pub effects: Effects,
     pub board_color: [u8; 3],
     pub assets: Assets<'n>,
+    state: EntityState,
 }
 
 impl<'n> Node<'n> {
@@ -70,11 +90,16 @@ impl<'n> Node<'n> {
             effects: Effects::default(),
             board_color,
             assets: cards_result.assets,
+            state: Default::default(),
         };
         Ok(ReturnedNode {
             node,
             sensor_ids: sensors.sensor_ids,
         })
+    }
+
+    pub fn start(&mut self) {
+        self.state = EntityState::StartedNow;
     }
 
     pub async fn download(&mut self) -> Result<(), Error> {
@@ -120,14 +145,19 @@ impl<'n> Node<'n> {
     }
 
     pub fn tick(&mut self, board: &mut [u8]) -> Result<TickResult, Error> {
-        self.tick_timers();
-        let blit = self.tick_cards(board)?;
-        let tick_result = TickResult {
-            blit,
-            sensor_triggered: None,
+        if self.state == EntityState::StartedNow {
+            self.state = EntityState::Active;
+        }
+        let mut result = TickResult {
+            board: None,
+            audio: None,
+            sensor: None,
+            state: self.state
         };
+        self.tick_timers();
+        self.tick_cards(board, &mut result)?;
         // TODO sensors.
-        Ok(tick_result)
+        Ok(result)
     }
 
     fn tick_timers(&mut self) {
@@ -144,8 +174,8 @@ impl<'n> Node<'n> {
         }
     }
 
-    fn tick_cards(&mut self, board: &mut [u8]) -> Result<BlitResult, Error> {
-        let mut result = BlitResult::default();
+    fn tick_cards(&mut self, board: &mut [u8], result: &mut TickResult) -> Result<(), Error> {
+        let mut blitted = false;
         for (card_key, card) in self.cards.cards.iter() {
             match &card.state {
                 // Ignore inactive cards.
@@ -161,23 +191,19 @@ impl<'n> Node<'n> {
                             &BOARD_SIZE,
                             3,
                         );
-                        result.blitted = true;
+                        blitted = true;
                     }
                     CardComponentKey::Video(video_key) => {
-                        result = self.cards.videos[*video_key]
-                            .blit(card, board)
-                            .map_err(Error::Video)?;
+                        blit_video!(self, video_key, card, board, blitted, result);
                     }
                     CardComponentKey::Text(_) => todo!("blit text"),
                 },
                 EntityState::Active => {
                     if let CardComponentKey::Video(video_key) = &self.cards.components[card_key] {
-                        result = self.cards.videos[*video_key]
-                            .blit(card, board)
-                            .map_err(Error::Video)?;
+                        blit_video!(self, video_key, card, board, blitted, result);
                     }
                 }
-                // Erase the video.
+                // Erase the card.
                 EntityState::EndedNow => {
                     let clear = vec![self.board_color; card.rect.size.w * card.rect.size.h];
                     let src = cast_slice::<[u8; 3], u8>(&clear);
@@ -189,11 +215,15 @@ impl<'n> Node<'n> {
                         &BOARD_SIZE,
                         3,
                     );
-                    result.blitted = true;
+                    blitted = true;
                 }
             }
         }
-        Ok(result)
+        // Return the board.
+        if blitted {
+            result.board = Some(board.to_vec());
+        }
+        Ok(())
     }
 
     fn add_cards<'c, P: AsRef<Path>>(
@@ -255,7 +285,11 @@ impl<'n> Node<'n> {
         let mut sensor_ids = HashMap::default();
         for (sensor_id, sensor) in node.sensors.iter() {
             // Add a sensor.
-            let sensor_key = sensors.sensors.insert(Sensor::default());
+            let s = Sensor {
+                state: EntityState::default(),
+                id: sensor_id.clone()
+            };
+            let sensor_key = sensors.sensors.insert(s);
             match sensor {
                 NodeSensorsValue::TimeoutSensor(sensor) => {
                     // Add the sensor.
@@ -293,7 +327,11 @@ impl<'n> Node<'n> {
                 }
                 NodeSensorsValue::SubmitSensor(sensor) => {
                     // Add the sensor.
-                    let sensor_key = sensors.sensors.insert(Sensor::default());
+                    let s = Sensor {
+                        state: EntityState::default(),
+                        id: sensor_id.clone()
+                    };
+                    let sensor_key = sensors.sensors.insert(s);
                     let submitter_id = card_ids[sensor.submitter_id.as_str()];
                     let source_ids = sensor
                         .source_ids

@@ -10,7 +10,7 @@ use std::path::Path;
 new_key_type! { pub struct VideoKey; }
 
 #[derive(Default)]
-pub struct BlitResult {
+pub struct VideoResult {
     pub blitted: bool,
     pub audio: Option<Vec<u8>>,
 }
@@ -52,7 +52,7 @@ impl Video<'_> {
         &mut self,
         card: &Card,
         board: &mut [u8],
-    ) -> Result<BlitResult, ffmpeg_next::Error> {
+    ) -> Result<VideoResult, ffmpeg_next::Error> {
         let extractor = self.extractor.as_mut().unwrap();
         match extractor.get_next_frame()? {
             Extraction::Frame(frame) => {
@@ -67,12 +67,12 @@ impl Video<'_> {
                 );
                 // Return audio.
                 let audio = frame.audio.map(|audio| audio.data(0).to_vec());
-                Ok(BlitResult {
+                Ok(VideoResult {
                     blitted: true,
                     audio,
                 })
             }
-            Extraction::NoFrame => Ok(BlitResult::default()),
+            Extraction::NoFrame => Ok(VideoResult::default()),
             Extraction::EndOfVideo => {
                 if self.looping {
                     extractor.reset()?;
@@ -80,7 +80,7 @@ impl Video<'_> {
                     self.blit(card, board)
                 } else {
                     self.ended = true;
-                    Ok(BlitResult::default())
+                    Ok(VideoResult::default())
                 }
             }
         }

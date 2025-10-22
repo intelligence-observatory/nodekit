@@ -9,9 +9,9 @@ new_key_type! { pub struct ClickSensorKey; }
 new_key_type! { pub struct KeySensorKey; }
 new_key_type! { pub struct SubmitSensorKey; }
 
-#[derive(Default)]
 pub struct Sensor {
     pub state: EntityState,
+    pub id: String,
 }
 
 #[derive(Default)]

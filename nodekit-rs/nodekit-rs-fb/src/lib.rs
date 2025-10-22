@@ -4,6 +4,5 @@
 //! Run `./fb.sh` to regenerate.
 //! This file is *not* auto-generated; all other files are.
 
-mod graph;
-
-pub use graph::Graph;
+pub mod graph;
+pub mod response;

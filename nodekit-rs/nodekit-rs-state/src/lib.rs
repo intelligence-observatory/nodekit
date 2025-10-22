@@ -14,6 +14,7 @@ use nodekit_rs_graph::Graph;
 use slotmap::{SecondaryMap, SlotMap};
 use std::collections::HashMap;
 use std::path::Path;
+pub use crate::components::EntityState;
 pub use tick_result::TickResult;
 
 pub struct State<'s> {
