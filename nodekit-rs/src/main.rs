@@ -29,10 +29,11 @@ async fn on_receive(state: &mut Option<State>, received: Received, directory: &P
             let mut s = State::new(graph, directory).unwrap();
             // Move asset files into the cache directory.
             s.current_node().get_assets().await.unwrap();
+            // Start the first node.
+            let result = s.start_node();
             // Store the state.
             *state = Some(s);
-            // Nothing has happened yet.
-            TickResult::default()
+            result
         }
         Received::Tick => match state.as_mut() {
             Some(state) => state.tick().unwrap(),

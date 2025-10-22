@@ -3,10 +3,7 @@ mod text;
 mod video;
 
 use super::entity_state::EntityState;
-use crate::{
-    rect::Rect,
-    board::*
-};
+use crate::{board::*, rect::Rect};
 pub use image::*;
 use nodekit_rs_graph::NodeCardsValue;
 use slotmap::new_key_type;

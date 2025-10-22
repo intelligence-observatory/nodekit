@@ -8,14 +8,17 @@ mod packet_iter;
 
 pub use extraction::Extraction;
 use extractor::{AudioExtractor, VideoExtractor};
+pub use ffmpeg_next::Error;
 use ffmpeg_next::{
     format::input,
     util::frame::{audio::Audio as AudioFrame, video::Video as VideoFrame},
 };
 pub use frame::Frame;
 use packet_iter::PacketIter;
-use std::path::PathBuf;
-use std::{collections::VecDeque, path::Path};
+use std::{
+    collections::VecDeque,
+    path::{Path, PathBuf},
+};
 
 /// Extract frames from a video.
 /// This opens a video and keeps it open until `FrameExtractor` is dropped.

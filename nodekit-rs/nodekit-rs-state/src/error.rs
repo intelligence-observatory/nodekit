@@ -8,7 +8,7 @@ pub enum Error {
     #[error("Failed to parse color: {0}")]
     HexColor(ParseHexColorError),
     #[error("Video error: {0}")]
-    Video(ffmpeg_next::Error),
+    Video(nodekit_rs_video::Error),
     #[error("Got errors when trying to load assets: {:?}", 0)]
     LoadAssets(Vec<nodekit_rs_asset::Error>),
     #[error("Error loading image: {0}")]

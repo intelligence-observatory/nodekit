@@ -1,3 +1,5 @@
+use crate::BOARD_SIZE;
+use crate::board::BOARD_D;
 use crate::components::*;
 use crate::tick_result::TickResult;
 use crate::{error::Error, systems::*};
@@ -6,7 +8,6 @@ use bytemuck::cast_slice;
 use hashbrown::HashMap;
 use hex_color::HexColor;
 use nodekit_rs_asset::MediaType;
-use crate::BOARD_SIZE;
 use nodekit_rs_graph::{NodeCardsValue, NodeSensorsValue};
 use nodekit_rs_image::Image;
 use slotmap::new_key_type;
@@ -98,8 +99,18 @@ impl Node {
         })
     }
 
-    pub fn start(&mut self) {
+    pub fn start(&mut self, board: &mut [u8]) -> TickResult {
+        // Set the state.
         self.state = EntityState::StartedNow;
+        // Fill the board with my color.
+        let filled = vec![self.board_color; BOARD_D * BOARD_D];
+        board.copy_from_slice(cast_slice::<[u8; 3], u8>(&filled));
+        TickResult {
+            board: Some(board.to_vec()),
+            audio: None,
+            sensor: None,
+            state: self.state,
+        }
     }
 
     pub async fn get_assets(&mut self) -> Result<(), Error> {

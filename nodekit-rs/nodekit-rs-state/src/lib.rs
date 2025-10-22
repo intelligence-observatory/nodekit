@@ -1,3 +1,4 @@
+mod board;
 mod components;
 mod error;
 mod node;
@@ -5,13 +6,12 @@ mod rect;
 mod systems;
 mod tick_result;
 mod transition;
-mod board;
 
 pub use crate::components::EntityState;
 use crate::node::{Node, NodeKey};
 use crate::transition::Transition;
-use error::Error;
 use board::*;
+use error::Error;
 use nodekit_rs_graph::Graph;
 use slotmap::{SecondaryMap, SlotMap};
 use std::collections::HashMap;
@@ -63,6 +63,10 @@ impl State {
 
     pub fn current_node(&mut self) -> &mut Node {
         &mut self.nodes[self.current]
+    }
+
+    pub fn start_node(&mut self) -> TickResult {
+        self.nodes[self.current].start(&mut self.board)
     }
 
     pub fn tick(&mut self) -> Result<TickResult, Error> {

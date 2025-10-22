@@ -1,8 +1,4 @@
-use crate::{
-    error::Error,
-    components::Card,
-    board::*
-};
+use crate::{board::*, components::Card, error::Error};
 use blittle::*;
 use nodekit_rs_graph::VideoCard;
 use nodekit_rs_video::*;
@@ -54,7 +50,7 @@ impl Video {
         &mut self,
         card: &Card,
         board: &mut [u8],
-    ) -> Result<VideoResult, ffmpeg_next::Error> {
+    ) -> Result<VideoResult, nodekit_rs_video::Error> {
         let extractor = self.extractor.as_mut().unwrap();
         match extractor.get_next_frame()? {
             Extraction::Frame(frame) => {
