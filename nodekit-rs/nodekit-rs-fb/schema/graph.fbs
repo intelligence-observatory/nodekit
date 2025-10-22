@@ -1,0 +1,6 @@
+table Graph {
+    payload:[ubyte];
+}
+
+root_type Graph;
+file_identifier "graf";
