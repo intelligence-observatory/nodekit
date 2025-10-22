@@ -1,10 +1,8 @@
-use std::path::Path;
-use std::thread::spawn;
+use crate::args::Args;
 use clap::Parser;
-use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender};
 use nodekit_rs_net::{Connection, Received};
 use nodekit_rs_state::{State, TickResult};
-use crate::args::Args;
+use std::path::Path;
 
 mod args;
 
@@ -15,22 +13,24 @@ async fn main() {
     let mut connection = Connection::new(&args.socket).unwrap();
     let mut state = None;
     loop {
+        // Receive a command.
         let received = connection.receive().await.unwrap();
-        on_receive(&mut state, received).await;
+        // Execute the command or tick.
+        let result = on_receive(&mut state, received, &args.asset_directory);
+        // Send the tick result.
+        connection.send(result).await.unwrap();
     }
 }
 
-fn on_receive<'s>(state: &'s mut Option<State<'s>>, received: Received, board: &mut [u8], directory: &Path) -> TickResult {
+fn on_receive(state: &mut Option<State>, received: Received, directory: &Path) -> TickResult {
     match received {
         Received::Graph(graph) => {
-            *state = Some(State::new(&graph, directory).unwrap());
+            *state = Some(State::new(graph, directory).unwrap());
             TickResult::default()
         }
-        Received::Tick => {
-            match state.as_mut() {
-                Some(state) => state.tick().unwrap(),
-                None => TickResult::default()
-            }
-        }
+        Received::Tick => match state.as_mut() {
+            Some(state) => state.tick().unwrap(),
+            None => TickResult::default(),
+        },
     }
 }

@@ -17,17 +17,17 @@ use std::collections::HashMap;
 use std::path::Path;
 pub use tick_result::TickResult;
 
-pub struct State<'s> {
+pub struct State {
     pub start: NodeKey,
     pub current: NodeKey,
-    pub nodes: SlotMap<NodeKey, Node<'s>>,
+    pub nodes: SlotMap<NodeKey, Node>,
     pub transitions: SecondaryMap<NodeKey, Transition>,
     pub nodekit_version: String,
     pub board: Vec<u8>,
 }
 
-impl<'s> State<'s> {
-    pub fn new<P: AsRef<Path>>(value: &'s Graph, directory: P) -> Result<Self, Error> {
+impl State {
+    pub fn new<P: AsRef<Path>>(value: Graph, directory: P) -> Result<Self, Error> {
         let mut node_ids: HashMap<&String, NodeKey> = HashMap::default();
         let mut nodes = SlotMap::default();
         let mut sensor_ids = SecondaryMap::default();
@@ -60,7 +60,7 @@ impl<'s> State<'s> {
         })
     }
 
-    pub fn tick(&mut self, board: &mut [u8]) -> Result<TickResult, Error> {
-        self.nodes[self.current].tick(board)
+    pub fn tick(&mut self) -> Result<TickResult, Error> {
+        self.nodes[self.current].tick(&mut self.board)
     }
 }
