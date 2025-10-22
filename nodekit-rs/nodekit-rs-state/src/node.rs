@@ -102,7 +102,7 @@ impl Node {
         self.state = EntityState::StartedNow;
     }
 
-    pub async fn download(&mut self) -> Result<(), Error> {
+    pub async fn get_assets(&mut self) -> Result<(), Error> {
         let mut errors = Vec::default();
         let mut got_error = false;
         for result in self.assets.asset_manager.get_all().await {

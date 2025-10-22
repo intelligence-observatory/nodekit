@@ -16,16 +16,22 @@ async fn main() {
         // Receive a command.
         let received = connection.receive().await.unwrap();
         // Execute the command or tick.
-        let result = on_receive(&mut state, received, &args.asset_directory);
+        let result = on_receive(&mut state, received, &args.asset_directory).await;
         // Send the tick result.
         connection.send(result).await.unwrap();
     }
 }
 
-fn on_receive(state: &mut Option<State>, received: Received, directory: &Path) -> TickResult {
+async fn on_receive(state: &mut Option<State>, received: Received, directory: &Path) -> TickResult {
     match received {
         Received::Graph(graph) => {
-            *state = Some(State::new(graph, directory).unwrap());
+            // Convert the graph into stateful information.
+            let mut s = State::new(graph, directory).unwrap();
+            // Move asset files into the cache directory.
+            s.current_node().get_assets().await.unwrap();
+            // Store the state.
+            *state = Some(s);
+            // Nothing has happened yet.
             TickResult::default()
         }
         Received::Tick => match state.as_mut() {

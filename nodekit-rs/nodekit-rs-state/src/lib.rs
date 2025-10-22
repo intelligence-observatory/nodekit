@@ -19,7 +19,7 @@ pub use tick_result::TickResult;
 
 pub struct State {
     pub start: NodeKey,
-    pub current: NodeKey,
+    current: NodeKey,
     pub nodes: SlotMap<NodeKey, Node>,
     pub transitions: SecondaryMap<NodeKey, Transition>,
     pub nodekit_version: String,
@@ -58,6 +58,10 @@ impl State {
             nodekit_version: value.nodekit_version.clone(),
             board: vec![0; BOARD_D * BOARD_D * 3],
         })
+    }
+    
+    pub fn current_node(&mut self) -> &mut Node {
+        &mut self.nodes[self.current]
     }
 
     pub fn tick(&mut self) -> Result<TickResult, Error> {
