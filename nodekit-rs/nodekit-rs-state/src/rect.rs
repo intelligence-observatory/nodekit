@@ -21,11 +21,11 @@ impl Rect {
         Self { position, size }
     }
 
-    const fn spatial_coordinate(c: f64) -> isize {
+    pub const fn spatial_coordinate(c: f64) -> isize {
         (BOARD_D_HALF_F64 + BOARD_D_F64 * c) as isize
     }
 
-    const fn size_coordinate(c: f64) -> usize {
+    pub const fn size_coordinate(c: f64) -> usize {
         (BOARD_D_F64 * c) as usize
     }
 }

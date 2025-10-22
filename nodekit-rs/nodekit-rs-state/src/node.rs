@@ -12,6 +12,7 @@ use nodekit_rs_graph::{NodeCardsValue, NodeSensorsValue};
 use nodekit_rs_image::Image;
 use slotmap::new_key_type;
 use std::path::Path;
+use nodekit_rs_action::Action;
 
 new_key_type! { pub struct NodeKey; }
 
@@ -155,7 +156,7 @@ impl Node {
         }
     }
 
-    pub fn tick(&mut self, board: &mut [u8]) -> Result<TickResult, Error> {
+    pub fn tick(&mut self, action: Option<Action>, board: &mut [u8]) -> Result<TickResult, Error> {
         if self.state == EntityState::StartedNow {
             self.state = EntityState::Active;
         }
@@ -167,6 +168,14 @@ impl Node {
         };
         self.tick_timers();
         self.tick_cards(board, &mut result)?;
+        if let Some(action) = action {
+            match action {
+                Action::Click { x, y} => {
+                    todo!()
+                }
+                Action::KeyPress(key) => todo!()
+            }
+        }
         // TODO sensors.
         Ok(result)
     }

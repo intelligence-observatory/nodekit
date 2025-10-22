@@ -72,7 +72,7 @@ impl State {
         if self.finished {
             Ok(TickResult::finished())
         } else {
-            let result = self.nodes[self.current].tick(&mut self.board)?;
+            let result = self.nodes[self.current].tick(action, &mut self.board)?;
             // This node ended. Try to get the next node.
             if result.state == EntityState::EndedNow {
                 match result.sensor {
