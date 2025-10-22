@@ -11,5 +11,5 @@ pub enum Error {
     #[error("Failed to deserialize graph: {0}")]
     DeserializeGraph(serde_json::Error),
     #[error("Missing graph payload")]
-    GraphPayload
+    GraphPayload,
 }

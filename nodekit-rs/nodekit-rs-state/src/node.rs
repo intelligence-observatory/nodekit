@@ -19,7 +19,7 @@ macro_rules! sensor {
         // Add the sensor.
         let sensor = Sensor {
             state: EntityState::default(),
-            id: $sensor_id.clone()
+            id: $sensor_id.clone(),
         };
         let sensor_key = $sensors.sensors.insert(sensor);
         let sub_sensor_key = $sensors
@@ -152,7 +152,7 @@ impl<'n> Node<'n> {
             board: None,
             audio: None,
             sensor: None,
-            state: self.state
+            state: self.state,
         };
         self.tick_timers();
         self.tick_cards(board, &mut result)?;
@@ -287,7 +287,7 @@ impl<'n> Node<'n> {
             // Add a sensor.
             let s = Sensor {
                 state: EntityState::default(),
-                id: sensor_id.clone()
+                id: sensor_id.clone(),
             };
             let sensor_key = sensors.sensors.insert(s);
             match sensor {
@@ -329,7 +329,7 @@ impl<'n> Node<'n> {
                     // Add the sensor.
                     let s = Sensor {
                         state: EntityState::default(),
-                        id: sensor_id.clone()
+                        id: sensor_id.clone(),
                     };
                     let sensor_key = sensors.sensors.insert(s);
                     let submitter_id = card_ids[sensor.submitter_id.as_str()];

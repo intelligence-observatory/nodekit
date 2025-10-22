@@ -1,19 +1,21 @@
 mod error;
 mod received;
 
-use std::ops::Deref;
-use std::vec::IntoIter;
-use async_zmq::{reply, Context, Reply};
-use flatbuffers::{size_prefixed_root, FlatBufferBuilder};
-use serde_json::from_slice;
+use async_zmq::{Context, Reply, reply};
 pub use error::Error;
+use flatbuffers::{FlatBufferBuilder, size_prefixed_root};
 use nodekit_rs_fb::response::{self, Response, ResponseArgs};
 use nodekit_rs_state::{EntityState, TickResult};
 pub use received::Received;
+use serde_json::from_slice;
+use std::ops::Deref;
+use std::vec::IntoIter;
 
+/// Receive actions from a client.
+/// Respond with stateful information.
 pub struct Connection {
     _context: Context,
-    socket: Reply<IntoIter<Vec<u8>>, Vec<u8>>
+    socket: Reply<IntoIter<Vec<u8>>, Vec<u8>>,
 }
 
 impl Connection {
@@ -22,7 +24,7 @@ impl Connection {
         let socket = reply(endpoint)?.bind()?;
         Ok(Self {
             _context: context,
-            socket
+            socket,
         })
     }
 
@@ -32,7 +34,7 @@ impl Connection {
         let data = message[0].deref();
         match size_prefixed_root::<&str>(data).map_err(Error::InvalidFlatbuffer)? {
             "graf" => Self::deserialize_graph(data),
-            other => Err(Error::Prefix(other.to_string()))
+            other => Err(Error::Prefix(other.to_string())),
         }
     }
 
@@ -49,19 +51,22 @@ impl Connection {
                 EntityState::Active => response::State::Active,
                 EntityState::EndedNow => response::State::EndedNow,
                 EntityState::Finished => response::State::Finished,
-            }
+            },
         };
         let offset = Response::create(&mut fbb, &args);
         response::finish_response_buffer(&mut fbb, offset);
-        self.socket.send(fbb.finished_data().to_vec()).await.map_err(Error::Zmq)?;
+        self.socket
+            .send(fbb.finished_data().to_vec())
+            .await
+            .map_err(Error::Zmq)?;
         Ok(())
-
     }
 
     fn deserialize_graph(data: &[u8]) -> Result<Received, Error> {
         let graph = nodekit_rs_fb::graph::root_as_graph(data).map_err(Error::InvalidFlatbuffer)?;
         let payload = graph.payload().ok_or(Error::GraphPayload)?;
-        let graph = from_slice::<nodekit_rs_graph::Graph>(payload.bytes()).map_err(Error::DeserializeGraph)?;
+        let graph = from_slice::<nodekit_rs_graph::Graph>(payload.bytes())
+            .map_err(Error::DeserializeGraph)?;
         Ok(Received::Graph(graph))
     }
 }

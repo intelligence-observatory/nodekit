@@ -6,6 +6,7 @@ mod systems;
 mod tick_result;
 mod transition;
 
+pub use crate::components::EntityState;
 use crate::node::{Node, NodeKey};
 use crate::transition::Transition;
 use error::Error;
@@ -14,7 +15,6 @@ use nodekit_rs_graph::Graph;
 use slotmap::{SecondaryMap, SlotMap};
 use std::collections::HashMap;
 use std::path::Path;
-pub use crate::components::EntityState;
 pub use tick_result::TickResult;
 
 pub struct State<'s> {
