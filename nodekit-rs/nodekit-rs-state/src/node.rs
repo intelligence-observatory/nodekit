@@ -5,6 +5,8 @@ use hex_color::HexColor;
 use nodekit_rs_graph::{NodeCardsValue, NodeSensorsValue};
 use slotmap::new_key_type;
 use std::path::Path;
+use nodekit_rs_asset::MediaType;
+use nodekit_rs_image::Image;
 
 new_key_type! { pub struct NodeKey; }
 
@@ -71,6 +73,44 @@ impl<'n> Node<'n> {
         })
     }
 
+    pub async fn download(&mut self) -> Result<(), Error> {
+        let mut errors = Vec::default();
+        let mut got_error = false;
+        for result in self.assets.asset_manager.get_all().await {
+            match result {
+                Ok(asset) => {
+                    // Load the asset.
+                    match &asset.media_type {
+                        MediaType::Image => {
+                            // Find the image.
+                            let image_key = self.assets.images[&asset.id];
+                            let card = &self.cards.cards[self.cards.image_cards[image_key]];
+                            // Load the image.
+                            self.cards.images[image_key] = Image::load(&asset.path, card.rect.size.w as u32, card.rect.size.h as u32).map_err(Error::Image)?;
+                        }
+                        MediaType::Video => {
+                            // Find the video.
+                            let video_key = self.assets.videos[&asset.id];
+                            let card = &self.cards.cards[self.cards.video_cards[video_key]];
+                            // Load the video.
+                            self.cards.videos[video_key].load(&asset.path, card)?;
+                        }
+                    }
+                }
+                Err(error) => {
+                    got_error = true;
+                    errors.push(error);
+                }
+            }
+        }
+        if got_error {
+            Err(Error::LoadAssets(errors))
+        }
+        else {
+            Ok(())
+        }
+    }
+
     pub fn tick(&mut self) {
         self.tick_timers();
     }
@@ -87,7 +127,9 @@ impl<'n> Node<'n> {
 
     fn tick_cards(&mut self) {
         // Iterate through active cards.
-        for (key, card) in self.cards.cards.iter().filter(|(_, card)| card.active) {}
+        for (key, card) in self.cards.cards.iter().filter(|(_, card)| card.active) {
+            
+        }
     }
 
     fn set_active(&mut self, k: TimedEntityKey, active: bool) {
@@ -120,6 +162,7 @@ impl<'n> Node<'n> {
                 NodeCardsValue::ImageCard(image) => {
                     // Add an image.
                     let image_key = cards.images.insert(Image::default());
+                    cards.image_cards.insert(image_key, card_key);
                     cards
                         .components
                         .insert(card_key, CardComponentKey::Image(image_key));
@@ -131,6 +174,7 @@ impl<'n> Node<'n> {
                 NodeCardsValue::VideoCard(video) => {
                     // Add a video.
                     let video_key = cards.videos.insert(Video::from(video));
+                    cards.video_cards.insert(video_key, card_key);
                     cards
                         .components
                         .insert(card_key, CardComponentKey::Video(video_key));
