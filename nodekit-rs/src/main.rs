@@ -1,10 +1,10 @@
+mod args;
+
 use crate::args::Args;
 use clap::Parser;
 use nodekit_rs_net::{Connection, Received};
 use nodekit_rs_state::{State, TickResult};
 use std::path::Path;
-
-mod args;
 
 #[tokio::main(flavor = "multi_thread", worker_threads = 10)]
 async fn main() {
