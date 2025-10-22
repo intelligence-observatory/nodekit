@@ -43,7 +43,7 @@ impl Video<'_> {
     pub fn blit(
         &mut self,
         card: &Card,
-        board: &mut Board,
+        board: &mut [u8],
     ) -> Result<BlitResult, ffmpeg_next::Error> {
         match self.extractor.as_mut().unwrap().get_next_frame()? {
             Some(frame) => {

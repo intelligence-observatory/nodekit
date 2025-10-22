@@ -8,7 +8,7 @@ mod transition;
 use crate::node::{Node, NodeKey};
 use crate::transition::Transition;
 use error::Error;
-use nodekit_rs_board::{BOARD_D, Board};
+use nodekit_rs_board::BOARD_D;
 use nodekit_rs_graph::Graph;
 use slotmap::{SecondaryMap, SlotMap};
 use std::collections::HashMap;
@@ -20,7 +20,7 @@ pub struct State<'s> {
     pub nodes: SlotMap<NodeKey, Node<'s>>,
     pub transitions: SecondaryMap<NodeKey, Transition>,
     pub nodekit_version: String,
-    pub board: Board,
+    pub board: Vec<u8>,
 }
 
 impl<'s> State<'s> {
@@ -53,7 +53,7 @@ impl<'s> State<'s> {
             nodes,
             transitions,
             nodekit_version: value.nodekit_version.clone(),
-            board: [0; BOARD_D * BOARD_D * 3],
+            board: vec![0; BOARD_D * BOARD_D * 3],
         })
     }
     

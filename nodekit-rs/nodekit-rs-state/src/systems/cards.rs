@@ -1,11 +1,17 @@
 use crate::components::*;
-use crate::systems::SubSystem;
-use slotmap::SlotMap;
+use slotmap::{SecondaryMap, SlotMap};
+
+pub enum CardComponentKey {
+    Image(ImageKey),
+    Text(TextKey),
+    Video(VideoKey)
+}
 
 #[derive(Default)]
 pub struct Cards<'c> {
     pub cards: SlotMap<CardKey, Card>,
-    pub images: SubSystem<ImageKey, CardKey, Image>,
-    pub text: SubSystem<TextKey, CardKey, Text>,
-    pub videos: SubSystem<VideoKey, CardKey, Video<'c>>,
+    pub components: SecondaryMap<CardKey, CardComponentKey>,
+    pub images: SlotMap<ImageKey, Image>,
+    pub text: SlotMap<TextKey, Text>,
+    pub videos: SlotMap<VideoKey, Video<'c>>,
 }

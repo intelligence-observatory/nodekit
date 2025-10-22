@@ -114,9 +114,8 @@ impl<'n> Node<'n> {
             match card {
                 NodeCardsValue::ImageCard(image) => {
                     // Add an image.
-                    let image_key = cards.images.components.insert(Image::default());
-                    // Link the image.
-                    cards.images.entities.insert(image_key, card_key);
+                    let image_key = cards.images.insert(Image::default());
+                    cards.components.insert(card_key, CardComponentKey::Image(image_key));
                     // Prepare the asset.
                     assets
                         .add_image(image_key, &image.image.locator, &image.image.sha256)
@@ -124,9 +123,8 @@ impl<'n> Node<'n> {
                 }
                 NodeCardsValue::VideoCard(video) => {
                     // Add a video.
-                    let video_key = cards.videos.components.insert(Video::from(video));
-                    // Link the video.
-                    cards.videos.entities.insert(video_key, card_key);
+                    let video_key = cards.videos.insert(Video::from(video));
+                    cards.components.insert(card_key, CardComponentKey::Video(video_key));
                     // Prepare the asset.
                     assets
                         .add_video(video_key, &video.video.locator, &video.video.sha256)

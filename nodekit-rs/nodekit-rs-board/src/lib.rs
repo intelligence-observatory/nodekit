@@ -9,4 +9,3 @@ pub const BOARD_SIZE: Size = Size {
     w: BOARD_D,
     h: BOARD_D,
 };
-pub type Board = [u8; BOARD_D * BOARD_D * 3];
