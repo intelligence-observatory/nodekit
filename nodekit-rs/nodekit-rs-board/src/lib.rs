@@ -9,3 +9,8 @@ pub const BOARD_SIZE: Size = Size {
     w: BOARD_D,
     h: BOARD_D,
 };
+
+
+pub fn board() -> Vec<u8> {
+    vec![0; BOARD_D * BOARD_D * 3]
+}
