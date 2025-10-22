@@ -6,7 +6,7 @@ use bytemuck::cast_slice;
 use hashbrown::HashMap;
 use hex_color::HexColor;
 use nodekit_rs_asset::MediaType;
-use nodekit_rs_board::BOARD_SIZE;
+use crate::BOARD_SIZE;
 use nodekit_rs_graph::{NodeCardsValue, NodeSensorsValue};
 use nodekit_rs_image::Image;
 use slotmap::new_key_type;

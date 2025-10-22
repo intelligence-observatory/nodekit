@@ -1343,7 +1343,6 @@ name = "nodekit-rs"
 version = "0.1.0"
 dependencies = [
  "clap",
- "nodekit-rs-fb",
  "nodekit-rs-net",
  "nodekit-rs-state",
  "tokio",
@@ -1359,19 +1358,11 @@ dependencies = [
  "jpeg-decoder",
  "reqwest",
  "sha2",
- "slotmap",
  "tempdir",
  "thiserror 2.0.17",
  "tokio",
  "url",
  "uuid",
-]
-
-[[package]]
-name = "nodekit-rs-board"
-version = "0.1.0"
-dependencies = [
- "blittle",
 ]
 
 [[package]]
@@ -1424,7 +1415,6 @@ dependencies = [
  "hashbrown 0.16.0",
  "hex_color",
  "nodekit-rs-asset",
- "nodekit-rs-board",
  "nodekit-rs-graph",
  "nodekit-rs-image",
  "nodekit-rs-video",

@@ -5,12 +5,13 @@ mod rect;
 mod systems;
 mod tick_result;
 mod transition;
+mod board;
 
 pub use crate::components::EntityState;
 use crate::node::{Node, NodeKey};
 use crate::transition::Transition;
 use error::Error;
-use nodekit_rs_board::BOARD_D;
+use board::*;
 use nodekit_rs_graph::Graph;
 use slotmap::{SecondaryMap, SlotMap};
 use std::collections::HashMap;
@@ -59,7 +60,7 @@ impl State {
             board: vec![0; BOARD_D * BOARD_D * 3],
         })
     }
-    
+
     pub fn current_node(&mut self) -> &mut Node {
         &mut self.nodes[self.current]
     }

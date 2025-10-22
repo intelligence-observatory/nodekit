@@ -1,5 +1,5 @@
 use blittle::*;
-use nodekit_rs_board::{BOARD_D_F64, BOARD_D_HALF_F64, BOARD_SIZE};
+use crate::board::*;
 
 #[derive(Default)]
 pub struct Rect {

@@ -10,7 +10,6 @@ ffmpeg-next.workspace = true
 hashbrown.workspace = true
 hex_color.workspace = true
 nodekit-rs-asset = { path = "../nodekit-rs-asset" }
-nodekit-rs-board = { path = "../nodekit-rs-board" }
 nodekit-rs-graph = { path = "../nodekit-rs-graph" }
 nodekit-rs-image = { path = "../nodekit-rs-image" }
 nodekit-rs-video = { path = "../nodekit-rs-video" }

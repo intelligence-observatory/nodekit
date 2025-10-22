@@ -9,7 +9,6 @@ bytes.workspace = true
 futures.workspace = true
 reqwest.workspace = true
 sha2.workspace = true
-slotmap.workspace = true
 thiserror.workspace = true
 tokio.workspace = true
 url.workspace = true

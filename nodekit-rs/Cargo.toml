@@ -1,5 +1,5 @@
 [workspace]
-members = ["nodekit-rs-board", "nodekit-rs-asset", "nodekit-rs-fb", "nodekit-rs-graph", "nodekit-rs-state", "nodekit-rs-video", "nodekit-rs-image", "nodekit-rs-net"]
+members = ["nodekit-rs-asset", "nodekit-rs-fb", "nodekit-rs-graph", "nodekit-rs-state", "nodekit-rs-video", "nodekit-rs-image", "nodekit-rs-net"]
 
 [package]
 name = "nodekit-rs"
@@ -8,7 +8,6 @@ edition = "2024"
 
 [dependencies]
 clap.workspace = true
-nodekit-rs-fb = { path = "nodekit-rs-fb" }
 nodekit-rs-net = { path = "nodekit-rs-net" }
 nodekit-rs-state = { path = "nodekit-rs-state" }
 tokio.workspace = true

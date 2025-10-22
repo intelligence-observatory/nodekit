@@ -1,7 +1,9 @@
-use crate::components::Card;
-use crate::error::Error;
+use crate::{
+    error::Error,
+    components::Card,
+    board::*
+};
 use blittle::*;
-use nodekit_rs_board::*;
 use nodekit_rs_graph::VideoCard;
 use nodekit_rs_video::*;
 use slotmap::new_key_type;

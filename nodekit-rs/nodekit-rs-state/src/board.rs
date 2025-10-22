@@ -1,6 +1,4 @@
-//! Board-related constants and converters.
-
-use blittle::*;
+use blittle::Size;
 
 pub const BOARD_D: usize = 768;
 pub const BOARD_D_F64: f64 = 768.;
