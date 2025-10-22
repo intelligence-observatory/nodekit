@@ -11,8 +11,8 @@ pub struct Asset {
     pub media_type: MediaType,
 }
 
-impl From<Zipped<'_>> for Asset {
-    fn from(value: Zipped<'_>) -> Self {
+impl From<Zipped> for Asset {
+    fn from(value: Zipped) -> Self {
         Self {
             path: value.path.clone(),
             id: value.id,

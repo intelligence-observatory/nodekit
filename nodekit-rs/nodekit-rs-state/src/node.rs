@@ -33,7 +33,7 @@ macro_rules! sensor {
             .insert(sub_sensor_key, sensor_key);
         // Add a timer.
         $timers.add_sensor(Timer::new($sensor.start_msec, $sensor.end_msec), sensor_key);
-        $sensor_ids.insert($sensor_id, sensor_key);
+        $sensor_ids.insert($sensor_id.to_string(), sensor_key);
     }};
 }
 
@@ -52,32 +52,32 @@ macro_rules! blit_video {
     }};
 }
 
-struct CardsResult<'c> {
-    pub cards: Cards<'c>,
-    pub card_ids: HashMap<&'c str, CardKey>,
-    pub assets: Assets<'c>,
+struct CardsResult {
+    pub cards: Cards,
+    pub card_ids: HashMap<String, CardKey>,
+    pub assets: Assets,
 }
 
-struct SensorsResult<'s> {
+struct SensorsResult {
     pub sensors: Sensors,
-    pub sensor_ids: HashMap<&'s String, SensorKey>,
+    pub sensor_ids: HashMap<String, SensorKey>,
 }
 
-pub struct Node<'n> {
-    pub cards: Cards<'n>,
+pub struct Node {
+    pub cards: Cards,
     pub timers: Timers,
     pub sensors: Sensors,
     pub effects: Effects,
     pub board_color: [u8; 3],
-    pub assets: Assets<'n>,
+    pub assets: Assets,
     state: EntityState,
 }
 
-impl<'n> Node<'n> {
+impl Node {
     pub fn from_node<P: AsRef<Path>>(
-        node: &'n nodekit_rs_graph::Node,
+        node: &nodekit_rs_graph::Node,
         directory: P,
-    ) -> Result<ReturnedNode<'n>, Error> {
+    ) -> Result<ReturnedNode, Error> {
         let mut timers = Timers::default();
         let cards_result = Self::add_cards(node, directory, &mut timers)?;
         let board_color = HexColor::parse(node.board_color.as_str()).map_err(Error::HexColor)?;
@@ -226,18 +226,18 @@ impl<'n> Node<'n> {
         Ok(())
     }
 
-    fn add_cards<'c, P: AsRef<Path>>(
-        node: &'c nodekit_rs_graph::Node,
+    fn add_cards<P: AsRef<Path>>(
+        node: &nodekit_rs_graph::Node,
         directory: P,
         timers: &mut Timers,
-    ) -> Result<CardsResult<'c>, Error> {
+    ) -> Result<CardsResult, Error> {
         let mut cards = Cards::default();
         let mut assets = Assets::new(directory).map_err(Error::Asset)?;
         let mut card_ids = HashMap::default();
         for (card_id, card) in node.cards.iter() {
             // Insert a new card.
             let card_key = cards.cards.insert(Card::from(card));
-            card_ids.insert(card_id.as_str(), card_key);
+            card_ids.insert(card_id.clone(), card_key);
             // Add a new timer.
             timers.add_card(Timer::from(card), card_key);
             // Add an asset.
@@ -276,11 +276,11 @@ impl<'n> Node<'n> {
         })
     }
 
-    fn add_sensors<'s>(
-        node: &'s nodekit_rs_graph::Node,
-        card_ids: &HashMap<&str, CardKey>,
+    fn add_sensors(
+        node: &nodekit_rs_graph::Node,
+        card_ids: &HashMap<String, CardKey>,
         timers: &mut Timers,
-    ) -> SensorsResult<'s> {
+    ) -> SensorsResult {
         let mut sensors = Sensors::default();
         let mut sensor_ids = HashMap::default();
         for (sensor_id, sensor) in node.sensors.iter() {
@@ -361,7 +361,7 @@ impl<'n> Node<'n> {
     }
 }
 
-pub struct ReturnedNode<'n> {
-    pub node: Node<'n>,
-    pub sensor_ids: HashMap<&'n String, SensorKey>,
+pub struct ReturnedNode {
+    pub node: Node,
+    pub sensor_ids: HashMap<String, SensorKey>,
 }

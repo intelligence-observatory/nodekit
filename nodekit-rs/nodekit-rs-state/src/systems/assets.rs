@@ -5,13 +5,13 @@ use nodekit_rs_graph::{AssetLocator, Sha256};
 use std::path::{Path, PathBuf};
 use url::Url;
 
-pub struct Assets<'a> {
-    pub asset_manager: AssetManager<'a>,
+pub struct Assets {
+    pub asset_manager: AssetManager,
     pub images: HashMap<u64, ImageKey>,
     pub videos: HashMap<u64, VideoKey>,
 }
 
-impl<'a> Assets<'a> {
+impl Assets {
     pub fn new<P: AsRef<Path>>(directory: P) -> Result<Self, nodekit_rs_asset::Error> {
         Ok(Self {
             asset_manager: AssetManager::new(directory)?,
@@ -22,7 +22,7 @@ impl<'a> Assets<'a> {
     pub fn add_image(
         &mut self,
         key: ImageKey,
-        locator: &'a AssetLocator,
+        locator: &AssetLocator,
         hash: &Sha256,
     ) -> Result<(), nodekit_rs_asset::Error> {
         if let Some(id) = self.add_asset(locator, hash, MediaType::Image)? {
@@ -34,7 +34,7 @@ impl<'a> Assets<'a> {
     pub fn add_video(
         &mut self,
         key: VideoKey,
-        locator: &'a AssetLocator,
+        locator: &AssetLocator,
         hash: &Sha256,
     ) -> Result<(), nodekit_rs_asset::Error> {
         if let Some(id) = self.add_asset(locator, hash, MediaType::Video)? {
@@ -44,7 +44,7 @@ impl<'a> Assets<'a> {
     }
     fn add_asset(
         &mut self,
-        locator: &'a AssetLocator,
+        locator: &AssetLocator,
         hash: &Sha256,
         media_type: MediaType,
     ) -> Result<Option<u64>, nodekit_rs_asset::Error> {

@@ -9,12 +9,12 @@ pub enum CardComponentKey {
 }
 
 #[derive(Default)]
-pub struct Cards<'c> {
+pub struct Cards {
     pub cards: SlotMap<CardKey, Card>,
     pub components: SecondaryMap<CardKey, CardComponentKey>,
     pub images: SlotMap<ImageKey, Image>,
     pub image_cards: SecondaryMap<ImageKey, CardKey>,
     pub text: SlotMap<TextKey, Text>,
-    pub videos: SlotMap<VideoKey, Video<'c>>,
+    pub videos: SlotMap<VideoKey, Video>,
     pub video_cards: SecondaryMap<VideoKey, CardKey>,
 }

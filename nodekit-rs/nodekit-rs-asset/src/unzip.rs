@@ -7,15 +7,15 @@ use std::fs::write;
 use std::path::{Path, PathBuf};
 use tokio::{fs::File, io::BufReader};
 
-pub(crate) struct Zipped<'z> {
+pub(crate) struct Zipped {
     pub archive_path: PathBuf,
-    pub inner_path: &'z str,
+    pub inner_path: String,
     pub media_type: MediaType,
     pub path: PathBuf,
     pub id: u64,
 }
 
-impl Zipped<'_> {
+impl Zipped {
     pub async fn unzip(self) -> Result<Asset, Error> {
         let file = File::open(&self.archive_path)
             .await
@@ -50,12 +50,12 @@ impl Zipped<'_> {
     }
 }
 
-pub struct Unzipper<'z> {
+pub struct Unzipper {
     directory: PathBuf,
-    zipped: Vec<Zipped<'z>>,
+    zipped: Vec<Zipped>,
 }
 
-impl<'z> Unzipper<'z> {
+impl Unzipper {
     /// `directory` is a path on your local machine.
     /// All downloads will write to this directory.
     pub fn new<P: AsRef<Path>>(directory: P) -> Self {
@@ -68,7 +68,7 @@ impl<'z> Unzipper<'z> {
     pub fn add<P: AsRef<Path>>(
         &mut self,
         archive_path: P,
-        inner_path: &'z str,
+        inner_path: &str,
         media_type: MediaType,
         id: u64,
     ) -> Result<bool, Error> {
@@ -89,7 +89,7 @@ impl<'z> Unzipper<'z> {
             };
             let path = self.directory.join(archive_stem).join(filename);
             self.zipped.push(Zipped {
-                inner_path,
+                inner_path: inner_path.to_string(),
                 media_type,
                 path,
                 archive_path: archive_path.clone(),

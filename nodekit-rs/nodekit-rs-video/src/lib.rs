@@ -19,9 +19,9 @@ use std::{collections::VecDeque, path::Path};
 
 /// Extract frames from a video.
 /// This opens a video and keeps it open until `FrameExtractor` is dropped.
-pub struct FrameExtractor<'f> {
+pub struct FrameExtractor {
     /// A packet iterator that consumes the ffmpeg input struct.
-    packet_iter: PacketIter<'f>,
+    packet_iter: PacketIter<'static>,
     /// `PacketIter` can successfully retrieve frames but not streams.
     /// A pointer is dereferenced at some point and I don't know why.
     /// But all we need to know about the streams is their index.
@@ -40,7 +40,7 @@ pub struct FrameExtractor<'f> {
     path: PathBuf,
 }
 
-impl FrameExtractor<'_> {
+impl FrameExtractor {
     /// - `path` is the path to the video.
     /// - `width` and `height` are the dimensions that we want to scale each video frame to.
     pub fn new<P: AsRef<Path>>(

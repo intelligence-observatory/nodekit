@@ -20,17 +20,17 @@ const HASH_LEN: usize = 32;
 type Hash = [u8; HASH_LEN];
 
 /// Gather assets and move them into a cache directory.
-pub struct AssetManager<'a> {
+pub struct AssetManager {
     /// Download assets.
     downloader: Downloader,
     /// Unzip assets from local zip files.
-    unzipper: Unzipper<'a>,
+    unzipper: Unzipper,
     /// Copy local files.
     copier: Copier,
     next_id: u64,
 }
 
-impl<'a> AssetManager<'a> {
+impl AssetManager {
     pub fn new<P: AsRef<Path>>(directory: P) -> Result<Self, Error> {
         let directory = directory.as_ref();
         create_dir_all(directory).map_err(Error::CreateDir)?;
@@ -79,7 +79,7 @@ impl<'a> AssetManager<'a> {
     pub fn add_zipped<P: AsRef<Path>>(
         &mut self,
         archive_path: P,
-        inner_path: &'a str,
+        inner_path: &str,
         media_type: MediaType,
     ) -> Result<Option<u64>, Error> {
         Ok(

@@ -16,14 +16,14 @@ pub struct VideoResult {
 }
 
 #[derive(Default)]
-pub struct Video<'v> {
-    extractor: Option<FrameExtractor<'v>>,
+pub struct Video {
+    extractor: Option<FrameExtractor>,
     muted: bool,
     looping: bool,
     ended: bool,
 }
 
-impl From<&VideoCard> for Video<'_> {
+impl From<&VideoCard> for Video {
     fn from(value: &VideoCard) -> Self {
         Self {
             muted: value.muted,
@@ -34,7 +34,7 @@ impl From<&VideoCard> for Video<'_> {
     }
 }
 
-impl Video<'_> {
+impl Video {
     pub fn load<P: AsRef<Path>>(&mut self, path: P, card: &Card) -> Result<(), Error> {
         self.extractor = Some(
             FrameExtractor::new(
