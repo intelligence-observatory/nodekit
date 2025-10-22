@@ -8,6 +8,7 @@ blittle.workspace = true
 bytemuck.workspace = true
 hashbrown.workspace = true
 hex_color.workspace = true
+nodekit-rs-action = { path = "../nodekit-rs-action" }
 nodekit-rs-asset = { path = "../nodekit-rs-asset" }
 nodekit-rs-graph = { path = "../nodekit-rs-graph" }
 nodekit-rs-image = { path = "../nodekit-rs-image" }

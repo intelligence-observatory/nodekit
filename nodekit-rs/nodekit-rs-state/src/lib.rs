@@ -14,6 +14,7 @@ use nodekit_rs_graph::Graph;
 use slotmap::{SecondaryMap, SlotMap};
 use std::collections::HashMap;
 use std::path::Path;
+use nodekit_rs_action::Action;
 pub use tick_result::TickResult;
 
 pub struct State {
@@ -67,7 +68,7 @@ impl State {
         &mut self.nodes[self.current]
     }
 
-    pub fn tick(&mut self) -> Result<TickResult, Error> {
+    pub fn tick(&mut self, action: Option<Action>) -> Result<TickResult, Error> {
         if self.finished {
             Ok(TickResult::finished())
         } else {

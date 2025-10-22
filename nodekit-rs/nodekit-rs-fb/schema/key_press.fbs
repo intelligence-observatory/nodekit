@@ -1,0 +1,6 @@
+table KeyPress {
+    key:ubyte;
+}
+
+root_type KeyPress;
+file_identifier "keyp";

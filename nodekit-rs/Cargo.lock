@@ -1349,6 +1349,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "nodekit-rs-action"
+version = "0.1.0"
+
+[[package]]
 name = "nodekit-rs-asset"
 version = "0.1.0"
 dependencies = [
@@ -1397,6 +1401,7 @@ version = "0.1.0"
 dependencies = [
  "async_zmq",
  "flatbuffers",
+ "nodekit-rs-action",
  "nodekit-rs-fb",
  "nodekit-rs-graph",
  "nodekit-rs-state",
@@ -1412,6 +1417,7 @@ dependencies = [
  "bytemuck",
  "hashbrown 0.16.0",
  "hex_color",
+ "nodekit-rs-action",
  "nodekit-rs-asset",
  "nodekit-rs-graph",
  "nodekit-rs-image",

@@ -1,0 +1,7 @@
+table Click {
+    x:float32;
+    y:float32;
+}
+
+root_type Click;
+file_identifier "clik";

@@ -6,6 +6,7 @@ edition = "2024"
 [dependencies]
 async_zmq.workspace = true
 flatbuffers.workspace = true
+nodekit-rs-action = { path = "../nodekit-rs-action" }
 nodekit-rs-fb = { path = "../nodekit-rs-fb" }
 nodekit-rs-graph = { path = "../nodekit-rs-graph" }
 nodekit-rs-state = { path = "../nodekit-rs-state" }

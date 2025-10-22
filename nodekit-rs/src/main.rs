@@ -34,8 +34,8 @@ async fn on_receive(state: &mut Option<State>, received: Received, directory: &P
             // Nothing has happened yet.
             TickResult::default()
         }
-        Received::Tick => match state.as_mut() {
-            Some(state) => state.tick().unwrap(),
+        Received::Tick(action) => match state.as_mut() {
+            Some(state) => state.tick(action).unwrap(),
             None => TickResult::default(),
         },
     }
