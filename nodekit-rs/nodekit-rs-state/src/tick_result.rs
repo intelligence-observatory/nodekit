@@ -7,3 +7,14 @@ pub struct TickResult {
     pub sensor: Option<SensorKey>,
     pub state: EntityState,
 }
+
+impl TickResult {
+    pub const fn finished() -> Self {
+        Self {
+            board: None,
+            audio: None,
+            sensor: None,
+            state: EntityState::Finished,
+        }
+    }
+}

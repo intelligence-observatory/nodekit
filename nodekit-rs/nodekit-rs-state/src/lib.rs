@@ -5,11 +5,9 @@ mod node;
 mod rect;
 mod systems;
 mod tick_result;
-mod transition;
 
-pub use crate::components::EntityState;
+pub use crate::components::*;
 use crate::node::{Node, NodeKey};
-use crate::transition::Transition;
 use board::*;
 use error::Error;
 use nodekit_rs_graph::Graph;
@@ -22,9 +20,10 @@ pub struct State {
     pub start: NodeKey,
     current: NodeKey,
     pub nodes: SlotMap<NodeKey, Node>,
-    pub transitions: SecondaryMap<NodeKey, Transition>,
+    pub transitions: SecondaryMap<NodeKey, SecondaryMap<SensorKey, NodeKey>>,
     pub nodekit_version: String,
     pub board: Vec<u8>,
+    finished: bool,
 }
 
 impl State {
@@ -41,13 +40,15 @@ impl State {
         }
         // Add transitions.
         let mut transitions = SecondaryMap::default();
-        for (to, raw_transitions) in value.transitions.iter() {
-            for (from, sensor_id) in raw_transitions.iter() {
+        for (from, raw_transitions) in value.transitions.iter() {
+            let mut map = SecondaryMap::default();
+            let from = node_ids[from];
+            for (sensor_id, to) in raw_transitions.iter() {
                 let to = node_ids[to];
-                let from = node_ids[from];
                 let sensor = sensor_ids[from][sensor_id];
-                transitions.insert(to, Transition { from, sensor });
+                map.insert(sensor, to);
             }
+            transitions.insert(from, map);
         }
         let start = node_ids[&value.start];
 
@@ -57,7 +58,8 @@ impl State {
             nodes,
             transitions,
             nodekit_version: value.nodekit_version.clone(),
-            board: vec![0; BOARD_D * BOARD_D * 3],
+            board: board(),
+            finished: false,
         })
     }
 
@@ -65,11 +67,26 @@ impl State {
         &mut self.nodes[self.current]
     }
 
-    pub fn start_node(&mut self) -> TickResult {
-        self.nodes[self.current].start(&mut self.board)
-    }
-
     pub fn tick(&mut self) -> Result<TickResult, Error> {
-        self.nodes[self.current].tick(&mut self.board)
+        if self.finished {
+            Ok(TickResult::finished())
+        } else {
+            let result = self.nodes[self.current].tick(&mut self.board)?;
+            // This node ended. Try to get the next node.
+            if result.state == EntityState::EndedNow {
+                match result.sensor {
+                    Some(sensor) => {
+                        self.current = self.transitions[self.current][sensor];
+                        Ok(result)
+                    }
+                    None => {
+                        self.finished = true;
+                        Ok(TickResult::finished())
+                    }
+                }
+            } else {
+                Ok(result)
+            }
+        }
     }
 }
