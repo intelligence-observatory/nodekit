@@ -14,13 +14,21 @@ use ffmpeg_next::{
 };
 pub use frame::Frame;
 use packet_iter::PacketIter;
+use std::path::PathBuf;
 use std::{collections::VecDeque, path::Path};
 
 /// Extract frames from a video.
 /// This opens a video and keeps it open until `FrameExtractor` is dropped.
 pub struct FrameExtractor<'f> {
+    /// A packet iterator that consumes the ffmpeg input struct.
     packet_iter: PacketIter<'f>,
+    /// `PacketIter` can successfully retrieve frames but not streams.
+    /// A pointer is dereferenced at some point and I don't know why.
+    /// But all we need to know about the streams is their index.
+    /// So, those indices are cached here.
     streams: Vec<usize>,
+    /// The current index in `streams`.
+    index: usize,
     /// None if the video doesn't have audio.
     audio: Option<AudioExtractor>,
     video: VideoExtractor,
@@ -28,8 +36,8 @@ pub struct FrameExtractor<'f> {
     video_frames: VecDeque<VideoFrame>,
     /// Pending audio frames. The extractors can extract more than one frame.
     audio_frames: VecDeque<AudioFrame>,
-    index: usize,
-    num_packets: usize,
+    /// The path to the video file. Required for looping.
+    path: PathBuf,
 }
 
 impl FrameExtractor<'_> {
@@ -47,7 +55,6 @@ impl FrameExtractor<'_> {
             .map(|(stream, _)| stream.index())
             .collect::<Vec<usize>>();
         let input = ffmpeg_next::format::input(path.as_ref())?;
-        let num_packets = streams.len();
         let audio = AudioExtractor::new(&input).ok();
         let video = VideoExtractor::new(&input, width, height)?;
         let packet_iter = PacketIter::from(input);
@@ -59,7 +66,7 @@ impl FrameExtractor<'_> {
             audio_frames: VecDeque::default(),
             streams,
             index: 0,
-            num_packets,
+            path: path.as_ref().to_path_buf(),
         })
     }
 
@@ -70,42 +77,46 @@ impl FrameExtractor<'_> {
     pub fn get_next_frame(&mut self) -> Result<Extraction, ffmpeg_next::Error> {
         match self.packet_iter.next() {
             Some((_, packet)) => {
-                if self.index < self.num_packets {
-                    let stream_index = self.streams[self.index];
-                    if let Some(audio) = self.audio.as_mut()
-                        && stream_index == audio.stream_index()
-                    {
-                        audio.send_packet(&packet)?;
-                        while let Ok(frame) = audio.extract_next_frame() {
-                            self.audio_frames.push_back(frame);
-                        }
-                    } else if stream_index == self.video.stream_index() {
-                        self.video.send_packet(&packet)?;
-                        while let Ok(frame) = self.video.extract_next_frame() {
-                            self.video_frames.push_back(frame);
-                        }
+                let stream_index = self.streams[self.index];
+                if let Some(audio) = self.audio.as_mut()
+                    && stream_index == audio.stream_index()
+                {
+                    audio.send_packet(&packet)?;
+                    while let Ok(frame) = audio.extract_next_frame() {
+                        self.audio_frames.push_back(frame);
                     }
-                    self.index += 1;
-                    // There is a video frame.
-                    // There is an expected audio frame.
-                    let have_audio_frame = if self.audio.is_some() {
-                        !self.audio_frames.is_empty()
-                    } else {
-                        true
-                    };
-                    Ok(if !self.video_frames.is_empty() && have_audio_frame {
-                        let video = self.video_frames.pop_front().unwrap();
-                        let audio = self.audio_frames.pop_front();
-                        Extraction::Frame(Frame { video, audio })
-                    } else {
-                        Extraction::NoFrame
-                    })
-                } else {
-                    Ok(Extraction::EndOfVideo)
+                } else if stream_index == self.video.stream_index() {
+                    self.video.send_packet(&packet)?;
+                    while let Ok(frame) = self.video.extract_next_frame() {
+                        self.video_frames.push_back(frame);
+                    }
                 }
+                self.index += 1;
+                // There is a video frame.
+                // There is an expected audio frame.
+                let have_audio_frame = if self.audio.is_some() {
+                    !self.audio_frames.is_empty()
+                } else {
+                    true
+                };
+                Ok(if !self.video_frames.is_empty() && have_audio_frame {
+                    let video = self.video_frames.pop_front().unwrap();
+                    let audio = self.audio_frames.pop_front();
+                    Extraction::Frame(Frame { video, audio })
+                } else {
+                    Extraction::NoFrame
+                })
             }
             None => Ok(Extraction::EndOfVideo),
         }
+    }
+
+    /// Reset to loop the video.
+    pub fn reset(&mut self) -> Result<(), ffmpeg_next::Error> {
+        let input = input(&self.path)?;
+        self.packet_iter = PacketIter::from(input);
+        self.index = 0;
+        Ok(())
     }
 }
 
