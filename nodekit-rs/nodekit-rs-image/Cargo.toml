@@ -6,5 +6,6 @@ edition = "2024"
 [dependencies]
 blittle.workspace = true
 bytemuck.workspace = true
+fast_image_resize.workspace = true
 png.workspace = true
 thiserror.workspace = true

@@ -85,6 +85,11 @@ impl<'n> Node<'n> {
         }
     }
 
+    fn tick_cards(&mut self) {
+        // Iterate through active cards.
+        for (key, card) in self.cards.cards.iter().filter(|(_, card)| card.active) {}
+    }
+
     fn set_active(&mut self, k: TimedEntityKey, active: bool) {
         match k {
             TimedEntityKey::Card(key) => {
