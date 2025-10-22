@@ -4,7 +4,7 @@ use slotmap::{SecondaryMap, SlotMap};
 pub enum CardComponentKey {
     Image(ImageKey),
     Text(TextKey),
-    Video(VideoKey)
+    Video(VideoKey),
 }
 
 #[derive(Default)]

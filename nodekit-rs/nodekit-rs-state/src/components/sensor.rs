@@ -11,7 +11,7 @@ new_key_type! { pub struct SubmitSensorKey; }
 
 #[derive(Default)]
 pub struct Sensor {
-    pub active: bool
+    pub active: bool,
 }
 
 #[derive(Default)]

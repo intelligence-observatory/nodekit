@@ -1,20 +1,20 @@
 //! This crate provides the means of extracting frame data from a video.
 //! It doesn't provide any blitting or processing functionality.
 
+mod extraction;
 mod extractor;
 mod frame;
 mod packet_iter;
-mod extraction;
 
+pub use extraction::Extraction;
 use extractor::{AudioExtractor, VideoExtractor};
 use ffmpeg_next::{
     format::input,
     util::frame::{audio::Audio as AudioFrame, video::Video as VideoFrame},
 };
-pub use extraction::Extraction;
 pub use frame::Frame;
-use std::{collections::VecDeque, path::Path};
 use packet_iter::PacketIter;
+use std::{collections::VecDeque, path::Path};
 
 /// Extract frames from a video.
 /// This opens a video and keeps it open until `FrameExtractor` is dropped.
@@ -42,9 +42,10 @@ impl FrameExtractor<'_> {
     ) -> Result<Self, ffmpeg_next::Error> {
         let mut input = input(path.as_ref())?;
         // Extract packets.
-        let streams = input.packets().map(|(stream, _)| {
-            stream.index()
-        }).collect::<Vec<usize>>();
+        let streams = input
+            .packets()
+            .map(|(stream, _)| stream.index())
+            .collect::<Vec<usize>>();
         let input = ffmpeg_next::format::input(path.as_ref())?;
         let num_packets = streams.len();
         let audio = AudioExtractor::new(&input).ok();
@@ -58,7 +59,7 @@ impl FrameExtractor<'_> {
             audio_frames: VecDeque::default(),
             streams,
             index: 0,
-            num_packets
+            num_packets,
         })
     }
 
@@ -99,12 +100,11 @@ impl FrameExtractor<'_> {
                     } else {
                         Extraction::NoFrame
                     })
-                }
-                else {
+                } else {
                     Ok(Extraction::EndOfVideo)
                 }
             }
-            None => Ok(Extraction::EndOfVideo)
+            None => Ok(Extraction::EndOfVideo),
         }
     }
 }
@@ -117,7 +117,9 @@ mod tests {
     fn test_video_extraction() {
         let mut extractor = FrameExtractor::new("../mp4.ia.mp4", 320, 180).unwrap();
         let mut num_frames = 0u64;
-        while let Ok(frame) = extractor.get_next_frame() && !matches!(frame, Extraction::EndOfVideo) {
+        while let Ok(frame) = extractor.get_next_frame()
+            && !matches!(frame, Extraction::EndOfVideo)
+        {
             num_frames += 1;
         }
         assert_eq!(num_frames, 1484);

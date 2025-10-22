@@ -70,7 +70,7 @@ impl<'n> Node<'n> {
             sensor_ids: sensors.sensor_ids,
         })
     }
-    
+
     pub fn tick(&mut self) {
         self.tick_timers();
     }
@@ -84,7 +84,7 @@ impl<'n> Node<'n> {
             self.set_active(k, false);
         }
     }
-    
+
     fn set_active(&mut self, k: TimedEntityKey, active: bool) {
         match k {
             TimedEntityKey::Card(key) => {
@@ -115,7 +115,9 @@ impl<'n> Node<'n> {
                 NodeCardsValue::ImageCard(image) => {
                     // Add an image.
                     let image_key = cards.images.insert(Image::default());
-                    cards.components.insert(card_key, CardComponentKey::Image(image_key));
+                    cards
+                        .components
+                        .insert(card_key, CardComponentKey::Image(image_key));
                     // Prepare the asset.
                     assets
                         .add_image(image_key, &image.image.locator, &image.image.sha256)
@@ -124,7 +126,9 @@ impl<'n> Node<'n> {
                 NodeCardsValue::VideoCard(video) => {
                     // Add a video.
                     let video_key = cards.videos.insert(Video::from(video));
-                    cards.components.insert(card_key, CardComponentKey::Video(video_key));
+                    cards
+                        .components
+                        .insert(card_key, CardComponentKey::Video(video_key));
                     // Prepare the asset.
                     assets
                         .add_video(video_key, &video.video.locator, &video.video.sha256)

@@ -56,7 +56,7 @@ impl<'s> State<'s> {
             board: vec![0; BOARD_D * BOARD_D * 3],
         })
     }
-    
+
     pub fn tick(&mut self) {
         let node = &mut self.nodes[self.current];
         node.tick();
