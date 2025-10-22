@@ -1,5 +1,5 @@
 use crate::components::*;
-use crate::{components::SensorKey, error::Error, systems::*};
+use crate::{error::Error, systems::*};
 use hashbrown::HashMap;
 use hex_color::HexColor;
 use nodekit_rs_graph::{NodeCardsValue, NodeSensorsValue};
@@ -22,11 +22,7 @@ macro_rules! sensor {
             .entities
             .insert(sub_sensor_key, sensor_key);
         // Add a timer.
-        let timer_key = $timers
-            .0
-            .insert(Timer::new($sensor.start_msec, $sensor.end_msec));
-        // Link the timer.
-        $sensors.timers.insert(sensor_key, timer_key);
+        $timers.add_sensor(Timer::new($sensor.start_msec, $sensor.end_msec), sensor_key);
         $sensor_ids.insert($sensor_id, sensor_key);
     }};
 }
@@ -74,6 +70,31 @@ impl<'n> Node<'n> {
             sensor_ids: sensors.sensor_ids,
         })
     }
+    
+    pub fn tick(&mut self) {
+        self.tick_timers();
+    }
+
+    fn tick_timers(&mut self) {
+        let tick_result = self.timers.tick();
+        for k in tick_result.started {
+            self.set_active(k, true);
+        }
+        for k in tick_result.ended {
+            self.set_active(k, false);
+        }
+    }
+    
+    fn set_active(&mut self, k: TimedEntityKey, active: bool) {
+        match k {
+            TimedEntityKey::Card(key) => {
+                self.cards.cards[key].active = active;
+            }
+            TimedEntityKey::Sensor(key) => {
+                self.sensors.sensors[key].active = active;
+            }
+        }
+    }
 
     fn add_cards<'c, P: AsRef<Path>>(
         node: &'c nodekit_rs_graph::Node,
@@ -87,10 +108,8 @@ impl<'n> Node<'n> {
             // Insert a new card.
             let card_key = cards.cards.insert(Card::from(card));
             card_ids.insert(card_id.as_str(), card_key);
-            // Insert a new timer.
-            let timer_key = timers.0.insert(Timer::from(card));
-            // Link the timer.
-            cards.timers.insert(card_key, timer_key);
+            // Add a new timer.
+            timers.add_card(Timer::from(card), card_key);
             // Add an asset.
             match card {
                 NodeCardsValue::ImageCard(image) => {
@@ -189,11 +208,7 @@ impl<'n> Node<'n> {
                         .entities
                         .insert(submit_sensor_key, sensor_key);
                     // Add the timer.
-                    let timer_key = timers
-                        .0
-                        .insert(Timer::new(sensor.start_msec, sensor.end_msec));
-                    // Link the timer.
-                    sensors.timers.insert(sensor_key, timer_key);
+                    timers.add_sensor(Timer::new(sensor.start_msec, sensor.end_msec), sensor_key);
                 }
             }
         }

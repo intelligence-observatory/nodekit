@@ -16,6 +16,7 @@ use std::path::Path;
 
 pub struct State<'s> {
     pub start: NodeKey,
+    pub current: NodeKey,
     pub nodes: SlotMap<NodeKey, Node<'s>>,
     pub transitions: SecondaryMap<NodeKey, Transition>,
     pub nodekit_version: String,
@@ -48,10 +49,16 @@ impl<'s> State<'s> {
 
         Ok(Self {
             start,
+            current: start,
             nodes,
             transitions,
             nodekit_version: value.nodekit_version.clone(),
             board: [0; BOARD_D * BOARD_D * 3],
         })
+    }
+    
+    pub fn tick(&mut self) {
+        let node = &mut self.nodes[self.current];
+        node.tick();
     }
 }

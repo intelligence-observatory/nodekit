@@ -9,7 +9,7 @@ pub use cards::Cards;
 pub use effects::Effects;
 pub use sensors::Sensors;
 use slotmap::{Key, SecondaryMap, SlotMap};
-pub use timers::Timers;
+pub use timers::*;
 
 #[derive(Default)]
 pub struct SubSystem<T: Key, U: Key, V> {
