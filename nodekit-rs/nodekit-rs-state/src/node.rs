@@ -11,7 +11,7 @@ new_key_type! { pub struct NodeKey; }
 macro_rules! sensor {
     ($sensor:ident, $sensors:ident, $timers:ident, $sub_sensors:ident, $sensor_type:ident, $sensor_ids:ident, $sensor_id:ident) => {{
         // Add the sensor.
-        let sensor_key = $sensors.sensors.insert(());
+        let sensor_key = $sensors.sensors.insert(Sensor::default());
         let sub_sensor_key = $sensors
             .$sub_sensors
             .components
@@ -132,7 +132,7 @@ impl<'n> Node<'n> {
         let mut sensor_ids = HashMap::default();
         for (sensor_id, sensor) in node.sensors.iter() {
             // Add a sensor.
-            let sensor_key = sensors.sensors.insert(());
+            let sensor_key = sensors.sensors.insert(Sensor::default());
             match sensor {
                 NodeSensorsValue::TimeoutSensor(sensor) => {
                     // Add the sensor.
@@ -170,7 +170,7 @@ impl<'n> Node<'n> {
                 }
                 NodeSensorsValue::SubmitSensor(sensor) => {
                     // Add the sensor.
-                    let sensor_key = sensors.sensors.insert(());
+                    let sensor_key = sensors.sensors.insert(Sensor::default());
                     let submitter_id = card_ids[sensor.submitter_id.as_str()];
                     let source_ids = sensor
                         .source_ids

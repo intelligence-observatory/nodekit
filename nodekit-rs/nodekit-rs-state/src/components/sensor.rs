@@ -10,6 +10,11 @@ new_key_type! { pub struct KeySensorKey; }
 new_key_type! { pub struct SubmitSensorKey; }
 
 #[derive(Default)]
+pub struct Sensor {
+    pub active: bool
+}
+
+#[derive(Default)]
 pub struct TimeoutSensor {
     t: u64,
     t1: u64,
