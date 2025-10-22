@@ -47,6 +47,7 @@ impl FrameExtractor<'_> {
         path: P,
         width: u32,
         height: u32,
+        muted: bool,
     ) -> Result<Self, ffmpeg_next::Error> {
         let mut input = input(path.as_ref())?;
         // Extract packets.
@@ -55,7 +56,11 @@ impl FrameExtractor<'_> {
             .map(|(stream, _)| stream.index())
             .collect::<Vec<usize>>();
         let input = ffmpeg_next::format::input(path.as_ref())?;
-        let audio = AudioExtractor::new(&input).ok();
+        let audio = if muted {
+            None
+        } else {
+            AudioExtractor::new(&input).ok()
+        };
         let video = VideoExtractor::new(&input, width, height)?;
         let packet_iter = PacketIter::from(input);
         Ok(Self {
@@ -126,7 +131,7 @@ mod tests {
 
     #[test]
     fn test_video_extraction() {
-        let mut extractor = FrameExtractor::new("../mp4.ia.mp4", 320, 180).unwrap();
+        let mut extractor = FrameExtractor::new("../mp4.ia.mp4", 320, 180, false).unwrap();
         let mut num_frames = 0u64;
         while let Ok(frame) = extractor.get_next_frame()
             && !matches!(frame, Extraction::EndOfVideo)
