@@ -11,7 +11,6 @@ new_key_type! { pub struct SubmitSensorKey; }
 
 pub struct Sensor {
     pub state: EntityState,
-    pub id: String,
 }
 
 #[derive(Default)]

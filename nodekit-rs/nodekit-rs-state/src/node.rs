@@ -21,7 +21,6 @@ macro_rules! sensor {
         // Add the sensor.
         let sensor = Sensor {
             state: EntityState::default(),
-            id: $sensor_id.clone(),
         };
         let sensor_key = $sensors.sensors.insert(sensor);
         let sub_sensor_key = $sensors
@@ -307,7 +306,6 @@ impl Node {
             // Add a sensor.
             let s = Sensor {
                 state: EntityState::default(),
-                id: sensor_id.clone(),
             };
             let sensor_key = sensors.sensors.insert(s);
             match sensor {
@@ -349,7 +347,6 @@ impl Node {
                     // Add the sensor.
                     let s = Sensor {
                         state: EntityState::default(),
-                        id: sensor_id.clone(),
                     };
                     let sensor_key = sensors.sensors.insert(s);
                     let submitter_id = card_ids[sensor.submitter_id.as_str()];
