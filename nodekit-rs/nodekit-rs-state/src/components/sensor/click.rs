@@ -1,6 +1,6 @@
-use slotmap::new_key_type;
-use nodekit_rs_graph::Mask;
 use crate::rect::Rect;
+use nodekit_rs_graph::Mask;
+use slotmap::new_key_type;
 
 new_key_type! { pub struct ClickSensorKey; }
 

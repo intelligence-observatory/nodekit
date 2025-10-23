@@ -8,6 +8,18 @@ pub struct TimeoutSensor {
     t1: u64,
 }
 
+impl TimeoutSensor {
+    /// Returns true if the sensor triggers.
+    pub const fn advance(&mut self) -> bool {
+        if self.t >= self.t1 {
+            true
+        } else {
+            self.t += 1;
+            false
+        }
+    }
+}
+
 impl From<&nodekit_rs_graph::TimeoutSensor> for TimeoutSensor {
     fn from(value: &nodekit_rs_graph::TimeoutSensor) -> Self {
         Self {

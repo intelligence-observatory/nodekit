@@ -168,19 +168,7 @@ impl Node {
         };
         self.tick_timers();
         self.tick_cards(board, &mut result)?;
-        if let Some(action) = action {
-            let sensor_key = match action {
-                Action::Click { x, y } => self.sensors.on_click(x, y),
-                Action::KeyPress(key) => self.sensors.on_key(&key),
-                Action::Submit => todo!(),
-            };
-            // End the node.
-            if let Some(sensor_key) = sensor_key {
-                self.state = EntityState::EndedNow;
-                result.state = self.state;
-                result.sensor = Some(sensor_key);
-            }
-        }
+        self.on_action(action, &mut result);
         Ok(result)
     }
 
@@ -248,6 +236,22 @@ impl Node {
             result.board = Some(board.to_vec());
         }
         Ok(())
+    }
+    
+    fn on_action(&mut self, action: Option<Action>, result: &mut TickResult) {
+        if let Some(action) = action {
+            let sensor_key = match action {
+                Action::Click { x, y } => self.sensors.on_click(x, y),
+                Action::KeyPress(key) => self.sensors.on_key(&key),
+                Action::Submit => todo!(),
+            };
+            // End the node.
+            if let Some(sensor_key) = sensor_key {
+                self.state = EntityState::EndedNow;
+                result.state = self.state;
+                result.sensor = Some(sensor_key);
+            }
+        }
     }
 
     fn add_cards<P: AsRef<Path>>(

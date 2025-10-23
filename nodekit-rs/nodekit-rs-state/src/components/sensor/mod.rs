@@ -1,12 +1,12 @@
-mod timeout;
 mod click;
 mod key;
 mod submit;
+mod timeout;
 
 use crate::components::EntityState;
-use slotmap::new_key_type;
 pub use click::*;
 pub use key::*;
+use slotmap::new_key_type;
 pub use submit::*;
 pub use timeout::*;
 

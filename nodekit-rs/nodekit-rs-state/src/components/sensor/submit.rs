@@ -1,5 +1,5 @@
-use slotmap::new_key_type;
 use crate::CardKey;
+use slotmap::new_key_type;
 
 new_key_type! { pub struct SubmitSensorKey; }
 
