@@ -59,6 +59,6 @@ impl From<&nodekit_rs_graph::KeySensor> for KeySensor {
 
 #[derive(Default)]
 pub struct SubmitSensor {
-    pub submitter_id: CardKey,
-    pub source_ids: Vec<CardKey>,
+    pub submitter_key: CardKey,
+    pub source_keys: Vec<CardKey>,
 }

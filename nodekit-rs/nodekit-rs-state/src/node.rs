@@ -7,31 +7,29 @@ use blittle::blit;
 use bytemuck::cast_slice;
 use hashbrown::HashMap;
 use hex_color::HexColor;
+use nodekit_rs_action::Action;
 use nodekit_rs_asset::MediaType;
 use nodekit_rs_graph::{NodeCardsValue, NodeSensorsValue};
 use nodekit_rs_image::Image;
 use slotmap::new_key_type;
 use std::path::Path;
-use nodekit_rs_action::Action;
 
 new_key_type! { pub struct NodeKey; }
 
 macro_rules! sensor {
-    ($sensor:ident, $sensors:ident, $timers:ident, $sub_sensors:ident, $sensor_type:ident, $sensor_ids:ident, $sensor_id:ident) => {{
+    ($sensor:ident, $sensors:ident, $timers:ident, $sub_sensors:ident, $sensor_type:ident, $sensor_ids:ident, $sensor_id:ident, $component_key:ident) => {{
         // Add the sensor.
         let sensor = Sensor {
             state: EntityState::default(),
         };
         let sensor_key = $sensors.sensors.insert(sensor);
-        let sub_sensor_key = $sensors
-            .$sub_sensors
-            .components
-            .insert($sensor_type::from($sensor));
+        // Add the sub-sensor.
+        let sub_sensor_key = $sensors.$sub_sensors.insert($sensor_type::from($sensor));
         // Link the sensor.
-        $sensors
-            .$sub_sensors
-            .entities
-            .insert(sub_sensor_key, sensor_key);
+        $sensors.components.insert(
+            SensorComponentKey::$component_key(sub_sensor_key),
+            sensor_key,
+        );
         // Add a timer.
         $timers.add_sensor(Timer::new($sensor.start_msec, $sensor.end_msec), sensor_key);
         $sensor_ids.insert($sensor_id.to_string(), sensor_key);
@@ -169,10 +167,10 @@ impl Node {
         self.tick_cards(board, &mut result)?;
         if let Some(action) = action {
             match action {
-                Action::Click { x, y} => {
+                Action::Click { x, y } => {
                     todo!()
                 }
-                Action::KeyPress(key) => todo!()
+                Action::KeyPress(key) => todo!(),
             }
         }
         // TODO sensors.
@@ -303,23 +301,10 @@ impl Node {
         let mut sensors = Sensors::default();
         let mut sensor_ids = HashMap::default();
         for (sensor_id, sensor) in node.sensors.iter() {
-            // Add a sensor.
-            let s = Sensor {
-                state: EntityState::default(),
-            };
-            let sensor_key = sensors.sensors.insert(s);
             match sensor {
                 NodeSensorsValue::TimeoutSensor(sensor) => {
                     // Add the sensor.
-                    let timeout_sensor_key = sensors
-                        .timeout_sensors
-                        .components
-                        .insert(TimeoutSensor::from(sensor));
-                    // Link the sensor.
-                    sensors
-                        .timeout_sensors
-                        .entities
-                        .insert(timeout_sensor_key, sensor_key);
+                    sensors.timeout_sensors.insert(TimeoutSensor::from(sensor));
                 }
                 NodeSensorsValue::ClickSensor(sensor) => {
                     sensor!(
@@ -329,7 +314,8 @@ impl Node {
                         click_sensors,
                         ClickSensor,
                         sensor_ids,
-                        sensor_id
+                        sensor_id,
+                        Click
                     );
                 }
                 NodeSensorsValue::KeySensor(sensor) => {
@@ -340,7 +326,8 @@ impl Node {
                         key_sensors,
                         KeySensor,
                         sensor_ids,
-                        sensor_id
+                        sensor_id,
+                        Key
                     );
                 }
                 NodeSensorsValue::SubmitSensor(sensor) => {
@@ -349,23 +336,23 @@ impl Node {
                         state: EntityState::default(),
                     };
                     let sensor_key = sensors.sensors.insert(s);
-                    let submitter_id = card_ids[sensor.submitter_id.as_str()];
-                    let source_ids = sensor
+                    // Get the submitter card.
+                    let submitter_key = card_ids[sensor.submitter_id.as_str()];
+                    // Get the source keys.
+                    let source_keys = sensor
                         .source_ids
                         .iter()
                         .map(|id| card_ids[id.as_str()])
                         .collect::<Vec<CardKey>>();
                     // Add the submit sensor.
-                    let submit_sensor_key =
-                        sensors.submit_sensors.components.insert(SubmitSensor {
-                            submitter_id,
-                            source_ids,
-                        });
+                    let submit_sensor_key = sensors.submit_sensors.insert(SubmitSensor {
+                        submitter_key,
+                        source_keys,
+                    });
                     // Link the submit sensor.
                     sensors
-                        .submit_sensors
-                        .entities
-                        .insert(submit_sensor_key, sensor_key);
+                        .components
+                        .insert(SensorComponentKey::Submit(submit_sensor_key), sensor_key);
                     // Add the timer.
                     timers.add_sensor(Timer::new(sensor.start_msec, sensor.end_msec), sensor_key);
                 }

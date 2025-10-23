@@ -10,11 +10,11 @@ pub use crate::components::*;
 use crate::node::{Node, NodeKey};
 use board::*;
 use error::Error;
+use nodekit_rs_action::Action;
 use nodekit_rs_graph::Graph;
 use slotmap::{SecondaryMap, SlotMap};
 use std::collections::HashMap;
 use std::path::Path;
-use nodekit_rs_action::Action;
 pub use tick_result::TickResult;
 
 pub struct State {

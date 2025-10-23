@@ -71,17 +71,18 @@ impl Connection {
             .map_err(Error::DeserializeGraph)?;
         Ok(Received::Graph(graph))
     }
-    
+
     fn deserialize_click(data: &[u8]) -> Result<Received, Error> {
         let click = nodekit_rs_fb::click::root_as_click(data).map_err(Error::InvalidFlatbuffer)?;
         Ok(Received::Tick(Some(Action::Click {
             x: click.x(),
-            y: click.y()
+            y: click.y(),
         })))
     }
 
     fn deserialize_key_press(data: &[u8]) -> Result<Received, Error> {
-        let key_press = nodekit_rs_fb::key_press::root_as_key_press(data).map_err(Error::InvalidFlatbuffer)?;
+        let key_press =
+            nodekit_rs_fb::key_press::root_as_key_press(data).map_err(Error::InvalidFlatbuffer)?;
         Ok(Received::Tick(Some(Action::KeyPress(key_press.key()))))
     }
 }

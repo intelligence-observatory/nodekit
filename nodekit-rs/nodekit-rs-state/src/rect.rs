@@ -21,6 +21,21 @@ impl Rect {
         Self { position, size }
     }
 
+    pub const fn contains(&self, x: f32, y: f32) -> bool {
+        let x = Self::spatial_coordinate(x as f64);
+        let y = Self::spatial_coordinate(y as f64);
+        if x < 0 || y < 0 {
+            false
+        } else {
+            let x = x.cast_unsigned();
+            let y = y.cast_unsigned();
+            x >= self.position.x
+                && x < self.position.x + self.size.w
+                && y >= self.position.y
+                && y < self.position.y + self.size.h
+        }
+    }
+
     pub const fn spatial_coordinate(c: f64) -> isize {
         (BOARD_D_HALF_F64 + BOARD_D_F64 * c) as isize
     }

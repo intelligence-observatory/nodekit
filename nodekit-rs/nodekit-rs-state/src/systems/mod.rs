@@ -7,7 +7,7 @@ mod timers;
 pub use assets::Assets;
 pub use cards::*;
 pub use effects::Effects;
-pub use sensors::Sensors;
+pub use sensors::*;
 use slotmap::{Key, SecondaryMap, SlotMap};
 pub use timers::*;
 
