@@ -251,15 +251,21 @@ class StroopTrialResult(pydantic.BaseModel):
 if __name__ == "__main__":
     # Make a simple Stroop task with a few trials
     random.seed(42)
-    trials = [
-        make_stroop_trial(
-            stimulus_color=random.choice(list(StroopColor)),
-            stimulus_word=random.choice(list(StroopColor)),
-        )
-        for _ in range(5)
-    ]
+    trials = []
+    #trials.append(make_stroop_instructions())
+    trials.extend(
+        [
+            make_stroop_trial(
+                stimulus_color=random.choice(list(StroopColor)),
+                stimulus_word=random.choice(list(StroopColor)),
+            )
+            for _ in range(50)
+        ]
+    )
+
+
     stroop_task = nk.concat(
-        [make_stroop_instructions()] + trials,
+        trials,
     )
 
     nk.save_graph(stroop_task, 'my-stroop.nkg')
