@@ -1,0 +1,11 @@
+[package]
+name = "nodekit-rs-client"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+flatbuffers.workspace = true
+nodekit-rs-action = { path = "../nodekit-rs-action", features = ["py"] }
+nodekit-rs-fb = { path = "../nodekit-rs-fb" }
+pyo3.workspace = true
+serde_json.workspace = true

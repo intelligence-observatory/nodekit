@@ -1,7 +1,7 @@
-use crate::Action;
+use nodekit_rs_action::Action;
 use nodekit_rs_graph::Graph;
 
-pub enum Received {
+pub enum Command {
     Graph(Graph),
     Tick(Option<Action>),
 }

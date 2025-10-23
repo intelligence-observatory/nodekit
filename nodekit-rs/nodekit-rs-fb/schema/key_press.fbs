@@ -1,5 +1,5 @@
 table KeyPress {
-    key:string;
+    key:string (required);
 }
 
 root_type KeyPress;

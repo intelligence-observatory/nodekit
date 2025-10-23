@@ -1,5 +1,5 @@
 table Graph {
-    payload:[ubyte];
+    payload:[ubyte] (required);
 }
 
 root_type Graph;

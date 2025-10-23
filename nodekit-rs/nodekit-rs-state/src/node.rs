@@ -278,7 +278,7 @@ impl Node {
             let sensor_key = match action {
                 Action::Click { x, y } => self.sensors.on_click(x, y),
                 Action::KeyPress(key) => self.sensors.on_key(&key),
-                Action::Submit => todo!(),
+                Action::Submit() => todo!(),
             };
             // End the node.
             if let Some(sensor_key) = sensor_key {

@@ -2,7 +2,7 @@ mod args;
 
 use crate::args::Args;
 use clap::Parser;
-use nodekit_rs_net::{Connection, Received};
+use nodekit_rs_net::{Connection, Command};
 use nodekit_rs_state::{State, TickResult};
 use std::path::Path;
 
@@ -22,9 +22,9 @@ async fn main() {
     }
 }
 
-async fn on_receive(state: &mut Option<State>, received: Received, directory: &Path) -> TickResult {
+async fn on_receive(state: &mut Option<State>, received: Command, directory: &Path) -> TickResult {
     match received {
-        Received::Graph(graph) => {
+        Command::Graph(graph) => {
             // Convert the graph into stateful information.
             let mut s = State::new(graph, directory).unwrap();
             // Move asset files into the cache directory.
@@ -34,7 +34,7 @@ async fn on_receive(state: &mut Option<State>, received: Received, directory: &P
             // Nothing has happened yet.
             TickResult::default()
         }
-        Received::Tick(action) => match state.as_mut() {
+        Command::Tick(action) => match state.as_mut() {
             Some(state) => state.tick(action).unwrap(),
             None => TickResult::default(),
         },

@@ -10,8 +10,4 @@ pub enum Error {
     Prefix(String),
     #[error("Failed to deserialize graph: {0}")]
     DeserializeGraph(serde_json::Error),
-    #[error("Missing graph payload")]
-    GraphPayload,
-    #[error("Missing key press key.")]
-    NoKey,
 }
