@@ -15,7 +15,7 @@ tokio.workspace = true
 [workspace.dependencies]
 async_zip = { version = "0.0.18",  features = ["deflate", "bzip2", "lzma", "zstd", "xz", "tokio"]}
 async_zmq = "0.4.0"
-blittle = "0.2.0"
+blittle = "0.2.1"
 bytes = "1.10.1"
 bytemuck = "1.24.0"
 clap = { version = "4.5.50", features = ["derive"] }

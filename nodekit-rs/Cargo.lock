@@ -165,9 +165,9 @@ checksum = "812e12b5285cc515a9c72a5c1d3b6d46a19dac5acfef5265968c166106e31dd3"
 
 [[package]]
 name = "blittle"
-version = "0.2.0"
+version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4502380f80a48eb944482df7b77f4517162627cb1471e08d7cd0c51638aa35fc"
+checksum = "c82e51ba23d94261ab75f00a9125a07560db978999a32d3072bd6cf383d218e2"
 
 [[package]]
 name = "block-buffer"
