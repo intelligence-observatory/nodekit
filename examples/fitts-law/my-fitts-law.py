@@ -148,14 +148,14 @@ def sample_size() -> float:
 
 random.seed(0)
 fitts_trials = []
-for i_trial in range(10):
+for i_trial in range(30):
     w = sample_size()
     x, y = sample_target_parameters(w)
     fitts_trials.append(
         make_fitts_trial(
             target_position=(x, y),
             target_size=w,
-            show_positive_feedback=i_trial < 2
+            show_positive_feedback=False
         )
     )
 
