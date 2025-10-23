@@ -1398,7 +1398,6 @@ dependencies = [
  "nodekit-rs-action",
  "nodekit-rs-fb",
  "pyo3",
- "serde_json",
 ]
 
 [[package]]
