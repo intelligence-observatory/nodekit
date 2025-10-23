@@ -1,3 +1,4 @@
+#[cfg(feature = "py")]
 use pyo3::prelude::*;
 
 #[cfg_attr(feature = "py", pyclass)]
@@ -5,5 +6,5 @@ use pyo3::prelude::*;
 pub enum Action {
     Click { x: f32, y: f32 },
     KeyPress(String),
-    Submit()
+    Submit(),
 }

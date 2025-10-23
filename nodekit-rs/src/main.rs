@@ -2,7 +2,7 @@ mod args;
 
 use crate::args::Args;
 use clap::Parser;
-use nodekit_rs_net::{Connection, Command};
+use nodekit_rs_net::{Command, Connection};
 use nodekit_rs_state::{State, TickResult};
 use std::path::Path;
 

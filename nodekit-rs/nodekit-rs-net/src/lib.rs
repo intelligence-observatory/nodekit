@@ -1,5 +1,5 @@
-mod error;
 mod command;
+mod error;
 
 use async_zmq::{Context, Reply, reply};
 pub use command::Command;
@@ -35,8 +35,7 @@ impl Connection {
         let data = message[0].deref();
         if data.is_empty() {
             Ok(Command::Tick(None))
-        }
-        else {
+        } else {
             match size_prefixed_root::<&str>(data).map_err(Error::InvalidFlatbuffer)? {
                 "graf" => Self::deserialize_graph(data),
                 "clik" => Self::deserialize_click(data),
