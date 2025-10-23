@@ -126,7 +126,6 @@ def make_fitts_trial(
         transitions=transitions,
     )
 
-
 import random
 import math
 
@@ -161,7 +160,8 @@ for i_trial in range(10):
     )
 
 graph = nk.concat(fitts_trials)
-nk.save_graph(graph, 'fitts-demo.nkg')
+#nk.save_graph(graph, 'fitts-demo.nkg')
 # %%
+
 trace = nk.play(graph)
 

@@ -246,7 +246,7 @@ class StroopTrialResult(pydantic.BaseModel):
     report: StroopColor
     reaction_time_msec: int = pydantic.Field(ge=0)
 
-
+# %%
 # %%
 if __name__ == "__main__":
     # Make a simple Stroop task with a few trials
@@ -261,6 +261,8 @@ if __name__ == "__main__":
     stroop_task = nk.concat(
         [make_stroop_instructions()] + trials,
     )
+
+    nk.save_graph(stroop_task, 'my-stroop.nkg')
 
     trace = nk.play(stroop_task)
 

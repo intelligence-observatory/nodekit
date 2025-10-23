@@ -1,5 +1,6 @@
 import pydantic
-from typing import Literal , Dict, Annotated, Tuple, Set
+from typing import Literal, Dict, Annotated, Tuple, Set
+from typing import Pattern
 
 from nodekit._internal.types.common import (
     SpatialPoint,
@@ -7,15 +8,56 @@ from nodekit._internal.types.common import (
     TimeElapsedMsec,
     NodeTimePointMsec,
     ColorHexString,
-PressableKey,
+    PressableKey,
 )
+
+# %% Space
+from typing import TypedDict
+class Region(TypedDict):
+    x: SpatialPoint
+    y: SpatialPoint
+    z_index: int | None  # If None or there are ties, Cards' z-index is determined by CardId(!)
+    w: SpatialSize
+    h: SpatialSize
 
 
 # %% Cards
 class BaseCard(pydantic.BaseModel):
     """
-    Cards are finite state machines, whose state has an associated view projection on the Board.
-    Whenever a Card receives an input, it may evolve its state and may emit an output.
+    Cards are visual elements that are placed on the Board for a timespan.
+    They occupy a Region.
+    """
+    card_type: str
+    region: Region
+    start_msec: NodeTimePointMsec = 0
+    end_msec: NodeTimePointMsec | None = None
+
+
+# %% Pretty much visual cards
+class ImageCard(BaseCard):
+    image: str
+
+class VideoCard(BaseCard):
+    movie: str
+    muted: bool = True
+    loop: bool = False
+    elapsed_msec: TimeElapsedMsec = 0  # current elapsed time in movie
+
+class TextCard(BaseCard):
+    text: Annotated[str, pydantic.Field(min_length=0, max_length=10000)]
+    text_color: ColorHexString  # current text color
+    background_color: ColorHexString  # current background color
+    font_size: SpatialSize = 0.0375
+    ...
+
+
+# %% Sensors
+NodeId = str
+CardId = str  # Uniquely identifies a Blot in the Node. Always of form {NodeId}.{BlotName}
+SensorId = str
+
+class BaseSensor(pydantic.BaseModel):
+    """
 
     At a conceptual level, Cards accept inputs from a global context. The global context may provide
     inputs of the following types:
@@ -29,55 +71,11 @@ class BaseCard(pydantic.BaseModel):
     - A rendering function that deterministically maps its current state to a visual representation.
     - A transition function that maps its current input to its next state and any outputs.
     """
-    card_type: str
-    x: SpatialPoint
-    y: SpatialPoint
-    z: int
-    width: SpatialSize
-    height: SpatialSize
-
     start_msec: NodeTimePointMsec = 0
-    end_msec: NodeTimePointMsec | None  = None
 
-
-# %% Pretty much visual cards
-class ShapeCard(BaseCard):
-    shape: Literal['ellipse', 'rectangle'] # The shape of the filled region of the shape.
-    color: ColorHexString  # current color
-    border_color: ColorHexString | None
-    border_width: SpatialSize
-
-class ImageCard(BaseCard):
-    image: str
-
-class VideoCard(BaseCard):
-    movie: str
-    muted: bool = True
-    loop: bool = False
-    elapsed_msec: TimeElapsedMsec = 0 # current elapsed time in movie
-
-class TextCard(BaseCard):
-    text: Annotated[str, pydantic.Field(min_length=0, max_length=10000)]  # current text
-    text_color: ColorHexString  # current text color
-    background_color: ColorHexString  # current background color
-    font_size: SpatialSize = 0.0375
-
-
-# %% Sensors
-NodeId = str
-CardId = str # Uniquely identifies a Blot in the Node. Always of form {NodeId}.{BlotName}
-SensorId = str
-
-class BaseSensor(pydantic.BaseModel):
-    required: bool = True # Whether it is required that the Sensor fires before the Node terminate
-    start_msec: NodeTimePointMsec = 0
 
 class VisualSensor(BaseSensor):
-    x: SpatialPoint
-    y: SpatialPoint
-    z: int
-    w: SpatialSize
-    h: SpatialSize
+    region: Region
 
 
 class SelectSensor(BaseSensor):
@@ -87,55 +85,64 @@ class SelectSensor(BaseSensor):
     In the special case where max_choices = 1, clicking an un-selected Card will automatically de-select and select the target
     """
     card_ids: Set[CardId]
-    pattern: str | None # Describes the subset of selections which will fire this sensor. DNF?
-    selected: Set[CardId] # Current. Must validate.
     min_choices: int = pydantic.Field(
         default=1,
-        ge=0, # Can be zero; note this would fire the Sensor immediately if selected is the empty set
+        ge=0,  # Can be zero; note this would fire the Sensor immediately if selected is the empty set
     )
     max_choices: int | None = pydantic.Field(
-        default = 1,
+        default=1,
         description='In the special case where max_choices = 1, clicking an un-selected Card will automatically de-select and select the target.',
-    ) # Fires whenever a valid selection of (min_choices, max_choices) cards is made
+    )
 
 
 class KeySensor(BaseSensor):
-    keys: Set[PressableKey] # Fires whenever any one of these keys are pressed.
+    keys: Set[PressableKey]  # Fires whenever any one of these keys are pressed.
 
 
-class FreeTextEntrySensor(BaseSensor):
-    pattern: str | None # text entry predicate (as regex) which must be matched before the Sensor fires (e.g., min or max). If None, fires on any text change
-    prompt_text: Annotated[str, pydantic.Field(min_length=0, max_length=1000)] # static prompt text shown if text == ''
-    text: Annotated[str, pydantic.Field(min_length=0, max_length=10000)] = '' # current
-    text_color: ColorHexString # current text color
+class FreeTextEntrySensor(VisualSensor):
+    """
+    Highly recommended that this is used with a SubmitSensor.
+    """
+    text_color: ColorHexString  # current text color
+    pattern: Pattern[str] | None = pydantic.Field(
+        default = '^.{1,10000}$', # Must write something between 1 and 10,000 characters
+        examples=[
+            '^.{7,49}$' # between 7 and 49 characters
+        ],
+        validate_default=True,
+        description='text entry predicate (as regex) which must be matched before the Sensor is submittable (e.g., min or max characters). If None, fires on any text change'
+    )
 
 
-type BinSelections = Dict[int, Set[int]] # mapping from horizontal bin index to set of vertical bin indices
+type BinSelections = Dict[int, Set[int]]  # mapping from horizontal bin index to set of vertical bin indices
 class GridSelectSensor(BaseSensor):
     """
     A visual Sensor.
     """
-    pattern: str | None # todo; doodle predicate which must be matched before Sensor fires. If None, fires whenever any stroke  is made.
-    num_bins_horizontal: int = pydantic.Field(ge=1) # cannot be changed at runtime
-    num_bins_vertical: int = pydantic.Field(ge=1) # cannot be changed at runtime
-    stroke_color: ColorHexString
-    selected_bins: BinSelections = pydantic.Field(
-        description="The set of (i_h, i_w) coordinates that are currently stroked.",
-    )
+    num_bins_horizontal: int = pydantic.Field(ge=1)  # cannot be changed at runtime
+    num_bins_vertical: int = pydantic.Field(ge=1)  # cannot be changed at runtime
+    selection_color: ColorHexString
     gridline_color: ColorHexString | None = None
 
-class SliderSensor(BaseSensor):
+
+class SliderSensor(VisualSensor):
     """
     A visual Sensor.
     The thumb always has the appearance of being inactivated until it is interacted with the first time.
     """
-    num_ticks: Annotated[int, pydantic.Field(gt=1, lt=1000)]
-    tick_index: Annotated[int, pydantic.Field(ge=0)] # initial thumb index
+    num_ticks: Annotated[int, pydantic.Field(gt=1, le=1000)]  # If None, no snapping.
+    tick_index: Annotated[int, pydantic.Field(ge=0)]  # initial
     show_ticks: bool
-
-    orientation: Literal['horizontal', 'vertical']
+    orientation: Literal['horizontal', 'vertical']  # vertical positive direction is bottom to top; horizontal positive direction is left to right.
     track_color: ColorHexString
     thumb_color: ColorHexString
+
+
+class SubmitSensor(VisualSensor):
+    """
+    This Sensor is inactivated until all other Sensors, other than other SubmitSensors, are in submittable state.
+    """
+    ...
 
 
 # %%
@@ -151,85 +158,103 @@ class NodeV2(pydantic.BaseModel):
     """
     cards: Dict[CardId, BaseCard]
     sensors: Dict[SensorId, BaseSensor]
-    submit_button: TextCard | None = None # Whether to participant must use a submit button to affirm their choices. Hoverable and selectable only when all required Sensors have fired. If None, Node ends on timeout OR when all required Sensors have fired
     background_color: ColorHexString | None
     timeout_msec: NodeTimePointMsec | None
 
-# %%
-class Predicate(pydantic.BaseModel):
-    """
-    A boolean-valued Expression that is applied to an Action
-    Expression[bool]
-        - Timeout reached (current Sensor states are reported, as is)
-    - Submit button pressed, affirming current Sensor states (current  Sensor states are reported, as is)
-    - Auto-submit, triggered on All required Sensors have been interacted with satisfactorily (some Sensors have Guards, like regexes)
 
+# %%
+from typing import Annotated, Literal
+from pydantic import BaseModel, Field
+
+# ---------- Primitive aliases ----------
+type Integer = int
+type Float = float
+type String = str
+type Boolean = bool
+type BaseValue = Integer | Float | String | Boolean
+
+
+class Lit(BaseModel):
+    op: Literal['lit'] = Field(default='lit', frozen=True)
+    value: BaseValue | list[BaseValue]  # list supports membership checks
+
+
+class Ref(BaseModel):
     """
-    ...
+    Stuff that can be referenced, at expression evaluation time:
+    - cards/: Dict[CardId, BaseCard]
+    - sensors/: Dict[SensorId, BaseSensor]
+    - actions/: Dict[SensorId, BaseAction]
+    - exit_type: Literal['timed-out', 'completed']
+    """
+    op: Literal['ref'] = Field(default='ref', frozen=True)
+    path: list[str | int]  # e.g. ["trial","rt_ms"] or ["clicks",0,"button"]
+
+
+class Cmp(BaseModel):
+    op: Literal['eq', 'ne', 'lt', 'le', 'gt', 'ge'] = Field(frozen=True)
+    left: 'Expr'
+    right: 'Expr'
+
+
+class InOp(BaseModel):
+    op: Literal['in', 'not_in'] = Field(frozen=True)
+    left: 'Expr'
+    right: 'Expr'  # expect list-like on the right
+
+
+class And(BaseModel):
+    op: Literal['and'] = Field(default='and', frozen=True)
+    args: list['Expr']
+
+
+class Or(BaseModel):
+    op: Literal['or'] = Field(default='or', frozen=True)
+    args: list['Expr']
+
+
+class Not(BaseModel):
+    op: Literal['not'] = Field(default='not', frozen=True)
+    arg: 'Expr'
+
+
+Expr = Annotated[Lit | Ref | Cmp | InOp | And | Or | Not, Field(discriminator='op')]
+type Predicate = And | Or | Not | Cmp | InOp
+
+for cls in (Cmp, InOp, And, Or, Not):
+    cls.model_rebuild()
+
+# %% Example
+chose_correct = InOp(
+    op='in',
+    left=Lit(
+        value='my-left-card',
+    ),
+    right=Ref(
+        path=['action', 'my-selection-sensor', 'selections']  # bool
+    ),
+)
+
+timed_out = Cmp(
+    op='eq',
+    left=Lit(value='TimedOut'),
+    right=Ref(
+        path=['exit_type']
+    )
+)
+
+
+# %%
+class TransitionRule(pydantic.BaseModel):
+    when: Predicate
+    to: NodeId
+
+class TransitionRuleset(pydantic.BaseModel):
+    transition_rules: list[TransitionRule] = pydantic.Field(default_factory=list)  # evaluate top→bottom
+    else_to: NodeId | None = None  # fallthrough. None means exit the Graph.
 
 
 # %%
 class GraphV2(pydantic.BaseModel):
     nodes: Dict[NodeId, NodeV2]
-    transitions: Dict[NodeId, Dict[SensorId, NodeId]]
-
-# %%
-from pydantic import BaseModel, Field, model_validator
-from typing import Literal, List, Union
-
-
-BaseValue = bool | int | float
-
-class Lit[V: BaseValue](BaseModel):
-    op: Literal["lit"]  = 'lit'
-    value: V
-class SetLit(BaseModel):
-    op: Literal["set"]
-    values: List[Lit]
-
-class Ref(BaseModel):
-    op: Literal["ref"] = 'ref'
-    path: List[str] # {sensor_id}.{value}
-
-# Boolean-valued expressions:
-class Cmp(BaseModel):
-    op: Literal["eq","ne","lt","le","gt","ge"]
-    left: "Expr"
-    right: "Expr"
-
-class InOp(BaseModel):
-    op: Literal["in","not_in"]
-    left: "Expr"
-    right: SetLit
-
-class Between(BaseModel):
-    op: Literal["between"]
-    ref: Ref
-    lo: Lit
-    hi: Lit
-
-# Boolean connectives:
-class And(BaseModel):
-    op: Literal["and"]
-    args: List["Expr"]
-class Or(BaseModel):
-    op: Literal["or"]
-    args: List["Expr"]
-class Not(BaseModel):
-    op: Literal["not"]
-    arg: "Expr"
-
-Expr = Annotated[
-    Union[Lit, SetLit, Ref, Cmp, InOp, Between, And, Or, Not],
-    pydantic.Field(discriminator='op')
-]
-
-chose_correct = Cmp(
-    op='eq',
-    left=Ref(
-        path=['choice', 'left-choice'] # bool
-    ),
-    right=Lit(
-        value=True,
-    )
-)
+    transitions: Dict[NodeId, TransitionRuleset]  # If a Node doesn't have a Ruleset, that just means exit once the Node is done.

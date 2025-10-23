@@ -297,10 +297,10 @@ graph = nk.concat(
     [
         instructions,
         easy_trial,
-        # test_trial,
+        test_trial,
     ]
 )
 
-nk.build_site(graph, 'to-share')
+#nk.save_graph(graph, 'sfm.nkg')
 # %%
 nk.play(graph)
