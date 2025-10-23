@@ -7,6 +7,7 @@ pub enum SensorComponentKey {
     Click(ClickSensorKey),
     Key(KeySensorKey),
     Submit(SubmitSensorKey),
+    Timeout(TimeoutSensorKey),
 }
 
 #[derive(Default)]

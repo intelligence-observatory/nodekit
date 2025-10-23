@@ -10,7 +10,7 @@ pub struct TimeoutSensor {
 
 impl TimeoutSensor {
     /// Returns true if the sensor triggers.
-    pub const fn advance(&mut self) -> bool {
+    pub const fn tick(&mut self) -> bool {
         if self.t >= self.t1 {
             true
         } else {

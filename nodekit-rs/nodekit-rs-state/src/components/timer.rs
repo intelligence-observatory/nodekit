@@ -18,7 +18,7 @@ pub struct Timer {
 }
 
 impl Timer {
-    pub fn advance(&mut self) {
+    pub fn tick(&mut self) {
         // Start.
         if self.t == self.t0 {
             self.state = EntityState::StartedNow;
@@ -66,7 +66,7 @@ mod tests {
     fn test_timer() {
         let mut timer = Timer::new(0, None);
         assert_eq!(timer.state, EntityState::Pending);
-        timer.advance();
+        timer.tick();
         assert_eq!(timer.state, EntityState::StartedNow);
         assert_eq!(timer.t, 1);
 
@@ -75,19 +75,19 @@ mod tests {
         timer = Timer::new(t0, t1);
         assert_eq!(timer.state, EntityState::Pending);
         (0..t0).for_each(|t| {
-            timer.advance();
+            timer.tick();
             assert_eq!(timer.state, EntityState::Pending);
             assert_eq!(timer.t, t + 1);
         });
-        timer.advance();
+        timer.tick();
         assert_eq!(timer.state, EntityState::StartedNow);
         (0..t0 - 1).for_each(|_| {
-            timer.advance();
+            timer.tick();
             assert_eq!(timer.state, EntityState::Active);
         });
-        timer.advance();
+        timer.tick();
         assert_eq!(timer.state, EntityState::EndedNow);
-        timer.advance();
+        timer.tick();
         assert_eq!(timer.state, EntityState::Finished);
     }
 }

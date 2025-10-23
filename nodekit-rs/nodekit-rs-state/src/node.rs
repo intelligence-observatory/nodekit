@@ -30,6 +30,22 @@ macro_rules! sensor {
             SensorComponentKey::$component_key(sub_sensor_key),
             sensor_key,
         );
+        sensor_key
+    }};
+}
+
+macro_rules! sensor_and_timer {
+    ($sensor:ident, $sensors:ident, $timers:ident, $sub_sensors:ident, $sensor_type:ident, $sensor_ids:ident, $sensor_id:ident, $component_key:ident) => {{
+        let sensor_key = sensor!(
+            $sensor,
+            $sensors,
+            $timers,
+            $sub_sensors,
+            $sensor_type,
+            $sensor_ids,
+            $sensor_id,
+            $component_key
+        );
         // Add a timer.
         $timers.add_sensor(Timer::new($sensor.start_msec, $sensor.end_msec), sensor_key);
         $sensor_ids.insert($sensor_id.to_string(), sensor_key);
@@ -166,9 +182,15 @@ impl Node {
             sensor: None,
             state: self.state,
         };
-        self.tick_timers();
-        self.tick_cards(board, &mut result)?;
-        self.on_action(action, &mut result);
+        // We haven't timed out yet.
+        if !self.tick_timeouts(&mut result) {
+            // Apply the action.
+            self.on_action(action, &mut result);
+            // Tick all timers.
+            self.tick_timers();
+            // Update all cards.
+            self.tick_cards(board, &mut result)?;
+        }
         Ok(result)
     }
 
@@ -184,6 +206,19 @@ impl Node {
                 }
             }
         }
+    }
+
+    fn tick_timeouts(&mut self, result: &mut TickResult) -> bool {
+        let ended = self
+            .sensors
+            .timeout_sensors
+            .values_mut()
+            .any(|sensor| sensor.tick());
+        if ended {
+            self.state = EntityState::EndedNow;
+            result.state = self.state;
+        }
+        ended
     }
 
     fn tick_cards(&mut self, board: &mut [u8], result: &mut TickResult) -> Result<(), Error> {
@@ -237,7 +272,7 @@ impl Node {
         }
         Ok(())
     }
-    
+
     fn on_action(&mut self, action: Option<Action>, result: &mut TickResult) {
         if let Some(action) = action {
             let sensor_key = match action {
@@ -313,10 +348,19 @@ impl Node {
             match sensor {
                 NodeSensorsValue::TimeoutSensor(sensor) => {
                     // Add the sensor.
-                    sensors.timeout_sensors.insert(TimeoutSensor::from(sensor));
+                    sensor!(
+                        sensor,
+                        sensors,
+                        timers,
+                        timeout_sensors,
+                        TimeoutSensor,
+                        sensor_ids,
+                        sensor_id,
+                        Timeout
+                    );
                 }
                 NodeSensorsValue::ClickSensor(sensor) => {
-                    sensor!(
+                    sensor_and_timer!(
                         sensor,
                         sensors,
                         timers,
@@ -328,7 +372,7 @@ impl Node {
                     );
                 }
                 NodeSensorsValue::KeySensor(sensor) => {
-                    sensor!(
+                    sensor_and_timer!(
                         sensor,
                         sensors,
                         timers,

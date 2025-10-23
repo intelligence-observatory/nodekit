@@ -31,7 +31,7 @@ impl Timers {
         self.timers
             .values_mut()
             .filter(|timer| timer.state != EntityState::Finished)
-            .for_each(|timer| timer.advance());
+            .for_each(|timer| timer.tick());
         let mut started = Vec::default();
         let mut ended = Vec::default();
         for (key, timer) in self.timers.iter() {
