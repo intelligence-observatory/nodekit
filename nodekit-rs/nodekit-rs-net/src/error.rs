@@ -12,4 +12,6 @@ pub enum Error {
     DeserializeGraph(serde_json::Error),
     #[error("Missing graph payload")]
     GraphPayload,
+    #[error("Missing key press key.")]
+    NoKey,
 }

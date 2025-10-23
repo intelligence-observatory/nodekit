@@ -1,5 +1,5 @@
-use hashbrown::HashMap;
 use crate::components::*;
+use hashbrown::HashMap;
 use slotmap::SlotMap;
 
 #[derive(Eq, PartialEq, Hash, Ord, PartialOrd)]
@@ -21,14 +21,28 @@ pub struct Sensors {
 
 impl Sensors {
     pub fn on_click(&self, x: f32, y: f32) -> Option<SensorKey> {
-        let click_sensor = self.click_sensors.iter().find_map(|(key, sensor)| {
+        let key = self.click_sensors.iter().find_map(|(key, sensor)| {
             if sensor.rect.contains(x, y) {
                 Some(key)
-            }
-            else {
+            } else {
                 None
             }
         })?;
-        Some(self.components[&SensorComponentKey::Click(click_sensor)])
+        Some(self.components[&SensorComponentKey::Click(key)])
+    }
+
+    pub fn on_key(&self, key: &str) -> Option<SensorKey> {
+        // A tiny repair, due to how Rust and string literals fail to cooperate.
+        // See comments in nodekit-rs-graph/dump_schema.py
+        let key = if key == " " { "space" } else { key };
+        // Now we can find the key.
+        let key = self.key_sensors.iter().find_map(|(k, sensor)| {
+            if sensor.key.as_str() == key {
+                Some(k)
+            } else {
+                None
+            }
+        })?;
+        Some(self.components[&SensorComponentKey::Key(key)])
     }
 }

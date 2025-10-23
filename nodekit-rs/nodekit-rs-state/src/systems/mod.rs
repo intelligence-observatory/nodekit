@@ -8,11 +8,4 @@ pub use assets::Assets;
 pub use cards::*;
 pub use effects::Effects;
 pub use sensors::*;
-use slotmap::{Key, SecondaryMap, SlotMap};
 pub use timers::*;
-
-#[derive(Default)]
-pub struct SubSystem<T: Key, U: Key, V> {
-    pub components: SlotMap<T, V>,
-    pub entities: SecondaryMap<T, U>,
-}

@@ -83,6 +83,7 @@ impl Connection {
     fn deserialize_key_press(data: &[u8]) -> Result<Received, Error> {
         let key_press =
             nodekit_rs_fb::key_press::root_as_key_press(data).map_err(Error::InvalidFlatbuffer)?;
-        Ok(Received::Tick(Some(Action::KeyPress(key_press.key()))))
+        let key = key_press.key().ok_or(Error::NoKey)?.to_string();
+        Ok(Received::Tick(Some(Action::KeyPress(key))))
     }
 }

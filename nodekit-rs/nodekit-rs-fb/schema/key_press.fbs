@@ -1,5 +1,5 @@
 table KeyPress {
-    key:ubyte;
+    key:string;
 }
 
 root_type KeyPress;

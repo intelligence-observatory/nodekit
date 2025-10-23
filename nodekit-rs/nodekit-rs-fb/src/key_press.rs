@@ -35,19 +35,24 @@ impl<'a> KeyPress<'a> {
     #[allow(unused_mut)]
     pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr, A: flatbuffers::Allocator + 'bldr>(
         _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr, A>,
-        args: &'args KeyPressArgs,
+        args: &'args KeyPressArgs<'args>,
     ) -> flatbuffers::WIPOffset<KeyPress<'bldr>> {
         let mut builder = KeyPressBuilder::new(_fbb);
-        builder.add_key(args.key);
+        if let Some(x) = args.key {
+            builder.add_key(x);
+        }
         builder.finish()
     }
 
     #[inline]
-    pub fn key(&self) -> u8 {
+    pub fn key(&self) -> Option<&'a str> {
         // Safety:
         // Created from valid Table for this object
         // which contains a valid value in this slot
-        unsafe { self._tab.get::<u8>(KeyPress::VT_KEY, Some(0)).unwrap() }
+        unsafe {
+            self._tab
+                .get::<flatbuffers::ForwardsUOffset<&str>>(KeyPress::VT_KEY, None)
+        }
     }
 }
 
@@ -59,18 +64,18 @@ impl flatbuffers::Verifiable for KeyPress<'_> {
     ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
         use self::flatbuffers::Verifiable;
         v.visit_table(pos)?
-            .visit_field::<u8>("key", Self::VT_KEY, false)?
+            .visit_field::<flatbuffers::ForwardsUOffset<&str>>("key", Self::VT_KEY, false)?
             .finish();
         Ok(())
     }
 }
-pub struct KeyPressArgs {
-    pub key: u8,
+pub struct KeyPressArgs<'a> {
+    pub key: Option<flatbuffers::WIPOffset<&'a str>>,
 }
-impl<'a> Default for KeyPressArgs {
+impl<'a> Default for KeyPressArgs<'a> {
     #[inline]
     fn default() -> Self {
-        KeyPressArgs { key: 0 }
+        KeyPressArgs { key: None }
     }
 }
 
@@ -80,8 +85,9 @@ pub struct KeyPressBuilder<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> {
 }
 impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> KeyPressBuilder<'a, 'b, A> {
     #[inline]
-    pub fn add_key(&mut self, key: u8) {
-        self.fbb_.push_slot::<u8>(KeyPress::VT_KEY, key, 0);
+    pub fn add_key(&mut self, key: flatbuffers::WIPOffset<&'b str>) {
+        self.fbb_
+            .push_slot_always::<flatbuffers::WIPOffset<_>>(KeyPress::VT_KEY, key);
     }
     #[inline]
     pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a, A>) -> KeyPressBuilder<'a, 'b, A> {
