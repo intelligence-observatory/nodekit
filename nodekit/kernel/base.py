@@ -1,3 +1,5 @@
+import enum
+
 import pydantic
 from typing import Literal, Dict, Annotated, Tuple, Set
 from typing import Pattern
@@ -13,6 +15,7 @@ from nodekit._internal.types.common import (
 from nodekit._internal.types.assets import Image, Video
 from nodekit._internal.types.effects.effects import Effect
 from nodekit._internal.types.events.events import Event
+type RegisterId = str
 
 # %% Space
 from typing import TypedDict
@@ -74,11 +77,20 @@ class BaseSensor(pydantic.BaseModel):
     - A rendering function that deterministically maps its current state to a visual representation.
     - A transition function that maps its current input to its next state and any outputs.
     """
-    start_msec: NodeTimePointMsec = 0
+    start_msec: NodeTimePointMsec = pydantic.Field(
+        default=0,
+        description='The time when the Sensor is armed.'
+    )
 
 
 class VisualSensor(BaseSensor):
     region: Region
+    visibility_start_msec: NodeTimePointMsec = pydantic.Field(
+        default=0,
+        description='The time when the Sensor becomes visible. Must be less than or equal to .start_msec'
+    )
+
+    # todo: add validator here
 
 
 class SelectSensor(BaseSensor):
@@ -148,13 +160,14 @@ class SubmitSensor(VisualSensor):
     ...
 
 
-
 # %%
 class BaseAction(pydantic.BaseModel):
     action_type: str
     t: TimeElapsedMsec
 
 # %%
+from typing import Any
+
 class NodeV2(pydantic.BaseModel):
     """
     Ways to terminate a Node:
@@ -169,28 +182,33 @@ class NodeV2(pydantic.BaseModel):
     sensors: Dict[SensorId, BaseSensor]
     effects: list[Effect]
     background_color: ColorHexString
-    timeout_msec: NodeTimePointMsec | None = None
+    min_duration_msec: NodeTimePointMsec # Guards Node exit, even if all Sensors have been fulfilled.
+    max_duration_msec: NodeTimePointMsec | None = None # Automatically terminates the Node here.
+    annotations: Any
 
 
 # %%
 class Trace(pydantic.BaseModel):
-    results: list['NodeResult'] = pydantic.Field(description='The tidy, rolled-up view of what happened.')
+    #results: list['NodeResult'] = pydantic.Field(description='The tidy, rolled-up view of what happened.')
     events: list[Event] = pydantic.Field(description='The canonical list of Events which describe how the Participant behaved across the Graph.')
 
 
 class NodeResult(pydantic.BaseModel):
     """
-    A rolled up ball o' facts.
+    A rolled up ball o' facts. Maybe this is just the result of a blessed projection function on the Python side, derived from the event trace?
+    Downside is that Trace becomes less self-explaining.
     """
-    t: TimeElapsedMsec = pydantic.Field(description='When the Node started occurred.')
+
     node_id: NodeId
     node: NodeV2 = pydantic.Field(description='The Node itself.')
-    actions: Dict[SensorId, BaseAction] # The final commits of each Sensor. If the Sensor never committed, it's not in here.
-    exit_by: Literal['timeout', 'sensor']
+    t_entered: TimeElapsedMsec = pydantic.Field(description='When the Node started occurred.')
+    t_exited: TimeElapsedMsec = pydantic.Field(description='When the Node started occurred.')
+    actions: Dict[SensorId, BaseAction] # The last commits of each Sensor.
+    timed_out: bool = False
 
 
 # %%
-from typing import Annotated, Literal
+from typing import Annotated, Literal, Self
 from pydantic import BaseModel, Field
 
 # ---------- Primitive aliases ----------
@@ -201,18 +219,54 @@ type Boolean = bool
 type BaseValue = Integer | Float | String | Boolean
 
 
+class DtypeEnum(enum.Enum):
+    INT = 'int'
+    FLOAT = 'float'
+    STR = 'str'
+    BOOL = 'bool'
+
 class Lit(BaseModel):
     op: Literal['lit'] = Field(default='lit', frozen=True)
-    value: BaseValue | list[BaseValue]  # list supports membership checks
+    dtype: DtypeEnum | None = None
+    value: BaseValue
+
+    # Infer dtype
+    @pydantic.model_validator(mode='after')
+    def set_or_check_dtype(self, ) -> Self:
+        if self.dtype is None:
+            if isinstance(self.value, bool):
+                self.dtype = DtypeEnum.BOOL
+            elif isinstance(self.value, int):
+                self.dtype = DtypeEnum.INT
+            elif isinstance(self.value, float):
+                self.dtype = DtypeEnum.FLOAT
+            elif isinstance(self.value, str):
+                self.dtype = DtypeEnum.STR
+            else:
+                raise TypeError(f"Unsupported literal type: {type(self.value)}")
+        else:
+            # Validate consistency
+            expected = {
+                DtypeEnum.BOOL: bool,
+                DtypeEnum.INT: int,
+                DtypeEnum.FLOAT: float,
+                DtypeEnum.STR: str,
+            }[self.dtype]
+            if not isinstance(self.value, expected):
+                raise TypeError(
+                    f"dtype '{self.dtype}' does not match value type {type(self.value)}"
+                )
+        return self
 
 
 class Ref(BaseModel):
     """
     Stuff that can be referenced, at expression evaluation time:
+    - registers/: Dict[RegisterId, Register]
     - cards/: Dict[CardId, BaseCard]
     - sensors/: Dict[SensorId, BaseSensor]
     - actions/: Dict[SensorId, BaseAction]
-    - exit_type: Literal['timed-out', 'completed']
+    - timed_out: boolean
     """
     op: Literal['ref'] = Field(default='ref', frozen=True)
     path: list[str | int]  # e.g. ["trial","rt_ms"] or ["clicks",0,"button"]
@@ -264,7 +318,9 @@ chose_correct = InOp(
 
 timed_out = Cmp(
     op='eq',
-    left=Lit(value='TimedOut'),
+    left=Lit(
+        value='TimedOut',
+    ),
     right=Ref(
         path=['exit_type']
     )
@@ -280,6 +336,16 @@ class TransitionRuleset(pydantic.BaseModel):
     else_to: NodeId | None = None  # fallthrough. None means exit the Graph.
 
 # %%
+class RegisterUpdate(BaseModel):
+    when: Predicate
+    register: RegisterId
+    assignment: Expr
+
+# %%
 class GraphV2(pydantic.BaseModel):
     nodes: Dict[NodeId, NodeV2]
+
+    registers: Dict[RegisterId, Lit] = pydantic.Field(default_factory=dict)
+    register_updates: Dict[NodeId, list[RegisterUpdate]]   = pydantic.Field(default_factory=dict) # If a Node doesn't have an associated RegisterUpdate, just leave the Register alone.
+
     transitions: Dict[NodeId, TransitionRuleset]  # If a Node doesn't have a Ruleset, that just means exit once the Node is done.

@@ -27,6 +27,7 @@ def make_trial(
 ) -> nk.Graph:
     # Make fixation node
     fixation_cross = nk.cards.TextCard(text=r'\+', font_size=0.03, x=0, y=0, w=0.05, h=0.05)
+    fixation_cross = nk.cards.ImageCard(image=nk.assets.Image.from_path('fixation-cross.svg'), x=0, y=0, w=0.05, h=0.05)
     fixation_annotation = nk.cards.TextCard(
         text='Click the cross sign.',
         x=0,
@@ -38,7 +39,7 @@ def make_trial(
     fixation_node = nk.Node(
         cards={
             'fixation-cross': fixation_cross,
-            'fixation-annotation': fixation_annotation,
+            #'fixation-annotation': fixation_annotation,
         },
         sensors={
             'clicked-fixation': nk.sensors.ClickSensor(
@@ -133,15 +134,16 @@ def make_trial(
     )
 
     # Make feedback nodes
-    correct_string = "Correct! Press the spacebar to continue."
-    incorrect_string = "Sorry, wrong choice. Press the spacebar to continue."
+    correct_string = "**Correct!**\nPress the spacebar to continue."
+    incorrect_string = "Sorry, **wrong choice.**\nPress the spacebar to continue."
 
     correct_node = nk.Node(
         cards={
             'feedback': nk.cards.TextCard(
                 text=correct_string,
-                x=0, y=0, w=0.5, h=0.3,
+                x=0, y=0, w=0.5, h=0.15,
                 justification_horizontal='center',
+                background_color='#c8c8c8',
             )
         },
         sensors={
@@ -155,8 +157,9 @@ def make_trial(
         cards={
             'feedback': nk.cards.TextCard(
                 text=incorrect_string,
-                x=0, y=0, w=0.5, h=0.3,
+                x=0, y=0, w=0.5, h=0.15,
                 justification_horizontal='center',
+                background_color='#c8c8c8',
             )
         },
         sensors={
@@ -287,20 +290,30 @@ easy_trial = make_trial(
     right=nk.assets.Video.from_path('./stimuli/gestalt_0/8.mp4'),
     correct_choice='left',
 )
-test_trial = make_trial(
-    stimulus=nk.assets.Video.from_path('./stimuli/test/1687.mp4'),
-    left=nk.assets.Video.from_path('./stimuli/test/1722.mp4'),
-    right=nk.assets.Video.from_path('./stimuli/test/1680.mp4'),
+
+trial_2 = make_trial(
+    stimulus=nk.assets.Video.from_path('./stimuli/2/2-stim.mp4'),
+    left=nk.assets.Video.from_path('./stimuli/2/2-left.mp4'),
+    right=nk.assets.Video.from_path('./stimuli/2/2-right.mp4'),
+    correct_choice='left',
+)
+
+trial_3 = make_trial(
+    stimulus=nk.assets.Video.from_path('./stimuli/3/3-stim.mp4'),
+    left=nk.assets.Video.from_path('./stimuli/3/3-left.mp4'),
+    right=nk.assets.Video.from_path('./stimuli/3/3-right.mp4'),
     correct_choice='right',
 )
+
 graph = nk.concat(
     [
-        instructions,
+        #instructions,
         easy_trial,
-        test_trial,
+        trial_2,
+        trial_3,
     ]
 )
 
-#nk.save_graph(graph, 'sfm.nkg')
+nk.save_graph(graph, 'sfm.nkg')
 # %%
 nk.play(graph)

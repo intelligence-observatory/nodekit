@@ -18,11 +18,16 @@ The idea is that users may supply arbitrary JSON as an Annotation that aids them
 
 ```javascript
 let x = {
-    "annotations": {
-        "my-trial-type": "bla",
-        "my-stimulus": "yo",
+    "node_id": "choice-node",
+    "node": {
+        "cards": {},
+        "sensors": {},
+        "effects": [],
+        "background_color": "blue",
+        "timeout_msec": 10000,
+        "annotations": null,
     },
-    "actions": { // Encodes last valid state of Sensors. Or nothing if time out occurred?
+    "actions": { // Encodes last commits of Sensors. 
         "category-choice": {
             "action_type": "SelectAction",
             "selections": [
@@ -42,8 +47,9 @@ let x = {
             "t": 31112,
       }
     },
-    "exit_type": "AutoSubmit", // "Timeout", "ManualSubmit" 
-    "t": 29023, // Time of Node entry
+    "timed_out": false,  
+    "t_entered": 29023, // Time of Node entry
+    "t_exited": 32322
 }
 ```
 
