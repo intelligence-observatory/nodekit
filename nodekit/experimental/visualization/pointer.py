@@ -14,12 +14,14 @@ from matplotlib import animation
 from matplotlib.colors import to_rgba
 
 from typing import Dict
+
+
 def make_animation(
         events: Dict[str, List[PointerSampledEvent]],  # trace_id -> event stream
-        accent_rgba: Tuple[float, float, float, float] | Dict[str, Tuple[float, float, float, float]],
-        neutral_rgba: Tuple[float, float, float, float] | Dict[str, Tuple[float, float, float, float]],
         savepath: os.PathLike | str,
-        movie_size_px: int = 768,
+        accent_rgba: Tuple[float, float, float, float] | Dict[str, Tuple[float, float, float, float]] = (49 / 255, 124 / 255, 245 / 255, 0.9),
+        neutral_rgba: Tuple[float, float, float, float] | Dict[str, Tuple[float, float, float, float]] =(0.1, 0.1, 0.1, 0.3),
+        movie_size_px: int = 500,
         movie_time_sec: int = 10,
 ):
     """
@@ -361,7 +363,7 @@ def make_animation(
 if __name__ == '__main__':
     import json
     payload = json.loads(Path('example_pointer_events.json').read_text()) # hit_id: List[PointerSampledEvent]
-
+    payload = json.loads(Path('/Users/mjl/Library/Application Support/JetBrains/PyCharm2025.1/scratches/nodekit-turk/fitts-law-pointers-example_pointer_events.json').read_text()) # hit_id: List[PointerSampledEvent]
     pointer_events = {
         hit_id: [PointerSampledEvent.model_validate(ev) for ev in payload[hit_id]] for hit_id in sorted(payload.keys())
     }
@@ -377,7 +379,7 @@ if __name__ == '__main__':
         for ev in pointer_events[hit_id]:
             ev.t -= min_t
 
-    movie_time_sec = min(10, max_t_grand/1000)
+    movie_time_sec = int(min(30, max_t_grand/1000))
     make_animation(
         events=pointer_events,
         accent_rgba=(49/255, 124/255, 245/255, 0.9),

@@ -10,13 +10,15 @@ from nodekit._internal.types.common import (
     ColorHexString,
     PressableKey,
 )
+from nodekit._internal.types.assets import Image, Video
+from nodekit._internal.types.effects.effects import Effect
+from nodekit._internal.types.events.events import Event
 
 # %% Space
 from typing import TypedDict
 class Region(TypedDict):
     x: SpatialPoint
     y: SpatialPoint
-    z_index: int | None  # If None or there are ties, Cards' z-index is determined by CardId(!)
     w: SpatialSize
     h: SpatialSize
 
@@ -29,22 +31,24 @@ class BaseCard(pydantic.BaseModel):
     """
     card_type: str
     region: Region
+    z_index: int | None  # If None or there are ties, Cards' z-index is determined by CardId(!)
     start_msec: NodeTimePointMsec = 0
     end_msec: NodeTimePointMsec | None = None
 
 
 # %% Pretty much visual cards
 class ImageCard(BaseCard):
-    image: str
+    image: Image
 
 class VideoCard(BaseCard):
-    movie: str
+    movie: Video
     muted: bool = True
     loop: bool = False
-    elapsed_msec: TimeElapsedMsec = 0  # current elapsed time in movie
+    playback_start_delay_msec: TimeElapsedMsec = 0  # current elapsed time in movie
+
 
 class TextCard(BaseCard):
-    text: Annotated[str, pydantic.Field(min_length=0, max_length=10000)]
+    text: Annotated[str, pydantic.Field(max_length=10000)]
     text_color: ColorHexString  # current text color
     background_color: ColorHexString  # current background color
     font_size: SpatialSize = 0.0375
@@ -59,14 +63,13 @@ SensorId = str
 class BaseSensor(pydantic.BaseModel):
     """
 
-    At a conceptual level, Cards accept inputs from a global context. The global context may provide
+    At a conceptual level, Sensors accept inputs from a global context. The global context may provide
     inputs of the following types:
     - User pointer
     - User key press
-    - Update commands. (Each Card exposes its own command input types)
-    - Clock
+    - Clock time
 
-    At a conceptual level, any given Card type is fully defined by the following:
+    At a conceptual level, any given Sensor type is fully defined by the following:
     - Its input type, state type, and output type.
     - A rendering function that deterministically maps its current state to a visual representation.
     - A transition function that maps its current input to its next state and any outputs.
@@ -145,6 +148,12 @@ class SubmitSensor(VisualSensor):
     ...
 
 
+
+# %%
+class BaseAction(pydantic.BaseModel):
+    action_type: str
+    t: TimeElapsedMsec
+
 # %%
 class NodeV2(pydantic.BaseModel):
     """
@@ -158,8 +167,26 @@ class NodeV2(pydantic.BaseModel):
     """
     cards: Dict[CardId, BaseCard]
     sensors: Dict[SensorId, BaseSensor]
-    background_color: ColorHexString | None
-    timeout_msec: NodeTimePointMsec | None
+    effects: list[Effect]
+    background_color: ColorHexString
+    timeout_msec: NodeTimePointMsec | None = None
+
+
+# %%
+class Trace(pydantic.BaseModel):
+    results: list['NodeResult'] = pydantic.Field(description='The tidy, rolled-up view of what happened.')
+    events: list[Event] = pydantic.Field(description='The canonical list of Events which describe how the Participant behaved across the Graph.')
+
+
+class NodeResult(pydantic.BaseModel):
+    """
+    A rolled up ball o' facts.
+    """
+    t: TimeElapsedMsec = pydantic.Field(description='When the Node started occurred.')
+    node_id: NodeId
+    node: NodeV2 = pydantic.Field(description='The Node itself.')
+    actions: Dict[SensorId, BaseAction] # The final commits of each Sensor. If the Sensor never committed, it's not in here.
+    exit_by: Literal['timeout', 'sensor']
 
 
 # %%
@@ -231,7 +258,7 @@ chose_correct = InOp(
         value='my-left-card',
     ),
     right=Ref(
-        path=['action', 'my-selection-sensor', 'selections']  # bool
+        path=['actions', 'my-selection-sensor', 'selections']  # bool
     ),
 )
 
@@ -243,7 +270,6 @@ timed_out = Cmp(
     )
 )
 
-
 # %%
 class TransitionRule(pydantic.BaseModel):
     when: Predicate
@@ -252,7 +278,6 @@ class TransitionRule(pydantic.BaseModel):
 class TransitionRuleset(pydantic.BaseModel):
     transition_rules: list[TransitionRule] = pydantic.Field(default_factory=list)  # evaluate top→bottom
     else_to: NodeId | None = None  # fallthrough. None means exit the Graph.
-
 
 # %%
 class GraphV2(pydantic.BaseModel):

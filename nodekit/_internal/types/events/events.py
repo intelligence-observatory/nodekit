@@ -170,7 +170,7 @@ class BrowserContextSampledEvent(BaseEvent):
 
 
 # %%
-Event = Annotated[
+type Event = Annotated[
     Union[
         # Graph flow:
         TraceStartedEvent,
