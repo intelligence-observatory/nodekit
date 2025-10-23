@@ -12,9 +12,7 @@ pub enum CardComponentKey {
 pub struct Cards {
     pub cards: SlotMap<CardKey, Card>,
     pub components: SecondaryMap<CardKey, CardComponentKey>,
-    pub images: SlotMap<ImageKey, Image>,
-    pub image_cards: SecondaryMap<ImageKey, CardKey>,
+    pub images: SlotMap<ImageKey, (Image, CardKey)>,
     pub text: SlotMap<TextKey, Text>,
-    pub videos: SlotMap<VideoKey, Video>,
-    pub video_cards: SecondaryMap<VideoKey, CardKey>,
+    pub videos: SlotMap<VideoKey, (Video, CardKey)>,
 }

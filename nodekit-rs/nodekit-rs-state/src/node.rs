@@ -39,6 +39,7 @@ macro_rules! sensor {
 macro_rules! blit_video {
     ($self:ident, $video_key:ident, $card:ident, $board:ident, $blitted:ident, $result:ident) => {{
         let video_result = $self.cards.videos[*$video_key]
+            .0
             .blit($card, $board)
             .map_err(Error::Video)?;
         if video_result.blitted {
@@ -122,9 +123,10 @@ impl Node {
                         MediaType::Image => {
                             // Find the image.
                             let image_key = self.assets.images[&asset.id];
-                            let card = &self.cards.cards[self.cards.image_cards[image_key]];
+                            let card_key = self.cards.images[image_key].1;
+                            let card = &self.cards.cards[card_key];
                             // Load the image.
-                            self.cards.images[image_key] = Image::load(
+                            self.cards.images[image_key].0 = Image::load(
                                 &asset.path,
                                 card.rect.size.w as u32,
                                 card.rect.size.h as u32,
@@ -134,9 +136,10 @@ impl Node {
                         MediaType::Video => {
                             // Find the video.
                             let video_key = self.assets.videos[&asset.id];
-                            let card = &self.cards.cards[self.cards.video_cards[video_key]];
+                            let card_key = self.cards.videos[video_key].1;
+                            let card = &self.cards.cards[card_key];
                             // Load the video.
-                            self.cards.videos[video_key].load(&asset.path, card)?;
+                            self.cards.videos[video_key].0.load(&asset.path, card)?;
                         }
                     }
                 }
@@ -199,7 +202,7 @@ impl Node {
                 EntityState::Pending | EntityState::Finished => (),
                 EntityState::StartedNow => match &self.cards.components[card_key] {
                     CardComponentKey::Image(image_key) => {
-                        let image = &self.cards.images[*image_key];
+                        let (image, _) = &self.cards.images[*image_key];
                         blit(
                             &image.bytes,
                             &image.size,
@@ -261,8 +264,7 @@ impl Node {
             match card {
                 NodeCardsValue::ImageCard(image) => {
                     // Add an image.
-                    let image_key = cards.images.insert(Image::default());
-                    cards.image_cards.insert(image_key, card_key);
+                    let image_key = cards.images.insert((Image::default(), card_key));
                     cards
                         .components
                         .insert(card_key, CardComponentKey::Image(image_key));
@@ -273,8 +275,7 @@ impl Node {
                 }
                 NodeCardsValue::VideoCard(video) => {
                     // Add a video.
-                    let video_key = cards.videos.insert(Video::from(video));
-                    cards.video_cards.insert(video_key, card_key);
+                    let video_key = cards.videos.insert((Video::from(video), card_key));
                     cards
                         .components
                         .insert(card_key, CardComponentKey::Video(video_key));
