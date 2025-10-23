@@ -5,7 +5,7 @@ use async_zmq::{Context, Reply, reply};
 pub use error::Error;
 use flatbuffers::{FlatBufferBuilder, size_prefixed_root};
 use nodekit_rs_action::Action;
-use nodekit_rs_fb::response::{self, Response, ResponseArgs};
+use nodekit_rs_fb::{click, graph, key_press, response};
 use nodekit_rs_state::{EntityState, TickResult};
 pub use received::Received;
 use serde_json::from_slice;
@@ -44,7 +44,7 @@ impl Connection {
     /// Serialize a tick result and send it.
     pub async fn send(&mut self, result: TickResult) -> Result<(), Error> {
         let mut fbb = FlatBufferBuilder::new();
-        let args = ResponseArgs {
+        let args = response::ResponseArgs {
             board: result.board.map(|board| fbb.create_vector(&board)),
             audio: result.audio.map(|audio| fbb.create_vector(&audio)),
             state: match result.state {
@@ -55,7 +55,7 @@ impl Connection {
                 EntityState::Finished => response::State::Finished,
             },
         };
-        let offset = Response::create(&mut fbb, &args);
+        let offset = response::Response::create(&mut fbb, &args);
         response::finish_response_buffer(&mut fbb, offset);
         self.socket
             .send(fbb.finished_data().to_vec())
@@ -65,7 +65,7 @@ impl Connection {
     }
 
     fn deserialize_graph(data: &[u8]) -> Result<Received, Error> {
-        let graph = nodekit_rs_fb::graph::root_as_graph(data).map_err(Error::InvalidFlatbuffer)?;
+        let graph = graph::root_as_graph(data).map_err(Error::InvalidFlatbuffer)?;
         let payload = graph.payload().ok_or(Error::GraphPayload)?;
         let graph = from_slice::<nodekit_rs_graph::Graph>(payload.bytes())
             .map_err(Error::DeserializeGraph)?;
@@ -73,7 +73,7 @@ impl Connection {
     }
 
     fn deserialize_click(data: &[u8]) -> Result<Received, Error> {
-        let click = nodekit_rs_fb::click::root_as_click(data).map_err(Error::InvalidFlatbuffer)?;
+        let click = click::root_as_click(data).map_err(Error::InvalidFlatbuffer)?;
         Ok(Received::Tick(Some(Action::Click {
             x: click.x(),
             y: click.y(),
@@ -81,8 +81,7 @@ impl Connection {
     }
 
     fn deserialize_key_press(data: &[u8]) -> Result<Received, Error> {
-        let key_press =
-            nodekit_rs_fb::key_press::root_as_key_press(data).map_err(Error::InvalidFlatbuffer)?;
+        let key_press = key_press::root_as_key_press(data).map_err(Error::InvalidFlatbuffer)?;
         let key = key_press.key().ok_or(Error::NoKey)?.to_string();
         Ok(Received::Tick(Some(Action::KeyPress(key))))
     }
