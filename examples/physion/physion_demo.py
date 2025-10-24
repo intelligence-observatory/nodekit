@@ -151,18 +151,34 @@ def make_physion_trial(
 
 # %%
 if __name__ == '__main__':
-
-    video = nk.assets.Video.from_path('./stimuli/pilot_dominoes_2mid_J020R15_d3chairs_o1plants_tdwroom_2-redyellow_0024_img.mp4')
-    image_mask  = nk.assets.Image.from_path('./stimuli/pilot_dominoes_2mid_J020R15_d3chairs_o1plants_tdwroom_2_0024_map.png')
-
-    trial = make_physion_trial(
+    trial1 = make_physion_trial(
         seed=0,
-        selector_mask=image_mask,
-        video=video,
+        selector_mask=nk.assets.Image.from_path('./stimuli/pilot_dominoes_2mid_J020R15_d3chairs_o1plants_tdwroom_2_0024_map.png'),
+        video=nk.assets.Video.from_path('./stimuli/pilot_dominoes_2mid_J020R15_d3chairs_o1plants_tdwroom_2-redyellow_0024_img.mp4'),
+    )
+
+    trial2 = make_physion_trial(
+        seed=1,
+        selector_mask=nk.assets.Image.from_path('./stimuli/drape/test14_0018_map.png'),
+        video=nk.assets.Video.from_path('./stimuli/drape/test14-redyellow_0018_img.mp4'),
+    )
+
+    trial3 = make_physion_trial(
+        seed=2,
+        selector_mask=nk.assets.Image.from_path('./stimuli/support/pilot_towers_nb2_fr015_SJ010_mono0_dis0_occ0_tdwroom_0008_map.png'),
+        video=nk.assets.Video.from_path('./stimuli/support/pilot_towers_nb2_fr015_SJ010_mono0_dis0_occ0_tdwroom-redyellow_0008_img.mp4'),
     )
 
     # %%
     #nk.save_graph(trial, 'physion-demo.nkg')
 
+
     # %%
-    trace = nk.play(trial)
+    graph = nk.concat([
+        trial3,
+        trial2,
+        trial1,
+
+
+    ])
+    trace = nk.play(graph)
