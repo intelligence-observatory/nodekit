@@ -1,9 +1,11 @@
+use crate::AudioFormat;
 use ffmpeg_next::{
     Error, Packet,
     codec::{
         context::Context,
         decoder::{Audio, Video},
     },
+    format::Sample,
     format::{Pixel, context::Input},
     media::Type,
     software::converter,
@@ -43,6 +45,18 @@ impl AudioExtractor {
     pub fn try_extract_frame(&mut self, packet: &Packet) -> Result<(), Error> {
         self.decoder.send_packet(packet)?;
         self.decoder.receive_frame(&mut self.frame)
+    }
+
+    pub fn rate(&self) -> u32 {
+        self.decoder.rate()
+    }
+
+    pub fn channels(&self) -> u16 {
+        self.decoder.channels()
+    }
+
+    pub fn format(&self) -> AudioFormat {
+        AudioFormat::from(self.decoder.format())
     }
 }
 
