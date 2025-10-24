@@ -293,6 +293,7 @@ dependencies = [
 name = "nodekit-rs-node"
 version = "0.1.0"
 dependencies = [
+ "nodekit-rs-render",
  "pyo3",
 ]
 

@@ -12,7 +12,8 @@ use blittle::blit;
 pub use error::Error;
 use fast_image_resize::{FilterType, PixelType, ResizeAlg, ResizeOptions, Resizer, SrcCropping};
 pub use image::Image;
-pub use rect::Rect;
+pub use card_rect::CardRect;
+use rect::Rect;
 pub use video::Video;
 
 pub struct Frame {
