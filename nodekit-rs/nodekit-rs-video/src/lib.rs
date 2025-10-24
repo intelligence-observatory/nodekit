@@ -7,7 +7,8 @@ mod size;
 
 pub use extraction::Extraction;
 use extractors::*;
-use ffmpeg_next::{Error, format::input};
+pub use ffmpeg_next::Error;
+use ffmpeg_next::format::input;
 pub use size::Size;
 use std::path::Path;
 
