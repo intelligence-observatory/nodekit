@@ -3,7 +3,6 @@ use pyo3::prelude::*;
 use nodekit_rs_render::CardRect;
 use crate::{MediaType, Timer};
 
-#[pyclass]
 pub struct Card {
     pub rect: CardRect,
     pub media_type: MediaType,
@@ -11,9 +10,7 @@ pub struct Card {
     pub timer: Timer
 }
 
-#[pymethods]
 impl Card {
-    #[new]
     pub fn new(card: &Bound<'_, PyAny>) -> PyResult<Self> {
         let x = card.getattr("x")?.extract::<f64>()?;
         let y = card.getattr("y")?.extract::<f64>()?;
@@ -39,7 +36,7 @@ impl Card {
         };
         let t0 = card.getattr("start_msec")?.extract::<u64>()?;
         let t1 = card.getattr("end_msec")?.extract::<Option<u64>>()?;
-        let timer = Timer::new(t0, t1);
+        let timer = Timer { t0, t1 };
         Ok(Self {
             rect,
             path,
@@ -47,9 +44,7 @@ impl Card {
             timer
         })
     }
-}
 
-impl Card {
     fn get_path(media: &Bound<'_, PyAny>) -> PyResult<String> {
         media.getattr("locator")?.extract::<String>()
     }
