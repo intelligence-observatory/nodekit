@@ -91,3 +91,18 @@ impl Image {
         cast_slice::<[u8; 3], u8>(&out).to_vec()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_load_png() {
+        let width = 300;
+        let height = 600;
+        let image = Image::from_png("test_image.png").unwrap();
+        assert_eq!(image.width, width);
+        assert_eq!(image.height, height);
+        assert_eq!(image.buffer.len(), (width * height * 3) as usize);
+    }
+}
