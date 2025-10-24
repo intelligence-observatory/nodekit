@@ -98,22 +98,12 @@ impl AudioBuilder {
     pub fn convert(audio: &Audio) -> Vec<f32> {
         // Convert samples.
         match audio.format {
-            AudioFormat::U8 => {
-                todo!()
-            }
-            AudioFormat::I16 => {
-                convert!(audio, i16)
-            }
-            AudioFormat::I32 => {
-                convert!(audio, i32)
-            }
-            AudioFormat::I64 => {
-                convert!(audio, i64)
-            }
+            AudioFormat::U8 => convert!(audio, u8),
+            AudioFormat::I16 => convert!(audio, i16),
+            AudioFormat::I32 => convert!(audio, i32),
+            AudioFormat::I64 => convert!(audio, i64),
             AudioFormat::F32 => Self::convert_f32(audio),
-            AudioFormat::F64 => {
-                convert!(audio, f64)
-            }
+            AudioFormat::F64 => convert!(audio, f64),
             AudioFormat::None => Vec::default(),
         }
     }
