@@ -3,38 +3,20 @@
 
 mod extraction;
 mod extractors;
+mod size;
 
 pub use extraction::Extraction;
 use extractors::*;
 use ffmpeg_next::{Error, format::input};
+pub use size::Size;
 use std::path::Path;
-
-macro_rules! extract {
-    ($extractor:ident, $frame:ident, $packet:ident, $frame_index:ident, $target_frame:ident, $eof:ident) => {{
-        match $extractor.try_extract_frame(&$packet) {
-            Ok(()) => {
-                // Got the frame!
-                if *$frame_index == $target_frame {
-                    $frame = Some($extractor.frame.data(0).to_vec());
-                } else {
-                    *$frame_index += 1;
-                }
-            }
-            Err(error) => {
-                if let Error::Eof = error {
-                    $eof = true;
-                }
-            }
-        }
-    }};
-}
 
 pub fn extract_frame<P: AsRef<Path>>(
     path: P,
     time_msec: f64,
     muted: bool,
-    audio_frame_index: &mut usize,
-    video_frame_index: &mut usize,
+    audio_index: &mut usize,
+    video_index: &mut usize,
 ) -> Result<Extraction, Error> {
     let mut input = input(path.as_ref())?;
     // Try to get an audio extractor.
@@ -58,26 +40,40 @@ pub fn extract_frame<P: AsRef<Path>>(
         let stream_index = stream.index();
         // Send the packet to the video decoder.
         if stream_index == video.stream_index && !video_eof {
-            extract!(
-                video,
-                video_frame,
-                packet,
-                video_frame_index,
-                target_frame,
-                video_eof
-            );
+            match video.try_extract_frame(&packet) {
+                Ok(()) => {
+                    // Got the frame!
+                    if *video_index == target_frame {
+                        video_frame = Some(video.frame()?.data(0).to_vec());
+                    } else {
+                        *video_index += 1;
+                    }
+                }
+                Err(error) => {
+                    if let Error::Eof = error {
+                        video_eof = true;
+                    }
+                }
+            }
         } else if !audio_eof
             && let Some(audio) = audio.as_mut()
             && stream_index == audio.stream_index
         {
-            extract!(
-                audio,
-                audio_frame,
-                packet,
-                audio_frame_index,
-                target_frame,
-                audio_eof
-            );
+            match audio.try_extract_frame(&packet) {
+                Ok(()) => {
+                    // Got the frame!
+                    if *audio_index == target_frame {
+                        audio_frame = Some(audio.frame.data(0).to_vec());
+                    } else {
+                        *audio_index += 1;
+                    }
+                }
+                Err(error) => {
+                    if let Error::Eof = error {
+                        audio_eof = true;
+                    }
+                }
+            }
         }
         // End of file.
         if video_eof && (!has_audio || audio_eof) {
@@ -90,8 +86,36 @@ pub fn extract_frame<P: AsRef<Path>>(
             return Ok(Extraction::Frame {
                 video: video_frame,
                 audio: audio_frame,
+                size: video.size,
             });
         }
     }
     Err(Error::BufferTooSmall)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_frame_extraction() {
+        let mut audio_index = 0;
+        let mut video_index = 0;
+        let extraction = extract_frame(
+            "../mp4.ia.mp4",
+            0.,
+            false,
+            &mut audio_index,
+            &mut video_index,
+        )
+        .unwrap();
+        if let Extraction::Frame { video, audio, size } = extraction {
+            assert_eq!(size.width, 854);
+            assert_eq!(size.height, 480);
+            // assert_eq!(video.len(), (size.width * size.height * 3) as usize);
+            assert_eq!(audio.unwrap().len(), 8192);
+        } else {
+            panic!("Failed to get a frame!")
+        }
+    }
 }
