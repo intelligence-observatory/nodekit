@@ -13,6 +13,7 @@ https://cogtoolslab.github.io/pdf/BWMB_neurips_2021.pdf
 import nodekit as nk
 import random
 
+
 def make_physion_trial(
         seed: int,
         selector_mask: nk.assets.Image,
@@ -29,7 +30,7 @@ def make_physion_trial(
         },
         sensors={
             'fixated': nk.sensors.TimeoutSensor(
-                timeout_msec = int(gen.random() * 1000 + 500)
+                timeout_msec=int(gen.random() * 1000 + 500)
             )
         }
     )
@@ -77,7 +78,7 @@ def make_physion_trial(
         start_msec=prompt_card.start_msec,
         end_msec=None,
         text='**Yes**',
-        x=0.4,
+        x=-0.4,
         y=-0.42,
         w=0.2,
         h=0.1,
@@ -90,7 +91,7 @@ def make_physion_trial(
         start_msec=prompt_card.start_msec,
         end_msec=None,
         text='**No**',
-        x=-0.4,
+        x=0.4,
         y=-0.42,
         w=0.2,
         h=0.1,
@@ -107,19 +108,19 @@ def make_physion_trial(
         h=video_card.h,
         z_index=10,
         image=selector_mask,
-        start_msec=i*1000,
-        end_msec=i*1000 + 500,
+        start_msec=i * 1000,
+        end_msec=i * 1000 + 500,
     )
     main_node = nk.Node(
         cards={
-            'video': video_card,
-            'video-playing': video_card_playing,
-            'prompt': prompt_card,
-            'yes-card': yes_card,
-            'no_card': no_card,
-        } | {
-            f'selector-frame-{i}': make_mask_card(i) for i in range(2)
-        },
+                  'video': video_card,
+                  'video-playing': video_card_playing,
+                  'prompt': prompt_card,
+                  'yes-card': yes_card,
+                  'no_card': no_card,
+              } | {
+                  f'selector-frame-{i}': make_mask_card(i) for i in range(2)
+              },
         sensors={
             'yes': nk.sensors.ClickSensor(
                 start_msec=yes_card.start_msec,
@@ -152,8 +153,8 @@ def make_physion_trial(
             'main': main_node,
         },
         start='fixation',
-        transitions = {
-            'fixation': {'fixated':'main'},
+        transitions={
+            'fixation': {'fixated': 'main'},
         }
     )
 
@@ -179,15 +180,15 @@ if __name__ == '__main__':
     )
 
     # %%
-    #nk.save_graph(trial, 'physion-demo.nkg')
-
+    # nk.save_graph(trial, 'physion-demo.nkg')
 
     # %%
-    graph = nk.concat([
-        trial1,
+    graph = nk.concat(
+        [
+            trial1,
+            trial2,
+            trial3,
 
-        trial2,
-        trial3,
-
-    ])
+        ]
+    )
     trace = nk.play(graph)
