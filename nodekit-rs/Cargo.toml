@@ -1,5 +1,5 @@
 [workspace]
-members = ["nodekit-rs-video"]
+members = ["nodekit-rs-image","nodekit-rs-video"]
 
 [package]
 name = "nodekit-rs"
@@ -13,5 +13,6 @@ fast_image_resize = "5.3.0"
 ffmpeg-next = "8.0.0"
 png = "0.18.0"
 pyo3 = { version = "0.27.1", features = ["experimental-inspect", "extension-module"] }
+thiserror = "2.0.17"
 
 [dependencies]

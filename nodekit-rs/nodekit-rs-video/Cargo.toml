@@ -5,6 +5,3 @@ edition = "2024"
 
 [dependencies]
 ffmpeg-next.workspace = true
-
-[dev-dependencies]
-png.workspace = true
