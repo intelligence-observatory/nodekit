@@ -1,5 +1,5 @@
 use ffmpeg_next::{
-    Error, Packet,
+    Error, Packet, Rational,
     codec::{
         context::Context,
         decoder::{Audio, Video},
@@ -71,7 +71,7 @@ impl VideoExtractor {
     }
 
     pub fn get_target_frame(&self, time_msec: f64) -> usize {
-        ((time_msec / 1000.) * f64::from(self.decoder.frame_rate().unwrap().invert())) as usize
+        ((time_msec / 1000.) * f64::from(self.decoder.frame_rate().unwrap()).ceil()) as usize
     }
 
     /// Send the pack and try to get the next frame.
@@ -79,5 +79,24 @@ impl VideoExtractor {
         extract!(self, packet, VideoFrame);
         self.frame.set_format(Pixel::RGB24);
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use ffmpeg_next::format::input;
+
+    #[test]
+    fn test_target_frame() {
+        let input = input("../mp4.ia.mp4").unwrap();
+        // Always get a video extractor.
+        let video = VideoExtractor::new(&input).unwrap();
+        assert_eq!(
+            f64::from(video.decoder.frame_rate().unwrap()).ceil() as usize,
+            30
+        );
+        assert_eq!(video.get_target_frame(0.), 0);
+        assert_eq!(video.get_target_frame(34.), 1);
     }
 }
