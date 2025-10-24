@@ -6,7 +6,6 @@ use ffmpeg_next::{
     },
     format::{Pixel, context::Input},
     media::Type,
-    software::scaling::{Context as ScalingContext, Flags},
     util::frame::{audio::Audio as AudioFrame, video::Video as VideoFrame},
 };
 
@@ -25,15 +24,14 @@ macro_rules! decoder {
 macro_rules! extract {
     ($self:ident, $packet:ident, $frame:ident) => {{
         $self.decoder.send_packet($packet)?;
-        let mut frame = $frame::empty();
-        $self.decoder.receive_frame(&mut frame)?;
-        frame
+        $self.decoder.receive_frame(&mut $self.frame)?;
     }};
 }
 
 /// Extract audio frames from a stream.
 pub struct AudioExtractor {
     pub stream_index: usize,
+    pub frame: AudioFrame,
     decoder: Audio,
 }
 
@@ -43,47 +41,43 @@ impl AudioExtractor {
         Ok(Self {
             stream_index,
             decoder,
+            frame: AudioFrame::empty(),
         })
     }
 
     /// Send the pack and try to get the next frame.
-    pub fn try_extract_frame(&mut self, packet: &Packet) -> Result<AudioFrame, Error> {
-        Ok(extract!(self, packet, AudioFrame))
+    pub fn try_extract_frame(&mut self, packet: &Packet) -> Result<(), Error> {
+        extract!(self, packet, AudioFrame);
+        Ok(())
     }
 }
 
 /// Extract video frames from a stream.
 pub struct VideoExtractor {
     pub stream_index: usize,
+    pub frame: VideoFrame,
     decoder: Video,
-    scaler: ScalingContext,
 }
 
 impl VideoExtractor {
     pub fn new(input: &Input) -> Result<Self, Error> {
         let (stream_index, decoder) = decoder!(input, Video, video);
-        let width = decoder.width();
-        let height = decoder.height();
-        let scaler = ScalingContext::get(
-            decoder.format(),
-            width,
-            height,
-            Pixel::RGB24,
-            width,
-            height,
-            Flags::BILINEAR,
-        )?;
+        let frame = VideoFrame::new(decoder.format(), decoder.width(), decoder.height());
         Ok(Self {
             stream_index,
             decoder,
-            scaler,
+            frame,
         })
     }
 
+    pub fn get_target_frame(&self, time_msec: f64) -> usize {
+        ((time_msec / 1000.) * f64::from(self.decoder.frame_rate().unwrap().invert())) as usize
+    }
+
     /// Send the pack and try to get the next frame.
-    pub fn try_extract_frame(&mut self, packet: &Packet) -> Result<VideoFrame, Error> {
-        let mut frame = extract!(self, packet, VideoFrame);
-        frame.set_format(Pixel::RGB24);
-        Ok(frame)
+    pub fn try_extract_frame(&mut self, packet: &Packet) -> Result<(), Error> {
+        extract!(self, packet, VideoFrame);
+        self.frame.set_format(Pixel::RGB24);
+        Ok(())
     }
 }
