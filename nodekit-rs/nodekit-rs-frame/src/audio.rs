@@ -96,7 +96,6 @@ impl AudioBuilder {
     /// - Has two channels
     /// - Is f32s
     pub fn convert(audio: &Audio) -> Vec<f32> {
-        // Convert samples.
         match audio.format {
             AudioFormat::U8 => convert!(audio, u8),
             AudioFormat::I16 => convert!(audio, i16),
