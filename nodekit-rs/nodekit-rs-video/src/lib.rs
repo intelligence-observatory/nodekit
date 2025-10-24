@@ -3,12 +3,14 @@
 
 mod audio;
 mod audio_format;
+mod audio_rate;
 mod extraction;
 mod extractors;
 mod video;
 
 pub use audio::Audio;
 pub use audio_format::AudioFormat;
+pub use audio_rate::AudioRate;
 pub use extraction::Extraction;
 use extractors::*;
 pub use ffmpeg_next::Error;

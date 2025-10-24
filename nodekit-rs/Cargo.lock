@@ -105,6 +105,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "dasp_sample"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0c87e182de0887fd5361989c677c4e8f5000cd9491d6d563161a8f3a5519fc7f"
+
+[[package]]
 name = "document-features"
 version = "0.2.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -255,9 +261,12 @@ name = "nodekit-rs-frame"
 version = "0.1.0"
 dependencies = [
  "blittle",
+ "bytemuck",
+ "dasp_sample",
  "fast_image_resize",
  "nodekit-rs-image",
  "nodekit-rs-video",
+ "paste",
  "thiserror",
 ]
 
@@ -305,6 +314,12 @@ dependencies = [
  "hermit-abi",
  "libc",
 ]
+
+[[package]]
+name = "paste"
+version = "1.0.15"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "57c0d7b74b563b49d38dae00a0c37d4d6de9b432382b2892f0574ddcae73fd0a"
 
 [[package]]
 name = "pkg-config"

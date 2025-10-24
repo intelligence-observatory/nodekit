@@ -1,3 +1,4 @@
+mod audio;
 mod board;
 mod card_rect;
 mod error;
@@ -5,6 +6,7 @@ mod image;
 mod rect;
 mod video;
 
+use crate::audio::AudioBuilder;
 use crate::board::{BOARD_D, BOARD_SIZE, STRIDE};
 use blittle::blit;
 pub use error::Error;
@@ -15,13 +17,14 @@ pub use video::Video;
 
 pub struct Frame {
     pub visual: Vec<u8>,
-    pub audio: Option<Vec<u8>>,
+    pub audio: Option<Vec<f32>>,
 }
 
 impl Frame {
     pub fn new(images: Vec<Image>, videos: Vec<Video>) -> Self {
         let mut visual = vec![0; BOARD_D * BOARD_D * STRIDE];
         let mut audio = None;
+        let mut audio_builder = AudioBuilder::default();
         for image in images {
             blit(
                 &image.image,
@@ -32,6 +35,7 @@ impl Frame {
                 STRIDE,
             );
         }
+        let multi_video = videos.len() > 1;
         for video in videos {
             blit(
                 &video.video,
@@ -42,8 +46,18 @@ impl Frame {
                 STRIDE,
             );
             if let Some(a) = video.audio {
-                audio = Some(a); // TODO overlay
+                let converted = AudioBuilder::convert(&a);
+                // We will need to overlay.
+                if multi_video {
+                    audio_builder.overlay(converted);
+                } else {
+                    audio = Some(converted);
+                }
             }
+        }
+        // Finish overlaying.
+        if multi_video {
+            audio = Some(audio_builder.finish())
         }
         Self { visual, audio }
     }

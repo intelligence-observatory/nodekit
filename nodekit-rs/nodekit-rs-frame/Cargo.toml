@@ -5,7 +5,10 @@ edition = "2024"
 
 [dependencies]
 blittle.workspace = true
+bytemuck.workspace = true
+dasp_sample.workspace = true
 fast_image_resize.workspace = true
 nodekit-rs-image = { path = "../nodekit-rs-image" }
 nodekit-rs-video = { path = "../nodekit-rs-video" }
+paste.workspace = true
 thiserror.workspace = true

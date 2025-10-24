@@ -8,9 +8,11 @@ edition = "2024"
 
 [workspace.dependencies]
 blittle = "0.2.1"
+dasp_sample = "0.11.0"
 bytemuck = "1.24.0"
 fast_image_resize = "5.3.0"
 ffmpeg-next = "8.0.0"
+paste = "1.0.15"
 png = "0.18.0"
 pyo3 = { version = "0.27.1", features = ["experimental-inspect", "extension-module"] }
 thiserror = "2.0.17"
