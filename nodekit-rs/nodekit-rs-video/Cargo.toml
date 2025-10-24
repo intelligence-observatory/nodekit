@@ -1,0 +1,6 @@
+[package]
+name = "nodekit-rs-video"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
