@@ -1,4 +1,3 @@
-use crate::Size;
 use ffmpeg_next::{
     Error, Packet,
     codec::{
@@ -50,7 +49,6 @@ impl AudioExtractor {
 /// Extract video frames from a stream.
 pub struct VideoExtractor {
     pub stream_index: usize,
-    pub size: Size,
     decoder: Video,
     decoded_frame: VideoFrame,
 }
@@ -59,15 +57,10 @@ impl VideoExtractor {
     pub fn new(input: &Input) -> Result<Self, Error> {
         let (stream_index, decoder) = decoder!(input, Video, video);
         let decoded_frame = VideoFrame::new(decoder.format(), decoder.width(), decoder.height());
-        let size = Size {
-            width: decoder.width(),
-            height: decoder.height(),
-        };
         Ok(Self {
             stream_index,
             decoder,
             decoded_frame,
-            size,
         })
     }
 
@@ -86,7 +79,7 @@ impl VideoExtractor {
         let mut frame = VideoFrame::new(Pixel::RGB24, self.decoder.width(), self.decoder.height());
         // Convert to RGB24.
         converter(
-            (self.size.width, self.size.height),
+            (self.decoded_frame.width(), self.decoded_frame.height()),
             self.decoded_frame.format(),
             Pixel::RGB24,
         )?

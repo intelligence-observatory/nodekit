@@ -36,6 +36,7 @@ pub fn extract_frame<P: AsRef<Path>>(
     let mut audio_frame = None;
     let mut video_eof = false;
     let mut audio_eof = false;
+    let mut size = Size::default();
     for (stream, packet) in input.packets() {
         let stream_index = stream.index();
         // Send the packet to the video decoder.
@@ -44,6 +45,10 @@ pub fn extract_frame<P: AsRef<Path>>(
                 Ok(()) => {
                     // Got the frame!
                     if *video_index == target_frame {
+                        let frame = video.frame()?;
+                        // The frame width isn't the same as the video's width and I don't know why.
+                        size.width = frame.stride(0) as u32 / 3;
+                        size.height = frame.height();
                         video_frame = Some(video.frame()?.data(0).to_vec());
                     } else {
                         *video_index += 1;
@@ -86,7 +91,7 @@ pub fn extract_frame<P: AsRef<Path>>(
             return Ok(Extraction::Frame {
                 video: video_frame,
                 audio: audio_frame,
-                size: video.size,
+                size,
             });
         }
     }
@@ -110,9 +115,9 @@ mod tests {
         )
         .unwrap();
         if let Extraction::Frame { video, audio, size } = extraction {
-            assert_eq!(size.width, 854);
+            assert_eq!(size.width, 864);
             assert_eq!(size.height, 480);
-            // assert_eq!(video.len(), (size.width * size.height * 3) as usize);
+            assert_eq!(video.len(), (size.width * size.height * 3) as usize);
             assert_eq!(audio.unwrap().len(), 8192);
         } else {
             panic!("Failed to get a frame!")
