@@ -1,11 +1,11 @@
 use crate::card_rect::CardRect;
 use crate::{Error, Frame, Rect};
-use nodekit_rs_video::{Extraction, Size};
+use nodekit_rs_video::{Audio, Extraction};
 use std::path::Path;
 
 pub struct Video {
     pub video: Vec<u8>,
-    pub audio: Option<Vec<u8>>,
+    pub audio: Option<Audio>,
     pub rect: Rect,
 }
 
@@ -32,7 +32,7 @@ impl Video {
                 .map_err(Error::Video)?;
             }
             match extraction {
-                Extraction::Frame { video, audio, size } => Self::new(video, audio, size, rect),
+                Extraction::Frame { video, audio } => Self::new(video, audio, rect),
                 Extraction::EndOfVideo => unreachable!("This is impossible!"),
             }
         } else {
@@ -45,19 +45,18 @@ impl Video {
             )
             .map_err(Error::Video)?;
             match extraction {
-                Extraction::Frame { video, audio, size } => Self::new(video, audio, size, rect),
+                Extraction::Frame { video, audio } => Self::new(video, audio, rect),
                 Extraction::EndOfVideo => Ok(None),
             }
         }
     }
 
     fn new(
-        mut video: Vec<u8>,
-        audio: Option<Vec<u8>>,
-        size: Size,
+        mut video: nodekit_rs_video::Video,
+        audio: Option<Audio>,
         rect: CardRect,
     ) -> Result<Option<Self>, Error> {
-        let video = Frame::resize(&mut video, size.width, size.height, rect.w, rect.h)?;
+        let video = Frame::resize(&mut video.frame, video.width, video.height, rect.w, rect.h)?;
         let rect = Rect::from(rect);
         Ok(Some(Self { video, audio, rect }))
     }
