@@ -1,5 +1,5 @@
 [package]
-name = "nodekit-rs-frame"
+name = "nodekit-rs-render"
 version = "0.1.0"
 edition = "2024"
 

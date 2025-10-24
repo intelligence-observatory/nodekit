@@ -257,7 +257,16 @@ name = "nodekit-rs"
 version = "0.1.0"
 
 [[package]]
-name = "nodekit-rs-frame"
+name = "nodekit-rs-image"
+version = "0.1.0"
+dependencies = [
+ "bytemuck",
+ "png",
+ "thiserror",
+]
+
+[[package]]
+name = "nodekit-rs-render"
 version = "0.1.0"
 dependencies = [
  "blittle",
@@ -267,15 +276,6 @@ dependencies = [
  "nodekit-rs-image",
  "nodekit-rs-video",
  "paste",
- "thiserror",
-]
-
-[[package]]
-name = "nodekit-rs-image"
-version = "0.1.0"
-dependencies = [
- "bytemuck",
- "png",
  "thiserror",
 ]
 
