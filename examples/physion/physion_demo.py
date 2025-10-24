@@ -17,14 +17,14 @@ def make_physion_trial(
         seed: int,
         selector_mask: nk.assets.Image,
         video: nk.assets.Video,
-        prompt: str = 'Will the **red object** touch the **yellow object**?'
+        prompt: str = 'Will the red object touch the yellow object?'
 ) -> nk.Graph:
     gen = random.Random(seed)
 
     fixation_node = nk.Node(
         cards={
             'fixation-cross': nk.cards.TextCard(
-                x=0, y=0, w=0.0375, h=0.0375, text=r"\+", font_size=0.03
+                x=0, y=0, w=0.1, h=0.1, text=r"\+", font_size=0.1
             )
         },
         sensors={
@@ -60,39 +60,42 @@ def make_physion_trial(
     )
 
     background_color = '#d4d2d2'
+    button_color = '#e3e3e3'
     prompt_card = nk.cards.TextCard(
-        start_msec=3500,
+        start_msec=3800,
         end_msec=None,
         text=prompt,
         x=0,
-        y=-0.3,
-        w=0.7,
-        h=0.075,
+        y=0,
+        w=1,
+        h=0.2,
         background_color=background_color,
-        font_size=0.02,
+        font_size=0.04,
     )
 
     yes_card = nk.cards.TextCard(
-        start_msec=3500,
+        start_msec=prompt_card.start_msec,
         end_msec=None,
-        text='Yes',
-        x=0.35,
+        text='**Yes**',
+        x=0.4,
         y=-0.42,
-        w=0.1,
+        w=0.2,
         h=0.1,
-        background_color=background_color,
+        font_size=0.05,
+        background_color=button_color,
         selectable=True,
     )
 
     no_card = nk.cards.TextCard(
-        start_msec=3500,
+        start_msec=prompt_card.start_msec,
         end_msec=None,
-        text='No',
-        x=-0.35,
+        text='**No**',
+        x=-0.4,
         y=-0.42,
-        w=0.1,
+        w=0.2,
         h=0.1,
-        background_color=background_color,
+        font_size=yes_card.font_size,
+        background_color=button_color,
         selectable=True,
     )
 
@@ -134,7 +137,13 @@ def make_physion_trial(
                 w=no_card.w,
                 h=no_card.h,
             )
-        }
+        },
+        effects=[
+            nk.effects.HidePointerEffect(
+                start_msec=0,
+                end_msec=3500,
+            )
+        ]
     )
 
     return nk.Graph(
@@ -175,10 +184,10 @@ if __name__ == '__main__':
 
     # %%
     graph = nk.concat([
-        trial3,
-        trial2,
         trial1,
 
+        trial2,
+        trial3,
 
     ])
     trace = nk.play(graph)
