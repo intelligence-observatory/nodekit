@@ -165,6 +165,7 @@ impl AudioBuilder {
 
 #[cfg(test)]
 mod tests {
+    use hound::WavWriter;
     use super::*;
 
     #[test]
@@ -172,6 +173,14 @@ mod tests {
         let mut builder = AudioBuilder::default();
         builder.add(include_bytes!("../test_files/a.wav")[44..].to_vec(), Rate::OneOneZero, 1, Format::I16).unwrap();
         builder.add(include_bytes!("../test_files/b.wav")[44..].to_vec(), Rate::FourFourOne, 2, Format::F32).unwrap();
-        builder.finish();
+        let spec = hound::WavSpec {
+            channels: 2,
+            sample_rate: 44100,
+            bits_per_sample: 32,
+            sample_format: hound::SampleFormat::Float,
+        };
+        let mut writer = WavWriter::create("../test_files/out.wav", spec).unwrap();
+        builder.finish().unwrap().into_iter().for_each(|s| writer.write_sample(s).unwrap());
+
     }
 }
