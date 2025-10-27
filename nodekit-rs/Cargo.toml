@@ -19,6 +19,7 @@ thiserror = "2.0.17"
 [dependencies]
 blittle.workspace = true
 hex_color.workspace = true
+nodekit-rs-cursor = { path = "nodekit-rs-cursor" }
 nodekit-rs-image = { path = "nodekit-rs-image" }
 nodekit-rs-video = { path = "nodekit-rs-video" }
 nodekit-rs-visual = { path = "nodekit-rs-visual" }

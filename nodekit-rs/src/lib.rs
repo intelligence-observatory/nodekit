@@ -180,6 +180,7 @@ fn try_extract_frame(
 #[pymodule]
 pub mod nodekit_rs {
     use super::*;
+    use nodekit_rs_cursor::blit_cursor;
     use pyo3::types::PyList;
 
     #[pyclass]
@@ -228,6 +229,10 @@ pub mod nodekit_rs {
                 }
             }
         }
+
+        // Blit the cursor on top of everything.
+        blit_cursor(cursor_x, cursor_y, &mut visual);
+
         Ok(Frame { visual, audio })
     }
 }

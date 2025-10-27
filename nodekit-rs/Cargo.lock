@@ -296,6 +296,7 @@ version = "0.1.0"
 dependencies = [
  "blittle",
  "hex_color",
+ "nodekit-rs-cursor",
  "nodekit-rs-image",
  "nodekit-rs-video",
  "nodekit-rs-visual",

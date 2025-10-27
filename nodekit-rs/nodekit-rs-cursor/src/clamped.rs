@@ -13,31 +13,29 @@ impl Clamped {
         let dst = spatial_coordinate(c);
         if dst + RADIUS_I < 0 || dst > VISUAL_D_ISIZE {
             None
+        } else if dst < 0 {
+            let src_0 = dst.unsigned_abs();
+            Some(Self {
+                src_0,
+                src_1: DIAMETER,
+                dst_0: 0,
+                dst_1: DIAMETER - src_0,
+            })
+        } else if dst + RADIUS_I > VISUAL_D_ISIZE {
+            Some(Self {
+                src_0: 0,
+                src_1: (dst.unsigned_abs() + RADIUS) - VISUAL_D,
+                dst_0: dst.unsigned_abs(),
+                dst_1: VISUAL_D,
+            })
         } else {
-            if dst < 0 {
-                let src_0 = dst.unsigned_abs();
-                Some(Self {
-                    src_0,
-                    src_1: DIAMETER,
-                    dst_0: 0,
-                    dst_1: DIAMETER - src_0,
-                })
-            } else if dst + RADIUS_I > VISUAL_D_ISIZE {
-                Some(Self {
-                    src_0: 0,
-                    src_1: (dst.unsigned_abs() + RADIUS) - VISUAL_D,
-                    dst_0: dst.unsigned_abs(),
-                    dst_1: VISUAL_D,
-                })
-            } else {
-                let dst = dst.unsigned_abs();
-                Some(Self {
-                    src_0: 0,
-                    src_1: DIAMETER,
-                    dst_0: dst,
-                    dst_1: dst + DIAMETER,
-                })
-            }
+            let dst = dst.unsigned_abs();
+            Some(Self {
+                src_0: 0,
+                src_1: DIAMETER,
+                dst_0: dst,
+                dst_1: dst + DIAMETER,
+            })
         }
     }
 }
