@@ -82,8 +82,8 @@ fn get_asset(card: &Bound<PyAny>) -> PyResult<Option<Asset>> {
         Ok(Some(Asset {
             path: get_path(&video)?,
             media_type: MediaType::Video {
-                muted: get_bool(&card, "muted")?,
-                looped: get_bool(&card, "loop")?,
+                muted: get_bool(card, "muted")?,
+                looped: get_bool(card, "loop")?,
             },
         }))
     } else {
@@ -184,6 +184,34 @@ fn try_extract_frame(
     }
 }
 
+fn blit_asset(
+    asset: Asset,
+    time: u64,
+    audio: &mut Option<Audio>,
+    visual: &mut [u8],
+    position: &PositionU,
+    size: &Size,
+) -> PyResult<()> {
+    match asset.media_type {
+        MediaType::Image => {
+            let mut image =
+                Image::from_png(asset.path).map_err(|e| PyValueError::new_err(e.to_string()))?;
+            blit_image(&mut image, size, visual, position)?;
+        }
+        MediaType::Video { muted, looped } => {
+            let asset = VideoAsset {
+                path: asset.path,
+                muted,
+                looped,
+                time,
+            };
+            // TODO subtract duration.
+            extract_from_video(asset, audio, size, visual, position)?;
+        }
+    }
+    Ok(())
+}
+
 #[pymodule]
 pub mod nodekit_rs {
     use super::*;
@@ -214,23 +242,7 @@ pub mod nodekit_rs {
                 let (position, size) = get_rect(&card)?;
                 // Got an asset.
                 if let Some(asset) = get_asset(&card)? {
-                    match asset.media_type {
-                        MediaType::Image => {
-                            let mut image = Image::from_png(asset.path)
-                                .map_err(|e| PyValueError::new_err(e.to_string()))?;
-                            blit_image(&mut image, &size, &mut visual, &position)?;
-                        }
-                        MediaType::Video { muted, looped } => {
-                            let asset = VideoAsset {
-                                path: asset.path,
-                                muted,
-                                looped,
-                                time,
-                            };
-                            // TODO subtract duration.
-                            extract_from_video(asset, &mut audio, &size, &mut visual, &position)?;
-                        }
-                    }
+                    blit_asset(asset, time, &mut audio, &mut visual, &position, &size)?;
                 }
             }
         }
