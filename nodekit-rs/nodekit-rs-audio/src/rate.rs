@@ -9,20 +9,20 @@ pub enum Rate {
     /// 48000
     FourEightZero,
     /// 44100
-    FourFourOne,
+    Standard,
     /// 22050
-    TwoTwoZero,
+    Half,
     /// 11025
-    OneOneZero,
+    Quarter,
 }
 
 impl Rate {
     pub const fn from_u32(value: u32) -> Result<Self, Error> {
         match value {
             48000 => Ok(Self::FourEightZero),
-            44100 => Ok(Self::FourFourOne),
-            22050 => Ok(Self::TwoTwoZero),
-            11025 => Ok(Self::OneOneZero),
+            44100 => Ok(Self::Standard),
+            22050 => Ok(Self::Half),
+            11025 => Ok(Self::Quarter),
             other => Err(Error::Rate(other)),
         }
     }
@@ -30,9 +30,9 @@ impl Rate {
     pub const fn size_multiplier(&self) -> usize {
         match self {
             Self::FourEightZero => panic!("48000 size multiplier"),
-            Self::FourFourOne => 1,
-            Self::TwoTwoZero => 2,
-            Self::OneOneZero => 4,
+            Self::Standard => 1,
+            Self::Half => 2,
+            Self::Quarter => 4,
         }
     }
 }
@@ -40,9 +40,9 @@ impl Rate {
 impl From<u32> for Rate {
     fn from(value: u32) -> Self {
         match value {
-            STANDARD => Self::FourFourOne,
-            HALF => Self::TwoTwoZero,
-            QUARTER => Self::OneOneZero,
+            STANDARD => Self::Standard,
+            HALF => Self::Half,
+            QUARTER => Self::Quarter,
             other => panic!("Invalid audio rate: {other}"),
         }
     }

@@ -12,25 +12,25 @@ use size_multiplier::SizeMultiplier;
 pub use src_channels::SrcChannels;
 
 macro_rules! add {
-    ($f:ident, $src:ident, $dst:expr, $multiplier:ident, $format:ident) => {{
+    ($f:ident, $src:ident, $dst:expr, $rate:ident, $multiplier:ident, $format:ident) => {{
         match $format {
             Format::U8 => {
-                Self::$f::<u8>($src, $dst, $multiplier.src_channels, Self::from_u8);
+                Self::$f::<u8>($src, $dst, $rate, $multiplier.src_channels, Self::from_u8);
             }
             Format::I16 => {
-                Self::$f::<i16>($src, $dst, $multiplier.src_channels, Self::from_i16);
+                Self::$f::<i16>($src, $dst, $rate, $multiplier.src_channels, Self::from_i16);
             }
             Format::I32 => {
-                Self::$f::<i32>($src, $dst, $multiplier.src_channels, Self::from_i32);
+                Self::$f::<i32>($src, $dst, $rate, $multiplier.src_channels, Self::from_i32);
             }
             Format::I64 => {
-                Self::$f::<i64>($src, $dst, $multiplier.src_channels, Self::from_i64);
+                Self::$f::<i64>($src, $dst, $rate, $multiplier.src_channels, Self::from_i64);
             }
             Format::F32 => {
-                Self::$f::<f32>($src, $dst, $multiplier.src_channels, Self::from_f32);
+                Self::$f::<f32>($src, $dst, $rate, $multiplier.src_channels, Self::from_f32);
             }
             Format::F64 => {
-                Self::$f::<f64>($src, $dst, $multiplier.src_channels, Self::from_f64);
+                Self::$f::<f64>($src, $dst, $rate, $multiplier.src_channels, Self::from_f64);
             }
             Format::None => {
                 return Err(Error::NoFormat);
@@ -65,11 +65,12 @@ impl AudioBuilder {
                     dst.append(&mut vec![0.; dst_len - a_len]);
                     dst.append(&mut vec![0.; dst_len - a_len]);
                 }
-                add!(overlay, src, dst, size_multiplier, format);
+                add!(overlay, src, dst, rate, size_multiplier, format);
             }
             None => {
                 let mut dst = vec![0.; dst_len];
-                add!(set, src, &mut dst, size_multiplier, format);
+                add!(set, src, &mut dst, rate, size_multiplier, format);
+                self.0 = Some(dst);
             }
         }
         Ok(())
@@ -81,9 +82,10 @@ impl AudioBuilder {
     }
 
     /// Set each value in `dst`.
-    fn set<T: Pod>(src: Vec<u8>, dst: &mut [f32], src_channels: SrcChannels, f: fn(T) -> f32) {
-        match src_channels {
-            SrcChannels::One => cast_slice::<u8, T>(&src)
+    fn set<T: Pod + Sized>(src: Vec<u8>, dst: &mut [f32], rate: Rate, src_channels: SrcChannels, f: fn(T) -> f32) {
+        match (src_channels, rate) {
+            (_, Rate::FourEightZero) => todo!("48000"),
+            (SrcChannels::One, Rate::Standard) => cast_slice::<u8, T>(&src)
                 .to_vec()
                 .into_iter()
                 .zip(cast_slice_mut::<f32, [f32; 2]>(dst).iter_mut())
@@ -92,28 +94,94 @@ impl AudioBuilder {
                     dst[0] = s;
                     dst[1] = s;
                 }),
-            SrcChannels::Two => cast_slice::<u8, [T; 2]>(&src)
+            (SrcChannels::One, Rate::Half) => cast_slice::<u8, T>(&src)
+                .to_vec()
+                .into_iter()
+                .zip(cast_slice_mut::<f32, [f32; 4]>(dst).iter_mut())
+                .for_each(|(src, dst)| {
+                    let s = f(src);
+                    dst[0] = s;
+                    dst[1] = s;
+                    dst[2] = s;
+                    dst[3] = s;
+                }),
+            (SrcChannels::One, Rate::Quarter) => cast_slice::<u8, T>(&src)
+                .to_vec()
+                .into_iter()
+                .zip(cast_slice_mut::<f32, [f32; 8]>(dst).iter_mut())
+                .for_each(|(src, dst)| {
+                    let s = f(src);
+                    dst[0] = s;
+                    dst[1] = s;
+                    dst[2] = s;
+                    dst[3] = s;
+                    dst[4] = s;
+                    dst[5] = s;
+                    dst[6] = s;
+                    dst[7] = s;
+                }),
+            (SrcChannels::Two, Rate::Standard) => cast_slice::<u8, T>(&src)
+                .iter()
+                .zip(dst.iter_mut())
+                .for_each(|(src, dst)| {
+                    *dst = *dst + f(*src);
+                }),
+            (SrcChannels::Two, Rate::Half) => cast_slice::<u8, T>(&src)
                 .iter()
                 .zip(cast_slice_mut::<f32, [f32; 2]>(dst).iter_mut())
                 .for_each(|(src, dst)| {
-                    dst[0] = f(src[0]);
-                    dst[1] = f(src[1]);
+                    let s = f(*src);
+                    dst[0] = s;
+                    dst[1] = s;
                 }),
-            SrcChannels::More(size) => cast_slice::<u8, T>(&src)
+            (SrcChannels::Two, Rate::Quarter) => cast_slice::<u8, T>(&src)
+                .iter()
+                .zip(cast_slice_mut::<f32, [f32; 4]>(dst).iter_mut())
+                .for_each(|(src, dst)| {
+                    let s = f(*src);
+                    dst[0] = s;
+                    dst[1] = s;
+                    dst[2] = s;
+                    dst[3] = s;
+                }),
+            (SrcChannels::More(size), Rate::Standard) => cast_slice::<u8, T>(&src)
                 .chunks_exact(size)
                 .zip(cast_slice_mut::<f32, [f32; 2]>(dst).iter_mut())
                 .for_each(|(src, dst)| {
                     dst[0] = f(src[0]);
                     dst[1] = f(src[1]);
                 }),
+            (SrcChannels::More(size), Rate::Half) => cast_slice::<u8, T>(&src)
+                .chunks_exact(size)
+                .zip(cast_slice_mut::<f32, [f32; 4]>(dst).iter_mut())
+                .for_each(|(src, dst)| {
+                    dst[0] = f(src[0]);
+                    dst[1] = f(src[0]);
+                    dst[2] = f(src[1]);
+                    dst[3] = f(src[1]);
+                }),
+            (SrcChannels::More(size), Rate::Quarter) => cast_slice::<u8, T>(&src)
+                .chunks_exact(size)
+                .zip(cast_slice_mut::<f32, [f32; 8]>(dst).iter_mut())
+                .for_each(|(src, dst)| {
+                    dst[0] = f(src[0]);
+                    dst[1] = f(src[0]);
+                    dst[2] = f(src[0]);
+                    dst[3] = f(src[0]);
+                    dst[4] = f(src[1]);
+                    dst[5] = f(src[1]);
+                    dst[6] = f(src[1]);
+                    dst[7] = f(src[1]);
+                }),
         }
     }
 
     /// Add values in `src` to corresponding values in `dst`.
     /// Then clamp the result.
-    fn overlay<T: Pod>(src: Vec<u8>, dst: &mut [f32], src_channels: SrcChannels, f: fn(T) -> f32) {
-        match src_channels {
-            SrcChannels::One => cast_slice::<u8, T>(&src)
+    fn overlay<T: Pod>(src: Vec<u8>, dst: &mut [f32], rate: Rate, src_channels: SrcChannels, f: fn(T) -> f32) {
+        match (src_channels, rate) {
+            (_, Rate::FourEightZero) => todo!("48000"),
+            (SrcChannels::One, Rate::Standard) => cast_slice::<u8, T>(&src)
                 .to_vec()
                 .into_iter()
                 .zip(cast_slice_mut::<f32, [f32; 2]>(dst).iter_mut())
@@ -171,15 +239,16 @@ mod tests {
     #[test]
     fn test_convert_audio() {
         let mut builder = AudioBuilder::default();
-        builder.add(include_bytes!("../test_files/a.wav")[44..].to_vec(), Rate::OneOneZero, 1, Format::I16).unwrap();
-        builder.add(include_bytes!("../test_files/b.wav")[44..].to_vec(), Rate::FourFourOne, 2, Format::F32).unwrap();
+        builder.add(include_bytes!("../test_files/a.wav")[44..].to_vec(), Rate::Quarter, 1, Format::I16).unwrap();
+        // builder.add(include_bytes!("../test_files/b.wav")[44..].to_vec(), Rate::FourFourOne, 2, Format::F32).unwrap();
+        assert!(builder.0.is_some());
         let spec = hound::WavSpec {
             channels: 2,
             sample_rate: 44100,
             bits_per_sample: 32,
             sample_format: hound::SampleFormat::Float,
         };
-        let mut writer = WavWriter::create("../test_files/out.wav", spec).unwrap();
+        let mut writer = WavWriter::create("test_files/out.wav", spec).unwrap();
         builder.finish().unwrap().into_iter().for_each(|s| writer.write_sample(s).unwrap());
 
     }

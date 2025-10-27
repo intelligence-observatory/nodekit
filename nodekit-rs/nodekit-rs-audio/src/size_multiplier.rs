@@ -10,39 +10,39 @@ impl SizeMultiplier {
         match (rate, channels) {
             (Rate::FourEightZero, _) => panic!("48000"),
             (_, 0) => Err(Error::NoChannels),
-            (Rate::FourFourOne, 1) => Ok(Self {
+            (Rate::Standard, 1) => Ok(Self {
                 multiplier: 2,
                 src_channels: SrcChannels::One,
             }),
-            (Rate::FourFourOne, 2) => Ok(Self {
+            (Rate::Standard, 2) => Ok(Self {
                 multiplier: 1,
                 src_channels: SrcChannels::Two,
             }),
-            (Rate::FourFourOne, other) => Ok(Self {
+            (Rate::Standard, other) => Ok(Self {
                 multiplier: 1,
                 src_channels: SrcChannels::More(other),
             }),
-            (Rate::TwoTwoZero, 1) => Ok(Self {
+            (Rate::Half, 1) => Ok(Self {
                 multiplier: 4,
                 src_channels: SrcChannels::One,
             }),
-            (Rate::TwoTwoZero, 2) => Ok(Self {
+            (Rate::Half, 2) => Ok(Self {
                 multiplier: 2,
                 src_channels: SrcChannels::Two,
             }),
-            (Rate::TwoTwoZero, other) => Ok(Self {
+            (Rate::Half, other) => Ok(Self {
                 multiplier: 2,
                 src_channels: SrcChannels::More(other),
             }),
-            (Rate::OneOneZero, 1) => Ok(Self {
+            (Rate::Quarter, 1) => Ok(Self {
                 multiplier: 8,
                 src_channels: SrcChannels::One,
             }),
-            (Rate::OneOneZero, 2) => Ok(Self {
+            (Rate::Quarter, 2) => Ok(Self {
                 multiplier: 4,
                 src_channels: SrcChannels::Two,
             }),
-            (Rate::OneOneZero, other) => Ok(Self {
+            (Rate::Quarter, other) => Ok(Self {
                 multiplier: 4,
                 src_channels: SrcChannels::More(other),
             }),
@@ -56,41 +56,41 @@ mod tests {
 
     #[test]
     fn test_size_multiplier() {
-        assert!(SizeMultiplier::new(Rate::FourFourOne, 0).is_err());
+        assert!(SizeMultiplier::new(Rate::Standard, 0).is_err());
 
-        let s = SizeMultiplier::new(Rate::FourFourOne, 1).unwrap();
+        let s = SizeMultiplier::new(Rate::Standard, 1).unwrap();
         assert_eq!(s.multiplier, 2);
         assert_eq!(s.src_channels, SrcChannels::One);
 
-        let s = SizeMultiplier::new(Rate::FourFourOne, 2).unwrap();
+        let s = SizeMultiplier::new(Rate::Standard, 2).unwrap();
         assert_eq!(s.multiplier, 1);
         assert_eq!(s.src_channels, SrcChannels::Two);
 
-        let s = SizeMultiplier::new(Rate::FourFourOne, 4).unwrap();
+        let s = SizeMultiplier::new(Rate::Standard, 4).unwrap();
         assert_eq!(s.multiplier, 1);
         assert_eq!(s.src_channels, SrcChannels::More(4));
 
-        let s = SizeMultiplier::new(Rate::TwoTwoZero, 1).unwrap();
+        let s = SizeMultiplier::new(Rate::Half, 1).unwrap();
         assert_eq!(s.multiplier, 4);
         assert_eq!(s.src_channels, SrcChannels::One);
 
-        let s = SizeMultiplier::new(Rate::TwoTwoZero, 2).unwrap();
+        let s = SizeMultiplier::new(Rate::Half, 2).unwrap();
         assert_eq!(s.multiplier, 2);
         assert_eq!(s.src_channels, SrcChannels::Two);
 
-        let s = SizeMultiplier::new(Rate::TwoTwoZero, 4).unwrap();
+        let s = SizeMultiplier::new(Rate::Half, 4).unwrap();
         assert_eq!(s.multiplier, 2);
         assert_eq!(s.src_channels, SrcChannels::More(4));
 
-        let s = SizeMultiplier::new(Rate::OneOneZero, 1).unwrap();
+        let s = SizeMultiplier::new(Rate::Quarter, 1).unwrap();
         assert_eq!(s.multiplier, 8);
         assert_eq!(s.src_channels, SrcChannels::One);
 
-        let s = SizeMultiplier::new(Rate::OneOneZero, 2).unwrap();
+        let s = SizeMultiplier::new(Rate::Quarter, 2).unwrap();
         assert_eq!(s.multiplier, 4);
         assert_eq!(s.src_channels, SrcChannels::Two);
 
-        let s = SizeMultiplier::new(Rate::OneOneZero, 4).unwrap();
+        let s = SizeMultiplier::new(Rate::Quarter, 4).unwrap();
         assert_eq!(s.multiplier, 4);
         assert_eq!(s.src_channels, SrcChannels::More(4));
     }

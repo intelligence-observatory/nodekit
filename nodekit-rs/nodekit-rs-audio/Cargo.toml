@@ -6,7 +6,5 @@ edition = "2024"
 [dependencies]
 bytemuck.workspace = true
 ffmpeg-next.workspace = true
-thiserror.workspace = true
-
-[dev-dependencies]
 hound.workspace = true
+thiserror.workspace = true
