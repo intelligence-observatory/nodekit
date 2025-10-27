@@ -1,9 +1,9 @@
 mod clamped;
 
+use crate::clamped::Clamped;
 use bytemuck::cast_slice;
 use nodekit_rs_visual::*;
 use std::slice::from_raw_parts_mut;
-use crate::clamped::Clamped;
 
 const DIAMETER: usize = 32;
 const RADIUS: usize = 16;
@@ -11,7 +11,9 @@ const RADIUS_I: isize = 16;
 const CURSOR: &[u8] = include_bytes!("../cursor");
 
 pub fn blit_cursor(x: f64, y: f64, visual: &mut [u8]) {
-    if let Some(x) = Clamped::new(x) && let Some(y) = Clamped::new(y) {
+    if let Some(x) = Clamped::new(x)
+        && let Some(y) = Clamped::new(y)
+    {
         let cursor = cast_slice::<u8, [[u8; 4]; DIAMETER]>(CURSOR);
         let ptr = visual.as_mut_ptr().cast::<[[u8; 3]; VISUAL_D]>();
         unsafe {
