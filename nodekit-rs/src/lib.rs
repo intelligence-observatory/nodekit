@@ -6,13 +6,14 @@ use asset::Asset;
 use blittle::*;
 use hex_color::HexColor;
 use media_type::MediaType;
+use nodekit_rs_cursor::blit_cursor;
 use nodekit_rs_image::Image;
 use nodekit_rs_video::{Audio, Extraction, extract_frame};
 use nodekit_rs_visual::*;
 use pyo3::{
     exceptions::{PyRuntimeError, PyValueError},
     prelude::*,
-    types::{PyBool, PyFloat, PyString},
+    types::{PyBool, PyDict, PyFloat, PyString},
 };
 use std::path::PathBuf;
 use video_asset::VideoAsset;
@@ -186,8 +187,6 @@ fn try_extract_frame(
 #[pymodule]
 pub mod nodekit_rs {
     use super::*;
-    use nodekit_rs_cursor::blit_cursor;
-    use pyo3::types::PyDict;
 
     #[pyclass]
     pub struct Frame {
