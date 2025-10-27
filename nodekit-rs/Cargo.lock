@@ -281,6 +281,15 @@ name = "nodekit-rs"
 version = "0.1.0"
 
 [[package]]
+name = "nodekit-rs-audio"
+version = "0.1.0"
+dependencies = [
+ "bytemuck",
+ "ffmpeg-next",
+ "thiserror",
+]
+
+[[package]]
 name = "nodekit-rs-image"
 version = "0.1.0"
 dependencies = [

@@ -1,0 +1,9 @@
+[package]
+name = "nodekit-rs-audio"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+bytemuck.workspace = true
+ffmpeg-next.workspace = true
+thiserror.workspace = true
