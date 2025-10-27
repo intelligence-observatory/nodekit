@@ -206,12 +206,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fc0fef456e4baa96da950455cd02c081ca953b141298e41db3fc7e36b1da849c"
 
 [[package]]
-name = "hound"
-version = "3.5.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "62adaabb884c94955b19907d60019f4e145d091c75345379e70d1ee696f7854f"
-
-[[package]]
 name = "indoc"
 version = "2.0.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -287,13 +281,10 @@ name = "nodekit-rs"
 version = "0.1.0"
 
 [[package]]
-name = "nodekit-rs-audio"
+name = "nodekit-rs-board"
 version = "0.1.0"
 dependencies = [
- "bytemuck",
- "ffmpeg-next",
- "hound",
- "thiserror",
+ "blittle",
 ]
 
 [[package]]
@@ -309,7 +300,6 @@ dependencies = [
 name = "nodekit-rs-node"
 version = "0.1.0"
 dependencies = [
- "nodekit-rs-render",
  "pyo3",
 ]
 

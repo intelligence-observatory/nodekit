@@ -1,4 +1,4 @@
-use crate::card_rect::CardRect;
+use crate::nodekit_rect::CardRect;
 use crate::{Error, Frame, Rect};
 use nodekit_rs_video::{Audio, Extraction};
 use std::path::Path;

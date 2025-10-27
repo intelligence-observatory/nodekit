@@ -1,4 +1,4 @@
-use crate::card_rect::CardRect;
+use crate::nodekit_rect::CardRect;
 use crate::{Error, Frame, Rect};
 use std::path::Path;
 
