@@ -181,11 +181,11 @@ fn try_extract_frame(
 pub mod nodekit_rs {
     use super::*;
     use nodekit_rs_cursor::blit_cursor;
-    use pyo3::types::PyList;
+    use pyo3::types::PyDict;
 
     #[pyclass]
-    #[derive(Default)]
     pub struct Frame {
+        #[pyo3(get)]
         pub visual: Vec<u8>,
         pub audio: Option<Audio>,
     }
@@ -202,7 +202,7 @@ pub mod nodekit_rs {
         // Fill the visual.
         fill_visual(node, &mut visual)?;
         // Add cards.
-        for card in node.getattr("cards")?.cast::<PyList>()? {
+        for card in node.getattr("cards")?.cast::<PyDict>()?.values() {
             // Ignore cards before or after `time`.
             if is_active_at_time(&card, time)? {
                 // Get the blit-able position and size of the card.

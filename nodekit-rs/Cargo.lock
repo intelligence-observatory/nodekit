@@ -291,19 +291,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "nodekit-rs"
-version = "0.1.0"
-dependencies = [
- "blittle",
- "hex_color",
- "nodekit-rs-cursor",
- "nodekit-rs-image",
- "nodekit-rs-video",
- "nodekit-rs-visual",
- "pyo3",
-]
-
-[[package]]
 name = "nodekit-rs-cursor"
 version = "0.1.0"
 dependencies = [
@@ -334,6 +321,19 @@ name = "nodekit-rs-visual"
 version = "0.1.0"
 dependencies = [
  "blittle",
+]
+
+[[package]]
+name = "nodekit_rs"
+version = "0.1.0"
+dependencies = [
+ "blittle",
+ "hex_color",
+ "nodekit-rs-cursor",
+ "nodekit-rs-image",
+ "nodekit-rs-video",
+ "nodekit-rs-visual",
+ "pyo3",
 ]
 
 [[package]]

@@ -1,8 +1,11 @@
 [workspace]
 members = ["nodekit-rs-cursor","nodekit-rs-image", "nodekit-rs-video", "nodekit-rs-visual"]
 
+[lib]
+crate-type = ["cdylib"]
+
 [package]
-name = "nodekit-rs"
+name = "nodekit_rs"
 version = "0.1.0"
 edition = "2024"
 
