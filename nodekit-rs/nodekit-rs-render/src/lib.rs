@@ -9,10 +9,10 @@ mod video;
 use crate::audio::AudioBuilder;
 use crate::board::{BOARD_D, BOARD_SIZE, STRIDE};
 use blittle::blit;
+pub use card_rect::CardRect;
 pub use error::Error;
 use fast_image_resize::{FilterType, PixelType, ResizeAlg, ResizeOptions, Resizer, SrcCropping};
 pub use image::Image;
-pub use card_rect::CardRect;
 use rect::Rect;
 pub use video::Video;
 

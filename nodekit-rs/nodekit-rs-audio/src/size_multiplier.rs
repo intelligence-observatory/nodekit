@@ -2,7 +2,7 @@ use crate::{Error, Rate, SrcChannels};
 
 pub struct SizeMultiplier {
     pub multiplier: usize,
-    pub src_channels: SrcChannels
+    pub src_channels: SrcChannels,
 }
 
 impl SizeMultiplier {
@@ -19,7 +19,7 @@ impl SizeMultiplier {
             }),
             (Rate::Standard, other) => Ok(Self {
                 multiplier: 1,
-                src_channels: SrcChannels::More(other)
+                src_channels: SrcChannels::More(other),
             }),
             (Rate::Half, 1) => Ok(Self {
                 multiplier: 4,
@@ -31,7 +31,7 @@ impl SizeMultiplier {
             }),
             (Rate::Half, other) => Ok(Self {
                 multiplier: 2,
-                src_channels: SrcChannels::More(other)
+                src_channels: SrcChannels::More(other),
             }),
             (Rate::Quarter, 1) => Ok(Self {
                 multiplier: 8,
@@ -43,7 +43,7 @@ impl SizeMultiplier {
             }),
             (Rate::Quarter, other) => Ok(Self {
                 multiplier: 4,
-                src_channels: SrcChannels::More(other)
+                src_channels: SrcChannels::More(other),
             }),
         }
     }

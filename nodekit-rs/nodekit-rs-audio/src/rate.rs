@@ -23,7 +23,7 @@ impl Rate {
             other => Err(Error::Rate(other)),
         }
     }
-    
+
     pub const fn rate(&self) -> u32 {
         match self {
             Self::Standard => STANDARD,
@@ -31,7 +31,7 @@ impl Rate {
             Self::Quarter => QUARTER,
         }
     }
-    
+
     pub const fn size_multiplier(&self) -> usize {
         match self {
             Self::Standard => 1,

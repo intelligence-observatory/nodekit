@@ -2,5 +2,5 @@
 pub enum SrcChannels {
     One,
     Two,
-    More(usize)
+    More(usize),
 }

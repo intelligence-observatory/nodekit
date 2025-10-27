@@ -6,4 +6,6 @@ pub enum Error {
     Rate(u32),
     #[error("Source audio doesn't have channels")]
     NoChannels,
+    #[error("No audio format found.")]
+    NoFormat,
 }
