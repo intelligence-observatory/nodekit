@@ -49,7 +49,7 @@ impl AudioBuilder {
     /// - `rate` is the sample rate of `src`.
     /// - `channels` is the number of channels in `src`.
     /// - `format` is the sample format of `src`.
-    pub fn convert(
+    pub fn add(
         &mut self,
         src: Vec<u8>,
         rate: Rate,
@@ -160,5 +160,18 @@ impl AudioBuilder {
 
     const fn from_f64(value: f64) -> f32 {
         value as f32
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_convert_audio() {
+        let mut builder = AudioBuilder::default();
+        builder.add(include_bytes!("../test_files/a.wav")[44..].to_vec(), Rate::OneOneZero, 1, Format::I16).unwrap();
+        builder.add(include_bytes!("../test_files/b.wav")[44..].to_vec(), Rate::FourFourOne, 2, Format::F32).unwrap();
+        builder.finish();
     }
 }
