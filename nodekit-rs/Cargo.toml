@@ -1,5 +1,5 @@
 [workspace]
-members = ["nodekit-rs-image", "nodekit-rs-node", "nodekit-rs-render", "nodekit-rs-video"]
+members = ["nodekit-rs-image", "nodekit-rs-video"]
 
 [package]
 name = "nodekit-rs"
@@ -8,18 +8,17 @@ edition = "2024"
 
 [workspace.dependencies]
 blittle = "0.2.1"
-dasp_sample = "0.11.0"
 bytemuck = "1.24.0"
 fast_image_resize = "5.3.0"
 ffmpeg-next = "8.0.0"
 hex_color = "3.0.0"
-paste = "1.0.15"
 png = "0.18.0"
 pyo3 = { version = "0.27.1", features = ["experimental-inspect", "extension-module"] }
 thiserror = "2.0.17"
 
 [dependencies]
 blittle.workspace = true
-bytemuck.workspace = true
 hex_color.workspace = true
+nodekit-rs-image = { path = "nodekit-rs-image" }
+nodekit-rs-video = { path = "nodekit-rs-video" }
 pyo3.workspace = true

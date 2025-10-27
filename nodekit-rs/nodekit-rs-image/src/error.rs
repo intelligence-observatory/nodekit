@@ -11,4 +11,8 @@ pub enum Error {
     BufferSize(PathBuf),
     #[error("This image has indexed colors, which is not supported: {0}")]
     Indexed(PathBuf),
+    #[error("Failed to create a resizable image buffer: {0}")]
+    ImageResizeBuffer(fast_image_resize::ImageBufferError),
+    #[error("Failed to resize image: {0}")]
+    ImageResize(fast_image_resize::ResizeError),
 }

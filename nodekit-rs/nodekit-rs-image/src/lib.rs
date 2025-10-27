@@ -10,6 +10,7 @@ mod error;
 
 use bytemuck::cast_slice;
 pub use error::Error;
+use fast_image_resize::{FilterType, PixelType, ResizeAlg, ResizeOptions, Resizer, SrcCropping};
 use png::{ColorType, Decoder};
 use std::{fs::File, io::BufReader, path::Path};
 
@@ -51,6 +52,29 @@ impl Image {
             height: info.height,
             buffer,
         })
+    }
+
+    pub fn resize(&mut self, dst_width: u32, dst_height: u32) -> Result<(), Error> {
+        let src = fast_image_resize::images::Image::from_slice_u8(
+            self.width,
+            self.height,
+            &mut self.buffer,
+            PixelType::U8x3,
+        )
+        .map_err(Error::ImageResizeBuffer)?;
+        // Resize the image.
+        let mut dst = fast_image_resize::images::Image::new(dst_width, dst_height, PixelType::U8x3);
+        let options = ResizeOptions {
+            algorithm: ResizeAlg::Convolution(FilterType::Bilinear),
+            cropping: SrcCropping::None,
+            mul_div_alpha: false,
+        };
+        let mut resizer = Resizer::new();
+        resizer
+            .resize(&src, &mut dst, Some(&options))
+            .map_err(Error::ImageResize)?;
+        self.buffer = dst.into_vec();
+        Ok(())
     }
 
     fn convert(path: &Path, buffer: &[u8], color_type: ColorType) -> Result<Vec<u8>, Error> {

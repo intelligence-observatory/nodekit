@@ -105,12 +105,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "dasp_sample"
-version = "0.11.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0c87e182de0887fd5361989c677c4e8f5000cd9491d6d563161a8f3a5519fc7f"
-
-[[package]]
 name = "document-features"
 version = "0.2.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -301,8 +295,9 @@ name = "nodekit-rs"
 version = "0.1.0"
 dependencies = [
  "blittle",
- "bytemuck",
  "hex_color",
+ "nodekit-rs-image",
+ "nodekit-rs-video",
  "pyo3",
 ]
 
@@ -311,28 +306,8 @@ name = "nodekit-rs-image"
 version = "0.1.0"
 dependencies = [
  "bytemuck",
- "png",
- "thiserror",
-]
-
-[[package]]
-name = "nodekit-rs-node"
-version = "0.1.0"
-dependencies = [
- "pyo3",
-]
-
-[[package]]
-name = "nodekit-rs-render"
-version = "0.1.0"
-dependencies = [
- "blittle",
- "bytemuck",
- "dasp_sample",
  "fast_image_resize",
- "nodekit-rs-image",
- "nodekit-rs-video",
- "paste",
+ "png",
  "thiserror",
 ]
 
@@ -377,12 +352,6 @@ name = "once_cell"
 version = "1.21.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "42f5e15c9953c5e4ccceeb2e7382a716482c34515315f7b03532b8b4e8393d2d"
-
-[[package]]
-name = "paste"
-version = "1.0.15"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "57c0d7b74b563b49d38dae00a0c37d4d6de9b432382b2892f0574ddcae73fd0a"
 
 [[package]]
 name = "pkg-config"

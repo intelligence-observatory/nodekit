@@ -77,8 +77,8 @@ impl VideoExtractor {
         })
     }
 
-    pub fn get_target_frame(&self, time_msec: f64) -> usize {
-        ((time_msec / 1000.) * f64::from(self.decoder.frame_rate().unwrap()).ceil()) as usize
+    pub fn get_target_frame(&self, time_msec: u64) -> usize {
+        ((time_msec as f64 / 1000.) * f64::from(self.decoder.frame_rate().unwrap()).ceil()) as usize
     }
 
     /// Send the pack and try to get the next frame.
@@ -115,7 +115,7 @@ mod tests {
             f64::from(video.decoder.frame_rate().unwrap()).ceil() as usize,
             30
         );
-        assert_eq!(video.get_target_frame(0.), 0);
-        assert_eq!(video.get_target_frame(34.), 1);
+        assert_eq!(video.get_target_frame(0), 0);
+        assert_eq!(video.get_target_frame(34), 1);
     }
 }

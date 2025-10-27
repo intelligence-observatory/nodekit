@@ -20,7 +20,7 @@ pub use video::Video;
 
 pub fn extract_frame<P: AsRef<Path>>(
     path: P,
-    time_msec: f64,
+    time_msec: u64,
     muted: bool,
     audio_index: &mut usize,
     video_index: &mut usize,
@@ -120,7 +120,7 @@ mod tests {
         let mut video_index = 0;
         let extraction = extract_frame(
             "../mp4.ia.mp4",
-            0.,
+            0,
             false,
             &mut audio_index,
             &mut video_index,
