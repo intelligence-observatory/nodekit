@@ -35,16 +35,22 @@ fn get_f64(card: &Bound<PyAny>, name: &str) -> PyResult<f64> {
 fn is_active_at_time(card: &Bound<PyAny>, time: u64) -> PyResult<bool> {
     let t0 = card.getattr("start_msec")?.extract::<u64>()?;
     let t1 = card.getattr("end_msec")?.extract::<Option<u64>>()?;
-    Ok(t0 >= time
+    Ok(time >= t0
         && match t1 {
             Some(t1) => t1 < time,
-            None => false,
+            None => true,
         })
 }
 
 fn get_path(media: &Bound<PyAny>) -> PyResult<PathBuf> {
     Ok(PathBuf::from(
-        media.getattr("locator")?.cast::<PyString>()?.to_string(),
+        media
+            .getattr("locator")?
+            .getattr("path")?
+            .getattr("as_posix")?
+            .call0()?
+            .cast::<PyString>()?
+            .to_string(),
     ))
 }
 
@@ -75,8 +81,8 @@ fn get_asset(card: &Bound<PyAny>) -> PyResult<Option<Asset>> {
         Ok(Some(Asset {
             path: get_path(&video)?,
             media_type: MediaType::Video {
-                muted: get_bool(&video, "muted")?,
-                looped: get_bool(&video, "loop")?,
+                muted: get_bool(&card, "muted")?,
+                looped: get_bool(&card, "loop")?,
             },
         }))
     } else {
