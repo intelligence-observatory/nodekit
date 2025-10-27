@@ -69,7 +69,7 @@ mod nodekit_rs {
         // Add cards.
         for card in node.getattr("cards")?.cast::<PyList>()? {
             let (position, size) = get_rect(&card)?;
-            
+
         }
         Ok(Frame::default())
     }
