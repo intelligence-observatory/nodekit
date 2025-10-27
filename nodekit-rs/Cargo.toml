@@ -1,5 +1,5 @@
 [workspace]
-members = ["nodekit-rs-cursor","nodekit-rs-image", "nodekit-rs-video"]
+members = ["nodekit-rs-cursor","nodekit-rs-image", "nodekit-rs-video", "nodekit-rs-visual"]
 
 [package]
 name = "nodekit-rs"
@@ -21,4 +21,5 @@ blittle.workspace = true
 hex_color.workspace = true
 nodekit-rs-image = { path = "nodekit-rs-image" }
 nodekit-rs-video = { path = "nodekit-rs-video" }
+nodekit-rs-visual = { path = "nodekit-rs-visual" }
 pyo3.workspace = true

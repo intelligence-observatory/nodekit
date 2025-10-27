@@ -8,22 +8,14 @@ use hex_color::HexColor;
 use media_type::MediaType;
 use nodekit_rs_image::Image;
 use nodekit_rs_video::{Audio, Extraction, extract_frame};
+use nodekit_rs_visual::*;
 use pyo3::{
     exceptions::{PyRuntimeError, PyValueError},
     prelude::*,
-    types::{PyBool, PyFloat, PyString}
+    types::{PyBool, PyFloat, PyString},
 };
 use std::path::PathBuf;
 use video_asset::VideoAsset;
-
-const VISUAL_D: usize = 768;
-const VISUAL_D_F64: f64 = 768.;
-const VISUAL_D_F64_HALF: f64 = 384.;
-const VISUAL_SIZE: Size = Size {
-    w: VISUAL_D,
-    h: VISUAL_D,
-};
-const STRIDE: usize = stride::RGB;
 
 fn fill_visual(node: &Bound<'_, PyAny>, visual: &mut [u8]) -> PyResult<()> {
     let color = HexColor::parse(node.getattr("board_color")?.str()?.to_str()?)
@@ -38,14 +30,6 @@ fn fill_visual(node: &Bound<'_, PyAny>, visual: &mut [u8]) -> PyResult<()> {
 
 fn get_f64(card: &Bound<PyAny>, name: &str) -> PyResult<f64> {
     Ok(card.getattr(name)?.cast::<PyFloat>()?.value())
-}
-
-fn spatial_coordinate(card: &Bound<PyAny>, name: &str) -> PyResult<isize> {
-    Ok((VISUAL_D_F64_HALF + VISUAL_D_F64 * get_f64(card, name)?) as isize)
-}
-
-fn size_coordinate(card: &Bound<PyAny>, name: &str) -> PyResult<usize> {
-    Ok((VISUAL_D_F64 * get_f64(card, name)?) as usize)
 }
 
 fn is_active_at_time(card: &Bound<PyAny>, time: u64) -> PyResult<bool> {
@@ -70,12 +54,12 @@ fn get_bool(media: &Bound<PyAny>, name: &str) -> PyResult<bool> {
 
 fn get_rect(card: &Bound<PyAny>) -> PyResult<(PositionU, Size)> {
     let position = PositionI {
-        x: spatial_coordinate(card, "x")?,
-        y: spatial_coordinate(card, "y")?,
+        x: spatial_coordinate(get_f64(card, "x")?),
+        y: spatial_coordinate(get_f64(card, "x")?),
     };
     let mut size = Size {
-        w: size_coordinate(card, "w")?,
-        h: size_coordinate(card, "h")?,
+        w: size_coordinate(get_f64(card, "w")?),
+        h: size_coordinate(get_f64(card, "h")?),
     };
     let position = clip(&position, &VISUAL_SIZE, &mut size);
     Ok((position, size))

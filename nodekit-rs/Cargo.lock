@@ -298,12 +298,18 @@ dependencies = [
  "hex_color",
  "nodekit-rs-image",
  "nodekit-rs-video",
+ "nodekit-rs-visual",
  "pyo3",
 ]
 
 [[package]]
 name = "nodekit-rs-cursor"
 version = "0.1.0"
+dependencies = [
+ "bytemuck",
+ "nodekit-rs-visual",
+ "png",
+]
 
 [[package]]
 name = "nodekit-rs-image"
@@ -320,6 +326,13 @@ name = "nodekit-rs-video"
 version = "0.1.0"
 dependencies = [
  "ffmpeg-next",
+]
+
+[[package]]
+name = "nodekit-rs-visual"
+version = "0.1.0"
+dependencies = [
+ "blittle",
 ]
 
 [[package]]

@@ -1,16 +1,64 @@
-const COLOR: [u8; 4] = [255, 0, 255, 255];
-const RADIUS: usize = 16;
-const DIAMETER: usize = 32;
+mod clamped;
 
-pub fn ok(){}
+use bytemuck::cast_slice;
+use nodekit_rs_visual::*;
+use std::slice::from_raw_parts_mut;
+use crate::clamped::Clamped;
+
+const DIAMETER: usize = 32;
+const RADIUS: usize = 16;
+const RADIUS_I: isize = 16;
+const CURSOR: &[u8] = include_bytes!("../cursor");
+
+pub fn blit_cursor(x: f64, y: f64, visual: &mut [u8]) {
+    if let Some(x) = Clamped::new(x) && let Some(y) = Clamped::new(y) {
+        let cursor = cast_slice::<u8, [[u8; 4]; DIAMETER]>(CURSOR);
+        let ptr = visual.as_mut_ptr().cast::<[[u8; 3]; VISUAL_D]>();
+        unsafe {
+            for (dst, src) in from_raw_parts_mut(ptr, VISUAL_D)[y.dst_0..y.dst_1]
+                .iter_mut()
+                .zip(cursor[y.src_0..y.src_1].iter())
+            {
+                for (dst, src) in dst[x.dst_0..x.dst_1].iter_mut().zip(&src[x.src_0..x.src_1]) {
+                    if src[3] > 0 {
+                        dst[0] = src[0];
+                        dst[1] = src[1];
+                        dst[2] = src[2];
+                    }
+                }
+            }
+        }
+    }
+}
 
 #[cfg(test)]
 mod tests {
-    use crate::DIAMETER;
+    use super::*;
+    use std::fs::File;
+    use std::io::BufWriter;
 
     #[test]
     fn test_cursor_image() {
-        let cursor = include_bytes!("../cursor");
-        assert_eq!(cursor.len(), DIAMETER * DIAMETER * 4);
+        assert_eq!(CURSOR.len(), DIAMETER * DIAMETER * 4);
+    }
+
+    #[test]
+    fn blit_cursor_image() {
+        let mut visual = vec![0; VISUAL_D * VISUAL_D * STRIDE];
+        blit_cursor(0., 0., &mut visual);
+        blit_cursor(0.4, 0.4, &mut visual);
+        blit_cursor(-0.4, -0.4, &mut visual);
+        blit_cursor(-0.51, -0.499, &mut visual);
+        blit_cursor(0.6, 0.6, &mut visual);
+
+        let file = File::create("out.png").unwrap();
+        let ref mut w = BufWriter::new(file);
+
+        let mut encoder = png::Encoder::new(w, VISUAL_D as u32, VISUAL_D as u32); // Width is 2 pixels and height is 1.
+        encoder.set_color(png::ColorType::Rgb);
+        encoder.set_depth(png::BitDepth::Eight);
+        let mut writer = encoder.write_header().unwrap();
+
+        writer.write_image_data(&visual).unwrap();
     }
 }
