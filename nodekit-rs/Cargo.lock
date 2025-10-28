@@ -315,6 +315,7 @@ version = "0.1.0"
 dependencies = [
  "ffmpeg-next",
  "nodekit-rs-visual",
+ "pyo3",
 ]
 
 [[package]]
@@ -323,6 +324,7 @@ version = "0.1.0"
 dependencies = [
  "blittle",
  "fast_image_resize",
+ "pyo3",
  "thiserror",
 ]
 

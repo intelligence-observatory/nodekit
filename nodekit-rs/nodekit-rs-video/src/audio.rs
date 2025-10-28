@@ -1,5 +1,8 @@
+use pyo3::pyclass;
 use crate::AudioFormat;
 
+#[pyclass]
+#[derive(Clone, Debug)]
 pub struct Audio {
     pub frame: Vec<u8>,
     pub rate: u32,

@@ -210,14 +210,22 @@ fn blit_asset(
 #[pymodule]
 pub mod nodekit_rs {
     use super::*;
+    #[pymodule_export]
+    pub use nodekit_rs_video::{Audio, AudioFormat};
 
+    /// A frame of audio/visual data.
     #[pyclass]
     pub struct Frame {
+        /// A raw bitmap buffer plus its width and height.
         #[pyo3(get)]
-        pub visual: Vec<u8>,
+        pub visual: VisualFrame,
+        /// The audio buffer. None if there was no audio on this frame.
+        #[pyo3(get)]
         pub audio: Option<Audio>,
     }
-
+    
+    /// Given a `node`, a cursor position, and a `time` in milliseconds, 
+    /// render the audio/visual state of the node.
     #[pyfunction]
     pub fn render(
         node: &Bound<'_, PyAny>,
@@ -244,6 +252,12 @@ pub mod nodekit_rs {
 
         // Blit the cursor on top of everything.
         blit_cursor(cursor_x, cursor_y, &mut visual);
+        
+        let visual = VisualFrame {
+            buffer: visual,
+            width: VISUAL_D_U32,
+            height: VISUAL_D_U32
+        };
 
         Ok(Frame { visual, audio })
     }

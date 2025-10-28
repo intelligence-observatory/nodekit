@@ -1,5 +1,8 @@
 use ffmpeg_next::format::Sample;
+use pyo3::pyclass;
 
+#[pyclass]
+#[derive(Clone, Debug)]
 pub enum AudioFormat {
     U8,
     I16,

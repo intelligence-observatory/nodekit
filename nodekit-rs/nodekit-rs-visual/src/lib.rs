@@ -5,9 +5,11 @@ mod error;
 
 use blittle::*;
 use fast_image_resize::{FilterType, PixelType, ResizeAlg, ResizeOptions, Resizer, SrcCropping};
+use pyo3::pyclass;
 pub use error::Error;
 
 pub const VISUAL_D: usize = 768;
+pub const VISUAL_D_U32: u32 = 768;
 pub const VISUAL_D_ISIZE: isize = 768;
 pub const VISUAL_D_F64: f64 = 768.;
 pub const VISUAL_D_F64_HALF: f64 = 384.;
@@ -26,6 +28,8 @@ pub const fn size_coordinate(value: f64) -> usize {
 }
 
 /// A raw bitmap `buffer` and its dimensions.
+#[pyclass]
+#[derive(Clone)]
 pub struct VisualFrame {
     pub buffer: Vec<u8>,
     pub width: u32,

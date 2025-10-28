@@ -6,3 +6,4 @@ edition = "2024"
 [dependencies]
 ffmpeg-next.workspace = true
 nodekit-rs-visual = { path = "../nodekit-rs-visual" }
+pyo3.workspace = true
