@@ -71,7 +71,7 @@ impl AudioExtractor {
 /// Extract video frames from a stream.
 pub struct VideoExtractor {
     pub stream_index: usize,
-    decoder: Video,
+    pub(crate) decoder: Video,
     decoded_frame: VideoFrame,
 }
 

@@ -12,6 +12,10 @@ use std::path::Path;
 use nodekit_rs_audio::AudioFrame;
 use nodekit_rs_visual::VisualFrame;
 
+/// Open a video at `path` and extract the frame at `time_msec`.
+/// `muted` will cause the audio to be `None`, even if there is an audio stream.
+/// `audio_index` and `video_index` are used to loop.
+/// This is not as fast as it could be! In particular, we're not using `Input::seek`.
 pub fn extract_frame<P: AsRef<Path>>(
     path: P,
     time_msec: u64,
