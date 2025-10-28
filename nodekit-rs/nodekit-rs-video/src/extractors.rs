@@ -117,14 +117,14 @@ mod tests {
 
     #[test]
     fn test_target_frame() {
-        let input = input("../mp4.ia.mp4").unwrap();
+        let input = input("test-video.mp4").unwrap();
         // Always get a video extractor.
         let video = VideoExtractor::new(&input).unwrap();
         assert_eq!(
             f64::from(video.decoder.frame_rate().unwrap()).ceil() as usize,
-            30
+            60
         );
         assert_eq!(video.get_target_frame(0), 0);
-        assert_eq!(video.get_target_frame(34), 1);
+        assert_eq!(video.get_target_frame(17), 1);
     }
 }

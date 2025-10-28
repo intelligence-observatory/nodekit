@@ -117,7 +117,7 @@ mod tests {
         let mut audio_index = 0;
         let mut video_index = 0;
         let extraction = extract_frame(
-            "../mp4.ia.mp4",
+            "test-video.mp4",
             0,
             false,
             &mut audio_index,
@@ -125,8 +125,8 @@ mod tests {
         )
         .unwrap();
         if let Extraction::Frame { video, audio } = extraction {
-            assert_eq!(video.width, 864);
-            assert_eq!(video.height, 480);
+            assert_eq!(video.width, 512);
+            assert_eq!(video.height, 512);
             assert_eq!(
                 video.buffer.len(),
                 (video.width * video.height * 3) as usize

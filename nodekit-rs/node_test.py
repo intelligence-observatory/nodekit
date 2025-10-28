@@ -13,7 +13,7 @@ node = Node(
             h=0.3,
         ),
         "b": cards.VideoCard(
-            video=assets.Video.from_path("test-video.mp4"), x=0, y=0, w=0.33, h=0.25
+            video=assets.Video.from_path("nodekit-rs-video/test-video.png"), x=0, y=0, w=0.33, h=0.25
         ),
     },
     sensors={"s": sensors.TimeoutSensor(timeout_msec=20000)},
