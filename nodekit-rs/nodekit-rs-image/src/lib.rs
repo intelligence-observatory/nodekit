@@ -14,7 +14,7 @@ use png::{ColorType, Decoder};
 use std::{fs::File, io::BufReader, path::Path};
 use nodekit_rs_visual::VisualFrame;
 
-/// Create an image from a .png file.
+/// Create a `VisualFrame` from a .png file at `path`.
 pub fn from_png<P: AsRef<Path>>(path: P) -> Result<VisualFrame, Error> {
     let decoder = Decoder::new(BufReader::new(
         File::open(path.as_ref())
@@ -46,8 +46,7 @@ pub fn from_png<P: AsRef<Path>>(path: P) -> Result<VisualFrame, Error> {
     })
 }
 
-
-
+/// Convert `buffer` from a `color_type` to RGB24.
 fn convert(path: &Path, buffer: &[u8], color_type: ColorType) -> Result<Vec<u8>, Error> {
     match color_type {
         ColorType::Rgb => Ok(buffer.to_vec()),
