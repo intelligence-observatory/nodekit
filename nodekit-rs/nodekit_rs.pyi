@@ -10,3 +10,10 @@ class Frame:
     """
     ...
 
+@typing.final
+class VisualFrame:
+    r"""
+    A raw bitmap `buffer` and its dimensions.
+    """
+    ...
+

@@ -624,6 +624,7 @@ dependencies = [
  "blittle",
  "fast_image_resize",
  "pyo3",
+ "pyo3-stub-gen",
  "thiserror",
 ]
 

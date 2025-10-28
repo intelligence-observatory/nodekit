@@ -6,6 +6,7 @@ mod error;
 use blittle::*;
 use fast_image_resize::{FilterType, PixelType, ResizeAlg, ResizeOptions, Resizer, SrcCropping};
 use pyo3::pyclass;
+use pyo3_stub_gen::derive::*;
 pub use error::Error;
 
 pub const VISUAL_D: usize = 768;
@@ -28,14 +29,21 @@ pub const fn size_coordinate(value: f64) -> usize {
 }
 
 /// A raw bitmap `buffer` and its dimensions.
-#[pyclass(eq)]
-#[derive(Clone, Eq, PartialEq)]
+#[pyclass]
+#[derive(Clone)]
+#[gen_stub_pyclass]
 pub struct VisualFrame {
-    #[pyo3(get)]
+    /// A raw RGB24 bitmap.
+    #[gen_stub]
+    #[pyo3(get, set)]
     pub buffer: Vec<u8>,
-    #[pyo3(get)]
+    /// The width of the image.
+    #[pyo3(get, set)]
+    #[gen_stub(default = 0)]
     pub width: u32,
-    #[pyo3(get)]
+    /// The height of the image.
+    #[gen_stub]
+    #[pyo3(get, set)]
     pub height: u32,
 }
 
