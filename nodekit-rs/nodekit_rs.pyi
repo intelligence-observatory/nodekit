@@ -11,7 +11,7 @@ class AudioFrame:
     A frame of audio data.
     """
     @property
-    def buffer(self) -> builtins.list[builtins.int]:
+    def buffer(self) -> builtins.bytes:
         r"""
         Raw wav data.
         """
@@ -36,7 +36,16 @@ class Frame:
     r"""
     A frame of audio/visual data.
     """
-    ...
+    @property
+    def visual(self) -> VisualFrame:
+        r"""
+        A raw bitmap buffer plus its width and height.
+        """
+    @property
+    def audio(self) -> typing.Optional[AudioFrame]:
+        r"""
+        The audio buffer. None if there was no audio on this frame.
+        """
 
 @typing.final
 class VisualFrame:
@@ -44,7 +53,7 @@ class VisualFrame:
     A raw bitmap `buffer` and its dimensions.
     """
     @property
-    def buffer(self) -> builtins.list[builtins.int]:
+    def buffer(self) -> builtins.bytes:
         r"""
         A raw RGB24 bitmap.
         """

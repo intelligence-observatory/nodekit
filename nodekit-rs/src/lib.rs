@@ -33,16 +33,14 @@ pub mod nodekit_rs {
     pub use nodekit_rs_audio::{AudioFrame, AudioFormat};
 
     /// A frame of audio/visual data.
-    #[pyclass]
     #[gen_stub_pyclass]
+    #[pyclass]
     pub struct Frame {
         /// A raw bitmap buffer plus its width and height.
-        #[pyo3(get, set)]
-        #[gen_stub]
+        #[pyo3(get)]
         pub visual: VisualFrame,
         /// The audio buffer. None if there was no audio on this frame.
-        #[pyo3(get, set)]
-        #[gen_stub]
+        #[pyo3(get)]
         pub audio: Option<AudioFrame>,
     }
 

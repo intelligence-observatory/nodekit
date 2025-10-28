@@ -20,7 +20,7 @@ node = Node(
 )
 
 result = render(node=node, cursor_x=0.2, cursor_y=0.3, time=0)
-Image.frombytes("RGB", (768, 768), result.visual).show()
+Image.frombytes("RGB", (768, 768), result.visual.buffer).show()
 
 result = render(node=node, cursor_x=0.2, cursor_y=-0.1, time=1500)
-Image.frombytes("RGB", (768, 768), result.visual).show()
+Image.frombytes("RGB", (768, 768), result.visual.buffer).show()
