@@ -6,6 +6,7 @@ edition = "2024"
 [dependencies]
 blittle.workspace = true
 fast_image_resize.workspace = true
+png.workspace = true
 pyo3.workspace = true
 pyo3-stub-gen.workspace = true
 thiserror.workspace = true

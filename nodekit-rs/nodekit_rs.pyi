@@ -67,6 +67,10 @@ class VisualFrame:
         r"""
         The height of the image.
         """
+    def save(self, path: builtins.str) -> None:
+        r"""
+        Write the visual frame to disk at `path` as a .png file.
+        """
 
 @typing.final
 class AudioFormat(enum.Enum):

@@ -3,9 +3,13 @@
 
 mod error;
 
+use std::fs::File;
+use std::io::BufWriter;
 use blittle::*;
 use fast_image_resize::{FilterType, PixelType, ResizeAlg, ResizeOptions, Resizer, SrcCropping};
-use pyo3::pyclass;
+use png::{BitDepth, ColorType, Encoder};
+use pyo3::exceptions::{PyFileNotFoundError, PyIOError};
+use pyo3::prelude::*;
 use pyo3_stub_gen::derive::*;
 pub use error::Error;
 
@@ -42,6 +46,20 @@ pub struct VisualFrame {
     /// The height of the image.
     #[pyo3(get)]
     pub height: u32,
+}
+
+#[gen_stub_pymethods]
+#[pymethods]
+impl VisualFrame {
+    /// Write the visual frame to disk at `path` as a .png file.
+    pub fn save(&self, path: String) -> PyResult<()> {
+        let w = BufWriter::new(File::create(path).map_err(|e| PyFileNotFoundError::new_err(e.to_string()))?);
+        let mut encoder = Encoder::new(w, self.width, self.height);
+        encoder.set_color(ColorType::Rgb);
+        encoder.set_depth(BitDepth::Eight);
+        let mut writer = encoder.write_header().unwrap();
+        writer.write_image_data(&self.buffer).map_err(|e| PyIOError::new_err(e.to_string()))
+    }
 }
 
 impl VisualFrame {

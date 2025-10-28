@@ -631,6 +631,7 @@ version = "0.1.0"
 dependencies = [
  "blittle",
  "fast_image_resize",
+ "png",
  "pyo3",
  "pyo3-stub-gen",
  "thiserror",
