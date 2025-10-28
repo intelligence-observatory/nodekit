@@ -10,15 +10,14 @@ mod error;
 
 use bytemuck::cast_slice;
 pub use error::Error;
+use nodekit_rs_visual::VisualFrame;
 use png::{ColorType, Decoder};
 use std::{fs::File, io::BufReader, path::Path};
-use nodekit_rs_visual::VisualFrame;
 
 /// Create a `VisualFrame` from a .png file at `path`.
 pub fn from_png<P: AsRef<Path>>(path: P) -> Result<VisualFrame, Error> {
     let decoder = Decoder::new(BufReader::new(
-        File::open(path.as_ref())
-            .map_err(|e| Error::OpenFile(e, path.as_ref().to_path_buf()))?,
+        File::open(path.as_ref()).map_err(|e| Error::OpenFile(e, path.as_ref().to_path_buf()))?,
     ));
     let mut reader = decoder
         .read_info()

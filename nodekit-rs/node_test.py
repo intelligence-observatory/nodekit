@@ -19,8 +19,8 @@ node = Node(
     sensors={"s": sensors.TimeoutSensor(timeout_msec=20000)},
 )
 
-result = render(node=node, cursor_x=0.2, cursor_y=0.3, time=0)
+result = render(node=node, time=0, cursor_x=0.2, cursor_y=0.3)
 Image.frombytes("RGB", (768, 768), result.visual.buffer).show()
 
-result = render(node=node, cursor_x=0.2, cursor_y=-0.1, time=1500)
+result = render(node=node, time=1500, cursor_x=0.2, cursor_y=-0.1)
 Image.frombytes("RGB", (768, 768), result.visual.buffer).show()

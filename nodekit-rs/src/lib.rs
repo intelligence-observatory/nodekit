@@ -1,18 +1,12 @@
-mod asset;
-mod media_type;
-mod video_asset;
-mod extractors;
-mod blitters;
+mod blit;
+mod rect;
+mod video_indices;
 
+use blit::*;
 use nodekit_rs_cursor::blit_cursor;
 use nodekit_rs_visual::*;
-use pyo3::{
-    prelude::*,
-    types::PyDict,
-};
-use pyo3_stub_gen::{derive::*, define_stub_info_gatherer};
-use extractors::*;
-use blitters::*;
+use pyo3::{prelude::*, types::PyDict};
+use pyo3_stub_gen::{define_stub_info_gatherer, derive::*};
 
 fn is_active_at_time(card: &Bound<PyAny>, time: u64) -> PyResult<bool> {
     let t0 = card.getattr("start_msec")?.extract::<u64>()?;
@@ -28,9 +22,9 @@ fn is_active_at_time(card: &Bound<PyAny>, time: u64) -> PyResult<bool> {
 pub mod nodekit_rs {
     use super::*;
     #[pymodule_export]
-    pub use nodekit_rs_visual::VisualFrame;
+    pub use nodekit_rs_audio::{AudioFormat, AudioFrame};
     #[pymodule_export]
-    pub use nodekit_rs_audio::{AudioFrame, AudioFormat};
+    pub use nodekit_rs_visual::VisualFrame;
 
     /// A frame of audio/visual data.
     #[gen_stub_pyclass]
@@ -44,15 +38,15 @@ pub mod nodekit_rs {
         pub audio: Option<AudioFrame>,
     }
 
-    /// Given a `node`, a cursor position, and a `time_msec` (time in milliseconds),
+    /// Given a `node`, a `time_msec` (time in milliseconds), and a cursor position,
     /// render the audio/visual state of the node.
     #[pyfunction]
     #[gen_stub_pyfunction]
     pub fn render(
         node: &Bound<'_, PyAny>,
+        time_msec: u64,
         cursor_x: f64,
         cursor_y: f64,
-        time_msec: u64,
     ) -> PyResult<Frame> {
         let mut visual = vec![0u8; VISUAL_D * VISUAL_D * STRIDE];
         let mut audio = None;
@@ -62,12 +56,7 @@ pub mod nodekit_rs {
         for card in node.getattr("cards")?.cast::<PyDict>()?.values() {
             // Ignore cards before or after `time`.
             if is_active_at_time(&card, time_msec)? {
-                // Get the blit-able position and size of the card.
-                let (position, size) = get_rect(&card)?;
-                // Got an asset.
-                if let Some(asset) = get_asset(&card)? {
-                    blit_asset(asset, time_msec, &mut audio, &mut visual, &position, &size)?;
-                }
+                blit_card(&card, time_msec, &mut audio, &mut visual)?;
             }
         }
 
@@ -77,7 +66,7 @@ pub mod nodekit_rs {
         let visual = VisualFrame {
             buffer: visual,
             width: VISUAL_D_U32,
-            height: VISUAL_D_U32
+            height: VISUAL_D_U32,
         };
 
         Ok(Frame { visual, audio })

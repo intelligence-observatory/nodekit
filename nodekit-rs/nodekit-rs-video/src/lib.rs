@@ -8,9 +8,9 @@ pub use extraction::Extraction;
 use extractors::*;
 pub use ffmpeg_next::Error;
 use ffmpeg_next::format::input;
-use std::path::Path;
 use nodekit_rs_audio::AudioFrame;
 use nodekit_rs_visual::VisualFrame;
+use std::path::Path;
 
 /// Open a video at `path` and extract the frame at `time_msec`.
 /// `muted` will cause the audio to be `None`, even if there is an audio stream.
@@ -127,7 +127,10 @@ mod tests {
         if let Extraction::Frame { video, audio } = extraction {
             assert_eq!(video.width, 864);
             assert_eq!(video.height, 480);
-            assert_eq!(video.buffer.len(), (video.width * video.height * 3) as usize);
+            assert_eq!(
+                video.buffer.len(),
+                (video.width * video.height * 3) as usize
+            );
             assert_eq!(audio.unwrap().buffer.len(), 8192);
         } else {
             panic!("Failed to get a frame!")

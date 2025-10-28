@@ -3,15 +3,15 @@
 
 mod error;
 
-use std::fs::File;
-use std::io::BufWriter;
 use blittle::*;
+pub use error::Error;
 use fast_image_resize::{FilterType, PixelType, ResizeAlg, ResizeOptions, Resizer, SrcCropping};
 use png::{BitDepth, ColorType, Encoder};
 use pyo3::exceptions::{PyFileNotFoundError, PyIOError};
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::*;
-pub use error::Error;
+use std::fs::File;
+use std::io::BufWriter;
 
 pub const VISUAL_D: usize = 768;
 pub const VISUAL_D_U32: u32 = 768;
@@ -53,12 +53,16 @@ pub struct VisualFrame {
 impl VisualFrame {
     /// Write the visual frame to disk at `path` as a .png file.
     pub fn save(&self, path: String) -> PyResult<()> {
-        let w = BufWriter::new(File::create(path).map_err(|e| PyFileNotFoundError::new_err(e.to_string()))?);
+        let w = BufWriter::new(
+            File::create(path).map_err(|e| PyFileNotFoundError::new_err(e.to_string()))?,
+        );
         let mut encoder = Encoder::new(w, self.width, self.height);
         encoder.set_color(ColorType::Rgb);
         encoder.set_depth(BitDepth::Eight);
         let mut writer = encoder.write_header().unwrap();
-        writer.write_image_data(&self.buffer).map_err(|e| PyIOError::new_err(e.to_string()))
+        writer
+            .write_image_data(&self.buffer)
+            .map_err(|e| PyIOError::new_err(e.to_string()))
     }
 }
 
@@ -71,7 +75,7 @@ impl VisualFrame {
             &mut self.buffer,
             PixelType::U8x3,
         )
-            .map_err(Error::ImageResizeBuffer)?;
+        .map_err(Error::ImageResizeBuffer)?;
         // Resize the image.
         let mut dst = fast_image_resize::images::Image::new(width, height, PixelType::U8x3);
         let options = ResizeOptions {

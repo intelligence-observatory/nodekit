@@ -1,7 +1,7 @@
 mod clamped;
 
 use crate::clamped::Clamped;
-use bytemuck::{cast_slice, cast_slice_mut};
+use bytemuck::cast_slice;
 use nodekit_rs_visual::*;
 use std::slice::from_raw_parts_mut;
 

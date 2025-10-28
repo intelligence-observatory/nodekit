@@ -1,3 +1,4 @@
+use ffmpeg_next::format::Sample;
 use ffmpeg_next::{
     Error, Packet,
     codec::{
@@ -9,7 +10,6 @@ use ffmpeg_next::{
     software::converter,
     util::frame::{audio::Audio as AudioFrame, video::Video as VideoFrame},
 };
-use ffmpeg_next::format::Sample;
 use nodekit_rs_audio::AudioFormat;
 
 macro_rules! decoder {
@@ -63,7 +63,7 @@ impl AudioExtractor {
             Sample::I64(_) => Some(AudioFormat::I64),
             Sample::F32(_) => Some(AudioFormat::F32),
             Sample::F64(_) => Some(AudioFormat::F64),
-            Sample::None => None
+            Sample::None => None,
         }
     }
 }
