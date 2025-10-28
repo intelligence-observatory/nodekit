@@ -29,16 +29,15 @@ pub fn from_png<P: AsRef<Path>>(path: P) -> Result<VisualFrame, Error> {
             .output_buffer_size()
             .ok_or(Error::BufferSize(path.as_ref().to_path_buf()))?
     ];
-    // Read the next frame. An APNG might contain multiple frames.
     let info = reader
         .next_frame(&mut buffer)
         .map_err(|e| Error::Decode(e, path.as_ref().to_path_buf()))?;
+    // Convert to RGB24.
     let buffer = convert(
         path.as_ref(),
         &buffer[..info.buffer_size()],
         info.color_type,
     )?;
-    // Grab the bytes of the image.
     Ok(VisualFrame {
         width: info.width,
         height: info.height,
