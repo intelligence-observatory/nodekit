@@ -14,7 +14,7 @@ pub struct Clamped {
 }
 
 impl Clamped {
-    pub fn new(c: f64) -> Option<Self> {
+    pub const fn new(c: f64) -> Option<Self> {
         let dst = spatial_coordinate(c);
         if dst + RADIUS_I < 0 || dst > VISUAL_D_ISIZE {
             None
