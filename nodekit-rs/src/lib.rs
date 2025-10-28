@@ -14,6 +14,7 @@ use pyo3::{
     prelude::*,
     types::{PyBool, PyDict, PyFloat, PyString},
 };
+use pyo3_stub_gen::{derive::*, define_stub_info_gatherer};
 use std::path::PathBuf;
 use nodekit_rs_image::from_png;
 use video_asset::VideoAsset;
@@ -217,6 +218,7 @@ pub mod nodekit_rs {
 
     /// A frame of audio/visual data.
     #[pyclass]
+    #[gen_stub_pyclass]
     pub struct Frame {
         /// A raw bitmap buffer plus its width and height.
         #[pyo3(get)]
@@ -264,4 +266,6 @@ pub mod nodekit_rs {
 
         Ok(Frame { visual, audio })
     }
+
+    define_stub_info_gatherer!(stub_info);
 }

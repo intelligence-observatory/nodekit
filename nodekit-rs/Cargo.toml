@@ -2,7 +2,7 @@
 members = ["nodekit-rs-cursor","nodekit-rs-image", "nodekit-rs-video", "nodekit-rs-visual"]
 
 [lib]
-crate-type = ["cdylib"]
+crate-type = ["cdylib", "rlib"]
 
 [package]
 name = "nodekit_rs"
@@ -17,6 +17,7 @@ ffmpeg-next = "8.0.0"
 hex_color = "3.0.0"
 png = "0.18.0"
 pyo3 = { version = "0.27.1", features = ["experimental-inspect", "extension-module"] }
+pyo3-stub-gen = "0.16.1"
 thiserror = "2.0.17"
 
 [dependencies]
@@ -27,3 +28,4 @@ nodekit-rs-image = { path = "nodekit-rs-image" }
 nodekit-rs-video = { path = "nodekit-rs-video" }
 nodekit-rs-visual = { path = "nodekit-rs-visual" }
 pyo3.workspace = true
+pyo3-stub-gen.workspace = true
