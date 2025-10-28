@@ -42,13 +42,14 @@ pub mod nodekit_rs {
         pub visual: VisualFrame,
         /// The audio buffer. None if there was no audio on this frame.
         #[pyo3(get, set)]
+        #[gen_stub]
         pub audio: Option<Audio>,
     }
 
     /// Given a `node`, a cursor position, and a `time` in milliseconds,
     /// render the audio/visual state of the node.
     #[pyfunction]
-    #[pyo3(signature = (node: "Node", cursor_x: "float", cursor_y: "float", time: "int") -> "Frame")]
+    #[gen_stub_pyfunction]
     pub fn render(
         node: &Bound<'_, PyAny>,
         cursor_x: f64,
