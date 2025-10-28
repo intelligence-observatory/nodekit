@@ -44,7 +44,7 @@ pub mod nodekit_rs {
         pub audio: Option<AudioFrame>,
     }
 
-    /// Given a `node`, a cursor position, and a `time` in milliseconds,
+    /// Given a `node`, a cursor position, and a `time_msec` (time in milliseconds),
     /// render the audio/visual state of the node.
     #[pyfunction]
     #[gen_stub_pyfunction]
@@ -52,7 +52,7 @@ pub mod nodekit_rs {
         node: &Bound<'_, PyAny>,
         cursor_x: f64,
         cursor_y: f64,
-        time: u64,
+        time_msec: u64,
     ) -> PyResult<Frame> {
         let mut visual = vec![0u8; VISUAL_D * VISUAL_D * STRIDE];
         let mut audio = None;
@@ -61,12 +61,12 @@ pub mod nodekit_rs {
         // Add cards.
         for card in node.getattr("cards")?.cast::<PyDict>()?.values() {
             // Ignore cards before or after `time`.
-            if is_active_at_time(&card, time)? {
+            if is_active_at_time(&card, time_msec)? {
                 // Get the blit-able position and size of the card.
                 let (position, size) = get_rect(&card)?;
                 // Got an asset.
                 if let Some(asset) = get_asset(&card)? {
-                    blit_asset(asset, time, &mut audio, &mut visual, &position, &size)?;
+                    blit_asset(asset, time_msec, &mut audio, &mut visual, &position, &size)?;
                 }
             }
         }

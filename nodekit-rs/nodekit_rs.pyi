@@ -85,9 +85,9 @@ class AudioFormat(enum.Enum):
     F32 = ...
     F64 = ...
 
-def render(node: typing.Any, cursor_x: builtins.float, cursor_y: builtins.float, time: builtins.int) -> Frame:
+def render(node: typing.Any, cursor_x: builtins.float, cursor_y: builtins.float, time_msec: builtins.int) -> Frame:
     r"""
-    Given a `node`, a cursor position, and a `time` in milliseconds,
+    Given a `node`, a cursor position, and a `time_msec` (time in milliseconds),
     render the audio/visual state of the node.
     """
 
