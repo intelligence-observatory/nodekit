@@ -5,3 +5,5 @@ edition = "2024"
 
 [dependencies]
 blittle.workspace = true
+fast_image_resize.workspace = true
+thiserror.workspace = true

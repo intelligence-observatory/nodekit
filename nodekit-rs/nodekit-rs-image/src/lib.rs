@@ -10,110 +10,80 @@ mod error;
 
 use bytemuck::cast_slice;
 pub use error::Error;
-use fast_image_resize::{FilterType, PixelType, ResizeAlg, ResizeOptions, Resizer, SrcCropping};
 use png::{ColorType, Decoder};
 use std::{fs::File, io::BufReader, path::Path};
+use nodekit_rs_visual::VisualFrame;
 
-/// A raw RGB24 bitmap, a width, and a height.
-pub struct Image {
-    pub buffer: Vec<u8>,
-    pub width: u32,
-    pub height: u32,
+/// Create an image from a .png file.
+pub fn from_png<P: AsRef<Path>>(path: P) -> Result<VisualFrame, Error> {
+    let decoder = Decoder::new(BufReader::new(
+        File::open(path.as_ref())
+            .map_err(|e| Error::OpenFile(e, path.as_ref().to_path_buf()))?,
+    ));
+    let mut reader = decoder
+        .read_info()
+        .map_err(|e| Error::Decode(e, path.as_ref().to_path_buf()))?;
+    let mut buffer = vec![
+        0;
+        reader
+            .output_buffer_size()
+            .ok_or(Error::BufferSize(path.as_ref().to_path_buf()))?
+    ];
+    // Read the next frame. An APNG might contain multiple frames.
+    let info = reader
+        .next_frame(&mut buffer)
+        .map_err(|e| Error::Decode(e, path.as_ref().to_path_buf()))?;
+    let buffer = convert(
+        path.as_ref(),
+        &buffer[..info.buffer_size()],
+        info.color_type,
+    )?;
+    // Grab the bytes of the image.
+    Ok(VisualFrame {
+        width: info.width,
+        height: info.height,
+        buffer,
+    })
 }
 
-impl Image {
-    /// Create an image from a .png file.
-    pub fn from_png<P: AsRef<Path>>(path: P) -> Result<Self, Error> {
-        let decoder = Decoder::new(BufReader::new(
-            File::open(path.as_ref())
-                .map_err(|e| Error::OpenFile(e, path.as_ref().to_path_buf()))?,
-        ));
-        let mut reader = decoder
-            .read_info()
-            .map_err(|e| Error::Decode(e, path.as_ref().to_path_buf()))?;
-        let mut buffer = vec![
-            0;
-            reader
-                .output_buffer_size()
-                .ok_or(Error::BufferSize(path.as_ref().to_path_buf()))?
-        ];
-        // Read the next frame. An APNG might contain multiple frames.
-        let info = reader
-            .next_frame(&mut buffer)
-            .map_err(|e| Error::Decode(e, path.as_ref().to_path_buf()))?;
-        let buffer = Self::convert(
-            path.as_ref(),
-            &buffer[..info.buffer_size()],
-            info.color_type,
-        )?;
-        // Grab the bytes of the image.
-        Ok(Self {
-            width: info.width,
-            height: info.height,
-            buffer,
-        })
-    }
 
-    pub fn resize(&mut self, dst_width: u32, dst_height: u32) -> Result<(), Error> {
-        let src = fast_image_resize::images::Image::from_slice_u8(
-            self.width,
-            self.height,
-            &mut self.buffer,
-            PixelType::U8x3,
-        )
-        .map_err(Error::ImageResizeBuffer)?;
-        // Resize the image.
-        let mut dst = fast_image_resize::images::Image::new(dst_width, dst_height, PixelType::U8x3);
-        let options = ResizeOptions {
-            algorithm: ResizeAlg::Convolution(FilterType::Bilinear),
-            cropping: SrcCropping::None,
-            mul_div_alpha: false,
-        };
-        let mut resizer = Resizer::new();
-        resizer
-            .resize(&src, &mut dst, Some(&options))
-            .map_err(Error::ImageResize)?;
-        self.buffer = dst.into_vec();
-        Ok(())
-    }
 
-    fn convert(path: &Path, buffer: &[u8], color_type: ColorType) -> Result<Vec<u8>, Error> {
-        match color_type {
-            ColorType::Rgb => Ok(buffer.to_vec()),
-            ColorType::Indexed => Err(Error::Indexed(path.to_path_buf())),
-            ColorType::Rgba => Ok(Self::rgba_to_rgb(buffer)),
-            ColorType::Grayscale => Ok(Self::grayscale_to_rgb(buffer)),
-            ColorType::GrayscaleAlpha => Ok(Self::grayscale_alpha_to_rgb(buffer)),
-        }
+fn convert(path: &Path, buffer: &[u8], color_type: ColorType) -> Result<Vec<u8>, Error> {
+    match color_type {
+        ColorType::Rgb => Ok(buffer.to_vec()),
+        ColorType::Indexed => Err(Error::Indexed(path.to_path_buf())),
+        ColorType::Rgba => Ok(rgba_to_rgb(buffer)),
+        ColorType::Grayscale => Ok(grayscale_to_rgb(buffer)),
+        ColorType::GrayscaleAlpha => Ok(grayscale_alpha_to_rgb(buffer)),
     }
+}
 
-    fn grayscale_to_rgb(buffer: &[u8]) -> Vec<u8> {
-        let mut out = vec![[0; 3]; buffer.len() * 3];
-        for (src, dst) in buffer.iter().zip(out.iter_mut()) {
-            let src = *src;
-            *dst = [src, src, src];
-        }
-        cast_slice::<[u8; 3], u8>(&out).to_vec()
+fn grayscale_to_rgb(buffer: &[u8]) -> Vec<u8> {
+    let mut out = vec![[0; 3]; buffer.len() * 3];
+    for (src, dst) in buffer.iter().zip(out.iter_mut()) {
+        let src = *src;
+        *dst = [src, src, src];
     }
+    cast_slice::<[u8; 3], u8>(&out).to_vec()
+}
 
-    fn grayscale_alpha_to_rgb(buffer: &[u8]) -> Vec<u8> {
-        let bytes = cast_slice::<u8, [u8; 2]>(buffer);
-        let mut out = vec![[0; 3]; bytes.len()];
-        for (src, dst) in bytes.iter().zip(out.iter_mut()) {
-            let src = src[0];
-            *dst = [src, src, src];
-        }
-        cast_slice::<[u8; 3], u8>(&out).to_vec()
+fn grayscale_alpha_to_rgb(buffer: &[u8]) -> Vec<u8> {
+    let bytes = cast_slice::<u8, [u8; 2]>(buffer);
+    let mut out = vec![[0; 3]; bytes.len()];
+    for (src, dst) in bytes.iter().zip(out.iter_mut()) {
+        let src = src[0];
+        *dst = [src, src, src];
     }
+    cast_slice::<[u8; 3], u8>(&out).to_vec()
+}
 
-    fn rgba_to_rgb(buffer: &[u8]) -> Vec<u8> {
-        let bytes = cast_slice::<u8, [u8; 4]>(buffer);
-        let mut out = vec![[0; 3]; bytes.len()];
-        for (src, dst) in bytes.iter().zip(out.iter_mut()) {
-            *dst = [src[0], src[1], src[2]];
-        }
-        cast_slice::<[u8; 3], u8>(&out).to_vec()
+fn rgba_to_rgb(buffer: &[u8]) -> Vec<u8> {
+    let bytes = cast_slice::<u8, [u8; 4]>(buffer);
+    let mut out = vec![[0; 3]; bytes.len()];
+    for (src, dst) in bytes.iter().zip(out.iter_mut()) {
+        *dst = [src[0], src[1], src[2]];
     }
+    cast_slice::<[u8; 3], u8>(&out).to_vec()
 }
 
 #[cfg(test)]
@@ -124,7 +94,7 @@ mod tests {
     fn test_load_png() {
         let width = 300;
         let height = 600;
-        let image = Image::from_png("test_image.png").unwrap();
+        let image = from_png("test_image.png").unwrap();
         assert_eq!(image.width, width);
         assert_eq!(image.height, height);
         assert_eq!(image.buffer.len(), (width * height * 3) as usize);

@@ -304,7 +304,7 @@ name = "nodekit-rs-image"
 version = "0.1.0"
 dependencies = [
  "bytemuck",
- "fast_image_resize",
+ "nodekit-rs-visual",
  "png",
  "thiserror",
 ]
@@ -314,6 +314,7 @@ name = "nodekit-rs-video"
 version = "0.1.0"
 dependencies = [
  "ffmpeg-next",
+ "nodekit-rs-visual",
 ]
 
 [[package]]
@@ -321,6 +322,8 @@ name = "nodekit-rs-visual"
 version = "0.1.0"
 dependencies = [
  "blittle",
+ "fast_image_resize",
+ "thiserror",
 ]
 
 [[package]]

@@ -7,7 +7,6 @@ use blittle::*;
 use hex_color::HexColor;
 use media_type::MediaType;
 use nodekit_rs_cursor::blit_cursor;
-use nodekit_rs_image::Image;
 use nodekit_rs_video::{Audio, Extraction, extract_frame};
 use nodekit_rs_visual::*;
 use pyo3::{
@@ -16,6 +15,7 @@ use pyo3::{
     types::{PyBool, PyDict, PyFloat, PyString},
 };
 use std::path::PathBuf;
+use nodekit_rs_image::from_png;
 use video_asset::VideoAsset;
 
 fn fill_visual(node: &Bound<'_, PyAny>, visual: &mut [u8]) -> PyResult<()> {
@@ -92,7 +92,7 @@ fn get_asset(card: &Bound<PyAny>) -> PyResult<Option<Asset>> {
 }
 
 fn blit_image(
-    image: &mut Image,
+    image: &mut VisualFrame,
     src_size: &Size,
     visual: &mut [u8],
     dst_position: &PositionU,
@@ -170,13 +170,8 @@ fn try_extract_frame(
     )
     .map_err(|e| PyRuntimeError::new_err(e.to_string()))?
     {
-        Extraction::Frame { video, audio: a } => {
-            let mut image = Image {
-                buffer: video.frame,
-                width: video.width,
-                height: video.height,
-            };
-            blit_image(&mut image, src_size, visual, dst_position)?;
+        Extraction::Frame { mut video, audio: a } => {
+            blit_image(&mut video, src_size, visual, dst_position)?;
             *audio = a;
             Ok(true)
         }
@@ -195,7 +190,7 @@ fn blit_asset(
     match asset.media_type {
         MediaType::Image => {
             let mut image =
-                Image::from_png(asset.path).map_err(|e| PyValueError::new_err(e.to_string()))?;
+                from_png(asset.path).map_err(|e| PyValueError::new_err(e.to_string()))?;
             blit_image(&mut image, size, visual, position)?;
         }
         MediaType::Video { muted, looped } => {

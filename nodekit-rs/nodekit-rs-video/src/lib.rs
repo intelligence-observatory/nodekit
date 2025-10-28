@@ -6,7 +6,6 @@ mod audio_format;
 mod audio_rate;
 mod extraction;
 mod extractors;
-mod video;
 
 pub use audio::Audio;
 pub use audio_format::AudioFormat;
@@ -16,7 +15,7 @@ use extractors::*;
 pub use ffmpeg_next::Error;
 use ffmpeg_next::format::input;
 use std::path::Path;
-pub use video::Video;
+use nodekit_rs_visual::VisualFrame;
 
 pub fn extract_frame<P: AsRef<Path>>(
     path: P,
@@ -52,8 +51,8 @@ pub fn extract_frame<P: AsRef<Path>>(
                     // Got the frame!
                     if *video_index == target_frame {
                         let frame = video.frame()?;
-                        video_frame = Some(Video {
-                            frame: frame.data(0).to_vec(),
+                        video_frame = Some(VisualFrame {
+                            buffer: frame.data(0).to_vec(),
                             // The frame width isn't the same as the video's width and I don't know why.
                             width: frame.stride(0) as u32 / 3,
                             height: frame.height(),
@@ -129,7 +128,7 @@ mod tests {
         if let Extraction::Frame { video, audio } = extraction {
             assert_eq!(video.width, 864);
             assert_eq!(video.height, 480);
-            assert_eq!(video.frame.len(), (video.width * video.height * 3) as usize);
+            assert_eq!(video.buffer.len(), (video.width * video.height * 3) as usize);
             assert_eq!(audio.unwrap().frame.len(), 8192);
         } else {
             panic!("Failed to get a frame!")
