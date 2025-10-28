@@ -8,6 +8,7 @@ crate-type = ["cdylib", "rlib"]
 name = "nodekit_rs"
 version = "0.1.0"
 edition = "2024"
+authors = ["Esther Alter <alters@mit.edu>"]
 
 [workspace.dependencies]
 blittle = "0.2.1"

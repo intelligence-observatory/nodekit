@@ -5,6 +5,9 @@ build-backend = "maturin"
 [project]
 name = "nodekit_rs"
 version = "0.1.0"
+authors = [
+    { name = "Esther Alter", email = "alters@mit.edu" }
+]
 
 [tool.maturin]
 features = ["pyo3/extension-module", "pyo3/experimental-inspect"]
