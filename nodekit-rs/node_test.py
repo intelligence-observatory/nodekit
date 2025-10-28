@@ -1,6 +1,6 @@
 from PIL import Image
 
-from nodekit_rs import render
+from nodekit_rs import render, Frame
 from nodekit import *
 
 node = Node(

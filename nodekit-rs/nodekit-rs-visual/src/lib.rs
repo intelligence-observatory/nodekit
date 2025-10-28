@@ -28,12 +28,15 @@ pub const fn size_coordinate(value: f64) -> usize {
 }
 
 /// A raw bitmap `buffer` and its dimensions.
-#[pyclass]
-#[derive(Clone)]
+#[pyclass(eq)]
+#[derive(Clone, Eq, PartialEq)]
 pub struct VisualFrame {
+    #[pyo3(get)]
     pub buffer: Vec<u8>,
+    #[pyo3(get)]
     pub width: u32,
-    pub height: u32
+    #[pyo3(get)]
+    pub height: u32,
 }
 
 impl VisualFrame {

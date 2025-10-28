@@ -211,6 +211,8 @@ fn blit_asset(
 pub mod nodekit_rs {
     use super::*;
     #[pymodule_export]
+    pub use nodekit_rs_visual::VisualFrame;
+    #[pymodule_export]
     pub use nodekit_rs_video::{Audio, AudioFormat};
 
     /// A frame of audio/visual data.
