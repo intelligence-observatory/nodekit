@@ -1,4 +1,4 @@
-use crate::{AudioFormat, AudioRate};
+use crate::AudioFormat;
 use ffmpeg_next::{
     Error, Packet,
     codec::{
@@ -46,8 +46,8 @@ impl AudioExtractor {
         self.decoder.receive_frame(&mut self.frame)
     }
 
-    pub fn rate(&self) -> AudioRate {
-        AudioRate::from(self.decoder.rate())
+    pub fn rate(&self) -> u32 {
+        self.decoder.rate()
     }
 
     pub fn channels(&self) -> u16 {
