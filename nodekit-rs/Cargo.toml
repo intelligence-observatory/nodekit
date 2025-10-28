@@ -12,6 +12,7 @@ edition = "2024"
 [workspace.dependencies]
 blittle = "0.2.1"
 bytemuck = "1.24.0"
+criterion = "0.7.0"
 fast_image_resize = "5.3.0"
 ffmpeg-next = "8.0.0"
 hex_color = "3.0.0"
@@ -30,3 +31,10 @@ nodekit-rs-video = { path = "nodekit-rs-video" }
 nodekit-rs-visual = { path = "nodekit-rs-visual" }
 pyo3.workspace = true
 pyo3-stub-gen.workspace = true
+
+[dev-dependencies]
+criterion.workspace = true
+
+[[bench]]
+name = "bench"
+harness = false
