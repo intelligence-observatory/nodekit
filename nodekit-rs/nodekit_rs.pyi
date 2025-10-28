@@ -26,7 +26,7 @@ class AudioFrame:
         The number of audio channels, e.g. 2
         """
     @property
-    def format(self) -> typing.Optional[Format]:
+    def format(self) -> typing.Optional[AudioFormat]:
         r"""
         Use numpy to read `buffer` as this format.
         """
@@ -60,7 +60,7 @@ class VisualFrame:
         """
 
 @typing.final
-class Format(enum.Enum):
+class AudioFormat(enum.Enum):
     r"""
     `AudioFrame` returns a raw byte array of wav data (`buffer`).
     Use this enum, plus numpy, to read `buffer` as the correct dtype.

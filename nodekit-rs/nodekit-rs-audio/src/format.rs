@@ -6,7 +6,7 @@ use pyo3_stub_gen::derive::gen_stub_pyclass_enum;
 #[gen_stub_pyclass_enum]
 #[pyclass]
 #[derive(Clone, Debug)]
-pub enum Format {
+pub enum AudioFormat {
     U8,
     I16,
     I32,

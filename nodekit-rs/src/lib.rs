@@ -30,7 +30,7 @@ pub mod nodekit_rs {
     #[pymodule_export]
     pub use nodekit_rs_visual::VisualFrame;
     #[pymodule_export]
-    pub use nodekit_rs_audio::{AudioFrame, Format};
+    pub use nodekit_rs_audio::{AudioFrame, AudioFormat};
 
     /// A frame of audio/visual data.
     #[pyclass]

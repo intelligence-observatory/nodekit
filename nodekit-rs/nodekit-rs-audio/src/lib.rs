@@ -3,7 +3,7 @@ use pyo3_stub_gen::derive::gen_stub_pyclass;
 
 mod format;
 
-pub use format::Format;
+pub use format::AudioFormat;
 
 /// A frame of audio data.
 #[gen_stub_pyclass]
@@ -21,5 +21,5 @@ pub struct AudioFrame {
     pub channels: u16,
     /// Use numpy to read `buffer` as this format.
     #[pyo3(get)]
-    pub format: Option<Format>,
+    pub format: Option<AudioFormat>,
 }
