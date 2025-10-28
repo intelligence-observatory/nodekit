@@ -223,10 +223,11 @@ pub mod nodekit_rs {
         #[pyo3(get)]
         pub audio: Option<Audio>,
     }
-    
-    /// Given a `node`, a cursor position, and a `time` in milliseconds, 
+
+    /// Given a `node`, a cursor position, and a `time` in milliseconds,
     /// render the audio/visual state of the node.
     #[pyfunction]
+    #[pyo3(signature = (node: "Node", cursor_x: "float", cursor_y: "float", time: "int") -> "Frame")]
     pub fn render(
         node: &Bound<'_, PyAny>,
         cursor_x: f64,
@@ -252,7 +253,7 @@ pub mod nodekit_rs {
 
         // Blit the cursor on top of everything.
         blit_cursor(cursor_x, cursor_y, &mut visual);
-        
+
         let visual = VisualFrame {
             buffer: visual,
             width: VISUAL_D_U32,
