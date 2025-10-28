@@ -10,6 +10,9 @@ const RADIUS: usize = 16;
 const RADIUS_I: isize = 16;
 const CURSOR: &[u8] = include_bytes!("../cursor");
 
+/// Blit the cursor onto the `visual` image.
+/// 
+/// `x` and `y` are between -0.5 and 0.5, with 0.0 being the center of `visual`.
 pub fn blit_cursor(x: f64, y: f64, visual: &mut [u8]) {
     if let Some(x) = Clamped::new(x)
         && let Some(y) = Clamped::new(y)
