@@ -1,5 +1,5 @@
 [workspace]
-members = ["nodekit-rs-cursor","nodekit-rs-image", "nodekit-rs-video", "nodekit-rs-visual"]
+members = ["nodekit-rs-audio","nodekit-rs-cursor","nodekit-rs-image", "nodekit-rs-video", "nodekit-rs-visual"]
 
 [lib]
 crate-type = ["cdylib", "rlib"]
@@ -23,6 +23,7 @@ thiserror = "2.0.17"
 [dependencies]
 blittle.workspace = true
 hex_color.workspace = true
+nodekit-rs-audio = { path = "nodekit-rs-audio" }
 nodekit-rs-cursor = { path = "nodekit-rs-cursor" }
 nodekit-rs-image = { path = "nodekit-rs-image" }
 nodekit-rs-video = { path = "nodekit-rs-video" }

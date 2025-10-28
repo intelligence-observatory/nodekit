@@ -590,6 +590,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "nodekit-rs-audio"
+version = "0.1.0"
+dependencies = [
+ "pyo3",
+ "pyo3-stub-gen",
+]
+
+[[package]]
 name = "nodekit-rs-cursor"
 version = "0.1.0"
 dependencies = [
@@ -613,8 +621,8 @@ name = "nodekit-rs-video"
 version = "0.1.0"
 dependencies = [
  "ffmpeg-next",
+ "nodekit-rs-audio",
  "nodekit-rs-visual",
- "pyo3",
 ]
 
 [[package]]
@@ -634,6 +642,7 @@ version = "0.1.0"
 dependencies = [
  "blittle",
  "hex_color",
+ "nodekit-rs-audio",
  "nodekit-rs-cursor",
  "nodekit-rs-image",
  "nodekit-rs-video",

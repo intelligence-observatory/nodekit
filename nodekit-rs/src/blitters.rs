@@ -4,8 +4,9 @@ use pyo3::{
     exceptions::{PyRuntimeError, PyValueError},
     prelude::*
 };
+use nodekit_rs_audio::AudioFrame;
 use nodekit_rs_image::from_png;
-use nodekit_rs_video::{extract_frame, Audio, Extraction};
+use nodekit_rs_video::{extract_frame, Extraction};
 use nodekit_rs_visual::{VisualFrame, STRIDE, VISUAL_SIZE};
 use crate::{
     media_type::MediaType,
@@ -48,7 +49,7 @@ fn blit_image(
 
 fn extract_from_video(
     video_asset: VideoAsset,
-    audio: &mut Option<Audio>,
+    audio: &mut Option<AudioFrame>,
     src_size: &Size,
     visual: &mut [u8],
     dst_position: &PositionU,
@@ -87,7 +88,7 @@ fn extract_from_video(
 
 fn try_extract_frame(
     video_asset: &VideoAsset,
-    audio: &mut Option<Audio>,
+    audio: &mut Option<AudioFrame>,
     src_size: &Size,
     visual: &mut [u8],
     dst_position: &PositionU,
@@ -115,7 +116,7 @@ fn try_extract_frame(
 pub fn blit_asset(
     asset: Asset,
     time: u64,
-    audio: &mut Option<Audio>,
+    audio: &mut Option<AudioFrame>,
     visual: &mut [u8],
     position: &PositionU,
     size: &Size,

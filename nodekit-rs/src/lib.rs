@@ -30,7 +30,7 @@ pub mod nodekit_rs {
     #[pymodule_export]
     pub use nodekit_rs_visual::VisualFrame;
     #[pymodule_export]
-    pub use nodekit_rs_video::{Audio, AudioFormat};
+    pub use nodekit_rs_audio::{AudioFrame, Format};
 
     /// A frame of audio/visual data.
     #[pyclass]
@@ -43,7 +43,7 @@ pub mod nodekit_rs {
         /// The audio buffer. None if there was no audio on this frame.
         #[pyo3(get, set)]
         #[gen_stub]
-        pub audio: Option<Audio>,
+        pub audio: Option<AudioFrame>,
     }
 
     /// Given a `node`, a cursor position, and a `time` in milliseconds,

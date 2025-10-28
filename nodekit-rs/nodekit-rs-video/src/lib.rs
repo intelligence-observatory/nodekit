@@ -1,18 +1,15 @@
 //! This crate provides the means of extracting frame data from a video.
 //! It doesn't provide any blitting or processing functionality.
 
-mod audio;
-mod audio_format;
 mod extraction;
 mod extractors;
 
-pub use audio::Audio;
-pub use audio_format::AudioFormat;
 pub use extraction::Extraction;
 use extractors::*;
 pub use ffmpeg_next::Error;
 use ffmpeg_next::format::input;
 use std::path::Path;
+use nodekit_rs_audio::AudioFrame;
 use nodekit_rs_visual::VisualFrame;
 
 pub fn extract_frame<P: AsRef<Path>>(
@@ -73,8 +70,8 @@ pub fn extract_frame<P: AsRef<Path>>(
                 Ok(()) => {
                     // Got the frame!
                     if *audio_index == target_frame {
-                        audio_frame = Some(Audio {
-                            frame: audio.frame.data(0).to_vec(),
+                        audio_frame = Some(AudioFrame {
+                            buffer: audio.frame.data(0).to_vec(),
                             rate: audio.rate(),
                             channels: audio.channels(),
                             format: audio.format(),
@@ -127,7 +124,7 @@ mod tests {
             assert_eq!(video.width, 864);
             assert_eq!(video.height, 480);
             assert_eq!(video.buffer.len(), (video.width * video.height * 3) as usize);
-            assert_eq!(audio.unwrap().frame.len(), 8192);
+            assert_eq!(audio.unwrap().buffer.len(), 8192);
         } else {
             panic!("Failed to get a frame!")
         }

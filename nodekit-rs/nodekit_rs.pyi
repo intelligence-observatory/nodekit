@@ -2,7 +2,34 @@
 # ruff: noqa: E501, F401
 
 import builtins
+import enum
 import typing
+
+@typing.final
+class AudioFrame:
+    r"""
+    A frame of audio data.
+    """
+    @property
+    def buffer(self) -> builtins.list[builtins.int]:
+        r"""
+        Raw wav data.
+        """
+    @property
+    def rate(self) -> builtins.int:
+        r"""
+        The sample rate, e.g. 44100
+        """
+    @property
+    def channels(self) -> builtins.int:
+        r"""
+        The number of audio channels, e.g. 2
+        """
+    @property
+    def format(self) -> typing.Optional[Format]:
+        r"""
+        Use numpy to read `buffer` as this format.
+        """
 
 @typing.final
 class Frame:
@@ -31,6 +58,19 @@ class VisualFrame:
         r"""
         The height of the image.
         """
+
+@typing.final
+class Format(enum.Enum):
+    r"""
+    `AudioFrame` returns a raw byte array of wav data (`buffer`).
+    Use this enum, plus numpy, to read `buffer` as the correct dtype.
+    """
+    U8 = ...
+    I16 = ...
+    I32 = ...
+    I64 = ...
+    F32 = ...
+    F64 = ...
 
 def render(node: typing.Any, cursor_x: builtins.float, cursor_y: builtins.float, time: builtins.int) -> Frame:
     r"""

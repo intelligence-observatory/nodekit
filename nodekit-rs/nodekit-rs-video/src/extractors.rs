@@ -1,4 +1,3 @@
-use crate::AudioFormat;
 use ffmpeg_next::{
     Error, Packet,
     codec::{
@@ -10,6 +9,8 @@ use ffmpeg_next::{
     software::converter,
     util::frame::{audio::Audio as AudioFrame, video::Video as VideoFrame},
 };
+use ffmpeg_next::format::Sample;
+use nodekit_rs_audio::Format;
 
 macro_rules! decoder {
     ($input:ident, $name:ident, $decoder:ident) => {{
@@ -54,8 +55,16 @@ impl AudioExtractor {
         self.decoder.channels()
     }
 
-    pub fn format(&self) -> AudioFormat {
-        AudioFormat::from(self.decoder.format())
+    pub fn format(&self) -> Option<Format> {
+        match self.decoder.format() {
+            Sample::U8(_) => Some(Format::U8),
+            Sample::I16(_) => Some(Format::I16),
+            Sample::I32(_) => Some(Format::I32),
+            Sample::I64(_) => Some(Format::I64),
+            Sample::F32(_) => Some(Format::F32),
+            Sample::F64(_) => Some(Format::F64),
+            Sample::None => None
+        }
     }
 }
 
