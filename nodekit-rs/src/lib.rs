@@ -8,6 +8,7 @@ use nodekit_rs_visual::*;
 use pyo3::{prelude::*, types::PyDict};
 use pyo3_stub_gen::{define_stub_info_gatherer, derive::*};
 
+/// Returns true if `time` is with the timespan of `card`.
 fn is_active_at_time(card: &Bound<PyAny>, time: u64) -> PyResult<bool> {
     let t0 = card.getattr("start_msec")?.extract::<u64>()?;
     let t1 = card.getattr("end_msec")?.extract::<Option<u64>>()?;

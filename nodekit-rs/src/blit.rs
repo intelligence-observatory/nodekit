@@ -11,6 +11,7 @@ use pyo3::prelude::*;
 use pyo3::types::{PyBool, PyString};
 use std::path::{Path, PathBuf};
 
+/// Fill the visual buffer with the board color.
 pub fn fill_visual(node: &Bound<'_, PyAny>, visual: &mut [u8]) -> PyResult<()> {
     let color = HexColor::parse(node.getattr("board_color")?.str()?.to_str()?)
         .map_err(|e| PyValueError::new_err(e.to_string()))?;
@@ -22,6 +23,7 @@ pub fn fill_visual(node: &Bound<'_, PyAny>, visual: &mut [u8]) -> PyResult<()> {
     Ok(())
 }
 
+/// Blit a `VisualFrame` onto the `visual` buffer.
 fn blit_image(image: &mut VisualFrame, visual: &mut [u8], rect: &Rect) -> PyResult<()> {
     // Resize the image.
     image
@@ -55,6 +57,8 @@ fn get_bool(media: &Bound<PyAny>, name: &str) -> PyResult<bool> {
     Ok(media.getattr(name)?.cast::<PyBool>()?.is_true())
 }
 
+/// Extract the video frame.
+/// Loop if needed.
 fn extract_from_video(
     card: &Bound<PyAny>,
     video: Bound<PyAny>,
@@ -80,6 +84,7 @@ fn extract_from_video(
     }
 }
 
+/// Try to extract and blit the video frame at `time`.
 fn try_extract_frame(
     path: &Path,
     time: u64,
@@ -104,17 +109,22 @@ fn try_extract_frame(
     }
 }
 
+/// Blit `card` at `time` onto `visual`.
+/// Possibly set `audio` too.
 pub fn blit_card(
     card: &Bound<PyAny>,
     time: u64,
     audio: &mut Option<AudioFrame>,
     visual: &mut [u8],
 ) -> PyResult<()> {
+    // Blit the image.
     if let Ok(image) = card.getattr("image") {
         let path = get_path(&image)?;
         let mut image = from_png(path).map_err(|e| PyValueError::new_err(e.to_string()))?;
         blit_image(&mut image, visual, &Rect::new(card)?)?;
-    } else if let Ok(video) = card.getattr("video") {
+    }
+    // Extract the frame at `time` and blit.
+    else if let Ok(video) = card.getattr("video") {
         // TODO subtract duration.
         extract_from_video(card, video, time, audio, visual)?;
     }
