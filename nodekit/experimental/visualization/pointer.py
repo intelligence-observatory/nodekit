@@ -209,7 +209,6 @@ def make_animation(
         for A in trace_artists:
             S = A["stream"]
             kinds, xs, ys, ts = S["kinds"], S["xs"], S["ys"], S["ts"]
-            is_down, is_up = S["is_down"], S["is_up"]
             accent, neutral = S["accent"], S["neutral"]
 
             # --- DOWN/UP points within tail window ---
@@ -270,7 +269,8 @@ def make_animation(
                         t0, t1 = ts[i], ts[i+1]
                         x0, y0 = xs[i], ys[i]
                         x1, y1 = xs[i+1], ys[i+1]
-                        vx.append(x0); vy.append(y0)
+                        vx.append(x0)
+                        vy.append(y0)
                         if t0 <= t_now < t1:
                             frac = (t_now - t0) / (t1 - t0)
                             vx.append(x0 + frac*(x1 - x0))
