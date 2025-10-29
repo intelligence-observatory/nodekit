@@ -1,11 +1,3 @@
-enum State : ubyte {
-    Pending = 1,
-    StartedNow,
-    Active,
-    EndedNow,
-    Finished,
-}
-
 enum AudioFormat : ubyte {
     U8 = 1,
     I16,
@@ -17,14 +9,14 @@ enum AudioFormat : ubyte {
 }
 
 table AudioFrame {
-    buffer:[ubyte];
+    buffer:[ubyte] (required);
     format:AudioFormat=1;
     rate:uint32;
     channels:uint16;
 }
 
 table VisualFrame {
-    buffer:[ubyte];
+    buffer:[ubyte] (required);
     width:uint32;
     height:uint32;
 }
@@ -32,7 +24,8 @@ table VisualFrame {
 table Response {
     visual:VisualFrame;
     audio:AudioFrame;
-    state:State=1;
+    sensor:string;
+    ended:bool;
 }
 
 root_type Response;

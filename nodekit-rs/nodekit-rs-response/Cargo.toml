@@ -1,17 +1,12 @@
 [package]
-name = "nodekit-rs-client"
+name = "nodekit-rs-response"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
 flatbuffers.workspace = true
-nodekit-rs-action = { path = "../nodekit-rs-action" }
 nodekit-rs-audio = { path = "../nodekit-rs-audio" }
 nodekit-rs-fb = { path = "../nodekit-rs-fb" }
-nodekit-rs-response = { path = "../nodekit-rs-response" }
 nodekit-rs-visual = { path = "../nodekit-rs-visual" }
 pyo3.workspace = true
-
-[lib]
-name = "nodekit_rs_client"
-crate-type = ["cdylib"]
+pyo3-stub-gen.workspace = true

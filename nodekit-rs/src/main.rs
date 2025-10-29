@@ -3,7 +3,8 @@ mod args;
 use crate::args::Args;
 use clap::Parser;
 use nodekit_rs_net::{Command, Connection};
-use nodekit_rs_state::{State, TickResult};
+use nodekit_rs_response::Response;
+use nodekit_rs_state::State;
 
 #[tokio::main(flavor = "multi_thread", worker_threads = 10)]
 async fn main() {
@@ -21,7 +22,7 @@ async fn main() {
     }
 }
 
-async fn on_receive(state: &mut Option<State>, received: Command) -> TickResult {
+async fn on_receive(state: &mut Option<State>, received: Command) -> Response {
     match received {
         Command::Graph(graph) => {
             // Convert the graph into stateful information.
@@ -29,11 +30,11 @@ async fn on_receive(state: &mut Option<State>, received: Command) -> TickResult 
             // Store the state.
             *state = Some(s);
             // Nothing has happened yet.
-            TickResult::default()
+            Response::default()
         }
         Command::Tick(action) => match state.as_mut() {
             Some(state) => state.tick(action).unwrap(),
-            None => TickResult::default(),
+            None => Response::default(),
         },
     }
 }

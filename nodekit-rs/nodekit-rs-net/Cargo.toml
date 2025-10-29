@@ -10,6 +10,7 @@ nodekit-rs-action = { path = "../nodekit-rs-action" }
 nodekit-rs-audio = { path = "../nodekit-rs-audio" }
 nodekit-rs-fb = { path = "../nodekit-rs-fb" }
 nodekit-rs-graph = { path = "../nodekit-rs-graph" }
+nodekit-rs-response = { path = "../nodekit-rs-response" }
 nodekit-rs-state = { path = "../nodekit-rs-state" }
 serde_json.workspace = true
 thiserror.workspace = true

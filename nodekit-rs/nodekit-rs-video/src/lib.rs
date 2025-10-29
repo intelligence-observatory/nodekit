@@ -9,18 +9,18 @@ mod packet_iter;
 pub use extraction::Extraction;
 use extractor::{AudioExtractor, VideoExtractor};
 pub use ffmpeg_next::Error;
+use ffmpeg_next::format::Sample;
 use ffmpeg_next::{
     format::input,
     util::frame::{audio::Audio as AudioFrame, video::Video as VideoFrame},
 };
 pub use frame::Frame;
+use nodekit_rs_audio::AudioFormat;
 use packet_iter::PacketIter;
 use std::{
     collections::VecDeque,
     path::{Path, PathBuf},
 };
-use ffmpeg_next::format::Sample;
-use nodekit_rs_audio::AudioFormat;
 
 /// Extract frames from a video.
 /// This opens a video and keeps it open until `FrameExtractor` is dropped.
@@ -125,7 +125,7 @@ impl FrameExtractor {
                             buffer: a.data(0).to_vec(),
                             rate: a.rate(),
                             channels: a.channels(),
-                            format
+                            format,
                         }
                     });
                     Extraction::Frame(Frame { video, audio })

@@ -8,6 +8,7 @@ members = [
     "nodekit-rs-graph",
     "nodekit-rs-image",
     "nodekit-rs-net",
+    "nodekit-rs-response",
     "nodekit-rs-state",
     "nodekit-rs-video",
     "nodekit-rs-visual"
@@ -21,6 +22,7 @@ edition = "2024"
 [dependencies]
 clap.workspace = true
 nodekit-rs-net = { path = "nodekit-rs-net" }
+nodekit-rs-response = { path = "nodekit-rs-response" }
 nodekit-rs-state = { path = "nodekit-rs-state" }
 tokio.workspace = true
 

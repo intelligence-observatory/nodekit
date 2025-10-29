@@ -1,13 +1,16 @@
-use crate::{components::card::{get_path, Card}, error::Error};
+use crate::get_w_h;
+use crate::rect::Rect;
+use crate::{
+    components::card::{Card, get_path},
+    error::Error,
+};
 use blittle::*;
+use nodekit_rs_audio::AudioFrame;
 use nodekit_rs_graph::VideoCard;
 use nodekit_rs_video::*;
 use nodekit_rs_visual::*;
 use slotmap::new_key_type;
 use std::path::{Path, PathBuf};
-use nodekit_rs_audio::AudioFrame;
-use crate::get_w_h;
-use crate::rect::Rect;
 
 new_key_type! { pub struct VideoKey; }
 
@@ -43,13 +46,8 @@ impl Video {
 
     pub fn load<P: AsRef<Path>>(&mut self) -> Result<(), Error> {
         self.extractor = Some(
-            FrameExtractor::new(
-                &self.path,
-                self.width,
-                self.height,
-                self.muted,
-            )
-            .map_err(Error::Video)?,
+            FrameExtractor::new(&self.path, self.width, self.height, self.muted)
+                .map_err(Error::Video)?,
         );
         Ok(())
     }
@@ -74,7 +72,7 @@ impl Video {
                 // Return audio.
                 Ok(VideoResult {
                     blitted: true,
-                    audio: frame.audio
+                    audio: frame.audio,
                 })
             }
             Extraction::NoFrame => Ok(VideoResult::default()),

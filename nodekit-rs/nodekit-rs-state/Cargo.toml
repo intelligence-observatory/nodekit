@@ -12,6 +12,7 @@ nodekit-rs-action = { path = "../nodekit-rs-action" }
 nodekit-rs-audio = { path = "../nodekit-rs-audio" }
 nodekit-rs-graph = { path = "../nodekit-rs-graph" }
 nodekit-rs-image = { path = "../nodekit-rs-image" }
+nodekit-rs-response = { path = "../nodekit-rs-response" }
 nodekit-rs-video = { path = "../nodekit-rs-video" }
 nodekit-rs-visual = { path = "../nodekit-rs-visual" }
 slotmap.workspace = true

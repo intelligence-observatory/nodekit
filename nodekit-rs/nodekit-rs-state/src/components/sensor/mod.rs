@@ -14,4 +14,5 @@ new_key_type! { pub struct SensorKey; }
 
 pub struct Sensor {
     pub state: EntityState,
+    pub id: String,
 }

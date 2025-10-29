@@ -3,17 +3,16 @@ mod error;
 mod node;
 mod rect;
 mod systems;
-mod tick_result;
 
 pub use crate::components::*;
+use crate::node::{Node, NodeKey};
 use error::Error;
 use nodekit_rs_action::Action;
 use nodekit_rs_graph::Graph;
+use nodekit_rs_response::Response;
+use nodekit_rs_visual::{STRIDE, VISUAL_D};
 use slotmap::{SecondaryMap, SlotMap};
 use std::collections::HashMap;
-use nodekit_rs_visual::{STRIDE, VISUAL_D};
-pub use tick_result::TickResult;
-use crate::node::{Node, NodeKey};
 
 pub struct State {
     pub start: NodeKey,
@@ -33,8 +32,9 @@ impl State {
         // Add nodes.
         for (node_id, node) in value.nodes.iter() {
             let returned_node = Node::from_node(node)?;
-            let node_key = nodes.insert(returned_node.node);
-            sensor_ids.insert(node_key, returned_node.sensor_ids);
+            let sids = returned_node.sensors.sensor_ids.clone();
+            let node_key = nodes.insert(returned_node);
+            sensor_ids.insert(node_key, sids);
             node_ids.insert(node_id, node_key);
         }
         // Add transitions.
@@ -66,25 +66,26 @@ impl State {
         &mut self.nodes[self.current]
     }
 
-    pub fn tick(&mut self, action: Option<Action>) -> Result<TickResult, Error> {
+    pub fn tick(&mut self, action: Option<Action>) -> Result<Response, Error> {
         if self.finished {
-            Ok(TickResult::finished())
+            Ok(Response::default())
         } else {
-            let result = self.nodes[self.current].tick(action, &mut self.visual)?;
+            let response = self.nodes[self.current].tick(action, &mut self.visual)?;
             // This node ended. Try to get the next node.
-            if result.state == EntityState::EndedNow {
-                match result.sensor {
+            if response.ended {
+                match response.sensor.as_ref() {
                     Some(sensor) => {
-                        self.current = self.transitions[self.current][sensor];
-                        Ok(result)
+                        let sensor_key = self.nodes[self.current].sensors.sensor_ids[sensor];
+                        self.current = self.transitions[self.current][sensor_key];
+                        Ok(response)
                     }
                     None => {
                         self.finished = true;
-                        Ok(TickResult::finished())
+                        Ok(Response::default())
                     }
                 }
             } else {
-                Ok(result)
+                Ok(response)
             }
         }
     }

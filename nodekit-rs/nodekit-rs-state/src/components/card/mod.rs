@@ -2,20 +2,23 @@ mod image;
 mod text;
 mod video;
 
-use std::path::PathBuf;
 use super::entity_state::EntityState;
+use crate::error::Error;
 use crate::rect::Rect;
 pub use image::*;
 use nodekit_rs_graph::{AssetLocator, NodeCardsValue};
 use slotmap::new_key_type;
+use std::path::PathBuf;
 pub use text::*;
 pub use video::*;
-use crate::error::Error;
 
 #[macro_export]
 macro_rules! get_w_h {
     ($card:ident) => {{
-        (Rect::size_coordinate($card.w) as u32, Rect::size_coordinate($card.h) as u32)
+        (
+            Rect::size_coordinate($card.w) as u32,
+            Rect::size_coordinate($card.h) as u32,
+        )
     }};
 }
 
@@ -23,7 +26,7 @@ fn get_path(locator: &AssetLocator) -> Result<PathBuf, Error> {
     match locator {
         AssetLocator::FileSystemPath(path) => Ok(PathBuf::from(&path.path)),
         AssetLocator::RelativePath(path) => Ok(PathBuf::from(&path.relative_path)),
-        other => Err(Error::AssetLocator(other.clone()))
+        other => Err(Error::AssetLocator(other.clone())),
     }
 }
 

@@ -1,23 +1,13 @@
 use flatbuffers::FlatBufferBuilder;
 use nodekit_rs_action::Action;
-use nodekit_rs_fb::{click as click_fb, graph as graph_fb, key_press as key_press_fb, response};
+use nodekit_rs_fb::{click as click_fb, graph as graph_fb, key_press as key_press_fb};
 use pyo3::prelude::*;
 
 #[pymodule]
 pub mod nodekit_rs_client {
-    use pyo3::exceptions::PyTypeError;
     use super::*;
-
     #[pymodule_export]
-    pub const STATUS_PENDING: u8 = 1;
-    #[pymodule_export]
-    pub const STATUS_STARTED_NOW: u8 = 2;
-    #[pymodule_export]
-    pub const STATUS_ACTIVE: u8 = 3;
-    #[pymodule_export]
-    pub const STATUS_ENDED_NOW: u8 = 4;
-    #[pymodule_export]
-    pub const STATUS_FINISHED: u8 = 5;
+    pub use nodekit_rs_response::Response;
 
     /// A payload that can be sent to the `nodekit-rs` app.
     #[pyclass]
@@ -25,14 +15,6 @@ pub mod nodekit_rs_client {
     pub enum Payload {
         Graph(String),
         Tick(Option<Action>),
-    }
-
-    #[pyclass]
-    #[derive(Clone)]
-    pub struct Response {
-        pub visual: Option<Vec<u8>>,
-        pub audio: Option<Vec<u8>>,
-        pub state: u8
     }
 
     /// A no-op tick.
@@ -59,38 +41,6 @@ pub mod nodekit_rs_client {
     pub fn key_press(key: String) -> Payload {
         Payload::Tick(Some(Action::KeyPress(key)))
     }
-
-    #[pyfunction]
-    pub fn serialize_payload(payload: Payload) -> Vec<u8> {
-        match payload {
-            Payload::Graph(graph) => serialize_graph(graph),
-            Payload::Tick(action) => match action {
-                Some(action) => match action {
-                    Action::Click { x, y } => serialize_click(x, y),
-                    Action::KeyPress(key) => serialize_key_press(key),
-                    Action::Submit() => todo!("serialize submit"),
-                },
-                None => Vec::default(),
-            },
-        }
-    }
-
-    #[pyfunction]
-    pub fn deserialize_response(response: Vec<u8>) -> PyResult<Response> {
-        match response::root_as_response(&response) {
-            Ok(response) => {
-                Ok(Response {
-                    visual: response.board().map(|b| b.bytes().to_vec()),
-                    audio: response.audio().map(|a| a.bytes().to_vec()),
-                    state: response.state().0
-                })
-            }
-            Err(error) => {
-                Err(PyTypeError::new_err(error.to_string()))
-            }
-        }
-    }
-
 
     fn serialize_graph(graph: String) -> Vec<u8> {
         let mut fbb = FlatBufferBuilder::new();

@@ -1,6 +1,6 @@
-use hashbrown::HashMap;
 use crate::CardKey;
 use crate::systems::Cards;
+use hashbrown::HashMap;
 
 pub struct CardsResult {
     pub cards: Cards,

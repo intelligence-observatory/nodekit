@@ -13,6 +13,7 @@ pub enum SensorComponentKey {
 #[derive(Default)]
 pub struct Sensors {
     pub sensors: SlotMap<SensorKey, Sensor>,
+    pub sensor_ids: HashMap<String, SensorKey>,
     pub timeout_sensors: SlotMap<TimeoutSensorKey, TimeoutSensor>,
     pub components: HashMap<SensorComponentKey, SensorKey>,
     pub click_sensors: SlotMap<ClickSensorKey, ClickSensor>,

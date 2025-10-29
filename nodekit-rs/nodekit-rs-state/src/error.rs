@@ -12,5 +12,5 @@ pub enum Error {
     #[error("Error creating visual frame: {0}")]
     Visual(nodekit_rs_visual::Error),
     #[error("Invalid asset locator: {:?}", 0)]
-    AssetLocator(nodekit_rs_graph::AssetLocator)
+    AssetLocator(nodekit_rs_graph::AssetLocator),
 }

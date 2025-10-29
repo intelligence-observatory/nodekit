@@ -1183,6 +1183,7 @@ version = "0.1.0"
 dependencies = [
  "clap",
  "nodekit-rs-net",
+ "nodekit-rs-response",
  "nodekit-rs-state",
  "tokio",
 ]
@@ -1209,7 +1210,10 @@ version = "0.1.0"
 dependencies = [
  "flatbuffers",
  "nodekit-rs-action",
+ "nodekit-rs-audio",
  "nodekit-rs-fb",
+ "nodekit-rs-response",
+ "nodekit-rs-visual",
  "pyo3",
 ]
 
@@ -1257,9 +1261,22 @@ dependencies = [
  "nodekit-rs-audio",
  "nodekit-rs-fb",
  "nodekit-rs-graph",
+ "nodekit-rs-response",
  "nodekit-rs-state",
  "serde_json",
  "thiserror 2.0.17",
+]
+
+[[package]]
+name = "nodekit-rs-response"
+version = "0.1.0"
+dependencies = [
+ "flatbuffers",
+ "nodekit-rs-audio",
+ "nodekit-rs-fb",
+ "nodekit-rs-visual",
+ "pyo3",
+ "pyo3-stub-gen",
 ]
 
 [[package]]
@@ -1274,6 +1291,7 @@ dependencies = [
  "nodekit-rs-audio",
  "nodekit-rs-graph",
  "nodekit-rs-image",
+ "nodekit-rs-response",
  "nodekit-rs-video",
  "nodekit-rs-visual",
  "slotmap",

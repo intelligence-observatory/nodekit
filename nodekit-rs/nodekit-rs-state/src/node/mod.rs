@@ -1,8 +1,6 @@
 mod cards_result;
-mod sensors_result;
-
 use crate::components::*;
-use crate::tick_result::TickResult;
+use crate::node::cards_result::CardsResult;
 use crate::{error::Error, systems::*};
 use blittle::blit;
 use bytemuck::{cast_slice, cast_slice_mut};
@@ -10,19 +8,18 @@ use hashbrown::HashMap;
 use hex_color::HexColor;
 use nodekit_rs_action::Action;
 use nodekit_rs_graph::{NodeCardsValue, NodeSensorsValue};
+use nodekit_rs_response::Response;
 use nodekit_rs_visual::*;
 use slotmap::new_key_type;
-use std::path::Path;
-use crate::node::cards_result::CardsResult;
-use crate::node::sensors_result::SensorsResult;
 
 new_key_type! { pub struct NodeKey; }
 
 macro_rules! sensor {
-    ($sensor:ident, $sensors:ident, $timers:ident, $sub_sensors:ident, $sensor_type:ident, $sensor_ids:ident, $sensor_id:ident, $component_key:ident) => {{
+    ($sensor:ident, $sensors:ident, $timers:ident, $sub_sensors:ident, $sensor_type:ident, $sensor_id:ident, $component_key:ident) => {{
         // Add the sensor.
         let sensor = Sensor {
             state: EntityState::default(),
+            id: $sensor_id.clone(),
         };
         let sensor_key = $sensors.sensors.insert(sensor);
         // Add the sub-sensor.
@@ -32,25 +29,24 @@ macro_rules! sensor {
             SensorComponentKey::$component_key(sub_sensor_key),
             sensor_key,
         );
+        $sensors.sensor_ids.insert($sensor_id.clone(), sensor_key);
         sensor_key
     }};
 }
 
 macro_rules! sensor_and_timer {
-    ($sensor:ident, $sensors:ident, $timers:ident, $sub_sensors:ident, $sensor_type:ident, $sensor_ids:ident, $sensor_id:ident, $component_key:ident) => {{
+    ($sensor:ident, $sensors:ident, $timers:ident, $sub_sensors:ident, $sensor_type:ident, $sensor_id:ident, $component_key:ident) => {{
         let sensor_key = sensor!(
             $sensor,
             $sensors,
             $timers,
             $sub_sensors,
             $sensor_type,
-            $sensor_ids,
             $sensor_id,
             $component_key
         );
         // Add a timer.
         $timers.add_sensor(Timer::new($sensor.start_msec, $sensor.end_msec), sensor_key);
-        $sensor_ids.insert($sensor_id.to_string(), sensor_key);
     }};
 }
 
@@ -79,9 +75,7 @@ pub struct Node {
 }
 
 impl Node {
-    pub fn from_node(
-        node: &nodekit_rs_graph::Node,
-    ) -> Result<ReturnedNode, Error> {
+    pub fn from_node(node: &nodekit_rs_graph::Node) -> Result<Self, Error> {
         let mut timers = Timers::default();
         let cards_result = Self::add_cards(node, &mut timers)?;
         let board_color = HexColor::parse(node.board_color.as_str()).map_err(Error::HexColor)?;
@@ -90,27 +84,26 @@ impl Node {
         let node = Node {
             cards: cards_result.cards,
             timers,
-            sensors: sensors.sensors,
+            sensors,
             effects: Effects::default(),
             board_color,
             state: Default::default(),
         };
-        Ok(ReturnedNode {
-            node,
-            sensor_ids: sensors.sensor_ids,
-        })
+        Ok(node)
     }
 
-    pub fn start(&mut self, visual: &mut [u8]) -> TickResult {
+    pub fn start(&mut self, visual: &mut [u8]) -> Response {
         // Set the state.
         self.state = EntityState::StartedNow;
         // Fill the board with my color.
-        cast_slice_mut::<u8, [u8; 3]>(visual).iter_mut().for_each(|pixel| {
-            pixel[0] = self.board_color[0];
-            pixel[1] = self.board_color[1];
-            pixel[2] = self.board_color[2];
-        });
-        TickResult {
+        cast_slice_mut::<u8, [u8; 3]>(visual)
+            .iter_mut()
+            .for_each(|pixel| {
+                pixel[0] = self.board_color[0];
+                pixel[1] = self.board_color[1];
+                pixel[2] = self.board_color[2];
+            });
+        Response {
             visual: Some(VisualFrame {
                 buffer: visual.to_vec(),
                 width: VISUAL_D_U32,
@@ -118,20 +111,15 @@ impl Node {
             }),
             audio: None,
             sensor: None,
-            state: self.state,
+            ended: false,
         }
     }
 
-    pub fn tick(&mut self, action: Option<Action>, board: &mut [u8]) -> Result<TickResult, Error> {
+    pub fn tick(&mut self, action: Option<Action>, board: &mut [u8]) -> Result<Response, Error> {
         if self.state == EntityState::StartedNow {
             self.state = EntityState::Active;
         }
-        let mut result = TickResult {
-            visual: None,
-            audio: None,
-            sensor: None,
-            state: self.state,
-        };
+        let mut result = Response::default();
         // We haven't timed out yet.
         if !self.tick_timeouts(&mut result) {
             // Apply the action.
@@ -158,7 +146,7 @@ impl Node {
         }
     }
 
-    fn tick_timeouts(&mut self, result: &mut TickResult) -> bool {
+    fn tick_timeouts(&mut self, response: &mut Response) -> bool {
         let ended = self
             .sensors
             .timeout_sensors
@@ -166,12 +154,12 @@ impl Node {
             .any(|sensor| sensor.tick());
         if ended {
             self.state = EntityState::EndedNow;
-            result.state = self.state;
+            response.ended = true;
         }
         ended
     }
 
-    fn tick_cards(&mut self, visual: &mut [u8], result: &mut TickResult) -> Result<(), Error> {
+    fn tick_cards(&mut self, visual: &mut [u8], response: &mut Response) -> Result<(), Error> {
         let mut blitted = false;
         for (card_key, card) in self.cards.cards.iter() {
             match &card.state {
@@ -180,17 +168,17 @@ impl Node {
                 EntityState::StartedNow => match &self.cards.components[card_key] {
                     CardComponentKey::Image(image_key) => {
                         let (image, _) = &self.cards.images[*image_key];
-                        image.blit(&card, visual)?;
+                        image.blit(card, visual)?;
                         blitted = true;
                     }
                     CardComponentKey::Video(video_key) => {
-                        blit_video!(self, video_key, card, visual, blitted, result);
+                        blit_video!(self, video_key, card, visual, blitted, response);
                     }
                     CardComponentKey::Text(_) => todo!("blit text"),
                 },
                 EntityState::Active => {
                     if let CardComponentKey::Video(video_key) = &self.cards.components[card_key] {
-                        blit_video!(self, video_key, card, visual, blitted, result);
+                        blit_video!(self, video_key, card, visual, blitted, response);
                     }
                 }
                 // Erase the card.
@@ -211,7 +199,7 @@ impl Node {
         }
         // Return the board.
         if blitted {
-            result.visual = Some(VisualFrame {
+            response.visual = Some(VisualFrame {
                 buffer: visual.to_vec(),
                 width: VISUAL_D_U32,
                 height: VISUAL_D_U32,
@@ -220,7 +208,7 @@ impl Node {
         Ok(())
     }
 
-    fn on_action(&mut self, action: Option<Action>, result: &mut TickResult) {
+    fn on_action(&mut self, action: Option<Action>, response: &mut Response) {
         if let Some(action) = action {
             let sensor_key = match action {
                 Action::Click { x, y } => self.sensors.on_click(x, y),
@@ -230,16 +218,13 @@ impl Node {
             // End the node.
             if let Some(sensor_key) = sensor_key {
                 self.state = EntityState::EndedNow;
-                result.state = self.state;
-                result.sensor = Some(sensor_key);
+                response.ended = true;
+                response.sensor = Some(self.sensors.sensors[sensor_key].id.clone());
             }
         }
     }
 
-    fn add_cards(
-        node: &nodekit_rs_graph::Node,
-        timers: &mut Timers,
-    ) -> Result<CardsResult, Error> {
+    fn add_cards(node: &nodekit_rs_graph::Node, timers: &mut Timers) -> Result<CardsResult, Error> {
         let mut cards = Cards::default();
         let mut card_ids = HashMap::default();
         for (card_id, card) in node.cards.iter() {
@@ -267,19 +252,15 @@ impl Node {
                 _ => (),
             }
         }
-        Ok(CardsResult {
-            cards,
-            card_ids,
-        })
+        Ok(CardsResult { cards, card_ids })
     }
 
     fn add_sensors(
         node: &nodekit_rs_graph::Node,
         card_ids: &HashMap<String, CardKey>,
         timers: &mut Timers,
-    ) -> SensorsResult {
+    ) -> Sensors {
         let mut sensors = Sensors::default();
-        let mut sensor_ids = HashMap::default();
         for (sensor_id, sensor) in node.sensors.iter() {
             match sensor {
                 NodeSensorsValue::TimeoutSensor(sensor) => {
@@ -290,7 +271,6 @@ impl Node {
                         timers,
                         timeout_sensors,
                         TimeoutSensor,
-                        sensor_ids,
                         sensor_id,
                         Timeout
                     );
@@ -302,7 +282,6 @@ impl Node {
                         timers,
                         click_sensors,
                         ClickSensor,
-                        sensor_ids,
                         sensor_id,
                         Click
                     );
@@ -314,7 +293,6 @@ impl Node {
                         timers,
                         key_sensors,
                         KeySensor,
-                        sensor_ids,
                         sensor_id,
                         Key
                     );
@@ -323,6 +301,7 @@ impl Node {
                     // Add the sensor.
                     let s = Sensor {
                         state: EntityState::default(),
+                        id: sensor_id.clone(),
                     };
                     let sensor_key = sensors.sensors.insert(s);
                     // Get the submitter card.
@@ -347,14 +326,6 @@ impl Node {
                 }
             }
         }
-        SensorsResult {
-            sensors,
-            sensor_ids,
-        }
+        sensors
     }
-}
-
-pub struct ReturnedNode {
-    pub node: Node,
-    pub sensor_ids: HashMap<String, SensorKey>,
 }
