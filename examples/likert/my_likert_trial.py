@@ -87,7 +87,7 @@ def make_likert_trial(
 
 
 # %%
-if __name__ == '__main__':
+if __name__ == "__main__":
     # %% Assemble my Graph
     graph = nk.concat(
         [

@@ -272,8 +272,7 @@ def make_sfm_instructions() -> nk.Graph:
 
 
 # %%
-if __name__ == '__main__':
-
+if __name__ == "__main__":
     instructions = make_sfm_instructions()
     easy_trial = make_trial(
         stimulus=nk.assets.Video.from_path("./stimuli/1/1.mp4"),
