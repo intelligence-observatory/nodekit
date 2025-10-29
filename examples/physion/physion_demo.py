@@ -102,16 +102,18 @@ def make_physion_trial(
     )
 
     # Schedule the mask flickers
-    make_mask_card = lambda i: nk.cards.ImageCard(
-        x=video_card.x,
-        y=video_card.y,
-        w=video_card.w,
-        h=video_card.h,
-        z_index=10,
-        image=selector_mask,
-        start_msec=i * 1000,
-        end_msec=i * 1000 + 500,
-    )
+    def make_mask_card(i):
+        return nk.cards.ImageCard(
+            x=video_card.x,
+            y=video_card.y,
+            w=video_card.w,
+            h=video_card.h,
+            z_index=10,
+            image=selector_mask,
+            start_msec=i * 1000,
+            end_msec=i * 1000 + 500,
+        )
+
     main_node = nk.Node(
         cards={
                   'video': video_card,
