@@ -276,9 +276,9 @@ if __name__ == '__main__':
 
     instructions = make_sfm_instructions()
     easy_trial = make_trial(
-        stimulus=nk.assets.Video.from_path("./stimuli/gestalt_0/1.mp4"),
-        left=nk.assets.Video.from_path("./stimuli/gestalt_0/2.mp4"),
-        right=nk.assets.Video.from_path("./stimuli/gestalt_0/8.mp4"),
+        stimulus=nk.assets.Video.from_path("./stimuli/1/1.mp4"),
+        left=nk.assets.Video.from_path("./stimuli/1/2.mp4"),
+        right=nk.assets.Video.from_path("./stimuli/1/8.mp4"),
         correct_choice="left",
     )
 
