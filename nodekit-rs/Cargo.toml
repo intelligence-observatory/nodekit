@@ -1,5 +1,17 @@
 [workspace]
-members = ["nodekit-rs-asset", "nodekit-rs-fb", "nodekit-rs-graph", "nodekit-rs-state", "nodekit-rs-video", "nodekit-rs-image", "nodekit-rs-net", "nodekit-rs-action", "nodekit-rs-client"]
+members = [
+    "nodekit-rs-action",
+    "nodekit-rs-audio",
+    "nodekit-rs-client",
+    "nodekit-rs-cursor",
+    "nodekit-rs-fb",
+    "nodekit-rs-graph",
+    "nodekit-rs-image",
+    "nodekit-rs-net",
+    "nodekit-rs-state",
+    "nodekit-rs-video",
+    "nodekit-rs-visual"
+]
 
 [package]
 name = "nodekit-rs"
@@ -28,6 +40,7 @@ hex_color = "3.0.0"
 jpeg-decoder = "0.3.2"
 png = "0.18.0"
 pyo3 = { version = "0.27.1", features = ["experimental-inspect", "extension-module"] }
+pyo3-stub-gen = "0.16.1"
 regress = "0.10.4"
 reqwest = "0.12.24"
 serde = { version = "1.0.228", features = ["derive"] }

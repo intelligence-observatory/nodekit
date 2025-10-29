@@ -1,44 +1,52 @@
-use crate::{board::*, components::Card, error::Error};
+use crate::{components::card::{get_path, Card}, error::Error};
 use blittle::*;
 use nodekit_rs_graph::VideoCard;
 use nodekit_rs_video::*;
+use nodekit_rs_visual::*;
 use slotmap::new_key_type;
-use std::path::Path;
+use std::path::{Path, PathBuf};
+use nodekit_rs_audio::AudioFrame;
+use crate::get_w_h;
+use crate::rect::Rect;
 
 new_key_type! { pub struct VideoKey; }
 
 #[derive(Default)]
 pub struct VideoResult {
     pub blitted: bool,
-    pub audio: Option<Vec<u8>>,
+    pub audio: Option<AudioFrame>,
 }
 
-#[derive(Default)]
 pub struct Video {
+    path: PathBuf,
+    width: u32,
+    height: u32,
     extractor: Option<FrameExtractor>,
     muted: bool,
-    looping: bool,
+    looped: bool,
     ended: bool,
 }
 
-impl From<&VideoCard> for Video {
-    fn from(value: &VideoCard) -> Self {
-        Self {
-            muted: value.muted,
-            looping: value.loop_,
+impl Video {
+    pub fn new(card: &VideoCard) -> Result<Self, Error> {
+        let (width, height) = get_w_h!(card);
+        Ok(Self {
+            path: get_path(&card.video.locator)?,
+            width,
+            height,
+            muted: card.muted,
+            looped: card.loop_,
             extractor: None,
             ended: false,
-        }
+        })
     }
-}
 
-impl Video {
-    pub fn load<P: AsRef<Path>>(&mut self, path: P, card: &Card) -> Result<(), Error> {
+    pub fn load<P: AsRef<Path>>(&mut self) -> Result<(), Error> {
         self.extractor = Some(
             FrameExtractor::new(
-                path,
-                card.rect.size.w as u32,
-                card.rect.size.h as u32,
+                &self.path,
+                self.width,
+                self.height,
                 self.muted,
             )
             .map_err(Error::Video)?,
@@ -60,19 +68,18 @@ impl Video {
                     &card.rect.size,
                     board,
                     &card.rect.position,
-                    &BOARD_SIZE,
+                    &VISUAL_SIZE,
                     3,
                 );
                 // Return audio.
-                let audio = frame.audio.map(|audio| audio.data(0).to_vec());
                 Ok(VideoResult {
                     blitted: true,
-                    audio,
+                    audio: frame.audio
                 })
             }
             Extraction::NoFrame => Ok(VideoResult::default()),
             Extraction::EndOfVideo => {
-                if self.looping {
+                if self.looped {
                     extractor.reset()?;
                     // Immediately try to get the next frame.
                     self.blit(card, board)

@@ -106,6 +106,390 @@ impl<'a> flatbuffers::Verifiable for State {
 }
 
 impl flatbuffers::SimpleToVerifyInSlice for State {}
+#[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
+pub const ENUM_MIN_AUDIO_FORMAT: u8 = 1;
+#[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
+pub const ENUM_MAX_AUDIO_FORMAT: u8 = 7;
+#[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
+#[allow(non_camel_case_types)]
+pub const ENUM_VALUES_AUDIO_FORMAT: [AudioFormat; 7] = [
+  AudioFormat::U8,
+  AudioFormat::I16,
+  AudioFormat::I32,
+  AudioFormat::I64,
+  AudioFormat::F32,
+  AudioFormat::F64,
+  AudioFormat::None,
+];
+
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
+#[repr(transparent)]
+pub struct AudioFormat(pub u8);
+#[allow(non_upper_case_globals)]
+impl AudioFormat {
+  pub const U8: Self = Self(1);
+  pub const I16: Self = Self(2);
+  pub const I32: Self = Self(3);
+  pub const I64: Self = Self(4);
+  pub const F32: Self = Self(5);
+  pub const F64: Self = Self(6);
+  pub const None: Self = Self(7);
+
+  pub const ENUM_MIN: u8 = 1;
+  pub const ENUM_MAX: u8 = 7;
+  pub const ENUM_VALUES: &'static [Self] = &[
+    Self::U8,
+    Self::I16,
+    Self::I32,
+    Self::I64,
+    Self::F32,
+    Self::F64,
+    Self::None,
+  ];
+  /// Returns the variant's name or "" if unknown.
+  pub fn variant_name(self) -> Option<&'static str> {
+    match self {
+      Self::U8 => Some("U8"),
+      Self::I16 => Some("I16"),
+      Self::I32 => Some("I32"),
+      Self::I64 => Some("I64"),
+      Self::F32 => Some("F32"),
+      Self::F64 => Some("F64"),
+      Self::None => Some("None"),
+      _ => None,
+    }
+  }
+}
+impl core::fmt::Debug for AudioFormat {
+  fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
+    if let Some(name) = self.variant_name() {
+      f.write_str(name)
+    } else {
+      f.write_fmt(format_args!("<UNKNOWN {:?}>", self.0))
+    }
+  }
+}
+impl<'a> flatbuffers::Follow<'a> for AudioFormat {
+  type Inner = Self;
+  #[inline]
+  unsafe fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+    let b = unsafe { flatbuffers::read_scalar_at::<u8>(buf, loc) };
+    Self(b)
+  }
+}
+
+impl flatbuffers::Push for AudioFormat {
+    type Output = AudioFormat;
+    #[inline]
+    unsafe fn push(&self, dst: &mut [u8], _written_len: usize) {
+        unsafe { flatbuffers::emplace_scalar::<u8>(dst, self.0); }
+    }
+}
+
+impl flatbuffers::EndianScalar for AudioFormat {
+  type Scalar = u8;
+  #[inline]
+  fn to_little_endian(self) -> u8 {
+    self.0.to_le()
+  }
+  #[inline]
+  #[allow(clippy::wrong_self_convention)]
+  fn from_little_endian(v: u8) -> Self {
+    let b = u8::from_le(v);
+    Self(b)
+  }
+}
+
+impl<'a> flatbuffers::Verifiable for AudioFormat {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    u8::run_verifier(v, pos)
+  }
+}
+
+impl flatbuffers::SimpleToVerifyInSlice for AudioFormat {}
+pub enum AudioFrameOffset {}
+#[derive(Copy, Clone, PartialEq)]
+
+pub struct AudioFrame<'a> {
+  pub _tab: flatbuffers::Table<'a>,
+}
+
+impl<'a> flatbuffers::Follow<'a> for AudioFrame<'a> {
+  type Inner = AudioFrame<'a>;
+  #[inline]
+  unsafe fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+    Self { _tab: unsafe { flatbuffers::Table::new(buf, loc) } }
+  }
+}
+
+impl<'a> AudioFrame<'a> {
+  pub const VT_BUFFER: flatbuffers::VOffsetT = 4;
+  pub const VT_FORMAT: flatbuffers::VOffsetT = 6;
+  pub const VT_RATE: flatbuffers::VOffsetT = 8;
+  pub const VT_CHANNELS: flatbuffers::VOffsetT = 10;
+
+  #[inline]
+  pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
+    AudioFrame { _tab: table }
+  }
+  #[allow(unused_mut)]
+  pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr, A: flatbuffers::Allocator + 'bldr>(
+    _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr, A>,
+    args: &'args AudioFrameArgs<'args>
+  ) -> flatbuffers::WIPOffset<AudioFrame<'bldr>> {
+    let mut builder = AudioFrameBuilder::new(_fbb);
+    builder.add_rate(args.rate);
+    if let Some(x) = args.buffer { builder.add_buffer(x); }
+    builder.add_channels(args.channels);
+    builder.add_format(args.format);
+    builder.finish()
+  }
+
+
+  #[inline]
+  pub fn buffer(&self) -> Option<flatbuffers::Vector<'a, u8>> {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, u8>>>(AudioFrame::VT_BUFFER, None)}
+  }
+  #[inline]
+  pub fn format(&self) -> AudioFormat {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<AudioFormat>(AudioFrame::VT_FORMAT, Some(AudioFormat::U8)).unwrap()}
+  }
+  #[inline]
+  pub fn rate(&self) -> u32 {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<u32>(AudioFrame::VT_RATE, Some(0)).unwrap()}
+  }
+  #[inline]
+  pub fn channels(&self) -> u16 {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<u16>(AudioFrame::VT_CHANNELS, Some(0)).unwrap()}
+  }
+}
+
+impl flatbuffers::Verifiable for AudioFrame<'_> {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.visit_table(pos)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, u8>>>("buffer", Self::VT_BUFFER, false)?
+     .visit_field::<AudioFormat>("format", Self::VT_FORMAT, false)?
+     .visit_field::<u32>("rate", Self::VT_RATE, false)?
+     .visit_field::<u16>("channels", Self::VT_CHANNELS, false)?
+     .finish();
+    Ok(())
+  }
+}
+pub struct AudioFrameArgs<'a> {
+    pub buffer: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, u8>>>,
+    pub format: AudioFormat,
+    pub rate: u32,
+    pub channels: u16,
+}
+impl<'a> Default for AudioFrameArgs<'a> {
+  #[inline]
+  fn default() -> Self {
+    AudioFrameArgs {
+      buffer: None,
+      format: AudioFormat::U8,
+      rate: 0,
+      channels: 0,
+    }
+  }
+}
+
+pub struct AudioFrameBuilder<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> {
+  fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a, A>,
+  start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
+}
+impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> AudioFrameBuilder<'a, 'b, A> {
+  #[inline]
+  pub fn add_buffer(&mut self, buffer: flatbuffers::WIPOffset<flatbuffers::Vector<'b , u8>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(AudioFrame::VT_BUFFER, buffer);
+  }
+  #[inline]
+  pub fn add_format(&mut self, format: AudioFormat) {
+    self.fbb_.push_slot::<AudioFormat>(AudioFrame::VT_FORMAT, format, AudioFormat::U8);
+  }
+  #[inline]
+  pub fn add_rate(&mut self, rate: u32) {
+    self.fbb_.push_slot::<u32>(AudioFrame::VT_RATE, rate, 0);
+  }
+  #[inline]
+  pub fn add_channels(&mut self, channels: u16) {
+    self.fbb_.push_slot::<u16>(AudioFrame::VT_CHANNELS, channels, 0);
+  }
+  #[inline]
+  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a, A>) -> AudioFrameBuilder<'a, 'b, A> {
+    let start = _fbb.start_table();
+    AudioFrameBuilder {
+      fbb_: _fbb,
+      start_: start,
+    }
+  }
+  #[inline]
+  pub fn finish(self) -> flatbuffers::WIPOffset<AudioFrame<'a>> {
+    let o = self.fbb_.end_table(self.start_);
+    flatbuffers::WIPOffset::new(o.value())
+  }
+}
+
+impl core::fmt::Debug for AudioFrame<'_> {
+  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+    let mut ds = f.debug_struct("AudioFrame");
+      ds.field("buffer", &self.buffer());
+      ds.field("format", &self.format());
+      ds.field("rate", &self.rate());
+      ds.field("channels", &self.channels());
+      ds.finish()
+  }
+}
+pub enum VisualFrameOffset {}
+#[derive(Copy, Clone, PartialEq)]
+
+pub struct VisualFrame<'a> {
+  pub _tab: flatbuffers::Table<'a>,
+}
+
+impl<'a> flatbuffers::Follow<'a> for VisualFrame<'a> {
+  type Inner = VisualFrame<'a>;
+  #[inline]
+  unsafe fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+    Self { _tab: unsafe { flatbuffers::Table::new(buf, loc) } }
+  }
+}
+
+impl<'a> VisualFrame<'a> {
+  pub const VT_BUFFER: flatbuffers::VOffsetT = 4;
+  pub const VT_WIDTH: flatbuffers::VOffsetT = 6;
+  pub const VT_HEIGHT: flatbuffers::VOffsetT = 8;
+
+  #[inline]
+  pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
+    VisualFrame { _tab: table }
+  }
+  #[allow(unused_mut)]
+  pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr, A: flatbuffers::Allocator + 'bldr>(
+    _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr, A>,
+    args: &'args VisualFrameArgs<'args>
+  ) -> flatbuffers::WIPOffset<VisualFrame<'bldr>> {
+    let mut builder = VisualFrameBuilder::new(_fbb);
+    builder.add_height(args.height);
+    builder.add_width(args.width);
+    if let Some(x) = args.buffer { builder.add_buffer(x); }
+    builder.finish()
+  }
+
+
+  #[inline]
+  pub fn buffer(&self) -> Option<flatbuffers::Vector<'a, u8>> {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, u8>>>(VisualFrame::VT_BUFFER, None)}
+  }
+  #[inline]
+  pub fn width(&self) -> u32 {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<u32>(VisualFrame::VT_WIDTH, Some(0)).unwrap()}
+  }
+  #[inline]
+  pub fn height(&self) -> u32 {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<u32>(VisualFrame::VT_HEIGHT, Some(0)).unwrap()}
+  }
+}
+
+impl flatbuffers::Verifiable for VisualFrame<'_> {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.visit_table(pos)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, u8>>>("buffer", Self::VT_BUFFER, false)?
+     .visit_field::<u32>("width", Self::VT_WIDTH, false)?
+     .visit_field::<u32>("height", Self::VT_HEIGHT, false)?
+     .finish();
+    Ok(())
+  }
+}
+pub struct VisualFrameArgs<'a> {
+    pub buffer: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, u8>>>,
+    pub width: u32,
+    pub height: u32,
+}
+impl<'a> Default for VisualFrameArgs<'a> {
+  #[inline]
+  fn default() -> Self {
+    VisualFrameArgs {
+      buffer: None,
+      width: 0,
+      height: 0,
+    }
+  }
+}
+
+pub struct VisualFrameBuilder<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> {
+  fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a, A>,
+  start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
+}
+impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> VisualFrameBuilder<'a, 'b, A> {
+  #[inline]
+  pub fn add_buffer(&mut self, buffer: flatbuffers::WIPOffset<flatbuffers::Vector<'b , u8>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(VisualFrame::VT_BUFFER, buffer);
+  }
+  #[inline]
+  pub fn add_width(&mut self, width: u32) {
+    self.fbb_.push_slot::<u32>(VisualFrame::VT_WIDTH, width, 0);
+  }
+  #[inline]
+  pub fn add_height(&mut self, height: u32) {
+    self.fbb_.push_slot::<u32>(VisualFrame::VT_HEIGHT, height, 0);
+  }
+  #[inline]
+  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a, A>) -> VisualFrameBuilder<'a, 'b, A> {
+    let start = _fbb.start_table();
+    VisualFrameBuilder {
+      fbb_: _fbb,
+      start_: start,
+    }
+  }
+  #[inline]
+  pub fn finish(self) -> flatbuffers::WIPOffset<VisualFrame<'a>> {
+    let o = self.fbb_.end_table(self.start_);
+    flatbuffers::WIPOffset::new(o.value())
+  }
+}
+
+impl core::fmt::Debug for VisualFrame<'_> {
+  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+    let mut ds = f.debug_struct("VisualFrame");
+      ds.field("buffer", &self.buffer());
+      ds.field("width", &self.width());
+      ds.field("height", &self.height());
+      ds.finish()
+  }
+}
 pub enum ResponseOffset {}
 #[derive(Copy, Clone, PartialEq)]
 
@@ -122,7 +506,7 @@ impl<'a> flatbuffers::Follow<'a> for Response<'a> {
 }
 
 impl<'a> Response<'a> {
-  pub const VT_BOARD: flatbuffers::VOffsetT = 4;
+  pub const VT_VISUAL: flatbuffers::VOffsetT = 4;
   pub const VT_AUDIO: flatbuffers::VOffsetT = 6;
   pub const VT_STATE: flatbuffers::VOffsetT = 8;
 
@@ -137,25 +521,25 @@ impl<'a> Response<'a> {
   ) -> flatbuffers::WIPOffset<Response<'bldr>> {
     let mut builder = ResponseBuilder::new(_fbb);
     if let Some(x) = args.audio { builder.add_audio(x); }
-    if let Some(x) = args.board { builder.add_board(x); }
+    if let Some(x) = args.visual { builder.add_visual(x); }
     builder.add_state(args.state);
     builder.finish()
   }
 
 
   #[inline]
-  pub fn board(&self) -> Option<flatbuffers::Vector<'a, u8>> {
+  pub fn visual(&self) -> Option<VisualFrame<'a>> {
     // Safety:
     // Created from valid Table for this object
     // which contains a valid value in this slot
-    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, u8>>>(Response::VT_BOARD, None)}
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<VisualFrame>>(Response::VT_VISUAL, None)}
   }
   #[inline]
-  pub fn audio(&self) -> Option<flatbuffers::Vector<'a, u8>> {
+  pub fn audio(&self) -> Option<AudioFrame<'a>> {
     // Safety:
     // Created from valid Table for this object
     // which contains a valid value in this slot
-    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, u8>>>(Response::VT_AUDIO, None)}
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<AudioFrame>>(Response::VT_AUDIO, None)}
   }
   #[inline]
   pub fn state(&self) -> State {
@@ -173,23 +557,23 @@ impl flatbuffers::Verifiable for Response<'_> {
   ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
     use self::flatbuffers::Verifiable;
     v.visit_table(pos)?
-     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, u8>>>("board", Self::VT_BOARD, false)?
-     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, u8>>>("audio", Self::VT_AUDIO, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<VisualFrame>>("visual", Self::VT_VISUAL, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<AudioFrame>>("audio", Self::VT_AUDIO, false)?
      .visit_field::<State>("state", Self::VT_STATE, false)?
      .finish();
     Ok(())
   }
 }
 pub struct ResponseArgs<'a> {
-    pub board: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, u8>>>,
-    pub audio: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, u8>>>,
+    pub visual: Option<flatbuffers::WIPOffset<VisualFrame<'a>>>,
+    pub audio: Option<flatbuffers::WIPOffset<AudioFrame<'a>>>,
     pub state: State,
 }
 impl<'a> Default for ResponseArgs<'a> {
   #[inline]
   fn default() -> Self {
     ResponseArgs {
-      board: None,
+      visual: None,
       audio: None,
       state: State::Pending,
     }
@@ -202,12 +586,12 @@ pub struct ResponseBuilder<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> {
 }
 impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> ResponseBuilder<'a, 'b, A> {
   #[inline]
-  pub fn add_board(&mut self, board: flatbuffers::WIPOffset<flatbuffers::Vector<'b , u8>>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Response::VT_BOARD, board);
+  pub fn add_visual(&mut self, visual: flatbuffers::WIPOffset<VisualFrame<'b >>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<VisualFrame>>(Response::VT_VISUAL, visual);
   }
   #[inline]
-  pub fn add_audio(&mut self, audio: flatbuffers::WIPOffset<flatbuffers::Vector<'b , u8>>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Response::VT_AUDIO, audio);
+  pub fn add_audio(&mut self, audio: flatbuffers::WIPOffset<AudioFrame<'b >>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<AudioFrame>>(Response::VT_AUDIO, audio);
   }
   #[inline]
   pub fn add_state(&mut self, state: State) {
@@ -231,7 +615,7 @@ impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> ResponseBuilder<'a, 'b, A> {
 impl core::fmt::Debug for Response<'_> {
   fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
     let mut ds = f.debug_struct("Response");
-      ds.field("board", &self.board());
+      ds.field("visual", &self.visual());
       ds.field("audio", &self.audio());
       ds.field("state", &self.state());
       ds.finish()

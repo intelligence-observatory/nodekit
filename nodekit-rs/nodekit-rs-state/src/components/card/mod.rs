@@ -2,29 +2,36 @@ mod image;
 mod text;
 mod video;
 
+use std::path::PathBuf;
 use super::entity_state::EntityState;
-use crate::{board::*, rect::Rect};
+use crate::rect::Rect;
 pub use image::*;
-use nodekit_rs_graph::NodeCardsValue;
+use nodekit_rs_graph::{AssetLocator, NodeCardsValue};
 use slotmap::new_key_type;
 pub use text::*;
 pub use video::*;
+use crate::error::Error;
+
+#[macro_export]
+macro_rules! get_w_h {
+    ($card:ident) => {{
+        (Rect::size_coordinate($card.w) as u32, Rect::size_coordinate($card.h) as u32)
+    }};
+}
+
+fn get_path(locator: &AssetLocator) -> Result<PathBuf, Error> {
+    match locator {
+        AssetLocator::FileSystemPath(path) => Ok(PathBuf::from(&path.path)),
+        AssetLocator::RelativePath(path) => Ok(PathBuf::from(&path.relative_path)),
+        other => Err(Error::AssetLocator(other.clone()))
+    }
+}
 
 new_key_type! { pub struct CardKey; }
 
 pub struct Card {
     pub rect: Rect,
     pub state: EntityState,
-}
-
-impl Card {
-    pub const fn spatial_coordinate(c: f64) -> isize {
-        (BOARD_D_HALF_F64 + BOARD_D_F64 * c) as isize
-    }
-
-    pub const fn size_coordinate(c: f64) -> usize {
-        (BOARD_D_F64 * c) as usize
-    }
 }
 
 macro_rules! from_schema_card {

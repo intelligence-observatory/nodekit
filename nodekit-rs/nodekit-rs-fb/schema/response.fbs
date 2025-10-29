@@ -6,9 +6,32 @@ enum State : ubyte {
     Finished,
 }
 
+enum AudioFormat : ubyte {
+    U8 = 1,
+    I16,
+    I32,
+    I64,
+    F32,
+    F64,
+    None
+}
+
+table AudioFrame {
+    buffer:[ubyte];
+    format:AudioFormat=1;
+    rate:uint32;
+    channels:uint16;
+}
+
+table VisualFrame {
+    buffer:[ubyte];
+    width:uint32;
+    height:uint32;
+}
+
 table Response {
-    board:[ubyte];
-    audio:[ubyte];
+    visual:VisualFrame;
+    audio:AudioFrame;
     state:State=1;
 }
 

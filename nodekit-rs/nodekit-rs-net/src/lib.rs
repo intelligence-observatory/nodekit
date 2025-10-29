@@ -48,9 +48,42 @@ impl Connection {
     /// Serialize a tick result and send it.
     pub async fn send(&mut self, result: TickResult) -> Result<(), Error> {
         let mut fbb = FlatBufferBuilder::new();
+
+        let visual = result.visual.as_ref().map(|visual| {
+            let buffer = Some(fbb.create_vector(&visual.buffer));
+            let args = response::VisualFrameArgs {
+                buffer,
+                width: visual.width,
+                height: visual.height
+            };
+            response::VisualFrame::create(&mut fbb, &args)
+        });
+
+        let audio = result.audio.as_ref().map(|audio| {
+            let buffer = Some(fbb.create_vector(&audio.buffer));
+            let format = match audio.format.as_ref() {
+                Some(format) => match format {
+                    nodekit_rs_audio::AudioFormat::U8 => response::AudioFormat::U8,
+                    nodekit_rs_audio::AudioFormat::I16 => response::AudioFormat::I16,
+                    nodekit_rs_audio::AudioFormat::I32 => response::AudioFormat::I32,
+                    nodekit_rs_audio::AudioFormat::I64 => response::AudioFormat::I64,
+                    nodekit_rs_audio::AudioFormat::F32 => response::AudioFormat::F32,
+                    nodekit_rs_audio::AudioFormat::F64 => response::AudioFormat::F64,
+                },
+                None => response::AudioFormat::None,
+            };
+           let args = response::AudioFrameArgs {
+               buffer,
+               format,
+               rate: audio.rate,
+               channels: audio.channels,
+           };
+            response::AudioFrame::create(&mut fbb, &args)
+        });
+
         let args = response::ResponseArgs {
-            board: result.board.map(|board| fbb.create_vector(&board)),
-            audio: result.audio.map(|audio| fbb.create_vector(&audio)),
+            visual,
+            audio,
             state: match result.state {
                 EntityState::Pending => response::State::Pending,
                 EntityState::StartedNow => response::State::StartedNow,

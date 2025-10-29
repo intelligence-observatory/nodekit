@@ -1,13 +1,14 @@
+use std::path::PathBuf;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum Error {
-    #[error("Failed to open image file: {0}")]
-    OpenFile(std::io::Error),
-    #[error("Error when decoding png file: {0}")]
-    Png(png::DecodingError),
-    #[error("Error when resizing image: {0}")]
-    Resize(fast_image_resize::ResizeError),
-    #[error("Error when creating a resizeable image buffer: {0}")]
-    ImageBuffer(fast_image_resize::ImageBufferError),
+    #[error("Failed to create {1}: {0}")]
+    OpenFile(std::io::Error, PathBuf),
+    #[error("Failed to decode {1}: {0}")]
+    Decode(png::DecodingError, PathBuf),
+    #[error("Failed to get the buffer size of {0}")]
+    BufferSize(PathBuf),
+    #[error("This image has indexed colors, which is not supported: {0}")]
+    Indexed(PathBuf),
 }

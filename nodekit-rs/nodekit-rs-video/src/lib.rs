@@ -19,6 +19,8 @@ use std::{
     collections::VecDeque,
     path::{Path, PathBuf},
 };
+use ffmpeg_next::format::Sample;
+use nodekit_rs_audio::AudioFormat;
 
 /// Extract frames from a video.
 /// This opens a video and keeps it open until `FrameExtractor` is dropped.
@@ -109,7 +111,23 @@ impl FrameExtractor {
                 };
                 Ok(if !self.video_frames.is_empty() && have_audio_frame {
                     let video = self.video_frames.pop_front().unwrap();
-                    let audio = self.audio_frames.pop_front();
+                    let audio = self.audio_frames.pop_front().map(|a| {
+                        let format = match a.format() {
+                            Sample::U8(_) => Some(AudioFormat::U8),
+                            Sample::I16(_) => Some(AudioFormat::I16),
+                            Sample::I32(_) => Some(AudioFormat::I32),
+                            Sample::I64(_) => Some(AudioFormat::I64),
+                            Sample::F32(_) => Some(AudioFormat::F32),
+                            Sample::F64(_) => Some(AudioFormat::F64),
+                            Sample::None => None,
+                        };
+                        nodekit_rs_audio::AudioFrame {
+                            buffer: a.data(0).to_vec(),
+                            rate: a.rate(),
+                            channels: a.channels(),
+                            format
+                        }
+                    });
                     Extraction::Frame(Frame { video, audio })
                 } else {
                     Extraction::NoFrame

@@ -1,4 +1,3 @@
-mod board;
 mod components;
 mod error;
 mod node;
@@ -7,15 +6,14 @@ mod systems;
 mod tick_result;
 
 pub use crate::components::*;
-use crate::node::{Node, NodeKey};
-use board::*;
 use error::Error;
 use nodekit_rs_action::Action;
 use nodekit_rs_graph::Graph;
 use slotmap::{SecondaryMap, SlotMap};
 use std::collections::HashMap;
-use std::path::Path;
+use nodekit_rs_visual::{STRIDE, VISUAL_D};
 pub use tick_result::TickResult;
+use crate::node::{Node, NodeKey};
 
 pub struct State {
     pub start: NodeKey,
@@ -23,18 +21,18 @@ pub struct State {
     pub nodes: SlotMap<NodeKey, Node>,
     pub transitions: SecondaryMap<NodeKey, SecondaryMap<SensorKey, NodeKey>>,
     pub nodekit_version: String,
-    pub board: Vec<u8>,
+    pub visual: Vec<u8>,
     finished: bool,
 }
 
 impl State {
-    pub fn new<P: AsRef<Path>>(value: Graph, directory: P) -> Result<Self, Error> {
+    pub fn new(value: Graph) -> Result<Self, Error> {
         let mut node_ids: HashMap<&String, NodeKey> = HashMap::default();
         let mut nodes = SlotMap::default();
         let mut sensor_ids = SecondaryMap::default();
         // Add nodes.
         for (node_id, node) in value.nodes.iter() {
-            let returned_node = Node::from_node(node, directory.as_ref())?;
+            let returned_node = Node::from_node(node)?;
             let node_key = nodes.insert(returned_node.node);
             sensor_ids.insert(node_key, returned_node.sensor_ids);
             node_ids.insert(node_id, node_key);
@@ -59,7 +57,7 @@ impl State {
             nodes,
             transitions,
             nodekit_version: value.nodekit_version.clone(),
-            board: board(),
+            visual: vec![0; VISUAL_D * VISUAL_D * STRIDE],
             finished: false,
         })
     }
@@ -72,7 +70,7 @@ impl State {
         if self.finished {
             Ok(TickResult::finished())
         } else {
-            let result = self.nodes[self.current].tick(action, &mut self.board)?;
+            let result = self.nodes[self.current].tick(action, &mut self.visual)?;
             // This node ended. Try to get the next node.
             if result.state == EntityState::EndedNow {
                 match result.sensor {

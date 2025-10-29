@@ -30,7 +30,7 @@ pub mod nodekit_rs_client {
     #[pyclass]
     #[derive(Clone)]
     pub struct Response {
-        pub board: Option<Vec<u8>>,
+        pub visual: Option<Vec<u8>>,
         pub audio: Option<Vec<u8>>,
         pub state: u8
     }
@@ -80,7 +80,7 @@ pub mod nodekit_rs_client {
         match response::root_as_response(&response) {
             Ok(response) => {
                 Ok(Response {
-                    board: response.board().map(|b| b.bytes().to_vec()),
+                    visual: response.board().map(|b| b.bytes().to_vec()),
                     audio: response.audio().map(|a| a.bytes().to_vec()),
                     state: response.state().0
                 })

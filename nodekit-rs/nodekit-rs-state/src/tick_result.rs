@@ -1,9 +1,11 @@
+use nodekit_rs_visual::VisualFrame;
 use crate::components::{EntityState, SensorKey};
+use nodekit_rs_audio::AudioFrame;
 
 #[derive(Default)]
 pub struct TickResult {
-    pub board: Option<Vec<u8>>,
-    pub audio: Option<Vec<u8>>,
+    pub visual: Option<VisualFrame>,
+    pub audio: Option<AudioFrame>,
     pub sensor: Option<SensorKey>,
     pub state: EntityState,
 }
@@ -11,7 +13,7 @@ pub struct TickResult {
 impl TickResult {
     pub const fn finished() -> Self {
         Self {
-            board: None,
+            visual: None,
             audio: None,
             sensor: None,
             state: EntityState::Finished,

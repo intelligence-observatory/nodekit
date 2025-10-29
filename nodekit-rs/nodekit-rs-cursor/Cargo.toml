@@ -1,10 +1,11 @@
 [package]
-name = "nodekit-rs-image"
+name = "nodekit-rs-cursor"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
 bytemuck.workspace = true
 nodekit-rs-visual = { path = "../nodekit-rs-visual" }
+
+[dev-dependencies]
 png.workspace = true
-thiserror.workspace = true

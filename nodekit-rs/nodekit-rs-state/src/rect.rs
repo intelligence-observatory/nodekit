@@ -1,7 +1,7 @@
-use crate::board::*;
 use blittle::*;
+use nodekit_rs_visual::*;
 
-#[derive(Default)]
+#[derive(Copy, Clone, Default)]
 pub struct Rect {
     pub position: PositionU,
     pub size: Size,
@@ -17,7 +17,7 @@ impl Rect {
             w: Self::size_coordinate(w),
             h: Self::size_coordinate(h),
         };
-        let position = clip(&position, &BOARD_SIZE, &mut size);
+        let position = clip(&position, &VISUAL_SIZE, &mut size);
         Self { position, size }
     }
 
@@ -37,10 +37,10 @@ impl Rect {
     }
 
     pub const fn spatial_coordinate(c: f64) -> isize {
-        (BOARD_D_HALF_F64 + BOARD_D_F64 * c) as isize
+        (VISUAL_D_F64_HALF + VISUAL_D_F64 * c) as isize
     }
 
     pub const fn size_coordinate(c: f64) -> usize {
-        (BOARD_D_F64 * c) as usize
+        (VISUAL_D_F64 * c) as usize
     }
 }

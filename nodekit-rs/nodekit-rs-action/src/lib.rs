@@ -1,7 +1,9 @@
-#[cfg(feature = "py")]
 use pyo3::prelude::*;
+use pyo3_stub_gen::derive::gen_stub_pyclass_enum;
 
-#[cfg_attr(feature = "py", pyclass)]
+/// An action that can be executed by an agent.
+#[gen_stub_pyclass_enum]
+#[pyclass]
 #[derive(Clone)]
 pub enum Action {
     Click { x: f32, y: f32 },

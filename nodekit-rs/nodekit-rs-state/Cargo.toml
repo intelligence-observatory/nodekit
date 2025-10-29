@@ -9,10 +9,11 @@ bytemuck.workspace = true
 hashbrown.workspace = true
 hex_color.workspace = true
 nodekit-rs-action = { path = "../nodekit-rs-action" }
-nodekit-rs-asset = { path = "../nodekit-rs-asset" }
+nodekit-rs-audio = { path = "../nodekit-rs-audio" }
 nodekit-rs-graph = { path = "../nodekit-rs-graph" }
 nodekit-rs-image = { path = "../nodekit-rs-image" }
 nodekit-rs-video = { path = "../nodekit-rs-video" }
+nodekit-rs-visual = { path = "../nodekit-rs-visual" }
 slotmap.workspace = true
 thiserror.workspace = true
 url.workspace = true
