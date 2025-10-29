@@ -139,7 +139,7 @@ def make_animation(
     dpi = 100
     fig_inch = movie_size_px / dpi
     fig = plt.figure(figsize=(fig_inch, fig_inch), dpi=dpi)
-    ax = plt.axes([0, 0, 1, 1])
+    ax = plt.axes((0, 0, 1, 1))
     ax.set_xlim(-0.5, 0.5)
     ax.set_ylim(-0.5, 0.5)
     ax.set_aspect("equal", adjustable="box")

@@ -119,7 +119,7 @@ class Helper:
 
         return hit_id
 
-    def list_hits(self, project_name: str = None) -> list[HitId]:
+    def list_hits(self, project_name: str | None = None) -> list[HitId]:
         # Just read off the local cache
         savedir = self._get_hit_cachedir()
         savedir.mkdir(parents=True, exist_ok=True)

@@ -1,10 +1,9 @@
 import nodekit as nk
-from typing import Tuple
 import math
 
 def make_mts_trial(
         stimulus: nk.assets.Image,
-        choices: Tuple[nk.assets.Image],
+        choices: list[nk.assets.Image],
         i_correct_choice: int,
         show_feedback: bool,
 ) -> nk.Graph:
