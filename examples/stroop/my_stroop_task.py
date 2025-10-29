@@ -116,7 +116,7 @@ def make_stroop_trial(
     }
 
     main_node = nk.Node(
-        cards={"stroop-stimulus": stimulus_card, 'key-reminder': key_reminder_card},
+        cards={"stroop-stimulus": stimulus_card, "key-reminder": key_reminder_card},
         sensors=sensors,
         board_color="#FFFFFF",  # White background
     )
@@ -246,13 +246,14 @@ class StroopTrialResult(pydantic.BaseModel):
     report: StroopColor
     reaction_time_msec: int = pydantic.Field(ge=0)
 
+
 # %%
 # %%
 if __name__ == "__main__":
     # Make a simple Stroop task with a few trials
     random.seed(42)
     trials = []
-    #trials.append(make_stroop_instructions())
+    # trials.append(make_stroop_instructions())
     trials.extend(
         [
             make_stroop_trial(
@@ -263,12 +264,11 @@ if __name__ == "__main__":
         ]
     )
 
-
     stroop_task = nk.concat(
         trials,
     )
 
-    nk.save_graph(stroop_task, 'my-stroop.nkg')
+    nk.save_graph(stroop_task, "my-stroop.nkg")
 
     trace = nk.play(stroop_task)
 

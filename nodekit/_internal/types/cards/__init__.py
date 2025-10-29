@@ -92,10 +92,9 @@ class VideoCard(BaseCard):
         description="Whether to loop the video when it ends.", default=False
     )
     start: bool = pydantic.Field(
-        description='Whether to play the video, or not', default=True,
+        description="Whether to play the video, or not",
+        default=True,
     )
-
-
 
 
 # %%

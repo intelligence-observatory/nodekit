@@ -1,36 +1,39 @@
 import nodekit as nk
 import math
 
+
 def make_mts_trial(
-        stimulus: nk.assets.Image,
-        choices: list[nk.assets.Image],
-        i_correct_choice: int,
-        show_feedback: bool,
+    stimulus: nk.assets.Image,
+    choices: list[nk.assets.Image],
+    i_correct_choice: int,
+    show_feedback: bool,
 ) -> nk.Graph:
     if not len(choices) == 8:
         raise ValueError
 
     # Fixation node
-    fixation_cross = nk.cards.ImageCard(image=nk.assets.Image.from_path('fixation-cross.svg'), x=0, y=0, w=0.05, h=0.05)
+    fixation_cross = nk.cards.ImageCard(
+        image=nk.assets.Image.from_path("fixation-cross.svg"), x=0, y=0, w=0.05, h=0.05
+    )
     fixation_node = nk.Node(
         cards={
-            'fixation-cross': fixation_cross,
+            "fixation-cross": fixation_cross,
         },
         sensors={
-            'clicked-fixation': nk.sensors.ClickSensor(
+            "clicked-fixation": nk.sensors.ClickSensor(
                 x=fixation_cross.x,
                 y=fixation_cross.y,
                 w=fixation_cross.w,
                 h=fixation_cross.h,
-                mask='ellipse',
+                mask="ellipse",
             )
-        }
+        },
     )
 
     # Main node
     stimulus_size = 0.375
-    viewing_time_msec=100
-    post_stim_delay=100
+    viewing_time_msec = 100
+    post_stim_delay = 100
     choice_size = 0.2
     stimulus_card = nk.cards.ImageCard(
         image=stimulus,
@@ -43,16 +46,15 @@ def make_mts_trial(
     )
     choice_cards = {}
     choice_sensors = {}
-    main_transitions = {} # sensor_id: 'punish' | 'reward'
-    def get_xy(i:int):
+    main_transitions = {}  # sensor_id: 'punish' | 'reward'
+
+    def get_xy(i: int):
         # Around a circle of radius. Starts at 12
-        theta_cur = 2 * math.pi * (i/8)
-        radius = stimulus_size*1.05
+        theta_cur = 2 * math.pi * (i / 8)
+        radius = stimulus_size * 1.05
         x = math.cos(theta_cur) * radius
         y = math.sin(theta_cur) * radius
         return x, y
-
-
 
     for i in range(len(choices)):
         xcur, ycur = get_xy(i)
@@ -64,97 +66,108 @@ def make_mts_trial(
             x=xcur,
             y=ycur,
         )
-        choice_cards[f'choice{i}'] = card
-        sensor_id = f'selected-choice{i}'
+        choice_cards[f"choice{i}"] = card
+        sensor_id = f"selected-choice{i}"
         choice_sensors[sensor_id] = nk.sensors.ClickSensor(
             x=card.x,
             y=card.y,
             w=choice_size,
             h=choice_size,
-            mask='ellipse',
+            mask="ellipse",
             start_msec=card.start_msec,
         )
 
-        main_transitions[sensor_id] = 'punish' if i_correct_choice != i else 'reward'
+        main_transitions[sensor_id] = "punish" if i_correct_choice != i else "reward"
 
     main_node = nk.Node(
         cards={
-            'stimulus': stimulus_card,
-        } | choice_cards,
+            "stimulus": stimulus_card,
+        }
+        | choice_cards,
         sensors=choice_sensors,
         effects=[
-            nk.effects.HidePointerEffect(start_msec=0, end_msec=viewing_time_msec+post_stim_delay),
-        ]
+            nk.effects.HidePointerEffect(
+                start_msec=0, end_msec=viewing_time_msec + post_stim_delay
+            ),
+        ],
     )
 
     # Punish node
     punish_color = (200, 0, 0)
+
     def RGB_to_hex(RGB):
-        return '#%02x%02x%02x' % RGB
+        return "#%02x%02x%02x" % RGB
+
     punish_node = nk.Node(
         cards={
-            'feedback': nk.cards.TextCard(
-                text='Incorrect.',
+            "feedback": nk.cards.TextCard(
+                text="Incorrect.",
                 text_color=RGB_to_hex(punish_color),
-                x=0,y=0,w=0.5,h=0.5,font_size=0.08,
+                x=0,
+                y=0,
+                w=0.5,
+                h=0.5,
+                font_size=0.08,
             )
         },
-        sensors={
-            'wait': nk.sensors.TimeoutSensor(
-                timeout_msec=1000
-            )
-        }
+        sensors={"wait": nk.sensors.TimeoutSensor(timeout_msec=1000)},
     )
 
     reward_color = (50, 50, 200)
     reward_node = nk.Node(
         cards={
-            'feedback': nk.cards.TextCard(
-                text='Correct!',
+            "feedback": nk.cards.TextCard(
+                text="Correct!",
                 text_color=RGB_to_hex(reward_color),
-                x=0, y=0, w=0.5, h=0.5, font_size=0.08,
+                x=0,
+                y=0,
+                w=0.5,
+                h=0.5,
+                font_size=0.08,
             )
         },
-        sensors={
-            'wait': nk.sensors.TimeoutSensor(
-                timeout_msec=300
-            )
-        }
+        sensors={"wait": nk.sensors.TimeoutSensor(timeout_msec=300)},
     )
 
-    transitions={
-        'fixation': {
-            'clicked-fixation': 'main',
+    transitions = {
+        "fixation": {
+            "clicked-fixation": "main",
         },
     }
     if show_feedback:
-        transitions['main'] = main_transitions
+        transitions["main"] = main_transitions
     trial = nk.Graph(
         nodes={
-            'fixation': fixation_node,
-            'main':main_node,
-            'punish': punish_node,
-            'reward': reward_node,
+            "fixation": fixation_node,
+            "main": main_node,
+            "punish": punish_node,
+            "reward": reward_node,
         },
         transitions=transitions,
-        start='fixation'
+        start="fixation",
     )
     return trial
 
 
 # %%
-if __name__ == '__main__':
+if __name__ == "__main__":
     import glob
     from pathlib import Path
-    token_imagepaths = glob.glob("./token-images/*.png")
-    class_to_token = {Path(path).stem :nk.assets.Image.from_path(path) for path in token_imagepaths}
-    class_to_stims={}
-    for c in class_to_token.keys():
-        class_to_stims[c] = [nk.assets.Image.from_path(p) for p in glob.glob(f'./stimulus-images/{c}/*.png')]
 
+    token_imagepaths = glob.glob("./token-images/*.png")
+    class_to_token = {
+        Path(path).stem: nk.assets.Image.from_path(path) for path in token_imagepaths
+    }
+    class_to_stims = {}
+    for c in class_to_token.keys():
+        class_to_stims[c] = [
+            nk.assets.Image.from_path(p)
+            for p in glob.glob(f"./stimulus-images/{c}/*.png")
+        ]
 
     # Make trials
     import random
+
     random.seed(0)
     num_trials = 100
     classes = sorted(class_to_token.keys())
@@ -181,12 +194,5 @@ if __name__ == '__main__':
         )
         trials.append(trial)
 
-
-
     graph = nk.concat(trials)
     nk.play(graph)
-
-
-
-
-

@@ -3,7 +3,7 @@ import nodekit as nk
 
 # Adapted from https://ipip.ori.org/new_ipip-50-item-scale.htm
 def make_big5_node(
-        prompt: str,
+    prompt: str,
 ) -> nk.Node:
     """
     Assemble a Graph which elicits a Likert-style response to a question.
@@ -11,11 +11,11 @@ def make_big5_node(
     The bottom 1/2 of the Board is used to show the Likert scale and submit button.
     """
     ordinal_choice_descriptions: list[str] = [
-        'Very inaccurate',
-        'Moderately inaccurate',
-        'Neither accurate nor inaccurate',
-        'Moderately accurate',
-        'Very accurate',
+        "Very inaccurate",
+        "Moderately inaccurate",
+        "Neither accurate nor inaccurate",
+        "Moderately accurate",
+        "Very accurate",
     ]
     initial_index: int = 2
     if initial_index < 0 or initial_index >= len(ordinal_choice_descriptions):
@@ -84,7 +84,8 @@ def make_big5_node(
         cards=cards,
         sensors={
             "submit-likert": nk.sensors.SubmitSensor(
-                submitter_id="submit-button", source_ids=["likert-scale"],
+                submitter_id="submit-button",
+                source_ids=["likert-scale"],
             )
         },
         board_color="#ffffff",
@@ -92,20 +93,19 @@ def make_big5_node(
 
     return node
 
-#%%
-if __name__ == '__main__':
+
+# %%
+if __name__ == "__main__":
     from pathlib import Path
     import json
     import random
 
-    items = json.loads(Path('items.json').read_text())
+    items = json.loads(Path("items.json").read_text())
     random.seed(42)
     # Randomize order
     nodes = []
     for i_item in random.sample(range(len(items)), k=len(items)):
-        nodes.append(
-            make_big5_node(prompt=items[i_item]['prompt'])
-        )
+        nodes.append(make_big5_node(prompt=items[i_item]["prompt"]))
     graph = nk.concat(nodes)
 
     # %%

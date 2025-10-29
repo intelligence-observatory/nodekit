@@ -14,10 +14,16 @@ import nodekit as nk
 class MarsItem(BaseModel):
     form: int = Field(..., description="Test/form family (tfN)")
     item: int = Field(..., description="Item ID within form")
-    tile_type: Literal["M", "T"] = Field(..., description="'M' for missing tile or 'T' for test option")
-    tile_index: Optional[int] = Field(None, description="Tile index (1–4) if applicable")
+    tile_type: Literal["M", "T"] = Field(
+        ..., description="'M' for missing tile or 'T' for test option"
+    )
+    tile_index: Optional[int] = Field(
+        None, description="Tile index (1–4) if applicable"
+    )
     shape_set: int = Field(..., description="Shape set index (ss1–ss3)")
-    variant: Optional[Literal["pd", "md"]] = Field(None, description="Presentation variant")
+    variant: Optional[Literal["pd", "md"]] = Field(
+        None, description="Presentation variant"
+    )
     ext: str = Field(..., description="File extension (e.g. jpeg)")
 
     @classmethod
@@ -58,11 +64,11 @@ class MarsItem(BaseModel):
 
 # %%
 def make_mars_trial(
-        grid_image: nk.assets.Image,
-        choices:Tuple[nk.assets.Image, nk.assets.Image, nk.assets.Image, nk.assets.Image],
+    grid_image: nk.assets.Image,
+    choices: Tuple[nk.assets.Image, nk.assets.Image, nk.assets.Image, nk.assets.Image],
 ) -> nk.Node:
     # Start with a fixation cross that disappears on its own
-    fixation_duration=1000
+    fixation_duration = 1000
 
     grid_card = nk.cards.ImageCard(
         image=grid_image,
@@ -72,8 +78,16 @@ def make_mars_trial(
         h=0.5,
         start_msec=fixation_duration,
     )
-    fixation_card = nk.cards.TextCard(text=r'\+', font_size=0.05, x=grid_card.x,y=grid_card.y,w=0.07, h=0.07, start_msec=0, end_msec=fixation_duration)
-
+    fixation_card = nk.cards.TextCard(
+        text=r"\+",
+        font_size=0.05,
+        x=grid_card.x,
+        y=grid_card.y,
+        w=0.07,
+        h=0.07,
+        start_msec=0,
+        end_msec=fixation_duration,
+    )
 
     # Choice cards
     choice_size = 0.16
@@ -96,12 +110,12 @@ def make_mars_trial(
 
         text_overlays.append(
             nk.cards.TextCard(
-                text = ' ',
+                text=" ",
                 selectable=True,
                 x=choice_card.x,
                 y=choice_card.y,
-                w=choice_card.w*1.1,
-                h=choice_card.h*1.1,
+                w=choice_card.w * 1.1,
+                h=choice_card.h * 1.1,
                 z_index=0,
                 start_msec=choice_card.start_msec,
                 end_msec=choice_card.end_msec,
@@ -112,52 +126,55 @@ def make_mars_trial(
 
     return nk.Node(
         cards={
-            'fixation': fixation_card,
-            'grid': grid_card,
-            'choice0': choice_cards[0],
-            'choice1': choice_cards[1],
-            'choice2': choice_cards[2],
-            'choice3': choice_cards[3],
-            'overlay0': text_overlays[0],
-            'overlay1': text_overlays[1],
-            'overlay2': text_overlays[2],
-            'overlay3': text_overlays[3],
+            "fixation": fixation_card,
+            "grid": grid_card,
+            "choice0": choice_cards[0],
+            "choice1": choice_cards[1],
+            "choice2": choice_cards[2],
+            "choice3": choice_cards[3],
+            "overlay0": text_overlays[0],
+            "overlay1": text_overlays[1],
+            "overlay2": text_overlays[2],
+            "overlay3": text_overlays[3],
         },
-        sensors = {
-            f'chose{i}': nk.sensors.ClickSensor(
+        sensors={
+            f"chose{i}": nk.sensors.ClickSensor(
                 x=choice_cards[i].x,
                 y=choice_cards[i].y,
                 w=choice_cards[i].w,
                 h=choice_cards[i].h,
                 start_msec=choice_cards[i].start_msec,
-            ) for i in range(len(choice_cards))
+            )
+            for i in range(len(choice_cards))
         },
         board_color="#ffffff",
     )
 
 
-
 # %%
 
 # %%
-if __name__ == '__main__':
+if __name__ == "__main__":
     import glob
 
-    paths = glob.glob('./items-png/tf1/**/*.png', recursive=True)
+    paths = glob.glob("./items-png/tf1/**/*.png", recursive=True)
     for path in paths:
         item = MarsItem.parse_filename(os.path.basename(path))
 
     import random
+
     random.seed(0)
 
     trials = []
     for i in range(20):
-        item = i+1
-        stim_path=glob.glob(f'./items-png/tf1/{item}/tf1_{item}_M_ss*.png')[0]
-        correct_choice= glob.glob(f'./items-png/tf1/{item}/tf1_{item}_T1_ss*_md.png')[0]
-        distractor1 =   glob.glob(f'./items-png/tf1/{item}/tf1_{item}_T2_ss*_md.png')[0]
-        distractor2 =   glob.glob(f'./items-png/tf1/{item}/tf1_{item}_T3_ss*_md.png')[0]
-        distractor3 =   glob.glob(f'./items-png/tf1/{item}/tf1_{item}_T4_ss*_md.png')[0]
+        item = i + 1
+        stim_path = glob.glob(f"./items-png/tf1/{item}/tf1_{item}_M_ss*.png")[0]
+        correct_choice = glob.glob(f"./items-png/tf1/{item}/tf1_{item}_T1_ss*_md.png")[
+            0
+        ]
+        distractor1 = glob.glob(f"./items-png/tf1/{item}/tf1_{item}_T2_ss*_md.png")[0]
+        distractor2 = glob.glob(f"./items-png/tf1/{item}/tf1_{item}_T3_ss*_md.png")[0]
+        distractor3 = glob.glob(f"./items-png/tf1/{item}/tf1_{item}_T4_ss*_md.png")[0]
 
         choices = [
             nk.assets.Image.from_path(correct_choice),
@@ -167,8 +184,7 @@ if __name__ == '__main__':
         ]
         random.shuffle(choices)
         trial = make_mars_trial(
-            grid_image=nk.assets.Image.from_path(stim_path),
-            choices=tuple(choices)
+            grid_image=nk.assets.Image.from_path(stim_path), choices=tuple(choices)
         )
         trials.append(trial)
 
