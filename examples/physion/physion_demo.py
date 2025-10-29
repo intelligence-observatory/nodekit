@@ -215,10 +215,10 @@ if __name__ == "__main__":
     trial1 = make_physion_trial(
         seed=0,
         selector_mask=nk.assets.Image.from_path(
-            "./stimuli/pilot_dominoes_2mid_J020R15_d3chairs_o1plants_tdwroom_2_0024_map.png"
+            "./stimuli/dominoes/pilot_dominoes_2mid_J020R15_d3chairs_o1plants_tdwroom_2_0024_map.png"
         ),
         video=nk.assets.Video.from_path(
-            "./stimuli/pilot_dominoes_2mid_J020R15_d3chairs_o1plants_tdwroom_2-redyellow_0024_img.mp4"
+            "./stimuli/dominoes/pilot_dominoes_2mid_J020R15_d3chairs_o1plants_tdwroom_2-redyellow_0024_img.mp4"
         ),
         correct_answer="no",
     )
