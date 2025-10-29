@@ -5,7 +5,8 @@ import math
 def make_mts_trial(
         stimulus: nk.assets.Image,
         choices: Tuple[nk.assets.Image],
-        i_correct_choice: int
+        i_correct_choice: int,
+        show_feedback: bool,
 ) -> nk.Graph:
     if not len(choices) == 8:
         raise ValueError
@@ -43,7 +44,7 @@ def make_mts_trial(
     )
     choice_cards = {}
     choice_sensors = {}
-
+    main_transitions = {} # sensor_id: 'punish' | 'reward'
     def get_xy(i:int):
         # Around a circle of radius. Starts at 12
         theta_cur = 2 * math.pi * (i/8)
@@ -65,7 +66,8 @@ def make_mts_trial(
             y=ycur,
         )
         choice_cards[f'choice{i}'] = card
-        choice_sensors[f'selected-choice{i}'] = nk.sensors.ClickSensor(
+        sensor_id = f'selected-choice{i}'
+        choice_sensors[sensor_id] = nk.sensors.ClickSensor(
             x=card.x,
             y=card.y,
             w=choice_size,
@@ -73,6 +75,8 @@ def make_mts_trial(
             mask='ellipse',
             start_msec=card.start_msec,
         )
+
+        main_transitions[sensor_id] = 'punish' if i_correct_choice != i else 'reward'
 
     main_node = nk.Node(
         cards={
@@ -92,8 +96,8 @@ def make_mts_trial(
         cards={
             'feedback': nk.cards.TextCard(
                 text='Incorrect.',
-                background_color=RGB_to_hex(punish_color),
-                x=0,y=0,w=0.5,h=0.5,font_size=0.04,
+                text_color=RGB_to_hex(punish_color),
+                x=0,y=0,w=0.5,h=0.5,font_size=0.08,
             )
         },
         sensors={
@@ -103,15 +107,37 @@ def make_mts_trial(
         }
     )
 
+    reward_color = (50, 50, 200)
+    reward_node = nk.Node(
+        cards={
+            'feedback': nk.cards.TextCard(
+                text='Correct!',
+                text_color=RGB_to_hex(reward_color),
+                x=0, y=0, w=0.5, h=0.5, font_size=0.08,
+            )
+        },
+        sensors={
+            'wait': nk.sensors.TimeoutSensor(
+                timeout_msec=300
+            )
+        }
+    )
+
+    transitions={
+        'fixation': {
+            'clicked-fixation': 'main',
+        },
+    }
+    if show_feedback:
+        transitions['main'] = main_transitions
     trial = nk.Graph(
         nodes={
             'fixation': fixation_node,
             'main':main_node,
-            #'punish': punish_node,
+            'punish': punish_node,
+            'reward': reward_node,
         },
-        transitions={
-            'fixation': {'clicked-fixation': 'main'},
-        },
+        transitions=transitions,
         start='fixation'
     )
     return trial
@@ -146,11 +172,13 @@ if __name__ == '__main__':
 
         choices = [match_token] + distractor_tokens
         i_shuffled = random.sample(range(len(choices)), len(choices))
-        i_correct_choice = i_shuffled[0]
+        i_correct_choice = i_shuffled.index(0)
+
         trial = make_mts_trial(
             stimulus=stim_image,
             choices=[choices[i] for i in i_shuffled],
             i_correct_choice=i_correct_choice,
+            show_feedback=True,
         )
         trials.append(trial)
 

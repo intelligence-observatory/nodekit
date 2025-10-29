@@ -1,7 +1,7 @@
 import enum
 
 import pydantic
-from typing import Literal, Dict, Annotated, Tuple, Set
+from typing import Literal, Dict, Annotated, Set
 from typing import Pattern
 
 from nodekit._internal.types.common import (
