@@ -2,11 +2,11 @@
 # https://osf.io/3wbr6/overview
 # Item set 1; tf.zip
 import os.path
-import random
 import re
-from typing import Literal, Optional
-from typing import Tuple
+from typing import Literal, Optional, Tuple
+
 from pydantic import BaseModel, Field
+
 import nodekit as nk
 
 
@@ -166,7 +166,7 @@ if __name__ == "__main__":
     random.seed(0)
 
     trials = []
-    for i in range(20):
+    for i in range(10):
         item = i + 1
         stim_path = glob.glob(f"./items-png/tf1/{item}/tf1_{item}_M_ss*.png")[0]
         correct_choice = glob.glob(f"./items-png/tf1/{item}/tf1_{item}_T1_ss*_md.png")[
