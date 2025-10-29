@@ -148,7 +148,8 @@ def make_animation(
     ax.set_facecolor((0, 0, 0, 0))
     for spine in ax.spines.values():
         spine.set_visible(False)
-    ax.set_xticks([]); ax.set_yticks([])
+    ax.set_xticks([])
+    ax.set_yticks([])
 
     # ----------------------------
     # Artists per trace in insertion order (controls z-index)
@@ -263,7 +264,8 @@ def make_animation(
                     if ts[i] > t_now:
                         break
                     if i == ts.size - 1:
-                        vx.append(xs[i]); vy.append(ys[i])
+                        vx.append(xs[i])
+                        vy.append(ys[i])
                     else:
                         t0, t1 = ts[i], ts[i+1]
                         x0, y0 = xs[i], ys[i]
@@ -275,7 +277,8 @@ def make_animation(
                             vy.append(y0 + frac*(y1 - y0))
                             break
                         else:
-                            vx.append(x1); vy.append(y1)
+                            vx.append(x1)
+                            vy.append(y1)
 
                 if len(vx) >= 2:
                     A["persist"].set_data(vx, vy)
