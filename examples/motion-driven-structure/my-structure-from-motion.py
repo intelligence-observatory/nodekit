@@ -272,37 +272,39 @@ def make_sfm_instructions() -> nk.Graph:
 
 
 # %%
-instructions = make_sfm_instructions()
-easy_trial = make_trial(
-    stimulus=nk.assets.Video.from_path("./stimuli/gestalt_0/1.mp4"),
-    left=nk.assets.Video.from_path("./stimuli/gestalt_0/2.mp4"),
-    right=nk.assets.Video.from_path("./stimuli/gestalt_0/8.mp4"),
-    correct_choice="left",
-)
+if __name__ == '__main__':
 
-trial_2 = make_trial(
-    stimulus=nk.assets.Video.from_path("./stimuli/2/2-stim.mp4"),
-    left=nk.assets.Video.from_path("./stimuli/2/2-left.mp4"),
-    right=nk.assets.Video.from_path("./stimuli/2/2-right.mp4"),
-    correct_choice="left",
-)
+    instructions = make_sfm_instructions()
+    easy_trial = make_trial(
+        stimulus=nk.assets.Video.from_path("./stimuli/gestalt_0/1.mp4"),
+        left=nk.assets.Video.from_path("./stimuli/gestalt_0/2.mp4"),
+        right=nk.assets.Video.from_path("./stimuli/gestalt_0/8.mp4"),
+        correct_choice="left",
+    )
 
-trial_3 = make_trial(
-    stimulus=nk.assets.Video.from_path("./stimuli/3/3-stim.mp4"),
-    left=nk.assets.Video.from_path("./stimuli/3/3-left.mp4"),
-    right=nk.assets.Video.from_path("./stimuli/3/3-right.mp4"),
-    correct_choice="right",
-)
+    trial_2 = make_trial(
+        stimulus=nk.assets.Video.from_path("./stimuli/2/2-stim.mp4"),
+        left=nk.assets.Video.from_path("./stimuli/2/2-left.mp4"),
+        right=nk.assets.Video.from_path("./stimuli/2/2-right.mp4"),
+        correct_choice="left",
+    )
 
-graph = nk.concat(
-    [
-        # instructions,
-        easy_trial,
-        trial_2,
-        trial_3,
-    ]
-)
+    trial_3 = make_trial(
+        stimulus=nk.assets.Video.from_path("./stimuli/3/3-stim.mp4"),
+        left=nk.assets.Video.from_path("./stimuli/3/3-left.mp4"),
+        right=nk.assets.Video.from_path("./stimuli/3/3-right.mp4"),
+        correct_choice="right",
+    )
 
-nk.save_graph(graph, "sfm.nkg")
-# %%
-nk.play(graph)
+    graph = nk.concat(
+        [
+            # instructions,
+            easy_trial,
+            trial_2,
+            trial_3,
+        ]
+    )
+
+    nk.save_graph(graph, "sfm.nkg")
+    # %%
+    nk.play(graph)
