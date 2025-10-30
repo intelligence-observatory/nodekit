@@ -1564,8 +1564,8 @@ class Ca {
       return e.locator.url;
     if (e.locator.locator_type == "RelativePath") {
       let t = document.baseURI;
-      const r = e.locator.relative_path.replace(/\\/g, "/").split("/").map((s) => encodeURIComponent(s)).join("/"), o = new URL(r, t).toString();
-      return console.log("fullUrl", o), o;
+      const r = e.locator.relative_path.replace(/\\/g, "/").split("/").map((o) => encodeURIComponent(o)).join("/");
+      return new URL(r, t).toString();
     }
     throw new Error("Unsupported locator for the browser environment. Found:" + JSON.stringify(e));
   }
