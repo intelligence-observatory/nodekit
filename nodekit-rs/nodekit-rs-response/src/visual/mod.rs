@@ -1,3 +1,5 @@
+mod error;
+
 use std::{
     fs::File,
     io::BufWriter
@@ -7,7 +9,7 @@ use png::{BitDepth, ColorType, Encoder};
 use pyo3::{pyclass, pymethods, PyResult};
 use pyo3::exceptions::{PyFileNotFoundError, PyIOError};
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
-use nodekit_rs_visual::Error;
+pub use error::Error;
 
 /// A raw bitmap `buffer` and its dimensions.
 #[gen_stub_pyclass]

@@ -4,10 +4,8 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-flatbuffers.workspace = true
-nodekit-rs-fb = { path = "../nodekit-rs-fb" }
+nodekit-rs-request = { path = "../nodekit-rs-request" }
 nodekit-rs-response = { path = "../nodekit-rs-response" }
-nodekit-rs-board = { path = "../nodekit-rs-board" }
 pyo3.workspace = true
 
 [lib]

@@ -1199,9 +1199,7 @@ dependencies = [
 name = "nodekit-rs-client"
 version = "0.1.0"
 dependencies = [
- "flatbuffers",
- "nodekit-rs-board",
- "nodekit-rs-fb",
+ "nodekit-rs-request",
  "nodekit-rs-response",
  "pyo3",
 ]
@@ -1241,19 +1239,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "nodekit-rs-messages"
-version = "0.1.0"
-dependencies = [
- "flatbuffers",
- "nodekit-rs-fb",
- "nodekit-rs-graph",
- "pyo3",
- "pyo3-stub-gen",
- "serde_json",
- "thiserror 2.0.17",
-]
-
-[[package]]
 name = "nodekit-rs-net"
 version = "0.1.0"
 dependencies = [
@@ -1263,6 +1248,19 @@ dependencies = [
  "nodekit-rs-graph",
  "nodekit-rs-response",
  "nodekit-rs-state",
+ "serde_json",
+ "thiserror 2.0.17",
+]
+
+[[package]]
+name = "nodekit-rs-request"
+version = "0.1.0"
+dependencies = [
+ "flatbuffers",
+ "nodekit-rs-fb",
+ "nodekit-rs-graph",
+ "pyo3",
+ "pyo3-stub-gen",
  "serde_json",
  "thiserror 2.0.17",
 ]
