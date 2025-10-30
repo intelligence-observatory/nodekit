@@ -2,16 +2,21 @@ mod action;
 mod error;
 pub mod serialize;
 
-use flatbuffers::size_prefixed_root;
-use serde_json::from_slice;
 pub use action::Action;
 pub use error::Error;
-use nodekit_rs_fb::{click as click_fb, graph as graph_fb, key_press as key_press_fb, noop as noop_fb};
+use flatbuffers::size_prefixed_root;
+use nodekit_rs_fb::{
+    click as click_fb, graph as graph_fb, key_press as key_press_fb, noop as noop_fb,
+};
 use nodekit_rs_graph::Graph;
+use serde_json::from_slice;
 
-
+/// A deserialized sent from Python to the simulator.
 pub enum Request {
+    /// A deserialized `Graph`.
     Graph(Graph),
+    /// Tell the simulator to advance by one tick.
+    /// Optionally, send an action as well.
     Tick(Option<Action>),
 }
 
@@ -32,8 +37,8 @@ impl Request {
 
     fn deserialize_graph(data: &[u8]) -> Result<Self, Error> {
         let graph = graph_fb::root_as_graph(data).map_err(Error::InvalidFlatbuffer)?;
-        let graph = from_slice::<Graph>(graph.node_graph().bytes())
-            .map_err(Error::DeserializeGraph)?;
+        let graph =
+            from_slice::<Graph>(graph.node_graph().bytes()).map_err(Error::DeserializeGraph)?;
         Ok(Self::Graph(graph))
     }
 
