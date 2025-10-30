@@ -1,5 +1,9 @@
 use pyo3::prelude::*;
 
+/// An API exposed to the Python client:
+///
+/// - Serialized a request
+/// - Deserialize a `Response`
 #[pymodule]
 pub mod nodekit_rs_client {
     #[pymodule_export]
