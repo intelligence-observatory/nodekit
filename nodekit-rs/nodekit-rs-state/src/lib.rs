@@ -7,10 +7,10 @@ mod systems;
 pub use crate::components::*;
 use crate::node::{Node, NodeKey};
 use error::Error;
-use nodekit_rs_action::Action;
+use nodekit_rs_board::{STRIDE, VISUAL_D};
+use nodekit_rs_request::Action;
 use nodekit_rs_graph::Graph;
 use nodekit_rs_response::Response;
-use nodekit_rs_visual::{STRIDE, VISUAL_D};
 use slotmap::{SecondaryMap, SlotMap};
 use std::collections::HashMap;
 

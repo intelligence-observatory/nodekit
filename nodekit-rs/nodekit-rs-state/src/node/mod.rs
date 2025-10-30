@@ -6,10 +6,10 @@ use blittle::blit;
 use bytemuck::{cast_slice, cast_slice_mut};
 use hashbrown::HashMap;
 use hex_color::HexColor;
-use nodekit_rs_action::Action;
+use nodekit_rs_board::*;
+use nodekit_rs_request::Action;
 use nodekit_rs_graph::{NodeCardsValue, NodeSensorsValue};
-use nodekit_rs_response::Response;
-use nodekit_rs_visual::*;
+use nodekit_rs_response::*;
 use slotmap::new_key_type;
 
 new_key_type! { pub struct NodeKey; }

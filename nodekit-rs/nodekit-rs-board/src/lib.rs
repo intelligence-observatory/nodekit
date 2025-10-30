@@ -13,6 +13,16 @@ pub const VISUAL_SIZE: Size = Size {
 };
 pub const STRIDE: usize = stride::RGB;
 
+/// Convert a value between -0.5 and 0.5 into a pixel coordinate.
+pub const fn spatial_coordinate(c: f64) -> isize {
+    (VISUAL_D_F64_HALF + VISUAL_D_F64 * c) as isize
+}
+
+/// Convert a value between 0 and 1 into a pixel coordinate.
+pub const fn size_coordinate(c: f64) -> usize {
+    (VISUAL_D_F64 * c) as usize
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -23,5 +33,15 @@ mod tests {
         assert_eq!(VISUAL_D, VISUAL_D_ISIZE as usize);
         assert_eq!(VISUAL_D, VISUAL_D_F64 as usize);
         assert_eq!(VISUAL_D / 2, VISUAL_D_F64_HALF as usize);
+    }
+    
+    #[test]
+    fn test_coordinates() {
+        assert_eq!(spatial_coordinate(0.), VISUAL_D_ISIZE / 2);
+        assert_eq!(spatial_coordinate(-0.5), 0);
+        assert_eq!(spatial_coordinate(0.5), VISUAL_D_ISIZE);
+
+        assert_eq!(spatial_coordinate(0.), 0);
+        assert_eq!(spatial_coordinate(1.), VISUAL_D_ISIZE);
     }
 }

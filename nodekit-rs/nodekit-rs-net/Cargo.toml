@@ -7,7 +7,6 @@ edition = "2024"
 async_zmq.workspace = true
 flatbuffers.workspace = true
 nodekit-rs-fb = { path = "../nodekit-rs-fb" }
-nodekit-rs-graph = { path = "../nodekit-rs-graph" }
 nodekit-rs-request = { path = "../nodekit-rs-request" }
 nodekit-rs-response = { path = "../nodekit-rs-response" }
 serde_json.workspace = true

@@ -10,7 +10,7 @@ pub enum Error {
     #[error("Error loading image: {0}")]
     Image(nodekit_rs_image::Error),
     #[error("Error creating visual frame: {0}")]
-    Visual(nodekit_rs_visual::Error),
+    Visual(nodekit_rs_response::VisualFrameError),
     #[error("Invalid asset locator: {:?}", 0)]
     AssetLocator(nodekit_rs_graph::AssetLocator),
 }

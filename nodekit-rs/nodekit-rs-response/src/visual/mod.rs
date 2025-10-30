@@ -9,7 +9,7 @@ use png::{BitDepth, ColorType, Encoder};
 use pyo3::{pyclass, pymethods, PyResult};
 use pyo3::exceptions::{PyFileNotFoundError, PyIOError};
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
-pub use error::Error;
+pub use error::VisualFrameError;
 
 /// A raw bitmap `buffer` and its dimensions.
 #[gen_stub_pyclass]
@@ -47,14 +47,14 @@ impl VisualFrame {
 
 impl VisualFrame {
     /// Resize this frame to `width` and `height`.
-    pub fn resize(&mut self, width: u32, height: u32) -> Result<(), Error> {
+    pub fn resize(&mut self, width: u32, height: u32) -> Result<(), VisualFrameError> {
         let src = fast_image_resize::images::Image::from_slice_u8(
             self.width,
             self.height,
             &mut self.buffer,
             PixelType::U8x3,
         )
-            .map_err(Error::ImageResizeBuffer)?;
+            .map_err(VisualFrameError::ImageResizeBuffer)?;
         // Resize the image.
         let mut dst = fast_image_resize::images::Image::new(width, height, PixelType::U8x3);
         let options = ResizeOptions {
@@ -65,7 +65,7 @@ impl VisualFrame {
         let mut resizer = Resizer::new();
         resizer
             .resize(&src, &mut dst, Some(&options))
-            .map_err(Error::ImageResize)?;
+            .map_err(VisualFrameError::ImageResize)?;
         self.buffer = dst.into_vec();
         self.width = width;
         self.height = height;

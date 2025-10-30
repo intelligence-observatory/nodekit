@@ -2,7 +2,8 @@ mod args;
 
 use crate::args::Args;
 use clap::Parser;
-use nodekit_rs_net::{Command, Connection};
+use nodekit_rs_net::Connection;
+use nodekit_rs_request::Request;
 use nodekit_rs_response::Response;
 use nodekit_rs_state::State;
 
@@ -22,9 +23,9 @@ async fn main() {
     }
 }
 
-async fn on_receive(state: &mut Option<State>, received: Command) -> Response {
+async fn on_receive(state: &mut Option<State>, received: Request) -> Response {
     match received {
-        Command::Graph(graph) => {
+        Request::Graph(graph) => {
             // Convert the graph into stateful information.
             let s = State::new(graph).unwrap();
             // Store the state.
@@ -32,7 +33,7 @@ async fn on_receive(state: &mut Option<State>, received: Command) -> Response {
             // Nothing has happened yet.
             Response::default()
         }
-        Command::Tick(action) => match state.as_mut() {
+        Request::Tick(action) => match state.as_mut() {
             Some(state) => state.tick(action).unwrap(),
             None => Response::default(),
         },

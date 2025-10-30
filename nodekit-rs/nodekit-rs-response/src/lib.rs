@@ -6,6 +6,7 @@ use nodekit_rs_fb::response;
 pub use visual::*;
 use pyo3::exceptions::PyTypeError;
 use pyo3::prelude::*;
+use pyo3::types::PyBytes;
 use pyo3_stub_gen::derive::*;
 pub use audio::*;
 
@@ -84,8 +85,8 @@ impl Response {
 impl Response {
     /// Deserialize a `Response`.
     #[new]
-    pub fn deserialize(buffer: Vec<u8>) -> PyResult<Self> {
-        match response::root_as_response(&buffer) {
+    pub fn deserialize(buffer: &Bound<'_, PyBytes>) -> PyResult<Self> {
+        match response::root_as_response(buffer.as_bytes()) {
             Ok(response) => Ok(Self {
                 visual: response.visual().map(|visual| VisualFrame {
                     buffer: visual.buffer().bytes().to_vec(),

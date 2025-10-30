@@ -1,14 +1,13 @@
 use crate::get_w_h;
-use crate::rect::Rect;
 use crate::{
     components::card::{Card, get_path},
     error::Error,
 };
 use blittle::*;
-use nodekit_rs_audio::AudioFrame;
 use nodekit_rs_graph::VideoCard;
 use nodekit_rs_video::*;
-use nodekit_rs_visual::*;
+use nodekit_rs_board::*;
+use nodekit_rs_response::AudioFrame;
 use slotmap::new_key_type;
 use std::path::{Path, PathBuf};
 

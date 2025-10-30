@@ -1,5 +1,5 @@
 use crate::{DIAMETER, RADIUS, RADIUS_I};
-use nodekit_rs_visual::*;
+use nodekit_rs_board::*;
 
 /// Clamp a coordinate and derive where to start and stop blitting an image.
 pub struct Clamped {

@@ -2,7 +2,7 @@ mod clamped;
 
 use crate::clamped::Clamped;
 use bytemuck::cast_slice;
-use nodekit_rs_visual::*;
+use nodekit_rs_board::*;
 use std::slice::from_raw_parts_mut;
 
 const DIAMETER: usize = 32;
