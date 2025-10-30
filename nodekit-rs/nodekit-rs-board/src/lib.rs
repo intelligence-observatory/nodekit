@@ -34,7 +34,7 @@ mod tests {
         assert_eq!(VISUAL_D, VISUAL_D_F64 as usize);
         assert_eq!(VISUAL_D / 2, VISUAL_D_F64_HALF as usize);
     }
-    
+
     #[test]
     fn test_coordinates() {
         assert_eq!(spatial_coordinate(0.), VISUAL_D_ISIZE / 2);

@@ -6,7 +6,6 @@ members = [
     "nodekit-rs-fb",
     "nodekit-rs-graph",
     "nodekit-rs-image",
-    "nodekit-rs-net",
     "nodekit-rs-request",
     "nodekit-rs-response",
     "nodekit-rs-state",
@@ -19,11 +18,12 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+async_zmq.workspace = true
 clap.workspace = true
-nodekit-rs-net = { path = "nodekit-rs-net" }
 nodekit-rs-request = { path = "nodekit-rs-request" }
 nodekit-rs-response = { path = "nodekit-rs-response" }
 nodekit-rs-state = { path = "nodekit-rs-state" }
+thiserror.workspace = true
 tokio.workspace = true
 
 [workspace.dependencies]

@@ -7,8 +7,8 @@ use bytemuck::{cast_slice, cast_slice_mut};
 use hashbrown::HashMap;
 use hex_color::HexColor;
 use nodekit_rs_board::*;
-use nodekit_rs_request::Action;
 use nodekit_rs_graph::{NodeCardsValue, NodeSensorsValue};
+use nodekit_rs_request::Action;
 use nodekit_rs_response::*;
 use slotmap::new_key_type;
 
@@ -92,7 +92,7 @@ impl Node {
         Ok(node)
     }
 
-    pub fn start(&mut self, visual: &mut [u8]) -> Response {
+    fn start(&mut self, visual: &mut [u8]) -> Response {
         // Set the state.
         self.state = EntityState::StartedNow;
         // Fill the board with my color.
@@ -116,6 +116,9 @@ impl Node {
     }
 
     pub fn tick(&mut self, action: Option<Action>, board: &mut [u8]) -> Result<Response, Error> {
+        if self.state == EntityState::Pending {
+            return Ok(self.start(board));
+        }
         if self.state == EntityState::StartedNow {
             self.state = EntityState::Active;
         }

@@ -1,28 +1,33 @@
+//! The [`Response`] is sent from the simulator to the Python client.
+//!
+//! The [`VisualFrame`] and [`AudioFrame`] structs are used as fields of [`Response`],
+//! and elsewhere in `nodekit-rs`, particularly when blitting images or extracting video frames.
+
 mod audio;
 mod visual;
 
+pub use audio::*;
 use flatbuffers::FlatBufferBuilder;
 use nodekit_rs_fb::response;
-pub use visual::*;
 use pyo3::exceptions::PyTypeError;
 use pyo3::prelude::*;
 use pyo3::types::PyBytes;
 use pyo3_stub_gen::derive::*;
-pub use audio::*;
+pub use visual::*;
 
 #[gen_stub_pyclass]
 #[pyclass]
 #[derive(Default)]
 pub struct Response {
-    /// The visual frame. 
+    /// The visual frame.
     /// If None, the visual frame didn't update.
     #[pyo3(get)]
     pub visual: Option<VisualFrame>,
-    /// The audio frame. 
+    /// The audio frame.
     /// If None, the audio frame either didn't update or there is no audio.
     #[pyo3(get)]
     pub audio: Option<AudioFrame>,
-    /// If not None, this is the ID of the sensor triggered the end of the node. 
+    /// If not None, this is the ID of the sensor triggered the end of the node.
     #[pyo3(get)]
     pub sensor: Option<String>,
     /// If true, the current node finished on this frame.
@@ -31,9 +36,9 @@ pub struct Response {
 }
 
 impl Response {
-    pub fn serialize(&self) -> Vec<u8> {
+    pub fn serialize(&self, version: Option<&str>) -> Vec<u8> {
         let mut fbb = FlatBufferBuilder::new();
-
+        let version = version.map(|version| fbb.create_string(version));
         let visual = self.visual.as_ref().map(|visual| {
             let buffer = Some(fbb.create_vector(&visual.buffer));
             let args = response::VisualFrameArgs {
@@ -73,10 +78,20 @@ impl Response {
             audio,
             sensor,
             finished: self.finished,
+            version,
         };
         let offset = response::Response::create(&mut fbb, &args);
         response::finish_response_buffer(&mut fbb, offset);
         fbb.finished_data().to_vec()
+    }
+
+    pub fn finished() -> Self {
+        Self {
+            visual: None,
+            audio: None,
+            sensor: None,
+            finished: true,
+        }
     }
 }
 

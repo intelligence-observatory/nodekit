@@ -26,6 +26,7 @@ table Response {
     audio:AudioFrame;
     sensor:string;
     finished:bool;
+    version:string;
 }
 
 root_type Response;

@@ -1,3 +1,6 @@
+//! This crate contains the core functionality of `nodekit-rs`.
+//! Everything except the socket connection routes to this crate.
+
 mod components;
 mod error;
 mod node;
@@ -8,19 +11,27 @@ pub use crate::components::*;
 use crate::node::{Node, NodeKey};
 use error::Error;
 use nodekit_rs_board::{STRIDE, VISUAL_D};
-use nodekit_rs_request::Action;
 use nodekit_rs_graph::Graph;
+use nodekit_rs_request::Action;
 use nodekit_rs_response::Response;
 use slotmap::{SecondaryMap, SlotMap};
 use std::collections::HashMap;
 
+/// The state of the simulator.
+/// A `State` translates a `Graph` into stateful information.
+/// A `State` can be updated via [`State::tick()`], which returns a `Response`.
 pub struct State {
-    pub start: NodeKey,
+    /// The key of the current node.
     current: NodeKey,
-    pub nodes: SlotMap<NodeKey, Node>,
-    pub transitions: SecondaryMap<NodeKey, SecondaryMap<SensorKey, NodeKey>>,
+    /// The nodes in the graph.
+    nodes: SlotMap<NodeKey, Node>,
+    /// The edges in the graph.
+    transitions: SecondaryMap<NodeKey, SecondaryMap<SensorKey, NodeKey>>,
+    /// This is sent as part of the `Response`.
     pub nodekit_version: String,
-    pub visual: Vec<u8>,
+    /// An allocated visual board.
+    visual: Vec<u8>,
+    /// If true, the graph is done.
     finished: bool,
 }
 
@@ -52,7 +63,6 @@ impl State {
         let start = node_ids[&value.start];
 
         Ok(Self {
-            start,
             current: start,
             nodes,
             transitions,
@@ -62,13 +72,9 @@ impl State {
         })
     }
 
-    pub fn current_node(&mut self) -> &mut Node {
-        &mut self.nodes[self.current]
-    }
-
     pub fn tick(&mut self, action: Option<Action>) -> Result<Response, Error> {
         if self.finished {
-            Ok(Response::default())
+            Ok(Response::finished())
         } else {
             let response = self.nodes[self.current].tick(action, &mut self.visual)?;
             // This node ended. Try to get the next node.
@@ -81,7 +87,7 @@ impl State {
                     }
                     None => {
                         self.finished = true;
-                        Ok(Response::default())
+                        Ok(Response::finished())
                     }
                 }
             } else {

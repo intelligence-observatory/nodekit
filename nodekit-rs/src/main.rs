@@ -1,8 +1,9 @@
 mod args;
+mod connection;
 
 use crate::args::Args;
 use clap::Parser;
-use nodekit_rs_net::Connection;
+use connection::Connection;
 use nodekit_rs_request::Request;
 use nodekit_rs_response::Response;
 use nodekit_rs_state::State;
@@ -19,7 +20,13 @@ async fn main() {
         // Execute the command or tick.
         let result = on_receive(&mut state, received).await;
         // Send the tick result.
-        connection.send(result).await.unwrap();
+        connection
+            .send(
+                result,
+                state.as_ref().map(|state| state.nodekit_version.as_str()),
+            )
+            .await
+            .unwrap();
     }
 }
 

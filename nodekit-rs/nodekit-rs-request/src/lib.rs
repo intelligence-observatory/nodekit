@@ -1,3 +1,9 @@
+//! This crate contains the [`Request`] that the Python client sends to the simulator
+//! (as a serialized byte array).
+//!
+//! The [`serialize`] functions are Python-facing.
+//! The [`Request`] struct isn't Python-facing because there's never a need to use it there.
+
 mod action;
 mod error;
 pub mod serialize;

@@ -1,15 +1,12 @@
 mod error;
 
-use std::{
-    fs::File,
-    io::BufWriter
-};
+pub use error::VisualFrameError;
 use fast_image_resize::{FilterType, PixelType, ResizeAlg, ResizeOptions, Resizer, SrcCropping};
 use png::{BitDepth, ColorType, Encoder};
-use pyo3::{pyclass, pymethods, PyResult};
 use pyo3::exceptions::{PyFileNotFoundError, PyIOError};
+use pyo3::{PyResult, pyclass, pymethods};
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
-pub use error::VisualFrameError;
+use std::{fs::File, io::BufWriter};
 
 /// A raw bitmap `buffer` and its dimensions.
 #[gen_stub_pyclass]
@@ -54,7 +51,7 @@ impl VisualFrame {
             &mut self.buffer,
             PixelType::U8x3,
         )
-            .map_err(VisualFrameError::ImageResizeBuffer)?;
+        .map_err(VisualFrameError::ImageResizeBuffer)?;
         // Resize the image.
         let mut dst = fast_image_resize::images::Image::new(width, height, PixelType::U8x3);
         let options = ResizeOptions {

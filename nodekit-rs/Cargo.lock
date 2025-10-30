@@ -1048,11 +1048,12 @@ dependencies = [
 name = "nodekit-rs"
 version = "0.1.0"
 dependencies = [
+ "async_zmq",
  "clap",
- "nodekit-rs-net",
  "nodekit-rs-request",
  "nodekit-rs-response",
  "nodekit-rs-state",
+ "thiserror 2.0.17",
  "tokio",
 ]
 
@@ -1104,18 +1105,6 @@ dependencies = [
  "bytemuck",
  "nodekit-rs-response",
  "png",
- "thiserror 2.0.17",
-]
-
-[[package]]
-name = "nodekit-rs-net"
-version = "0.1.0"
-dependencies = [
- "async_zmq",
- "flatbuffers",
- "nodekit-rs-request",
- "nodekit-rs-response",
- "serde_json",
  "thiserror 2.0.17",
 ]
 
