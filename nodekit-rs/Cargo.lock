@@ -1202,6 +1202,7 @@ dependencies = [
  "nodekit-rs-request",
  "nodekit-rs-response",
  "pyo3",
+ "pyo3-stub-gen",
 ]
 
 [[package]]
@@ -1296,6 +1297,14 @@ dependencies = [
  "slotmap",
  "thiserror 2.0.17",
  "url",
+]
+
+[[package]]
+name = "nodekit-rs-stub-gen"
+version = "0.1.0"
+dependencies = [
+ "nodekit-rs-client",
+ "pyo3-stub-gen",
 ]
 
 [[package]]

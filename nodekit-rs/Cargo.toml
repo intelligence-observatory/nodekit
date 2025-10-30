@@ -1,16 +1,17 @@
 [workspace]
 members = [
+    "nodekit-rs-board",
     "nodekit-rs-client",
     "nodekit-rs-cursor",
     "nodekit-rs-fb",
     "nodekit-rs-graph",
     "nodekit-rs-image",
-    "nodekit-rs-request",
     "nodekit-rs-net",
+    "nodekit-rs-request",
     "nodekit-rs-response",
     "nodekit-rs-state",
     "nodekit-rs-video",
-    "nodekit-rs-board"
+    "nodekit-rs-stub-gen"
 ]
 
 [package]

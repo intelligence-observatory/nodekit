@@ -1,0 +1,8 @@
+[package]
+name = "nodekit-rs-stub-gen"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+nodekit-rs-client = { path = "../nodekit-rs-client" }
+pyo3-stub-gen.workspace = true
