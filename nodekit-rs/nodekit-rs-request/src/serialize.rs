@@ -18,18 +18,22 @@ pub fn noop<'py>(py: Python<'py>) -> Bound<'py, PyBytes> {
     PyBytes::new(py, fbb.finished_data())
 }
 
-/// Returns a `graph` *(which is already serialized JSON data)* serialized as a Flatbuffer byte array.
+/// Returns a serialized graph.
+/// The `graph` must be of type `nodekit.Graph`
 #[gen_stub_pyfunction]
 #[pyfunction]
-pub fn graph<'py>(py: Python<'py>, graph: &Bound<'py, PyBytes>) -> Bound<'py, PyBytes> {
+pub fn graph<'py>(py: Python<'py>, graph: &Bound<'py, PyAny>) -> PyResult<Bound<'py, PyBytes>> {
+    // Assume that this is a valid Graph and try to dump the JSON string.
+    let json = graph.getattr("model_dump_json")?.call0()?;
+    // Serialize the JSON string into a Flatbuffer.
     let mut fbb = FlatBufferBuilder::new();
-    let node_graph = fbb.create_vector(graph.as_bytes());
+    let node_graph = fbb.create_vector(json.cast::<PyString>()?.to_str()?.as_bytes());
     let args = graph_fb::GraphArgs {
         node_graph: Some(node_graph),
     };
     let graph = graph_fb::Graph::create(&mut fbb, &args);
     graph_fb::finish_graph_buffer(&mut fbb, graph);
-    PyBytes::new(py, fbb.finished_data())
+    Ok(PyBytes::new(py, fbb.finished_data()))
 }
 
 /// Returns a serialized tick with a click action.
