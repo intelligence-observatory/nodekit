@@ -19,9 +19,13 @@ pub struct Response {
     pub visual: Option<VisualFrame>,
     /// The audio frame. 
     /// If None, the audio frame either didn't update or there is no audio.
+    #[pyo3(get)]
     pub audio: Option<AudioFrame>,
     /// If not None, this is the ID of the sensor triggered the end of the node. 
+    #[pyo3(get)]
     pub sensor: Option<String>,
+    /// If true, the current node finished on this frame.
+    #[pyo3(get)]
     pub finished: bool,
 }
 

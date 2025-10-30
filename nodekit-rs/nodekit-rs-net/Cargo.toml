@@ -8,7 +8,7 @@ async_zmq.workspace = true
 flatbuffers.workspace = true
 nodekit-rs-fb = { path = "../nodekit-rs-fb" }
 nodekit-rs-graph = { path = "../nodekit-rs-graph" }
+nodekit-rs-request = { path = "../nodekit-rs-request" }
 nodekit-rs-response = { path = "../nodekit-rs-response" }
-nodekit-rs-state = { path = "../nodekit-rs-state" }
 serde_json.workspace = true
 thiserror.workspace = true

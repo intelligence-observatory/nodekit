@@ -1248,8 +1248,8 @@ dependencies = [
  "flatbuffers",
  "nodekit-rs-fb",
  "nodekit-rs-graph",
+ "nodekit-rs-request",
  "nodekit-rs-response",
- "nodekit-rs-state",
  "serde_json",
  "thiserror 2.0.17",
 ]
