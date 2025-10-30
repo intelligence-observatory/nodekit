@@ -16,9 +16,7 @@ export class AssetManager {
                 .map(seg => encodeURIComponent(seg))
                 .join("/");
 
-            const fullUrl = new URL(safePath, baseUrl).toString();
-            console.log('fullUrl', fullUrl)
-            return fullUrl
+            return new URL(safePath, baseUrl).toString();
         }
 
         throw new Error('Unsupported locator for the browser environment. Found:' + JSON.stringify(asset));
