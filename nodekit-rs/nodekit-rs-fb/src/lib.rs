@@ -7,4 +7,5 @@
 pub mod click;
 pub mod graph;
 pub mod key_press;
+pub mod noop;
 pub mod response;

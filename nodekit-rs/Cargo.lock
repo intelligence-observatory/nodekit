@@ -1189,14 +1189,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "nodekit-rs-action"
-version = "0.1.0"
-dependencies = [
- "pyo3",
- "pyo3-stub-gen",
-]
-
-[[package]]
 name = "nodekit-rs-audio"
 version = "0.1.0"
 dependencies = [
@@ -1209,7 +1201,6 @@ name = "nodekit-rs-client"
 version = "0.1.0"
 dependencies = [
  "flatbuffers",
- "nodekit-rs-action",
  "nodekit-rs-audio",
  "nodekit-rs-fb",
  "nodekit-rs-response",
@@ -1252,12 +1243,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "nodekit-rs-messages"
+version = "0.1.0"
+dependencies = [
+ "flatbuffers",
+ "nodekit-rs-fb",
+ "nodekit-rs-graph",
+ "pyo3",
+ "pyo3-stub-gen",
+ "serde_json",
+ "thiserror 2.0.17",
+]
+
+[[package]]
 name = "nodekit-rs-net"
 version = "0.1.0"
 dependencies = [
  "async_zmq",
  "flatbuffers",
- "nodekit-rs-action",
  "nodekit-rs-audio",
  "nodekit-rs-fb",
  "nodekit-rs-graph",
@@ -1287,7 +1290,6 @@ dependencies = [
  "bytemuck",
  "hashbrown 0.16.0",
  "hex_color",
- "nodekit-rs-action",
  "nodekit-rs-audio",
  "nodekit-rs-graph",
  "nodekit-rs-image",

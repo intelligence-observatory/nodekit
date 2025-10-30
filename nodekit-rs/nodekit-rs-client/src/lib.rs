@@ -17,25 +17,6 @@ pub mod nodekit_rs_client {
         Tick(Option<Action>),
     }
 
-    /// A no-op tick.
-    #[pyfunction]
-    pub fn noop() -> Payload {
-        Payload::Tick(None)
-    }
-
-    /// Convert a serialized `Graph` into a `Payload`.
-    #[pyfunction]
-    #[pyo3(signature = (graph: "str"))]
-    pub fn graph(graph: String) -> Payload {
-        Payload::Graph(graph)
-    }
-
-    /// Convert (x, y) coordinates into a `Payload`.
-    #[pyfunction]
-    pub fn click(x: f32, y: f32) -> Payload {
-        Payload::Tick(Some(Action::Click { x, y }))
-    }
-
     /// Convert a keyboard key into a `Payload`.
     #[pyfunction]
     pub fn key_press(key: String) -> Payload {

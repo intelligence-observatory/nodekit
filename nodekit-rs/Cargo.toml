@@ -1,12 +1,11 @@
 [workspace]
 members = [
-    "nodekit-rs-action",
     "nodekit-rs-audio",
     "nodekit-rs-client",
     "nodekit-rs-cursor",
     "nodekit-rs-fb",
     "nodekit-rs-graph",
-    "nodekit-rs-image",
+    "nodekit-rs-image", "nodekit-rs-messages",
     "nodekit-rs-net",
     "nodekit-rs-response",
     "nodekit-rs-state",

@@ -1,0 +1,5 @@
+table Noop {
+}
+
+root_type Noop;
+file_identifier "noop";
