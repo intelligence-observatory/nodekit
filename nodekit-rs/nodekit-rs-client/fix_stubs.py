@@ -10,4 +10,5 @@ path = Path('nodekit_rs_client.pyi')
 text = path.read_text()
 text = text.replace('def buffer(self) -> builtins.list[builtins.int]:',
                     'def buffer(self) -> builtins.bytes:')
+assert '[builtins.int]' not in text, text
 path.write_text(text)

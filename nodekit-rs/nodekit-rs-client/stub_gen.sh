@@ -2,5 +2,5 @@
 
 set -e
 
-cargo run nodekit-rs-stub-gen
+cargo run --example stub_gen
 python fix_stubs.py

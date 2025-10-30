@@ -11,4 +11,4 @@ pyo3-stub-gen.workspace = true
 
 [lib]
 name = "nodekit_rs_client"
-crate-type = ["cdylib"]
+crate-type = ["cdylib", "rlib"]
