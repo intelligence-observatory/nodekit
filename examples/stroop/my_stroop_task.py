@@ -3,6 +3,7 @@ from pathlib import Path
 
 import nodekit as nk
 import random
+import pydantic
 
 
 # %%
@@ -88,6 +89,13 @@ def make_stroop_trial(
         justification_vertical="center",
         start_msec=0,
     )
+    key_reminder_card = nk.cards.TextCard(
+        x=0,
+        y=-0.2,
+        w=1,
+        h=0.1,
+        text="Is the ink color (r)ed, (g)reen, (b)lue, or (y)ellow?",
+    )
 
     sensors = {
         "red": nk.sensors.KeySensor(
@@ -108,7 +116,7 @@ def make_stroop_trial(
     }
 
     main_node = nk.Node(
-        cards={"stroop-stimulus": stimulus_card},
+        cards={"stroop-stimulus": stimulus_card, "key-reminder": key_reminder_card},
         sensors=sensors,
         board_color="#FFFFFF",  # White background
     )
@@ -186,7 +194,6 @@ def make_stroop_trial(
         font_size=0.1,
         justification_horizontal="center",
         justification_vertical="center",
-        start_msec=0,
     )
     fixation_sensor = nk.sensors.KeySensor(
         key=" ",
@@ -233,18 +240,36 @@ def make_stroop_trial(
 
 
 # %%
+class StroopTrialResult(pydantic.BaseModel):
+    text: StroopColor
+    text_color: StroopColor
+    report: StroopColor
+    reaction_time_msec: int = pydantic.Field(ge=0)
+
+
+# %%
+# %%
 if __name__ == "__main__":
     # Make a simple Stroop task with a few trials
     random.seed(42)
-    trials = [
-        make_stroop_trial(
-            stimulus_color=random.choice(list(StroopColor)),
-            stimulus_word=random.choice(list(StroopColor)),
-        )
-        for _ in range(5)
-    ]
-    stroop_task = nk.concat(
-        [make_stroop_instructions()] + trials,
+    trials = []
+    # trials.append(make_stroop_instructions())
+    trials.extend(
+        [
+            make_stroop_trial(
+                stimulus_color=random.choice(list(StroopColor)),
+                stimulus_word=random.choice(list(StroopColor)),
+            )
+            for _ in range(50)
+        ]
     )
 
-    nk.play(stroop_task)
+    stroop_task = nk.concat(
+        trials,
+    )
+
+    nk.save_graph(stroop_task, "my-stroop.nkg")
+
+    trace = nk.play(stroop_task)
+
+    # Project a tidy DataFrame from the Trace

@@ -6,6 +6,7 @@ export interface BaseCard<T extends string> {
 
     x: SpatialPoint
     y: SpatialPoint
+    z_index: number | null;
 
     w: SpatialSize
     h: SpatialSize
@@ -26,6 +27,7 @@ export interface VideoCard extends BaseCard<'VideoCard'>{
     video: Video;
     muted: boolean;
     loop: boolean;
+    start: boolean;
 }
 
 export interface TextCard extends BaseCard<'TextCard'>, SelectableMixin{
