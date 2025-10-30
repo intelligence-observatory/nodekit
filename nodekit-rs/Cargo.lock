@@ -1313,6 +1313,7 @@ name = "nodekit-rs-video"
 version = "0.1.0"
 dependencies = [
  "ffmpeg-next",
+ "nodekit-rs-response",
 ]
 
 [[package]]

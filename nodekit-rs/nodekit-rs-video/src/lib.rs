@@ -15,7 +15,7 @@ use ffmpeg_next::{
     util::frame::{audio::Audio as AudioFrame, video::Video as VideoFrame},
 };
 pub use frame::Frame;
-use nodekit_rs_audio::AudioFormat;
+use nodekit_rs_response::AudioFormat;
 use packet_iter::PacketIter;
 use std::{
     collections::VecDeque,
@@ -121,7 +121,7 @@ impl FrameExtractor {
                             Sample::F64(_) => Some(AudioFormat::F64),
                             Sample::None => None,
                         };
-                        nodekit_rs_audio::AudioFrame {
+                        nodekit_rs_response::AudioFrame {
                             buffer: a.data(0).to_vec(),
                             rate: a.rate(),
                             channels: a.channels(),
