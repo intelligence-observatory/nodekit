@@ -1113,7 +1113,6 @@ version = "0.1.0"
 dependencies = [
  "async_zmq",
  "flatbuffers",
- "nodekit-rs-fb",
  "nodekit-rs-request",
  "nodekit-rs-response",
  "serde_json",
