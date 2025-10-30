@@ -10,7 +10,7 @@ mod error;
 
 use bytemuck::cast_slice;
 pub use error::Error;
-use nodekit_rs_visual::VisualFrame;
+use nodekit_rs_response::VisualFrame;
 use png::{ColorType, Decoder};
 use std::{fs::File, io::BufReader, path::Path};
 

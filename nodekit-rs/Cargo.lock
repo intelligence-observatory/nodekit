@@ -1235,6 +1235,7 @@ version = "0.1.0"
 dependencies = [
  "bytemuck",
  "nodekit-rs-board",
+ "nodekit-rs-response",
  "png",
  "thiserror 2.0.17",
 ]
