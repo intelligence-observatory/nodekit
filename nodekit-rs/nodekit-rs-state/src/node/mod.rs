@@ -111,7 +111,7 @@ impl Node {
             }),
             audio: None,
             sensor: None,
-            ended: false,
+            finished: false,
         }
     }
 
@@ -154,7 +154,7 @@ impl Node {
             .any(|sensor| sensor.tick());
         if ended {
             self.state = EntityState::EndedNow;
-            response.ended = true;
+            response.finished = true;
         }
         ended
     }
@@ -218,7 +218,7 @@ impl Node {
             // End the node.
             if let Some(sensor_key) = sensor_key {
                 self.state = EntityState::EndedNow;
-                response.ended = true;
+                response.finished = true;
                 response.sensor = Some(self.sensors.sensors[sensor_key].id.clone());
             }
         }

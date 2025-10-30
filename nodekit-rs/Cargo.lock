@@ -1189,13 +1189,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "nodekit-rs-board"
+version = "0.1.0"
+dependencies = [
+ "blittle",
+]
+
+[[package]]
 name = "nodekit-rs-client"
 version = "0.1.0"
 dependencies = [
  "flatbuffers",
+ "nodekit-rs-board",
  "nodekit-rs-fb",
  "nodekit-rs-response",
- "nodekit-rs-visual",
  "pyo3",
 ]
 
@@ -1204,7 +1211,7 @@ name = "nodekit-rs-cursor"
 version = "0.1.0"
 dependencies = [
  "bytemuck",
- "nodekit-rs-visual",
+ "nodekit-rs-board",
  "png",
 ]
 
@@ -1228,7 +1235,7 @@ name = "nodekit-rs-image"
 version = "0.1.0"
 dependencies = [
  "bytemuck",
- "nodekit-rs-visual",
+ "nodekit-rs-board",
  "png",
  "thiserror 2.0.17",
 ]
@@ -1264,11 +1271,15 @@ dependencies = [
 name = "nodekit-rs-response"
 version = "0.1.0"
 dependencies = [
+ "blittle",
+ "fast_image_resize",
  "flatbuffers",
+ "nodekit-rs-board",
  "nodekit-rs-fb",
- "nodekit-rs-visual",
+ "png",
  "pyo3",
  "pyo3-stub-gen",
+ "thiserror 2.0.17",
 ]
 
 [[package]]
@@ -1279,11 +1290,11 @@ dependencies = [
  "bytemuck",
  "hashbrown 0.16.0",
  "hex_color",
+ "nodekit-rs-board",
  "nodekit-rs-graph",
  "nodekit-rs-image",
  "nodekit-rs-response",
  "nodekit-rs-video",
- "nodekit-rs-visual",
  "slotmap",
  "thiserror 2.0.17",
  "url",
@@ -1294,18 +1305,6 @@ name = "nodekit-rs-video"
 version = "0.1.0"
 dependencies = [
  "ffmpeg-next",
-]
-
-[[package]]
-name = "nodekit-rs-visual"
-version = "0.1.0"
-dependencies = [
- "blittle",
- "fast_image_resize",
- "png",
- "pyo3",
- "pyo3-stub-gen",
- "thiserror 2.0.17",
 ]
 
 [[package]]

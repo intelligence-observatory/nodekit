@@ -12,7 +12,7 @@ nodekit-rs-graph = { path = "../nodekit-rs-graph" }
 nodekit-rs-image = { path = "../nodekit-rs-image" }
 nodekit-rs-response = { path = "../nodekit-rs-response" }
 nodekit-rs-video = { path = "../nodekit-rs-video" }
-nodekit-rs-visual = { path = "../nodekit-rs-visual" }
+nodekit-rs-board = { path = "../nodekit-rs-board" }
 slotmap.workspace = true
 thiserror.workspace = true
 url.workspace = true

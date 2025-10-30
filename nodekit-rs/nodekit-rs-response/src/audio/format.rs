@@ -1,8 +1,7 @@
 use pyo3::pyclass;
 use pyo3_stub_gen::derive::gen_stub_pyclass_enum;
 
-/// `AudioFrame` returns a raw byte array of wav data (`buffer`).
-/// Use this enum, plus numpy, to read `buffer` as the correct dtype.
+/// The format of the samples in `AudioFrame.buffer`.
 #[gen_stub_pyclass_enum]
 #[pyclass]
 #[derive(Clone, Debug)]

@@ -72,7 +72,7 @@ impl State {
         } else {
             let response = self.nodes[self.current].tick(action, &mut self.visual)?;
             // This node ended. Try to get the next node.
-            if response.ended {
+            if response.finished {
                 match response.sensor.as_ref() {
                     Some(sensor) => {
                         let sensor_key = self.nodes[self.current].sensors.sensor_ids[sensor];

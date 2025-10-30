@@ -7,7 +7,7 @@ edition = "2024"
 flatbuffers.workspace = true
 nodekit-rs-fb = { path = "../nodekit-rs-fb" }
 nodekit-rs-response = { path = "../nodekit-rs-response" }
-nodekit-rs-visual = { path = "../nodekit-rs-visual" }
+nodekit-rs-board = { path = "../nodekit-rs-board" }
 pyo3.workspace = true
 
 [lib]

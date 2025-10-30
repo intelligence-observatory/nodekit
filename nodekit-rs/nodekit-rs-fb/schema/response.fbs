@@ -25,7 +25,7 @@ table Response {
     visual:VisualFrame;
     audio:AudioFrame;
     sensor:string;
-    ended:bool;
+    finished:bool;
 }
 
 root_type Response;

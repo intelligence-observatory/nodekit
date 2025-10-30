@@ -10,7 +10,7 @@ members = [
     "nodekit-rs-response",
     "nodekit-rs-state",
     "nodekit-rs-video",
-    "nodekit-rs-visual"
+    "nodekit-rs-board"
 ]
 
 [package]

@@ -1,8 +1,9 @@
 mod audio;
+mod visual;
 
 use flatbuffers::FlatBufferBuilder;
 use nodekit_rs_fb::response;
-use nodekit_rs_visual::VisualFrame;
+pub use visual::*;
 use pyo3::exceptions::PyTypeError;
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::*;
@@ -12,10 +13,16 @@ pub use audio::*;
 #[pyclass]
 #[derive(Default)]
 pub struct Response {
+    /// The visual frame. 
+    /// If None, the visual frame didn't update.
+    #[pyo3(get)]
     pub visual: Option<VisualFrame>,
+    /// The audio frame. 
+    /// If None, the audio frame either didn't update or there is no audio.
     pub audio: Option<AudioFrame>,
+    /// If not None, this is the ID of the sensor triggered the end of the node. 
     pub sensor: Option<String>,
-    pub ended: bool,
+    pub finished: bool,
 }
 
 impl Response {
@@ -60,7 +67,7 @@ impl Response {
             visual,
             audio,
             sensor,
-            ended: self.ended,
+            finished: self.finished,
         };
         let offset = response::Response::create(&mut fbb, &args);
         response::finish_response_buffer(&mut fbb, offset);
@@ -71,6 +78,7 @@ impl Response {
 #[gen_stub_pymethods]
 #[pymethods]
 impl Response {
+    /// Deserialize a `Response`.
     #[new]
     pub fn deserialize(buffer: Vec<u8>) -> PyResult<Self> {
         match response::root_as_response(&buffer) {
@@ -95,13 +103,9 @@ impl Response {
                     rate: audio.rate(),
                 }),
                 sensor: response.sensor().map(|sensor| sensor.to_string()),
-                ended: response.ended(),
+                finished: response.finished(),
             }),
             Err(error) => Err(PyTypeError::new_err(error.to_string())),
         }
-    }
-
-    pub fn is_finished(&self) -> bool {
-        self.sensor.is_some()
     }
 }

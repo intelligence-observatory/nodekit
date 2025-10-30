@@ -1,36 +1,13 @@
-//! Various constants used to describe the size of the visual board,
-//! and a means of describing a [`VisualFrame`].
-
-mod error;
-
-use blittle::*;
-pub use error::Error;
+use std::{
+    fs::File,
+    io::BufWriter
+};
 use fast_image_resize::{FilterType, PixelType, ResizeAlg, ResizeOptions, Resizer, SrcCropping};
 use png::{BitDepth, ColorType, Encoder};
+use pyo3::{pyclass, pymethods, PyResult};
 use pyo3::exceptions::{PyFileNotFoundError, PyIOError};
-use pyo3::prelude::*;
-use pyo3_stub_gen::derive::*;
-use std::fs::File;
-use std::io::BufWriter;
-
-pub const VISUAL_D: usize = 768;
-pub const VISUAL_D_U32: u32 = 768;
-pub const VISUAL_D_ISIZE: isize = 768;
-pub const VISUAL_D_F64: f64 = 768.;
-pub const VISUAL_D_F64_HALF: f64 = 384.;
-pub const VISUAL_SIZE: Size = Size {
-    w: VISUAL_D,
-    h: VISUAL_D,
-};
-pub const STRIDE: usize = stride::RGB;
-
-pub const fn spatial_coordinate(value: f64) -> isize {
-    (VISUAL_D_F64_HALF + VISUAL_D_F64 * value) as isize
-}
-
-pub const fn size_coordinate(value: f64) -> usize {
-    (VISUAL_D_F64 * value) as usize
-}
+use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
+use nodekit_rs_visual::Error;
 
 /// A raw bitmap `buffer` and its dimensions.
 #[gen_stub_pyclass]
@@ -75,7 +52,7 @@ impl VisualFrame {
             &mut self.buffer,
             PixelType::U8x3,
         )
-        .map_err(Error::ImageResizeBuffer)?;
+            .map_err(Error::ImageResizeBuffer)?;
         // Resize the image.
         let mut dst = fast_image_resize::images::Image::new(width, height, PixelType::U8x3);
         let options = ResizeOptions {
