@@ -1189,19 +1189,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "nodekit-rs-audio"
-version = "0.1.0"
-dependencies = [
- "pyo3",
- "pyo3-stub-gen",
-]
-
-[[package]]
 name = "nodekit-rs-client"
 version = "0.1.0"
 dependencies = [
  "flatbuffers",
- "nodekit-rs-audio",
  "nodekit-rs-fb",
  "nodekit-rs-response",
  "nodekit-rs-visual",
@@ -1261,7 +1252,6 @@ version = "0.1.0"
 dependencies = [
  "async_zmq",
  "flatbuffers",
- "nodekit-rs-audio",
  "nodekit-rs-fb",
  "nodekit-rs-graph",
  "nodekit-rs-response",
@@ -1275,7 +1265,6 @@ name = "nodekit-rs-response"
 version = "0.1.0"
 dependencies = [
  "flatbuffers",
- "nodekit-rs-audio",
  "nodekit-rs-fb",
  "nodekit-rs-visual",
  "pyo3",
@@ -1290,7 +1279,6 @@ dependencies = [
  "bytemuck",
  "hashbrown 0.16.0",
  "hex_color",
- "nodekit-rs-audio",
  "nodekit-rs-graph",
  "nodekit-rs-image",
  "nodekit-rs-response",
@@ -1306,7 +1294,6 @@ name = "nodekit-rs-video"
 version = "0.1.0"
 dependencies = [
  "ffmpeg-next",
- "nodekit-rs-audio",
 ]
 
 [[package]]

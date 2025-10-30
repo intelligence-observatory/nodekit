@@ -1,6 +1,5 @@
 [workspace]
 members = [
-    "nodekit-rs-audio",
     "nodekit-rs-client",
     "nodekit-rs-cursor",
     "nodekit-rs-fb",

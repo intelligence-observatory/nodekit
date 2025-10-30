@@ -5,7 +5,6 @@ edition = "2024"
 
 [dependencies]
 flatbuffers.workspace = true
-nodekit-rs-audio = { path = "../nodekit-rs-audio" }
 nodekit-rs-fb = { path = "../nodekit-rs-fb" }
 nodekit-rs-response = { path = "../nodekit-rs-response" }
 nodekit-rs-visual = { path = "../nodekit-rs-visual" }

@@ -1,10 +1,12 @@
+mod audio;
+
 use flatbuffers::FlatBufferBuilder;
-use nodekit_rs_audio::AudioFrame;
 use nodekit_rs_fb::response;
 use nodekit_rs_visual::VisualFrame;
 use pyo3::exceptions::PyTypeError;
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::*;
+pub use audio::*;
 
 #[gen_stub_pyclass]
 #[pyclass]
@@ -34,12 +36,12 @@ impl Response {
             let buffer = Some(fbb.create_vector(&audio.buffer));
             let format = match audio.format.as_ref() {
                 Some(format) => match format {
-                    nodekit_rs_audio::AudioFormat::U8 => response::AudioFormat::U8,
-                    nodekit_rs_audio::AudioFormat::I16 => response::AudioFormat::I16,
-                    nodekit_rs_audio::AudioFormat::I32 => response::AudioFormat::I32,
-                    nodekit_rs_audio::AudioFormat::I64 => response::AudioFormat::I64,
-                    nodekit_rs_audio::AudioFormat::F32 => response::AudioFormat::F32,
-                    nodekit_rs_audio::AudioFormat::F64 => response::AudioFormat::F64,
+                    AudioFormat::U8 => response::AudioFormat::U8,
+                    AudioFormat::I16 => response::AudioFormat::I16,
+                    AudioFormat::I32 => response::AudioFormat::I32,
+                    AudioFormat::I64 => response::AudioFormat::I64,
+                    AudioFormat::F32 => response::AudioFormat::F32,
+                    AudioFormat::F64 => response::AudioFormat::F64,
                 },
                 None => response::AudioFormat::None,
             };
@@ -81,12 +83,12 @@ impl Response {
                 audio: response.audio().map(|audio| AudioFrame {
                     buffer: audio.buffer().bytes().to_vec(),
                     format: match audio.format() {
-                        response::AudioFormat::U8 => Some(nodekit_rs_audio::AudioFormat::U8),
-                        response::AudioFormat::I16 => Some(nodekit_rs_audio::AudioFormat::I16),
-                        response::AudioFormat::I32 => Some(nodekit_rs_audio::AudioFormat::I32),
-                        response::AudioFormat::I64 => Some(nodekit_rs_audio::AudioFormat::I64),
-                        response::AudioFormat::F32 => Some(nodekit_rs_audio::AudioFormat::F32),
-                        response::AudioFormat::F64 => Some(nodekit_rs_audio::AudioFormat::F64),
+                        response::AudioFormat::U8 => Some(AudioFormat::U8),
+                        response::AudioFormat::I16 => Some(AudioFormat::I16),
+                        response::AudioFormat::I32 => Some(AudioFormat::I32),
+                        response::AudioFormat::I64 => Some(AudioFormat::I64),
+                        response::AudioFormat::F32 => Some(AudioFormat::F32),
+                        response::AudioFormat::F64 => Some(AudioFormat::F64),
                         _ => None,
                     },
                     channels: audio.channels(),
