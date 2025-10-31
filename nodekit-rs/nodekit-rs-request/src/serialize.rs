@@ -2,11 +2,11 @@ use flatbuffers::FlatBufferBuilder;
 use nodekit_rs_fb::{
     graph as graph_fb, key_press as key_press_fb, mouse as mouse_fb, noop as noop_fb,
 };
+use pyo3::exceptions::PyValueError;
 use pyo3::{
     prelude::*,
     types::{PyBytes, PyString},
 };
-use pyo3::exceptions::PyValueError;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pyfunction};
 
 /// An (x, y) vector.
@@ -54,13 +54,16 @@ pub fn graph<'py>(py: Python<'py>, graph: &Bound<'py, PyAny>) -> PyResult<Bound<
 /// If `clicked` is true, there was a mouse click on this frame.
 #[gen_stub_pyfunction]
 #[pyfunction]
-pub fn mouse<'py>(py: Python<'py>, delta: Option<Vector2>, clicked: bool) -> PyResult<Bound<'py, PyBytes>> {
+pub fn mouse<'py>(
+    py: Python<'py>,
+    delta: Option<Vector2>,
+    clicked: bool,
+) -> PyResult<Bound<'py, PyBytes>> {
     match delta {
         Some(delta) => {
             if delta.x < -0.5 || delta.x > 0.5 || delta.y < -0.5 || delta.y > 0.5 {
                 Err(PyValueError::new_err("Invalid mouse delta: {delta}"))
-            }
-            else {
+            } else {
                 let mut fbb = FlatBufferBuilder::new();
                 let delta = mouse_fb::Vec2::new(delta.x, delta.y);
                 let click = mouse_fb::Mouse::create(

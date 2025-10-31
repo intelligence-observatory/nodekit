@@ -5,3 +5,5 @@ edition = "2024"
 
 [dependencies]
 cosmic-text.workspace = true
+markdown.workspace = true
+thiserror.workspace = true

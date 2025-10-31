@@ -38,6 +38,7 @@ flatbuffers = "25.9.23"
 glam = "0.30.9"
 hashbrown = "0.16.0"
 hex_color = "3.0.0"
+markdown = "1.0.0-alpha.24"
 png = "0.18.0"
 pyo3 = { version = "0.27.1", features = ["experimental-inspect", "extension-module"] }
 pyo3-stub-gen = "0.16.1"

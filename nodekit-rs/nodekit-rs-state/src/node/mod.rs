@@ -1,5 +1,6 @@
 mod cards_result;
 use crate::components::*;
+use crate::cursor::blit_cursor;
 use crate::node::cards_result::CardsResult;
 use crate::{error::Error, systems::*};
 use blittle::blit;
@@ -12,7 +13,6 @@ use nodekit_rs_graph::{NodeCardsValue, NodeSensorsValue};
 use nodekit_rs_request::Action;
 use nodekit_rs_response::*;
 use slotmap::new_key_type;
-use crate::cursor::blit_cursor;
 
 new_key_type! { pub struct NodeKey; }
 

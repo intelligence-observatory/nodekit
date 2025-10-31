@@ -1,7 +1,7 @@
 mod clamped;
 
-use clamped::Clamped;
 use bytemuck::cast_slice;
+use clamped::Clamped;
 use nodekit_rs_board::*;
 use std::slice::from_raw_parts_mut;
 
