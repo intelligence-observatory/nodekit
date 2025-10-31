@@ -14,7 +14,7 @@ use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pyfunction};
 #[derive(Copy, Clone)]
 pub struct Vector2 {
     pub x: f64,
-    pub y: f64
+    pub y: f64,
 }
 
 /// Returns a serialized no-op tick.
@@ -51,7 +51,13 @@ pub fn graph<'py>(py: Python<'py>, graph: &Bound<'py, PyAny>) -> PyResult<Bound<
 pub fn mouse<'py>(py: Python<'py>, delta: Option<Vector2>, clicked: bool) -> Bound<'py, PyBytes> {
     let mut fbb = FlatBufferBuilder::new();
     let delta = delta.map(|delta| mouse_fb::Vec2::new(delta.x, delta.y));
-    let click = mouse_fb::Mouse::create(&mut fbb, &mouse_fb::MouseArgs { delta: delta.as_ref(), clicked });
+    let click = mouse_fb::Mouse::create(
+        &mut fbb,
+        &mouse_fb::MouseArgs {
+            delta: delta.as_ref(),
+            clicked,
+        },
+    );
     mouse_fb::finish_mouse_buffer(&mut fbb, click);
     PyBytes::new(py, fbb.finished_data())
 }

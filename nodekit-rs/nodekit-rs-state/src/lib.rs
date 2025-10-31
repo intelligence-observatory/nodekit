@@ -10,6 +10,7 @@ mod systems;
 pub use crate::components::*;
 use crate::node::{Node, NodeKey};
 use error::Error;
+use glam::DVec2;
 use nodekit_rs_board::{STRIDE, VISUAL_D};
 use nodekit_rs_graph::Graph;
 use nodekit_rs_request::Action;
@@ -33,6 +34,7 @@ pub struct State {
     visual: Vec<u8>,
     /// If true, the graph is done.
     finished: bool,
+    cursor: DVec2,
 }
 
 impl State {
@@ -69,6 +71,7 @@ impl State {
             nodekit_version: value.nodekit_version.clone(),
             visual: vec![0; VISUAL_D * VISUAL_D * STRIDE],
             finished: false,
+            cursor: DVec2::default(),
         })
     }
 
@@ -76,7 +79,8 @@ impl State {
         if self.finished {
             Ok(Response::finished())
         } else {
-            let response = self.nodes[self.current].tick(action, &mut self.visual)?;
+            let response =
+                self.nodes[self.current].tick(action, &mut self.cursor, &mut self.visual)?;
             // This node ended. Try to get the next node.
             if response.finished {
                 match response.sensor.as_ref() {

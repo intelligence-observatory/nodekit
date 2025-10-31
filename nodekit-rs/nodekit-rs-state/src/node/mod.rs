@@ -116,7 +116,12 @@ impl Node {
         }
     }
 
-    pub fn tick(&mut self, action: Option<Action>, board: &mut [u8], cursor: &mut DVec2) -> Result<Response, Error> {
+    pub fn tick(
+        &mut self,
+        action: Option<Action>,
+        cursor: &mut DVec2,
+        board: &mut [u8],
+    ) -> Result<Response, Error> {
         if self.state == EntityState::Pending {
             return Ok(self.start(board));
         }
@@ -127,7 +132,7 @@ impl Node {
         // We haven't timed out yet.
         if !self.tick_timeouts(&mut result) {
             // Apply the action.
-            self.on_action(action, &mut result);
+            self.on_action(action, cursor, &mut result);
             // Tick all timers.
             self.tick_timers();
             // Update all cards.
@@ -214,10 +219,21 @@ impl Node {
         Ok(())
     }
 
-    fn on_action(&mut self, action: Option<Action>, response: &mut Response) {
+    fn on_action(&mut self, action: Option<Action>, cursor: &mut DVec2, response: &mut Response) {
         if let Some(action) = action {
             let sensor_key = match action {
-                Action::Click { x, y } => self.sensors.on_click(x, y),
+                Action::Mouse { delta, clicked } => {
+                    // Apply the delta.
+                    if let Some(delta) = delta {
+                        *cursor += delta;
+                    }
+                    // Click.
+                    if clicked {
+                        self.sensors.on_click(cursor)
+                    } else {
+                        None
+                    }
+                }
                 Action::KeyPress(key) => self.sensors.on_key(&key),
                 Action::Submit() => todo!(),
             };
@@ -260,7 +276,11 @@ impl Node {
             }
         }
         // Set the order.
-        let mut z_indices = cards.cards.iter().map(|(k, v)| (k, v.z_index)).collect::<Vec<(CardKey, i64)>>();
+        let mut z_indices = cards
+            .cards
+            .iter()
+            .map(|(k, v)| (k, v.z_index))
+            .collect::<Vec<(CardKey, i64)>>();
         z_indices.sort_by(|a, b| a.1.cmp(&b.1));
         cards.order = z_indices.into_iter().map(|(k, _)| k).collect();
         Ok(CardsResult { cards, card_ids })

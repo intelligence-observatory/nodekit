@@ -51,15 +51,13 @@ impl Request {
 
     fn deserialize_mouse(data: &[u8]) -> Result<Self, Error> {
         let mouse = mouse_fb::root_as_mouse(data).map_err(Error::InvalidFlatbuffer)?;
-        let delta = mouse.delta().map(|delta| {
-            DVec2 {
-                x: delta.x(),
-                y: delta.y()
-            }
+        let delta = mouse.delta().map(|delta| DVec2 {
+            x: delta.x(),
+            y: delta.y(),
         });
         Ok(Self::Tick(Some(Action::Mouse {
             delta,
-            clicked: mouse.clicked()
+            clicked: mouse.clicked(),
         })))
     }
 

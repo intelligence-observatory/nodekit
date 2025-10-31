@@ -5,7 +5,7 @@ use glam::DVec2;
 pub enum Action {
     Mouse {
         delta: Option<DVec2>,
-        clicked: bool
+        clicked: bool,
     },
     /// Press a key.
     KeyPress(String),

@@ -28,7 +28,7 @@ macro_rules! from_schema_card {
         Self {
             rect,
             state: EntityState::default(),
-            z_index: $card.z_index.unwrap_or(0)
+            z_index: $card.z_index.unwrap_or(0),
         }
     }};
 }
@@ -46,7 +46,7 @@ new_key_type! { pub struct CardKey; }
 pub struct Card {
     pub rect: Rect,
     pub state: EntityState,
-    pub(crate) z_index: i64
+    pub(crate) z_index: i64,
 }
 
 impl From<&NodeCardsValue> for Card {
