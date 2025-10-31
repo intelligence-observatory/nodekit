@@ -1,15 +1,6 @@
 import zmq
-from nodekit_rs_client import (graph as graph_rs,
-                               click, key_press,
-                               noop,
-                               serialize_payload,
-                               deserialize_response,
-                               Payload, Response)
-from nodekit._internal.types.graph import Graph
+from nodekit_rs_client import graph, key_press, mouse, noop, Response, Vector2
 
-
-def graph(g: Graph) -> Payload:
-    return graph_rs(g.model_dump_json())
 
 class Client:
     def __init__(self, endpoint: str):
@@ -17,10 +8,18 @@ class Client:
         self.socket = context.socket(zmq.REQ)
         self.socket.connect(endpoint)
 
-    def tick(self, payload: Payload) -> Response:
-        self.socket.send(serialize_payload(payload))
-        serialized = self.socket.recv_multipart()[0]
-        return deserialize_response(serialized)
+    def tick(self, request: bytes) -> Response:
+        """
+        Send `request` to the simulator.
+        This assumes that `request` is a valid message.
+        For valid messages, see the other functions in this import path, e.g. `mouse` and `noop`.
+
+        Returns a `Response` received from the simulator.
+        """
+
+        self.socket.send(request)
+        response = self.socket.recv_multipart()[0]
+        return Response(response)
 
 
-__all__ = [graph, click, key_press, noop, Payload, Client]
+__all__ = [Client, graph, key_press, mouse, noop, Response, Vector2]

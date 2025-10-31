@@ -6,6 +6,7 @@ use pyo3::{
     prelude::*,
     types::{PyBytes, PyString},
 };
+use pyo3::exceptions::PyValueError;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pyfunction};
 
 /// An (x, y) vector.
@@ -17,7 +18,7 @@ pub struct Vector2 {
     pub y: f64,
 }
 
-/// Returns a serialized no-op tick.
+/// Returns a serialized no-op action.
 #[gen_stub_pyfunction]
 #[pyfunction]
 pub fn noop<'py>(py: Python<'py>) -> Bound<'py, PyBytes> {
@@ -27,8 +28,7 @@ pub fn noop<'py>(py: Python<'py>) -> Bound<'py, PyBytes> {
     PyBytes::new(py, fbb.finished_data())
 }
 
-/// Returns a serialized graph.
-/// The `graph` must be of type `nodekit.Graph`
+/// Returns a serialized `graph`, which must be of type `nk.Graph`.
 #[gen_stub_pyfunction]
 #[pyfunction]
 pub fn graph<'py>(py: Python<'py>, graph: &Bound<'py, PyAny>) -> PyResult<Bound<'py, PyBytes>> {
@@ -45,21 +45,48 @@ pub fn graph<'py>(py: Python<'py>, graph: &Bound<'py, PyAny>) -> PyResult<Bound<
     Ok(PyBytes::new(py, fbb.finished_data()))
 }
 
-/// Returns a serialized tick with a mouse action.
+/// Returns a serialized mouse action.
+///
+/// `delta` is the delta of the mouse position. If None, the mouse didn't move.
+/// The coordinates of `delta` must be between -0.5 and 0.5.
+/// This function *doesn't* attempt to clamp `delta` to realistic values.
+///
+/// If `clicked` is true, there was a mouse click on this frame.
 #[gen_stub_pyfunction]
 #[pyfunction]
-pub fn mouse<'py>(py: Python<'py>, delta: Option<Vector2>, clicked: bool) -> Bound<'py, PyBytes> {
-    let mut fbb = FlatBufferBuilder::new();
-    let delta = delta.map(|delta| mouse_fb::Vec2::new(delta.x, delta.y));
-    let click = mouse_fb::Mouse::create(
-        &mut fbb,
-        &mouse_fb::MouseArgs {
-            delta: delta.as_ref(),
-            clicked,
-        },
-    );
-    mouse_fb::finish_mouse_buffer(&mut fbb, click);
-    PyBytes::new(py, fbb.finished_data())
+pub fn mouse<'py>(py: Python<'py>, delta: Option<Vector2>, clicked: bool) -> PyResult<Bound<'py, PyBytes>> {
+    match delta {
+        Some(delta) => {
+            if delta.x < -0.5 || delta.x > 0.5 || delta.y < -0.5 || delta.y > 0.5 {
+                Err(PyValueError::new_err("Invalid mouse delta: {delta}"))
+            }
+            else {
+                let mut fbb = FlatBufferBuilder::new();
+                let delta = mouse_fb::Vec2::new(delta.x, delta.y);
+                let click = mouse_fb::Mouse::create(
+                    &mut fbb,
+                    &mouse_fb::MouseArgs {
+                        delta: Some(&delta),
+                        clicked,
+                    },
+                );
+                mouse_fb::finish_mouse_buffer(&mut fbb, click);
+                Ok(PyBytes::new(py, fbb.finished_data()))
+            }
+        }
+        None => {
+            let mut fbb = FlatBufferBuilder::new();
+            let mouse = mouse_fb::Mouse::create(
+                &mut fbb,
+                &mouse_fb::MouseArgs {
+                    delta: None,
+                    clicked,
+                },
+            );
+            mouse_fb::finish_mouse_buffer(&mut fbb, mouse);
+            Ok(PyBytes::new(py, fbb.finished_data()))
+        }
+    }
 }
 
 /// Returns a serialized tick with a key press action.

@@ -36,13 +36,13 @@ class Response:
     @property
     def visual(self) -> typing.Optional[VisualFrame]:
         r"""
-        The visual frame. 
+        The visual frame.
         If None, the visual frame didn't update.
         """
     @property
     def audio(self) -> typing.Optional[AudioFrame]:
         r"""
-        The audio frame. 
+        The audio frame.
         If None, the audio frame either didn't update or there is no audio.
         """
     @property
@@ -59,6 +59,13 @@ class Response:
         r"""
         Deserialize a `Response`.
         """
+
+@typing.final
+class Vector2:
+    r"""
+    An (x, y) vector.
+    """
+    ...
 
 @typing.final
 class VisualFrame:
@@ -97,14 +104,9 @@ class AudioFormat(enum.Enum):
     F32 = ...
     F64 = ...
 
-def click(x: builtins.float, y: builtins.float) -> bytes:
+def graph(graph: typing.Any) -> bytes:
     r"""
-    Returns a serialized tick with a click action.
-    """
-
-def graph(graph: bytes) -> bytes:
-    r"""
-    Returns a `graph` *(which is already serialized JSON data)* serialized as a Flatbuffer byte array.
+    Returns a serialized `graph`, which must be of type `nk.Graph`.
     """
 
 def key_press(key: str) -> bytes:
@@ -112,8 +114,19 @@ def key_press(key: str) -> bytes:
     Returns a serialized tick with a key press action.
     """
 
+def mouse(delta: typing.Optional[Vector2], clicked: builtins.bool) -> bytes:
+    r"""
+    Returns a serialized mouse action.
+    
+    `delta` is the delta of the mouse position. If None, the mouse didn't move.
+    The coordinates of `delta` must be between -0.5 and 0.5.
+    This function *doesn't* attempt to clamp `delta` to realistic values.
+    
+    If `clicked` is true, there was a mouse click on this frame.
+    """
+
 def noop() -> bytes:
     r"""
-    Returns a serialized no-op tick.
+    Returns a serialized no-op action.
     """
 

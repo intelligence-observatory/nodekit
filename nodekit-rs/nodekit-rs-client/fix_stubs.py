@@ -6,9 +6,11 @@ Rust/pyo3 isn't smart enough to understand that the code stub for `Vec<u8>` shou
 We'll fix that, with the power of string replacement.
 """
 
-path = Path('nodekit_rs_client.pyi')
+path = Path("nodekit_rs_client.pyi")
 text = path.read_text()
-text = text.replace('def buffer(self) -> builtins.list[builtins.int]:',
-                    'def buffer(self) -> builtins.bytes:')
-assert '[builtins.int]' not in text, text
+text = text.replace(
+    "def buffer(self) -> builtins.list[builtins.int]:",
+    "def buffer(self) -> builtins.bytes:",
+)
+assert "[builtins.int]" not in text, text
 path.write_text(text)
