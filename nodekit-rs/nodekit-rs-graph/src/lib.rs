@@ -304,12 +304,8 @@ impl<'de> ::serde::Deserialize<'de> for BoardColor {
 #[doc = "      ]"]
 #[doc = "    },"]
 #[doc = "    \"h\": {"]
-#[doc = "      \"title\": \"H\","]
 #[doc = "      \"description\": \"The height of the bounding box of the clickable region, in Board units.\","]
-#[doc = "      \"type\": \"number\","]
-#[doc = "      \"maximum\": 1.0,"]
-#[doc = "      \"minimum\": 0.0,"]
-#[doc = "      \"exclusiveMinimum\": 0.0"]
+#[doc = "      \"$ref\": \"#/$defs/nodekit___internal__types__common__SpatialSize__2\""]
 #[doc = "    },"]
 #[doc = "    \"mask\": {"]
 #[doc = "      \"title\": \"Mask\","]
@@ -335,26 +331,16 @@ impl<'de> ::serde::Deserialize<'de> for BoardColor {
 #[doc = "      \"minimum\": 0.0"]
 #[doc = "    },"]
 #[doc = "    \"w\": {"]
-#[doc = "      \"title\": \"W\","]
 #[doc = "      \"description\": \"The width of the bounding box of the clickable region, in Board units.\","]
-#[doc = "      \"type\": \"number\","]
-#[doc = "      \"maximum\": 1.0,"]
-#[doc = "      \"minimum\": 0.0,"]
-#[doc = "      \"exclusiveMinimum\": 0.0"]
+#[doc = "      \"$ref\": \"#/$defs/nodekit___internal__types__common__SpatialSize__2\""]
 #[doc = "    },"]
 #[doc = "    \"x\": {"]
-#[doc = "      \"title\": \"X\","]
 #[doc = "      \"description\": \"The center of the bounding box of the clickable region, along the Board x-axis.\","]
-#[doc = "      \"type\": \"number\","]
-#[doc = "      \"maximum\": 0.5,"]
-#[doc = "      \"minimum\": -0.5"]
+#[doc = "      \"$ref\": \"#/$defs/SpatialPoint\""]
 #[doc = "    },"]
 #[doc = "    \"y\": {"]
-#[doc = "      \"title\": \"Y\","]
 #[doc = "      \"description\": \"The center of the bounding box of the clickable region, along the Board y-axis.\","]
-#[doc = "      \"type\": \"number\","]
-#[doc = "      \"maximum\": 0.5,"]
-#[doc = "      \"minimum\": -0.5"]
+#[doc = "      \"$ref\": \"#/$defs/SpatialPoint\""]
 #[doc = "    }"]
 #[doc = "  }"]
 #[doc = "}"]
@@ -365,7 +351,8 @@ pub struct ClickSensor {
     #[doc = "The time (in milliseconds) relative to Node start when the Sensor is disarmed. If None, the Sensor remains armed until the Node ends."]
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub end_msec: ::std::option::Option<u64>,
-    pub h: f64,
+    #[doc = "The height of the bounding box of the clickable region, in Board units."]
+    pub h: NodekitInternalTypesCommonSpatialSize2,
     #[doc = "The shape of the clickable region. \"rectangle\" uses the box itself; \"ellipse\" inscribes an ellipse within the box."]
     #[serde(default = "defaults::click_sensor_mask")]
     pub mask: Mask,
@@ -374,9 +361,12 @@ pub struct ClickSensor {
     #[doc = "The time (in milliseconds) relative to Node start when the Sensor is armed."]
     #[serde(default)]
     pub start_msec: u64,
-    pub w: f64,
-    pub x: f64,
-    pub y: f64,
+    #[doc = "The width of the bounding box of the clickable region, in Board units."]
+    pub w: NodekitInternalTypesCommonSpatialSize2,
+    #[doc = "The center of the bounding box of the clickable region, along the Board x-axis."]
+    pub x: SpatialPoint,
+    #[doc = "The center of the bounding box of the clickable region, along the Board y-axis."]
+    pub y: SpatialPoint,
 }
 impl ::std::convert::From<&ClickSensor> for ClickSensor {
     fn from(value: &ClickSensor) -> Self {
@@ -386,6 +376,50 @@ impl ::std::convert::From<&ClickSensor> for ClickSensor {
 impl ClickSensor {
     pub fn builder() -> builder::ClickSensor {
         Default::default()
+    }
+}
+#[doc = "`Effect`"]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"oneOf\": ["]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/HidePointerEffect\""]
+#[doc = "    }"]
+#[doc = "  ],"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"mapping\": {"]
+#[doc = "      \"HidePointerEffect\": \"#/$defs/HidePointerEffect\""]
+#[doc = "    },"]
+#[doc = "    \"propertyName\": \"effect_type\""]
+#[doc = "  }"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(transparent)]
+pub struct Effect(pub HidePointerEffect);
+impl ::std::ops::Deref for Effect {
+    type Target = HidePointerEffect;
+    fn deref(&self) -> &HidePointerEffect {
+        &self.0
+    }
+}
+impl ::std::convert::From<Effect> for HidePointerEffect {
+    fn from(value: Effect) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<&Effect> for Effect {
+    fn from(value: &Effect) -> Self {
+        value.clone()
+    }
+}
+impl ::std::convert::From<HidePointerEffect> for Effect {
+    fn from(value: HidePointerEffect) -> Self {
+        Self(value)
     }
 }
 #[doc = "A locator which points to an absolute filepath on the viewer's local file system."]
@@ -480,19 +514,13 @@ impl FileSystemPath {
 #[doc = "      ]"]
 #[doc = "    },"]
 #[doc = "    \"font_size\": {"]
-#[doc = "      \"title\": \"Font Size\","]
 #[doc = "      \"description\": \"The height of the em-box, in Board units.\","]
 #[doc = "      \"default\": 0.02,"]
-#[doc = "      \"type\": \"number\","]
-#[doc = "      \"maximum\": 1.0,"]
-#[doc = "      \"minimum\": 0.0"]
+#[doc = "      \"$ref\": \"#/$defs/nodekit___internal__types__common__SpatialSize__1\""]
 #[doc = "    },"]
 #[doc = "    \"h\": {"]
-#[doc = "      \"title\": \"H\","]
 #[doc = "      \"description\": \"The height of the Card, in Board units.\","]
-#[doc = "      \"type\": \"number\","]
-#[doc = "      \"maximum\": 1.0,"]
-#[doc = "      \"minimum\": 0.0"]
+#[doc = "      \"$ref\": \"#/$defs/nodekit___internal__types__common__SpatialSize__1\""]
 #[doc = "    },"]
 #[doc = "    \"max_length\": {"]
 #[doc = "      \"title\": \"Max Length\","]
@@ -531,25 +559,28 @@ impl FileSystemPath {
 #[doc = "      \"pattern\": \"^#[0-9a-f]{8}$\""]
 #[doc = "    },"]
 #[doc = "    \"w\": {"]
-#[doc = "      \"title\": \"W\","]
 #[doc = "      \"description\": \"The width of the Card, in Board units.\","]
-#[doc = "      \"type\": \"number\","]
-#[doc = "      \"maximum\": 1.0,"]
-#[doc = "      \"minimum\": 0.0"]
+#[doc = "      \"$ref\": \"#/$defs/nodekit___internal__types__common__SpatialSize__1\""]
 #[doc = "    },"]
 #[doc = "    \"x\": {"]
-#[doc = "      \"title\": \"X\","]
 #[doc = "      \"description\": \"The x-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in x moves right.\","]
-#[doc = "      \"type\": \"number\","]
-#[doc = "      \"maximum\": 0.5,"]
-#[doc = "      \"minimum\": -0.5"]
+#[doc = "      \"$ref\": \"#/$defs/SpatialPoint\""]
 #[doc = "    },"]
 #[doc = "    \"y\": {"]
-#[doc = "      \"title\": \"Y\","]
 #[doc = "      \"description\": \"The y-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in y moves up.\","]
-#[doc = "      \"type\": \"number\","]
-#[doc = "      \"maximum\": 0.5,"]
-#[doc = "      \"minimum\": -0.5"]
+#[doc = "      \"$ref\": \"#/$defs/SpatialPoint\""]
+#[doc = "    },"]
+#[doc = "    \"z_index\": {"]
+#[doc = "      \"title\": \"Z Index\","]
+#[doc = "      \"default\": null,"]
+#[doc = "      \"anyOf\": ["]
+#[doc = "        {"]
+#[doc = "          \"type\": \"integer\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"type\": \"null\""]
+#[doc = "        }"]
+#[doc = "      ]"]
 #[doc = "    }"]
 #[doc = "  }"]
 #[doc = "}"]
@@ -565,9 +596,11 @@ pub struct FreeTextEntryCard {
     #[doc = "The time (in milliseconds) relative to Node start when the Card is removed from the Board."]
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub end_msec: ::std::option::Option<u64>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
-    pub font_size: ::std::option::Option<f64>,
-    pub h: f64,
+    #[doc = "The height of the em-box, in Board units."]
+    #[serde(default = "defaults::free_text_entry_card_font_size")]
+    pub font_size: NodekitInternalTypesCommonSpatialSize1,
+    #[doc = "The height of the Card, in Board units."]
+    pub h: NodekitInternalTypesCommonSpatialSize1,
     #[doc = "The maximum number of characters the user can enter. If None, no limit."]
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub max_length: ::std::option::Option<::std::num::NonZeroU64>,
@@ -579,9 +612,14 @@ pub struct FreeTextEntryCard {
     pub start_msec: u64,
     #[serde(default = "defaults::free_text_entry_card_text_color")]
     pub text_color: TextColor,
-    pub w: f64,
-    pub x: f64,
-    pub y: f64,
+    #[doc = "The width of the Card, in Board units."]
+    pub w: NodekitInternalTypesCommonSpatialSize1,
+    #[doc = "The x-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in x moves right."]
+    pub x: SpatialPoint,
+    #[doc = "The y-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in y moves up."]
+    pub y: SpatialPoint,
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub z_index: ::std::option::Option<i64>,
 }
 impl ::std::convert::From<&FreeTextEntryCard> for FreeTextEntryCard {
     fn from(value: &FreeTextEntryCard) -> Self {
@@ -748,13 +786,8 @@ impl HidePointerEffect {
 #[doc = "      \"$ref\": \"#/$defs/AssetLocator\""]
 #[doc = "    },"]
 #[doc = "    \"media_type\": {"]
-#[doc = "      \"title\": \"Media Type\","]
 #[doc = "      \"description\": \"The IANA media (MIME) type of the image file.\","]
-#[doc = "      \"type\": \"string\","]
-#[doc = "      \"enum\": ["]
-#[doc = "        \"image/png\","]
-#[doc = "        \"image/svg+xml\""]
-#[doc = "      ]"]
+#[doc = "      \"$ref\": \"#/$defs/ImageMediaType\""]
 #[doc = "    },"]
 #[doc = "    \"sha256\": {"]
 #[doc = "      \"title\": \"Sha256\","]
@@ -771,7 +804,7 @@ pub struct Image {
     #[doc = "A location which is a claimed source of valid bytes for this Asset."]
     pub locator: AssetLocator,
     #[doc = "The IANA media (MIME) type of the image file."]
-    pub media_type: MediaType,
+    pub media_type: ImageMediaType,
     #[doc = "The SHA-256 hash of the asset file, as a hex string."]
     pub sha256: Sha256,
 }
@@ -823,11 +856,8 @@ impl Image {
 #[doc = "      ]"]
 #[doc = "    },"]
 #[doc = "    \"h\": {"]
-#[doc = "      \"title\": \"H\","]
 #[doc = "      \"description\": \"The height of the Card, in Board units.\","]
-#[doc = "      \"type\": \"number\","]
-#[doc = "      \"maximum\": 1.0,"]
-#[doc = "      \"minimum\": 0.0"]
+#[doc = "      \"$ref\": \"#/$defs/nodekit___internal__types__common__SpatialSize__1\""]
 #[doc = "    },"]
 #[doc = "    \"image\": {"]
 #[doc = "      \"$ref\": \"#/$defs/Image\""]
@@ -840,25 +870,28 @@ impl Image {
 #[doc = "      \"minimum\": 0.0"]
 #[doc = "    },"]
 #[doc = "    \"w\": {"]
-#[doc = "      \"title\": \"W\","]
 #[doc = "      \"description\": \"The width of the Card, in Board units.\","]
-#[doc = "      \"type\": \"number\","]
-#[doc = "      \"maximum\": 1.0,"]
-#[doc = "      \"minimum\": 0.0"]
+#[doc = "      \"$ref\": \"#/$defs/nodekit___internal__types__common__SpatialSize__1\""]
 #[doc = "    },"]
 #[doc = "    \"x\": {"]
-#[doc = "      \"title\": \"X\","]
 #[doc = "      \"description\": \"The x-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in x moves right.\","]
-#[doc = "      \"type\": \"number\","]
-#[doc = "      \"maximum\": 0.5,"]
-#[doc = "      \"minimum\": -0.5"]
+#[doc = "      \"$ref\": \"#/$defs/SpatialPoint\""]
 #[doc = "    },"]
 #[doc = "    \"y\": {"]
-#[doc = "      \"title\": \"Y\","]
 #[doc = "      \"description\": \"The y-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in y moves up.\","]
-#[doc = "      \"type\": \"number\","]
-#[doc = "      \"maximum\": 0.5,"]
-#[doc = "      \"minimum\": -0.5"]
+#[doc = "      \"$ref\": \"#/$defs/SpatialPoint\""]
+#[doc = "    },"]
+#[doc = "    \"z_index\": {"]
+#[doc = "      \"title\": \"Z Index\","]
+#[doc = "      \"default\": null,"]
+#[doc = "      \"anyOf\": ["]
+#[doc = "        {"]
+#[doc = "          \"type\": \"integer\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"type\": \"null\""]
+#[doc = "        }"]
+#[doc = "      ]"]
 #[doc = "    }"]
 #[doc = "  }"]
 #[doc = "}"]
@@ -871,14 +904,20 @@ pub struct ImageCard {
     #[doc = "The time (in milliseconds) relative to Node start when the Card is removed from the Board."]
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub end_msec: ::std::option::Option<u64>,
-    pub h: f64,
+    #[doc = "The height of the Card, in Board units."]
+    pub h: NodekitInternalTypesCommonSpatialSize1,
     pub image: Image,
     #[doc = "The time (in milliseconds) relative to Node start when the Card is placed on the Board."]
     #[serde(default)]
     pub start_msec: u64,
-    pub w: f64,
-    pub x: f64,
-    pub y: f64,
+    #[doc = "The width of the Card, in Board units."]
+    pub w: NodekitInternalTypesCommonSpatialSize1,
+    #[doc = "The x-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in x moves right."]
+    pub x: SpatialPoint,
+    #[doc = "The y-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in y moves up."]
+    pub y: SpatialPoint,
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub z_index: ::std::option::Option<i64>,
 }
 impl ::std::convert::From<&ImageCard> for ImageCard {
     fn from(value: &ImageCard) -> Self {
@@ -888,6 +927,164 @@ impl ::std::convert::From<&ImageCard> for ImageCard {
 impl ImageCard {
     pub fn builder() -> builder::ImageCard {
         Default::default()
+    }
+}
+#[doc = "`ImageMediaType`"]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"type\": \"string\","]
+#[doc = "  \"enum\": ["]
+#[doc = "    \"image/png\","]
+#[doc = "    \"image/svg+xml\""]
+#[doc = "  ]"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(
+    :: serde :: Deserialize,
+    :: serde :: Serialize,
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd,
+)]
+pub enum ImageMediaType {
+    #[serde(rename = "image/png")]
+    ImagePng,
+    #[serde(rename = "image/svg+xml")]
+    ImageSvgXml,
+}
+impl ::std::convert::From<&Self> for ImageMediaType {
+    fn from(value: &ImageMediaType) -> Self {
+        value.clone()
+    }
+}
+impl ::std::fmt::Display for ImageMediaType {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        match *self {
+            Self::ImagePng => f.write_str("image/png"),
+            Self::ImageSvgXml => f.write_str("image/svg+xml"),
+        }
+    }
+}
+impl ::std::str::FromStr for ImageMediaType {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        match value {
+            "image/png" => Ok(Self::ImagePng),
+            "image/svg+xml" => Ok(Self::ImageSvgXml),
+            _ => Err("invalid value".into()),
+        }
+    }
+}
+impl ::std::convert::TryFrom<&str> for ImageMediaType {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<&::std::string::String> for ImageMediaType {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: &::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ImageMediaType {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+#[doc = "`JsonValue`"]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"anyOf\": ["]
+#[doc = "    {"]
+#[doc = "      \"type\": \"string\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"type\": \"integer\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"type\": \"number\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"type\": \"boolean\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"type\": \"array\","]
+#[doc = "      \"items\": {"]
+#[doc = "        \"$ref\": \"#/$defs/JsonValue\""]
+#[doc = "      }"]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"type\": \"object\","]
+#[doc = "      \"additionalProperties\": {"]
+#[doc = "        \"$ref\": \"#/$defs/JsonValue\""]
+#[doc = "      }"]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"type\": \"null\""]
+#[doc = "    }"]
+#[doc = "  ]"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(untagged)]
+pub enum JsonValue {
+    String(::std::string::String),
+    Integer(i64),
+    Number(f64),
+    Boolean(bool),
+    Array(::std::vec::Vec<JsonValue>),
+    Object(::std::collections::HashMap<::std::string::String, JsonValue>),
+    Null,
+}
+impl ::std::convert::From<&Self> for JsonValue {
+    fn from(value: &JsonValue) -> Self {
+        value.clone()
+    }
+}
+impl ::std::convert::From<i64> for JsonValue {
+    fn from(value: i64) -> Self {
+        Self::Integer(value)
+    }
+}
+impl ::std::convert::From<f64> for JsonValue {
+    fn from(value: f64) -> Self {
+        Self::Number(value)
+    }
+}
+impl ::std::convert::From<bool> for JsonValue {
+    fn from(value: bool) -> Self {
+        Self::Boolean(value)
+    }
+}
+impl ::std::convert::From<::std::vec::Vec<JsonValue>> for JsonValue {
+    fn from(value: ::std::vec::Vec<JsonValue>) -> Self {
+        Self::Array(value)
+    }
+}
+impl ::std::convert::From<::std::collections::HashMap<::std::string::String, JsonValue>>
+    for JsonValue
+{
+    fn from(value: ::std::collections::HashMap<::std::string::String, JsonValue>) -> Self {
+        Self::Object(value)
     }
 }
 #[doc = "`JustificationHorizontal`"]
@@ -1543,85 +1740,6 @@ impl ::std::default::Default for Mask {
         Mask::Rectangle
     }
 }
-#[doc = "The IANA media (MIME) type of the image file."]
-#[doc = r""]
-#[doc = r" <details><summary>JSON schema</summary>"]
-#[doc = r""]
-#[doc = r" ```json"]
-#[doc = "{"]
-#[doc = "  \"title\": \"Media Type\","]
-#[doc = "  \"description\": \"The IANA media (MIME) type of the image file.\","]
-#[doc = "  \"type\": \"string\","]
-#[doc = "  \"enum\": ["]
-#[doc = "    \"image/png\","]
-#[doc = "    \"image/svg+xml\""]
-#[doc = "  ]"]
-#[doc = "}"]
-#[doc = r" ```"]
-#[doc = r" </details>"]
-#[derive(
-    :: serde :: Deserialize,
-    :: serde :: Serialize,
-    Clone,
-    Copy,
-    Debug,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-)]
-pub enum MediaType {
-    #[serde(rename = "image/png")]
-    ImagePng,
-    #[serde(rename = "image/svg+xml")]
-    ImageSvgXml,
-}
-impl ::std::convert::From<&Self> for MediaType {
-    fn from(value: &MediaType) -> Self {
-        value.clone()
-    }
-}
-impl ::std::fmt::Display for MediaType {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        match *self {
-            Self::ImagePng => f.write_str("image/png"),
-            Self::ImageSvgXml => f.write_str("image/svg+xml"),
-        }
-    }
-}
-impl ::std::str::FromStr for MediaType {
-    type Err = self::error::ConversionError;
-    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-        match value {
-            "image/png" => Ok(Self::ImagePng),
-            "image/svg+xml" => Ok(Self::ImageSvgXml),
-            _ => Err("invalid value".into()),
-        }
-    }
-}
-impl ::std::convert::TryFrom<&str> for MediaType {
-    type Error = self::error::ConversionError;
-    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-        value.parse()
-    }
-}
-impl ::std::convert::TryFrom<&::std::string::String> for MediaType {
-    type Error = self::error::ConversionError;
-    fn try_from(
-        value: &::std::string::String,
-    ) -> ::std::result::Result<Self, self::error::ConversionError> {
-        value.parse()
-    }
-}
-impl ::std::convert::TryFrom<::std::string::String> for MediaType {
-    type Error = self::error::ConversionError;
-    fn try_from(
-        value: ::std::string::String,
-    ) -> ::std::result::Result<Self, self::error::ConversionError> {
-        value.parse()
-    }
-}
 #[doc = "`Node`"]
 #[doc = r""]
 #[doc = r" <details><summary>JSON schema</summary>"]
@@ -1635,6 +1753,11 @@ impl ::std::convert::TryFrom<::std::string::String> for MediaType {
 #[doc = "    \"sensors\""]
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
+#[doc = "    \"annotation\": {"]
+#[doc = "      \"description\": \"An optional, author-supplied annotation for this Node. May be used for arbitrary purposes.\","]
+#[doc = "      \"default\": null,"]
+#[doc = "      \"$ref\": \"#/$defs/JsonValue\""]
+#[doc = "    },"]
 #[doc = "    \"board_color\": {"]
 #[doc = "      \"title\": \"Board Color\","]
 #[doc = "      \"description\": \"The color of the Board during this Node (the \\\"background color\\\").\","]
@@ -1685,17 +1808,7 @@ impl ::std::convert::TryFrom<::std::string::String> for MediaType {
 #[doc = "      \"title\": \"Effects\","]
 #[doc = "      \"type\": \"array\","]
 #[doc = "      \"items\": {"]
-#[doc = "        \"oneOf\": ["]
-#[doc = "          {"]
-#[doc = "            \"$ref\": \"#/$defs/HidePointerEffect\""]
-#[doc = "          }"]
-#[doc = "        ],"]
-#[doc = "        \"discriminator\": {"]
-#[doc = "          \"mapping\": {"]
-#[doc = "            \"HidePointerEffect\": \"#/$defs/HidePointerEffect\""]
-#[doc = "          },"]
-#[doc = "          \"propertyName\": \"effect_type\""]
-#[doc = "        }"]
+#[doc = "        \"$ref\": \"#/$defs/Effect\""]
 #[doc = "      }"]
 #[doc = "    },"]
 #[doc = "    \"sensors\": {"]
@@ -1738,13 +1851,16 @@ impl ::std::convert::TryFrom<::std::string::String> for MediaType {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 pub struct Node {
+    #[doc = "An optional, author-supplied annotation for this Node. May be used for arbitrary purposes."]
+    #[serde(default = "defaults::node_annotation")]
+    pub annotation: JsonValue,
     #[doc = "The color of the Board during this Node (the \"background color\")."]
     #[serde(default = "defaults::node_board_color")]
     pub board_color: BoardColor,
     #[doc = "Set of Cards placed on the Board."]
     pub cards: ::std::collections::HashMap<::std::string::String, NodeCardsValue>,
     #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
-    pub effects: ::std::vec::Vec<HidePointerEffect>,
+    pub effects: ::std::vec::Vec<Effect>,
     #[doc = "Set of Sensors that listen for a Participant Action. The first Sensor that is triggered ends the Node."]
     pub sensors: ::std::collections::HashMap<::std::string::String, NodeSensorsValue>,
 }
@@ -1896,6 +2012,143 @@ impl ::std::convert::From<KeySensor> for NodeSensorsValue {
 impl ::std::convert::From<SubmitSensor> for NodeSensorsValue {
     fn from(value: SubmitSensor) -> Self {
         Self::SubmitSensor(value)
+    }
+}
+#[doc = "`NodekitInternalTypesCommonSpatialSize1`"]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"description\": \"A spatial size relative to the smaller extent of the board (width or height, whichever is smaller). For example, a value of 0.5 corresponds to half the smaller extent of the board.\","]
+#[doc = "  \"type\": \"number\","]
+#[doc = "  \"maximum\": 1.0,"]
+#[doc = "  \"minimum\": 0.0"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(transparent)]
+pub struct NodekitInternalTypesCommonSpatialSize1(pub f64);
+impl ::std::ops::Deref for NodekitInternalTypesCommonSpatialSize1 {
+    type Target = f64;
+    fn deref(&self) -> &f64 {
+        &self.0
+    }
+}
+impl ::std::convert::From<NodekitInternalTypesCommonSpatialSize1> for f64 {
+    fn from(value: NodekitInternalTypesCommonSpatialSize1) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<&NodekitInternalTypesCommonSpatialSize1>
+    for NodekitInternalTypesCommonSpatialSize1
+{
+    fn from(value: &NodekitInternalTypesCommonSpatialSize1) -> Self {
+        value.clone()
+    }
+}
+impl ::std::convert::From<f64> for NodekitInternalTypesCommonSpatialSize1 {
+    fn from(value: f64) -> Self {
+        Self(value)
+    }
+}
+impl ::std::str::FromStr for NodekitInternalTypesCommonSpatialSize1 {
+    type Err = <f64 as ::std::str::FromStr>::Err;
+    fn from_str(value: &str) -> ::std::result::Result<Self, Self::Err> {
+        Ok(Self(value.parse()?))
+    }
+}
+impl ::std::convert::TryFrom<&str> for NodekitInternalTypesCommonSpatialSize1 {
+    type Error = <f64 as ::std::str::FromStr>::Err;
+    fn try_from(value: &str) -> ::std::result::Result<Self, Self::Error> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<&String> for NodekitInternalTypesCommonSpatialSize1 {
+    type Error = <f64 as ::std::str::FromStr>::Err;
+    fn try_from(value: &String) -> ::std::result::Result<Self, Self::Error> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<String> for NodekitInternalTypesCommonSpatialSize1 {
+    type Error = <f64 as ::std::str::FromStr>::Err;
+    fn try_from(value: String) -> ::std::result::Result<Self, Self::Error> {
+        value.parse()
+    }
+}
+impl ::std::fmt::Display for NodekitInternalTypesCommonSpatialSize1 {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        self.0.fmt(f)
+    }
+}
+#[doc = "`NodekitInternalTypesCommonSpatialSize2`"]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"description\": \"A spatial size relative to the smaller extent of the board (width or height, whichever is smaller). For example, a value of 0.5 corresponds to half the smaller extent of the board.\","]
+#[doc = "  \"type\": \"number\","]
+#[doc = "  \"maximum\": 1.0,"]
+#[doc = "  \"minimum\": 0.0,"]
+#[doc = "  \"exclusiveMinimum\": 0.0"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(transparent)]
+pub struct NodekitInternalTypesCommonSpatialSize2(pub f64);
+impl ::std::ops::Deref for NodekitInternalTypesCommonSpatialSize2 {
+    type Target = f64;
+    fn deref(&self) -> &f64 {
+        &self.0
+    }
+}
+impl ::std::convert::From<NodekitInternalTypesCommonSpatialSize2> for f64 {
+    fn from(value: NodekitInternalTypesCommonSpatialSize2) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<&NodekitInternalTypesCommonSpatialSize2>
+    for NodekitInternalTypesCommonSpatialSize2
+{
+    fn from(value: &NodekitInternalTypesCommonSpatialSize2) -> Self {
+        value.clone()
+    }
+}
+impl ::std::convert::From<f64> for NodekitInternalTypesCommonSpatialSize2 {
+    fn from(value: f64) -> Self {
+        Self(value)
+    }
+}
+impl ::std::str::FromStr for NodekitInternalTypesCommonSpatialSize2 {
+    type Err = <f64 as ::std::str::FromStr>::Err;
+    fn from_str(value: &str) -> ::std::result::Result<Self, Self::Err> {
+        Ok(Self(value.parse()?))
+    }
+}
+impl ::std::convert::TryFrom<&str> for NodekitInternalTypesCommonSpatialSize2 {
+    type Error = <f64 as ::std::str::FromStr>::Err;
+    fn try_from(value: &str) -> ::std::result::Result<Self, Self::Error> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<&String> for NodekitInternalTypesCommonSpatialSize2 {
+    type Error = <f64 as ::std::str::FromStr>::Err;
+    fn try_from(value: &String) -> ::std::result::Result<Self, Self::Error> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<String> for NodekitInternalTypesCommonSpatialSize2 {
+    type Error = <f64 as ::std::str::FromStr>::Err;
+    fn try_from(value: String) -> ::std::result::Result<Self, Self::Error> {
+        value.parse()
+    }
+}
+impl ::std::fmt::Display for NodekitInternalTypesCommonSpatialSize2 {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        self.0.fmt(f)
     }
 }
 #[doc = "The orientation of the slider. In the horizontal orientation, the slider positional index grows left to right. In the vertical orientation, the slider positional index grows bottom to top."]
@@ -2143,11 +2396,8 @@ impl<'de> ::serde::Deserialize<'de> for Sha256 {
 #[doc = "      ]"]
 #[doc = "    },"]
 #[doc = "    \"h\": {"]
-#[doc = "      \"title\": \"H\","]
 #[doc = "      \"description\": \"The height of the Card, in Board units.\","]
-#[doc = "      \"type\": \"number\","]
-#[doc = "      \"maximum\": 1.0,"]
-#[doc = "      \"minimum\": 0.0"]
+#[doc = "      \"$ref\": \"#/$defs/nodekit___internal__types__common__SpatialSize__1\""]
 #[doc = "    },"]
 #[doc = "    \"initial_bin_index\": {"]
 #[doc = "      \"title\": \"Initial Bin Index\","]
@@ -2194,25 +2444,28 @@ impl<'de> ::serde::Deserialize<'de> for Sha256 {
 #[doc = "      \"minimum\": 0.0"]
 #[doc = "    },"]
 #[doc = "    \"w\": {"]
-#[doc = "      \"title\": \"W\","]
 #[doc = "      \"description\": \"The width of the Card, in Board units.\","]
-#[doc = "      \"type\": \"number\","]
-#[doc = "      \"maximum\": 1.0,"]
-#[doc = "      \"minimum\": 0.0"]
+#[doc = "      \"$ref\": \"#/$defs/nodekit___internal__types__common__SpatialSize__1\""]
 #[doc = "    },"]
 #[doc = "    \"x\": {"]
-#[doc = "      \"title\": \"X\","]
 #[doc = "      \"description\": \"The x-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in x moves right.\","]
-#[doc = "      \"type\": \"number\","]
-#[doc = "      \"maximum\": 0.5,"]
-#[doc = "      \"minimum\": -0.5"]
+#[doc = "      \"$ref\": \"#/$defs/SpatialPoint\""]
 #[doc = "    },"]
 #[doc = "    \"y\": {"]
-#[doc = "      \"title\": \"Y\","]
 #[doc = "      \"description\": \"The y-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in y moves up.\","]
-#[doc = "      \"type\": \"number\","]
-#[doc = "      \"maximum\": 0.5,"]
-#[doc = "      \"minimum\": -0.5"]
+#[doc = "      \"$ref\": \"#/$defs/SpatialPoint\""]
+#[doc = "    },"]
+#[doc = "    \"z_index\": {"]
+#[doc = "      \"title\": \"Z Index\","]
+#[doc = "      \"default\": null,"]
+#[doc = "      \"anyOf\": ["]
+#[doc = "        {"]
+#[doc = "          \"type\": \"integer\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"type\": \"null\""]
+#[doc = "        }"]
+#[doc = "      ]"]
 #[doc = "    }"]
 #[doc = "  }"]
 #[doc = "}"]
@@ -2225,7 +2478,8 @@ pub struct SliderCard {
     #[doc = "The time (in milliseconds) relative to Node start when the Card is removed from the Board."]
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub end_msec: ::std::option::Option<u64>,
-    pub h: f64,
+    #[doc = "The height of the Card, in Board units."]
+    pub h: NodekitInternalTypesCommonSpatialSize1,
     #[doc = "The initial bin index that the slider is set to when it first appears. If None, defaults to the middle bin."]
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub initial_bin_index: ::std::option::Option<u64>,
@@ -2241,9 +2495,14 @@ pub struct SliderCard {
     #[doc = "The time (in milliseconds) relative to Node start when the Card is placed on the Board."]
     #[serde(default)]
     pub start_msec: u64,
-    pub w: f64,
-    pub x: f64,
-    pub y: f64,
+    #[doc = "The width of the Card, in Board units."]
+    pub w: NodekitInternalTypesCommonSpatialSize1,
+    #[doc = "The x-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in x moves right."]
+    pub x: SpatialPoint,
+    #[doc = "The y-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in y moves up."]
+    pub y: SpatialPoint,
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub z_index: ::std::option::Option<i64>,
 }
 impl ::std::convert::From<&SliderCard> for SliderCard {
     fn from(value: &SliderCard) -> Self {
@@ -2255,14 +2514,79 @@ impl SliderCard {
         Default::default()
     }
 }
-#[doc = "A Sensor that triggers when a submit button is initiated.\nIt reports the values of one or more associated SliderCards or FreeTextEntryCards"]
+#[doc = "`SpatialPoint`"]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"type\": \"number\","]
+#[doc = "  \"maximum\": 0.5,"]
+#[doc = "  \"minimum\": -0.5"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(transparent)]
+pub struct SpatialPoint(pub f64);
+impl ::std::ops::Deref for SpatialPoint {
+    type Target = f64;
+    fn deref(&self) -> &f64 {
+        &self.0
+    }
+}
+impl ::std::convert::From<SpatialPoint> for f64 {
+    fn from(value: SpatialPoint) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<&SpatialPoint> for SpatialPoint {
+    fn from(value: &SpatialPoint) -> Self {
+        value.clone()
+    }
+}
+impl ::std::convert::From<f64> for SpatialPoint {
+    fn from(value: f64) -> Self {
+        Self(value)
+    }
+}
+impl ::std::str::FromStr for SpatialPoint {
+    type Err = <f64 as ::std::str::FromStr>::Err;
+    fn from_str(value: &str) -> ::std::result::Result<Self, Self::Err> {
+        Ok(Self(value.parse()?))
+    }
+}
+impl ::std::convert::TryFrom<&str> for SpatialPoint {
+    type Error = <f64 as ::std::str::FromStr>::Err;
+    fn try_from(value: &str) -> ::std::result::Result<Self, Self::Error> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<&String> for SpatialPoint {
+    type Error = <f64 as ::std::str::FromStr>::Err;
+    fn try_from(value: &String) -> ::std::result::Result<Self, Self::Error> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<String> for SpatialPoint {
+    type Error = <f64 as ::std::str::FromStr>::Err;
+    fn try_from(value: String) -> ::std::result::Result<Self, Self::Error> {
+        value.parse()
+    }
+}
+impl ::std::fmt::Display for SpatialPoint {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        self.0.fmt(f)
+    }
+}
+#[doc = "A Sensor that triggers when a submit button is initiated.\nIt reports the values of one or more associated SliderCards or FreeTextEntryCards."]
 #[doc = r""]
 #[doc = r" <details><summary>JSON schema</summary>"]
 #[doc = r""]
 #[doc = r" ```json"]
 #[doc = "{"]
 #[doc = "  \"title\": \"SubmitSensor\","]
-#[doc = "  \"description\": \"A Sensor that triggers when a submit button is initiated.\\nIt reports the values of one or more associated SliderCards or FreeTextEntryCards\","]
+#[doc = "  \"description\": \"A Sensor that triggers when a submit button is initiated.\\nIt reports the values of one or more associated SliderCards or FreeTextEntryCards.\","]
 #[doc = "  \"type\": \"object\","]
 #[doc = "  \"required\": ["]
 #[doc = "    \"source_ids\","]
@@ -2341,80 +2665,6 @@ impl SubmitSensor {
         Default::default()
     }
 }
-#[doc = "`Text`"]
-#[doc = r""]
-#[doc = r" <details><summary>JSON schema</summary>"]
-#[doc = r""]
-#[doc = r" ```json"]
-#[doc = "{"]
-#[doc = "  \"title\": \"Text\","]
-#[doc = "  \"type\": \"string\","]
-#[doc = "  \"minLength\": 1"]
-#[doc = "}"]
-#[doc = r" ```"]
-#[doc = r" </details>"]
-#[derive(:: serde :: Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
-#[serde(transparent)]
-pub struct Text(::std::string::String);
-impl ::std::ops::Deref for Text {
-    type Target = ::std::string::String;
-    fn deref(&self) -> &::std::string::String {
-        &self.0
-    }
-}
-impl ::std::convert::From<Text> for ::std::string::String {
-    fn from(value: Text) -> Self {
-        value.0
-    }
-}
-impl ::std::convert::From<&Text> for Text {
-    fn from(value: &Text) -> Self {
-        value.clone()
-    }
-}
-impl ::std::str::FromStr for Text {
-    type Err = self::error::ConversionError;
-    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-        if value.chars().count() < 1usize {
-            return Err("shorter than 1 characters".into());
-        }
-        Ok(Self(value.to_string()))
-    }
-}
-impl ::std::convert::TryFrom<&str> for Text {
-    type Error = self::error::ConversionError;
-    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-        value.parse()
-    }
-}
-impl ::std::convert::TryFrom<&::std::string::String> for Text {
-    type Error = self::error::ConversionError;
-    fn try_from(
-        value: &::std::string::String,
-    ) -> ::std::result::Result<Self, self::error::ConversionError> {
-        value.parse()
-    }
-}
-impl ::std::convert::TryFrom<::std::string::String> for Text {
-    type Error = self::error::ConversionError;
-    fn try_from(
-        value: ::std::string::String,
-    ) -> ::std::result::Result<Self, self::error::ConversionError> {
-        value.parse()
-    }
-}
-impl<'de> ::serde::Deserialize<'de> for Text {
-    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
-    where
-        D: ::serde::Deserializer<'de>,
-    {
-        ::std::string::String::deserialize(deserializer)?
-            .parse()
-            .map_err(|e: self::error::ConversionError| {
-                <D::Error as ::serde::de::Error>::custom(e.to_string())
-            })
-    }
-}
 #[doc = "`TextCard`"]
 #[doc = r""]
 #[doc = r" <details><summary>JSON schema</summary>"]
@@ -2462,19 +2712,13 @@ impl<'de> ::serde::Deserialize<'de> for Text {
 #[doc = "      ]"]
 #[doc = "    },"]
 #[doc = "    \"font_size\": {"]
-#[doc = "      \"title\": \"Font Size\","]
 #[doc = "      \"description\": \"The height of the em-box, in Board units.\","]
 #[doc = "      \"default\": 0.02,"]
-#[doc = "      \"type\": \"number\","]
-#[doc = "      \"maximum\": 1.0,"]
-#[doc = "      \"minimum\": 0.0"]
+#[doc = "      \"$ref\": \"#/$defs/nodekit___internal__types__common__SpatialSize__1\""]
 #[doc = "    },"]
 #[doc = "    \"h\": {"]
-#[doc = "      \"title\": \"H\","]
 #[doc = "      \"description\": \"The height of the Card, in Board units.\","]
-#[doc = "      \"type\": \"number\","]
-#[doc = "      \"maximum\": 1.0,"]
-#[doc = "      \"minimum\": 0.0"]
+#[doc = "      \"$ref\": \"#/$defs/nodekit___internal__types__common__SpatialSize__1\""]
 #[doc = "    },"]
 #[doc = "    \"justification_horizontal\": {"]
 #[doc = "      \"title\": \"Justification Horizontal\","]
@@ -2510,8 +2754,7 @@ impl<'de> ::serde::Deserialize<'de> for Text {
 #[doc = "    },"]
 #[doc = "    \"text\": {"]
 #[doc = "      \"title\": \"Text\","]
-#[doc = "      \"type\": \"string\","]
-#[doc = "      \"minLength\": 1"]
+#[doc = "      \"type\": \"string\""]
 #[doc = "    },"]
 #[doc = "    \"text_color\": {"]
 #[doc = "      \"title\": \"Text Color\","]
@@ -2522,25 +2765,28 @@ impl<'de> ::serde::Deserialize<'de> for Text {
 #[doc = "      \"pattern\": \"^#[0-9a-f]{8}$\""]
 #[doc = "    },"]
 #[doc = "    \"w\": {"]
-#[doc = "      \"title\": \"W\","]
 #[doc = "      \"description\": \"The width of the Card, in Board units.\","]
-#[doc = "      \"type\": \"number\","]
-#[doc = "      \"maximum\": 1.0,"]
-#[doc = "      \"minimum\": 0.0"]
+#[doc = "      \"$ref\": \"#/$defs/nodekit___internal__types__common__SpatialSize__1\""]
 #[doc = "    },"]
 #[doc = "    \"x\": {"]
-#[doc = "      \"title\": \"X\","]
 #[doc = "      \"description\": \"The x-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in x moves right.\","]
-#[doc = "      \"type\": \"number\","]
-#[doc = "      \"maximum\": 0.5,"]
-#[doc = "      \"minimum\": -0.5"]
+#[doc = "      \"$ref\": \"#/$defs/SpatialPoint\""]
 #[doc = "    },"]
 #[doc = "    \"y\": {"]
-#[doc = "      \"title\": \"Y\","]
 #[doc = "      \"description\": \"The y-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in y moves up.\","]
-#[doc = "      \"type\": \"number\","]
-#[doc = "      \"maximum\": 0.5,"]
-#[doc = "      \"minimum\": -0.5"]
+#[doc = "      \"$ref\": \"#/$defs/SpatialPoint\""]
+#[doc = "    },"]
+#[doc = "    \"z_index\": {"]
+#[doc = "      \"title\": \"Z Index\","]
+#[doc = "      \"default\": null,"]
+#[doc = "      \"anyOf\": ["]
+#[doc = "        {"]
+#[doc = "          \"type\": \"integer\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"type\": \"null\""]
+#[doc = "        }"]
+#[doc = "      ]"]
 #[doc = "    }"]
 #[doc = "  }"]
 #[doc = "}"]
@@ -2556,9 +2802,11 @@ pub struct TextCard {
     #[doc = "The time (in milliseconds) relative to Node start when the Card is removed from the Board."]
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub end_msec: ::std::option::Option<u64>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
-    pub font_size: ::std::option::Option<f64>,
-    pub h: f64,
+    #[doc = "The height of the em-box, in Board units."]
+    #[serde(default = "defaults::text_card_font_size")]
+    pub font_size: NodekitInternalTypesCommonSpatialSize1,
+    #[doc = "The height of the Card, in Board units."]
+    pub h: NodekitInternalTypesCommonSpatialSize1,
     #[serde(default = "defaults::text_card_justification_horizontal")]
     pub justification_horizontal: JustificationHorizontal,
     #[serde(default = "defaults::text_card_justification_vertical")]
@@ -2568,12 +2816,17 @@ pub struct TextCard {
     #[doc = "The time (in milliseconds) relative to Node start when the Card is placed on the Board."]
     #[serde(default)]
     pub start_msec: u64,
-    pub text: Text,
+    pub text: ::std::string::String,
     #[serde(default = "defaults::text_card_text_color")]
     pub text_color: TextColor,
-    pub w: f64,
-    pub x: f64,
-    pub y: f64,
+    #[doc = "The width of the Card, in Board units."]
+    pub w: NodekitInternalTypesCommonSpatialSize1,
+    #[doc = "The x-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in x moves right."]
+    pub x: SpatialPoint,
+    #[doc = "The y-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in y moves up."]
+    pub y: SpatialPoint,
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub z_index: ::std::option::Option<i64>,
 }
 impl ::std::convert::From<&TextCard> for TextCard {
     fn from(value: &TextCard) -> Self {
@@ -2785,10 +3038,8 @@ impl Url {
 #[doc = "      \"$ref\": \"#/$defs/AssetLocator\""]
 #[doc = "    },"]
 #[doc = "    \"media_type\": {"]
-#[doc = "      \"title\": \"Media Type\","]
 #[doc = "      \"description\": \"The IANA media (MIME) type of the video file.\","]
-#[doc = "      \"type\": \"string\","]
-#[doc = "      \"const\": \"video/mp4\""]
+#[doc = "      \"$ref\": \"#/$defs/VideoMediaType\""]
 #[doc = "    },"]
 #[doc = "    \"sha256\": {"]
 #[doc = "      \"title\": \"Sha256\","]
@@ -2805,7 +3056,7 @@ pub struct Video {
     #[doc = "A location which is a claimed source of valid bytes for this Asset."]
     pub locator: AssetLocator,
     #[doc = "The IANA media (MIME) type of the video file."]
-    pub media_type: ::std::string::String,
+    pub media_type: VideoMediaType,
     #[doc = "The SHA-256 hash of the asset file, as a hex string."]
     pub sha256: Sha256,
 }
@@ -2857,11 +3108,8 @@ impl Video {
 #[doc = "      ]"]
 #[doc = "    },"]
 #[doc = "    \"h\": {"]
-#[doc = "      \"title\": \"H\","]
 #[doc = "      \"description\": \"The height of the Card, in Board units.\","]
-#[doc = "      \"type\": \"number\","]
-#[doc = "      \"maximum\": 1.0,"]
-#[doc = "      \"minimum\": 0.0"]
+#[doc = "      \"$ref\": \"#/$defs/nodekit___internal__types__common__SpatialSize__1\""]
 #[doc = "    },"]
 #[doc = "    \"loop\": {"]
 #[doc = "      \"title\": \"Loop\","]
@@ -2872,6 +3120,12 @@ impl Video {
 #[doc = "    \"muted\": {"]
 #[doc = "      \"title\": \"Muted\","]
 #[doc = "      \"description\": \"Whether to mute the video audio.\","]
+#[doc = "      \"default\": true,"]
+#[doc = "      \"type\": \"boolean\""]
+#[doc = "    },"]
+#[doc = "    \"start\": {"]
+#[doc = "      \"title\": \"Start\","]
+#[doc = "      \"description\": \"Whether to play the video, or not\","]
 #[doc = "      \"default\": true,"]
 #[doc = "      \"type\": \"boolean\""]
 #[doc = "    },"]
@@ -2886,25 +3140,28 @@ impl Video {
 #[doc = "      \"$ref\": \"#/$defs/Video\""]
 #[doc = "    },"]
 #[doc = "    \"w\": {"]
-#[doc = "      \"title\": \"W\","]
 #[doc = "      \"description\": \"The width of the Card, in Board units.\","]
-#[doc = "      \"type\": \"number\","]
-#[doc = "      \"maximum\": 1.0,"]
-#[doc = "      \"minimum\": 0.0"]
+#[doc = "      \"$ref\": \"#/$defs/nodekit___internal__types__common__SpatialSize__1\""]
 #[doc = "    },"]
 #[doc = "    \"x\": {"]
-#[doc = "      \"title\": \"X\","]
 #[doc = "      \"description\": \"The x-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in x moves right.\","]
-#[doc = "      \"type\": \"number\","]
-#[doc = "      \"maximum\": 0.5,"]
-#[doc = "      \"minimum\": -0.5"]
+#[doc = "      \"$ref\": \"#/$defs/SpatialPoint\""]
 #[doc = "    },"]
 #[doc = "    \"y\": {"]
-#[doc = "      \"title\": \"Y\","]
 #[doc = "      \"description\": \"The y-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in y moves up.\","]
-#[doc = "      \"type\": \"number\","]
-#[doc = "      \"maximum\": 0.5,"]
-#[doc = "      \"minimum\": -0.5"]
+#[doc = "      \"$ref\": \"#/$defs/SpatialPoint\""]
+#[doc = "    },"]
+#[doc = "    \"z_index\": {"]
+#[doc = "      \"title\": \"Z Index\","]
+#[doc = "      \"default\": null,"]
+#[doc = "      \"anyOf\": ["]
+#[doc = "        {"]
+#[doc = "          \"type\": \"integer\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"type\": \"null\""]
+#[doc = "        }"]
+#[doc = "      ]"]
 #[doc = "    }"]
 #[doc = "  }"]
 #[doc = "}"]
@@ -2917,20 +3174,29 @@ pub struct VideoCard {
     #[doc = "The time (in milliseconds) relative to Node start when the Card is removed from the Board."]
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub end_msec: ::std::option::Option<u64>,
-    pub h: f64,
+    #[doc = "The height of the Card, in Board units."]
+    pub h: NodekitInternalTypesCommonSpatialSize1,
     #[doc = "Whether to loop the video when it ends."]
     #[serde(rename = "loop", default)]
     pub loop_: bool,
     #[doc = "Whether to mute the video audio."]
     #[serde(default = "defaults::default_bool::<true>")]
     pub muted: bool,
+    #[doc = "Whether to play the video, or not"]
+    #[serde(default = "defaults::default_bool::<true>")]
+    pub start: bool,
     #[doc = "The time (in milliseconds) relative to Node start when the Card is placed on the Board."]
     #[serde(default)]
     pub start_msec: u64,
     pub video: Video,
-    pub w: f64,
-    pub x: f64,
-    pub y: f64,
+    #[doc = "The width of the Card, in Board units."]
+    pub w: NodekitInternalTypesCommonSpatialSize1,
+    #[doc = "The x-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in x moves right."]
+    pub x: SpatialPoint,
+    #[doc = "The y-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in y moves up."]
+    pub y: SpatialPoint,
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub z_index: ::std::option::Option<i64>,
 }
 impl ::std::convert::From<&VideoCard> for VideoCard {
     fn from(value: &VideoCard) -> Self {
@@ -2940,6 +3206,62 @@ impl ::std::convert::From<&VideoCard> for VideoCard {
 impl VideoCard {
     pub fn builder() -> builder::VideoCard {
         Default::default()
+    }
+}
+#[doc = "`VideoMediaType`"]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"type\": \"string\","]
+#[doc = "  \"const\": \"video/mp4\""]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(
+    :: serde :: Deserialize,
+    :: serde :: Serialize,
+    Clone,
+    Debug,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd,
+)]
+#[serde(transparent)]
+pub struct VideoMediaType(pub ::std::string::String);
+impl ::std::ops::Deref for VideoMediaType {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<VideoMediaType> for ::std::string::String {
+    fn from(value: VideoMediaType) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<&VideoMediaType> for VideoMediaType {
+    fn from(value: &VideoMediaType) -> Self {
+        value.clone()
+    }
+}
+impl ::std::convert::From<::std::string::String> for VideoMediaType {
+    fn from(value: ::std::string::String) -> Self {
+        Self(value)
+    }
+}
+impl ::std::str::FromStr for VideoMediaType {
+    type Err = ::std::convert::Infallible;
+    fn from_str(value: &str) -> ::std::result::Result<Self, Self::Err> {
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::fmt::Display for VideoMediaType {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        self.0.fmt(f)
     }
 }
 #[doc = "`ZipArchiveInnerPath`"]
@@ -3001,13 +3323,19 @@ pub mod builder {
     #[derive(Clone, Debug)]
     pub struct ClickSensor {
         end_msec: ::std::result::Result<::std::option::Option<u64>, ::std::string::String>,
-        h: ::std::result::Result<f64, ::std::string::String>,
+        h: ::std::result::Result<
+            super::NodekitInternalTypesCommonSpatialSize2,
+            ::std::string::String,
+        >,
         mask: ::std::result::Result<super::Mask, ::std::string::String>,
         sensor_type: ::std::result::Result<::std::string::String, ::std::string::String>,
         start_msec: ::std::result::Result<u64, ::std::string::String>,
-        w: ::std::result::Result<f64, ::std::string::String>,
-        x: ::std::result::Result<f64, ::std::string::String>,
-        y: ::std::result::Result<f64, ::std::string::String>,
+        w: ::std::result::Result<
+            super::NodekitInternalTypesCommonSpatialSize2,
+            ::std::string::String,
+        >,
+        x: ::std::result::Result<super::SpatialPoint, ::std::string::String>,
+        y: ::std::result::Result<super::SpatialPoint, ::std::string::String>,
     }
     impl ::std::default::Default for ClickSensor {
         fn default() -> Self {
@@ -3036,7 +3364,7 @@ pub mod builder {
         }
         pub fn h<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<f64>,
+            T: ::std::convert::TryInto<super::NodekitInternalTypesCommonSpatialSize2>,
             T::Error: ::std::fmt::Display,
         {
             self.h = value
@@ -3076,7 +3404,7 @@ pub mod builder {
         }
         pub fn w<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<f64>,
+            T: ::std::convert::TryInto<super::NodekitInternalTypesCommonSpatialSize2>,
             T::Error: ::std::fmt::Display,
         {
             self.w = value
@@ -3086,7 +3414,7 @@ pub mod builder {
         }
         pub fn x<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<f64>,
+            T: ::std::convert::TryInto<super::SpatialPoint>,
             T::Error: ::std::fmt::Display,
         {
             self.x = value
@@ -3096,7 +3424,7 @@ pub mod builder {
         }
         pub fn y<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<f64>,
+            T: ::std::convert::TryInto<super::SpatialPoint>,
             T::Error: ::std::fmt::Display,
         {
             self.y = value
@@ -3195,8 +3523,14 @@ pub mod builder {
         background_color: ::std::result::Result<super::BackgroundColor, ::std::string::String>,
         card_type: ::std::result::Result<::std::string::String, ::std::string::String>,
         end_msec: ::std::result::Result<::std::option::Option<u64>, ::std::string::String>,
-        font_size: ::std::result::Result<::std::option::Option<f64>, ::std::string::String>,
-        h: ::std::result::Result<f64, ::std::string::String>,
+        font_size: ::std::result::Result<
+            super::NodekitInternalTypesCommonSpatialSize1,
+            ::std::string::String,
+        >,
+        h: ::std::result::Result<
+            super::NodekitInternalTypesCommonSpatialSize1,
+            ::std::string::String,
+        >,
         max_length: ::std::result::Result<
             ::std::option::Option<::std::num::NonZeroU64>,
             ::std::string::String,
@@ -3204,9 +3538,13 @@ pub mod builder {
         prompt: ::std::result::Result<::std::string::String, ::std::string::String>,
         start_msec: ::std::result::Result<u64, ::std::string::String>,
         text_color: ::std::result::Result<super::TextColor, ::std::string::String>,
-        w: ::std::result::Result<f64, ::std::string::String>,
-        x: ::std::result::Result<f64, ::std::string::String>,
-        y: ::std::result::Result<f64, ::std::string::String>,
+        w: ::std::result::Result<
+            super::NodekitInternalTypesCommonSpatialSize1,
+            ::std::string::String,
+        >,
+        x: ::std::result::Result<super::SpatialPoint, ::std::string::String>,
+        y: ::std::result::Result<super::SpatialPoint, ::std::string::String>,
+        z_index: ::std::result::Result<::std::option::Option<i64>, ::std::string::String>,
     }
     impl ::std::default::Default for FreeTextEntryCard {
         fn default() -> Self {
@@ -3214,7 +3552,7 @@ pub mod builder {
                 background_color: Ok(super::defaults::free_text_entry_card_background_color()),
                 card_type: Ok(super::defaults::free_text_entry_card_card_type()),
                 end_msec: Ok(Default::default()),
-                font_size: Ok(Default::default()),
+                font_size: Ok(super::defaults::free_text_entry_card_font_size()),
                 h: Err("no value supplied for h".to_string()),
                 max_length: Ok(Default::default()),
                 prompt: Ok(Default::default()),
@@ -3223,6 +3561,7 @@ pub mod builder {
                 w: Err("no value supplied for w".to_string()),
                 x: Err("no value supplied for x".to_string()),
                 y: Err("no value supplied for y".to_string()),
+                z_index: Ok(Default::default()),
             }
         }
     }
@@ -3262,7 +3601,7 @@ pub mod builder {
         }
         pub fn font_size<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::std::option::Option<f64>>,
+            T: ::std::convert::TryInto<super::NodekitInternalTypesCommonSpatialSize1>,
             T::Error: ::std::fmt::Display,
         {
             self.font_size = value
@@ -3272,7 +3611,7 @@ pub mod builder {
         }
         pub fn h<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<f64>,
+            T: ::std::convert::TryInto<super::NodekitInternalTypesCommonSpatialSize1>,
             T::Error: ::std::fmt::Display,
         {
             self.h = value
@@ -3322,7 +3661,7 @@ pub mod builder {
         }
         pub fn w<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<f64>,
+            T: ::std::convert::TryInto<super::NodekitInternalTypesCommonSpatialSize1>,
             T::Error: ::std::fmt::Display,
         {
             self.w = value
@@ -3332,7 +3671,7 @@ pub mod builder {
         }
         pub fn x<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<f64>,
+            T: ::std::convert::TryInto<super::SpatialPoint>,
             T::Error: ::std::fmt::Display,
         {
             self.x = value
@@ -3342,12 +3681,22 @@ pub mod builder {
         }
         pub fn y<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<f64>,
+            T: ::std::convert::TryInto<super::SpatialPoint>,
             T::Error: ::std::fmt::Display,
         {
             self.y = value
                 .try_into()
                 .map_err(|e| format!("error converting supplied value for y: {}", e));
+            self
+        }
+        pub fn z_index<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<i64>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.z_index = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for z_index: {}", e));
             self
         }
     }
@@ -3369,6 +3718,7 @@ pub mod builder {
                 w: value.w?,
                 x: value.x?,
                 y: value.y?,
+                z_index: value.z_index?,
             })
         }
     }
@@ -3387,6 +3737,7 @@ pub mod builder {
                 w: Ok(value.w),
                 x: Ok(value.x),
                 y: Ok(value.y),
+                z_index: Ok(value.z_index),
             }
         }
     }
@@ -3430,8 +3781,8 @@ pub mod builder {
         pub fn nodes<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<
-                    ::std::collections::HashMap<::std::string::String, super::Node>,
-                >,
+                ::std::collections::HashMap<::std::string::String, super::Node>,
+            >,
             T::Error: ::std::fmt::Display,
         {
             self.nodes = value
@@ -3452,11 +3803,11 @@ pub mod builder {
         pub fn transitions<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<
-                    ::std::collections::HashMap<
-                        ::std::string::String,
-                        ::std::collections::HashMap<::std::string::String, ::std::string::String>,
-                    >,
+                ::std::collections::HashMap<
+                    ::std::string::String,
+                    ::std::collections::HashMap<::std::string::String, ::std::string::String>,
                 >,
+            >,
             T::Error: ::std::fmt::Display,
         {
             self.transitions = value
@@ -3557,7 +3908,7 @@ pub mod builder {
     #[derive(Clone, Debug)]
     pub struct Image {
         locator: ::std::result::Result<super::AssetLocator, ::std::string::String>,
-        media_type: ::std::result::Result<super::MediaType, ::std::string::String>,
+        media_type: ::std::result::Result<super::ImageMediaType, ::std::string::String>,
         sha256: ::std::result::Result<super::Sha256, ::std::string::String>,
     }
     impl ::std::default::Default for Image {
@@ -3582,7 +3933,7 @@ pub mod builder {
         }
         pub fn media_type<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<super::MediaType>,
+            T: ::std::convert::TryInto<super::ImageMediaType>,
             T::Error: ::std::fmt::Display,
         {
             self.media_type = value
@@ -3624,12 +3975,19 @@ pub mod builder {
     pub struct ImageCard {
         card_type: ::std::result::Result<::std::string::String, ::std::string::String>,
         end_msec: ::std::result::Result<::std::option::Option<u64>, ::std::string::String>,
-        h: ::std::result::Result<f64, ::std::string::String>,
+        h: ::std::result::Result<
+            super::NodekitInternalTypesCommonSpatialSize1,
+            ::std::string::String,
+        >,
         image: ::std::result::Result<super::Image, ::std::string::String>,
         start_msec: ::std::result::Result<u64, ::std::string::String>,
-        w: ::std::result::Result<f64, ::std::string::String>,
-        x: ::std::result::Result<f64, ::std::string::String>,
-        y: ::std::result::Result<f64, ::std::string::String>,
+        w: ::std::result::Result<
+            super::NodekitInternalTypesCommonSpatialSize1,
+            ::std::string::String,
+        >,
+        x: ::std::result::Result<super::SpatialPoint, ::std::string::String>,
+        y: ::std::result::Result<super::SpatialPoint, ::std::string::String>,
+        z_index: ::std::result::Result<::std::option::Option<i64>, ::std::string::String>,
     }
     impl ::std::default::Default for ImageCard {
         fn default() -> Self {
@@ -3642,6 +4000,7 @@ pub mod builder {
                 w: Err("no value supplied for w".to_string()),
                 x: Err("no value supplied for x".to_string()),
                 y: Err("no value supplied for y".to_string()),
+                z_index: Ok(Default::default()),
             }
         }
     }
@@ -3668,7 +4027,7 @@ pub mod builder {
         }
         pub fn h<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<f64>,
+            T: ::std::convert::TryInto<super::NodekitInternalTypesCommonSpatialSize1>,
             T::Error: ::std::fmt::Display,
         {
             self.h = value
@@ -3698,7 +4057,7 @@ pub mod builder {
         }
         pub fn w<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<f64>,
+            T: ::std::convert::TryInto<super::NodekitInternalTypesCommonSpatialSize1>,
             T::Error: ::std::fmt::Display,
         {
             self.w = value
@@ -3708,7 +4067,7 @@ pub mod builder {
         }
         pub fn x<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<f64>,
+            T: ::std::convert::TryInto<super::SpatialPoint>,
             T::Error: ::std::fmt::Display,
         {
             self.x = value
@@ -3718,12 +4077,22 @@ pub mod builder {
         }
         pub fn y<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<f64>,
+            T: ::std::convert::TryInto<super::SpatialPoint>,
             T::Error: ::std::fmt::Display,
         {
             self.y = value
                 .try_into()
                 .map_err(|e| format!("error converting supplied value for y: {}", e));
+            self
+        }
+        pub fn z_index<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<i64>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.z_index = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for z_index: {}", e));
             self
         }
     }
@@ -3741,6 +4110,7 @@ pub mod builder {
                 w: value.w?,
                 x: value.x?,
                 y: value.y?,
+                z_index: value.z_index?,
             })
         }
     }
@@ -3755,6 +4125,7 @@ pub mod builder {
                 w: Ok(value.w),
                 x: Ok(value.x),
                 y: Ok(value.y),
+                z_index: Ok(value.z_index),
             }
         }
     }
@@ -3842,13 +4213,13 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct Node {
+        annotation: ::std::result::Result<super::JsonValue, ::std::string::String>,
         board_color: ::std::result::Result<super::BoardColor, ::std::string::String>,
         cards: ::std::result::Result<
             ::std::collections::HashMap<::std::string::String, super::NodeCardsValue>,
             ::std::string::String,
         >,
-        effects:
-            ::std::result::Result<::std::vec::Vec<super::HidePointerEffect>, ::std::string::String>,
+        effects: ::std::result::Result<::std::vec::Vec<super::Effect>, ::std::string::String>,
         sensors: ::std::result::Result<
             ::std::collections::HashMap<::std::string::String, super::NodeSensorsValue>,
             ::std::string::String,
@@ -3857,6 +4228,7 @@ pub mod builder {
     impl ::std::default::Default for Node {
         fn default() -> Self {
             Self {
+                annotation: Ok(super::defaults::node_annotation()),
                 board_color: Ok(super::defaults::node_board_color()),
                 cards: Err("no value supplied for cards".to_string()),
                 effects: Ok(Default::default()),
@@ -3865,6 +4237,16 @@ pub mod builder {
         }
     }
     impl Node {
+        pub fn annotation<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::JsonValue>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.annotation = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for annotation: {}", e));
+            self
+        }
         pub fn board_color<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<super::BoardColor>,
@@ -3878,8 +4260,8 @@ pub mod builder {
         pub fn cards<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<
-                    ::std::collections::HashMap<::std::string::String, super::NodeCardsValue>,
-                >,
+                ::std::collections::HashMap<::std::string::String, super::NodeCardsValue>,
+            >,
             T::Error: ::std::fmt::Display,
         {
             self.cards = value
@@ -3889,7 +4271,7 @@ pub mod builder {
         }
         pub fn effects<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::std::vec::Vec<super::HidePointerEffect>>,
+            T: ::std::convert::TryInto<::std::vec::Vec<super::Effect>>,
             T::Error: ::std::fmt::Display,
         {
             self.effects = value
@@ -3900,8 +4282,8 @@ pub mod builder {
         pub fn sensors<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<
-                    ::std::collections::HashMap<::std::string::String, super::NodeSensorsValue>,
-                >,
+                ::std::collections::HashMap<::std::string::String, super::NodeSensorsValue>,
+            >,
             T::Error: ::std::fmt::Display,
         {
             self.sensors = value
@@ -3914,6 +4296,7 @@ pub mod builder {
         type Error = super::error::ConversionError;
         fn try_from(value: Node) -> ::std::result::Result<Self, super::error::ConversionError> {
             Ok(Self {
+                annotation: value.annotation?,
                 board_color: value.board_color?,
                 cards: value.cards?,
                 effects: value.effects?,
@@ -3924,6 +4307,7 @@ pub mod builder {
     impl ::std::convert::From<super::Node> for Node {
         fn from(value: super::Node) -> Self {
             Self {
+                annotation: Ok(value.annotation),
                 board_color: Ok(value.board_color),
                 cards: Ok(value.cards),
                 effects: Ok(value.effects),
@@ -3989,15 +4373,22 @@ pub mod builder {
     pub struct SliderCard {
         card_type: ::std::result::Result<::std::string::String, ::std::string::String>,
         end_msec: ::std::result::Result<::std::option::Option<u64>, ::std::string::String>,
-        h: ::std::result::Result<f64, ::std::string::String>,
+        h: ::std::result::Result<
+            super::NodekitInternalTypesCommonSpatialSize1,
+            ::std::string::String,
+        >,
         initial_bin_index: ::std::result::Result<::std::option::Option<u64>, ::std::string::String>,
         num_bins: ::std::result::Result<i64, ::std::string::String>,
         orientation: ::std::result::Result<super::Orientation, ::std::string::String>,
         show_bin_markers: ::std::result::Result<bool, ::std::string::String>,
         start_msec: ::std::result::Result<u64, ::std::string::String>,
-        w: ::std::result::Result<f64, ::std::string::String>,
-        x: ::std::result::Result<f64, ::std::string::String>,
-        y: ::std::result::Result<f64, ::std::string::String>,
+        w: ::std::result::Result<
+            super::NodekitInternalTypesCommonSpatialSize1,
+            ::std::string::String,
+        >,
+        x: ::std::result::Result<super::SpatialPoint, ::std::string::String>,
+        y: ::std::result::Result<super::SpatialPoint, ::std::string::String>,
+        z_index: ::std::result::Result<::std::option::Option<i64>, ::std::string::String>,
     }
     impl ::std::default::Default for SliderCard {
         fn default() -> Self {
@@ -4013,6 +4404,7 @@ pub mod builder {
                 w: Err("no value supplied for w".to_string()),
                 x: Err("no value supplied for x".to_string()),
                 y: Err("no value supplied for y".to_string()),
+                z_index: Ok(Default::default()),
             }
         }
     }
@@ -4039,7 +4431,7 @@ pub mod builder {
         }
         pub fn h<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<f64>,
+            T: ::std::convert::TryInto<super::NodekitInternalTypesCommonSpatialSize1>,
             T::Error: ::std::fmt::Display,
         {
             self.h = value
@@ -4105,7 +4497,7 @@ pub mod builder {
         }
         pub fn w<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<f64>,
+            T: ::std::convert::TryInto<super::NodekitInternalTypesCommonSpatialSize1>,
             T::Error: ::std::fmt::Display,
         {
             self.w = value
@@ -4115,7 +4507,7 @@ pub mod builder {
         }
         pub fn x<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<f64>,
+            T: ::std::convert::TryInto<super::SpatialPoint>,
             T::Error: ::std::fmt::Display,
         {
             self.x = value
@@ -4125,12 +4517,22 @@ pub mod builder {
         }
         pub fn y<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<f64>,
+            T: ::std::convert::TryInto<super::SpatialPoint>,
             T::Error: ::std::fmt::Display,
         {
             self.y = value
                 .try_into()
                 .map_err(|e| format!("error converting supplied value for y: {}", e));
+            self
+        }
+        pub fn z_index<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<i64>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.z_index = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for z_index: {}", e));
             self
         }
     }
@@ -4151,6 +4553,7 @@ pub mod builder {
                 w: value.w?,
                 x: value.x?,
                 y: value.y?,
+                z_index: value.z_index?,
             })
         }
     }
@@ -4168,6 +4571,7 @@ pub mod builder {
                 w: Ok(value.w),
                 x: Ok(value.x),
                 y: Ok(value.y),
+                z_index: Ok(value.z_index),
             }
         }
     }
@@ -4273,19 +4677,29 @@ pub mod builder {
         background_color: ::std::result::Result<super::BackgroundColor, ::std::string::String>,
         card_type: ::std::result::Result<::std::string::String, ::std::string::String>,
         end_msec: ::std::result::Result<::std::option::Option<u64>, ::std::string::String>,
-        font_size: ::std::result::Result<::std::option::Option<f64>, ::std::string::String>,
-        h: ::std::result::Result<f64, ::std::string::String>,
+        font_size: ::std::result::Result<
+            super::NodekitInternalTypesCommonSpatialSize1,
+            ::std::string::String,
+        >,
+        h: ::std::result::Result<
+            super::NodekitInternalTypesCommonSpatialSize1,
+            ::std::string::String,
+        >,
         justification_horizontal:
             ::std::result::Result<super::JustificationHorizontal, ::std::string::String>,
         justification_vertical:
             ::std::result::Result<super::JustificationVertical, ::std::string::String>,
         selectable: ::std::result::Result<bool, ::std::string::String>,
         start_msec: ::std::result::Result<u64, ::std::string::String>,
-        text: ::std::result::Result<super::Text, ::std::string::String>,
+        text: ::std::result::Result<::std::string::String, ::std::string::String>,
         text_color: ::std::result::Result<super::TextColor, ::std::string::String>,
-        w: ::std::result::Result<f64, ::std::string::String>,
-        x: ::std::result::Result<f64, ::std::string::String>,
-        y: ::std::result::Result<f64, ::std::string::String>,
+        w: ::std::result::Result<
+            super::NodekitInternalTypesCommonSpatialSize1,
+            ::std::string::String,
+        >,
+        x: ::std::result::Result<super::SpatialPoint, ::std::string::String>,
+        y: ::std::result::Result<super::SpatialPoint, ::std::string::String>,
+        z_index: ::std::result::Result<::std::option::Option<i64>, ::std::string::String>,
     }
     impl ::std::default::Default for TextCard {
         fn default() -> Self {
@@ -4293,7 +4707,7 @@ pub mod builder {
                 background_color: Ok(super::defaults::text_card_background_color()),
                 card_type: Ok(super::defaults::text_card_card_type()),
                 end_msec: Ok(Default::default()),
-                font_size: Ok(Default::default()),
+                font_size: Ok(super::defaults::text_card_font_size()),
                 h: Err("no value supplied for h".to_string()),
                 justification_horizontal: Ok(super::defaults::text_card_justification_horizontal()),
                 justification_vertical: Ok(super::defaults::text_card_justification_vertical()),
@@ -4304,6 +4718,7 @@ pub mod builder {
                 w: Err("no value supplied for w".to_string()),
                 x: Err("no value supplied for x".to_string()),
                 y: Err("no value supplied for y".to_string()),
+                z_index: Ok(Default::default()),
             }
         }
     }
@@ -4343,7 +4758,7 @@ pub mod builder {
         }
         pub fn font_size<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::std::option::Option<f64>>,
+            T: ::std::convert::TryInto<super::NodekitInternalTypesCommonSpatialSize1>,
             T::Error: ::std::fmt::Display,
         {
             self.font_size = value
@@ -4353,7 +4768,7 @@ pub mod builder {
         }
         pub fn h<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<f64>,
+            T: ::std::convert::TryInto<super::NodekitInternalTypesCommonSpatialSize1>,
             T::Error: ::std::fmt::Display,
         {
             self.h = value
@@ -4409,7 +4824,7 @@ pub mod builder {
         }
         pub fn text<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<super::Text>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.text = value
@@ -4429,7 +4844,7 @@ pub mod builder {
         }
         pub fn w<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<f64>,
+            T: ::std::convert::TryInto<super::NodekitInternalTypesCommonSpatialSize1>,
             T::Error: ::std::fmt::Display,
         {
             self.w = value
@@ -4439,7 +4854,7 @@ pub mod builder {
         }
         pub fn x<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<f64>,
+            T: ::std::convert::TryInto<super::SpatialPoint>,
             T::Error: ::std::fmt::Display,
         {
             self.x = value
@@ -4449,12 +4864,22 @@ pub mod builder {
         }
         pub fn y<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<f64>,
+            T: ::std::convert::TryInto<super::SpatialPoint>,
             T::Error: ::std::fmt::Display,
         {
             self.y = value
                 .try_into()
                 .map_err(|e| format!("error converting supplied value for y: {}", e));
+            self
+        }
+        pub fn z_index<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<i64>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.z_index = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for z_index: {}", e));
             self
         }
     }
@@ -4476,6 +4901,7 @@ pub mod builder {
                 w: value.w?,
                 x: value.x?,
                 y: value.y?,
+                z_index: value.z_index?,
             })
         }
     }
@@ -4496,6 +4922,7 @@ pub mod builder {
                 w: Ok(value.w),
                 x: Ok(value.x),
                 y: Ok(value.y),
+                z_index: Ok(value.z_index),
             }
         }
     }
@@ -4608,7 +5035,7 @@ pub mod builder {
     #[derive(Clone, Debug)]
     pub struct Video {
         locator: ::std::result::Result<super::AssetLocator, ::std::string::String>,
-        media_type: ::std::result::Result<::std::string::String, ::std::string::String>,
+        media_type: ::std::result::Result<super::VideoMediaType, ::std::string::String>,
         sha256: ::std::result::Result<super::Sha256, ::std::string::String>,
     }
     impl ::std::default::Default for Video {
@@ -4633,7 +5060,7 @@ pub mod builder {
         }
         pub fn media_type<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::std::string::String>,
+            T: ::std::convert::TryInto<super::VideoMediaType>,
             T::Error: ::std::fmt::Display,
         {
             self.media_type = value
@@ -4675,14 +5102,22 @@ pub mod builder {
     pub struct VideoCard {
         card_type: ::std::result::Result<::std::string::String, ::std::string::String>,
         end_msec: ::std::result::Result<::std::option::Option<u64>, ::std::string::String>,
-        h: ::std::result::Result<f64, ::std::string::String>,
+        h: ::std::result::Result<
+            super::NodekitInternalTypesCommonSpatialSize1,
+            ::std::string::String,
+        >,
         loop_: ::std::result::Result<bool, ::std::string::String>,
         muted: ::std::result::Result<bool, ::std::string::String>,
+        start: ::std::result::Result<bool, ::std::string::String>,
         start_msec: ::std::result::Result<u64, ::std::string::String>,
         video: ::std::result::Result<super::Video, ::std::string::String>,
-        w: ::std::result::Result<f64, ::std::string::String>,
-        x: ::std::result::Result<f64, ::std::string::String>,
-        y: ::std::result::Result<f64, ::std::string::String>,
+        w: ::std::result::Result<
+            super::NodekitInternalTypesCommonSpatialSize1,
+            ::std::string::String,
+        >,
+        x: ::std::result::Result<super::SpatialPoint, ::std::string::String>,
+        y: ::std::result::Result<super::SpatialPoint, ::std::string::String>,
+        z_index: ::std::result::Result<::std::option::Option<i64>, ::std::string::String>,
     }
     impl ::std::default::Default for VideoCard {
         fn default() -> Self {
@@ -4692,11 +5127,13 @@ pub mod builder {
                 h: Err("no value supplied for h".to_string()),
                 loop_: Ok(Default::default()),
                 muted: Ok(super::defaults::default_bool::<true>()),
+                start: Ok(super::defaults::default_bool::<true>()),
                 start_msec: Ok(Default::default()),
                 video: Err("no value supplied for video".to_string()),
                 w: Err("no value supplied for w".to_string()),
                 x: Err("no value supplied for x".to_string()),
                 y: Err("no value supplied for y".to_string()),
+                z_index: Ok(Default::default()),
             }
         }
     }
@@ -4723,7 +5160,7 @@ pub mod builder {
         }
         pub fn h<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<f64>,
+            T: ::std::convert::TryInto<super::NodekitInternalTypesCommonSpatialSize1>,
             T::Error: ::std::fmt::Display,
         {
             self.h = value
@@ -4751,6 +5188,16 @@ pub mod builder {
                 .map_err(|e| format!("error converting supplied value for muted: {}", e));
             self
         }
+        pub fn start<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<bool>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.start = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for start: {}", e));
+            self
+        }
         pub fn start_msec<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<u64>,
@@ -4773,7 +5220,7 @@ pub mod builder {
         }
         pub fn w<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<f64>,
+            T: ::std::convert::TryInto<super::NodekitInternalTypesCommonSpatialSize1>,
             T::Error: ::std::fmt::Display,
         {
             self.w = value
@@ -4783,7 +5230,7 @@ pub mod builder {
         }
         pub fn x<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<f64>,
+            T: ::std::convert::TryInto<super::SpatialPoint>,
             T::Error: ::std::fmt::Display,
         {
             self.x = value
@@ -4793,12 +5240,22 @@ pub mod builder {
         }
         pub fn y<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<f64>,
+            T: ::std::convert::TryInto<super::SpatialPoint>,
             T::Error: ::std::fmt::Display,
         {
             self.y = value
                 .try_into()
                 .map_err(|e| format!("error converting supplied value for y: {}", e));
+            self
+        }
+        pub fn z_index<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<i64>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.z_index = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for z_index: {}", e));
             self
         }
     }
@@ -4813,11 +5270,13 @@ pub mod builder {
                 h: value.h?,
                 loop_: value.loop_?,
                 muted: value.muted?,
+                start: value.start?,
                 start_msec: value.start_msec?,
                 video: value.video?,
                 w: value.w?,
                 x: value.x?,
                 y: value.y?,
+                z_index: value.z_index?,
             })
         }
     }
@@ -4829,11 +5288,13 @@ pub mod builder {
                 h: Ok(value.h),
                 loop_: Ok(value.loop_),
                 muted: Ok(value.muted),
+                start: Ok(value.start),
                 start_msec: Ok(value.start_msec),
                 video: Ok(value.video),
                 w: Ok(value.w),
                 x: Ok(value.x),
                 y: Ok(value.y),
+                z_index: Ok(value.z_index),
             }
         }
     }
@@ -4914,6 +5375,13 @@ pub mod defaults {
     pub(super) fn default_bool<const V: bool>() -> bool {
         V
     }
+    pub(super) fn default_i64<T, const V: i64>() -> T
+    where
+        T: ::std::convert::TryFrom<i64>,
+        <T as ::std::convert::TryFrom<i64>>::Error: ::std::fmt::Debug,
+    {
+        T::try_from(V).unwrap()
+    }
     pub(super) fn default_u64<T, const V: u64>() -> T
     where
         T: ::std::convert::TryFrom<u64>,
@@ -4936,6 +5404,10 @@ pub mod defaults {
     pub(super) fn free_text_entry_card_card_type() -> ::std::string::String {
         "FreeTextEntryCard".to_string()
     }
+    pub(super) fn free_text_entry_card_font_size() -> super::NodekitInternalTypesCommonSpatialSize1
+    {
+        super::NodekitInternalTypesCommonSpatialSize1(0.02_f64)
+    }
     pub(super) fn free_text_entry_card_text_color() -> super::TextColor {
         super::TextColor("#000000".to_string())
     }
@@ -4950,6 +5422,9 @@ pub mod defaults {
     }
     pub(super) fn key_sensor_sensor_type() -> ::std::string::String {
         "KeySensor".to_string()
+    }
+    pub(super) fn node_annotation() -> super::JsonValue {
+        super::JsonValue::Null
     }
     pub(super) fn node_board_color() -> super::BoardColor {
         super::BoardColor("#808080ff".to_string())
@@ -4971,6 +5446,9 @@ pub mod defaults {
     }
     pub(super) fn text_card_card_type() -> ::std::string::String {
         "TextCard".to_string()
+    }
+    pub(super) fn text_card_font_size() -> super::NodekitInternalTypesCommonSpatialSize1 {
+        super::NodekitInternalTypesCommonSpatialSize1(0.02_f64)
     }
     pub(super) fn text_card_justification_horizontal() -> super::JustificationHorizontal {
         super::JustificationHorizontal::Center

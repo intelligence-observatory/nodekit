@@ -16,9 +16,20 @@ pub use video::*;
 macro_rules! get_w_h {
     ($card:ident) => {{
         (
-            nodekit_rs_board::size_coordinate($card.w) as u32,
-            nodekit_rs_board::size_coordinate($card.h) as u32,
+            nodekit_rs_board::size_coordinate($card.w.0) as u32,
+            nodekit_rs_board::size_coordinate($card.h.0) as u32,
         )
+    }};
+}
+
+macro_rules! from_schema_card {
+    ($card:ident) => {{
+        let rect = Rect::new($card.x.0, $card.y.0, $card.w.0, $card.h.0);
+        Self {
+            rect,
+            state: EntityState::default(),
+            z_index: $card.z_index.unwrap_or(0)
+        }
     }};
 }
 
@@ -35,16 +46,7 @@ new_key_type! { pub struct CardKey; }
 pub struct Card {
     pub rect: Rect,
     pub state: EntityState,
-}
-
-macro_rules! from_schema_card {
-    ($card:ident) => {{
-        let rect = Rect::new($card.x, $card.y, $card.w, $card.h);
-        Self {
-            rect,
-            state: EntityState::default(),
-        }
-    }};
+    pub(crate) z_index: i64
 }
 
 impl From<&NodeCardsValue> for Card {

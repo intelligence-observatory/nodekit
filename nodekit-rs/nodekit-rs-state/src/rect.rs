@@ -21,9 +21,9 @@ impl Rect {
         Self { position, size }
     }
 
-    pub const fn contains(&self, x: f32, y: f32) -> bool {
-        let x = spatial_coordinate(x as f64);
-        let y = spatial_coordinate(y as f64);
+    pub const fn contains(&self, x: f64, y: f64) -> bool {
+        let x = spatial_coordinate(x);
+        let y = spatial_coordinate(y);
         if x < 0 || y < 0 {
             false
         } else {

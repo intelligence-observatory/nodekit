@@ -164,7 +164,9 @@ impl Node {
 
     fn tick_cards(&mut self, visual: &mut [u8], response: &mut Response) -> Result<(), Error> {
         let mut blitted = false;
-        for (card_key, card) in self.cards.cards.iter() {
+        for card_key in self.cards.order.iter() {
+            let card_key = *card_key;
+            let card = &self.cards.cards[card_key];
             match &card.state {
                 // Ignore inactive cards.
                 EntityState::Pending | EntityState::Finished => (),
@@ -233,6 +235,7 @@ impl Node {
         for (card_id, card) in node.cards.iter() {
             // Insert a new card.
             let card_key = cards.cards.insert(Card::from(card));
+            // Store the card ID string.
             card_ids.insert(card_id.clone(), card_key);
             // Add a new timer.
             timers.add_card(Timer::from(card), card_key);
@@ -255,6 +258,10 @@ impl Node {
                 _ => (),
             }
         }
+        // Set the order.
+        let mut z_indices = cards.cards.iter().map(|(k, v)| (k, v.z_index)).collect::<Vec<(CardKey, i64)>>();
+        z_indices.sort_by(|a, b| a.1.cmp(&b.1));
+        cards.order = z_indices.into_iter().map(|(k, _)| k).collect();
         Ok(CardsResult { cards, card_ids })
     }
 

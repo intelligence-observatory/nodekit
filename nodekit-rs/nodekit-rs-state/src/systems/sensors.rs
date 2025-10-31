@@ -1,6 +1,8 @@
 use crate::components::*;
 use hashbrown::HashMap;
 use slotmap::SlotMap;
+use nodekit_rs_board::*;
+use nodekit_rs_graph::Mask;
 
 #[derive(Eq, PartialEq, Hash, Ord, PartialOrd)]
 pub enum SensorComponentKey {
@@ -22,12 +24,17 @@ pub struct Sensors {
 }
 
 impl Sensors {
-    pub fn on_click(&self, x: f32, y: f32) -> Option<SensorKey> {
+    pub fn on_click(&self, x: f64, y: f64) -> Option<SensorKey> {
         let key = self.click_sensors.iter().find_map(|(key, sensor)| {
-            if sensor.rect.contains(x, y) {
-                Some(key)
-            } else {
-                None
+            match &sensor.mask {
+                Mask::Rectangle => {
+                    if sensor.rect.contains(x, y) {
+                        Some(key)
+                    } else {
+                        None
+                    }
+                }
+                Mask::Ellipse => todo!("Ellipse mask")
             }
         })?;
         Some(self.components[&SensorComponentKey::Click(key)])

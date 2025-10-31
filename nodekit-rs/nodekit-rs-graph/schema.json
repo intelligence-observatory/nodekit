@@ -56,34 +56,20 @@
           "title": "End Msec"
         },
         "x": {
-          "description": "The center of the bounding box of the clickable region, along the Board x-axis.",
-          "maximum": 0.5,
-          "minimum": -0.5,
-          "title": "X",
-          "type": "number"
+          "$ref": "#/$defs/SpatialPoint",
+          "description": "The center of the bounding box of the clickable region, along the Board x-axis."
         },
         "y": {
-          "description": "The center of the bounding box of the clickable region, along the Board y-axis.",
-          "maximum": 0.5,
-          "minimum": -0.5,
-          "title": "Y",
-          "type": "number"
+          "$ref": "#/$defs/SpatialPoint",
+          "description": "The center of the bounding box of the clickable region, along the Board y-axis."
         },
         "w": {
-          "description": "The width of the bounding box of the clickable region, in Board units.",
-          "exclusiveMinimum": 0,
-          "maximum": 1,
-          "minimum": 0,
-          "title": "W",
-          "type": "number"
+          "$ref": "#/$defs/nodekit___internal__types__common__SpatialSize__2",
+          "description": "The width of the bounding box of the clickable region, in Board units."
         },
         "h": {
-          "description": "The height of the bounding box of the clickable region, in Board units.",
-          "exclusiveMinimum": 0,
-          "maximum": 1,
-          "minimum": 0,
-          "title": "H",
-          "type": "number"
+          "$ref": "#/$defs/nodekit___internal__types__common__SpatialSize__2",
+          "description": "The height of the bounding box of the clickable region, in Board units."
         },
         "mask": {
           "default": "rectangle",
@@ -104,6 +90,19 @@
       ],
       "title": "ClickSensor",
       "type": "object"
+    },
+    "Effect": {
+      "discriminator": {
+        "mapping": {
+          "HidePointerEffect": "#/$defs/HidePointerEffect"
+        },
+        "propertyName": "effect_type"
+      },
+      "oneOf": [
+        {
+          "$ref": "#/$defs/HidePointerEffect"
+        }
+      ]
     },
     "FileSystemPath": {
       "description": "A locator which points to an absolute filepath on the viewer's local file system.",
@@ -136,32 +135,32 @@
           "type": "string"
         },
         "x": {
-          "description": "The x-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in x moves right.",
-          "maximum": 0.5,
-          "minimum": -0.5,
-          "title": "X",
-          "type": "number"
+          "$ref": "#/$defs/SpatialPoint",
+          "description": "The x-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in x moves right."
         },
         "y": {
-          "description": "The y-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in y moves up.",
-          "maximum": 0.5,
-          "minimum": -0.5,
-          "title": "Y",
-          "type": "number"
+          "$ref": "#/$defs/SpatialPoint",
+          "description": "The y-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in y moves up."
+        },
+        "z_index": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Z Index"
         },
         "w": {
-          "description": "The width of the Card, in Board units.",
-          "maximum": 1,
-          "minimum": 0,
-          "title": "W",
-          "type": "number"
+          "$ref": "#/$defs/nodekit___internal__types__common__SpatialSize__1",
+          "description": "The width of the Card, in Board units."
         },
         "h": {
-          "description": "The height of the Card, in Board units.",
-          "maximum": 1,
-          "minimum": 0,
-          "title": "H",
-          "type": "number"
+          "$ref": "#/$defs/nodekit___internal__types__common__SpatialSize__1",
+          "description": "The height of the Card, in Board units."
         },
         "start_msec": {
           "default": 0,
@@ -192,12 +191,9 @@
           "type": "string"
         },
         "font_size": {
+          "$ref": "#/$defs/nodekit___internal__types__common__SpatialSize__1",
           "default": 0.02,
-          "description": "The height of the em-box, in Board units.",
-          "maximum": 1,
-          "minimum": 0,
-          "title": "Font Size",
-          "type": "number"
+          "description": "The height of the em-box, in Board units."
         },
         "text_color": {
           "default": "#000000",
@@ -279,13 +275,8 @@
           "type": "string"
         },
         "media_type": {
-          "description": "The IANA media (MIME) type of the image file.",
-          "enum": [
-            "image/png",
-            "image/svg+xml"
-          ],
-          "title": "Media Type",
-          "type": "string"
+          "$ref": "#/$defs/ImageMediaType",
+          "description": "The IANA media (MIME) type of the image file."
         },
         "locator": {
           "$ref": "#/$defs/AssetLocator",
@@ -309,32 +300,32 @@
           "type": "string"
         },
         "x": {
-          "description": "The x-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in x moves right.",
-          "maximum": 0.5,
-          "minimum": -0.5,
-          "title": "X",
-          "type": "number"
+          "$ref": "#/$defs/SpatialPoint",
+          "description": "The x-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in x moves right."
         },
         "y": {
-          "description": "The y-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in y moves up.",
-          "maximum": 0.5,
-          "minimum": -0.5,
-          "title": "Y",
-          "type": "number"
+          "$ref": "#/$defs/SpatialPoint",
+          "description": "The y-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in y moves up."
+        },
+        "z_index": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Z Index"
         },
         "w": {
-          "description": "The width of the Card, in Board units.",
-          "maximum": 1,
-          "minimum": 0,
-          "title": "W",
-          "type": "number"
+          "$ref": "#/$defs/nodekit___internal__types__common__SpatialSize__1",
+          "description": "The width of the Card, in Board units."
         },
         "h": {
-          "description": "The height of the Card, in Board units.",
-          "maximum": 1,
-          "minimum": 0,
-          "title": "H",
-          "type": "number"
+          "$ref": "#/$defs/nodekit___internal__types__common__SpatialSize__1",
+          "description": "The height of the Card, in Board units."
         },
         "start_msec": {
           "default": 0,
@@ -371,6 +362,44 @@
       ],
       "title": "ImageCard",
       "type": "object"
+    },
+    "ImageMediaType": {
+      "enum": [
+        "image/png",
+        "image/svg+xml"
+      ],
+      "type": "string"
+    },
+    "JsonValue": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "integer"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "items": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "type": "array"
+        },
+        {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ]
     },
     "KeySensor": {
       "properties": {
@@ -533,17 +562,7 @@
         },
         "effects": {
           "items": {
-            "discriminator": {
-              "mapping": {
-                "HidePointerEffect": "#/$defs/HidePointerEffect"
-              },
-              "propertyName": "effect_type"
-            },
-            "oneOf": [
-              {
-                "$ref": "#/$defs/HidePointerEffect"
-              }
-            ]
+            "$ref": "#/$defs/Effect"
           },
           "title": "Effects",
           "type": "array"
@@ -556,6 +575,11 @@
           "pattern": "^#[0-9a-f]{8}$",
           "title": "Board Color",
           "type": "string"
+        },
+        "annotation": {
+          "$ref": "#/$defs/JsonValue",
+          "default": null,
+          "description": "An optional, author-supplied annotation for this Node. May be used for arbitrary purposes."
         }
       },
       "required": [
@@ -596,32 +620,32 @@
           "type": "string"
         },
         "x": {
-          "description": "The x-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in x moves right.",
-          "maximum": 0.5,
-          "minimum": -0.5,
-          "title": "X",
-          "type": "number"
+          "$ref": "#/$defs/SpatialPoint",
+          "description": "The x-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in x moves right."
         },
         "y": {
-          "description": "The y-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in y moves up.",
-          "maximum": 0.5,
-          "minimum": -0.5,
-          "title": "Y",
-          "type": "number"
+          "$ref": "#/$defs/SpatialPoint",
+          "description": "The y-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in y moves up."
+        },
+        "z_index": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Z Index"
         },
         "w": {
-          "description": "The width of the Card, in Board units.",
-          "maximum": 1,
-          "minimum": 0,
-          "title": "W",
-          "type": "number"
+          "$ref": "#/$defs/nodekit___internal__types__common__SpatialSize__1",
+          "description": "The width of the Card, in Board units."
         },
         "h": {
-          "description": "The height of the Card, in Board units.",
-          "maximum": 1,
-          "minimum": 0,
-          "title": "H",
-          "type": "number"
+          "$ref": "#/$defs/nodekit___internal__types__common__SpatialSize__1",
+          "description": "The height of the Card, in Board units."
         },
         "start_msec": {
           "default": 0,
@@ -692,8 +716,13 @@
       "title": "SliderCard",
       "type": "object"
     },
+    "SpatialPoint": {
+      "maximum": 0.5,
+      "minimum": -0.5,
+      "type": "number"
+    },
     "SubmitSensor": {
-      "description": "A Sensor that triggers when a submit button is initiated.\nIt reports the values of one or more associated SliderCards or FreeTextEntryCards",
+      "description": "A Sensor that triggers when a submit button is initiated.\nIt reports the values of one or more associated SliderCards or FreeTextEntryCards.",
       "properties": {
         "sensor_type": {
           "const": "SubmitSensor",
@@ -760,32 +789,32 @@
           "type": "string"
         },
         "x": {
-          "description": "The x-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in x moves right.",
-          "maximum": 0.5,
-          "minimum": -0.5,
-          "title": "X",
-          "type": "number"
+          "$ref": "#/$defs/SpatialPoint",
+          "description": "The x-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in x moves right."
         },
         "y": {
-          "description": "The y-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in y moves up.",
-          "maximum": 0.5,
-          "minimum": -0.5,
-          "title": "Y",
-          "type": "number"
+          "$ref": "#/$defs/SpatialPoint",
+          "description": "The y-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in y moves up."
+        },
+        "z_index": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Z Index"
         },
         "w": {
-          "description": "The width of the Card, in Board units.",
-          "maximum": 1,
-          "minimum": 0,
-          "title": "W",
-          "type": "number"
+          "$ref": "#/$defs/nodekit___internal__types__common__SpatialSize__1",
+          "description": "The width of the Card, in Board units."
         },
         "h": {
-          "description": "The height of the Card, in Board units.",
-          "maximum": 1,
-          "minimum": 0,
-          "title": "H",
-          "type": "number"
+          "$ref": "#/$defs/nodekit___internal__types__common__SpatialSize__1",
+          "description": "The height of the Card, in Board units."
         },
         "start_msec": {
           "default": 0,
@@ -810,17 +839,13 @@
           "title": "End Msec"
         },
         "text": {
-          "minLength": 1,
           "title": "Text",
           "type": "string"
         },
         "font_size": {
+          "$ref": "#/$defs/nodekit___internal__types__common__SpatialSize__1",
           "default": 0.02,
-          "description": "The height of the em-box, in Board units.",
-          "maximum": 1,
-          "minimum": 0,
-          "title": "Font Size",
-          "type": "number"
+          "description": "The height of the em-box, in Board units."
         },
         "justification_horizontal": {
           "default": "center",
@@ -922,10 +947,8 @@
           "type": "string"
         },
         "media_type": {
-          "const": "video/mp4",
-          "description": "The IANA media (MIME) type of the video file.",
-          "title": "Media Type",
-          "type": "string"
+          "$ref": "#/$defs/VideoMediaType",
+          "description": "The IANA media (MIME) type of the video file."
         },
         "locator": {
           "$ref": "#/$defs/AssetLocator",
@@ -949,32 +972,32 @@
           "type": "string"
         },
         "x": {
-          "description": "The x-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in x moves right.",
-          "maximum": 0.5,
-          "minimum": -0.5,
-          "title": "X",
-          "type": "number"
+          "$ref": "#/$defs/SpatialPoint",
+          "description": "The x-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in x moves right."
         },
         "y": {
-          "description": "The y-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in y moves up.",
-          "maximum": 0.5,
-          "minimum": -0.5,
-          "title": "Y",
-          "type": "number"
+          "$ref": "#/$defs/SpatialPoint",
+          "description": "The y-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in y moves up."
+        },
+        "z_index": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Z Index"
         },
         "w": {
-          "description": "The width of the Card, in Board units.",
-          "maximum": 1,
-          "minimum": 0,
-          "title": "W",
-          "type": "number"
+          "$ref": "#/$defs/nodekit___internal__types__common__SpatialSize__1",
+          "description": "The width of the Card, in Board units."
         },
         "h": {
-          "description": "The height of the Card, in Board units.",
-          "maximum": 1,
-          "minimum": 0,
-          "title": "H",
-          "type": "number"
+          "$ref": "#/$defs/nodekit___internal__types__common__SpatialSize__1",
+          "description": "The height of the Card, in Board units."
         },
         "start_msec": {
           "default": 0,
@@ -1012,6 +1035,12 @@
           "description": "Whether to loop the video when it ends.",
           "title": "Loop",
           "type": "boolean"
+        },
+        "start": {
+          "default": true,
+          "description": "Whether to play the video, or not",
+          "title": "Start",
+          "type": "boolean"
         }
       },
       "required": [
@@ -1023,6 +1052,10 @@
       ],
       "title": "VideoCard",
       "type": "object"
+    },
+    "VideoMediaType": {
+      "const": "video/mp4",
+      "type": "string"
     },
     "ZipArchiveInnerPath": {
       "properties": {
@@ -1051,6 +1084,19 @@
       ],
       "title": "ZipArchiveInnerPath",
       "type": "object"
+    },
+    "nodekit___internal__types__common__SpatialSize__1": {
+      "description": "A spatial size relative to the smaller extent of the board (width or height, whichever is smaller). For example, a value of 0.5 corresponds to half the smaller extent of the board.",
+      "maximum": 1,
+      "minimum": 0,
+      "type": "number"
+    },
+    "nodekit___internal__types__common__SpatialSize__2": {
+      "description": "A spatial size relative to the smaller extent of the board (width or height, whichever is smaller). For example, a value of 0.5 corresponds to half the smaller extent of the board.",
+      "exclusiveMinimum": 0,
+      "maximum": 1,
+      "minimum": 0,
+      "type": "number"
     }
   },
   "properties": {

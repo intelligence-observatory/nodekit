@@ -12,7 +12,7 @@ pub struct ClickSensor {
 
 impl From<&nodekit_rs_graph::ClickSensor> for ClickSensor {
     fn from(value: &nodekit_rs_graph::ClickSensor) -> Self {
-        let rect = Rect::new(value.x, value.y, value.w, value.h);
+        let rect = Rect::new(value.x.0, value.y.0, value.w.0, value.h.0);
         Self {
             rect,
             mask: value.mask,

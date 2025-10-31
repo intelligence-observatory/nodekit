@@ -10,6 +10,7 @@ pub enum CardComponentKey {
 #[derive(Default)]
 pub struct Cards {
     pub cards: SlotMap<CardKey, Card>,
+    pub order: Vec<CardKey>,
     pub components: SecondaryMap<CardKey, CardComponentKey>,
     pub images: SlotMap<ImageKey, (Image, CardKey)>,
     pub text: SlotMap<TextKey, Text>,

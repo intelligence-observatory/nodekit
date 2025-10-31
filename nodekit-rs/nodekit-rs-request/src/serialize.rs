@@ -39,7 +39,7 @@ pub fn graph<'py>(py: Python<'py>, graph: &Bound<'py, PyAny>) -> PyResult<Bound<
 /// Returns a serialized tick with a click action.
 #[gen_stub_pyfunction]
 #[pyfunction]
-pub fn click<'py>(py: Python<'py>, x: f32, y: f32) -> Bound<'py, PyBytes> {
+pub fn click<'py>(py: Python<'py>, x: f64, y: f64) -> Bound<'py, PyBytes> {
     let mut fbb = FlatBufferBuilder::new();
     let click = click_fb::Click::create(&mut fbb, &click_fb::ClickArgs { x, y });
     click_fb::finish_click_buffer(&mut fbb, click);
