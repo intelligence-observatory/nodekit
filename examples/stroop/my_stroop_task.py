@@ -110,8 +110,8 @@ def make_stroop_trial(
         "yellow": nk.sensors.KeySensor(
             key="y",
         ),
-        "timeout": nk.sensors.TimeoutSensor(
-            timeout_msec=max_response_time_msec,
+        "timeout": nk.sensors.WaitSensor(
+            until_msec=max_response_time_msec,
         ),
     }
 
@@ -136,8 +136,8 @@ def make_stroop_trial(
             )
         },
         sensors={
-            "wait": nk.sensors.TimeoutSensor(
-                timeout_msec=500,
+            "wait": nk.sensors.WaitSensor(
+                until_msec=500,
             )
         },
         board_color="#FFFFFF",  # White background
@@ -156,8 +156,8 @@ def make_stroop_trial(
             )
         },
         sensors={
-            "wait": nk.sensors.TimeoutSensor(
-                timeout_msec=2000,
+            "wait": nk.sensors.WaitSensor(
+                until_msec=2000,
             )
         },
         board_color="#FFFFFF",  # White background
@@ -177,8 +177,8 @@ def make_stroop_trial(
             )
         },
         sensors={
-            "wait": nk.sensors.TimeoutSensor(
-                timeout_msec=2000,
+            "wait": nk.sensors.WaitSensor(
+                until_msec=2000,
             )
         },
         board_color="#FFFFFF",  # White background

@@ -255,7 +255,7 @@ export class BoardView {
 
         // Dynamic dispatch for initializing SensorBinding from Sensor
         let sensorBinding: SensorBinding | null = null;
-        if (sensor.sensor_type === 'TimeoutSensor') {
+        if (sensor.sensor_type === 'WaitSensor') {
             sensorBinding = new TimeoutSensorBinding(
                 onSensorFired,
                 clock,
@@ -264,7 +264,7 @@ export class BoardView {
         else if (sensor.sensor_type === 'KeySensor') {
             sensorBinding = new KeySensorBinding(
                 onSensorFired,
-                sensor.key,
+                sensor.keys,
                 keyStream,
             );
         }
@@ -310,6 +310,12 @@ export class BoardView {
                 sourceCardViews,
                 clock,
             )
+        }
+        else if (sensor.sensor_type == "SelectSensor"){
+            throw new Error('SelectSensor Not implemented')
+        }
+        else if (sensor.sensor_type == 'SliderSensor'){
+            throw new Error('SliderSensor Not implemented')
         }
         else {
             // Add a never check here so TS complians if I missed a sensor type:

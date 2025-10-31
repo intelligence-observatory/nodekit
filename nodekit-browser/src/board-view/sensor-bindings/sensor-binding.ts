@@ -116,9 +116,7 @@ export class ClickSensorBinding implements SensorBinding {
     }
 }
 
-/**
- A sensor which fires immediately when armed.
- */
+
 export class TimeoutSensorBinding implements SensorBinding {
     private onSensorFired: (action: Action, tAction: TimeElapsedMsec) => void
     private clock: Clock
@@ -148,7 +146,7 @@ export class KeySensorBinding implements SensorBinding {
 
     constructor(
         onSensorFired: (action: Action, tAction: TimeElapsedMsec) => void,
-        key: PressableKey,
+        keys: Set<PressableKey>,
         keyStream: KeyStream,
     ) {
         this.onSensorFired = onSensorFired;

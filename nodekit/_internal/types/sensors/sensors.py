@@ -1,6 +1,5 @@
-from abc import ABC
-from typing import Literal, Annotated, Union, List
-
+from typing import Literal, Annotated, Union, Self
+import re
 import pydantic
 
 from nodekit._internal.types.common import (
@@ -10,46 +9,25 @@ from nodekit._internal.types.common import (
     SpatialSize,
     Mask,
     CardId,
+ColorHexString, MarkdownString
 )
+from nodekit._internal.types.sensors.base import BaseSensor, TemporallyBoundedSensor, VisualSensorMixin
 
 
 # %%
-class BaseSensor(pydantic.BaseModel, ABC):
-    """
-    A Sensor is a listener for Participant behavior.
-    When a Sensor is triggered, it emits an Action and optionally applies an Outcome.
-    """
-
-    sensor_type: str
-
-
-# %%
-class TimeoutSensor(BaseSensor):
+class WaitSensor(BaseSensor):
     """
     A Sensor that triggers when the specified time has elapsed since the start of the Node.
     """
 
-    sensor_type: Literal["TimeoutSensor"] = "TimeoutSensor"
-    timeout_msec: NodeTimePointMsec = pydantic.Field(
+    sensor_type: Literal["WaitSensor"] = "WaitSensor"
+    until_msec: NodeTimePointMsec = pydantic.Field(
         description="The number of milliseconds from the start of the Node when the Sensor triggers.",
         gt=0,
     )
 
 
 # %%
-class TemporallyBoundedSensor(BaseSensor, ABC):
-    """
-    A Sensor that is only armed during a specific time window relative to the start of the Node.
-    """
-
-    start_msec: NodeTimePointMsec = pydantic.Field(
-        default=0,
-        description="The time (in milliseconds) relative to Node start when the Sensor is armed.",
-    )
-    end_msec: NodeTimePointMsec | None = pydantic.Field(
-        default=None,
-        description="The time (in milliseconds) relative to Node start when the Sensor is disarmed. If None, the Sensor remains armed until the Node ends.",
-    )
 
 
 # %%
@@ -75,43 +53,108 @@ class ClickSensor(TemporallyBoundedSensor):
         validate_default=True,
     )
 
+# %%
+class SelectSensor(TemporallyBoundedSensor):
+    sensor_type: Literal["SelectSensor"] = "SelectSensor"
+    choices: list[CardId]
+
+    min_selections: int = pydantic.Field(
+        default=1,
+        validate_default=True,
+        ge=0,
+        description='The minimum number of Cards before the Sensor fires.',
+    )
+
+    max_selections: int | None = pydantic.Field(
+        default=None,
+        validate_default=True,
+        ge=0,
+        description='If None, the selection can contain up to the number of available Cards.'
+    )
+
+    hover_color: ColorHexString
+    selected_color: ColorHexString
+
+    @pydantic.model_validator(mode='after')
+    def validate_selections_vals(self) -> Self:
+        if self.max_selections is not None and self.max_selections < self.min_selections:
+            raise pydantic.ValidationError(
+                f'max_selections ({self.max_selections}) must be greater than min_selections ({self.min_selections})',
+            )
+        return self
+
+# %%
+
 
 # %%
 class KeySensor(TemporallyBoundedSensor):
     sensor_type: Literal["KeySensor"] = "KeySensor"
-    key: PressableKey = pydantic.Field(
-        description="The key that triggers the Sensor when pressed down."
+    keys: list[PressableKey] = pydantic.Field(
+        description="The keys that triggers the Sensor when pressed down."
     )
+
+# %%
+class FreeTextEntrySensor(TemporallyBoundedSensor, VisualSensorMixin):
+    sensor_type: Literal["FreeTextEntrySensor"] = "FreeTextEntrySensor"
+
+    prompt: str = pydantic.Field(
+        description="The initial placeholder text shown in the free text response box. It disappears when the user selects the element.",
+        default="",
+    )
+
+    font_size: SpatialSize = pydantic.Field(
+        description="The height of the em-box, in Board units.",
+        default=0.02,
+    )
+
+    text_color: ColorHexString = pydantic.Field(
+        default="#000000", validate_default=True
+    )
+    background_color: ColorHexString = pydantic.Field(
+        default="#ffffff",  # White by default
+        validate_default=True,
+        description="The background color of the entry field.",
+    )
+
+    min_length: int = pydantic.Field(
+        description="The minimum number of characters the user must enter before the Sensor fires. If None, no limit.",
+        default=1,
+        ge=1,
+        le=10000,
+    )
+
+    max_length: int | None = pydantic.Field(
+        description="The maximum number of characters the user can enter. If None, no limit.",
+        default=None,
+        ge=1,
+        le=10000,
+    )
+
+    pattern: re.Pattern | None = None
+
 
 
 # %%
-class SubmitSensor(TemporallyBoundedSensor):
+class SubmitSensor(TemporallyBoundedSensor, VisualSensorMixin):
     """
-    A Sensor that triggers when a submit button is initiated.
-    It reports the values of one or more associated SliderCards or FreeTextEntryCards.
+    A special Sensor which toggles between a locked and ready state, based on all other non-SubmitSensor sensors.
+    When ready, it may be pressed by the agent, which causes it to enter into submittable state.
+
+    If any other non-SubmitSensor exits submittable status, the SubmitSensor goes into locked state.
     """
 
     sensor_type: Literal["SubmitSensor"] = "SubmitSensor"
-    submitter_id: CardId = pydantic.Field(
-        description="The ID of the TextCard that submits the Slider value. If None, the Sensor triggers immediately when the Slider value changes.",
-    )
 
-    source_ids: List[CardId] = pydantic.Field(
-        description="The CardIds of the SliderCards or FreeTextEntryCards that this Sensor is associated with.",
-        min_length=1,
-    )
+    locked_text: MarkdownString = '...'
+    locked_color: ColorHexString
 
-    @pydantic.field_validator("source_ids")
-    def ensure_unique_source_ids(cls, v):
-        if len(v) != len(set(v)):
-            raise ValueError("source_ids must contain unique CardIds.")
-        return v
-
+    ready_text: MarkdownString = 'Submit'
+    ready_color: ColorHexString
 
 # %%
 Sensor = Annotated[
     Union[
-        TimeoutSensor,
+        WaitSensor,
         ClickSensor,
         KeySensor,
         SubmitSensor,

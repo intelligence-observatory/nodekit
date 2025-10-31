@@ -77,8 +77,8 @@ def make_same_different_node(
             )
         },
         sensors={
-            "wait": nk.sensors.TimeoutSensor(
-                timeout_msec=1000,
+            "wait": nk.sensors.WaitSensor(
+                until_msec=1000,
             )
         },
     )
@@ -95,7 +95,7 @@ def make_same_different_node(
                 text_color=to_hex(50, 50, 50),
             )
         },
-        sensors={"wait": nk.sensors.TimeoutSensor(timeout_msec=200)},
+        sensors={"wait": nk.sensors.WaitSensor(until_msec=200)},
     )
     same = color_left == color_right
 

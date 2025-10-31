@@ -8,7 +8,7 @@ import {createNodeKitRootDiv} from "./ui/ui-builder.ts";
 import {AssetManager} from "./asset-manager";
 import {ShellUI} from "./ui/shell-ui/shell-ui.ts";
 import {getBoardViewsContainerDiv} from "./ui/board-views-ui/board-views-ui.ts";
-import {NodePlay} from "./node-player/node-play.ts";
+import {NodePlay} from "./node-play";
 import {version as NODEKIT_VERSION} from '../package.json'
 import {gt, major} from 'semver';
 import {EventArray} from "./event-array.ts";

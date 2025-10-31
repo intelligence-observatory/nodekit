@@ -17,7 +17,7 @@ def get_fixation_node() -> nk.Node:
 
 
 def get_stimulus_node():
-    timeout_sensor = nk.sensors.TimeoutSensor(timeout_msec=2000)
+    timeout_sensor = nk.sensors.WaitSensor(until_msec=2000)
 
     return nk.Node(cards={}, sensors={"TO": timeout_sensor})
 
@@ -25,7 +25,7 @@ def get_stimulus_node():
 def get_response_node():
     left_sensor = nk.sensors.ClickSensor(mask="rectangle", x=-0.5, y=0, w=0.1, h=0.1)
     right_sensor = nk.sensors.ClickSensor(mask="rectangle", x=0.5, y=0, w=0.1, h=0.1)
-    timeout_sensor = nk.sensors.TimeoutSensor(timeout_msec=2000)
+    timeout_sensor = nk.sensors.WaitSensor(until_msec=2000)
 
     return nk.Node(
         cards={},
@@ -40,14 +40,14 @@ def get_response_node():
 def get_positive_node():
     return nk.Node(
         cards={},
-        sensors={"wait": nk.sensors.TimeoutSensor(timeout_msec=1000)},
+        sensors={"wait": nk.sensors.WaitSensor(until_msec=1000)},
     )
 
 
 def get_negative_node():
     return nk.Node(
         cards={},
-        sensors={"wait": nk.sensors.TimeoutSensor(timeout_msec=5000)},
+        sensors={"wait": nk.sensors.WaitSensor(until_msec=5000)},
     )
 
 
@@ -162,9 +162,9 @@ def test_example_fail():
 # %% Node, Sensor and transition checks:
 def test_multiple_roots_tie_break():
     nodes = {
-        "A": nk.Node(cards={}, sensors={"a": nk.sensors.TimeoutSensor(timeout_msec=1)}),
-        "B": nk.Node(cards={}, sensors={"b": nk.sensors.TimeoutSensor(timeout_msec=1)}),
-        "C": nk.Node(cards={}, sensors={"c": nk.sensors.TimeoutSensor(timeout_msec=1)}),
+        "A": nk.Node(cards={}, sensors={"a": nk.sensors.WaitSensor(until_msec=1)}),
+        "B": nk.Node(cards={}, sensors={"b": nk.sensors.WaitSensor(until_msec=1)}),
+        "C": nk.Node(cards={}, sensors={"c": nk.sensors.WaitSensor(until_msec=1)}),
     }
     transitions = {
         "A": {"a": "C"},
@@ -182,9 +182,9 @@ def test_multiple_roots_tie_break():
 
 def test_invalid_sensor_reference():
     nodes = {
-        "A": nk.Node(cards={}, sensors={"s": nk.sensors.TimeoutSensor(timeout_msec=1)}),
-        "B": nk.Node(cards={}, sensors={"s": nk.sensors.TimeoutSensor(timeout_msec=1)}),
-        "C": nk.Node(cards={}, sensors={"s": nk.sensors.TimeoutSensor(timeout_msec=1)}),
+        "A": nk.Node(cards={}, sensors={"s": nk.sensors.WaitSensor(until_msec=1)}),
+        "B": nk.Node(cards={}, sensors={"s": nk.sensors.WaitSensor(until_msec=1)}),
+        "C": nk.Node(cards={}, sensors={"s": nk.sensors.WaitSensor(until_msec=1)}),
     }
 
     # Add transition from undefined sensor:
@@ -197,7 +197,7 @@ def test_invalid_sensor_reference():
 
 def test_invalid_transition_node():
     nodes = {
-        "A": nk.Node(cards={}, sensors={"s": nk.sensors.TimeoutSensor(timeout_msec=1)})
+        "A": nk.Node(cards={}, sensors={"s": nk.sensors.WaitSensor(until_msec=1)})
     }
 
     # Add transitions with non-existent Node

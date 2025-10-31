@@ -1,13 +1,13 @@
 __all__ = [
     "ClickSensor",
     "KeySensor",
-    "TimeoutSensor",
+    "WaitSensor",
     "SubmitSensor",
 ]
 
 from nodekit._internal.types.sensors.sensors import (
     ClickSensor,
     KeySensor,
-    TimeoutSensor,
+    WaitSensor,
     SubmitSensor,
 )

@@ -1,4 +1,4 @@
-import type {Node} from "../types/node.ts";
+import type {Node, NodeResult} from "../types/node.ts";
 import type {Action} from "../types/actions/";
 import {BoardView} from "../board-view/board-view.ts";
 import {EventScheduler} from "./event-scheduler.ts";
@@ -194,7 +194,7 @@ export class NodePlay {
             else if (sensor.sensor_type === 'TimeoutSensor') {
                 this.scheduler.scheduleEvent(
                     {
-                        triggerTimeMsec: sensor.timeout_msec,
+                        triggerTimeMsec: sensor.until_msec,
                         triggerFunc: () => {
                             this.boardView.startSensor(sensorBindingId);
 
@@ -254,7 +254,7 @@ export class NodePlay {
     async run(
         clock:Clock,
         eventArray: EventArray,
-    ): Promise<PlayNodeResult> {
+    ): Promise<NodeResult> {
         // Run the NodePlay, returning a Promise which resolves when a Sensor fires and the corresponding Reinforcer has completed.
         if (!this.prepared) {
             // Prepare the NodePlay

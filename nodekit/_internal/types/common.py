@@ -116,35 +116,26 @@ PressableKey = Literal[
 
 
 # %% Identifiers
-NodeId = Annotated[
+type NodeId = Annotated[
     str,
     pydantic.Field(
         description="An identifier for a Node which is unique within a Graph.",
     ),
 ]
 
-SensorId = Annotated[
+type SensorId = Annotated[
     str,
     pydantic.Field(
         description="An identifier for a Sensor which is unique within a Node.",
     ),
 ]
 
-CardId = Annotated[
+type CardId = Annotated[
     str,
     pydantic.Field(
         description="An identifier for a Card which is unique within a Node.",
     ),
 ]
-# %% Money
-AmountUsdStr = Annotated[
-    str,
-    pydantic.Field(
-        pattern=r"^-?\d+(\.\d{1,5})?$",
-        description="A decimal number with at most five decimal places, representing an amount in USD (negative or positive). ",
-    ),
-]
-
 
 # %% JSON
 type JsonValue = (
