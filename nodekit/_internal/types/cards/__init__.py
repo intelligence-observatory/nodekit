@@ -31,6 +31,8 @@ class BaseCard(pydantic.BaseModel, ABC):
         description="The y-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in y moves up."
     )
 
+    z_index: int | None = None
+
     # Shape:
     w: SpatialSize = pydantic.Field(
         description="The width of the Card, in Board units."
@@ -64,7 +66,7 @@ class ImageCard(BaseCard):
 # %%
 class TextCard(BaseCard, SelectableMixin):
     card_type: Literal["TextCard"] = "TextCard"
-    text: MarkdownString = pydantic.Field(min_length=1)
+    text: MarkdownString
     font_size: SpatialSize = pydantic.Field(
         default=0.02, description="The height of the em-box, in Board units."
     )
@@ -88,6 +90,10 @@ class VideoCard(BaseCard):
     )
     loop: bool = pydantic.Field(
         description="Whether to loop the video when it ends.", default=False
+    )
+    start: bool = pydantic.Field(
+        description="Whether to play the video, or not",
+        default=True,
     )
 
 

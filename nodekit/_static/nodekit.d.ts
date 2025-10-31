@@ -14,6 +14,7 @@ declare interface BaseCard<T extends string> {
     card_type: T;
     x: SpatialPoint;
     y: SpatialPoint;
+    z_index: number | null;
     w: SpatialSize;
     h: SpatialSize;
     start_msec: NodeTimePointMsec;
@@ -300,6 +301,7 @@ declare interface VideoCard extends BaseCard<'VideoCard'> {
     video: Video;
     muted: boolean;
     loop: boolean;
+    start: boolean;
 }
 
 declare interface ZipArchiveInnerPath extends BaseLocator<"ZipArchiveInnerPath"> {

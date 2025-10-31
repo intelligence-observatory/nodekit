@@ -5,12 +5,12 @@ import pydantic
 # %% Assets
 SHA256 = Annotated[str, pydantic.Field(pattern=r"^[a-f0-9]{64}$")]
 
-ImageMediaType = Literal["image/png", "image/svg+xml"]
-VideoMediaType = Literal["video/mp4"]
-MediaType = ImageMediaType | VideoMediaType
+type ImageMediaType = Literal["image/png", "image/svg+xml"]
+type VideoMediaType = Literal["video/mp4"]
+type MediaType = ImageMediaType | VideoMediaType
 
 # %% Space
-SpatialSize = Annotated[
+type SpatialSize = Annotated[
     float,
     pydantic.Field(
         strict=True,
@@ -19,7 +19,7 @@ SpatialSize = Annotated[
         description="A spatial size relative to the smaller extent of the board (width or height, whichever is smaller). For example, a value of 0.5 corresponds to half the smaller extent of the board.",
     ),
 ]
-SpatialPoint = Annotated[float, pydantic.Field(strict=True, ge=-0.5, le=0.5)]
+type SpatialPoint = Annotated[float, pydantic.Field(strict=True, ge=-0.5, le=0.5)]
 
 
 Mask = Annotated[
@@ -114,6 +114,7 @@ PressableKey = Literal[
     "9",
 ]
 
+
 # %% Identifiers
 NodeId = Annotated[
     str,
@@ -143,3 +144,9 @@ AmountUsdStr = Annotated[
         description="A decimal number with at most five decimal places, representing an amount in USD (negative or positive). ",
     ),
 ]
+
+
+# %% JSON
+type JsonValue = (
+    str | int | float | bool | None | list[JsonValue] | dict[str, JsonValue]
+)

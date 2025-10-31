@@ -2,7 +2,7 @@ import enum
 import mimetypes
 from abc import ABC
 from pathlib import Path
-from typing import Literal, Annotated, Union, Self
+from typing import Literal, Annotated, Union, Self, cast
 
 import pydantic
 
@@ -126,11 +126,9 @@ class BaseAsset(pydantic.BaseModel):
                 f"Could not determine MIME type for file at {path}\n Does it have a valid file extension?"
             )
 
-        guessed_media_type: MediaType
-
         return cls(
             sha256=sha256,
-            media_type=guessed_media_type,
+            media_type=cast(MediaType, guessed_media_type),
             locator=FileSystemPath(path=path),
         )
 

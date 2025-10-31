@@ -45,9 +45,6 @@ def save_graph(
     if not str(path).endswith(".nkg"):
         raise ValueError(f"Path must end with .nkg: {path}")
 
-    if path.exists():
-        raise ValueError(f"Path already exists: {path}")
-
     if not path.parent.exists():
         raise ValueError(f"Parent directory does not exist: {path.parent}")
 

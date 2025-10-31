@@ -55,7 +55,7 @@ class LocalRunner:
                 app=self.app,
                 host=self.host,
                 port=self.port,
-                log_level="info",
+                log_level="warning",
             )
             self._server = uvicorn.Server(config=config)
             self._thread = threading.Thread(target=self._server.run, daemon=True)
