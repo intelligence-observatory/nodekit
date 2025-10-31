@@ -6,5 +6,7 @@ pub enum Error {
     #[error("Markdown parsing error: {0}")]
     Md(Message),
     #[error("Unsupported markdown node: {0}")]
-    Node(String)
+    Node(String),
+    #[error("Invalid header depth: {0}")]
+    HeaderDepth(u8)
 }

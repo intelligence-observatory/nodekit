@@ -1,8 +1,12 @@
+mod error;
 mod md;
 
+use std::fmt::Alignment;
 use cosmic_text::fontdb::{ID, Source};
-use cosmic_text::{Attrs, AttrsOwned, Buffer, FontSystem, Metrics, SwashCache};
+use cosmic_text::{Align, Attrs, AttrsOwned, Buffer, Color, Family, FontSystem, Metrics, Shaping, SwashCache};
 use std::sync::Arc;
+use crate::md::{parse, FONT_METRICS};
+pub use error::Error;
 
 pub struct Text {
     font_system: FontSystem,
@@ -12,10 +16,22 @@ pub struct Text {
 }
 
 impl Text {
-    pub fn render(&mut self, font_size: f32, line_height: f32) {
-        let metrics = Metrics::new(font_size, line_height);
-        let mut buffer = Buffer::new(&mut self.font_system, metrics);
+    // TODO vertical alignment.
+    pub fn render(&mut self, text: &str, w: f32, h: f32, alignment: Align) -> Result<(), Error>{
+        let mut buffer = Buffer::new(&mut self.font_system, FONT_METRICS);
         let mut buffer = buffer.borrow_with(&mut self.font_system);
+        buffer.set_size(Some(w), Some(h));
+
+        let mut attrs = Attrs::new();
+        attrs.family = Family::SansSerif;
+        attrs.metrics_opt = Some(FONT_METRICS.into());
+        let spans = parse(text, attrs.clone())?;
+        buffer.set_rich_text(spans.into_iter().map(|span| (span.text.as_str(), span.attrs)), &attrs, Shaping::Advanced, Some(alignment));
+
+        buffer.shape_until_scroll(true);
+        buffer.draw(&mut self.swash_cache, Color::rgb(0, 0, 0), |x, y, w, h, color| {
+            // Fill in your code here for drawing rectangles
+        });
     }
 }
 
