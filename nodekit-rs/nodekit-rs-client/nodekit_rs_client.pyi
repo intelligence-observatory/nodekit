@@ -111,7 +111,7 @@ def graph(graph: typing.Any) -> bytes:
 
 def key_press(key: str) -> bytes:
     r"""
-    Returns a serialized tick with a key press action.
+    Returns a serialized key press action.
     """
 
 def mouse(delta: typing.Optional[Vector2], clicked: builtins.bool) -> bytes:

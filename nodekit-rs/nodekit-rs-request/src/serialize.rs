@@ -89,7 +89,7 @@ pub fn mouse<'py>(py: Python<'py>, delta: Option<Vector2>, clicked: bool) -> PyR
     }
 }
 
-/// Returns a serialized tick with a key press action.
+/// Returns a serialized key press action.
 #[gen_stub_pyfunction]
 #[pyfunction]
 pub fn key_press<'py>(
