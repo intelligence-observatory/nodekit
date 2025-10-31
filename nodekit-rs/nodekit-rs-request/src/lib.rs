@@ -11,8 +11,9 @@ pub mod serialize;
 pub use action::Action;
 pub use error::Error;
 use flatbuffers::size_prefixed_root;
+use glam::DVec2;
 use nodekit_rs_fb::{
-    click as click_fb, graph as graph_fb, key_press as key_press_fb, noop as noop_fb,
+    graph as graph_fb, key_press as key_press_fb, mouse as mouse_fb, noop as noop_fb,
 };
 use nodekit_rs_graph::Graph;
 use serde_json::from_slice;
@@ -33,7 +34,7 @@ impl Request {
         } else {
             match size_prefixed_root::<&str>(buffer).map_err(Error::InvalidFlatbuffer)? {
                 graph_fb::GRAPH_IDENTIFIER => Self::deserialize_graph(buffer),
-                click_fb::CLICK_IDENTIFIER => Self::deserialize_click(buffer),
+                mouse_fb::MOUSE_IDENTIFIER => Self::deserialize_mouse(buffer),
                 key_press_fb::KEY_PRESS_IDENTIFIER => Self::deserialize_key_press(buffer),
                 noop_fb::NOOP_IDENTIFIER => Ok(Self::Tick(None)),
                 other => Err(Error::Prefix(other.to_string())),
@@ -48,11 +49,17 @@ impl Request {
         Ok(Self::Graph(graph))
     }
 
-    fn deserialize_click(data: &[u8]) -> Result<Self, Error> {
-        let click = click_fb::root_as_click(data).map_err(Error::InvalidFlatbuffer)?;
-        Ok(Self::Tick(Some(Action::Click {
-            x: click.x(),
-            y: click.y(),
+    fn deserialize_mouse(data: &[u8]) -> Result<Self, Error> {
+        let mouse = mouse_fb::root_as_mouse(data).map_err(Error::InvalidFlatbuffer)?;
+        let delta = mouse.delta().map(|delta| {
+            DVec2 {
+                x: delta.x(),
+                y: delta.y()
+            }
+        });
+        Ok(Self::Tick(Some(Action::Mouse {
+            delta,
+            clicked: mouse.clicked()
         })))
     }
 

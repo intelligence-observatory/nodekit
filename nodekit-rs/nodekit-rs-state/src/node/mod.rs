@@ -4,6 +4,7 @@ use crate::node::cards_result::CardsResult;
 use crate::{error::Error, systems::*};
 use blittle::blit;
 use bytemuck::{cast_slice, cast_slice_mut};
+use glam::DVec2;
 use hashbrown::HashMap;
 use hex_color::HexColor;
 use nodekit_rs_board::*;
@@ -115,7 +116,7 @@ impl Node {
         }
     }
 
-    pub fn tick(&mut self, action: Option<Action>, board: &mut [u8]) -> Result<Response, Error> {
+    pub fn tick(&mut self, action: Option<Action>, board: &mut [u8], cursor: &mut DVec2) -> Result<Response, Error> {
         if self.state == EntityState::Pending {
             return Ok(self.start(board));
         }

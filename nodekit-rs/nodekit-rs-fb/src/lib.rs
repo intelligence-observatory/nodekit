@@ -5,8 +5,8 @@
 //! Run `./fb.sh` to regenerate.
 //! This file is *not* auto-generated; all other files are.
 
-pub mod click;
 pub mod graph;
 pub mod key_press;
+pub mod mouse;
 pub mod noop;
 pub mod response;

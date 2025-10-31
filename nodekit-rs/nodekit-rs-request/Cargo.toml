@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 flatbuffers.workspace = true
+glam.workspace = true
 nodekit-rs-fb = { path = "../nodekit-rs-fb" }
 nodekit-rs-graph = { path = "../nodekit-rs-graph" }
 pyo3.workspace = true

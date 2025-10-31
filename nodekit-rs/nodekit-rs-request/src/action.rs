@@ -1,8 +1,12 @@
+use glam::DVec2;
+
 /// An action that can be executed by an agent.
 #[derive(Clone)]
 pub enum Action {
-    /// Click at `(x, y)` where `x` and `y` are between -0.5 and 0.5
-    Click { x: f64, y: f64 },
+    Mouse {
+        delta: Option<DVec2>,
+        clicked: bool
+    },
     /// Press a key.
     KeyPress(String),
     /// TODO

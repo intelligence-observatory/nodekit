@@ -1,0 +1,12 @@
+struct Vec2 {
+    x:float64;
+    y:float64;
+}
+
+table Mouse {
+    delta:Vec2;
+    clicked:bool;
+}
+
+root_type Mouse;
+file_identifier "mous";
