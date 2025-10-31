@@ -1,4 +1,4 @@
-import type {CardId, PressableKey, SpatialPoint} from "../common.ts";
+import type {CardId, PressableKey, SensorId, SpatialPoint} from "../common.ts";
 import type {SliderBinIndex, SliderNormalizedPosition} from "../../board-view/card-views/slider/slider-card-view.ts";
 
 export interface BaseAction<T extends string> {
@@ -31,5 +31,7 @@ export interface SubmitAction extends BaseAction<"SubmitAction"> {
 }
 
 // Union
-export type Action = ClickAction | TimeoutAction | KeyAction | SubmitAction;
-export type SensorValue = Action
+export type SensorValue = ClickAction | TimeoutAction | KeyAction | SubmitAction;
+
+
+export type Action = Record<SensorId, SensorValue>

@@ -1,4 +1,4 @@
-import type {Action, ClickAction, FreeTextEntryState, KeyAction, SliderState, TimeoutAction} from "../../types/actions";
+import type {SensorValue, ClickAction, FreeTextEntryState, KeyAction, SliderState, TimeoutAction} from "../../types/actions";
 import type {CardId, Mask, PressableKey, SpatialPoint, SpatialSize, TimeElapsedMsec} from "../../types/common.ts";
 import type {PointerSample, PointerStream} from "../../input-streams/pointer-stream.ts";
 import type {KeySample, KeyStream} from "../../input-streams/key-stream.ts";
@@ -118,11 +118,11 @@ export class ClickSensorBinding implements SensorBinding {
 
 
 export class TimeoutSensorBinding implements SensorBinding {
-    private onSensorFired: (action: Action, tAction: TimeElapsedMsec) => void
+    private onSensorFired: (action: SensorValue, tAction: TimeElapsedMsec) => void
     private clock: Clock
 
     constructor(
-        onSensorFired: (action: Action, tAction: TimeElapsedMsec) => void,
+        onSensorFired: (action: SensorValue, tAction: TimeElapsedMsec) => void,
         clock: Clock,
     ) {
         this.onSensorFired = onSensorFired;
@@ -140,12 +140,12 @@ export class TimeoutSensorBinding implements SensorBinding {
 }
 
 export class KeySensorBinding implements SensorBinding {
-    private onSensorFired: (action: Action, tAction: TimeElapsedMsec) => void
+    private onSensorFired: (action: SensorValue, tAction: TimeElapsedMsec) => void
     private tArmed: number | null = null;
     private unsubscribe: () => void;
 
     constructor(
-        onSensorFired: (action: Action, tAction: TimeElapsedMsec) => void,
+        onSensorFired: (action: SensorValue, tAction: TimeElapsedMsec) => void,
         keys: Set<PressableKey>,
         keyStream: KeyStream,
     ) {
@@ -158,7 +158,7 @@ export class KeySensorBinding implements SensorBinding {
             if (keySample.sampleType !== 'down') {
                 return;
             }
-            if (keySample.key !== key) {
+            if (!keys.has(keySample.key)) {
                 return;
             }
             const action: KeyAction = {
@@ -183,7 +183,7 @@ export class KeySensorBinding implements SensorBinding {
 export class SubmitSensorBinding implements SensorBinding {
     private armed: boolean = false;
     constructor(
-        onSensorFired: (action: Action, tAction: TimeElapsedMsec) => void,
+        onSensorFired: (action: SensorValue, tAction: TimeElapsedMsec) => void,
         submitterCardView: TextCardView,
         sourceCardViews: Record<CardId, FreeTextEntryCardView | SliderCardView>,
         clock: Clock,
@@ -220,7 +220,7 @@ export class SubmitSensorBinding implements SensorBinding {
                 }
 
                 // Fire
-                const action: Action = {
+                const action: SensorValue = {
                     action_type: "SubmitAction",
                     submitted_values: submittedValues,
                 }

@@ -2,10 +2,10 @@ import type {AssetManager} from "../asset-manager";
 import type {Card} from "../types/cards";
 import type {CardId, ColorHexString, SpatialPoint, SpatialSize, TimeElapsedMsec} from "../types/common.ts";
 import type {Sensor} from "../types/sensors";
-import type {Action} from "../types/actions";
+import type {SensorValue} from "../types/actions";
 import './board-view.css'
 import type {CardView} from "./card-views/card-view.ts";
-import {ClickSensorBinding, KeySensorBinding, type SensorBinding, SubmitSensorBinding, TimeoutSensorBinding} from "./sensor-bindings/sensor-binding.ts";
+import {ClickSensorBinding, KeySensorBinding, type SensorBinding, TimeoutSensorBinding} from "./sensor-bindings";
 import {ImageCardView} from "./card-views/image/image-card.ts";
 import {TextCardView} from "./card-views/text/text-card-view.ts";
 import {VideoCardView} from "./card-views/video/video-card.ts";
@@ -247,7 +247,6 @@ export class BoardView {
 
     prepareSensor(
         sensor: Sensor,
-        onSensorFired: (action: Action, tAction: TimeElapsedMsec) => void,
         keyStream: KeyStream,
         pointerStream: PointerStream,
         clock: Clock,
@@ -280,42 +279,16 @@ export class BoardView {
             )
         }
         else if (sensor.sensor_type == "SubmitSensor"){
-            // Check that source_ids and submitter_id are valid CardIds in the current Node:
-            const submitterCardView = this.cardViews.get(sensor.submitter_id);
-            if (!submitterCardView) {
-                throw new Error(`SubmitSensor has invalid submitter_id: ${sensor.submitter_id}`);
-            }
-
-            if (submitterCardView.card.card_type !== 'TextCard') {
-                throw new Error(`SubmitSensor's submitter_id must refer to a TextCard, but got: ${JSON.stringify(submitterCardView.card)}`);
-            }
-
-            // Load source CardViews:
-            let sourceCardViews: Record<CardId, FreeTextEntryCardView | SliderCardView> = {};
-            for (let sourceCardId of sensor.source_ids){
-                const sourceCardView = this.cardViews.get(sourceCardId);
-                if (!sourceCardView) {
-                    throw new Error(`SubmitSensor has invalid source_id: ${sourceCardId}`);
-                }
-                if (sourceCardView.card.card_type !== 'SliderCard' && sourceCardView.card.card_type !== 'FreeTextEntryCard') {
-                    throw new Error(`SubmitSensor's source_ids must refer to SliderCard or FreeTextEntryCard, but got: ${JSON.stringify(sourceCardView.card)}`);
-                }
-                // Cast
-                sourceCardViews[sourceCardId] = sourceCardView as FreeTextEntryCardView | SliderCardView;
-            }
-            console.log(sourceCardViews)
-            sensorBinding = new SubmitSensorBinding(
-                onSensorFired,
-                submitterCardView as TextCardView,
-                sourceCardViews,
-                clock,
-            )
+            throw new Error('SubmitSensor not implemented')
         }
         else if (sensor.sensor_type == "SelectSensor"){
             throw new Error('SelectSensor Not implemented')
         }
         else if (sensor.sensor_type == 'SliderSensor'){
             throw new Error('SliderSensor Not implemented')
+        }
+        else if (sensor.sensor_type == 'FreeTextEntrySensor'){
+            throw new Error('FreeTextEntrySensor Not implemented')
         }
         else {
             // Add a never check here so TS complians if I missed a sensor type:

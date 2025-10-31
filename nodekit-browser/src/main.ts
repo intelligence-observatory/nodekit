@@ -12,8 +12,6 @@ import {NodePlay} from "./node-play";
 import {version as NODEKIT_VERSION} from '../package.json'
 import {gt, major} from 'semver';
 import {EventArray} from "./event-array.ts";
-import {KeyStream} from "./input-streams/key-stream.ts";
-import {PointerStream} from "./input-streams/pointer-stream.ts";
 
 /**
  * Plays a Graph, returning a Trace of Events.
@@ -57,39 +55,6 @@ export async function play(
     shellUI.showSessionConnectingOverlay()
     const assetManager = new AssetManager();
     const clock = new Clock();
-
-    // Initialize KeyStream:
-    const keyStream = new KeyStream(clock);
-    keyStream.subscribe(
-        // Subscribe to the key stream:
-        (keySample) => {
-            eventArray.push(
-                {
-                    event_type: "KeySampledEvent",
-                    t: keySample.t,
-                    kind: keySample.sampleType,
-                    key: keySample.key,
-                }
-            )
-        }
-    )
-
-    // Initialize PointerStream:
-    const pointerStream = new PointerStream(boardViewsContainerDiv, clock)
-    pointerStream.subscribe(
-        // Subscribe to the pointer stream:
-        (pointerSample) => {
-            eventArray.push(
-                {
-                    event_type: "PointerSampledEvent",
-                    t: pointerSample.t,
-                    kind: pointerSample.sampleType,
-                    x: pointerSample.x,
-                    y: pointerSample.y,
-                }
-            )
-        }
-    )
 
     shellUI.hideSessionConnectingOverlay()
 
@@ -146,22 +111,19 @@ export async function play(
         // Prepare the Node:
         const node = nodes[currentNodeId];
         const nodePlay = new NodePlay(
-            currentNodeId,
             node,
+            assetManager,
         )
 
         // Mount the Node to the Board:
-        boardViewsContainerDiv.appendChild(nodePlay.boardView.root);
-        await nodePlay.prepare(
-            assetManager,
-            keyStream,
-            pointerStream,
-            clock,
-            eventArray,
-        )
+        boardViewsContainerDiv.appendChild(nodePlay.root);
+        await nodePlay.prepare()
 
         // Play the Node:
-        let result = await nodePlay.run(clock, eventArray);
+        let result = await nodePlay.run();
+        console.log('')
+        console.log(currentNodeId)
+        console.log(result)
 
         // Clear the rootBoardContainerDiv of all children:
         while (boardViewsContainerDiv.firstChild) {
@@ -173,16 +135,12 @@ export async function play(
             break
         }
 
-        if (!(result.sensorId in graph.transitions[currentNodeId])) {
-            break
-        }
-        currentNodeId = graph.transitions[currentNodeId][result.sensorId];
+        // Todo
+        break
     }
 
     // End screen:
     await shellUI.playEndScreen()
-    keyStream.destroy()
-    pointerStream.destroy()
 
     // Generate the EndEvent:
     const endEvent: TraceEndedEvent = {

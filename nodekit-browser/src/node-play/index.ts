@@ -1,21 +1,19 @@
-import type {Node, NodeResult} from "../types/node.ts";
-import type {Action} from "../types/actions/";
+import type {Node} from "../types/node.ts";
+import type {Action, SensorValue, TimeoutAction} from "../types/actions/";
 import {BoardView} from "../board-view/board-view.ts";
 import {EventScheduler} from "./event-scheduler.ts";
-import {type EffectBinding, HideCursorEffectBinding} from "../board-view/effect-bindings/effect-bindings.ts";
+import {type EffectBinding, HideCursorEffectBinding} from "../board-view/effect-bindings";
 
 import type {AssetManager} from "../asset-manager";
 
-import type {CardId, NodeId, SensorId, TimeElapsedMsec} from "../types/common.ts";
-import type {KeyStream} from "../input-streams/key-stream.ts";
-import type {PointerStream} from "../input-streams/pointer-stream.ts";
-import type {Clock} from "../clock.ts";
-import type {EventArray} from "../event-array.ts";
-import type {CardHiddenEvent, CardShownEvent, NodeEnteredEvent, NodeExitedEvent, SensorArmedEvent, SensorDisarmedEvent, SensorFiredEvent} from "../types/events";
+import type {CardId, SensorId} from "../types/common.ts";
+import {KeyStream} from "../input-streams/key-stream.ts";
+import {PointerStream} from "../input-streams/pointer-stream.ts";
+import {Clock} from "../clock.ts";
+import type {SensorEvent} from "../types/events/node-events.ts";
 
-export interface PlayNodeResult {
-    sensorId: SensorId;
-    action: Action;
+export interface NodePlayRunResult {
+    action: Record<SensorId, SensorValue>;
 }
 
 class Deferred<T> {
@@ -38,14 +36,10 @@ class Deferred<T> {
         this.resolveFunc(value);
     }
 }
-interface SensorFiring {
-    t: TimeElapsedMsec;
-    sensorId: SensorId;
-    action: Action;
-}
 
 export class NodePlay {
-    public boardView: BoardView
+    public root: HTMLDivElement
+    private boardView: BoardView
     public node: Node;
     private prepared: boolean = false;
     private started: boolean = false;
@@ -54,26 +48,32 @@ export class NodePlay {
     private scheduler: EventScheduler
 
     // Resolvers
-    private deferredSensorFiring = new Deferred<SensorFiring>();
-    private nodeId: NodeId;
+    private deferredAction: Deferred<Action> = new Deferred<Action>()
+    private currentSensorValues: Record<SensorId, SensorValue | null>
+
+    // Assets
+    private assetManager: AssetManager;
 
     constructor(
-        nodeId: NodeId,
         node: Node,
+        assetManager: AssetManager,
     ) {
         this.boardView = new BoardView(node.board_color);
+        this.root = this.boardView.root;
         this.node = node;
-        this.nodeId = nodeId;
         this.scheduler = new EventScheduler();
+        this.assetManager=assetManager;
+
+        this.currentSensorValues = {};
+
     }
 
-    public async prepare(
-        assetManager: AssetManager,
-        keyStream: KeyStream,
-        pointerStream: PointerStream,
-        clock: Clock,
-        eventArray: EventArray
-    ) {
+    public async prepare() {
+        const clock = new Clock();
+        const keyStream = new KeyStream(clock);
+        const pointerStream = new PointerStream(this.root, clock);
+
+        let assetManager = this.assetManager
 
         // Prepare and schedule Cards:
         for (let cardIdUnbranded in this.node.cards) {
@@ -81,6 +81,7 @@ export class NodePlay {
             let cardId = cardIdUnbranded as CardId;
 
             const card = this.node.cards[cardId];
+
             // Prepare Cards:
             await this.boardView.prepareCard(
                 cardId,
@@ -94,14 +95,6 @@ export class NodePlay {
                     triggerTimeMsec: card.start_msec,
                     triggerFunc: () => {
                         this.boardView.startCard(cardId);
-                        // Emit CardShownEvent:
-                        const cardShownEvent: CardShownEvent = {
-                            event_type: "CardShownEvent",
-                            t: clock.now(),
-                            node_id: this.nodeId,
-                            card_id: cardId as CardId,
-                        }
-                        eventArray.push(cardShownEvent);
                     }
                 }
             )
@@ -113,15 +106,6 @@ export class NodePlay {
                         triggerTimeMsec: card.end_msec,
                         triggerFunc: () => {
                             this.boardView.stopCard(cardId)
-
-                            // Emit CardHiddenEvent:
-                            const cardHiddenEvent: CardHiddenEvent = {
-                                event_type: "CardHiddenEvent",
-                                t: clock.now(),
-                                node_id: this.nodeId,
-                                card_id: cardId as CardId,
-                            }
-                            eventArray.push(cardHiddenEvent);
                         },
                     }
                 )
@@ -134,16 +118,12 @@ export class NodePlay {
         }
 
         // Prepare and schedule Sensors:
-        for (let sensorId in this.node.sensors) {
+        for (let sensorIdUnbranded in this.node.sensors) {
+            const sensorId = sensorIdUnbranded as SensorId;
             // Prepare Sensor:
             const sensor = this.node.sensors[sensorId as SensorId];
             const sensorBindingId = this.boardView.prepareSensor(
                 sensor,
-                (action, tAction) => this.deferredSensorFiring.resolve({
-                    sensorId: sensorId as SensorId,
-                    t: tAction,
-                    action: action,
-                }),
                 keyStream,
                 pointerStream,
                 clock,
@@ -157,14 +137,6 @@ export class NodePlay {
                         triggerFunc: () => {
                             this.boardView.startSensor(sensorBindingId)
 
-                            // Emit SensorArmedEvent:
-                            const sensorArmedEvent: SensorArmedEvent = {
-                                event_type: "SensorArmedEvent",
-                                t: clock.now(),
-                                node_id: this.nodeId,
-                                sensor_id: sensorId as SensorId,
-                            }
-                            eventArray.push(sensorArmedEvent);
                         },
                     }
                 )
@@ -176,22 +148,14 @@ export class NodePlay {
                             triggerTimeMsec: sensor.end_msec,
                             triggerFunc: () => {
                                 this.boardView.destroySensor(sensorBindingId)
-                                // Emit SensorDisarmedEvent:
-                                const sensorDisarmedEvent: SensorDisarmedEvent = {
-                                    event_type: "SensorDisarmedEvent",
-                                    t: clock.now(),
-                                    node_id: this.nodeId,
-                                    sensor_id: sensorId as SensorId,
-                                }
-                                eventArray.push(sensorDisarmedEvent);
+
                             },
                         }
                     )
-
                 }
             }
             // Schedule Sensor firing if a TimeoutSensor:
-            else if (sensor.sensor_type === 'TimeoutSensor') {
+            else if (sensor.sensor_type === 'WaitSensor') {
                 this.scheduler.scheduleEvent(
                     {
                         triggerTimeMsec: sensor.until_msec,
@@ -202,7 +166,6 @@ export class NodePlay {
                     }
                 )
             }
-
             else {
                 const neverSensor: never = sensor;
                 throw new Error(`Unknown Sensor type: ${JSON.stringify(neverSensor)}`);
@@ -212,6 +175,11 @@ export class NodePlay {
             this.scheduler.scheduleOnStop(
                 () => {this.boardView.destroySensor(sensorBindingId)}
             )
+
+            // Subscribe to sensor binding
+            sensorBinding.subscribe(this.sensorEventHandler)
+
+            this.currentSensorValues[sensorId] = null;
         }
 
         // Prepare and schedule Effects:
@@ -251,14 +219,46 @@ export class NodePlay {
         this.prepared = true;
     }
 
-    async run(
-        clock:Clock,
-        eventArray: EventArray,
-    ): Promise<NodeResult> {
+    private sensorEventHandler(sensorEvent: SensorEvent){
+        // Record sensor value update
+        switch (sensorEvent.event_type){
+            case 'SensorFiredEvent':
+                this.currentSensorValues[sensorEvent.sensor_id] = sensorEvent.sensor_value;
+                break;
+            case "SensorTimedOutEvent":
+                // If a value hasn't been set yet, set it to the TimeoutAction
+                if (this.currentSensorValues[sensorEvent.sensor_id] === null){
+                    this.currentSensorValues[sensorEvent.sensor_id] = {
+                        action_type: 'TimeoutAction'
+                    } as TimeoutAction;
+                }
+                break;
+            default:
+                const neverEvent: never = sensorEvent;
+                throw new Error(`Unknown Sensor event: ${JSON.stringify(neverEvent)}`);
+        }
+
+        // Check if all sensors reported
+        let action: Record<SensorId, SensorValue> = {}
+        for (let sensorIdUnbranded in this.currentSensorValues){
+            const sensorId = sensorIdUnbranded as SensorId;
+            if (this.currentSensorValues[sensorId] === null) {
+                return
+            }
+            action[sensorId] = this.currentSensorValues[sensorId];
+        }
+
+        // Resolve
+        this.deferredAction.resolve(action)
+
+    }
+
+    async run(): Promise<NodePlayRunResult> {
         // Run the NodePlay, returning a Promise which resolves when a Sensor fires and the corresponding Reinforcer has completed.
         if (!this.prepared) {
             // Prepare the NodePlay
-            throw new Error('NodePlay not prepared');
+            console.warn('Running a NodePlay without preparing it first!')
+            await this.prepare()
         }
 
         if (this.started) {
@@ -268,45 +268,18 @@ export class NodePlay {
         this.boardView.setBoardState(true, true);
         this.started = true;
 
-        // Emit start
-        const nodeStartEvent: NodeEnteredEvent = {
-            event_type: "NodeEnteredEvent",
-            t: clock.now(),
-            node_id: this.nodeId,
-        }
-        eventArray.push(nodeStartEvent);
-
         // Kick off scheduler:
         this.scheduler.start()
 
-        // Wait for a Sensor to fire:
-        const sensorFiring = await this.deferredSensorFiring.promise;
+        // Wait for Action:
+        const action = await this.deferredAction.promise;
+
+        // Clean up NodePlay:
         this.scheduler.stop();
-
-        // Emit SensorFiredEvent:
-        const sensorFiredEvent: SensorFiredEvent = {
-            event_type: "SensorFiredEvent",
-            t: sensorFiring.t,
-            node_id: this.nodeId,
-            sensor_id: sensorFiring.sensorId,
-            action: sensorFiring.action,
-        }
-        eventArray.push(sensorFiredEvent);
-
-        // Clean up board
         this.boardView.reset();
 
-        // Emit exit
-        const nodeExitEvent: NodeExitedEvent = {
-            event_type: "NodeExitedEvent",
-            t: clock.now(),
-            node_id: this.nodeId,
-        }
-        eventArray.push(nodeExitEvent);
-
         return {
-            sensorId: sensorFiring.sensorId,
-            action: sensorFiring.action,
+            action: action,
         }
     }
 }
