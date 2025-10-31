@@ -2,7 +2,6 @@
 members = [
     "nodekit-rs-board",
     "nodekit-rs-client",
-    "nodekit-rs-cursor",
     "nodekit-rs-fb",
     "nodekit-rs-graph",
     "nodekit-rs-image",

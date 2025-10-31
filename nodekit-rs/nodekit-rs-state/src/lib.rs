@@ -2,6 +2,7 @@
 //! Everything except the socket connection routes to this crate.
 
 mod components;
+mod cursor;
 mod error;
 mod node;
 mod rect;

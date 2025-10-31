@@ -17,3 +17,6 @@ nodekit-rs-response = { path = "../nodekit-rs-response" }
 nodekit-rs-video = { path = "../nodekit-rs-video" }
 slotmap.workspace = true
 thiserror.workspace = true
+
+[dev-dependencies]
+png.workspace = true

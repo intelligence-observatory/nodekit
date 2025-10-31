@@ -1,6 +1,6 @@
 mod clamped;
 
-use crate::clamped::Clamped;
+use clamped::Clamped;
 use bytemuck::cast_slice;
 use nodekit_rs_board::*;
 use std::slice::from_raw_parts_mut;
@@ -8,12 +8,12 @@ use std::slice::from_raw_parts_mut;
 const DIAMETER: usize = 32;
 const RADIUS: usize = 16;
 const RADIUS_I: isize = 16;
-const CURSOR: &[u8] = include_bytes!("../cursor");
+const CURSOR: &[u8] = include_bytes!("../../cursor");
 
-/// Blit the cursor onto the `visual` image.
+/// Blit the cursor onto the `board` image.
 ///
-/// `x` and `y` are between -0.5 and 0.5, with 0.0 being the center of `visual`.
-pub fn blit_cursor(x: f64, y: f64, visual: &mut [u8]) {
+/// `x` and `y` are between -0.5 and 0.5, with 0.0 being the center of `board`.
+pub fn blit_cursor(x: f64, y: f64, board: &mut [u8]) {
     if let Some(x) = Clamped::new(x)
         && let Some(y) = Clamped::new(y)
     {
@@ -21,7 +21,7 @@ pub fn blit_cursor(x: f64, y: f64, visual: &mut [u8]) {
         let cursor = cast_slice::<u8, [[u8; 4]; DIAMETER]>(CURSOR);
         // Break the visual bitmap into row slices.
         // We can't use bytemuck for this, but it's very safe, because we're using constants.
-        let ptr = visual.as_mut_ptr().cast::<[[u8; 3]; VISUAL_D]>();
+        let ptr = board.as_mut_ptr().cast::<[[u8; 3]; VISUAL_D]>();
         unsafe {
             // Iterate through each row we need to blit from and to.
             for (dst, src) in from_raw_parts_mut(ptr, VISUAL_D)[y.dst_0..y.dst_1]

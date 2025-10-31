@@ -1081,15 +1081,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "nodekit-rs-cursor"
-version = "0.1.0"
-dependencies = [
- "bytemuck",
- "nodekit-rs-board",
- "png",
-]
-
-[[package]]
 name = "nodekit-rs-fb"
 version = "0.1.0"
 dependencies = [
@@ -1156,6 +1147,7 @@ dependencies = [
  "nodekit-rs-request",
  "nodekit-rs-response",
  "nodekit-rs-video",
+ "png",
  "slotmap",
  "thiserror 2.0.17",
 ]

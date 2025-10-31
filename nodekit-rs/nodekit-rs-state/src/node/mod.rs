@@ -12,6 +12,7 @@ use nodekit_rs_graph::{NodeCardsValue, NodeSensorsValue};
 use nodekit_rs_request::Action;
 use nodekit_rs_response::*;
 use slotmap::new_key_type;
+use crate::cursor::blit_cursor;
 
 new_key_type! { pub struct NodeKey; }
 
@@ -93,11 +94,11 @@ impl Node {
         Ok(node)
     }
 
-    fn start(&mut self, visual: &mut [u8]) -> Response {
+    fn start(&mut self, board: &mut [u8]) -> Response {
         // Set the state.
         self.state = EntityState::StartedNow;
         // Fill the board with my color.
-        cast_slice_mut::<u8, [u8; 3]>(visual)
+        cast_slice_mut::<u8, [u8; 3]>(board)
             .iter_mut()
             .for_each(|pixel| {
                 pixel[0] = self.board_color[0];
@@ -106,7 +107,7 @@ impl Node {
             });
         Response {
             visual: Some(VisualFrame {
-                buffer: visual.to_vec(),
+                buffer: board.to_vec(),
                 width: VISUAL_D_U32,
                 height: VISUAL_D_U32,
             }),
@@ -137,6 +138,8 @@ impl Node {
             self.tick_timers();
             // Update all cards.
             self.tick_cards(board, &mut result)?;
+            // Blit the cursor.
+            blit_cursor(cursor.x, cursor.y, board);
         }
         Ok(result)
     }
@@ -168,7 +171,7 @@ impl Node {
         ended
     }
 
-    fn tick_cards(&mut self, visual: &mut [u8], response: &mut Response) -> Result<(), Error> {
+    fn tick_cards(&mut self, board: &mut [u8], response: &mut Response) -> Result<(), Error> {
         let mut blitted = false;
         for card_key in self.cards.order.iter() {
             let card_key = *card_key;
@@ -179,17 +182,17 @@ impl Node {
                 EntityState::StartedNow => match &self.cards.components[card_key] {
                     CardComponentKey::Image(image_key) => {
                         let (image, _) = &self.cards.images[*image_key];
-                        image.blit(card, visual)?;
+                        image.blit(card, board)?;
                         blitted = true;
                     }
                     CardComponentKey::Video(video_key) => {
-                        blit_video!(self, video_key, card, visual, blitted, response);
+                        blit_video!(self, video_key, card, board, blitted, response);
                     }
                     CardComponentKey::Text(_) => todo!("blit text"),
                 },
                 EntityState::Active => {
                     if let CardComponentKey::Video(video_key) = &self.cards.components[card_key] {
-                        blit_video!(self, video_key, card, visual, blitted, response);
+                        blit_video!(self, video_key, card, board, blitted, response);
                     }
                 }
                 // Erase the card.
@@ -199,7 +202,7 @@ impl Node {
                     blit(
                         src,
                         &card.rect.size,
-                        visual,
+                        board,
                         &card.rect.position,
                         &VISUAL_SIZE,
                         STRIDE,
@@ -211,7 +214,7 @@ impl Node {
         // Return the board.
         if blitted {
             response.visual = Some(VisualFrame {
-                buffer: visual.to_vec(),
+                buffer: board.to_vec(),
                 width: VISUAL_D_U32,
                 height: VISUAL_D_U32,
             });
