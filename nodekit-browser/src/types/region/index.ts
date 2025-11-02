@@ -1,4 +1,4 @@
-import type {Mask, SpatialPoint, SpatialSize} from "../common.ts";
+import type {SpatialPoint, SpatialSize, Roundness} from "../common.ts";
 
 export interface Region {
     x: SpatialPoint;
@@ -6,5 +6,5 @@ export interface Region {
     z_index: number | null;
     w: SpatialSize;
     h: SpatialSize;
-    mask: Mask
+    roundness: Roundness
 }

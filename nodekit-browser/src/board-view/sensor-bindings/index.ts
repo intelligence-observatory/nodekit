@@ -1,10 +1,9 @@
 import type {ClickAction, FreeTextEntryState, KeyAction, SensorValue, SliderState} from "../../types/actions";
-import type {SpatialPoint} from "../../types/common.ts";
+import type {Roundness} from "../../types/common.ts";
 import type {PointerSample} from "../../input-streams/pointer-stream.ts";
 import type {KeySample} from "../../input-streams/key-stream.ts";
 import type {ClickSensor, FreeTextEntrySensor, KeySensor, Sensor, SliderSensor} from "../../types/sensors";
-import {type BoardView} from "../board-view.ts";
-import type {Region} from "../../types/region";
+import {type BoardView, checkPointInRegion} from "../board-view.ts";
 import {SliderCardView, type SliderSample} from "./slider/slider-card-view.ts";
 import type {FreeTextEntryCard, SliderCard} from "../../types/cards";
 import {FreeTextEntryCardView} from "./free-text-entry/free-text-entry.ts";
@@ -74,20 +73,14 @@ export class ClickSensorBinding extends SensorBinding  {
         boardView: BoardView
     ){
 
-        const region: Region = {
-            x: sensor.x,
-            y: sensor.y,
-            z_index: null,
-            w: sensor.w,
-            h: sensor.h,
-            mask: sensor.mask,
-        }
+        const region =  sensor.region;
+
         const clickCallback = (pointerSample: PointerSample) => {
             if (pointerSample.sampleType !== 'down') {
                 return;
             }
 
-            const inside = this.checkPointInRegion(
+            const inside = checkPointInRegion(
                 pointerSample.x,
                 pointerSample.y,
                 region,
@@ -106,36 +99,6 @@ export class ClickSensorBinding extends SensorBinding  {
         boardView.pointerStream.subscribe(clickCallback);
     }
 
-    private checkPointInRegion(
-        x: SpatialPoint,
-        y: SpatialPoint,
-        region: Region,
-    ): boolean {
-        switch (region.mask) {
-            case 'rectangle':
-                const left = region.x - region.w / 2;
-                const right = region.x + region.w / 2;
-                const top = region.y + region.h / 2;
-                const bottom = region.y - region.h / 2;
-                return (x >= left) &&
-                    (x <= right) &&
-                    (y >= bottom) &&
-                    (y <= top);
-            case 'ellipse':
-                const radius_x = region.w / 2;
-                const radius_y = region.h / 2;
-                const delta_x = x - region.x;
-                const delta_y = y - region.y;
-
-                return (
-                    (delta_x * delta_x) / (radius_x * radius_x) +
-                    (delta_y * delta_y) / (radius_y * radius_y) <=
-                    1
-                );
-            default:
-                throw new Error(`Unknown mask: ${region.mask}`);
-        }
-    }
 }
 
 export class SliderSensorBinding extends SensorBinding {
@@ -156,7 +119,7 @@ export class SliderSensorBinding extends SensorBinding {
                 w: sensor.w,
                 h: sensor.h,
                 z_index: sensor.z_index,
-                mask: 'rectangle',
+                roundness: 0 as Roundness,
             }
         }
         const sliderCardView = new SliderCardView(
@@ -204,7 +167,7 @@ export class FreeTextEntrySensorBinding extends SensorBinding {
                 w: sensor.w,
                 h: sensor.h,
                 z_index: sensor.z_index,
-                mask: 'rectangle',
+                roundness: 0 as Roundness,
             },
         }
 

@@ -1,4 +1,5 @@
-import type {PressableKey, SpatialPoint, SpatialSize, Mask, CardId, ColorHexString, PlainString, RegularExpressionString} from "../common.ts";
+import type {CardId, ColorHexString, PlainString, PressableKey, RegularExpressionString, SpatialPoint, SpatialSize} from "../common.ts";
+import type {Region} from "../region";
 
 
 interface BaseSensor<T extends string> {
@@ -16,11 +17,7 @@ interface VisualSensorMixin {
 
 
 export interface ClickSensor extends BaseSensor<'ClickSensor'>{
-    x: SpatialPoint;
-    y: SpatialPoint;
-    w: SpatialSize;
-    h: SpatialSize;
-    mask: Mask
+    region: Region
 }
 
 export interface KeySensor extends BaseSensor<'KeySensor'> {

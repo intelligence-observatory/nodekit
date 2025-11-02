@@ -63,10 +63,10 @@ export class BoardCoordinateSystem {
         return this.getUnitPx() * boardSize;
     }
 
-    getBoardLocationFromPointerEvent(e: PointerEvent):{
+    getBoardLocationFromPointerEvent(e: PointerEvent): {
         x: SpatialPoint,
         y: SpatialPoint,
-    }{
+    } {
         // Converts a MouseEvent's (clientX, clientY) to Board coordinates (x, y)
         let clickX = (e.clientX - this.boardLeftPx) / this.boardWidthPx - 0.5;
         let clickY = -((e.clientY - this.boardTopPx) / this.boardHeightPx - 0.5);
@@ -77,8 +77,8 @@ export class BoardCoordinateSystem {
         clickY = parseFloat(clickY.toFixed(precision));
 
         return {
-            x:clickX as SpatialPoint,
-            y:clickY as SpatialPoint
+            x: clickX as SpatialPoint,
+            y: clickY as SpatialPoint
         };
     }
 }
@@ -105,7 +105,7 @@ export class BoardView {
         document.body.style.backgroundColor = boardColor;
 
         // Set streams
-        this.clock=new Clock();
+        this.clock = new Clock();
         this.pointerStream = new PointerStream(this.root, this.clock);
         this.keyStream = new KeyStream(this.clock);
 
@@ -178,18 +178,56 @@ export abstract class RegionView {
         this.root.style.width = `${widthPx}px`;
         this.root.style.height = `${heightPx}px`;
 
-        switch (region.mask) {
-            case 'ellipse':
-                this.root.style.borderRadius = '50%';
-                break
-            case 'rectangle':
-                break
-            default:
-                const _full: never = region.mask
-                throw new Error(`Unsupported Region.mask: ${JSON.stringify(_full)}`)
-        }
+        const borderRadiusPercent = Math.min(1, Math.max(0, region.roundness)) * 50;
+        this.root.style.borderRadius = `${borderRadiusPercent}%`;
         if (typeof region.z_index === 'number') {
             this.root.style.zIndex = region.z_index.toString()
         }
     }
+}
+
+
+export function checkPointInRegion(
+    x: SpatialPoint,
+    y: SpatialPoint,
+    region: Region,
+): boolean {
+    const left = region.x - region.w / 2;
+    const right = region.x + region.w / 2;
+    const bottom = region.y - region.h / 2;
+    const top = region.y + region.h / 2;
+
+    // Map roundness -> CSS % (0..50), then -> per-corner radii in px.
+    const r = Math.min(1, Math.max(0, region.roundness)); // clamp
+    const rx = (region.w / 2) * r; // horizontal corner radius (percent resolves against width)
+    const ry = (region.h / 2) * r; // vertical corner radius (percent resolves against height)
+
+    // Fast path: no rounding => plain axis-aligned rectangle
+    if (rx === 0 || ry === 0) {
+        return x >= left && x <= right && y >= bottom && y <= top;
+    }
+
+    // Inner rectangle after shaving off corner radii
+    const innerLeft = left + rx;
+    const innerRight = right - rx;
+    const innerBottom = bottom + ry;
+    const innerTop = top - ry;
+
+    // If inside the central cross (vertical or horizontal bands), it's in.
+    if ((x >= innerLeft && x <= innerRight && y >= bottom && y <= top) ||
+        (y >= innerBottom && y <= innerTop && x >= left && x <= right)) {
+        return true;
+    }
+
+    // Otherwise, test against the appropriate corner ellipse.
+    // Clamp to inner rect to find which corner center to use.
+    const qx = x < innerLeft ? innerLeft : (x > innerRight ? innerRight : x);
+    const qy = y < innerBottom ? innerBottom : (y > innerTop ? innerTop : y);
+
+    // Corner center (ellipse center) is (qx, qy). Measure offset.
+    const dx = x - qx;
+    const dy = y - qy;
+
+    // Elliptical corner test: (dx/rx)^2 + (dy/ry)^2 <= 1
+    return (dx * dx) / (rx * rx) + (dy * dy) / (ry * ry) <= 1;
 }

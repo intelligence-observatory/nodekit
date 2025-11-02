@@ -13,10 +13,10 @@ export type PressableKey = string;
 
 export type SHA256 = string & { __brand: 'SHA256' };
 
-export type Mask = 'rectangle' | 'ellipse';
 
 export type NodeId = string & { __brand: 'NodeId' };
 export type SensorId = string & { __brand: 'SensorId' };
 export type CardId = string & { __brand: 'CardId' };
 
 
+export type Roundness = number & { __brand: 'Roundness' }; // Between 0 to 1
