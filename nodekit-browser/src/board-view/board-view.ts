@@ -4,13 +4,12 @@ import type {CardId, ColorHexString, SpatialPoint, SpatialSize} from "../types/c
 import type {Sensor} from "../types/sensors";
 import './board-view.css'
 import type {CardView} from "./card-views/card-view.ts";
-import {ClickSensorBinding, KeySensorBinding, type SensorBinding} from "./sensor-bindings";
+import {ClickSensorBinding, KeySensorBinding, type SensorBinding, SliderSensorBinding} from "./sensor-bindings";
 import {ImageCardView} from "./card-views/image/image-card.ts";
 import {TextCardView} from "./card-views/text/text-card-view.ts";
 import {VideoCardView} from "./card-views/video/video-card.ts";
 import {PointerStream} from "../input-streams/pointer-stream.ts";
 import {KeyStream} from "../input-streams/key-stream.ts";
-import {SliderCardView} from "./card-views/slider/slider-card-view.ts";
 import {FreeTextEntryCardView} from "./card-views/free-text-entry/free-text-entry.ts";
 import {Clock} from "../clock.ts";
 
@@ -262,7 +261,8 @@ export function createSensorBinding(
             throw new Error('Not implemented yet')
         }
         case "SliderSensor": {
-            throw new Error('Not implemented yet')
+            sensorBinding = new SliderSensorBinding();
+            break;
         }
         case "FreeTextEntrySensor":{
             throw new Error('Not implemented yet')

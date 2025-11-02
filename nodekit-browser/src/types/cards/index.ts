@@ -30,6 +30,13 @@ export interface VideoCard extends BaseCard<'VideoCard'>{
     start: boolean;
 }
 
+export interface SliderCard extends BaseCard<'SliderCard'>{
+    num_bins: number;
+    show_bin_markers: boolean;
+    initial_bin_index: number;
+    orientation: 'horizontal' | 'vertical';
+}
+
 export interface TextCard extends BaseCard<'TextCard'>, SelectableMixin{
     text: MarkdownString
     font_size: SpatialSize; // The height of the em-box (in Board units)
@@ -47,4 +54,4 @@ export interface FreeTextEntryCard extends BaseCard<'FreeTextEntryCard'>{
     max_length: number | null; // Maximum number of characters allowed
 }
 
-export type Card = ImageCard | VideoCard | TextCard | FreeTextEntryCard;
+export type Card = ImageCard | VideoCard | TextCard | FreeTextEntryCard | SliderCard;

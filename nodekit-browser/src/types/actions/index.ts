@@ -31,7 +31,7 @@ export interface SubmitAction extends BaseAction<"SubmitAction"> {
 }
 
 // Union
-export type SensorValue = ClickAction | TimeoutAction | KeyAction | SubmitAction;
+export type SensorValue = ClickAction | TimeoutAction | KeyAction | SubmitAction | SliderState;
 
 
 export type Action = Record<SensorId, SensorValue>

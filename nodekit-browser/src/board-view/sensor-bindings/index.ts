@@ -1,10 +1,12 @@
-import type {ClickAction, KeyAction, SensorValue} from "../../types/actions";
-import type {SpatialPoint} from "../../types/common.ts";
+import type {ClickAction, KeyAction, SensorValue, SliderState} from "../../types/actions";
+import type {NodeTimePointMsec, SpatialPoint} from "../../types/common.ts";
 import type {PointerSample} from "../../input-streams/pointer-stream.ts";
 import type {KeySample} from "../../input-streams/key-stream.ts";
-import type {ClickSensor, KeySensor, Sensor} from "../../types/sensors";
+import type {ClickSensor, KeySensor, Sensor, SliderSensor} from "../../types/sensors";
 import type {BoardView} from "../board-view.ts";
 import type {Region} from "../../types/region";
+import {SliderCardView, type SliderSample} from "../card-views/slider/slider-card-view.ts";
+import type {SliderCard} from "../../types/cards";
 
 
 export abstract class SensorBinding {
@@ -134,3 +136,49 @@ export class ClickSensorBinding extends SensorBinding  {
     }
 }
 
+export class SliderSensorBinding extends SensorBinding {
+    prepare(
+        sensor: SliderSensor,
+        boardView: BoardView
+    ){
+        // Wire in old SliderCard
+        const sliderCard: SliderCard = {
+            card_type: 'SliderCard',
+            num_bins: sensor.num_bins,
+            show_bin_markers: sensor.show_bin_markers,
+            initial_bin_index: sensor.initial_bin_index,
+            orientation: sensor.orientation,
+            x: sensor.x,
+            y: sensor.y,
+            w: sensor.w,
+            h: sensor.h,
+            z_index: sensor.z_index,
+            start_msec: 0 as NodeTimePointMsec,
+            end_msec:null,
+        }
+        const sliderCardView = new SliderCardView(
+            sliderCard,
+            boardView.getCoordinateSystem()
+        )
+        sliderCardView.prepare()
+        if (typeof sliderCard.z_index ==='number'){
+            sliderCardView.root.style.zIndex = sliderCard.z_index.toString()
+        }
+        sliderCardView.setInteractivity(true)
+        sliderCardView.setVisibility(true);
+
+        // Bind
+        boardView.root.appendChild(sliderCardView.root)
+
+        // Subscribe
+        const sliderChangedCallback = (sliderSample: SliderSample): void => {
+            const sliderValue: SliderState = {
+                slider_normalized_position: sliderSample.sliderNormalizedPosition,
+                slider_bin_index: sliderSample.binIndex
+            }
+            this.emit(sliderValue)
+        }
+
+        sliderCardView.subscribeToSlider(sliderChangedCallback)
+    }
+}

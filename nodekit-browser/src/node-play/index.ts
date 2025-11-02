@@ -164,6 +164,7 @@ export class NodePlay {
         sensorId: SensorId,
         sensorValue: SensorValue
     ): void {
+        console.log(sensorId, sensorValue)
         // Record sensor value update
         this.currentSensorValues[sensorId] = sensorValue;
 
