@@ -7,15 +7,6 @@ interface BaseSensor<T extends string> {
 }
 
 
-interface VisualSensorMixin {
-    x: SpatialPoint
-    y: SpatialPoint
-    z_index: number | null;
-    w: SpatialSize
-    h: SpatialSize
-}
-
-
 export interface ClickSensor extends BaseSensor<'ClickSensor'>{
     region: Region
 }
@@ -24,7 +15,7 @@ export interface KeySensor extends BaseSensor<'KeySensor'> {
     keys: Set<PressableKey>
 }
 
-export interface FreeTextEntrySensor extends BaseSensor<'FreeTextEntrySensor'>, VisualSensorMixin{
+export interface FreeTextEntrySensor extends BaseSensor<'FreeTextEntrySensor'>{
     prompt: PlainString;
     font_size: SpatialSize;
     text_color: ColorHexString;
@@ -32,6 +23,7 @@ export interface FreeTextEntrySensor extends BaseSensor<'FreeTextEntrySensor'>, 
     min_length: number;
     max_length: number | null;
     pattern: RegularExpressionString | null;
+    region: Region
 }
 
 export interface SelectSensor extends BaseSensor<'SelectSensor'>{
@@ -43,6 +35,16 @@ export interface SelectSensor extends BaseSensor<'SelectSensor'>{
     hover_color: ColorHexString;
     selected_color: ColorHexString;
 }
+
+
+interface VisualSensorMixin {
+    x: SpatialPoint
+    y: SpatialPoint
+    z_index: number | null;
+    w: SpatialSize
+    h: SpatialSize
+}
+
 
 export interface SliderSensor extends BaseSensor<'SliderSensor'>, VisualSensorMixin{
     num_bins: number;

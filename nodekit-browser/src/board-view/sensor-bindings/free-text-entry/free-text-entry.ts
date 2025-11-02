@@ -1,8 +1,8 @@
 import './free-text-entry.css'
 import {CardView} from "../../card-views/card-view.ts";
 import type {FreeTextEntrySensor} from "../../../types/sensors";
-import type {BoardView} from "../../board-view.ts";
-import type {ColorHexString, PlainString, Roundness, SpatialSize} from "../../../types/common.ts";
+import {BoardCoordinateSystem, type BoardView, RegionView} from "../../board-view.ts";
+import type {ColorHexString, PlainString, SpatialSize} from "../../../types/common.ts";
 import type {FreeTextEntryState} from "../../../types/actions";
 import {SensorBinding} from "../index.ts";
 import type {Region} from "../../../types/region";
@@ -18,30 +18,60 @@ export interface FreeTextEntryCard{
 }
 
 
-export class FreeTextEntryCardView extends CardView<FreeTextEntryCard> {
+export class FreeTextEntrySensorBinding extends SensorBinding {
+    prepare(
+        sensor: FreeTextEntrySensor,
+        boardView: BoardView
+    ) {
+        const sensorView = new FreeTextEntrySensorView(
+            sensor,
+            boardView.getCoordinateSystem()
+        )
+
+        // Bind
+        boardView.root.appendChild(sensorView.root)
+
+        // Subscribe
+        const freeTextEnteredCallback = (sample: string): void => {
+            const sensorValue: FreeTextEntryState = {
+                text: sample
+            }
+            this.emit(sensorValue)
+        }
+
+        sensorView.subscribe(freeTextEnteredCallback)
+
+    }
+}
+export class FreeTextEntrySensorView extends RegionView {
     freeTextInputElement: HTMLTextAreaElement | undefined;
 
-    async prepare() {
+    constructor(
+        sensor: FreeTextEntrySensor,
+        boardCoords: BoardCoordinateSystem
+    ){
+        super(sensor.region, boardCoords)
+
         this.freeTextInputElement = document.createElement('textarea' );
         this.freeTextInputElement.classList.add('free-text-entry-card');
         this.freeTextInputElement.spellcheck=false;
 
         // Set background color from card
-        this.freeTextInputElement.style.backgroundColor = this.card.background_color;
+        this.freeTextInputElement.style.backgroundColor = sensor.background_color;
 
         // Set text color
-        this.freeTextInputElement.style.color = this.card.text_color;
+        this.freeTextInputElement.style.color = sensor.text_color;
 
         // Set font size:
-        this.freeTextInputElement.style.fontSize = this.boardCoords.getSizePx(this.card.font_size) + 'px';
+        this.freeTextInputElement.style.fontSize = this.boardCoords.getSizePx(sensor.font_size) + 'px';
 
         // Set the initial prompt:
-        this.freeTextInputElement.placeholder = this.card.prompt;
+        this.freeTextInputElement.placeholder = sensor.prompt;
 
         // Cap the max length:
         let maxLength = 10000 // Arbitary large number if null
-        if (this.card.max_length !== null){
-            maxLength = this.card.max_length;
+        if (sensor.max_length !== null){
+            maxLength = sensor.max_length;
         }
         this.freeTextInputElement.maxLength = maxLength;
 
@@ -57,54 +87,5 @@ export class FreeTextEntryCardView extends CardView<FreeTextEntryCard> {
                 console.log('Updated text:', value);
                 callback(value)
             });
-    }
-}
-
-export class FreeTextEntrySensorBinding extends SensorBinding {
-    prepare(
-        sensor: FreeTextEntrySensor,
-        boardView: BoardView
-    ) {
-        // Wire in old FreeTextEntryCard
-        const freeTextCard: FreeTextEntryCard = {
-            card_type: 'FreeTextEntryCard',
-            prompt: sensor.prompt,
-            font_size: sensor.font_size,
-            text_color: sensor.text_color,
-            background_color: sensor.background_color,
-            max_length: sensor.max_length,
-            region: {
-                x: sensor.x,
-                y: sensor.y,
-                w: sensor.w,
-                h: sensor.h,
-                z_index: sensor.z_index,
-                roundness: 0 as Roundness,
-            },
-        }
-
-        const cardView = new FreeTextEntryCardView(
-            freeTextCard,
-            boardView.getCoordinateSystem()
-        )
-        cardView.prepare()
-        if (typeof freeTextCard.region.z_index === 'number') {
-            cardView.root.style.zIndex = freeTextCard.region.z_index.toString()
-        }
-
-
-        // Bind
-        boardView.root.appendChild(cardView.root)
-
-        // Subscribe
-        const freeTextEnteredCallback = (sample: string): void => {
-            const sensorValue: FreeTextEntryState = {
-                text: sample
-            }
-            this.emit(sensorValue)
-        }
-
-        cardView.subscribe(freeTextEnteredCallback)
-
     }
 }
