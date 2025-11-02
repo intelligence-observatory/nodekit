@@ -1,0 +1,43 @@
+import type {ClickSensor} from "../../../types/sensors";
+import {type BoardView, checkPointInRegion} from "../../board-view.ts";
+import type {PointerSample} from "../../../input-streams/pointer-stream.ts";
+import type {ClickAction} from "../../../types/actions";
+import {SensorBinding} from "../index.ts";
+
+/**
+ *
+ */
+export class ClickSensorBinding extends SensorBinding {
+
+    prepare(
+        sensor: ClickSensor,
+        boardView: BoardView
+    ) {
+
+        const region = sensor.region;
+
+        const clickCallback = (pointerSample: PointerSample) => {
+            if (pointerSample.sampleType !== 'down') {
+                return;
+            }
+
+            const inside = checkPointInRegion(
+                pointerSample.x,
+                pointerSample.y,
+                region,
+            );
+            if (inside) {
+                const action: ClickAction = {
+                    action_type: "ClickAction",
+                    x: pointerSample.x,
+                    y: pointerSample.y,
+                };
+
+                this.emit(action)
+                return
+            }
+        }
+        boardView.pointerStream.subscribe(clickCallback);
+    }
+
+}
