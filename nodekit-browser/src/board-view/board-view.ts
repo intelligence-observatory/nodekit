@@ -1,19 +1,18 @@
 import type {AssetManager} from "../asset-manager";
 import type {Card} from "../types/cards";
-import type {CardId, ColorHexString, SpatialPoint, SpatialSize, TimeElapsedMsec} from "../types/common.ts";
+import type {CardId, ColorHexString, SpatialPoint, SpatialSize} from "../types/common.ts";
 import type {Sensor} from "../types/sensors";
-import type {SensorValue} from "../types/actions";
 import './board-view.css'
 import type {CardView} from "./card-views/card-view.ts";
-import {ClickSensorBinding, KeySensorBinding, type SensorBinding, TimeoutSensorBinding} from "./sensor-bindings";
+import {ClickSensorBinding, KeySensorBinding, type SensorBinding} from "./sensor-bindings";
 import {ImageCardView} from "./card-views/image/image-card.ts";
 import {TextCardView} from "./card-views/text/text-card-view.ts";
 import {VideoCardView} from "./card-views/video/video-card.ts";
 import {PointerStream} from "../input-streams/pointer-stream.ts";
 import {KeyStream} from "../input-streams/key-stream.ts";
-import type {Clock} from "../clock.ts";
 import {SliderCardView} from "./card-views/slider/slider-card-view.ts";
 import {FreeTextEntryCardView} from "./card-views/free-text-entry/free-text-entry.ts";
+import {Clock} from "../clock.ts";
 
 
 export type SensorBindingId = string & { __brand: 'SensorBindingId' };
@@ -95,10 +94,15 @@ export class BoardCoordinateSystem {
     }
 }
 
+/**
+ * Represents a standardized display. Basically a wrapper over a <div>.
+ */
 export class BoardView {
     root: HTMLDivElement
     cardViews: Map<CardId, CardView> = new Map(); // Map of card ID to CardView
-    sensorBindings: Map<SensorBindingId, SensorBinding> = new Map(); // Map of sensor ID to SensorBinding
+    pointerStream: PointerStream;
+    keyStream: KeyStream;
+    clock: Clock;
 
     constructor(
         boardColor: ColorHexString,
@@ -112,6 +116,12 @@ export class BoardView {
         // Set color of entire page:
         document.body.style.backgroundColor = boardColor;
 
+        // Set streams
+        this.clock=new Clock();
+        this.pointerStream = new PointerStream(this.root, this.clock);
+        this.keyStream = new KeyStream(this.clock);
+
+        // Initialize state
         this.setBoardState(false, false);
     }
 
@@ -215,14 +225,14 @@ export class BoardView {
         this.cardViews.set(cardId, cardView);
     }
 
-    startCard(cardId: CardId) {
+    showCard(cardId: CardId) {
         // Show and start the CardView
         const cardView = this.getCardView(cardId);
         cardView.setVisibility(true);
         cardView.onStart();
     }
 
-    stopCard(cardId: CardId) {
+    hideCard(cardId: CardId) {
         // Hide and stop the CardView
         const cardView = this.getCardView(cardId);
         cardView.setVisibility(false);
@@ -236,84 +246,43 @@ export class BoardView {
         this.root.removeChild(cardView.root);
         this.cardViews.delete(cardId);
     }
+}
 
-    private getSensorBinding(sensorBindingId: SensorBindingId): SensorBinding {
-        const sensorBinding = this.sensorBindings.get(sensorBindingId);
-        if (!sensorBinding) {
-            throw new Error(`SensorBinding with ID ${sensorBindingId} not found.`);
+// Single implementation
+export function createSensorBinding(
+    sensor: Sensor,
+    boardView: BoardView,
+): SensorBinding {
+
+    // Factory function for creating a SensorBinding
+    let sensorBinding: SensorBinding | null = null;
+    switch (sensor.sensor_type){
+        case "KeySensor": {
+            sensorBinding = new KeySensorBinding();
+            break
         }
-        return sensorBinding;
+        case "ClickSensor": {
+            sensorBinding = new ClickSensorBinding();
+            break
+        }
+        case "SelectSensor": {
+            throw new Error('Not implemented yet')
+        }
+        case "SliderSensor": {
+            throw new Error('Not implemented yet')
+        }
+        case "FreeTextEntrySensor":{
+            throw new Error('Not implemented yet')
+        }
+        default: {
+            const _exhaustive: never = sensor;
+            throw new Error(`Unknown Sensor provided: ${JSON.stringify(_exhaustive)}`);
+        }
     }
 
-    prepareSensor(
-        sensor: Sensor,
-        keyStream: KeyStream,
-        pointerStream: PointerStream,
-        clock: Clock,
-    ): SensorBindingId {
-
-        // Dynamic dispatch for initializing SensorBinding from Sensor
-        let sensorBinding: SensorBinding | null = null;
-        if (sensor.sensor_type === 'WaitSensor') {
-            sensorBinding = new TimeoutSensorBinding(
-                onSensorFired,
-                clock,
-            );
-        }
-        else if (sensor.sensor_type === 'KeySensor') {
-            sensorBinding = new KeySensorBinding(
-                onSensorFired,
-                sensor.keys,
-                keyStream,
-            );
-        }
-        else if (sensor.sensor_type == "ClickSensor"){
-            sensorBinding = new ClickSensorBinding(
-                sensor.x,
-                sensor.y,
-                sensor.w,
-                sensor.h,
-                sensor.mask,
-                onSensorFired,
-                pointerStream,
-            )
-        }
-        else if (sensor.sensor_type == "SubmitSensor"){
-            throw new Error('SubmitSensor not implemented')
-        }
-        else if (sensor.sensor_type == "SelectSensor"){
-            throw new Error('SelectSensor Not implemented')
-        }
-        else if (sensor.sensor_type == 'SliderSensor'){
-            throw new Error('SliderSensor Not implemented')
-        }
-        else if (sensor.sensor_type == 'FreeTextEntrySensor'){
-            throw new Error('FreeTextEntrySensor Not implemented')
-        }
-        else {
-            // Add a never check here so TS complians if I missed a sensor type:
-            const never: never = sensor;
-            throw new Error(`Unknown Sensor provided: ${JSON.stringify(never)}`);
-        }
-        // Issue a new SensorBindingId (a UUID):
-        const sensorBindingId = crypto.randomUUID() as SensorBindingId;
-        this.sensorBindings.set(sensorBindingId, sensorBinding);
-        return sensorBindingId
-    }
-
-    startSensor(
-        sensorBindingId: SensorBindingId,
-    ) {
-        const sensorBinding = this.getSensorBinding(sensorBindingId);
-        sensorBinding.arm()
-    }
-
-    destroySensor(sensorBindingId: SensorBindingId) {
-        const sensorBinding = this.getSensorBinding(sensorBindingId);
-        if (!sensorBinding) {
-            return
-        }
-        sensorBinding.destroy();
-        this.sensorBindings.delete(sensorBindingId);
-    }
+    sensorBinding.prepare(
+        sensor,
+        boardView,
+    );
+    return sensorBinding
 }

@@ -1,16 +1,12 @@
 import type {Node} from "../types/node.ts";
-import type {Action, SensorValue, TimeoutAction} from "../types/actions/";
-import {BoardView} from "../board-view/board-view.ts";
+import type {Action, SensorValue} from "../types/actions/";
+import {BoardView, createSensorBinding} from "../board-view/board-view.ts";
 import {EventScheduler} from "./event-scheduler.ts";
 import {type EffectBinding, HideCursorEffectBinding} from "../board-view/effect-bindings";
 
 import type {AssetManager} from "../asset-manager";
 
 import type {CardId, SensorId} from "../types/common.ts";
-import {KeyStream} from "../input-streams/key-stream.ts";
-import {PointerStream} from "../input-streams/pointer-stream.ts";
-import {Clock} from "../clock.ts";
-import type {SensorEvent} from "../types/events/node-events.ts";
 
 export interface NodePlayRunResult {
     action: Record<SensorId, SensorValue>;
@@ -37,10 +33,12 @@ class Deferred<T> {
     }
 }
 
+//
 export class NodePlay {
     public root: HTMLDivElement
+
+    private node: Node;
     private boardView: BoardView
-    public node: Node;
     private prepared: boolean = false;
     private started: boolean = false;
 
@@ -63,16 +61,10 @@ export class NodePlay {
         this.node = node;
         this.scheduler = new EventScheduler();
         this.assetManager=assetManager;
-
         this.currentSensorValues = {};
-
     }
 
     public async prepare() {
-        const clock = new Clock();
-        const keyStream = new KeyStream(clock);
-        const pointerStream = new PointerStream(this.root, clock);
-
         let assetManager = this.assetManager
 
         // Prepare and schedule Cards:
@@ -89,23 +81,23 @@ export class NodePlay {
                 assetManager,
             )
 
-            // Schedule CardView start:
+            // Schedule CardView visibility start:
             this.scheduler.scheduleEvent(
                 {
                     triggerTimeMsec: card.start_msec,
                     triggerFunc: () => {
-                        this.boardView.startCard(cardId);
+                        this.boardView.showCard(cardId);
                     }
                 }
             )
 
-            // Schedule CardView stop:
+            // Schedule CardView visibility hide:
             if (card.end_msec !== null) {
                 this.scheduler.scheduleEvent(
                     {
                         triggerTimeMsec: card.end_msec,
                         triggerFunc: () => {
-                            this.boardView.stopCard(cardId)
+                            this.boardView.hideCard(cardId)
                         },
                     }
                 )
@@ -117,68 +109,17 @@ export class NodePlay {
             )
         }
 
-        // Prepare and schedule Sensors:
+        // Create and subscribe to SensorBindings:
         for (let sensorIdUnbranded in this.node.sensors) {
             const sensorId = sensorIdUnbranded as SensorId;
-            // Prepare Sensor:
-            const sensor = this.node.sensors[sensorId as SensorId];
-            const sensorBindingId = this.boardView.prepareSensor(
+            const sensor = this.node.sensors[sensorId];
+            const sensorBinding = createSensorBinding(
                 sensor,
-                keyStream,
-                pointerStream,
-                clock,
+                this.boardView,
             )
-
-            // Schedule Sensor arming, if a TemporallyBoundedSensor:
-            if (sensor.sensor_type === 'ClickSensor' || sensor.sensor_type === 'KeySensor' || sensor.sensor_type === 'SubmitSensor') {
-                this.scheduler.scheduleEvent(
-                    {
-                        triggerTimeMsec: sensor.start_msec,
-                        triggerFunc: () => {
-                            this.boardView.startSensor(sensorBindingId)
-
-                        },
-                    }
-                )
-
-                // Schedule Sensor disarming:
-                if (sensor.end_msec !== null) {
-                    this.scheduler.scheduleEvent(
-                        {
-                            triggerTimeMsec: sensor.end_msec,
-                            triggerFunc: () => {
-                                this.boardView.destroySensor(sensorBindingId)
-
-                            },
-                        }
-                    )
-                }
-            }
-            // Schedule Sensor firing if a TimeoutSensor:
-            else if (sensor.sensor_type === 'WaitSensor') {
-                this.scheduler.scheduleEvent(
-                    {
-                        triggerTimeMsec: sensor.until_msec,
-                        triggerFunc: () => {
-                            this.boardView.startSensor(sensorBindingId);
-
-                        },
-                    }
-                )
-            }
-            else {
-                const neverSensor: never = sensor;
-                throw new Error(`Unknown Sensor type: ${JSON.stringify(neverSensor)}`);
-            }
-
-            // Schedule Sensor destruction at Node end:
-            this.scheduler.scheduleOnStop(
-                () => {this.boardView.destroySensor(sensorBindingId)}
+            sensorBinding.subscribe(
+                (sensorValue: SensorValue): void => (this.sensorEventHandler(sensorId, sensorValue))
             )
-
-            // Subscribe to sensor binding
-            sensorBinding.subscribe(this.sensorEventHandler)
-
             this.currentSensorValues[sensorId] = null;
         }
 
@@ -219,24 +160,12 @@ export class NodePlay {
         this.prepared = true;
     }
 
-    private sensorEventHandler(sensorEvent: SensorEvent){
+    private sensorEventHandler(
+        sensorId: SensorId,
+        sensorValue: SensorValue
+    ): void {
         // Record sensor value update
-        switch (sensorEvent.event_type){
-            case 'SensorFiredEvent':
-                this.currentSensorValues[sensorEvent.sensor_id] = sensorEvent.sensor_value;
-                break;
-            case "SensorTimedOutEvent":
-                // If a value hasn't been set yet, set it to the TimeoutAction
-                if (this.currentSensorValues[sensorEvent.sensor_id] === null){
-                    this.currentSensorValues[sensorEvent.sensor_id] = {
-                        action_type: 'TimeoutAction'
-                    } as TimeoutAction;
-                }
-                break;
-            default:
-                const neverEvent: never = sensorEvent;
-                throw new Error(`Unknown Sensor event: ${JSON.stringify(neverEvent)}`);
-        }
+        this.currentSensorValues[sensorId] = sensorValue;
 
         // Check if all sensors reported
         let action: Record<SensorId, SensorValue> = {}
@@ -248,9 +177,8 @@ export class NodePlay {
             action[sensorId] = this.currentSensorValues[sensorId];
         }
 
-        // Resolve
+        // Resolve once all sensors have had values set at least once
         this.deferredAction.resolve(action)
-
     }
 
     async run(): Promise<NodePlayRunResult> {

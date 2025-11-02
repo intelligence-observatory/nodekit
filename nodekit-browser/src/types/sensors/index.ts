@@ -1,43 +1,33 @@
-import type {PressableKey, SpatialPoint, SpatialSize, NodeTimePointMsec, Mask, CardId, ColorHexString, PlainString, RegularExpressionString, MarkdownString} from "../common.ts";
+import type {PressableKey, SpatialPoint, SpatialSize, Mask, CardId, ColorHexString, PlainString, RegularExpressionString} from "../common.ts";
 
 
 interface BaseSensor<T extends string> {
     sensor_type: T
 }
 
-export interface WaitSensor extends BaseSensor<'WaitSensor'>{
-    until_msec: NodeTimePointMsec
-}
-
-
-interface TemporallyBoundedSensor<T extends string> extends BaseSensor<T> {
-    start_msec: NodeTimePointMsec
-    end_msec: NodeTimePointMsec | null // If null, the window lasts until the Node ends
-}
 
 interface VisualSensorMixin {
     x: SpatialPoint
     y: SpatialPoint
     z_index: number | null;
-
     w: SpatialSize
     h: SpatialSize
 }
 
 
-export interface ClickSensor extends TemporallyBoundedSensor<'ClickSensor'>{
-    x: SpatialPoint
-    y: SpatialPoint
-    w: SpatialSize
-    h: SpatialSize
+export interface ClickSensor extends BaseSensor<'ClickSensor'>{
+    x: SpatialPoint;
+    y: SpatialPoint;
+    w: SpatialSize;
+    h: SpatialSize;
     mask: Mask
 }
 
-export interface KeySensor extends TemporallyBoundedSensor<'KeySensor'> {
+export interface KeySensor extends BaseSensor<'KeySensor'> {
     keys: Set<PressableKey>
 }
 
-export interface FreeTextEntrySensor extends TemporallyBoundedSensor<'FreeTextEntrySensor'>, VisualSensorMixin{
+export interface FreeTextEntrySensor extends BaseSensor<'FreeTextEntrySensor'>, VisualSensorMixin{
     prompt: PlainString;
     font_size: SpatialSize;
     text_color: ColorHexString;
@@ -47,7 +37,7 @@ export interface FreeTextEntrySensor extends TemporallyBoundedSensor<'FreeTextEn
     pattern: RegularExpressionString | null;
 }
 
-export interface SelectSensor extends TemporallyBoundedSensor<'SelectSensor'>{
+export interface SelectSensor extends BaseSensor<'SelectSensor'>{
     choices: readonly CardId[];
     min_selections: number;
     max_selections: number;
@@ -57,20 +47,11 @@ export interface SelectSensor extends TemporallyBoundedSensor<'SelectSensor'>{
     selected_color: ColorHexString;
 }
 
-export interface SliderSensor extends TemporallyBoundedSensor<'SliderSensor'>, VisualSensorMixin{
+export interface SliderSensor extends BaseSensor<'SliderSensor'>, VisualSensorMixin{
     num_bins: number;
     show_bin_markers: boolean;
     initial_bin_index: number;
     orientation: 'horizontal' | 'vertical';
 }
 
-export interface SubmitSensor extends TemporallyBoundedSensor<'SubmitSensor'>, VisualSensorMixin {
-    locked_text: MarkdownString;
-    locked_color: ColorHexString;
-
-    ready_text: MarkdownString;
-    ready_color: ColorHexString;
-}
-
-
-export type Sensor = WaitSensor | ClickSensor | KeySensor | SubmitSensor | SelectSensor | SliderSensor | FreeTextEntrySensor;
+export type Sensor = ClickSensor | KeySensor | SelectSensor | SliderSensor | FreeTextEntrySensor;
