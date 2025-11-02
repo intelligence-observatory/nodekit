@@ -4,13 +4,12 @@ import type {CardId, ColorHexString, SpatialPoint, SpatialSize} from "../types/c
 import type {Sensor} from "../types/sensors";
 import './board-view.css'
 import type {CardView} from "./card-views/card-view.ts";
-import {ClickSensorBinding, KeySensorBinding, type SensorBinding, SliderSensorBinding} from "./sensor-bindings";
+import {ClickSensorBinding, FreeTextEntrySensorBinding, KeySensorBinding, type SensorBinding, SliderSensorBinding} from "./sensor-bindings";
 import {ImageCardView} from "./card-views/image/image-card.ts";
 import {TextCardView} from "./card-views/text/text-card-view.ts";
 import {VideoCardView} from "./card-views/video/video-card.ts";
 import {PointerStream} from "../input-streams/pointer-stream.ts";
 import {KeyStream} from "../input-streams/key-stream.ts";
-import {FreeTextEntryCardView} from "./card-views/free-text-entry/free-text-entry.ts";
 import {Clock} from "../clock.ts";
 
 
@@ -192,11 +191,6 @@ export class BoardView {
                     card, boardCoords
                 )
                 break
-            case "FreeTextEntryCard":
-                cardView = new FreeTextEntryCardView(
-                    card, boardCoords,
-                )
-                break
             default:
                 throw new Error(`Unsupported Card type: ${JSON.stringify(card)}`);
         }
@@ -257,15 +251,13 @@ export function createSensorBinding(
             sensorBinding = new ClickSensorBinding();
             break
         }
-        case "SelectSensor": {
-            throw new Error('Not implemented yet')
-        }
         case "SliderSensor": {
             sensorBinding = new SliderSensorBinding();
             break;
         }
         case "FreeTextEntrySensor":{
-            throw new Error('Not implemented yet')
+            sensorBinding = new FreeTextEntrySensorBinding();
+            break
         }
         default: {
             const _exhaustive: never = sensor;

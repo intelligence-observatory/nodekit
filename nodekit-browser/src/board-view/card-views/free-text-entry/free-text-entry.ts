@@ -47,10 +47,14 @@ export class FreeTextEntryCardView extends CardView<FreeTextEntryCard> {
         // Called when the Card is destroyed
     }
 
-    getCurrentText(): string {
-        if (!this.freeTextInputElement){
-            return '';
-        }
-        return this.freeTextInputElement.value;
+    subscribe(callback: (sample: string) => void): void {
+        // Add an event listener
+        this.freeTextInputElement?.addEventListener(
+            'input',
+            (event) => {
+                const value = (event.target as HTMLTextAreaElement).value;
+                console.log('Updated text:', value);
+                callback(value)
+            });
     }
 }

@@ -80,28 +80,7 @@ export class NodePlay {
                 card,
                 assetManager,
             )
-
-            // Schedule CardView visibility start:
-            this.scheduler.scheduleEvent(
-                {
-                    triggerTimeMsec: card.start_msec,
-                    triggerFunc: () => {
-                        this.boardView.showCard(cardId);
-                    }
-                }
-            )
-
-            // Schedule CardView visibility hide:
-            if (card.end_msec !== null) {
-                this.scheduler.scheduleEvent(
-                    {
-                        triggerTimeMsec: card.end_msec,
-                        triggerFunc: () => {
-                            this.boardView.hideCard(cardId)
-                        },
-                    }
-                )
-            }
+            this.boardView.showCard(cardId);
 
             // Schedule Card destruction:
             this.scheduler.scheduleOnStop(

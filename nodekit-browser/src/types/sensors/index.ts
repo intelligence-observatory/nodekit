@@ -54,4 +54,4 @@ export interface SliderSensor extends BaseSensor<'SliderSensor'>, VisualSensorMi
     orientation: 'horizontal' | 'vertical';
 }
 
-export type Sensor = ClickSensor | KeySensor | SelectSensor | SliderSensor | FreeTextEntrySensor;
+export type Sensor = ClickSensor | KeySensor  | SliderSensor | FreeTextEntrySensor; // | SelectSensor

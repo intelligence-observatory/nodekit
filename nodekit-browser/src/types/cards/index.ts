@@ -1,4 +1,4 @@
-import type {ColorHexString, MarkdownString, NodeTimePointMsec, PlainString, SpatialPoint, SpatialSize} from "../common.ts";
+import type {ColorHexString, MarkdownString, PlainString, SpatialPoint, SpatialSize} from "../common.ts";
 import type {Image, Video} from "../assets";
 
 export interface BaseCard<T extends string> {
@@ -10,9 +10,6 @@ export interface BaseCard<T extends string> {
 
     w: SpatialSize
     h: SpatialSize
-
-    start_msec: NodeTimePointMsec
-    end_msec: NodeTimePointMsec | null;
 }
 
 export interface SelectableMixin {
@@ -54,4 +51,4 @@ export interface FreeTextEntryCard extends BaseCard<'FreeTextEntryCard'>{
     max_length: number | null; // Maximum number of characters allowed
 }
 
-export type Card = ImageCard | VideoCard | TextCard | FreeTextEntryCard | SliderCard;
+export type Card = ImageCard | VideoCard | TextCard | SliderCard;

@@ -1,12 +1,13 @@
-import type {ClickAction, KeyAction, SensorValue, SliderState} from "../../types/actions";
-import type {NodeTimePointMsec, SpatialPoint} from "../../types/common.ts";
+import type {ClickAction, FreeTextEntryState, KeyAction, SensorValue, SliderState} from "../../types/actions";
+import type {SpatialPoint} from "../../types/common.ts";
 import type {PointerSample} from "../../input-streams/pointer-stream.ts";
 import type {KeySample} from "../../input-streams/key-stream.ts";
-import type {ClickSensor, KeySensor, Sensor, SliderSensor} from "../../types/sensors";
+import type {ClickSensor, FreeTextEntrySensor, KeySensor, Sensor, SliderSensor} from "../../types/sensors";
 import type {BoardView} from "../board-view.ts";
 import type {Region} from "../../types/region";
 import {SliderCardView, type SliderSample} from "../card-views/slider/slider-card-view.ts";
-import type {SliderCard} from "../../types/cards";
+import type {FreeTextEntryCard, SliderCard} from "../../types/cards";
+import {FreeTextEntryCardView} from "../card-views/free-text-entry/free-text-entry.ts";
 
 
 export abstract class SensorBinding {
@@ -153,13 +154,12 @@ export class SliderSensorBinding extends SensorBinding {
             w: sensor.w,
             h: sensor.h,
             z_index: sensor.z_index,
-            start_msec: 0 as NodeTimePointMsec,
-            end_msec:null,
         }
         const sliderCardView = new SliderCardView(
             sliderCard,
             boardView.getCoordinateSystem()
         )
+
         sliderCardView.prepare()
         if (typeof sliderCard.z_index ==='number'){
             sliderCardView.root.style.zIndex = sliderCard.z_index.toString()
@@ -180,5 +180,52 @@ export class SliderSensorBinding extends SensorBinding {
         }
 
         sliderCardView.subscribeToSlider(sliderChangedCallback)
+    }
+}
+
+export class FreeTextEntrySensorBinding extends SensorBinding {
+    prepare(
+        sensor: FreeTextEntrySensor,
+        boardView: BoardView
+    ){
+        // Wire in old FreeTextEntryCard
+        const freeTextCard: FreeTextEntryCard = {
+            card_type: 'FreeTextEntryCard',
+            prompt: sensor.prompt,
+            font_size: sensor.font_size,
+            text_color: sensor.text_color,
+            background_color: sensor.background_color,
+            max_length: sensor.max_length,
+            x: sensor.x,
+            y: sensor.y,
+            w: sensor.w,
+            h: sensor.h,
+            z_index: sensor.z_index,
+        }
+
+        const cardView = new FreeTextEntryCardView(
+            freeTextCard,
+            boardView.getCoordinateSystem()
+            )
+        cardView.prepare()
+        if (typeof freeTextCard.z_index ==='number'){
+            cardView.root.style.zIndex = freeTextCard.z_index.toString()
+        }
+        cardView.setInteractivity(true)
+        cardView.setVisibility(true);
+
+        // Bind
+        boardView.root.appendChild(cardView.root)
+
+        // Subscribe
+        const freeTextEnteredCallback = (sample: string): void => {
+            const sensorValue: FreeTextEntryState = {
+                text: sample
+            }
+            this.emit(sensorValue)
+        }
+
+        cardView.subscribe(freeTextEnteredCallback)
+
     }
 }
