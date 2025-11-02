@@ -37,20 +37,12 @@ export interface SelectSensor extends BaseSensor<'SelectSensor'>{
 }
 
 
-interface VisualSensorMixin {
-    x: SpatialPoint
-    y: SpatialPoint
-    z_index: number | null;
-    w: SpatialSize
-    h: SpatialSize
-}
-
-
-export interface SliderSensor extends BaseSensor<'SliderSensor'>, VisualSensorMixin{
+export interface SliderSensor extends BaseSensor<'SliderSensor'>{
     num_bins: number;
     show_bin_markers: boolean;
     initial_bin_index: number;
     orientation: 'horizontal' | 'vertical';
+    region: Region
 }
 
 export type Sensor = ClickSensor | KeySensor  | SliderSensor | FreeTextEntrySensor; // | SelectSensor
