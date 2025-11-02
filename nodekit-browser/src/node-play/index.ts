@@ -80,6 +80,20 @@ export class NodePlay {
                 this.boardView,
             )
             await cardView.prepare(assetManager)
+
+            this.scheduler.scheduleEvent(
+                {
+                    triggerTimeMsec: 0,
+                    triggerFunc: () => {
+                        cardView.onStart()
+                    },
+                }
+            )
+            this.scheduler.scheduleOnStop(
+                () => {
+                    cardView.onDestroy()
+                }
+            )
         }
 
         // Create and subscribe to SensorBindings:

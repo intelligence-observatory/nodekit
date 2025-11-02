@@ -164,8 +164,6 @@ export class SliderSensorBinding extends SensorBinding {
         if (typeof sliderCard.z_index ==='number'){
             sliderCardView.root.style.zIndex = sliderCard.z_index.toString()
         }
-        sliderCardView.setInteractivity(true)
-        sliderCardView.setVisibility(true);
 
         // Bind
         boardView.root.appendChild(sliderCardView.root)
@@ -211,8 +209,7 @@ export class FreeTextEntrySensorBinding extends SensorBinding {
         if (typeof freeTextCard.z_index ==='number'){
             cardView.root.style.zIndex = freeTextCard.z_index.toString()
         }
-        cardView.setInteractivity(true)
-        cardView.setVisibility(true);
+
 
         // Bind
         boardView.root.appendChild(cardView.root)

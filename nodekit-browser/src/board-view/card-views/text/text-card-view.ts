@@ -73,10 +73,6 @@ export class TextCardView extends CardView<TextCard> {
             );
         }
     }
-    onStart() {
-        super.onStart();
-        this.setInteractivity(true)
-    }
 
     private emitSelectionState(){
         this.subscribers.forEach((callback) => {

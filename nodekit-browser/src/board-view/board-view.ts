@@ -1,6 +1,5 @@
-import type {AssetManager} from "../asset-manager";
 import type {Card} from "../types/cards";
-import type {CardId, ColorHexString, SpatialPoint, SpatialSize} from "../types/common.ts";
+import type {ColorHexString, SpatialPoint, SpatialSize} from "../types/common.ts";
 import type {Sensor} from "../types/sensors";
 import './board-view.css'
 import type {CardView} from "./card-views/card-view.ts";

@@ -264,14 +264,7 @@ export class SliderCardView extends CardView<SliderCard> {
     }
 
 
-    onStart() {
-        // Set the card to interactive
-        this.setInteractivity(true);
-    }
-
-    onStop() {
-        // Set the card to non-interactive
-        this.setInteractivity(false);
+    onDestroy() {
         // Cancel any pending animation frame
         if (this.rafId !== null) {
             cancelAnimationFrame(this.rafId);
@@ -279,11 +272,6 @@ export class SliderCardView extends CardView<SliderCard> {
             this.frameRequested = false;
             this.pendingThumbPosition = null;
         }
-    }
-
-    onDestroy() {
-        super.onDestroy();
-
         // Remove event listeners
         this.sliderTrack?.removeEventListener('pointerdown', this.onClickTrack);
     }

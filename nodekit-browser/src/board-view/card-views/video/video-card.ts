@@ -65,15 +65,6 @@ export class VideoCardView extends CardView<VideoCard> {
 
     }
 
-    onStop() {
-        if (!this.video) {
-            return
-        }
-        // If started again, the video will restart from the beginning:
-        this.video.pause();
-        this.video.currentTime = 0;
-    }
-
     onDestroy() {
         if (!this.video) {
             return

@@ -34,19 +34,6 @@ export class FreeTextEntryCardView extends CardView<FreeTextEntryCard> {
 
     }
 
-    onStart() {
-        // Set the card to default interactive
-        this.setInteractivity(true);
-
-
-    }
-    onStop() {
-        // Called when the Card is stopped
-    }
-    onDestroy() {
-        // Called when the Card is destroyed
-    }
-
     subscribe(callback: (sample: string) => void): void {
         // Add an event listener
         this.freeTextInputElement?.addEventListener(

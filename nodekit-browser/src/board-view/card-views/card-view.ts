@@ -37,42 +37,14 @@ export abstract class CardView<C extends Card = Card> {
         this.root.style.top = `${topPx}px`;
         this.root.style.width = `${widthPx}px`;
         this.root.style.height = `${heightPx}px`;
-
-        // By default, the Card is not visible and not interactive
-        this.setVisibility(false);
-        this.setInteractivity(false);
     }
 
     async prepare(_assetManager:AssetManager){
         // Any Card-specific loading logic should go here
     }
 
-    setVisibility(
-        visible: boolean
-    ) {
-        if (visible) {
-            this.root.classList.remove('card--hidden');
-        } else {
-            this.root.classList.add('card--hidden');
-        }
-    }
-
-    setInteractivity(
-        interactivity: boolean
-    ) {
-        // Toggles any UI interactivity
-        if (interactivity) {
-            this.root.classList.remove('card--noninteractive');
-        } else {
-            this.root.classList.add('card--noninteractive');
-        }
-    }
-
     onStart() {
-        // Called when the Card is started
-    }
-    onStop() {
-        // Called when the Card is stopped
+
     }
     onDestroy() {
         // Called when the Card is destroyed
