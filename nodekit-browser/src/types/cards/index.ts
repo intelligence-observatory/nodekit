@@ -39,13 +39,6 @@ export interface TextCard extends BaseCard<'TextCard'>, SelectableMixin{
     background_color: ColorHexString
 }
 
-export interface SliderCard extends BaseCard<'SliderCard'>{
-    num_bins: number;
-    show_bin_markers: boolean;
-    initial_bin_index: number;
-    orientation: 'horizontal' | 'vertical';
-}
-
 export interface FreeTextEntryCard extends BaseCard<'FreeTextEntryCard'>{
     prompt: PlainString;
     font_size: SpatialSize;
@@ -54,4 +47,4 @@ export interface FreeTextEntryCard extends BaseCard<'FreeTextEntryCard'>{
     max_length: number | null; // Maximum number of characters allowed
 }
 
-export type Card = ImageCard | VideoCard | TextCard | SliderCard | FreeTextEntryCard;
+export type Card = ImageCard | VideoCard | TextCard | FreeTextEntryCard;

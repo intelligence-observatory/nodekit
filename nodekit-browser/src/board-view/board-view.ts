@@ -15,8 +15,6 @@ import {FreeTextEntryCardView} from "./card-views/free-text-entry/free-text-entr
 import {Clock} from "../clock.ts";
 
 
-export type SensorBindingId = string & { __brand: 'SensorBindingId' };
-
 export class BoardCoordinateSystem {
     public boardWidthPx: number; // Width of the board in pixels
     public boardHeightPx: number; // Height of the board in pixels
@@ -193,11 +191,6 @@ export class BoardView {
             case "TextCard":
                 cardView = new TextCardView(
                     card, boardCoords
-                )
-                break
-            case "SliderCard":
-                cardView = new SliderCardView(
-                    card, boardCoords,
                 )
                 break
             case "FreeTextEntryCard":
