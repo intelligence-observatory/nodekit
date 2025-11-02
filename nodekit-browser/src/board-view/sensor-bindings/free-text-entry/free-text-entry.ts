@@ -1,5 +1,4 @@
 import './free-text-entry.css'
-import {CardView} from "../../card-views/card-view.ts";
 import type {FreeTextEntrySensor} from "../../../types/sensors";
 import {BoardCoordinateSystem, type BoardView, RegionView} from "../../board-view.ts";
 import type {ColorHexString, PlainString, SpatialSize} from "../../../types/common.ts";
