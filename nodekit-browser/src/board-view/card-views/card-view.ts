@@ -1,4 +1,3 @@
-import './card-view.css';
 
 import type {Card} from "../../types/cards";
 import {type BoardCoordinateSystem, RegionView} from "../board-view.ts";

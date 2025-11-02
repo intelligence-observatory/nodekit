@@ -1,6 +1,8 @@
 import type {Sensor} from "../../types/sensors";
 import type {BoardView} from "../board-view.ts";
-import {ClickSensorBinding, FreeTextEntrySensorBinding, KeySensorBinding, SensorBinding, SliderSensorBinding} from "./index.ts";
+import {ClickSensorBinding, KeySensorBinding, SensorBinding} from "./index.ts";
+import {SliderSensorBinding} from "./slider/slider.ts";
+import {FreeTextEntrySensorBinding} from "./free-text-entry/free-text-entry.ts";
 
 export function createSensorBinding(
     sensor: Sensor,

@@ -157,7 +157,7 @@ export abstract class RegionView {
     ) {
         // Create the Card's root element
         this.root = document.createElement('div');
-        this.root.classList.add('card');
+        this.root.classList.add('board-region');
         this.boardCoords = boardCoords
 
         // Configure Card position and size:

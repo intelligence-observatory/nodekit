@@ -5,3 +5,7 @@
     height: 100%;
 }
 
+.board-region {
+    position: absolute;
+    overflow: hidden; /* Prevents content overflow */
+}

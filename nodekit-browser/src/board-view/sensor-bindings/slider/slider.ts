@@ -1,6 +1,11 @@
 import './slider-card-view.css'
 import {CardView} from "../../card-views/card-view.ts";
-import type {SliderCard} from "../../../types/cards";
+import type {SliderSensor} from "../../../types/sensors";
+import type {BoardView} from "../../board-view.ts";
+import type {Roundness} from "../../../types/common.ts";
+import type {SliderState} from "../../../types/actions";
+import {SensorBinding} from "../index.ts";
+import type {Region} from "../../../types/region";
 
 
 // Slider:
@@ -14,6 +19,16 @@ export type SliderSample = {
 }
 
 type SliderSubscriber = (sample: SliderSample) => void;
+
+
+export interface SliderCard {
+    num_bins: number;
+    show_bin_markers: boolean;
+    initial_bin_index: number;
+    orientation: 'horizontal' | 'vertical';
+    region: Region
+}
+
 
 export class SliderCardView extends CardView<SliderCard> {
     sliderContainer!: HTMLDivElement;
@@ -74,8 +89,8 @@ export class SliderCardView extends CardView<SliderCard> {
         this.renderTicks();
 
         // Always initialize the thumb to the exact middle, even if num_bins is even:
-        let initial= this.binIndexToProportion(this.card.initial_bin_index)
-        if(isNaN(initial) || !isFinite(initial)){
+        let initial = this.binIndexToProportion(this.card.initial_bin_index)
+        if (isNaN(initial) || !isFinite(initial)) {
             initial = 0.5 // fallback
         }
 
@@ -130,7 +145,7 @@ export class SliderCardView extends CardView<SliderCard> {
             tick.style.pointerEvents = 'none';
 
             // Style
-            const tickExtent ='75%'; // The length of the tick perpendicular to the track
+            const tickExtent = '75%'; // The length of the tick perpendicular to the track
 
             if (isHorizontal) {
                 // vertical hairline centered on the track
@@ -256,7 +271,6 @@ export class SliderCardView extends CardView<SliderCard> {
         } else {
             // Reverse, as 100% is at the top for vertical:
             const top = sliderRect.height - thumbRect.height - this.pendingThumbPosition * (sliderRect.height - thumbRect.height);
-            ;
             this.sliderThumb.style.top = `${top}px`;
         }
 
@@ -310,5 +324,51 @@ export class SliderCardView extends CardView<SliderCard> {
             return this.card.initial_bin_index;
         }
         return this.currentBinIndex;
+    }
+}
+
+export class SliderSensorBinding extends SensorBinding {
+    prepare(
+        sensor: SliderSensor,
+        boardView: BoardView
+    ) {
+        // Wire in old SliderCard
+        const sliderCard: SliderCard = {
+            num_bins: sensor.num_bins,
+            show_bin_markers: sensor.show_bin_markers,
+            initial_bin_index: sensor.initial_bin_index,
+            orientation: sensor.orientation,
+            region: {
+                x: sensor.x,
+                y: sensor.y,
+                w: sensor.w,
+                h: sensor.h,
+                z_index: sensor.z_index,
+                roundness: 0 as Roundness,
+            }
+        }
+        const sliderCardView = new SliderCardView(
+            sliderCard,
+            boardView.getCoordinateSystem()
+        )
+
+        sliderCardView.prepare()
+        if (typeof sliderCard.region.z_index === 'number') {
+            sliderCardView.root.style.zIndex = sliderCard.region.z_index.toString()
+        }
+
+        // Bind
+        boardView.root.appendChild(sliderCardView.root)
+
+        // Subscribe
+        const sliderChangedCallback = (sliderSample: SliderSample): void => {
+            const sliderValue: SliderState = {
+                slider_normalized_position: sliderSample.sliderNormalizedPosition,
+                slider_bin_index: sliderSample.binIndex
+            }
+            this.emit(sliderValue)
+        }
+
+        sliderCardView.subscribeToSlider(sliderChangedCallback)
     }
 }
