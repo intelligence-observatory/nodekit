@@ -1,20 +1,8 @@
 import './free-text-entry.css'
 import type {FreeTextEntrySensor} from "../../../types/sensors";
 import {BoardCoordinateSystem, type BoardView, RegionView} from "../../board-view.ts";
-import type {ColorHexString, PlainString, SpatialSize} from "../../../types/common.ts";
 import type {FreeTextEntryState} from "../../../types/actions";
 import {SensorBinding} from "../index.ts";
-import type {Region} from "../../../types/region";
-
-
-export interface FreeTextEntryCard{
-    region: Region
-    prompt: PlainString;
-    font_size: SpatialSize;
-    text_color: ColorHexString;
-    background_color: ColorHexString;
-    max_length: number | null; // Maximum number of characters allowed
-}
 
 
 export class FreeTextEntrySensorBinding extends SensorBinding {
