@@ -1,15 +1,9 @@
-import type {Card} from "../types/cards";
 import type {ColorHexString, SpatialPoint, SpatialSize} from "../types/common.ts";
-import type {Sensor} from "../types/sensors";
 import './board-view.css'
-import type {CardView} from "./card-views/card-view.ts";
-import {ClickSensorBinding, FreeTextEntrySensorBinding, KeySensorBinding, type SensorBinding, SliderSensorBinding} from "./sensor-bindings";
-import {ImageCardView} from "./card-views/image/image-card.ts";
-import {TextCardView} from "./card-views/text/text-card-view.ts";
-import {VideoCardView} from "./card-views/video/video-card.ts";
 import {PointerStream} from "../input-streams/pointer-stream.ts";
 import {KeyStream} from "../input-streams/key-stream.ts";
 import {Clock} from "../clock.ts";
+import type {Region} from "../types/region";
 
 
 export class BoardCoordinateSystem {
@@ -150,79 +144,52 @@ export class BoardView {
 
 }
 
-export function createCardView(
-    card: Card,
-    boardView: BoardView,
-): CardView{
-    // Dynamic dispatch
-    const boardCoords = boardView.getCoordinateSystem();
-    let cardView: CardView | null = null;
-    switch (card.card_type) {
-        case "ImageCard":
-            cardView = new ImageCardView(
-                card,
-                boardCoords,
-            )
-            break
-        case "VideoCard":
-            cardView = new VideoCardView(
-                card,
-                boardCoords
-            );
-            break
-        case "TextCard":
-            cardView = new TextCardView(
-                card, boardCoords
-            )
-            break
-        default:
-            throw new Error(`Unsupported Card type: ${JSON.stringify(card)}`);
-    }
+/**
+ * A view of a region on the Board.
+ */
+export abstract class RegionView {
+    root: HTMLElement;
+    boardCoords: BoardCoordinateSystem
 
-    // Mount CardView to BoardView:
-    boardView.root.appendChild(cardView.root);
+    constructor(
+        region: Region,
+        boardCoords: BoardCoordinateSystem,
+    ) {
+        // Create the Card's root element
+        this.root = document.createElement('div');
+        this.root.classList.add('card');
+        this.boardCoords = boardCoords
 
-    // If a z_index property is present in card, inject it manually here. // Todo this is hack
-    if (typeof card.z_index ==='number'){
-        cardView.root.style.zIndex = card.z_index.toString()
-    }
+        // Configure Card position and size:
+        const {leftPx, topPx} = boardCoords.getBoardLocationPx(
+            region.x,
+            region.y,
+            region.w,
+            region.h
+        )
 
-    return cardView
-}
+        const {widthPx, heightPx} = boardCoords.getBoardRectanglePx(
+            region.w,
+            region.h
+        );
 
-export function createSensorBinding(
-    sensor: Sensor,
-    boardView: BoardView,
-): SensorBinding {
+        this.root.style.left = `${leftPx}px`;
+        this.root.style.top = `${topPx}px`;
+        this.root.style.width = `${widthPx}px`;
+        this.root.style.height = `${heightPx}px`;
 
-    // Factory function for creating a SensorBinding
-    let sensorBinding: SensorBinding | null = null;
-    switch (sensor.sensor_type){
-        case "KeySensor": {
-            sensorBinding = new KeySensorBinding();
-            break
+        switch (region.mask) {
+            case 'ellipse':
+                this.root.style.borderRadius = '50%';
+                break
+            case 'rectangle':
+                break
+            default:
+                const _full: never = region.mask
+                throw new Error(`Unsupported Region.mask: ${JSON.stringify(_full)}`)
         }
-        case "ClickSensor": {
-            sensorBinding = new ClickSensorBinding();
-            break
-        }
-        case "SliderSensor": {
-            sensorBinding = new SliderSensorBinding();
-            break;
-        }
-        case "FreeTextEntrySensor":{
-            sensorBinding = new FreeTextEntrySensorBinding();
-            break
-        }
-        default: {
-            const _exhaustive: never = sensor;
-            throw new Error(`Unknown Sensor provided: ${JSON.stringify(_exhaustive)}`);
+        if (typeof region.z_index === 'number') {
+            this.root.style.zIndex = region.z_index.toString()
         }
     }
-
-    sensorBinding.prepare(
-        sensor,
-        boardView,
-    );
-    return sensorBinding
 }

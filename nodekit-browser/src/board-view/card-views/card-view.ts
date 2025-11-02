@@ -1,52 +1,23 @@
 import './card-view.css';
 
 import type {Card} from "../../types/cards";
-import type {BoardCoordinateSystem} from "../board-view.ts";
+import {type BoardCoordinateSystem, RegionView} from "../board-view.ts";
 import type {AssetManager} from "../../asset-manager";
 
-export abstract class CardView<C extends Card = Card> {
-    root: HTMLElement;
-    public card: C
-    boardCoords: BoardCoordinateSystem;
+
+export abstract class CardView<C extends Card = Card> extends RegionView{
+    card: C
 
     constructor(
         card: C,
         boardCoords: BoardCoordinateSystem,
     ) {
+        super(card.region, boardCoords)
         this.card = card;
-        this.boardCoords = boardCoords;
-
-        // Create the Card's root element
-        this.root = document.createElement('div');
-        this.root.classList.add('card');
-
-        // Configure Card position and size:
-        const {leftPx, topPx} = boardCoords.getBoardLocationPx(
-            card.x,
-            card.y,
-            card.w,
-            card.h
-        )
-
-        const {widthPx, heightPx} = boardCoords.getBoardRectanglePx(
-            card.w,
-            card.h
-        );
-
-        this.root.style.left = `${leftPx}px`;
-        this.root.style.top = `${topPx}px`;
-        this.root.style.width = `${widthPx}px`;
-        this.root.style.height = `${heightPx}px`;
     }
 
-    async prepare(_assetManager:AssetManager){
-        // Any Card-specific loading logic should go here
-    }
-
-    onStart() {
-
-    }
-    onDestroy() {
-        // Called when the Card is destroyed
-    }
+    abstract prepare(_assetManager:AssetManager): Promise<void>;
+    onStart(): void {}
+    onDestroy(): void {}
 }
+

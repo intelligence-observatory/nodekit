@@ -10,13 +10,9 @@ import {renderTextContent, type TextContentParameters} from "../../../utils.ts";
  * Offers a scrollbar if the content is too long.
  */
 
-type CardSelectedSubscriber = (selected: boolean) => void;
 
 export class TextCardView extends CardView<TextCard> {
     textContainer: HTMLDivElement | undefined;
-
-    private selected: boolean = false;
-    private subscribers: Set<CardSelectedSubscriber> = new Set()
 
     async prepare(
     ) {
@@ -45,42 +41,5 @@ export class TextCardView extends CardView<TextCard> {
             }
         )
         this.textContainer.appendChild(textContentDiv);
-
-        // Add event listener for hover effect
-        if (this.card.selectable) {
-            this.textContainer.addEventListener('mouseenter', () => {
-                this.textContainer!.style.background = 'var(--cognition-faint-color)'; // Just hardcode; CSS class switches weren't working. Todo: fix
-            });
-
-            this.textContainer.addEventListener('mouseleave', () => {
-                this.textContainer!.style.background = this.card.background_color;
-            });
-        }
-
-        // Add event listener for selection
-        if (this.card.selectable) {
-            this.textContainer.addEventListener('click', () => {
-                this.selected = !this.selected;
-                if (this.selected) {
-                    this.textContainer!.classList.add('text-card--selected');
-                }
-                else {
-                    this.textContainer!.classList.remove('text-card--selected');
-                }
-
-                this.emitSelectionState()
-            }
-            );
-        }
-    }
-
-    private emitSelectionState(){
-        this.subscribers.forEach((callback) => {
-            callback(this.selected);
-        });
-    }
-
-    public subscribeToSelectionChanges(callback: CardSelectedSubscriber){
-        this.subscribers.add(callback);
     }
 }

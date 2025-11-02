@@ -1,15 +1,11 @@
-import type {ColorHexString, MarkdownString, PlainString, SpatialPoint, SpatialSize} from "../common.ts";
+import type {ColorHexString, MarkdownString, PlainString, SpatialSize} from "../common.ts";
 import type {Image, Video} from "../assets";
+import type {Region} from "../region";
 
 export interface BaseCard<T extends string> {
     card_type: T
 
-    x: SpatialPoint
-    y: SpatialPoint
-    z_index: number | null;
-
-    w: SpatialSize
-    h: SpatialSize
+    region: Region
 }
 
 export interface SelectableMixin {

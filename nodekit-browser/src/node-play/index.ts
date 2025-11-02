@@ -1,12 +1,16 @@
 import type {Node} from "../types/node.ts";
 import type {Action, SensorValue} from "../types/actions/";
-import {BoardView, createCardView, createSensorBinding} from "../board-view/board-view.ts";
+import {BoardView} from "../board-view/board-view.ts";
 import {EventScheduler} from "./event-scheduler.ts";
 import {type EffectBinding, HideCursorEffectBinding} from "../board-view/effect-bindings";
 
 import type {AssetManager} from "../asset-manager";
 
 import type {CardId, SensorId} from "../types/common.ts";
+
+
+import {createCardView} from "../board-view/card-views/create.ts";
+import {createSensorBinding} from "../board-view/sensor-bindings/create.ts";
 
 export interface NodePlayRunResult {
     action: Record<SensorId, SensorValue>;

@@ -3,7 +3,7 @@ import type {SpatialPoint} from "../../types/common.ts";
 import type {PointerSample} from "../../input-streams/pointer-stream.ts";
 import type {KeySample} from "../../input-streams/key-stream.ts";
 import type {ClickSensor, FreeTextEntrySensor, KeySensor, Sensor, SliderSensor} from "../../types/sensors";
-import type {BoardView} from "../board-view.ts";
+import {type BoardView} from "../board-view.ts";
 import type {Region} from "../../types/region";
 import {SliderCardView, type SliderSample} from "./slider/slider-card-view.ts";
 import type {FreeTextEntryCard, SliderCard} from "../../types/cards";
@@ -77,9 +77,10 @@ export class ClickSensorBinding extends SensorBinding  {
         const region: Region = {
             x: sensor.x,
             y: sensor.y,
+            z_index: null,
             w: sensor.w,
             h: sensor.h,
-            mask: sensor.mask
+            mask: sensor.mask,
         }
         const clickCallback = (pointerSample: PointerSample) => {
             if (pointerSample.sampleType !== 'down') {
@@ -149,11 +150,14 @@ export class SliderSensorBinding extends SensorBinding {
             show_bin_markers: sensor.show_bin_markers,
             initial_bin_index: sensor.initial_bin_index,
             orientation: sensor.orientation,
-            x: sensor.x,
-            y: sensor.y,
-            w: sensor.w,
-            h: sensor.h,
-            z_index: sensor.z_index,
+            region: {
+                x: sensor.x,
+                y: sensor.y,
+                w: sensor.w,
+                h: sensor.h,
+                z_index: sensor.z_index,
+                mask: 'rectangle',
+            }
         }
         const sliderCardView = new SliderCardView(
             sliderCard,
@@ -161,8 +165,8 @@ export class SliderSensorBinding extends SensorBinding {
         )
 
         sliderCardView.prepare()
-        if (typeof sliderCard.z_index ==='number'){
-            sliderCardView.root.style.zIndex = sliderCard.z_index.toString()
+        if (typeof sliderCard.region.z_index ==='number'){
+            sliderCardView.root.style.zIndex = sliderCard.region.z_index.toString()
         }
 
         // Bind
@@ -194,11 +198,14 @@ export class FreeTextEntrySensorBinding extends SensorBinding {
             text_color: sensor.text_color,
             background_color: sensor.background_color,
             max_length: sensor.max_length,
-            x: sensor.x,
-            y: sensor.y,
-            w: sensor.w,
-            h: sensor.h,
-            z_index: sensor.z_index,
+            region: {
+                x: sensor.x,
+                y: sensor.y,
+                w: sensor.w,
+                h: sensor.h,
+                z_index: sensor.z_index,
+                mask: 'rectangle',
+            },
         }
 
         const cardView = new FreeTextEntryCardView(
@@ -206,8 +213,8 @@ export class FreeTextEntrySensorBinding extends SensorBinding {
             boardView.getCoordinateSystem()
             )
         cardView.prepare()
-        if (typeof freeTextCard.z_index ==='number'){
-            cardView.root.style.zIndex = freeTextCard.z_index.toString()
+        if (typeof freeTextCard.region.z_index ==='number'){
+            cardView.root.style.zIndex = freeTextCard.region.z_index.toString()
         }
 
 
@@ -226,3 +233,4 @@ export class FreeTextEntrySensorBinding extends SensorBinding {
 
     }
 }
+
