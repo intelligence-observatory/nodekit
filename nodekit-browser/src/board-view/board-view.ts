@@ -95,7 +95,6 @@ export class BoardCoordinateSystem {
  */
 export class BoardView {
     root: HTMLDivElement
-    cardViews: Map<CardId, CardView> = new Map(); // Map of card ID to CardView
     pointerStream: PointerStream;
     keyStream: KeyStream;
     clock: Clock;
@@ -125,13 +124,6 @@ export class BoardView {
         return new BoardCoordinateSystem(this.root);
     }
 
-    reset() {
-        // Removes all child elements on the boardDiv
-        while (this.root.firstChild) {
-            this.root.removeChild(this.root.firstChild);
-        }
-    }
-
     setBoardState(
         visible: boolean,
         interactivity: boolean
@@ -157,84 +149,48 @@ export class BoardView {
         }
     }
 
-    private getCardView(cardId: CardId): CardView {
-        const cardView = this.cardViews.get(cardId);
-        if (!cardView) {
-            throw new Error(`CardView with ID ${cardId} not found.`);
-        }
-        return cardView;
-    }
-
-    async prepareCard(
-        cardId: CardId,
-        card: Card,
-        assetManager: AssetManager,
-    ): Promise<void> {
-        // Dynamic dispatch
-        const boardCoords = this.getCoordinateSystem();
-        let cardView: CardView | null = null;
-        switch (card.card_type) {
-            case "ImageCard":
-                cardView = new ImageCardView(
-                    card,
-                    boardCoords,
-                )
-                break
-            case "VideoCard":
-                cardView = new VideoCardView(
-                    card,
-                    boardCoords
-                );
-                break
-            case "TextCard":
-                cardView = new TextCardView(
-                    card, boardCoords
-                )
-                break
-            default:
-                throw new Error(`Unsupported Card type: ${JSON.stringify(card)}`);
-        }
-
-        // Load all Card resources:
-        await cardView.prepare(assetManager);
-
-        // Mount CardView to BoardView:
-        this.root.appendChild(cardView.root);
-
-        // If a z_index property is present in card, inject it manually here. // Todo this is hack
-        if (typeof card.z_index ==='number'){
-            cardView.root.style.zIndex = card.z_index.toString()
-        }
-
-
-        // Issue a new CardViewId:
-        this.cardViews.set(cardId, cardView);
-    }
-
-    showCard(cardId: CardId) {
-        // Show and start the CardView
-        const cardView = this.getCardView(cardId);
-        cardView.setVisibility(true);
-        cardView.onStart();
-    }
-
-    hideCard(cardId: CardId) {
-        // Hide and stop the CardView
-        const cardView = this.getCardView(cardId);
-        cardView.setVisibility(false);
-        cardView.onStop();
-    }
-
-    destroyCard(cardId: CardId) {
-        // Unload and remove the CardView
-        const cardView = this.getCardView(cardId);
-        cardView.onDestroy();
-        this.root.removeChild(cardView.root);
-        this.cardViews.delete(cardId);
-    }
 }
 
-// Single implementation
+export function createCardView(
+    card: Card,
+    boardView: BoardView,
+): CardView{
+    // Dynamic dispatch
+    const boardCoords = boardView.getCoordinateSystem();
+    let cardView: CardView | null = null;
+    switch (card.card_type) {
+        case "ImageCard":
+            cardView = new ImageCardView(
+                card,
+                boardCoords,
+            )
+            break
+        case "VideoCard":
+            cardView = new VideoCardView(
+                card,
+                boardCoords
+            );
+            break
+        case "TextCard":
+            cardView = new TextCardView(
+                card, boardCoords
+            )
+            break
+        default:
+            throw new Error(`Unsupported Card type: ${JSON.stringify(card)}`);
+    }
+
+    // Mount CardView to BoardView:
+    boardView.root.appendChild(cardView.root);
+
+    // If a z_index property is present in card, inject it manually here. // Todo this is hack
+    if (typeof card.z_index ==='number'){
+        cardView.root.style.zIndex = card.z_index.toString()
+    }
+
+    return cardView
+}
+
 export function createSensorBinding(
     sensor: Sensor,
     boardView: BoardView,

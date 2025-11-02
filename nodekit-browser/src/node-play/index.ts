@@ -1,6 +1,6 @@
 import type {Node} from "../types/node.ts";
 import type {Action, SensorValue} from "../types/actions/";
-import {BoardView, createSensorBinding} from "../board-view/board-view.ts";
+import {BoardView, createCardView, createSensorBinding} from "../board-view/board-view.ts";
 import {EventScheduler} from "./event-scheduler.ts";
 import {type EffectBinding, HideCursorEffectBinding} from "../board-view/effect-bindings";
 
@@ -74,18 +74,12 @@ export class NodePlay {
 
             const card = this.node.cards[cardId];
 
-            // Prepare Cards:
-            await this.boardView.prepareCard(
-                cardId,
+            // Prepare CardViews:
+            const cardView = createCardView(
                 card,
-                assetManager,
+                this.boardView,
             )
-            this.boardView.showCard(cardId);
-
-            // Schedule Card destruction:
-            this.scheduler.scheduleOnStop(
-                () => {this.boardView.destroyCard(cardId)}
-            )
+            await cardView.prepare(assetManager)
         }
 
         // Create and subscribe to SensorBindings:
@@ -185,7 +179,7 @@ export class NodePlay {
 
         // Clean up NodePlay:
         this.scheduler.stop();
-        this.boardView.reset();
+
 
         return {
             action: action,
