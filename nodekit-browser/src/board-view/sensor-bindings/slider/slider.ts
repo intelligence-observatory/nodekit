@@ -1,11 +1,8 @@
-import './slider-card-view.css'
-import {CardView} from "../../card-views/card-view.ts";
+import './slider.css'
 import type {SliderSensor} from "../../../types/sensors";
-import type {BoardView} from "../../board-view.ts";
-import type {Roundness} from "../../../types/common.ts";
+import {BoardCoordinateSystem, type BoardView, RegionView} from "../../board-view.ts";
 import type {SliderState} from "../../../types/actions";
 import {SensorBinding} from "../index.ts";
-import type {Region} from "../../../types/region";
 
 
 // Slider:
@@ -21,20 +18,41 @@ export type SliderSample = {
 type SliderSubscriber = (sample: SliderSample) => void;
 
 
-export interface SliderCard {
-    num_bins: number;
-    show_bin_markers: boolean;
-    initial_bin_index: number;
-    orientation: 'horizontal' | 'vertical';
-    region: Region
+
+export class SliderSensorBinding extends SensorBinding {
+    prepare(
+        sensor: SliderSensor,
+        boardView: BoardView
+    ) {
+        // Wire in old SliderCard
+
+        const sliderCardView = new SliderSensorView(
+            sensor,
+            boardView.getCoordinateSystem()
+        )
+
+        // Bind
+        boardView.root.appendChild(sliderCardView.root)
+
+        // Subscribe
+        const sliderChangedCallback = (sliderSample: SliderSample): void => {
+            const sliderValue: SliderState = {
+                slider_normalized_position: sliderSample.sliderNormalizedPosition,
+                slider_bin_index: sliderSample.binIndex
+            }
+            this.emit(sliderValue)
+        }
+
+        sliderCardView.subscribeToSlider(sliderChangedCallback)
+    }
 }
 
-
-export class SliderCardView extends CardView<SliderCard> {
+export class SliderSensorView extends RegionView {
     sliderContainer!: HTMLDivElement;
     sliderTrack!: HTMLDivElement;
     sliderThumb!: HTMLDivElement;
 
+    private sensor: SliderSensor
     private pendingThumbPosition: number | null = null;
     private rafId: number | null = null;
     private frameRequested: boolean = false;
@@ -45,7 +63,12 @@ export class SliderCardView extends CardView<SliderCard> {
     private subscribers: Set<SliderSubscriber> = new Set();
     private isDraggingThumb: boolean = false;
 
-    async prepare() {
+    constructor(
+        sensor: SliderSensor,
+        boardCoords: BoardCoordinateSystem,
+    ){
+        super(sensor.region, boardCoords);
+        this.sensor=sensor;
 
         // Make container
         this.sliderContainer = document.createElement('div');
@@ -62,7 +85,7 @@ export class SliderCardView extends CardView<SliderCard> {
         this.sliderContainer.appendChild(this.sliderThumb);
 
         // Set orientation:
-        if (this.card.orientation === 'horizontal') {
+        if (sensor.orientation === 'horizontal') {
             this.sliderTrack.classList.add('slider-card__track--horizontal');
             this.sliderThumb.classList.add('slider-card__thumb--horizontal');
         } else {
@@ -74,22 +97,22 @@ export class SliderCardView extends CardView<SliderCard> {
 
         // Calculate bin index to proportion function:
         this.binIndexToProportion = (binIndex: SliderBinIndex): number => {
-            if (this.card.num_bins <= 1) return 0;
-            return binIndex / (this.card.num_bins - 1);
+            if (sensor.num_bins <= 1) return 0;
+            return binIndex / (sensor.num_bins - 1);
         }
 
         // Calculate snap function:
         this.proportionToNearestBin = (proportion: number): SliderBinIndex => {
-            if (this.card.num_bins <= 1) return 0;
-            const exactBin = proportion * (this.card.num_bins - 1);
+            if (sensor.num_bins <= 1) return 0;
+            const exactBin = proportion * (sensor.num_bins - 1);
             return Math.round(exactBin);
         }
 
         // Draw ticks if needed:
-        this.renderTicks();
+        this.renderTicks(sensor);
 
         // Always initialize the thumb to the exact middle, even if num_bins is even:
-        let initial = this.binIndexToProportion(this.card.initial_bin_index)
+        let initial = this.binIndexToProportion(sensor.initial_bin_index)
         if (isNaN(initial) || !isFinite(initial)) {
             initial = 0.5 // fallback
         }
@@ -119,14 +142,14 @@ export class SliderCardView extends CardView<SliderCard> {
         });
     }
 
-    private renderTicks() {
+    private renderTicks(sensor: SliderSensor) {
         // Draw tick marks on the track if show_bin_markers is true
-        if (!this.card.show_bin_markers) return;
+        if (!sensor.show_bin_markers) return;
         if (!this.sliderTrack) return;
         this.sliderTrack.querySelectorAll('.slider-card__track-tick').forEach(n => n.remove());
 
-        const bins = this.card.num_bins;
-        const isHorizontal = this.card.orientation === 'horizontal';
+        const bins = sensor.num_bins;
+        const isHorizontal = sensor.orientation === 'horizontal';
 
         // create all ticks in a fragment (fewer reflows)
         const frag = document.createDocumentFragment();
@@ -185,7 +208,7 @@ export class SliderCardView extends CardView<SliderCard> {
 
         const rect = this.sliderTrack.getBoundingClientRect();
         let proportion: number;
-        if (this.card.orientation === 'horizontal') {
+        if (this.sensor.orientation === 'horizontal') {
             const x = e.clientX - rect.left;
             proportion = x / rect.width;
         } else {
@@ -208,7 +231,7 @@ export class SliderCardView extends CardView<SliderCard> {
 
         const rect = this.sliderTrack.getBoundingClientRect();
         let proportion: number;
-        if (this.card.orientation === 'horizontal') {
+        if (this.sensor.orientation === 'horizontal') {
             const x = e.clientX - rect.left;
             proportion = x / rect.width;
         } else {
@@ -265,7 +288,7 @@ export class SliderCardView extends CardView<SliderCard> {
         const thumbRect = this.sliderThumb.getBoundingClientRect();
         const sliderRect = this.sliderContainer.getBoundingClientRect();
 
-        if (this.card.orientation === 'horizontal') {
+        if (this.sensor.orientation === 'horizontal') {
             const left = this.pendingThumbPosition * (sliderRect.width - thumbRect.width);
             this.sliderThumb.style.left = `${left}px`;
         } else {
@@ -296,7 +319,7 @@ export class SliderCardView extends CardView<SliderCard> {
         this.currentBinIndex = binIndex;
         // Create sample
         const sample: SliderSample = {
-            sliderNormalizedPosition: binIndex / (this.card.num_bins - 1),
+            sliderNormalizedPosition: binIndex / (this.sensor.num_bins - 1),
             binIndex: binIndex,
             domTimestamp: performance.now(),
         }
@@ -314,61 +337,15 @@ export class SliderCardView extends CardView<SliderCard> {
 
     getCurrentNormalizedPosition(): SliderNormalizedPosition {
         if (this.currentBinIndex === null) {
-            return this.binIndexToProportion(this.card.initial_bin_index);
+            return this.binIndexToProportion(this.sensor.initial_bin_index);
         }
         return this.binIndexToProportion(this.currentBinIndex);
     }
 
     getCurrentBinIndex(): SliderBinIndex {
         if (this.currentBinIndex === null) {
-            return this.card.initial_bin_index;
+            return this.sensor.initial_bin_index;
         }
         return this.currentBinIndex;
-    }
-}
-
-export class SliderSensorBinding extends SensorBinding {
-    prepare(
-        sensor: SliderSensor,
-        boardView: BoardView
-    ) {
-        // Wire in old SliderCard
-        const sliderCard: SliderCard = {
-            num_bins: sensor.num_bins,
-            show_bin_markers: sensor.show_bin_markers,
-            initial_bin_index: sensor.initial_bin_index,
-            orientation: sensor.orientation,
-            region: {
-                x: sensor.x,
-                y: sensor.y,
-                w: sensor.w,
-                h: sensor.h,
-                z_index: sensor.z_index,
-                roundness: 0 as Roundness,
-            }
-        }
-        const sliderCardView = new SliderCardView(
-            sliderCard,
-            boardView.getCoordinateSystem()
-        )
-
-        sliderCardView.prepare()
-        if (typeof sliderCard.region.z_index === 'number') {
-            sliderCardView.root.style.zIndex = sliderCard.region.z_index.toString()
-        }
-
-        // Bind
-        boardView.root.appendChild(sliderCardView.root)
-
-        // Subscribe
-        const sliderChangedCallback = (sliderSample: SliderSample): void => {
-            const sliderValue: SliderState = {
-                slider_normalized_position: sliderSample.sliderNormalizedPosition,
-                slider_bin_index: sliderSample.binIndex
-            }
-            this.emit(sliderValue)
-        }
-
-        sliderCardView.subscribeToSlider(sliderChangedCallback)
     }
 }

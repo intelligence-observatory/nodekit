@@ -1,4 +1,4 @@
-import type {CardId, ColorHexString, PlainString, PressableKey, RegularExpressionString, SpatialPoint, SpatialSize} from "../common.ts";
+import type {CardId, ColorHexString, PlainString, PressableKey, RegularExpressionString, SpatialSize} from "../common.ts";
 import type {Region} from "../region";
 
 
