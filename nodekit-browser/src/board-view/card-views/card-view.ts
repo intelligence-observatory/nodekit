@@ -22,15 +22,15 @@ export abstract class CardView<C extends Card = Card> {
 
         // Configure Card position and size:
         const {leftPx, topPx} = boardCoords.getBoardLocationPx(
-            this.card.x,
-            this.card.y,
-            this.card.w,
-            this.card.h
+            card.x,
+            card.y,
+            card.w,
+            card.h
         )
 
         const {widthPx, heightPx} = boardCoords.getBoardRectanglePx(
-            this.card.w,
-            this.card.h
+            card.w,
+            card.h
         );
 
         this.root.style.left = `${leftPx}px`;

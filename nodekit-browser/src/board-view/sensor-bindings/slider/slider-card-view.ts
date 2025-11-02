@@ -1,5 +1,5 @@
 import './slider-card-view.css'
-import {CardView} from "../card-view.ts";
+import {CardView} from "../../card-views/card-view.ts";
 import type {SliderCard} from "../../../types/cards";
 
 

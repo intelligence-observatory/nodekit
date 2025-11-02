@@ -5,9 +5,9 @@ import type {KeySample} from "../../input-streams/key-stream.ts";
 import type {ClickSensor, FreeTextEntrySensor, KeySensor, Sensor, SliderSensor} from "../../types/sensors";
 import type {BoardView} from "../board-view.ts";
 import type {Region} from "../../types/region";
-import {SliderCardView, type SliderSample} from "../card-views/slider/slider-card-view.ts";
+import {SliderCardView, type SliderSample} from "./slider/slider-card-view.ts";
 import type {FreeTextEntryCard, SliderCard} from "../../types/cards";
-import {FreeTextEntryCardView} from "../card-views/free-text-entry/free-text-entry.ts";
+import {FreeTextEntryCardView} from "./free-text-entry/free-text-entry.ts";
 
 
 export abstract class SensorBinding {

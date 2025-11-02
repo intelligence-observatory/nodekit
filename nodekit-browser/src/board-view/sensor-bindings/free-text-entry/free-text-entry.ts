@@ -1,6 +1,6 @@
 
 import './free-text-entry.css'
-import {CardView} from "../card-view.ts";
+import {CardView} from "../../card-views/card-view.ts";
 import type {FreeTextEntryCard} from "../../../types/cards";
 
 export class FreeTextEntryCardView extends CardView<FreeTextEntryCard> {
@@ -31,7 +31,6 @@ export class FreeTextEntryCardView extends CardView<FreeTextEntryCard> {
         this.freeTextInputElement.maxLength = maxLength;
 
         this.root.appendChild(this.freeTextInputElement);
-
     }
 
     subscribe(callback: (sample: string) => void): void {
