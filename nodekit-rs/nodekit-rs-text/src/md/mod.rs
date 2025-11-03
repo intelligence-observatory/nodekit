@@ -4,7 +4,7 @@ mod paragraph;
 mod span;
 
 use crate::error::Error;
-use crate::md::list_state::ListState;
+pub(crate) use crate::md::list_state::ListState;
 use crate::md::paragraph::Paragraph;
 use cosmic_text::{Attrs, Family, Style, Weight};
 pub(crate) use font_size::*;
@@ -12,11 +12,10 @@ use markdown::{Constructs, ParseOptions, mdast::Node, to_mdast};
 pub use span::Span;
 
 macro_rules! children {
-    ($node:ident, $paragraphs:ident, $paragraph:ident, $attrs:ident) => {{
-        $node
-            .children
-            .into_iter()
-            .try_for_each(|child| add_node(child, $paragraphs, $paragraph, $attrs.clone()))
+    ($node:ident, $paragraphs:ident, $paragraph:ident, $attrs:ident, $list_state:ident) => {{
+        $node.children.into_iter().try_for_each(|child| {
+            add_node(child, $paragraphs, $paragraph, $attrs.clone(), $list_state)
+        })
     }};
 }
 
@@ -29,7 +28,7 @@ pub fn parse<'s>(text: &str, attrs: Attrs<'s>) -> Result<Vec<Paragraph<'s>>, Err
     let node = to_mdast(text, &parse_options).map_err(Error::Md)?;
     let mut paragraphs = vec![];
     let mut paragraph = None;
-    add_node(node, &mut paragraphs, &mut paragraph, attrs)?;
+    add_node(node, &mut paragraphs, &mut paragraph, attrs, None)?;
     // Add the last paragraph.
     if let Some(paragraph) = paragraph {
         paragraphs.push(paragraph);
@@ -43,10 +42,11 @@ fn add_node<'s>(
     paragraphs: &mut Vec<Paragraph<'s>>,
     paragraph: &mut Option<Paragraph<'s>>,
     attrs: Attrs<'s>,
+    list_state: Option<ListState>,
 ) -> Result<(), Error> {
     match node {
         // Add from the root node.
-        Node::Root(node) => children!(node, paragraphs, paragraph, attrs),
+        Node::Root(node) => children!(node, paragraphs, paragraph, attrs, list_state),
         Node::InlineCode(node) => {
             let mut attrs = attrs.clone();
             attrs.family = Family::Monospace;
@@ -56,20 +56,27 @@ fn add_node<'s>(
         Node::Emphasis(node) => {
             let mut attrs = attrs.clone();
             attrs.style = Style::Italic;
-            children!(node, paragraphs, paragraph, attrs)
+            children!(node, paragraphs, paragraph, attrs, list_state)
         }
         Node::Strong(node) => {
             let mut attrs = attrs.clone();
             attrs.weight = Weight::BOLD;
-            children!(node, paragraphs, paragraph, attrs)
+            children!(node, paragraphs, paragraph, attrs, list_state)
         }
         Node::Text(text) => {
-            add_span(text.value, attrs, paragraph);
+            let text = match list_state {
+                Some(list_state) => match list_state {
+                    ListState::Unordered => format!("  • {}", text.value),
+                    ListState::Ordered(o) => format!("  {o}. {}", text.value),
+                },
+                None => text.value,
+            };
+            add_span(text, attrs, paragraph);
             Ok(())
         }
         Node::Paragraph(node) => {
             start_paragraph(paragraphs, paragraph);
-            children!(node, paragraphs, paragraph, attrs)
+            children!(node, paragraphs, paragraph, attrs, list_state)
         }
         Node::Heading(node) => {
             // Start a paragraph.
@@ -80,25 +87,26 @@ fn add_node<'s>(
             }
             let mut attrs = attrs.clone();
             attrs.weight = Weight::BOLD;
-            children!(node, paragraphs, paragraph, attrs)
+            children!(node, paragraphs, paragraph, attrs, list_state)
         }
         Node::List(node) => {
-            let mut list_states = Vec::default();
             // Add the nodes, using the list order.
             for (i, child) in node.children.into_iter().enumerate() {
-                list_states.push(match node.start {
+                let list_state = match node.start {
                     Some(start) => ListState::Ordered(start + i as u32),
                     None => ListState::Unordered,
-                });
-                add_node(child, paragraphs, paragraph, attrs.clone())?;
-            }
-            // List states per span.
-            if let Some(paragraph) = paragraph.as_mut() {
-                paragraph.list_states = Some(list_states);
+                };
+                add_node(
+                    child,
+                    paragraphs,
+                    paragraph,
+                    attrs.clone(),
+                    Some(list_state),
+                )?;
             }
             Ok(())
         }
-        Node::ListItem(node) => children!(node, paragraphs, paragraph, attrs),
+        Node::ListItem(node) => children!(node, paragraphs, paragraph, attrs, list_state),
         Node::Code(node) => {
             // End the current paragraph.
             if let Some(paragraph) = &paragraph {
@@ -116,7 +124,7 @@ fn add_node<'s>(
             *paragraph = Some(p);
             Ok(())
         }
-        Node::Link(node) => children!(node, paragraphs, paragraph, attrs),
+        Node::Link(node) => children!(node, paragraphs, paragraph, attrs, list_state),
         other => {
             let s = other.to_string();
             Err(Error::Node(s))
@@ -148,14 +156,3 @@ fn add_span<'s>(text: String, attrs: Attrs<'s>, paragraph: &mut Option<Paragraph
         }
     }
 }
-
-/*
-                // Possibly format the text as a list.
-                   let text = match paragraph.list_state.as_ref() {
-                       Some(list_state) => match list_state {
-                           ListState::Unordered => format!("  • {}", text.value),
-                           ListState::Ordered(o) => format!("  {o}. {}", text.value),
-                       },
-                       None => text.value,
-                   };
-*/

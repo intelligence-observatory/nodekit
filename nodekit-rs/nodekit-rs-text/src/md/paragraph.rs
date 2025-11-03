@@ -1,11 +1,10 @@
-use super::{FONT_METRICS, Span, list_state::ListState};
+use super::{FONT_METRICS, Span};
 use cosmic_text::Metrics;
 
 #[derive(Clone)]
 pub struct Paragraph<'s> {
     pub metrics: Metrics,
     pub spans: Vec<Span<'s>>,
-    pub list_states: Option<Vec<ListState>>,
 }
 
 impl Default for Paragraph<'_> {
@@ -13,7 +12,6 @@ impl Default for Paragraph<'_> {
         Self {
             metrics: FONT_METRICS,
             spans: Vec::default(),
-            list_states: None,
         }
     }
 }

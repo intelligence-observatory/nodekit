@@ -40,10 +40,11 @@ impl Text {
         let paragraphs = parse(text, attrs.clone())?;
         let mut y = 0;
         let mut surfaces = Vec::default();
-        // TODO list
+
         for paragraph in paragraphs {
             // Set the metrics of this paragraph.
             buffer.set_metrics(&mut self.font_system, paragraph.metrics);
+
             // Shape the text.
             buffer.set_rich_text(
                 &mut self.font_system,

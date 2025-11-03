@@ -8,12 +8,12 @@ pub enum JustificationHorizontal {
     Right,
 }
 
-impl Into<Align> for JustificationHorizontal {
-    fn into(self) -> Align {
-        match self {
-            Self::Left => Align::Left,
-            Self::Center => Align::Center,
-            Self::Right => Align::Right,
+impl From<JustificationHorizontal> for Align {
+    fn from(value: JustificationHorizontal) -> Self {
+        match value {
+            JustificationHorizontal::Left => Self::Left,
+            JustificationHorizontal::Center => Self::Center,
+            JustificationHorizontal::Right => Self::Right
         }
     }
 }
