@@ -1262,6 +1262,7 @@ dependencies = [
  "nodekit-rs-image",
  "nodekit-rs-request",
  "nodekit-rs-response",
+ "nodekit-rs-text",
  "nodekit-rs-video",
  "png",
  "slotmap",

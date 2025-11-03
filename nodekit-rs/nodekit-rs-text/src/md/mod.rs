@@ -12,15 +12,26 @@ use markdown::{Constructs, ParseOptions, mdast::Node, to_mdast};
 pub use span::Span;
 
 macro_rules! children {
-    ($node:ident, $paragraphs:ident, $paragraph:ident, $attrs:ident, $list_state:ident) => {{
+    ($node:ident, $font_size:ident, $paragraphs:ident, $paragraph:ident, $attrs:ident, $list_state:ident) => {{
         $node.children.into_iter().try_for_each(|child| {
-            add_node(child, $paragraphs, $paragraph, $attrs.clone(), $list_state)
+            add_node(
+                child,
+                $font_size,
+                $paragraphs,
+                $paragraph,
+                $attrs.clone(),
+                $list_state,
+            )
         })
     }};
 }
 
 /// Parse raw markdown text and get a vec of words.
-pub fn parse<'s>(text: &str, attrs: Attrs<'s>) -> Result<Vec<Paragraph<'s>>, Error> {
+pub fn parse<'s>(
+    text: &str,
+    font_size: &FontSize,
+    attrs: Attrs<'s>,
+) -> Result<Vec<Paragraph<'s>>, Error> {
     let parse_options = ParseOptions {
         constructs: Constructs::gfm(),
         ..Default::default()
@@ -28,7 +39,14 @@ pub fn parse<'s>(text: &str, attrs: Attrs<'s>) -> Result<Vec<Paragraph<'s>>, Err
     let node = to_mdast(text, &parse_options).map_err(Error::Md)?;
     let mut paragraphs = vec![];
     let mut paragraph = None;
-    add_node(node, &mut paragraphs, &mut paragraph, attrs, None)?;
+    add_node(
+        node,
+        font_size,
+        &mut paragraphs,
+        &mut paragraph,
+        attrs,
+        None,
+    )?;
     // Add the last paragraph.
     if let Some(paragraph) = paragraph {
         paragraphs.push(paragraph);
@@ -39,6 +57,7 @@ pub fn parse<'s>(text: &str, attrs: Attrs<'s>) -> Result<Vec<Paragraph<'s>>, Err
 /// A words from a markdown node.
 fn add_node<'s>(
     node: Node,
+    font_size: &FontSize,
     paragraphs: &mut Vec<Paragraph<'s>>,
     paragraph: &mut Option<Paragraph<'s>>,
     attrs: Attrs<'s>,
@@ -46,22 +65,22 @@ fn add_node<'s>(
 ) -> Result<(), Error> {
     match node {
         // Add from the root node.
-        Node::Root(node) => children!(node, paragraphs, paragraph, attrs, list_state),
+        Node::Root(node) => children!(node, font_size, paragraphs, paragraph, attrs, list_state),
         Node::InlineCode(node) => {
             let mut attrs = attrs.clone();
             attrs.family = Family::Monospace;
-            add_span(node.value, attrs, paragraph);
+            add_span(node.value, font_size, attrs, paragraph);
             Ok(())
         }
         Node::Emphasis(node) => {
             let mut attrs = attrs.clone();
             attrs.style = Style::Italic;
-            children!(node, paragraphs, paragraph, attrs, list_state)
+            children!(node, font_size, paragraphs, paragraph, attrs, list_state)
         }
         Node::Strong(node) => {
             let mut attrs = attrs.clone();
             attrs.weight = Weight::BOLD;
-            children!(node, paragraphs, paragraph, attrs, list_state)
+            children!(node, font_size, paragraphs, paragraph, attrs, list_state)
         }
         Node::Text(text) => {
             let text = match list_state {
@@ -71,23 +90,23 @@ fn add_node<'s>(
                 },
                 None => text.value,
             };
-            add_span(text, attrs, paragraph);
+            add_span(text, font_size, attrs, paragraph);
             Ok(())
         }
         Node::Paragraph(node) => {
-            start_paragraph(paragraphs, paragraph);
-            children!(node, paragraphs, paragraph, attrs, list_state)
+            start_paragraph(font_size, paragraphs, paragraph);
+            children!(node, font_size, paragraphs, paragraph, attrs, list_state)
         }
         Node::Heading(node) => {
             // Start a paragraph.
-            start_paragraph(paragraphs, paragraph);
+            start_paragraph(font_size, paragraphs, paragraph);
             // Set the header metrics.
             if let Some(paragraph) = paragraph {
-                paragraph.metrics = header_metrics(node.depth)?;
+                paragraph.metrics = font_size.header_metrics(node.depth)?;
             }
             let mut attrs = attrs.clone();
             attrs.weight = Weight::BOLD;
-            children!(node, paragraphs, paragraph, attrs, list_state)
+            children!(node, font_size, paragraphs, paragraph, attrs, list_state)
         }
         Node::List(node) => {
             // Add the nodes, using the list order.
@@ -98,6 +117,7 @@ fn add_node<'s>(
                 };
                 add_node(
                     child,
+                    font_size,
                     paragraphs,
                     paragraph,
                     attrs.clone(),
@@ -106,14 +126,16 @@ fn add_node<'s>(
             }
             Ok(())
         }
-        Node::ListItem(node) => children!(node, paragraphs, paragraph, attrs, list_state),
+        Node::ListItem(node) => {
+            children!(node, font_size, paragraphs, paragraph, attrs, list_state)
+        }
         Node::Code(node) => {
             // End the current paragraph.
             if let Some(paragraph) = &paragraph {
                 paragraphs.push(paragraph.clone());
             }
             // Monospace block.
-            let mut p = Paragraph::default();
+            let mut p = Paragraph::from(font_size);
             let mut attrs = attrs.clone();
             attrs.family = Family::Monospace;
             p.spans.push(Span {
@@ -124,7 +146,7 @@ fn add_node<'s>(
             *paragraph = Some(p);
             Ok(())
         }
-        Node::Link(node) => children!(node, paragraphs, paragraph, attrs, list_state),
+        Node::Link(node) => children!(node, font_size, paragraphs, paragraph, attrs, list_state),
         other => {
             let s = other.to_string();
             Err(Error::Node(s))
@@ -132,7 +154,11 @@ fn add_node<'s>(
     }
 }
 
-fn start_paragraph<'s>(paragraphs: &mut Vec<Paragraph<'s>>, paragraph: &mut Option<Paragraph<'s>>) {
+fn start_paragraph<'s>(
+    font_size: &FontSize,
+    paragraphs: &mut Vec<Paragraph<'s>>,
+    paragraph: &mut Option<Paragraph<'s>>,
+) {
     // End the current paragraph.
     if let Some(paragraph) = &paragraph
         && !paragraph.spans.is_empty()
@@ -140,17 +166,22 @@ fn start_paragraph<'s>(paragraphs: &mut Vec<Paragraph<'s>>, paragraph: &mut Opti
         paragraphs.push(paragraph.clone());
     }
     // Start a new paragraph.
-    *paragraph = Some(Paragraph::default());
+    *paragraph = Some(font_size.into());
 }
 
-fn add_span<'s>(text: String, attrs: Attrs<'s>, paragraph: &mut Option<Paragraph<'s>>) {
+fn add_span<'s>(
+    text: String,
+    font_size: &FontSize,
+    attrs: Attrs<'s>,
+    paragraph: &mut Option<Paragraph<'s>>,
+) {
     let span = Span { text, attrs };
     match paragraph.as_mut() {
         Some(paragraph) => {
             paragraph.spans.push(span);
         }
         None => {
-            let mut p = Paragraph::default();
+            let mut p = Paragraph::from(font_size);
             p.spans.push(span);
             *paragraph = Some(p);
         }

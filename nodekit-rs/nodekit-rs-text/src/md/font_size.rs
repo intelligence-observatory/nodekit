@@ -3,34 +3,61 @@
 use super::Error;
 use cosmic_text::Metrics;
 
-const FONT_SIZE: f32 = 16.;
-pub const FONT_SIZE_USIZE: usize = 16;
-pub const FONT_SIZE_ISIZE: isize = 16;
-/// FONT_SIZE * 1.2
-const LINE_HEIGHT: f32 = 19.2;
-pub const LINE_HEIGHT_ISIZE: isize = 19;
-const H1_SIZE: f32 = 32.;
-const H2_SIZE: f32 = 24.;
-const H3_SIZE: f32 = 18.72;
-const H4_SIZE: f32 = 16.;
-const H5_SIZE: f32 = 16.;
-const H6_SIZE: f32 = 10.72;
-pub const FONT_METRICS: Metrics = Metrics::new(FONT_SIZE, LINE_HEIGHT);
+pub const LINE_HEIGHT_FACTOR: f32 = 1.2;
 
 macro_rules! metrics {
-    ($h:ident) => {
-        Ok(Metrics::new($h, LINE_HEIGHT))
+    ($self:ident, $h:expr) => {
+        Ok(Metrics::new($h, $self.line_height))
     };
 }
 
-pub const fn header_metrics(depth: u8) -> Result<Metrics, Error> {
-    match depth {
-        0 => metrics!(H1_SIZE),
-        1 => metrics!(H2_SIZE),
-        2 => metrics!(H3_SIZE),
-        3 => metrics!(H4_SIZE),
-        4 => metrics!(H5_SIZE),
-        5 => metrics!(H6_SIZE),
-        other => Err(Error::HeaderDepth(other)),
+#[derive(Copy, Clone, Debug)]
+pub struct FontSize {
+    pub font_size: f32,
+    pub line_height: f32,
+    h1: f32,
+    h2: f32,
+    h3: f32,
+    h4: f32,
+    h5: f32,
+    h6: f32,
+}
+
+impl FontSize {
+    pub fn new(font_size: u16) -> Self {
+        let font_size = font_size as f32;
+        Self {
+            font_size,
+            line_height: font_size * LINE_HEIGHT_FACTOR,
+            h1: font_size * 2.,
+            h2: font_size * 1.5,
+            h3: font_size * 1.17,
+            h4: font_size,
+            h5: font_size,
+            h6: font_size * 0.67,
+        }
+    }
+}
+
+impl FontSize {
+    pub const fn header_metrics(&self, depth: u8) -> Result<Metrics, Error> {
+        match depth {
+            0 => metrics!(self, self.h1),
+            1 => metrics!(self, self.h2),
+            2 => metrics!(self, self.h3),
+            3 => metrics!(self, self.h4),
+            4 => metrics!(self, self.h5),
+            5 => metrics!(self, self.h6),
+            other => Err(Error::HeaderDepth(other)),
+        }
+    }
+}
+
+impl From<&FontSize> for Metrics {
+    fn from(value: &FontSize) -> Self {
+        Self {
+            font_size: value.font_size,
+            line_height: value.line_height,
+        }
     }
 }

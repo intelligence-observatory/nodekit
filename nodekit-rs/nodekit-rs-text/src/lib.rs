@@ -3,14 +3,14 @@ mod justification;
 mod md;
 mod surface;
 
-use crate::md::{FONT_METRICS, FONT_SIZE_ISIZE, FONT_SIZE_USIZE, LINE_HEIGHT_ISIZE, parse};
 use blittle::stride::RGB;
 use blittle::{PositionI, Size, blit, clip};
 use bytemuck::cast_slice_mut;
 use cosmic_text::fontdb::Source;
-use cosmic_text::{Attrs, Buffer, Color, Family, FontSystem, Shaping, SwashCache};
+use cosmic_text::{Attrs, Buffer, Color, Family, FontSystem, Metrics, Shaping, SwashCache};
 pub use error::Error;
 pub use justification::{JustificationHorizontal, JustificationVertical};
+use md::{FontSize, parse};
 use std::sync::Arc;
 use surface::Surface;
 
@@ -23,21 +23,25 @@ impl Text {
     pub fn render(
         &mut self,
         text: &str,
-        size: Size,
+        font_size: u16,
         horizontal: JustificationHorizontal,
         vertical: JustificationVertical,
+        size: Size,
         background_color: [u8; 3],
     ) -> Result<Vec<u8>, Error> {
-        let mut buffer = Buffer::new(&mut self.font_system, FONT_METRICS);
+        let font_size = FontSize::new(font_size);
+        let mut buffer = Buffer::new(&mut self.font_system, Metrics::from(&font_size));
+        let font_usize = font_size.font_size as usize;
+        let line_height_isize = font_size.line_height as isize;
         buffer.set_size(
             &mut self.font_system,
-            Some((size.w - FONT_SIZE_USIZE * 2) as f32),
-            Some((size.h - FONT_SIZE_USIZE * 2) as f32),
+            Some((size.w - font_usize * 2) as f32),
+            Some((size.h - font_usize * 2) as f32),
         );
 
         let mut attrs = Attrs::new();
         attrs.family = Family::SansSerif;
-        let paragraphs = parse(text, attrs.clone())?;
+        let paragraphs = parse(text, &font_size, attrs.clone())?;
         let mut y = 0;
         let mut surfaces = Vec::default();
 
@@ -81,16 +85,16 @@ impl Text {
             });
 
             // Update y
-            y += height as isize + LINE_HEIGHT_ISIZE;
+            y += height as isize + line_height_isize;
         }
 
         // The total height.
-        let height = y - LINE_HEIGHT_ISIZE;
+        let height = y - line_height_isize;
         let y_offset = match vertical {
             JustificationVertical::Top => 0,
             JustificationVertical::Center => size.h as isize / 2 - height / 2,
             JustificationVertical::Bottom => size.h as isize - height,
-        } + FONT_SIZE_ISIZE;
+        } + line_height_isize;
 
         // Blit onto the final surface.
         let mut final_surface = Self::get_surface(size, background_color);
@@ -101,8 +105,7 @@ impl Text {
             };
             let mut src_size = surface.size;
             let mut position_u = clip(&position, &size, &mut src_size);
-            position_u.x = FONT_SIZE_USIZE;
-            println!("{} {}", position_u.x, position_u.y);
+            position_u.x = font_usize;
             blit(
                 &surface.surface,
                 &src_size,
@@ -189,12 +192,13 @@ mod tests {
         let image = text
             .render(
                 include_str!("../lorem.txt"),
+                16,
+                JustificationHorizontal::Left,
+                JustificationVertical::Center,
                 Size {
                     w: width,
                     h: height,
                 },
-                JustificationHorizontal::Left,
-                JustificationVertical::Center,
                 [200, 200, 200],
             )
             .unwrap();

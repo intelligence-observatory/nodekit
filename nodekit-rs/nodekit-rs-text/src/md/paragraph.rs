@@ -1,4 +1,4 @@
-use super::{FONT_METRICS, Span};
+use super::{FontSize, Span};
 use cosmic_text::Metrics;
 
 #[derive(Clone)]
@@ -7,10 +7,10 @@ pub struct Paragraph<'s> {
     pub spans: Vec<Span<'s>>,
 }
 
-impl Default for Paragraph<'_> {
-    fn default() -> Self {
+impl From<&FontSize> for Paragraph<'_> {
+    fn from(value: &FontSize) -> Self {
         Self {
-            metrics: FONT_METRICS,
+            metrics: Metrics::from(value),
             spans: Vec::default(),
         }
     }

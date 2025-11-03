@@ -14,6 +14,7 @@ nodekit-rs-graph = { path = "../nodekit-rs-graph" }
 nodekit-rs-image = { path = "../nodekit-rs-image" }
 nodekit-rs-request = { path = "../nodekit-rs-request" }
 nodekit-rs-response = { path = "../nodekit-rs-response" }
+nodekit-rs-text = { path = "../nodekit-rs-text" }
 nodekit-rs-video = { path = "../nodekit-rs-video" }
 slotmap.workspace = true
 thiserror.workspace = true
