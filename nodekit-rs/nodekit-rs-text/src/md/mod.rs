@@ -48,7 +48,7 @@ fn add_node<'s>(
             attrs.family = Family::Monospace;
             add_span(node.value, attrs, paragraph);
             Ok(())
-        },
+        }
         Node::Emphasis(node) => {
             let mut attrs = attrs.clone();
             attrs.style = Style::Italic;
@@ -105,12 +105,12 @@ fn add_node<'s>(
             attrs.family = Family::Monospace;
             p.spans.push(Span {
                 text: node.value,
-                attrs
+                attrs,
             });
             // Start a new paragraph.
             *paragraph = Some(p);
             Ok(())
-        },
+        }
         Node::Link(node) => children!(node, paragraphs, paragraph, attrs),
         other => {
             let s = other.to_string();
@@ -129,10 +129,7 @@ fn start_paragraph<'s>(paragraphs: &mut Vec<Paragraph<'s>>, paragraph: &mut Opti
 }
 
 fn add_span<'s>(text: String, attrs: Attrs<'s>, paragraph: &mut Option<Paragraph<'s>>) {
-    let span = Span {
-        text,
-        attrs
-    };
+    let span = Span { text, attrs };
     match paragraph.as_mut() {
         Some(paragraph) => {
             paragraph.spans.push(span);
@@ -145,14 +142,13 @@ fn add_span<'s>(text: String, attrs: Attrs<'s>, paragraph: &mut Option<Paragraph
     }
 }
 
-
 /*
-                 // Possibly format the text as a list.
-                    let text = match paragraph.list_state.as_ref() {
-                        Some(list_state) => match list_state {
-                            ListState::Unordered => format!("  • {}", text.value),
-                            ListState::Ordered(o) => format!("  {o}. {}", text.value),
-                        },
-                        None => text.value,
-                    };
- */
+                // Possibly format the text as a list.
+                   let text = match paragraph.list_state.as_ref() {
+                       Some(list_state) => match list_state {
+                           ListState::Unordered => format!("  • {}", text.value),
+                           ListState::Ordered(o) => format!("  {o}. {}", text.value),
+                       },
+                       None => text.value,
+                   };
+*/

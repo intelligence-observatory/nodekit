@@ -2,12 +2,10 @@ mod error;
 mod md;
 
 use crate::md::{FONT_METRICS, parse};
-use cosmic_text::fontdb::{ID, Source};
-use cosmic_text::{
-    Align, Attrs, AttrsOwned, Buffer, Color, Family, FontSystem, Metrics, Shaping, SwashCache,
-};
+use blittle::{PositionI, Size, blit, clip, stride::RGB};
+use cosmic_text::fontdb::Source;
+use cosmic_text::{Align, Attrs, Buffer, Color, Family, FontSystem, Shaping, SwashCache};
 pub use error::Error;
-use std::fmt::Alignment;
 use std::sync::Arc;
 
 pub struct Text {
@@ -19,10 +17,16 @@ pub struct Text {
 
 impl Text {
     // TODO vertical alignment.
-    pub fn render(&mut self, text: &str, w: f32, h: f32, alignment: Align) -> Result<(), Error> {
+    pub fn render(
+        &mut self,
+        text: &str,
+        size: Size,
+        alignment: Align,
+        surface: &mut [u8],
+    ) -> Result<(), Error> {
         let mut buffer = Buffer::new(&mut self.font_system, FONT_METRICS);
         let mut buffer = buffer.borrow_with(&mut self.font_system);
-        buffer.set_size(Some(w), Some(h));
+        buffer.set_size(Some(size.w as f32), Some(size.h as f32));
 
         let mut attrs = Attrs::new();
         attrs.family = Family::SansSerif;
@@ -34,31 +38,43 @@ impl Text {
             buffer.set_metrics(paragraph.metrics);
             // Shape the text.
             buffer.set_rich_text(
-                paragraph.spans
-                    .into_iter()
-                    .map(|span| (span.text.as_str(), span.attrs)),
+                paragraph
+                    .spans
+                    .iter()
+                    .map(|span| (span.text.as_str(), span.attrs.clone())),
                 &attrs,
                 Shaping::Advanced,
                 Some(alignment),
             );
             buffer.shape_until_scroll(true);
             // Empty line.
-            if len > 1 && i < len - 1{
+            if len > 1 && i < len - 1 {
                 buffer.set_metrics(FONT_METRICS);
-                buffer.set_text("\n\n", &attrs, Shaping::Advanced,
-                                Some(alignment));
+                buffer.set_text("\n\n", &attrs, Shaping::Advanced, Some(alignment));
             }
             buffer.shape_until_scroll(true);
         }
 
-
         buffer.draw(
             &mut self.swash_cache,
             Color::rgb(0, 0, 0),
-            |x, y, w, h, color| {
-                // Fill in your code here for drawing rectangles
+            |x, y, w, h, _| {
+                let w = w as usize;
+                let h = h as usize;
+                // Create the base image.
+                let src = vec![0; w * h * RGB];
+                let position = PositionI {
+                    x: x as isize,
+                    y: y as isize,
+                };
+                let mut src_size = Size { w, h };
+                // Clip and blit.
+                let position = clip(&position, &size, &mut src_size);
+                blit(&src, &src_size, surface, &position, &size, RGB);
             },
         );
+
+        Ok(())
     }
 }
 
