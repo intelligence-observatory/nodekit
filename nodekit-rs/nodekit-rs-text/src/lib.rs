@@ -9,7 +9,7 @@ use bytemuck::cast_slice_mut;
 use cosmic_text::fontdb::Source;
 use cosmic_text::{Attrs, Buffer, Color, Family, FontSystem, Metrics, Shaping, SwashCache};
 pub use error::Error;
-pub use justification::{JustificationHorizontal, JustificationVertical};
+pub use justification::{Justification, JustificationHorizontal, JustificationVertical};
 use md::{FontSize, parse};
 use std::sync::Arc;
 use surface::Surface;
@@ -24,8 +24,7 @@ impl Text {
         &mut self,
         text: &str,
         font_size: u16,
-        horizontal: JustificationHorizontal,
-        vertical: JustificationVertical,
+        justification: Justification,
         size: Size,
         text_color: [u8; 3],
         background_color: [u8; 3],
@@ -60,7 +59,7 @@ impl Text {
                     .map(|span| (span.text.as_str(), span.attrs.clone())),
                 &attrs,
                 Shaping::Advanced,
-                Some(horizontal.into()),
+                Some(justification.horizontal.into()),
             );
             buffer.shape_until_scroll(&mut self.font_system, true);
 
@@ -92,7 +91,7 @@ impl Text {
 
         // The total height.
         let height = y - line_height_isize;
-        let y_offset = match vertical {
+        let y_offset = match justification.vertical {
             JustificationVertical::Top => 0,
             JustificationVertical::Center => size.h as isize / 2 - height / 2,
             JustificationVertical::Bottom => size.h as isize - height,
@@ -195,8 +194,10 @@ mod tests {
             .render(
                 include_str!("../lorem.txt"),
                 16,
-                JustificationHorizontal::Left,
-                JustificationVertical::Center,
+                Justification {
+                    horizontal: JustificationHorizontal::Left,
+                    vertical: JustificationVertical::Center,
+                },
                 Size {
                     w: width,
                     h: height,

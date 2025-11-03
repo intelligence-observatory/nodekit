@@ -4,7 +4,7 @@ use blittle::blit;
 use hex_color::HexColor;
 use nodekit_rs_board::{STRIDE, VISUAL_SIZE};
 use nodekit_rs_graph::TextCard;
-use nodekit_rs_text::{JustificationHorizontal, JustificationVertical};
+use nodekit_rs_text::{Justification, JustificationHorizontal, JustificationVertical};
 use slotmap::new_key_type;
 
 new_key_type! { pub struct TextKey; }
@@ -15,8 +15,7 @@ pub struct Text {
     pub font_size: u16,
     pub text_color: [u8; 3],
     pub background_color: [u8; 3],
-    pub justification_horizontal: JustificationHorizontal,
-    pub justification_vertical: JustificationVertical,
+    pub justification: Justification,
 }
 
 impl Text {
@@ -24,12 +23,12 @@ impl Text {
         let text_color = HexColor::parse_rgb(card.text_color.as_str()).map_err(Error::HexColor)?;
         let background_color =
             HexColor::parse_rgb(card.background_color.as_str()).map_err(Error::HexColor)?;
-        let justification_horizontal = match &card.justification_horizontal {
+        let horizontal = match &card.justification_horizontal {
             nodekit_rs_graph::JustificationHorizontal::Left => JustificationHorizontal::Left,
             nodekit_rs_graph::JustificationHorizontal::Center => JustificationHorizontal::Center,
             nodekit_rs_graph::JustificationHorizontal::Right => JustificationHorizontal::Right,
         };
-        let justification_vertical = match &card.justification_vertical {
+        let vertical = match &card.justification_vertical {
             nodekit_rs_graph::JustificationVertical::Top => JustificationVertical::Top,
             nodekit_rs_graph::JustificationVertical::Center => JustificationVertical::Center,
             nodekit_rs_graph::JustificationVertical::Bottom => JustificationVertical::Bottom,
@@ -39,8 +38,10 @@ impl Text {
             font_size: card.font_size.0 as u16,
             text_color: [text_color.r, text_color.g, text_color.b],
             background_color: [background_color.r, background_color.g, background_color.b],
-            justification_horizontal,
-            justification_vertical,
+            justification: Justification {
+                horizontal,
+                vertical,
+            },
         })
     }
 
@@ -54,8 +55,7 @@ impl Text {
             .render(
                 &self.text,
                 self.font_size,
-                self.justification_horizontal,
-                self.justification_vertical,
+                self.justification,
                 card.rect.size,
                 self.text_color,
                 self.background_color,

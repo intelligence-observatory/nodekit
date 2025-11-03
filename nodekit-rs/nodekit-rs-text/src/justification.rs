@@ -1,6 +1,12 @@
 use cosmic_text::Align;
 
 #[derive(Copy, Clone, Default)]
+pub struct Justification {
+    pub horizontal: JustificationHorizontal,
+    pub vertical: JustificationVertical,
+}
+
+#[derive(Copy, Clone, Default)]
 pub enum JustificationHorizontal {
     #[default]
     Left,
