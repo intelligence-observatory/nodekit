@@ -30,6 +30,10 @@ pub fn parse<'s>(text: &str, attrs: Attrs<'s>) -> Result<Vec<Paragraph<'s>>, Err
     let mut paragraphs = vec![];
     let mut paragraph = None;
     add_node(node, &mut paragraphs, &mut paragraph, attrs)?;
+    // Add the last paragraph.
+    if let Some(paragraph) = paragraph {
+        paragraphs.push(paragraph);
+    }
     Ok(paragraphs)
 }
 
