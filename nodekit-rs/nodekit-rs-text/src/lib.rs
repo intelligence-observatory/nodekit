@@ -1,14 +1,18 @@
 mod error;
+mod justification;
 mod md;
+mod surface;
 
 use crate::md::{FONT_METRICS, LINE_HEIGHT_ISIZE, parse};
 use blittle::stride::RGB;
 use blittle::{PositionI, Size, blit, clip};
 use bytemuck::cast_slice_mut;
 use cosmic_text::fontdb::Source;
-use cosmic_text::{Align, Attrs, Buffer, Color, Family, FontSystem, Shaping, SwashCache};
+use cosmic_text::{Attrs, Buffer, Color, Family, FontSystem, Shaping, SwashCache};
 pub use error::Error;
+pub use justification::{JustificationHorizontal, JustificationVertical};
 use std::sync::Arc;
+use surface::Surface;
 
 pub struct Text {
     font_system: FontSystem,
@@ -16,16 +20,14 @@ pub struct Text {
 }
 
 impl Text {
-    // TODO vertical alignment.
     pub fn render(
         &mut self,
         text: &str,
         size: Size,
-        alignment: Align,
+        horizontal: JustificationHorizontal,
+        vertical: JustificationVertical,
         background_color: [u8; 3],
     ) -> Result<Vec<u8>, Error> {
-        let mut final_surface = Self::get_surface(size, background_color);
-
         let mut buffer = Buffer::new(&mut self.font_system, FONT_METRICS);
         buffer.set_size(
             &mut self.font_system,
@@ -36,7 +38,8 @@ impl Text {
         let mut attrs = Attrs::new();
         attrs.family = Family::SansSerif;
         let paragraphs = parse(text, attrs.clone())?;
-        let mut position = PositionI { x: 0, y: 0 };
+        let mut y = 0;
+        let mut surfaces = Vec::default();
         // TODO list
         for paragraph in paragraphs {
             // Set the metrics of this paragraph.
@@ -50,7 +53,7 @@ impl Text {
                     .map(|span| (span.text.as_str(), span.attrs.clone())),
                 &attrs,
                 Shaping::Advanced,
-                Some(alignment),
+                Some(horizontal.into()),
             );
             buffer.shape_until_scroll(&mut self.font_system, true);
 
@@ -61,28 +64,49 @@ impl Text {
                 .sum::<f32>() as usize;
 
             // Create an empty surface.
-            let mut src_size = Size {
+            let src_size = Size {
                 w: size.w,
                 h: height,
             };
             let mut surface = Self::get_surface(src_size, background_color);
-
             // Draw.
             self.draw(src_size, &mut surface, &mut buffer);
+            // Store.
+            surfaces.push(Surface {
+                surface,
+                y,
+                size: src_size,
+            });
 
-            // Blit onto the final surface.
+            // Update y
+            y += height as isize + LINE_HEIGHT_ISIZE;
+        }
+
+        // The total height.
+        let height = y - LINE_HEIGHT_ISIZE;
+        let y_offset = match vertical {
+            JustificationVertical::Top => 0,
+            JustificationVertical::Center => size.h as isize / 2 - height / 2,
+            JustificationVertical::Bottom => size.h as isize - height,
+        };
+
+        // Blit onto the final surface.
+        let mut final_surface = Self::get_surface(size, background_color);
+        for surface in surfaces {
+            let position = PositionI {
+                x: 0,
+                y: surface.y + y_offset,
+            };
+            let mut src_size = surface.size;
             let position_u = clip(&position, &size, &mut src_size);
             blit(
-                &surface,
+                &surface.surface,
                 &src_size,
                 &mut final_surface,
                 &position_u,
                 &size,
                 RGB,
             );
-
-            // Update y
-            position.y += height as isize + LINE_HEIGHT_ISIZE;
         }
 
         Ok(final_surface)
@@ -165,7 +189,8 @@ mod tests {
                     w: width,
                     h: height,
                 },
-                Align::Left,
+                JustificationHorizontal::Left,
+                JustificationVertical::Center,
                 [200, 200, 200],
             )
             .unwrap();
