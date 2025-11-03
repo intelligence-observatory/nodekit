@@ -2,12 +2,13 @@ mod error;
 mod md;
 
 use crate::md::{FONT_METRICS, parse};
-use blittle::{PositionI, Size, blit, clip, stride::RGBA};
-use bytemuck::{cast_slice, cast_slice_mut};
+use bytemuck::cast_slice_mut;
 use cosmic_text::fontdb::Source;
 use cosmic_text::{Align, Attrs, Buffer, Color, Family, FontSystem, Shaping, SwashCache};
 pub use error::Error;
 use std::sync::Arc;
+
+const RGBA: usize = 4;
 
 pub struct Text {
     font_system: FontSystem,
@@ -21,12 +22,13 @@ impl Text {
     pub fn render(
         &mut self,
         text: &str,
-        size: Size,
+        width: usize,
+        height: usize,
         alignment: Align,
         background_color: [u8; 3],
     ) -> Result<Vec<u8>, Error> {
         // Create an empty surface.
-        let mut surface = vec![0; size.w * size.h * RGBA];
+        let mut surface = vec![0; width * height * RGBA];
         // Cast to u32 (RGBA).
         let color = u32::from_le_bytes([
             background_color[0],
@@ -40,8 +42,7 @@ impl Text {
         }
 
         let mut buffer = Buffer::new(&mut self.font_system, FONT_METRICS);
-        let mut buffer = buffer.borrow_with(&mut self.font_system);
-        buffer.set_size(Some(size.w as f32), Some(size.h as f32));
+        buffer.set_size(&mut self.font_system, Some(width as f32), Some(height as f32));
 
         let mut attrs = Attrs::new();
         attrs.family = Family::SansSerif;
@@ -50,9 +51,10 @@ impl Text {
         // TODO list
         for (i, paragraph) in paragraphs.into_iter().enumerate() {
             // Set the metrics of this paragraph.
-            buffer.set_metrics(paragraph.metrics);
+            buffer.set_metrics(&mut self.font_system, paragraph.metrics);
             // Shape the text.
             buffer.set_rich_text(
+                &mut self.font_system,
                 paragraph
                     .spans
                     .iter()
@@ -61,27 +63,34 @@ impl Text {
                 Shaping::Advanced,
                 Some(alignment),
             );
-            buffer.shape_until_scroll(true);
+            buffer.shape_until_scroll(&mut self.font_system, true);
             // Empty line.
             if len > 1 && i < len - 1 {
-                buffer.set_metrics(FONT_METRICS);
-                buffer.set_text("\n\n", &attrs, Shaping::Advanced, Some(alignment));
+                buffer.set_metrics(&mut self.font_system, FONT_METRICS);
+                buffer.set_text(&mut self.font_system, "\n\n", &attrs, Shaping::Advanced, Some(alignment));
             }
-            buffer.shape_until_scroll(true);
+            buffer.shape_until_scroll(&mut self.font_system, true);
+            // Draw.
+            self.draw(width, height, &mut surface, &mut buffer);
         }
-        // Draw.
+
+        Ok(surface)
+    }
+
+    fn draw(&mut self, width: usize, height: usize, surface: &mut [u8], buffer: &mut Buffer) {
         buffer.draw(
+            &mut self.font_system,
             &mut self.swash_cache,
             Color::rgb(0, 0, 0),
             |x, y, w, h, color| {
-                let x1 = (x as usize + w as usize).min(size.w);
-                let y1 = (y as usize + h as usize).min(size.h);
-                let dst = cast_slice_mut::<u8, [u8; 4]>(&mut surface);
+                let x1 = (x as usize + w as usize).min(width);
+                let y1 = (y as usize + h as usize).min(height);
+                let dst = cast_slice_mut::<u8, [u8; 4]>(surface);
                 let alpha = color.a();
                 if alpha > 0 {
                     let alpha = alpha as f64 / 255.;
                     (x as usize..x1).zip(y as usize..y1).for_each(|(x, y)| {
-                        let index = x + y * size.w;
+                        let index = x + y * width;
                         dst[index]
                             .iter_mut()
                             .zip(color.as_rgba())
@@ -93,9 +102,7 @@ impl Text {
                     });
                 }
             },
-        );
-
-        Ok(surface)
+        )
     }
 }
 
@@ -134,14 +141,16 @@ mod tests {
 
     #[test]
     fn test_text_render() {
-        let size = Size { w: 1024, h: 768 };
+        let width = 1024;
+        let height = 768;
 
         // Render the text.
         let mut text = Text::default();
         let image = text
             .render(
                 include_str!("../lorem.txt"),
-                size,
+                width,
+                height,
                 Align::Left,
                 [200, 200, 200],
             )
@@ -150,7 +159,7 @@ mod tests {
         // Write the result as a .png file.
         let file = File::create("out.png").unwrap();
         let ref mut w = BufWriter::new(file);
-        let mut encoder = png::Encoder::new(w, size.w as u32, size.h as u32); // Width is 2 pixels and height is 1.
+        let mut encoder = png::Encoder::new(w, width as u32, height as u32); // Width is 2 pixels and height is 1.
         encoder.set_color(png::ColorType::Rgba);
         encoder.set_depth(png::BitDepth::Eight);
         let mut writer = encoder.write_header().unwrap();
