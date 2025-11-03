@@ -77,7 +77,7 @@ impl Text {
                 let w = w as usize;
                 let h = h as usize;
                 // Create the base image.
-                let src = vec![background_color; w * h];
+                let src = vec![0; w * h * RGB];
                 let position = PositionI {
                     x: x as isize,
                     y: y as isize,
@@ -86,7 +86,7 @@ impl Text {
                 // Clip and blit.
                 let position = clip(&position, &size, &mut src_size);
                 blit(
-                    cast_slice::<[u8; 3], u8>(&src),
+                    &src,
                     &src_size,
                     &mut surface,
                     &position,
@@ -126,5 +126,33 @@ impl Default for Text {
             regular,
             italic,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::fs::File;
+    use std::io::BufWriter;
+    use super::*;
+
+    #[test]
+    fn test_text_render() {
+        let size = Size {
+            w: 1024,
+            h: 768
+        };
+
+        // Render the text.
+        let mut text = Text::default();
+        let image = text.render(include_str!("../lorem.txt"), size, Align::Left, [60, 0, 0]).unwrap();
+
+        // Write the result as a .png file.
+        let file = File::create("out.png").unwrap();
+        let ref mut w = BufWriter::new(file);
+        let mut encoder = png::Encoder::new(w, size.w as u32, size.h as u32); // Width is 2 pixels and height is 1.
+        encoder.set_color(png::ColorType::Rgb);
+        encoder.set_depth(png::BitDepth::Eight);
+        let mut writer = encoder.write_header().unwrap();
+        writer.write_image_data(&image).unwrap();
     }
 }

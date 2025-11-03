@@ -9,3 +9,6 @@ bytemuck.workspace = true
 cosmic-text.workspace = true
 markdown.workspace = true
 thiserror.workspace = true
+
+[dev-dependencies]
+png.workspace = true
