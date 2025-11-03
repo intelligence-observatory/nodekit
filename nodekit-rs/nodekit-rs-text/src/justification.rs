@@ -13,7 +13,7 @@ impl From<JustificationHorizontal> for Align {
         match value {
             JustificationHorizontal::Left => Self::Left,
             JustificationHorizontal::Center => Self::Center,
-            JustificationHorizontal::Right => Self::Right
+            JustificationHorizontal::Right => Self::Right,
         }
     }
 }

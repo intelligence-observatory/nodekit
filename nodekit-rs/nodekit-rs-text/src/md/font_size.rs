@@ -4,6 +4,8 @@ use super::Error;
 use cosmic_text::Metrics;
 
 const FONT_SIZE: f32 = 16.;
+pub const FONT_SIZE_USIZE: usize = 16;
+pub const FONT_SIZE_ISIZE: isize = 16;
 /// FONT_SIZE * 1.2
 const LINE_HEIGHT: f32 = 19.2;
 pub const LINE_HEIGHT_ISIZE: isize = 19;

@@ -3,7 +3,7 @@ mod justification;
 mod md;
 mod surface;
 
-use crate::md::{FONT_METRICS, LINE_HEIGHT_ISIZE, parse};
+use crate::md::{FONT_METRICS, FONT_SIZE_ISIZE, FONT_SIZE_USIZE, LINE_HEIGHT_ISIZE, parse};
 use blittle::stride::RGB;
 use blittle::{PositionI, Size, blit, clip};
 use bytemuck::cast_slice_mut;
@@ -31,8 +31,8 @@ impl Text {
         let mut buffer = Buffer::new(&mut self.font_system, FONT_METRICS);
         buffer.set_size(
             &mut self.font_system,
-            Some(size.w as f32),
-            Some(size.h as f32),
+            Some((size.w - FONT_SIZE_USIZE * 2) as f32),
+            Some((size.h - FONT_SIZE_USIZE * 2) as f32),
         );
 
         let mut attrs = Attrs::new();
@@ -90,7 +90,7 @@ impl Text {
             JustificationVertical::Top => 0,
             JustificationVertical::Center => size.h as isize / 2 - height / 2,
             JustificationVertical::Bottom => size.h as isize - height,
-        };
+        } + FONT_SIZE_ISIZE;
 
         // Blit onto the final surface.
         let mut final_surface = Self::get_surface(size, background_color);
@@ -100,7 +100,9 @@ impl Text {
                 y: surface.y + y_offset,
             };
             let mut src_size = surface.size;
-            let position_u = clip(&position, &size, &mut src_size);
+            let mut position_u = clip(&position, &size, &mut src_size);
+            position_u.x = FONT_SIZE_USIZE;
+            println!("{} {}", position_u.x, position_u.y);
             blit(
                 &surface.surface,
                 &src_size,
