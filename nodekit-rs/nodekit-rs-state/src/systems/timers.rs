@@ -5,6 +5,7 @@ use slotmap::{SecondaryMap, SlotMap};
 pub enum TimedEntityKey {
     Card(CardKey),
     Sensor(SensorKey),
+    Effect(EffectKey),
 }
 
 #[derive(Default)]
@@ -24,6 +25,12 @@ impl Timers {
         let timer_key = self.timers.insert(timer);
         self.entities
             .insert(timer_key, TimedEntityKey::Sensor(sensor_key));
+    }
+
+    pub fn add_effect(&mut self, timer: Timer, effect_key: EffectKey) {
+        let timer_key = self.timers.insert(timer);
+        self.entities
+            .insert(timer_key, TimedEntityKey::Effect(effect_key));
     }
 
     pub fn tick(&mut self) {

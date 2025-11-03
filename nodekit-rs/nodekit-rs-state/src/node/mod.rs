@@ -82,11 +82,12 @@ impl Node {
         let board_color = HexColor::parse(node.board_color.as_str()).map_err(Error::HexColor)?;
         let board_color = [board_color.r, board_color.g, board_color.b];
         let sensors = Self::add_sensors(node, &cards_result.card_ids, &mut timers);
+        let effects = Self::add_effects(node, &mut timers);
         let node = Node {
             cards: cards_result.cards,
             timers,
             sensors,
-            effects: Effects::default(),
+            effects,
             board_color,
             state: Default::default(),
         };
@@ -139,7 +140,7 @@ impl Node {
             // Update all cards.
             self.tick_cards(text_engine, board, &mut result)?;
             // Blit the cursor.
-            blit_cursor(cursor.x, cursor.y, board);
+            self.tick_cursor(*cursor, board);
         }
         Ok(result)
     }
@@ -153,6 +154,9 @@ impl Node {
                 }
                 TimedEntityKey::Sensor(key) => {
                     self.sensors.sensors[key].state = timer.state;
+                }
+                TimedEntityKey::Effect(key) => {
+                    self.effects.effects[key] = timer.state;
                 }
             }
         }
@@ -227,6 +231,18 @@ impl Node {
             });
         }
         Ok(())
+    }
+
+    fn tick_cursor(&self, cursor: DVec2, board: &mut [u8]) {
+        if !self.effects.hide_pointer_effects.keys().any(|k| {
+            let effect_key = self.effects.components[k];
+            matches!(
+                self.effects.effects[effect_key],
+                EntityState::StartedNow | EntityState::Active | EntityState::EndedNow
+            )
+        }) {
+            blit_cursor(cursor.x, cursor.y, board);
+        }
     }
 
     fn on_action(&mut self, action: Option<Action>, cursor: &mut DVec2, response: &mut Response) {
@@ -375,5 +391,19 @@ impl Node {
             }
         }
         sensors
+    }
+
+    fn add_effects(node: &nodekit_rs_graph::Node, timers: &mut Timers) -> Effects {
+        let mut effects = Effects::default();
+        for effect in node.effects.iter() {
+            let effect_key = effects.effects.insert(EntityState::default());
+            let hide_pointer_key = effects.hide_pointer_effects.insert(());
+            effects.components.insert(hide_pointer_key, effect_key);
+            timers.add_effect(
+                Timer::new(effect.start_msec, Some(effect.end_msec)),
+                effect_key,
+            );
+        }
+        effects
     }
 }

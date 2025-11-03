@@ -1,7 +1,4 @@
 use slotmap::new_key_type;
 
 new_key_type! { pub struct EffectKey; }
-
-pub enum Effect {
-    HidePointerEffect,
-}
+new_key_type! { pub struct HidePointerEffectKey; }
