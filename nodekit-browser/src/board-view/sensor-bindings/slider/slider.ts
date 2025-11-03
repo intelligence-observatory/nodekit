@@ -17,8 +17,6 @@ export type SliderSample = {
 
 type SliderSubscriber = (sample: SliderSample) => void;
 
-
-
 export class SliderSensorBinding extends SensorBinding {
     prepare(
         sensor: SliderSensor,

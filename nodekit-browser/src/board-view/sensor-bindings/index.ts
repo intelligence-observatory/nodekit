@@ -19,6 +19,11 @@ export abstract class SensorBinding {
         this.subscriptions.forEach(cb => cb(sensorValue));
     }
 
+    /**
+     * Called when the NodePlay begins.
+     */
+    public onStart(){}
+
     public subscribe(
         callback: (sensorValue: SensorValue) => void
     ): void {

@@ -5,6 +5,7 @@ import {SliderSensorBinding} from "./slider/slider.ts";
 import {FreeTextEntrySensorBinding} from "./free-text-entry/free-text-entry.ts";
 import {KeySensorBinding} from "./key";
 import {ClickSensorBinding} from "./click";
+import {WaitSensorBinding} from "./wait";
 
 export function createSensorBinding(
     sensor: Sensor,
@@ -28,6 +29,10 @@ export function createSensorBinding(
         }
         case "FreeTextEntrySensor": {
             sensorBinding = new FreeTextEntrySensorBinding();
+            break
+        }
+        case "WaitSensor": {
+            sensorBinding = new WaitSensorBinding();
             break
         }
         default: {

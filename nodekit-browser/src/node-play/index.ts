@@ -111,6 +111,15 @@ export class NodePlay {
             sensorBinding.subscribe(
                 (sensorValue: SensorValue): void => (this.sensorEventHandler(sensorId, sensorValue))
             )
+            this.scheduler.scheduleEvent(
+                {
+                    triggerTimeMsec: 0,
+                    triggerFunc: () => {
+                        sensorBinding.onStart();
+                    },
+                }
+            )
+
             this.currentSensorValues[sensorId] = null;
         }
 
