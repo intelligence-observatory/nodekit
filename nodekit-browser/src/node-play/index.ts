@@ -198,7 +198,6 @@ export class NodePlay {
         // Clean up NodePlay:
         this.scheduler.stop();
 
-
         return {
             action: action,
         }

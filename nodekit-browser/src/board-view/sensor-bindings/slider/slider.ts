@@ -24,8 +24,6 @@ export class SliderSensorBinding extends SensorBinding {
         sensor: SliderSensor,
         boardView: BoardView
     ) {
-        // Wire in old SliderCard
-
         const sliderCardView = new SliderSensorView(
             sensor,
             boardView.getCoordinateSystem()
