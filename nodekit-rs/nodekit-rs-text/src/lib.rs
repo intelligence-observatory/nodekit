@@ -2,7 +2,7 @@ mod error;
 mod md;
 
 use crate::md::{FONT_METRICS, parse};
-use blittle::{PositionI, Size, blit, clip, stride::RGB};
+use blittle::{PositionI, Size, blit, clip, stride::RGBA};
 use bytemuck::{cast_slice, cast_slice_mut};
 use cosmic_text::fontdb::Source;
 use cosmic_text::{Align, Attrs, Buffer, Color, Family, FontSystem, Shaping, SwashCache};
@@ -26,15 +26,18 @@ impl Text {
         background_color: [u8; 3],
     ) -> Result<Vec<u8>, Error> {
         // Create an empty surface.
-        let mut surface = vec![0; size.w * size.h * RGB];
+        let mut surface = vec![0; size.w * size.h * RGBA];
+        // Cast to u32 (RGBA).
+        let color = u32::from_le_bytes([
+            background_color[0],
+            background_color[1],
+            background_color[2],
+            255,
+        ]);
         // Fill the surface.
-        cast_slice_mut::<u8, [u8; 3]>(&mut surface)
-            .iter_mut()
-            .for_each(|pixel| {
-                pixel[0] = background_color[0];
-                pixel[1] = background_color[1];
-                pixel[2] = background_color[2];
-            });
+        for pixel in cast_slice_mut::<u8, u32>(&mut surface) {
+            *pixel = color;
+        }
 
         let mut buffer = Buffer::new(&mut self.font_system, FONT_METRICS);
         let mut buffer = buffer.borrow_with(&mut self.font_system);
@@ -42,7 +45,6 @@ impl Text {
 
         let mut attrs = Attrs::new();
         attrs.family = Family::SansSerif;
-        attrs.metrics_opt = Some(FONT_METRICS.into());
         let paragraphs = parse(text, attrs.clone())?;
         let len = paragraphs.len();
         // TODO list
@@ -67,34 +69,29 @@ impl Text {
             }
             buffer.shape_until_scroll(true);
         }
-        // Update max y.
-        let mut max_y = 0;
         // Draw.
         buffer.draw(
             &mut self.swash_cache,
             Color::rgb(0, 0, 0),
-            |x, y, w, h, _| {
-                let w = w as usize;
-                let h = h as usize;
-                // Create the base image.
-                let src = vec![0; w * h * RGB];
-                let position = PositionI {
-                    x: x as isize,
-                    y: y as isize,
-                };
-                let mut src_size = Size { w, h };
-                // Clip and blit.
-                let position = clip(&position, &size, &mut src_size);
-                blit(
-                    &src,
-                    &src_size,
-                    &mut surface,
-                    &position,
-                    &size,
-                    RGB,
-                );
-                // Update the max y.
-                max_y = max_y.max((position.y + h).min(size.h));
+            |x, y, w, h, color| {
+                let x1 = (x as usize + w as usize).min(size.w);
+                let y1 = (y as usize + h as usize).min(size.h);
+                let dst = cast_slice_mut::<u8, [u8; 4]>(&mut surface);
+                let alpha = color.a();
+                if alpha > 0 {
+                    let alpha = alpha as f64 / 255.;
+                    (x as usize..x1).zip(y as usize..y1).for_each(|(x, y)| {
+                        let index = x + y * size.w;
+                        dst[index]
+                            .iter_mut()
+                            .zip(color.as_rgba())
+                            .for_each(|(below, above)| {
+                                // Source: https://www.reddit.com/r/rust/comments/mvbn2g/compositing_colors/
+                                let result = *below as f64 * (1. - alpha) + above as f64 * alpha;
+                                *below = result.round() as u8
+                            });
+                    });
+                }
             },
         );
 
@@ -131,26 +128,30 @@ impl Default for Text {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
     use std::fs::File;
     use std::io::BufWriter;
-    use super::*;
 
     #[test]
     fn test_text_render() {
-        let size = Size {
-            w: 1024,
-            h: 768
-        };
+        let size = Size { w: 1024, h: 768 };
 
         // Render the text.
         let mut text = Text::default();
-        let image = text.render(include_str!("../lorem.txt"), size, Align::Left, [60, 0, 0]).unwrap();
+        let image = text
+            .render(
+                include_str!("../lorem.txt"),
+                size,
+                Align::Left,
+                [200, 200, 200],
+            )
+            .unwrap();
 
         // Write the result as a .png file.
         let file = File::create("out.png").unwrap();
         let ref mut w = BufWriter::new(file);
         let mut encoder = png::Encoder::new(w, size.w as u32, size.h as u32); // Width is 2 pixels and height is 1.
-        encoder.set_color(png::ColorType::Rgb);
+        encoder.set_color(png::ColorType::Rgba);
         encoder.set_depth(png::BitDepth::Eight);
         let mut writer = encoder.write_header().unwrap();
         writer.write_image_data(&image).unwrap();
