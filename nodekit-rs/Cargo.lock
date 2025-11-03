@@ -1273,6 +1273,7 @@ name = "nodekit-rs-text"
 version = "0.1.0"
 dependencies = [
  "blittle",
+ "bytemuck",
  "cosmic-text",
  "markdown",
  "thiserror 2.0.17",

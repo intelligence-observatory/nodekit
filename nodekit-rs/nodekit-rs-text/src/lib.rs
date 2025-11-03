@@ -54,7 +54,9 @@ impl Text {
             }
             buffer.shape_until_scroll(true);
         }
-
+        // Update max y.
+        let mut max_y = 0;
+        // Draw.
         buffer.draw(
             &mut self.swash_cache,
             Color::rgb(0, 0, 0),
@@ -71,6 +73,8 @@ impl Text {
                 // Clip and blit.
                 let position = clip(&position, &size, &mut src_size);
                 blit(&src, &src_size, surface, &position, &size, RGB);
+                // Update the max y.
+                max_y = max_y.max((position.y + h).min(size.h));
             },
         );
 
