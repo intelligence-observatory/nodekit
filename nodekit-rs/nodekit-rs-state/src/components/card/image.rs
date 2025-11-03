@@ -27,7 +27,7 @@ impl Image {
         })
     }
 
-    pub fn blit(&self, card: &Card, visual: &mut [u8]) -> Result<(), Error> {
+    pub fn blit(&self, card: &Card, board: &mut [u8]) -> Result<(), Error> {
         let mut frame = from_png(&self.path).map_err(Error::Image)?;
         frame
             .resize(self.width, self.height)
@@ -35,7 +35,7 @@ impl Image {
         blit(
             &frame.buffer,
             &card.rect.size,
-            visual,
+            board,
             &card.rect.position,
             &VISUAL_SIZE,
             STRIDE,

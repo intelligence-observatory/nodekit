@@ -32,10 +32,11 @@ pub struct State {
     /// This is sent as part of the `Response`.
     pub nodekit_version: String,
     /// An allocated visual board.
-    visual: Vec<u8>,
+    board: Vec<u8>,
     /// If true, the graph is done.
     finished: bool,
     cursor: DVec2,
+    text_engine: nodekit_rs_text::Text,
 }
 
 impl State {
@@ -70,9 +71,10 @@ impl State {
             nodes,
             transitions,
             nodekit_version: value.nodekit_version.clone(),
-            visual: vec![0; VISUAL_D * VISUAL_D * STRIDE],
+            board: vec![0; VISUAL_D * VISUAL_D * STRIDE],
             finished: false,
             cursor: DVec2::default(),
+            text_engine: nodekit_rs_text::Text::default(),
         })
     }
 
@@ -80,8 +82,12 @@ impl State {
         if self.finished {
             Ok(Response::finished())
         } else {
-            let response =
-                self.nodes[self.current].tick(action, &mut self.cursor, &mut self.visual)?;
+            let response = self.nodes[self.current].tick(
+                action,
+                &mut self.cursor,
+                &mut self.text_engine,
+                &mut self.board,
+            )?;
             // This node ended. Try to get the next node.
             if response.finished {
                 match response.sensor.as_ref() {

@@ -12,7 +12,7 @@ pub struct Cards {
     pub cards: SlotMap<CardKey, Card>,
     pub order: Vec<CardKey>,
     pub components: SecondaryMap<CardKey, CardComponentKey>,
-    pub images: SlotMap<ImageKey, (Image, CardKey)>,
+    pub images: SlotMap<ImageKey, Image>,
     pub text: SlotMap<TextKey, Text>,
-    pub videos: SlotMap<VideoKey, (Video, CardKey)>,
+    pub videos: SlotMap<VideoKey, Video>,
 }

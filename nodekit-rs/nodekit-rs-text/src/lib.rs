@@ -27,6 +27,7 @@ impl Text {
         horizontal: JustificationHorizontal,
         vertical: JustificationVertical,
         size: Size,
+        text_color: [u8; 3],
         background_color: [u8; 3],
     ) -> Result<Vec<u8>, Error> {
         let font_size = FontSize::new(font_size);
@@ -39,7 +40,8 @@ impl Text {
             Some((size.h - font_usize * 2) as f32),
         );
 
-        let mut attrs = Attrs::new();
+        let text_color = Color::rgb(text_color[0], text_color[1], text_color[2]);
+        let mut attrs = Attrs::new().color(text_color);
         attrs.family = Family::SansSerif;
         let paragraphs = parse(text, &font_size, attrs.clone())?;
         let mut y = 0;
@@ -76,7 +78,7 @@ impl Text {
             };
             let mut surface = Self::get_surface(src_size, background_color);
             // Draw.
-            self.draw(src_size, &mut surface, &mut buffer);
+            self.draw(text_color, src_size, &mut surface, &mut buffer);
             // Store.
             surfaces.push(Surface {
                 surface,
@@ -126,11 +128,11 @@ impl Text {
         surface
     }
 
-    fn draw(&mut self, size: Size, surface: &mut [u8], buffer: &mut Buffer) {
+    fn draw(&mut self, text_color: Color, size: Size, surface: &mut [u8], buffer: &mut Buffer) {
         buffer.draw(
             &mut self.font_system,
             &mut self.swash_cache,
-            Color::rgb(0, 0, 0),
+            text_color,
             |x, y, w, h, color| {
                 let x1 = (x as usize + w as usize).min(size.w);
                 let y1 = (y as usize + h as usize).min(size.h);
@@ -199,6 +201,7 @@ mod tests {
                     w: width,
                     h: height,
                 },
+                [0, 0, 0],
                 [200, 200, 200],
             )
             .unwrap();

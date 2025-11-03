@@ -55,7 +55,6 @@ macro_rules! sensor_and_timer {
 macro_rules! blit_video {
     ($self:ident, $video_key:ident, $card:ident, $visual:ident, $blitted:ident, $frame:ident) => {{
         let video_result = $self.cards.videos[*$video_key]
-            .0
             .blit($card, $visual)
             .map_err(Error::Video)?;
         if video_result.blitted {
@@ -121,6 +120,7 @@ impl Node {
         &mut self,
         action: Option<Action>,
         cursor: &mut DVec2,
+        text_engine: &mut nodekit_rs_text::Text,
         board: &mut [u8],
     ) -> Result<Response, Error> {
         if self.state == EntityState::Pending {
@@ -137,7 +137,7 @@ impl Node {
             // Tick all timers.
             self.tick_timers();
             // Update all cards.
-            self.tick_cards(board, &mut result)?;
+            self.tick_cards(text_engine, board, &mut result)?;
             // Blit the cursor.
             blit_cursor(cursor.x, cursor.y, board);
         }
@@ -171,7 +171,12 @@ impl Node {
         ended
     }
 
-    fn tick_cards(&mut self, board: &mut [u8], response: &mut Response) -> Result<(), Error> {
+    fn tick_cards(
+        &mut self,
+        text_engine: &mut nodekit_rs_text::Text,
+        board: &mut [u8],
+        response: &mut Response,
+    ) -> Result<(), Error> {
         let mut blitted = false;
         for card_key in self.cards.order.iter() {
             let card_key = *card_key;
@@ -181,14 +186,16 @@ impl Node {
                 EntityState::Pending | EntityState::Finished => (),
                 EntityState::StartedNow => match &self.cards.components[card_key] {
                     CardComponentKey::Image(image_key) => {
-                        let (image, _) = &self.cards.images[*image_key];
-                        image.blit(card, board)?;
+                        self.cards.images[*image_key].blit(card, board)?;
                         blitted = true;
                     }
                     CardComponentKey::Video(video_key) => {
                         blit_video!(self, video_key, card, board, blitted, response);
                     }
-                    CardComponentKey::Text(_) => todo!("blit text"),
+                    CardComponentKey::Text(text_key) => {
+                        self.cards.text[*text_key].blit(text_engine, card, board)?;
+                        blitted = true;
+                    }
                 },
                 EntityState::Active => {
                     if let CardComponentKey::Video(video_key) = &self.cards.components[card_key] {
@@ -263,17 +270,24 @@ impl Node {
             match card {
                 NodeCardsValue::ImageCard(image) => {
                     // Add an image.
-                    let image_key = cards.images.insert((Image::new(image)?, card_key));
+                    let image_key = cards.images.insert(Image::new(image)?);
                     cards
                         .components
                         .insert(card_key, CardComponentKey::Image(image_key));
                 }
                 NodeCardsValue::VideoCard(video) => {
                     // Add a video.
-                    let video_key = cards.videos.insert((Video::new(video)?, card_key));
+                    let video_key = cards.videos.insert(Video::new(video)?);
                     cards
                         .components
                         .insert(card_key, CardComponentKey::Video(video_key));
+                }
+                NodeCardsValue::TextCard(text) => {
+                    // Add text.
+                    let text_key = cards.text.insert(Text::new(text)?);
+                    cards
+                        .components
+                        .insert(card_key, CardComponentKey::Text(text_key));
                 }
                 _ => (),
             }
