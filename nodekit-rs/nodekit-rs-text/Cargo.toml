@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+blittle.workspace = true
 bytemuck.workspace = true
 cosmic-text.workspace = true
 markdown.workspace = true

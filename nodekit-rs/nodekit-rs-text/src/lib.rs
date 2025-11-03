@@ -1,14 +1,14 @@
 mod error;
 mod md;
 
-use crate::md::{FONT_METRICS, parse};
+use crate::md::{FONT_METRICS, parse, LINE_HEIGHT_ISIZE};
 use bytemuck::cast_slice_mut;
 use cosmic_text::fontdb::Source;
 use cosmic_text::{Align, Attrs, Buffer, Color, Family, FontSystem, Shaping, SwashCache};
 pub use error::Error;
 use std::sync::Arc;
-
-const RGBA: usize = 4;
+use blittle::{blit, clip, PositionI, Size};
+use blittle::stride::RGB;
 
 pub struct Text {
     font_system: FontSystem,
@@ -22,32 +22,22 @@ impl Text {
     pub fn render(
         &mut self,
         text: &str,
-        width: usize,
-        height: usize,
+        size: Size,
         alignment: Align,
         background_color: [u8; 3],
     ) -> Result<Vec<u8>, Error> {
-        // Create an empty surface.
-        let mut surface = vec![0; width * height * RGBA];
-        // Cast to u32 (RGBA).
-        let color = u32::from_le_bytes([
-            background_color[0],
-            background_color[1],
-            background_color[2],
-            255,
-        ]);
-        // Fill the surface.
-        for pixel in cast_slice_mut::<u8, u32>(&mut surface) {
-            *pixel = color;
-        }
+        let mut final_surface = Self::get_surface(size, background_color);
 
         let mut buffer = Buffer::new(&mut self.font_system, FONT_METRICS);
-        buffer.set_size(&mut self.font_system, Some(width as f32), Some(height as f32));
+        buffer.set_size(&mut self.font_system, Some(size.w as f32), Some(size.h as f32));
 
         let mut attrs = Attrs::new();
         attrs.family = Family::SansSerif;
         let paragraphs = parse(text, attrs.clone())?;
-        let len = paragraphs.len();
+        let mut position = PositionI {
+            x: 0,
+            y: 0
+        };
         // TODO list
         for (i, paragraph) in paragraphs.into_iter().enumerate() {
             // Set the metrics of this paragraph.
@@ -64,33 +54,52 @@ impl Text {
                 Some(alignment),
             );
             buffer.shape_until_scroll(&mut self.font_system, true);
-            // Empty line.
-            if len > 1 && i < len - 1 {
-                buffer.set_metrics(&mut self.font_system, FONT_METRICS);
-                buffer.set_text(&mut self.font_system, "\n\n", &attrs, Shaping::Advanced, Some(alignment));
-            }
-            buffer.shape_until_scroll(&mut self.font_system, true);
+
+            // Get the total rendered height.
+            let height = buffer.layout_runs().map(|layout| layout.line_height).sum::<f32>() as usize;
+
+            // Create an empty surface.
+            let mut src_size = Size {
+                w: size.w,
+                h: height
+            };
+            let mut surface = Self::get_surface(src_size, background_color);
+
             // Draw.
-            self.draw(width, height, &mut surface, &mut buffer);
+            self.draw(src_size, &mut surface, &mut buffer);
+
+            // Blit onto the final surface.
+            let position_u = clip(&position, &size, &mut src_size);
+            blit(&surface, &src_size, &mut final_surface, &position_u, &size, RGB);
+
+            // Update y
+            position.y += height as isize + LINE_HEIGHT_ISIZE;
         }
 
-        Ok(surface)
+        Ok(final_surface)
     }
 
-    fn draw(&mut self, width: usize, height: usize, surface: &mut [u8], buffer: &mut Buffer) {
+    fn get_surface(size: Size, color: [u8; 3]) -> Vec<u8> {
+        let mut surface = vec![0; size.w * size.h * RGB];
+        // Fill the surface.
+        cast_slice_mut::<u8, [u8; 3]>(&mut surface).copy_from_slice(&vec![color; size.w * size.h]);
+        surface
+    }
+
+    fn draw(&mut self, size: Size, surface: &mut [u8], buffer: &mut Buffer) {
         buffer.draw(
             &mut self.font_system,
             &mut self.swash_cache,
             Color::rgb(0, 0, 0),
             |x, y, w, h, color| {
-                let x1 = (x as usize + w as usize).min(width);
-                let y1 = (y as usize + h as usize).min(height);
-                let dst = cast_slice_mut::<u8, [u8; 4]>(surface);
+                let x1 = (x as usize + w as usize).min(size.w);
+                let y1 = (y as usize + h as usize).min(size.h);
+                let dst = cast_slice_mut::<u8, [u8; 3]>(surface);
                 let alpha = color.a();
                 if alpha > 0 {
                     let alpha = alpha as f64 / 255.;
                     (x as usize..x1).zip(y as usize..y1).for_each(|(x, y)| {
-                        let index = x + y * width;
+                        let index = x + y * size.w;
                         dst[index]
                             .iter_mut()
                             .zip(color.as_rgba())
@@ -149,8 +158,10 @@ mod tests {
         let image = text
             .render(
                 include_str!("../lorem.txt"),
-                width,
-                height,
+                Size {
+                    w: width,
+                    h: height
+                },
                 Align::Left,
                 [200, 200, 200],
             )
@@ -160,7 +171,7 @@ mod tests {
         let file = File::create("out.png").unwrap();
         let ref mut w = BufWriter::new(file);
         let mut encoder = png::Encoder::new(w, width as u32, height as u32); // Width is 2 pixels and height is 1.
-        encoder.set_color(png::ColorType::Rgba);
+        encoder.set_color(png::ColorType::Rgb);
         encoder.set_depth(png::BitDepth::Eight);
         let mut writer = encoder.write_header().unwrap();
         writer.write_image_data(&image).unwrap();
