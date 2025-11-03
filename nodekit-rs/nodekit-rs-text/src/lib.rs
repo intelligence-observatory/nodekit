@@ -58,10 +58,11 @@ impl Text {
             buffer.shape_until_scroll(&mut self.font_system, true);
 
             // Get the total rendered height.
-            let height = buffer
+            let height = (buffer
                 .layout_runs()
                 .map(|layout| layout.line_height)
-                .sum::<f32>() as usize;
+                .sum::<f32>()
+                * 1.2) as usize;
 
             // Create an empty surface.
             let src_size = Size {

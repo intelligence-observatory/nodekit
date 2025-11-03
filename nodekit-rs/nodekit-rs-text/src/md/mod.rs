@@ -78,6 +78,8 @@ fn add_node<'s>(
             if let Some(paragraph) = paragraph {
                 paragraph.metrics = header_metrics(node.depth)?;
             }
+            let mut attrs = attrs.clone();
+            attrs.weight = Weight::BOLD;
             children!(node, paragraphs, paragraph, attrs)
         }
         Node::List(node) => {
