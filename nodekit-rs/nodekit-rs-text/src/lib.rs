@@ -1,14 +1,14 @@
 mod error;
 mod md;
 
-use crate::md::{FONT_METRICS, parse, LINE_HEIGHT_ISIZE};
+use crate::md::{FONT_METRICS, LINE_HEIGHT_ISIZE, parse};
+use blittle::stride::RGB;
+use blittle::{PositionI, Size, blit, clip};
 use bytemuck::cast_slice_mut;
 use cosmic_text::fontdb::Source;
 use cosmic_text::{Align, Attrs, Buffer, Color, Family, FontSystem, Shaping, SwashCache};
 pub use error::Error;
 use std::sync::Arc;
-use blittle::{blit, clip, PositionI, Size};
-use blittle::stride::RGB;
 
 pub struct Text {
     font_system: FontSystem,
@@ -29,15 +29,16 @@ impl Text {
         let mut final_surface = Self::get_surface(size, background_color);
 
         let mut buffer = Buffer::new(&mut self.font_system, FONT_METRICS);
-        buffer.set_size(&mut self.font_system, Some(size.w as f32), Some(size.h as f32));
+        buffer.set_size(
+            &mut self.font_system,
+            Some(size.w as f32),
+            Some(size.h as f32),
+        );
 
         let mut attrs = Attrs::new();
         attrs.family = Family::SansSerif;
         let paragraphs = parse(text, attrs.clone())?;
-        let mut position = PositionI {
-            x: 0,
-            y: 0
-        };
+        let mut position = PositionI { x: 0, y: 0 };
         // TODO list
         for (i, paragraph) in paragraphs.into_iter().enumerate() {
             // Set the metrics of this paragraph.
@@ -56,12 +57,15 @@ impl Text {
             buffer.shape_until_scroll(&mut self.font_system, true);
 
             // Get the total rendered height.
-            let height = buffer.layout_runs().map(|layout| layout.line_height).sum::<f32>() as usize;
+            let height = buffer
+                .layout_runs()
+                .map(|layout| layout.line_height)
+                .sum::<f32>() as usize;
 
             // Create an empty surface.
             let mut src_size = Size {
                 w: size.w,
-                h: height
+                h: height,
             };
             let mut surface = Self::get_surface(src_size, background_color);
 
@@ -70,7 +74,14 @@ impl Text {
 
             // Blit onto the final surface.
             let position_u = clip(&position, &size, &mut src_size);
-            blit(&surface, &src_size, &mut final_surface, &position_u, &size, RGB);
+            blit(
+                &surface,
+                &src_size,
+                &mut final_surface,
+                &position_u,
+                &size,
+                RGB,
+            );
 
             // Update y
             position.y += height as isize + LINE_HEIGHT_ISIZE;
@@ -160,7 +171,7 @@ mod tests {
                 include_str!("../lorem.txt"),
                 Size {
                     w: width,
-                    h: height
+                    h: height,
                 },
                 Align::Left,
                 [200, 200, 200],

@@ -124,7 +124,9 @@ fn add_node<'s>(
 
 fn start_paragraph<'s>(paragraphs: &mut Vec<Paragraph<'s>>, paragraph: &mut Option<Paragraph<'s>>) {
     // End the current paragraph.
-    if let Some(paragraph) = &paragraph {
+    if let Some(paragraph) = &paragraph
+        && !paragraph.spans.is_empty()
+    {
         paragraphs.push(paragraph.clone());
     }
     // Start a new paragraph.
