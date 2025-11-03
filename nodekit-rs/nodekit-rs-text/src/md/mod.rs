@@ -81,7 +81,6 @@ fn add_node<'s>(
             children!(node, paragraphs, paragraph, attrs)
         }
         Node::List(node) => {
-            start_paragraph(paragraphs, paragraph);
             let mut list_states = Vec::default();
             // Add the nodes, using the list order.
             for (i, child) in node.children.into_iter().enumerate() {
