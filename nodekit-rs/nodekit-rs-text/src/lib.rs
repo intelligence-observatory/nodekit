@@ -3,6 +3,7 @@ mod md;
 
 use crate::md::{FONT_METRICS, parse};
 use blittle::{PositionI, Size, blit, clip, stride::RGB};
+use bytemuck::{cast_slice, cast_slice_mut};
 use cosmic_text::fontdb::Source;
 use cosmic_text::{Align, Attrs, Buffer, Color, Family, FontSystem, Shaping, SwashCache};
 pub use error::Error;
@@ -22,8 +23,19 @@ impl Text {
         text: &str,
         size: Size,
         alignment: Align,
-        surface: &mut [u8],
-    ) -> Result<(), Error> {
+        background_color: [u8; 3],
+    ) -> Result<Vec<u8>, Error> {
+        // Create an empty surface.
+        let mut surface = vec![0; size.w * size.h * RGB];
+        // Fill the surface.
+        cast_slice_mut::<u8, [u8; 3]>(&mut surface)
+            .iter_mut()
+            .for_each(|pixel| {
+                pixel[0] = background_color[0];
+                pixel[1] = background_color[1];
+                pixel[2] = background_color[2];
+            });
+
         let mut buffer = Buffer::new(&mut self.font_system, FONT_METRICS);
         let mut buffer = buffer.borrow_with(&mut self.font_system);
         buffer.set_size(Some(size.w as f32), Some(size.h as f32));
@@ -33,6 +45,7 @@ impl Text {
         attrs.metrics_opt = Some(FONT_METRICS.into());
         let paragraphs = parse(text, attrs.clone())?;
         let len = paragraphs.len();
+        // TODO list
         for (i, paragraph) in paragraphs.into_iter().enumerate() {
             // Set the metrics of this paragraph.
             buffer.set_metrics(paragraph.metrics);
@@ -64,7 +77,7 @@ impl Text {
                 let w = w as usize;
                 let h = h as usize;
                 // Create the base image.
-                let src = vec![0; w * h * RGB];
+                let src = vec![background_color; w * h];
                 let position = PositionI {
                     x: x as isize,
                     y: y as isize,
@@ -72,13 +85,20 @@ impl Text {
                 let mut src_size = Size { w, h };
                 // Clip and blit.
                 let position = clip(&position, &size, &mut src_size);
-                blit(&src, &src_size, surface, &position, &size, RGB);
+                blit(
+                    cast_slice::<[u8; 3], u8>(&src),
+                    &src_size,
+                    &mut surface,
+                    &position,
+                    &size,
+                    RGB,
+                );
                 // Update the max y.
                 max_y = max_y.max((position.y + h).min(size.h));
             },
         );
 
-        Ok(())
+        Ok(surface)
     }
 }
 
