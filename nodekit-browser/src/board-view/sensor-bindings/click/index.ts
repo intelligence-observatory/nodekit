@@ -7,14 +7,13 @@ import {SensorBinding} from "../index.ts";
 /**
  *
  */
-export class ClickSensorBinding extends SensorBinding {
+export class ClickSensorBinding extends SensorBinding<ClickSensor> {
 
     prepare(
-        sensor: ClickSensor,
         boardView: BoardView
     ) {
 
-        const region = sensor.region;
+        const region = this.sensor.region;
 
         const clickCallback = (pointerSample: PointerSample) => {
             if (pointerSample.sampleType !== 'down') {

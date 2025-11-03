@@ -5,13 +5,12 @@ import type {FreeTextEntryState} from "../../../types/actions";
 import {SensorBinding} from "../index.ts";
 
 
-export class FreeTextEntrySensorBinding extends SensorBinding {
+export class FreeTextEntrySensorBinding extends SensorBinding<FreeTextEntrySensor> {
     prepare(
-        sensor: FreeTextEntrySensor,
         boardView: BoardView
     ) {
         const sensorView = new FreeTextEntrySensorView(
-            sensor,
+            this.sensor,
             boardView.getCoordinateSystem()
         )
 

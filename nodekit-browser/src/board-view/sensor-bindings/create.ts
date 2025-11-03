@@ -10,29 +10,29 @@ import {WaitSensorBinding} from "./wait";
 export function createSensorBinding(
     sensor: Sensor,
     boardView: BoardView,
-): SensorBinding {
+): SensorBinding<Sensor> {
 
     // Factory function for creating a SensorBinding
-    let sensorBinding: SensorBinding | null = null;
+    let sensorBinding: SensorBinding<Sensor> | null = null;
     switch (sensor.sensor_type) {
         case "KeySensor": {
-            sensorBinding = new KeySensorBinding();
+            sensorBinding = new KeySensorBinding(sensor);
             break
         }
         case "ClickSensor": {
-            sensorBinding = new ClickSensorBinding();
+            sensorBinding = new ClickSensorBinding(sensor);
             break
         }
         case "SliderSensor": {
-            sensorBinding = new SliderSensorBinding();
+            sensorBinding = new SliderSensorBinding(sensor);
             break;
         }
         case "FreeTextEntrySensor": {
-            sensorBinding = new FreeTextEntrySensorBinding();
+            sensorBinding = new FreeTextEntrySensorBinding(sensor);
             break
         }
         case "WaitSensor": {
-            sensorBinding = new WaitSensorBinding();
+            sensorBinding = new WaitSensorBinding(sensor);
             break
         }
         default: {
@@ -42,7 +42,6 @@ export function createSensorBinding(
     }
 
     sensorBinding.prepare(
-        sensor,
         boardView,
     );
     return sensorBinding

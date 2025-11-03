@@ -115,11 +115,10 @@ export class NodePlay {
                 {
                     triggerTimeMsec: 0,
                     triggerFunc: () => {
-                        sensorBinding.onStart();
+                        sensorBinding.start();
                     },
                 }
             )
-
             this.currentSensorValues[sensorId] = null;
         }
 

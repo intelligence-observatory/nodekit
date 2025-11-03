@@ -7,12 +7,11 @@ import {SensorBinding} from "../index.ts";
 /**
  *
  */
-export class KeySensorBinding extends SensorBinding {
+export class KeySensorBinding extends SensorBinding<KeySensor> {
     prepare(
-        sensor: KeySensor,
         boardView: BoardView
     ) {
-        const keys = sensor.keys;
+        const keys = this.sensor.keys;
 
         const keyCallback = (keySample: KeySample) => {
             if (keySample.sampleType !== 'down') {
