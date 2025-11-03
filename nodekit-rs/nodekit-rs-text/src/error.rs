@@ -8,5 +8,5 @@ pub enum Error {
     #[error("Unsupported markdown node: {0}")]
     Node(String),
     #[error("Invalid header depth: {0}")]
-    HeaderDepth(u8)
+    HeaderDepth(u8),
 }

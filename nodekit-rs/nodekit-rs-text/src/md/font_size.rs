@@ -1,7 +1,7 @@
 //! http://zuga.net/articles/html-heading-elements/
 
-use cosmic_text::Metrics;
 use super::Error;
+use cosmic_text::Metrics;
 
 const FONT_SIZE: f32 = 16.;
 /// FONT_SIZE * 1.2
@@ -28,6 +28,6 @@ pub const fn header_metrics(depth: u8) -> Result<Metrics, Error> {
         3 => metrics!(H4_SIZE),
         4 => metrics!(H5_SIZE),
         5 => metrics!(H6_SIZE),
-        other => Err(Error::HeaderDepth(other))
+        other => Err(Error::HeaderDepth(other)),
     }
 }
