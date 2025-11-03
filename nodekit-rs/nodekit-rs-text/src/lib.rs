@@ -27,17 +27,31 @@ impl Text {
         let mut attrs = Attrs::new();
         attrs.family = Family::SansSerif;
         attrs.metrics_opt = Some(FONT_METRICS.into());
-        let spans = parse(text, attrs.clone())?;
-        buffer.set_rich_text(
-            spans
-                .into_iter()
-                .map(|span| (span.text.as_str(), span.attrs)),
-            &attrs,
-            Shaping::Advanced,
-            Some(alignment),
-        );
+        let paragraphs = parse(text, attrs.clone())?;
+        let len = paragraphs.len();
+        for (i, paragraph) in paragraphs.into_iter().enumerate() {
+            // Set the metrics of this paragraph.
+            buffer.set_metrics(paragraph.metrics);
+            // Shape the text.
+            buffer.set_rich_text(
+                paragraph.spans
+                    .into_iter()
+                    .map(|span| (span.text.as_str(), span.attrs)),
+                &attrs,
+                Shaping::Advanced,
+                Some(alignment),
+            );
+            buffer.shape_until_scroll(true);
+            // Empty line.
+            if len > 1 && i < len - 1{
+                buffer.set_metrics(FONT_METRICS);
+                buffer.set_text("\n\n", &attrs, Shaping::Advanced,
+                                Some(alignment));
+            }
+            buffer.shape_until_scroll(true);
+        }
 
-        buffer.shape_until_scroll(true);
+
         buffer.draw(
             &mut self.swash_cache,
             Color::rgb(0, 0, 0),
