@@ -13,8 +13,6 @@ use std::sync::Arc;
 pub struct Text {
     font_system: FontSystem,
     swash_cache: SwashCache,
-    regular: String,
-    italic: String,
 }
 
 impl Text {
@@ -40,7 +38,7 @@ impl Text {
         let paragraphs = parse(text, attrs.clone())?;
         let mut position = PositionI { x: 0, y: 0 };
         // TODO list
-        for (i, paragraph) in paragraphs.into_iter().enumerate() {
+        for paragraph in paragraphs {
             // Set the metrics of this paragraph.
             buffer.set_metrics(&mut self.font_system, paragraph.metrics);
             // Shape the text.
@@ -129,26 +127,20 @@ impl Text {
 impl Default for Text {
     fn default() -> Self {
         let mut font_system = FontSystem::new();
-        let regular = font_system
+        font_system
             .db_mut()
             .load_font_source(Source::Binary(Arc::new(include_bytes!(
                 "../fonts/Inter/Inter-VariableFont_opsz,wght.ttf"
-            ))))[0];
-        let italic = font_system
+            ))));
+        font_system
             .db_mut()
             .load_font_source(Source::Binary(Arc::new(include_bytes!(
                 "../fonts/Inter/Inter-Italic-VariableFont_opsz,wght.ttf"
-            ))))[0];
-        let regular = font_system.db().face(regular).unwrap().families[0]
-            .0
-            .clone();
-        let italic = font_system.db().face(italic).unwrap().families[0].0.clone();
+            ))));
         let swash_cache = SwashCache::new();
         Self {
             font_system,
             swash_cache,
-            regular,
-            italic,
         }
     }
 }
