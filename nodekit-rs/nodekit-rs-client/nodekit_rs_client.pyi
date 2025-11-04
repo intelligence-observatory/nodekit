@@ -61,13 +61,6 @@ class Response:
         """
 
 @typing.final
-class Vector2:
-    r"""
-    An (x, y) vector.
-    """
-    ...
-
-@typing.final
 class VisualFrame:
     r"""
     A raw bitmap `buffer` and its dimensions.
@@ -114,13 +107,14 @@ def key_press(key: str) -> bytes:
     Returns a serialized key press action.
     """
 
-def mouse(delta: typing.Optional[Vector2], clicked: builtins.bool) -> bytes:
+def mouse(delta: typing.Optional[tuple[builtins.float, builtins.float]], clicked: builtins.bool) -> bytes:
     r"""
     Returns a serialized mouse action.
     
-    `delta` is the delta of the mouse position. If None, the mouse didn't move.
-    The coordinates of `delta` must be between -0.5 and 0.5.
-    This function *doesn't* attempt to clamp `delta` to realistic values.
+    `delta` is a tuple of (x, y) coordinates that describe the delta of the mouse position.
+    The coordinates must be between -0.5 and 0.5.
+    If None, the mouse didn't move.
+    Note! This function *doesn't* attempt to clamp `delta` to realistic values.
     
     If `clicked` is true, there was a mouse click on this frame.
     """

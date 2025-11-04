@@ -7,16 +7,7 @@ use pyo3::{
     prelude::*,
     types::{PyBytes, PyString},
 };
-use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pyfunction};
-
-/// An (x, y) vector.
-#[gen_stub_pyclass]
-#[pyclass]
-#[derive(Copy, Clone)]
-pub struct Vector2 {
-    pub x: f64,
-    pub y: f64,
-}
+use pyo3_stub_gen::derive::gen_stub_pyfunction;
 
 /// Returns a serialized no-op action.
 #[gen_stub_pyfunction]
@@ -47,25 +38,26 @@ pub fn graph<'py>(py: Python<'py>, graph: &Bound<'py, PyAny>) -> PyResult<Bound<
 
 /// Returns a serialized mouse action.
 ///
-/// `delta` is the delta of the mouse position. If None, the mouse didn't move.
-/// The coordinates of `delta` must be between -0.5 and 0.5.
-/// This function *doesn't* attempt to clamp `delta` to realistic values.
+/// `delta` is a tuple of (x, y) coordinates that describe the delta of the mouse position.
+/// The coordinates must be between -0.5 and 0.5.
+/// If None, the mouse didn't move.
+/// Note! This function *doesn't* attempt to clamp `delta` to realistic values.
 ///
 /// If `clicked` is true, there was a mouse click on this frame.
 #[gen_stub_pyfunction]
 #[pyfunction]
 pub fn mouse<'py>(
     py: Python<'py>,
-    delta: Option<Vector2>,
+    delta: Option<(f64, f64)>,
     clicked: bool,
 ) -> PyResult<Bound<'py, PyBytes>> {
     match delta {
         Some(delta) => {
-            if delta.x < -0.5 || delta.x > 0.5 || delta.y < -0.5 || delta.y > 0.5 {
+            if delta.0 < -0.5 || delta.0 > 0.5 || delta.1 < -0.5 || delta.1 > 0.5 {
                 Err(PyValueError::new_err("Invalid mouse delta: {delta}"))
             } else {
                 let mut fbb = FlatBufferBuilder::new();
-                let delta = mouse_fb::Vec2::new(delta.x, delta.y);
+                let delta = mouse_fb::Vec2::new(delta.0, delta.1);
                 let click = mouse_fb::Mouse::create(
                     &mut fbb,
                     &mouse_fb::MouseArgs {

@@ -1,5 +1,5 @@
 import zmq
-from nodekit_rs_client import graph, key_press, mouse, noop, Response, Vector2
+from nodekit_rs_client import graph, key_press, mouse, noop, Response
 
 
 class Client:
@@ -22,4 +22,4 @@ class Client:
         return Response(response)
 
 
-__all__ = [Client, graph, key_press, mouse, noop, Response, Vector2]
+__all__ = [Client, graph, key_press, mouse, noop, Response]
