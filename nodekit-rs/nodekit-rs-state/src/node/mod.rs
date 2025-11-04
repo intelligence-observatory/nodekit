@@ -53,6 +53,9 @@ macro_rules! sensor_and_timer {
 
 macro_rules! blit_video {
     ($self:ident, $video_key:ident, $card:ident, $visual:ident, $blitted:ident, $frame:ident) => {{
+        if $card.state == EntityState::StartedNow {
+            $self.cards.videos[*$video_key].load()?;
+        }
         let video_result = $self.cards.videos[*$video_key]
             .blit($card, $visual)
             .map_err(Error::Video)?;
@@ -127,7 +130,7 @@ impl Node {
         board: &mut [u8],
     ) -> Result<Response, Error> {
         if self.state == EntityState::Pending {
-            return Ok(self.start(board_pre_cursor));
+            self.start(board_pre_cursor);
         }
         let mut response = Response::default();
         // We haven't timed out yet.

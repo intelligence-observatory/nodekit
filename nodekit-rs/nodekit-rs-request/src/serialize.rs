@@ -1,7 +1,7 @@
 use flatbuffers::FlatBufferBuilder;
 use nodekit_rs_fb::{
     graph as graph_fb, key_press as key_press_fb, mouse as mouse_fb, noop as noop_fb,
-    reset as reset_fb
+    reset as reset_fb,
 };
 use pyo3::exceptions::PyValueError;
 use pyo3::{
@@ -55,7 +55,10 @@ pub fn mouse<'py>(
     match delta {
         Some(delta) => {
             if delta.0 < -0.5 || delta.0 > 0.5 || delta.1 < -0.5 || delta.1 > 0.5 {
-                Err(PyValueError::new_err(format!("Invalid mouse delta: {:?}", delta)))
+                Err(PyValueError::new_err(format!(
+                    "Invalid mouse delta: {:?}",
+                    delta
+                )))
             } else {
                 let mut fbb = FlatBufferBuilder::new();
                 let delta = mouse_fb::Vec2::new(delta.0, delta.1);

@@ -1,5 +1,6 @@
 import zmq
 from nodekit_rs_client import graph, key_press, mouse, noop, reset, Response
+from zmq import ZMQError
 
 
 class Client:
@@ -22,9 +23,13 @@ class Client:
         return Response(response)
 
     def __del__(self):
-        self.socket.send_multipart([reset()])
-        self.socket.recv_multipart()
-        self.socket.close()
+        try:
+            self.socket.send_multipart([reset()])
+            self.socket.recv_multipart()
+        except ZMQError:
+            pass
+        finally:
+            self.socket.close()
 
 
 __all__ = [Client, graph, key_press, mouse, noop, Response]

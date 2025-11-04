@@ -34,11 +34,12 @@ async fn on_receive(state: &mut Option<State>, received: Request) -> Response {
     match received {
         Request::Graph(graph) => {
             // Convert the graph into stateful information.
-            let s = State::new(graph).unwrap();
+            let mut s = State::new(graph).unwrap();
+            // Initial tick.
+            let response = s.tick(None).unwrap();
             // Store the state.
             *state = Some(s);
-            // Nothing has happened yet.
-            Response::default()
+            response
         }
         Request::Tick(action) => match state.as_mut() {
             Some(state) => state.tick(action).unwrap(),

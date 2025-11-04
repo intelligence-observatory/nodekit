@@ -9,7 +9,7 @@ use nodekit_rs_graph::VideoCard;
 use nodekit_rs_response::AudioFrame;
 use nodekit_rs_video::*;
 use slotmap::new_key_type;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 new_key_type! { pub struct VideoKey; }
 
@@ -43,7 +43,7 @@ impl Video {
         })
     }
 
-    pub fn load<P: AsRef<Path>>(&mut self) -> Result<(), Error> {
+    pub fn load(&mut self) -> Result<(), Error> {
         self.extractor = Some(
             FrameExtractor::new(&self.path, self.width, self.height, self.muted)
                 .map_err(Error::Video)?,

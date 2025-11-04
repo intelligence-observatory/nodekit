@@ -7,8 +7,8 @@ node = Node(
     cards={
         "a": cards.ImageCard(
             image=assets.Image.from_path("nodekit-rs-image/test_image.png"),
-            x=0.4,
-            y=0.4,
+            x=0.25,
+            y=0.25,
             w=0.25,
             h=0.3,
         ),
@@ -25,8 +25,7 @@ g = Graph(start=node_id,
           transitions={})
 
 client = Client()
-client.tick(graph(g))
-response = client.tick(noop())
+response = client.tick(graph(g))
 image = Image.frombytes('RGB',
                         (response.visual.width, response.visual.height),
                         response.visual.buffer)
