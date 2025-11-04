@@ -1,0 +1,5 @@
+table Reset {
+}
+
+root_type Reset;
+file_identifier "rset";

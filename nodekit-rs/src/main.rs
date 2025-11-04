@@ -44,5 +44,9 @@ async fn on_receive(state: &mut Option<State>, received: Request) -> Response {
             Some(state) => state.tick(action).unwrap(),
             None => Response::default(),
         },
+        Request::Reset => {
+            *state = None;
+            Response::default()
+        }
     }
 }

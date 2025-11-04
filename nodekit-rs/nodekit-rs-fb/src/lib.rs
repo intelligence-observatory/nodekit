@@ -9,4 +9,5 @@ pub mod graph;
 pub mod key_press;
 pub mod mouse;
 pub mod noop;
+pub mod reset;
 pub mod response;

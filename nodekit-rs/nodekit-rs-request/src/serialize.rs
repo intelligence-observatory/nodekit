@@ -1,6 +1,7 @@
 use flatbuffers::FlatBufferBuilder;
 use nodekit_rs_fb::{
     graph as graph_fb, key_press as key_press_fb, mouse as mouse_fb, noop as noop_fb,
+    reset as reset_fb
 };
 use pyo3::exceptions::PyValueError;
 use pyo3::{
@@ -14,7 +15,7 @@ use pyo3_stub_gen::derive::gen_stub_pyfunction;
 #[pyfunction]
 pub fn noop<'py>(py: Python<'py>) -> Bound<'py, PyBytes> {
     let mut fbb = FlatBufferBuilder::new();
-    let n = noop_fb::Noop::create(&mut fbb, &noop_fb::NoopArgs {});
+    let n = noop_fb::Noop::create(&mut fbb, &noop_fb::NoopArgs::default());
     noop_fb::finish_noop_buffer(&mut fbb, n);
     PyBytes::new(py, fbb.finished_data())
 }
@@ -97,4 +98,14 @@ pub fn key_press<'py>(
         key_press_fb::KeyPress::create(&mut fbb, &key_press_fb::KeyPressArgs { key: Some(key) });
     key_press_fb::finish_key_press_buffer(&mut fbb, click);
     Ok(PyBytes::new(py, fbb.finished_data()))
+}
+
+/// Returns a serialized command to reset the simulator.
+#[gen_stub_pyfunction]
+#[pyfunction]
+pub fn reset<'py>(py: Python<'py>) -> Bound<'py, PyBytes> {
+    let mut fbb = FlatBufferBuilder::new();
+    let r = reset_fb::Reset::create(&mut fbb, &reset_fb::ResetArgs::default());
+    reset_fb::finish_reset_buffer(&mut fbb, r);
+    PyBytes::new(py, fbb.finished_data())
 }

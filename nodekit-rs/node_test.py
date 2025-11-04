@@ -1,0 +1,34 @@
+from PIL import Image
+
+from nodekit._internal.ml import Client, graph, noop
+from nodekit import *
+
+node = Node(
+    cards={
+        "a": cards.ImageCard(
+            image=assets.Image.from_path("nodekit-rs-image/test_image.png"),
+            x=0.4,
+            y=0.4,
+            w=0.25,
+            h=0.3,
+        ),
+        "b": cards.VideoCard(
+            video=assets.Video.from_path("nodekit-rs-video/test-video.mp4"), x=0, y=0, w=0.33, h=0.25
+        ),
+    },
+    sensors={"s": sensors.TimeoutSensor(timeout_msec=20000)},
+)
+
+node_id = "0"
+g = Graph(start=node_id,
+          nodes={node_id: node},
+          transitions={})
+
+client = Client()
+client.tick(graph(g))
+response = client.tick(noop())
+image = Image.frombytes('RGB',
+                        (response.visual.width, response.visual.height),
+                        response.visual.buffer)
+image.show()
+

@@ -8,7 +8,7 @@ use pyo3::prelude::*;
 #[pymodule]
 pub mod nodekit_rs_client {
     #[pymodule_export]
-    pub use nodekit_rs_request::serialize::{graph, key_press, mouse, noop};
+    pub use nodekit_rs_request::serialize::{graph, key_press, mouse, noop, reset};
     #[pymodule_export]
     pub use nodekit_rs_response::{AudioFormat, AudioFrame, Response, VisualFrame};
     use pyo3_stub_gen::define_stub_info_gatherer;

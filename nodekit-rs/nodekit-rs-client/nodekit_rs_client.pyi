@@ -124,3 +124,8 @@ def noop() -> bytes:
     Returns a serialized no-op action.
     """
 
+def reset() -> bytes:
+    r"""
+    Returns a serialized command to reset the simulator.
+    """
+

@@ -1,3 +1,3 @@
 #!/bin/bash
 
-maturin develop --release
+maturin develop --release --uv

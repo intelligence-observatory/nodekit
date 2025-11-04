@@ -1,9 +1,9 @@
 import zmq
-from nodekit_rs_client import graph, key_press, mouse, noop, Response
+from nodekit_rs_client import graph, key_press, mouse, noop, reset, Response
 
 
 class Client:
-    def __init__(self, endpoint: str):
+    def __init__(self, endpoint: str = 'ipc:///tmp/nodekit-rs'):
         context = zmq.Context()
         self.socket = context.socket(zmq.REQ)
         self.socket.connect(endpoint)
@@ -17,9 +17,14 @@ class Client:
         Returns a `Response` received from the simulator.
         """
 
-        self.socket.send(request)
+        self.socket.send_multipart([request])
         response = self.socket.recv_multipart()[0]
         return Response(response)
+
+    def __del__(self):
+        self.socket.send_multipart([reset()])
+        self.socket.recv_multipart()
+        self.socket.close()
 
 
 __all__ = [Client, graph, key_press, mouse, noop, Response]
