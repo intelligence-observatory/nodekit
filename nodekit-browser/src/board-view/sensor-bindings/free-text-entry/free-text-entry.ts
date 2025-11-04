@@ -29,8 +29,9 @@ export class FreeTextEntrySensorBinding extends SensorBinding<FreeTextEntrySenso
 
     }
 }
-export class FreeTextEntrySensorView extends RegionView {
-    freeTextInputElement: HTMLTextAreaElement | undefined;
+
+export class FreeTextEntrySensorView2 extends RegionView {
+    freeTextInputElement: HTMLTextAreaElement;
 
     constructor(
         sensor: FreeTextEntrySensor,
@@ -55,7 +56,7 @@ export class FreeTextEntrySensorView extends RegionView {
         this.freeTextInputElement.placeholder = sensor.prompt;
 
         // Cap the max length:
-        let maxLength = 10000 // Arbitary large number if null
+        let maxLength = 10000 // Arbitrary large number if null
         if (sensor.max_length !== null){
             maxLength = sensor.max_length;
         }
@@ -66,12 +67,66 @@ export class FreeTextEntrySensorView extends RegionView {
 
     subscribe(callback: (sample: string) => void): void {
         // Add an event listener
-        this.freeTextInputElement?.addEventListener(
+        this.freeTextInputElement.addEventListener(
             'input',
             (event) => {
                 const value = (event.target as HTMLTextAreaElement).value;
                 console.log('Updated text:', value);
                 callback(value)
             });
+    }
+}
+
+export class FreeTextEntrySensorView extends RegionView {
+    private textAreaElement: HTMLTextAreaElement;
+    private doneButton: HTMLButtonElement;
+
+    constructor(
+        sensor: FreeTextEntrySensor,
+        boardCoords: BoardCoordinateSystem
+    ) {
+        super(sensor.region, boardCoords);
+
+        // Parent wrapper
+        const wrapper = document.createElement('div');
+        wrapper.classList.add('free-text-entry');
+
+        // Textarea
+        const textAreaElement = document.createElement('textarea');
+        textAreaElement.classList.add('free-text-entry__input');
+        textAreaElement.spellcheck = false;
+        textAreaElement.placeholder = sensor.prompt ?? '';
+        textAreaElement.style.fontSize = boardCoords.getSizePx(sensor.font_size) + 'px';
+        textAreaElement.maxLength = sensor.max_length ?? 10000;
+
+        // Gutter
+        const gutter = document.createElement('div');
+        gutter.classList.add('free-text-entry__gutter');
+
+        const doneButton = document.createElement('button');
+        doneButton.classList.add('free-text-entry__submit');
+        doneButton.type = 'button';
+        doneButton.textContent = '✓';
+        doneButton.disabled = sensor.min_length > 0;
+
+        gutter.appendChild(doneButton);
+        wrapper.appendChild(textAreaElement);
+        wrapper.appendChild(gutter);
+        this.root.appendChild(wrapper);
+
+        // Basic interaction
+        textAreaElement.addEventListener('input', () => {
+            doneButton.disabled = textAreaElement.value.trim().length < sensor.min_length;
+        });
+
+        this.textAreaElement = textAreaElement;
+        this.doneButton = doneButton;
+    }
+
+    subscribe(callback: (sample: string) => void): void {
+        this.doneButton.addEventListener('click', () => {
+            const value = this.textAreaElement.value;
+            callback(value);
+        });
     }
 }

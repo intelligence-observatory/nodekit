@@ -34,8 +34,6 @@ export interface KeySensor extends BaseSensor<'KeySensor'>{
 export interface FreeTextEntrySensor extends BaseSensor<'FreeTextEntrySensor'>{
     prompt: PlainString;
     font_size: SpatialSize;
-    text_color: ColorHexString;
-    background_color: ColorHexString;
     min_length: number;
     max_length: number | null;
     region: Region
@@ -49,4 +47,4 @@ export interface SliderSensor extends BaseSensor<'SliderSensor'>{
     region: Region
 }
 
-export type Sensor = ClickSensor | KeySensor  | SliderSensor | FreeTextEntrySensor | WaitSensor; // | SelectSensor
+export type Sensor = ClickSensor | KeySensor  | SliderSensor | FreeTextEntrySensor | WaitSensor | ConfirmSensor; // | SelectSensor

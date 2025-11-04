@@ -30,12 +30,10 @@ export interface SubmitAction extends BaseAction<"SubmitAction"> {
     submitted_values: Record<CardId, FreeTextEntryState | SliderState>
 }
 
-export interface WaitAction extends BaseAction<"WaitAction">{
-
-}
-
+export interface WaitAction extends BaseAction<"WaitAction">{}
+export interface ConfirmAction extends BaseAction<"ConfirmAction">{}
 // Union
-export type SensorValue = ClickAction | TimeoutAction | KeyAction | SubmitAction | SliderState | FreeTextEntryState | WaitAction;
+export type SensorValue = ClickAction | TimeoutAction | KeyAction | SubmitAction | SliderState | FreeTextEntryState | WaitAction | ConfirmAction;
 
 
 export type Action = Record<SensorId, SensorValue>

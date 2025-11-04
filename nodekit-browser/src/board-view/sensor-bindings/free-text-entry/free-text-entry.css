@@ -16,3 +16,49 @@
 
     box-shadow: inset 0 0 3px 0 rgba(50, 50, 50, 0.8);
 }
+
+/* Wrapper fills the entire region */
+.free-text-entry {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: white;
+}
+
+/* Text field grows to fill space */
+.free-text-entry__input {
+    flex: 1;
+    width: 100%;
+    padding: 0.5rem;
+    border: 0;
+    resize: none;
+    outline: none;
+    font-family: var(--font-family-sans), sans-serif;
+    box-sizing: border-box;
+}
+
+/* Bottom gutter holds button; fixed height */
+.free-text-entry__gutter {
+    height: 30px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    background-color: rgba(250,250,250, 1);
+}
+
+/* Submit button styling */
+.free-text-entry__submit {
+    font-family: var(--font-family-sans), sans-serif;
+    font-size: 14px;
+    height: 100%;
+    min-width:25%;
+    border: none;
+}
+
+.free-text-entry__submit:disabled {
+    cursor: default;
+    opacity: 0.5;
+}

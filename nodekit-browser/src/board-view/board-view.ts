@@ -151,6 +151,12 @@ export abstract class RegionView {
     root: HTMLElement;
     boardCoords: BoardCoordinateSystem
 
+    private hoverable: boolean = false;
+
+    private selectable: boolean = false;
+    private selectionState: boolean = false;
+    private subscriptions: ((selected:boolean) => void)[] = []
+
     constructor(
         region: Region,
         boardCoords: BoardCoordinateSystem,
@@ -182,6 +188,56 @@ export abstract class RegionView {
         this.root.style.borderRadius = `${borderRadiusPercent}%`;
         if (typeof region.z_index === 'number') {
             this.root.style.zIndex = region.z_index.toString()
+        }
+
+        // Basic listeners
+        this.root.addEventListener('pointerenter', () => {
+            if (this.hoverable) {
+                this.root.classList.add('hovered')
+            }
+        });
+
+        this.root.addEventListener('pointerleave', () => {
+            if (this.hoverable) {
+                this.root.classList.remove('hovered')
+            }
+        });
+
+        this.root.addEventListener('pointerdown', () => {
+            if (!this.selectable) return;
+            this.selectionState = !this.selectionState;
+
+            if (this.selectionState) {
+                this.root.classList.add('selected');
+            } else {
+                this.root.classList.remove('selected');
+            }
+
+            this.emit(this.selectionState);
+        });
+    }
+
+    setHoverability(
+        hoverable:boolean,
+    ){
+        this.hoverable = hoverable;
+    }
+
+    setSelectability(
+        selectable:boolean,
+    ){
+        this.selectable = selectable;
+    }
+
+    subscribeSelections(callback: (selected:boolean)=>void){
+        this.subscriptions.push(callback);
+    }
+
+    private emit(selected: boolean) {
+        for (const fn of this.subscriptions) {
+            try {
+                fn(selected);
+            } catch {}
         }
     }
 }

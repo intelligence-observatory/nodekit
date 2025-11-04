@@ -18,11 +18,13 @@ import {EventArray} from "./event-array.ts";
  * @param graph
  * @param onEventCallback
  * @param previousEvents
+ * @param debugMode
  */
 export async function play(
     graph: Graph,
     onEventCallback: ((event: Event) => void) | null = null,
     previousEvents: Event[] = [],
+    debugMode: boolean=false,
 ): Promise<Trace> {
 
     // If no onEventCallback is provided, use a no-op function:
@@ -59,7 +61,10 @@ export async function play(
     shellUI.hideSessionConnectingOverlay()
 
     // Start screen:
-    await shellUI.playStartScreen()
+    if(!debugMode){
+        await shellUI.playStartScreen()
+    }
+
 
     clock.start()
     const startEvent: TraceStartedEvent = {

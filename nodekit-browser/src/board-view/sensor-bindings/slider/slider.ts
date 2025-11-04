@@ -131,6 +131,9 @@ export class SliderSensorView extends RegionView {
                 // Remove CSS class to indicate
                 this.sliderThumb.classList.remove('slider-card__thumb--active');
 
+                // Emit only on pointer up
+                this.emitSliderChange();
+
                 // Release pointer capture:
                 (e.target as HTMLElement).releasePointerCapture(e.pointerId);
             }
@@ -214,7 +217,8 @@ export class SliderSensorView extends RegionView {
 
         // Snap to nearest bin:
         const nearestBin = this.proportionToNearestBin(proportion);
-        this.emitSliderChange(nearestBin);
+        this.currentBinIndex = nearestBin;
+        //this.emitSliderChange(nearestBin);
         const snappedProportion = this.binIndexToProportion(nearestBin);
 
         this.scheduleThumbMove(snappedProportion);
@@ -237,7 +241,8 @@ export class SliderSensorView extends RegionView {
 
         // Snap to nearest bin:
         const nearestBin = this.proportionToNearestBin(proportion);
-        this.emitSliderChange(nearestBin);
+        this.currentBinIndex = nearestBin;
+        //this.emitSliderChange(nearestBin);
         const snappedProportion = this.binIndexToProportion(nearestBin);
 
         this.scheduleThumbMove(snappedProportion);
@@ -295,7 +300,6 @@ export class SliderSensorView extends RegionView {
         this.pendingThumbPosition = null;
     }
 
-
     onDestroy() {
         // Cancel any pending animation frame
         if (this.rafId !== null) {
@@ -308,10 +312,12 @@ export class SliderSensorView extends RegionView {
         this.sliderTrack?.removeEventListener('pointerdown', this.onClickTrack);
     }
 
-    private emitSliderChange(binIndex: SliderBinIndex) {
+    private emitSliderChange(
+        //binIndex: SliderBinIndex
+    ) {
         // Only emit if changed
-        if (this.currentBinIndex === binIndex) return;
-        this.currentBinIndex = binIndex;
+        if (this.currentBinIndex==null) return;
+        const binIndex = this.currentBinIndex ;
         // Create sample
         const sample: SliderSample = {
             sliderNormalizedPosition: binIndex / (this.sensor.num_bins - 1),
@@ -328,19 +334,5 @@ export class SliderSensorView extends RegionView {
     public subscribeToSlider(callback: SliderSubscriber) {
         // Add to subscribers
         this.subscribers.add(callback);
-    }
-
-    getCurrentNormalizedPosition(): SliderNormalizedPosition {
-        if (this.currentBinIndex === null) {
-            return this.binIndexToProportion(this.sensor.initial_bin_index);
-        }
-        return this.binIndexToProportion(this.currentBinIndex);
-    }
-
-    getCurrentBinIndex(): SliderBinIndex {
-        if (this.currentBinIndex === null) {
-            return this.sensor.initial_bin_index;
-        }
-        return this.currentBinIndex;
     }
 }
