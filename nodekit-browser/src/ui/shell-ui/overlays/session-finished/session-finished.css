@@ -19,7 +19,7 @@ A fixed-width <div> which is not selectable.
 .debrief-message-box__text {
     font-family: var(--font-family-mono), monospace;
     font-size: 1.3rem;
-    color: var(--monetary-gain-color);
+    color: hsla(48, 90%, 60%, 1.0);
     overflow-y: auto;
     text-align: center;
     margin: 1rem;
