@@ -43,11 +43,6 @@ export class FreeTextEntrySensorView2 extends RegionView {
         this.freeTextInputElement.classList.add('free-text-entry-card');
         this.freeTextInputElement.spellcheck=false;
 
-        // Set background color from card
-        this.freeTextInputElement.style.backgroundColor = sensor.background_color;
-
-        // Set text color
-        this.freeTextInputElement.style.color = sensor.text_color;
 
         // Set font size:
         this.freeTextInputElement.style.fontSize = this.boardCoords.getSizePx(sensor.font_size) + 'px';
@@ -103,20 +98,31 @@ export class FreeTextEntrySensorView extends RegionView {
         const gutter = document.createElement('div');
         gutter.classList.add('free-text-entry__gutter');
 
+        const defaultText='...'
         const doneButton = document.createElement('button');
         doneButton.classList.add('free-text-entry__submit');
-        doneButton.type = 'button';
-        doneButton.textContent = '✓';
-        doneButton.disabled = sensor.min_length > 0;
-
+        doneButton.textContent=defaultText;
+        doneButton.disabled=sensor.min_length>0;
         gutter.appendChild(doneButton);
+
         wrapper.appendChild(textAreaElement);
         wrapper.appendChild(gutter);
         this.root.appendChild(wrapper);
 
         // Basic interaction
         textAreaElement.addEventListener('input', () => {
-            doneButton.disabled = textAreaElement.value.trim().length < sensor.min_length;
+            const submittable = textAreaElement.value.trim().length >= sensor.min_length
+            doneButton.textContent = submittable ? '↵':defaultText;
+
+            if (submittable){
+                doneButton.classList.add('submittable')
+                doneButton.disabled=false;
+            }
+            else{
+                doneButton.classList.remove('submittable')
+                doneButton.disabled=true;
+            }
+
         });
 
         this.textAreaElement = textAreaElement;
@@ -127,6 +133,7 @@ export class FreeTextEntrySensorView extends RegionView {
         this.doneButton.addEventListener('click', () => {
             const value = this.textAreaElement.value;
             callback(value);
+            this.doneButton.textContent='✓'
         });
     }
 }
