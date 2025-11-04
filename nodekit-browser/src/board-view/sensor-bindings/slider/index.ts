@@ -53,7 +53,7 @@ export class SliderSensorView extends RegionView {
     sliderThumb: HTMLDivElement;
 
     private sensor: SliderSensor
-    private pendingThumbPosition: number | null = null;
+    private pendingThumbPosition: SliderNormalizedPosition | null = null;
     private rafId: number | null = null;
     private frameRequested: boolean = false;
 
@@ -114,34 +114,44 @@ export class SliderSensorView extends RegionView {
 
     private renderTicks() {
         const sensor = this.sensor;
-        // Draw tick marks on the track if show_bin_markers is true
         if (!sensor.show_bin_markers) return;
-        if (!this.sliderTrack) return;
+
+        // Remove existing ticks
         this.sliderTrack.querySelectorAll('.slider-card__track-tick').forEach(n => n.remove());
 
-        const bins = sensor.num_bins;
-        const isHorizontal = sensor.orientation === 'horizontal';
+        const num_bins = sensor.num_bins;
 
         // create all ticks in a fragment (fewer reflows)
         const frag = document.createDocumentFragment();
 
-        for (let i = 0; i < bins; i++) {
+        // The ticks will span w_track - w_thumb, starting at w_thumb/2.
+        const horizontal = sensor.orientation === 'horizontal';
+        const trackLengthPixels = Math.max(1, horizontal? this.boardCoords.getSizePx(sensor.region.w) : this.boardCoords.getSizePx(sensor.region.h));
+
+        // Thumb extent along the axis (px). Fallback to 0 if unknown.
+        const thumbExtentPixels = 8;
+        const startOffsetPixels = Math.max(0, thumbExtentPixels / 2);
+        const innerLengthPixels = Math.max(0, trackLengthPixels - thumbExtentPixels);
+
+
+        for (let i = 0; i < num_bins; i++) {
             // Skip first and last ticks (they are the ends of the track)
-            if (i === 0 || i === bins - 1) continue;
+            if (i === 0 || i === num_bins - 1) continue;
 
             // Calculate position:
-            const pct = (i / (bins - 1)) * 100;
-
+            const positionPixels = startOffsetPixels + (i * innerLengthPixels / (num_bins - 1))
+            //const pct = (i / (num_bins - 1)) * 100;
+            const pct = (positionPixels / trackLengthPixels) * 100
             const tick = document.createElement('div');
             tick.classList.add('slider-card__track-tick');
 
-            // common: don’t block pointer events
+            // Ticks should not block pointer events:
             tick.style.pointerEvents = 'none';
 
             // Style
             const tickExtent = '75%'; // The length of the tick perpendicular to the track
 
-            if (isHorizontal) {
+            if (sensor.orientation === 'horizontal') {
                 // vertical hairline centered on the track
                 tick.style.width = '1px';           // hairline; adjust if you want 0.5px on WebKit
                 tick.style.height = tickExtent;         // match track thickness
@@ -161,6 +171,7 @@ export class SliderSensorView extends RegionView {
         }
         this.sliderTrack.appendChild(frag);
     }
+
     // Rendering functions
     private setThumbVisualState(
         thumbState: 'dragging' | 'committed' | 'uncommitted',
@@ -189,7 +200,7 @@ export class SliderSensorView extends RegionView {
         // Requests that the thumb be moved to the given proportion (0 to 1) on the next animation frame.
         // Overrides any previously requested move.
         const proportion = this.binIndexToProportion(binIndex);
-        this.pendingThumbPosition = Math.max(0, Math.min(1, proportion)); // Clamp between 0 and 1
+        this.pendingThumbPosition = Math.max(0, Math.min(1, proportion)) as SliderNormalizedPosition; // Clamp between 0 and 1
 
         if (!this.frameRequested) {
             this.frameRequested = true;
@@ -212,7 +223,6 @@ export class SliderSensorView extends RegionView {
             const left = this.pendingThumbPosition * (sliderRect.width - thumbRect.width);
             this.sliderThumb.style.left = `${left}px`;
         } else {
-            // Reverse, as 100% is at the top for vertical:
             const top = sliderRect.height - thumbRect.height - this.pendingThumbPosition * (sliderRect.height - thumbRect.height);
             this.sliderThumb.style.top = `${top}px`;
         }
