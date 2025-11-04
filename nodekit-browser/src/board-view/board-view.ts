@@ -141,7 +141,6 @@ export class BoardView {
             this.root.style.userSelect = 'none';
         }
     }
-
 }
 
 /**
@@ -184,8 +183,18 @@ export abstract class RegionView {
         this.root.style.width = `${widthPx}px`;
         this.root.style.height = `${heightPx}px`;
 
-        const borderRadiusPercent = Math.min(1, Math.max(0, region.roundness)) * 50;
-        this.root.style.borderRadius = `${borderRadiusPercent}%`;
+        switch (region.mask){
+            case 'ellipse':
+                this.root.style.borderRadius = '50%';
+                break
+            case 'rectangle':
+                break
+            default:
+                const _exhaustive: never = region.mask
+                console.warn(`Found unsupported Region.mask: ${JSON.stringify(_exhaustive)}`)
+                break
+        }
+
         if (typeof region.z_index === 'number') {
             this.root.style.zIndex = region.z_index.toString()
         }
@@ -242,48 +251,33 @@ export abstract class RegionView {
     }
 }
 
-
 export function checkPointInRegion(
     x: SpatialPoint,
     y: SpatialPoint,
     region: Region,
 ): boolean {
-    const left = region.x - region.w / 2;
-    const right = region.x + region.w / 2;
-    const bottom = region.y - region.h / 2;
-    const top = region.y + region.h / 2;
+    switch (region.mask) {
+        case 'rectangle':
+            const left = region.x - region.w / 2;
+            const right = region.x + region.w / 2;
+            const top = region.y + region.h / 2;
+            const bottom = region.y - region.h / 2;
+            return (x >= left) &&
+                (x <= right) &&
+                (y >= bottom) &&
+                (y <= top);
+        case 'ellipse':
+            const radius_x = region.w / 2;
+            const radius_y = region.h / 2;
+            const delta_x = x - region.x;
+            const delta_y = y - region.y;
 
-    // Map roundness -> CSS % (0..50), then -> per-corner radii in px.
-    const r = Math.min(1, Math.max(0, region.roundness)); // clamp
-    const rx = (region.w / 2) * r; // horizontal corner radius (percent resolves against width)
-    const ry = (region.h / 2) * r; // vertical corner radius (percent resolves against height)
-
-    // Fast path: no rounding => plain axis-aligned rectangle
-    if (rx === 0 || ry === 0) {
-        return x >= left && x <= right && y >= bottom && y <= top;
+            return (
+                (delta_x * delta_x) / (radius_x * radius_x) +
+                (delta_y * delta_y) / (radius_y * radius_y) <=
+                1
+            );
+        default:
+            throw new Error(`Unknown mask: ${region.mask}`);
     }
-
-    // Inner rectangle after shaving off corner radii
-    const innerLeft = left + rx;
-    const innerRight = right - rx;
-    const innerBottom = bottom + ry;
-    const innerTop = top - ry;
-
-    // If inside the central cross (vertical or horizontal bands), it's in.
-    if ((x >= innerLeft && x <= innerRight && y >= bottom && y <= top) ||
-        (y >= innerBottom && y <= innerTop && x >= left && x <= right)) {
-        return true;
-    }
-
-    // Otherwise, test against the appropriate corner ellipse.
-    // Clamp to inner rect to find which corner center to use.
-    const qx = x < innerLeft ? innerLeft : (x > innerRight ? innerRight : x);
-    const qy = y < innerBottom ? innerBottom : (y > innerTop ? innerTop : y);
-
-    // Corner center (ellipse center) is (qx, qy). Measure offset.
-    const dx = x - qx;
-    const dy = y - qy;
-
-    // Elliptical corner test: (dx/rx)^2 + (dy/ry)^2 <= 1
-    return (dx * dx) / (rx * rx) + (dy * dy) / (ry * ry) <= 1;
 }

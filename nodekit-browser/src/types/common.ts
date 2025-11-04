@@ -19,4 +19,4 @@ export type SensorId = string & { __brand: 'SensorId' };
 export type CardId = string & { __brand: 'CardId' };
 
 
-export type Roundness = number & { __brand: 'Roundness' }; // Between 0 to 1
+export type Mask = 'ellipse' | 'rectangle' & { __brand: 'Mask' };
