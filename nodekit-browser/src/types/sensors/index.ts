@@ -1,6 +1,6 @@
 import type {CardId, ColorHexString, NodeTimePointMsec, PlainString, PressableKey, SpatialSize} from "../common.ts";
 import type {Region} from "../region";
-import type {SliderNormalizedPosition} from "../../board-view/sensor-bindings/slider";
+import type {SliderBinIndex, SliderNormalizedPosition} from "../../board-view/sensor-bindings/slider";
 
 
 interface BaseSensor<T extends string> {
@@ -43,7 +43,7 @@ export interface FreeTextEntrySensor extends BaseSensor<'FreeTextEntrySensor'>{
 export interface SliderSensor extends BaseSensor<'SliderSensor'>{
     num_bins: number;
     show_bin_markers: boolean;
-    initial_bin_index: number;
+    initial_bin_index: SliderBinIndex;
     orientation: 'horizontal' | 'vertical';
     region: Region
 }

@@ -5,8 +5,8 @@ import type {SliderState} from "../../../types/actions";
 import {SensorBinding} from "../index.ts";
 
 
-export type SliderBinIndex = number // 0 to num_bins - 1
-export type SliderNormalizedPosition = number // 0 to 1 (left to right, and bottom to top)
+export type SliderBinIndex = number & { __brand: 'SliderBinIndex' };// 0 to num_bins - 1
+export type SliderNormalizedPosition = number & { __brand: 'SliderNormalizedPosition' };// 0 to 1 (left to right, and bottom to top)
 
 export type SliderSample = {
     sliderNormalizedPosition: SliderNormalizedPosition,
@@ -59,7 +59,6 @@ export class SliderSensorView extends RegionView {
 
     private currentBinIndex: SliderBinIndex | null = null;
     private binIndexToProportion: (binIndex: SliderBinIndex) => number;
-    private proportionToNearestBin: (proportion: number) => SliderBinIndex;
     private subscribers: Set<SliderSubscriber> = new Set();
     private isDraggingThumb: boolean = false;
 
@@ -83,7 +82,6 @@ export class SliderSensorView extends RegionView {
         this.sliderThumb = document.createElement('div');
         this.sliderThumb.classList.add('slider-card__thumb');
         this.sliderContainer.appendChild(this.sliderThumb);
-        this.setThumbVisualState('uncommitted')
 
         // Set orientation:
         if (sensor.orientation === 'horizontal') {
@@ -102,44 +100,16 @@ export class SliderSensorView extends RegionView {
             return binIndex / (sensor.num_bins - 1);
         }
 
-        // Calculate snap function:
-        this.proportionToNearestBin = (proportion: number): SliderBinIndex => {
-            if (sensor.num_bins <= 1) return 0;
-            const exactBin = proportion * (sensor.num_bins - 1);
-            return Math.round(exactBin);
-        }
-
         // Draw ticks if needed:
         this.renderTicks();
-
-        // Always initialize the thumb to the exact middle, even if num_bins is even:
-        let initial = this.binIndexToProportion(sensor.initial_bin_index);
-        if (isNaN(initial) || !isFinite(initial)) {
-            initial = 0.5 // fallback
-        }
-
-        this.scheduleThumbMove(initial)
+        this.setThumbVisualState('uncommitted')
+        this.scheduleThumbMove(sensor.initial_bin_index)
 
         // Add event listeners:
         this.sliderTrack.addEventListener('pointerdown', this.onClickTrack);
         this.sliderThumb.addEventListener('pointerdown', this.onPointerDownThumb);
         document.addEventListener('pointermove', this.onPointerMoveDocument);
-        document.addEventListener('pointerup', (e) => {
-            if (this.isDraggingThumb) {
-                e.preventDefault();
-                this.isDraggingThumb = false;
-
-                // Remove CSS class to indicate
-                this.sliderThumb.classList.remove('slider-card__thumb--active');
-                this.sliderThumb.classList.remove('slider-card__thumb--uncommitted');
-
-                // Release pointer capture:
-                (e.target as HTMLElement).releasePointerCapture(e.pointerId);
-
-                // Emit slider value on pointer up:
-                this.emitSliderValue();
-            }
-        });
+        document.addEventListener('pointerup', this.onPointerUpDocument);
     }
 
     private renderTicks() {
@@ -215,97 +185,22 @@ export class SliderSensorView extends RegionView {
         }
     }
 
-    private onPointerDownThumb = (e: PointerEvent) => {
-        e.preventDefault();
-        this.isDraggingThumb = true;
-
-        // Add CSS class to indicate dragging:
-        this.setThumbVisualState('dragging');
-
-        // Capture pointer to continue receiving events outside the thumb:
-        (e.target as HTMLElement).setPointerCapture(e.pointerId);
-    }
-
-    private onPointerMoveDocument = (e: PointerEvent) => {
-        if (!this.isDraggingThumb) return;
-        e.preventDefault();
-
-        const rect = this.sliderTrack.getBoundingClientRect();
-        let proportion: number;
-        if (this.sensor.orientation === 'horizontal') {
-            const x = e.clientX - rect.left;
-            proportion = x / rect.width;
-        } else {
-            const y = e.clientY - rect.top;
-            proportion = 1 - (y / rect.height); // Invert for vertical
-        }
-        proportion = Math.max(0, Math.min(1, proportion)); // Clamp between 0 and 1
-
-        // Snap to nearest bin:
-        const nearestBin = this.proportionToNearestBin(proportion);
-        this.currentBinIndex = nearestBin;
-        //this.emitSliderChange(nearestBin);
-        const snappedProportion = this.binIndexToProportion(nearestBin);
-
-        this.scheduleThumbMove(snappedProportion);
-    }
-
-    private onClickTrack = (e: PointerEvent) => {
-        e.preventDefault();
-
-        const rect = this.sliderTrack.getBoundingClientRect();
-        let proportion: number;
-        if (this.sensor.orientation === 'horizontal') {
-            const x = e.clientX - rect.left;
-            proportion = x / rect.width;
-        } else {
-            const y = e.clientY - rect.top;
-            proportion = 1 - (y / rect.height); // Invert for vertical
-        }
-        proportion = Math.max(0, Math.min(1, proportion)); // Clamp between 0 and 1
-
-        // Snap to nearest bin:
-        const nearestBin = this.proportionToNearestBin(proportion);
-        this.currentBinIndex = nearestBin;
-        //this.emitSliderChange(nearestBin);
-        const snappedProportion = this.binIndexToProportion(nearestBin);
-
-        this.scheduleThumbMove(snappedProportion);
-
-        // If we were dragging the thumb, stop dragging:
-        if (this.isDraggingThumb) {
-            this.isDraggingThumb = false;
-            // Release pointer capture:
-            (e.target as HTMLElement).releasePointerCapture(e.pointerId);
-
-            // Remove CSS class to indicate
-            this.setThumbVisualState('committed')
-        }
-        // Otherwise, start a drag operation:
-        else {
-            this.isDraggingThumb = true;
-            // Add CSS class to indicate
-            this.setThumbVisualState('dragging');
-            // Capture pointer to continue receiving events outside the thumb:
-            (e.target as HTMLElement).setPointerCapture(e.pointerId);
-        }
-    }
-
-    private scheduleThumbMove(proportion: number) {
+    private scheduleThumbMove(binIndex: SliderBinIndex) {
         // Requests that the thumb be moved to the given proportion (0 to 1) on the next animation frame.
         // Overrides any previously requested move.
+        const proportion = this.binIndexToProportion(binIndex);
         this.pendingThumbPosition = Math.max(0, Math.min(1, proportion)); // Clamp between 0 and 1
 
         if (!this.frameRequested) {
             this.frameRequested = true;
             this.rafId = requestAnimationFrame(() => {
                 this.frameRequested = false;
-                this.flushThumbUpdate();
+                this.flushThumbVisualUpdate();
             });
         }
     }
 
-    private flushThumbUpdate() {
+    private flushThumbVisualUpdate() {
         if (this.pendingThumbPosition == null) {
             return
         }
@@ -323,6 +218,95 @@ export class SliderSensorView extends RegionView {
         }
 
         this.pendingThumbPosition = null;
+    }
+
+    private calculateNearestBin(e: PointerEvent): SliderBinIndex{
+        // Short circuit
+        if (this.sensor.num_bins <= 1) return 0 as SliderBinIndex;
+
+        const rect = this.sliderTrack.getBoundingClientRect();
+        let proportion: number;
+        switch(this.sensor.orientation){
+            case 'horizontal':
+                const x = e.clientX - rect.left;
+                proportion = x / rect.width;
+                break
+            case 'vertical':
+                const y = e.clientY - rect.top;
+                proportion = 1 - (y / rect.height); // Invert for vertical
+                break
+            default:
+                const _exhaustive: never = this.sensor.orientation;
+                throw new Error(`Unsupported SliderSensor.orientation found ${JSON.stringify(_exhaustive)}`)
+        }
+
+        proportion = Math.max(0, Math.min(1, proportion)); // Clamp between 0 and 1
+
+        const exactBin = proportion * (this.sensor.num_bins - 1);
+        return Math.round(exactBin) as SliderBinIndex;
+    }
+
+    private onPointerDownThumb = (e: PointerEvent) => {
+        e.preventDefault();
+        this.isDraggingThumb = true;
+        this.setThumbVisualState('dragging');
+
+        // Capture pointer to continue receiving events outside the thumb:
+        (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    }
+
+    private onPointerUpDocument = (e:PointerEvent) => {
+        if (this.isDraggingThumb) {
+            e.preventDefault();
+            this.isDraggingThumb = false;
+
+            // Remove CSS class to indicate
+            const nearestBin=this.calculateNearestBin(e);
+            this.currentBinIndex = nearestBin;
+            this.scheduleThumbMove(nearestBin);
+            this.setThumbVisualState('committed');
+
+            // Release pointer capture:
+            (e.target as HTMLElement).releasePointerCapture(e.pointerId);
+
+            // Emit slider value on pointer up:
+            this.emitSliderValue();
+        }
+    }
+    private onPointerMoveDocument = (e: PointerEvent) => {
+        if (!this.isDraggingThumb) return;
+        e.preventDefault();
+
+        const nearestBin=this.calculateNearestBin(e);
+        this.currentBinIndex = nearestBin;
+        this.scheduleThumbMove(nearestBin);
+    }
+
+    private onClickTrack = (e: PointerEvent) => {
+        e.preventDefault();
+
+        // Snap to nearest bin:
+        const nearestBin = this.calculateNearestBin(e);
+        this.currentBinIndex = nearestBin;
+        this.scheduleThumbMove(nearestBin);
+
+        // If the thumb was being dragged, stop dragging:
+        if (this.isDraggingThumb) {
+            this.isDraggingThumb = false;
+            // Release pointer capture:
+            (e.target as HTMLElement).releasePointerCapture(e.pointerId);
+
+            // Remove CSS class to indicate
+            this.setThumbVisualState('committed')
+        }
+        // Otherwise, start a drag operation:
+        else {
+            this.isDraggingThumb = true;
+            // Add CSS class to indicate
+            this.setThumbVisualState('dragging');
+            // Capture pointer to continue receiving events outside the thumb:
+            (e.target as HTMLElement).setPointerCapture(e.pointerId);
+        }
     }
 
     onDestroy() {
@@ -343,7 +327,7 @@ export class SliderSensorView extends RegionView {
         const binIndex = this.currentBinIndex ;
         // Create sample
         const sample: SliderSample = {
-            sliderNormalizedPosition: binIndex / (this.sensor.num_bins - 1),
+            sliderNormalizedPosition: binIndex / (this.sensor.num_bins - 1) as SliderNormalizedPosition,
             binIndex: binIndex,
             domTimestamp: performance.now(),
         }
