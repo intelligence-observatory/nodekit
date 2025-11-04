@@ -15,6 +15,14 @@ node = Node(
         "b": cards.VideoCard(
             video=assets.Video.from_path("nodekit-rs-video/test-video.mp4"), x=0, y=0, w=0.33, h=0.25
         ),
+        "c": cards.TextCard(
+            text="Click the **test image**",
+            x=0,
+            y=0.4,
+            w=1,
+            h=1,
+            justification_vertical='top',
+        )
     },
     sensors={"s": sensors.TimeoutSensor(timeout_msec=20000)},
 )

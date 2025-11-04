@@ -33,7 +33,7 @@ impl Text {
         };
         Ok(Self {
             text: card.text.clone(),
-            font_size: card.font_size.0 as u16,
+            font_size: (card.font_size.0 * BOARD_D_F64) as u16,
             text_color: [text_color.r, text_color.g, text_color.b],
             background_color: [background_color.r, background_color.g, background_color.b],
             justification: Justification {

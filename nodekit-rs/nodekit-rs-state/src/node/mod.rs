@@ -336,9 +336,10 @@ impl Node {
                         .components
                         .insert(card_key, CardComponentKey::Text(text_key));
                 }
-                _ => (),
+                other => todo!("unsupported card: {:?}", other),
             }
         }
+
         // Set the order.
         let mut z_indices = cards
             .cards
