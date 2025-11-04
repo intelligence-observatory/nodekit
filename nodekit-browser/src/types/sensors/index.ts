@@ -1,5 +1,6 @@
 import type {CardId, ColorHexString, NodeTimePointMsec, PlainString, PressableKey, SpatialSize} from "../common.ts";
 import type {Region} from "../region";
+import type {SliderNormalizedPosition} from "../../board-view/sensor-bindings/slider";
 
 
 interface BaseSensor<T extends string> {

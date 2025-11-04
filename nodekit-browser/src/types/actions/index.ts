@@ -1,5 +1,5 @@
 import type {CardId, PressableKey, SensorId, SpatialPoint} from "../common.ts";
-import type {SliderBinIndex, SliderNormalizedPosition} from "../../board-view/sensor-bindings/slider/slider.ts";
+import type {SliderBinIndex, SliderNormalizedPosition} from "../../board-view/sensor-bindings/slider";
 
 export interface BaseAction<T extends string> {
     action_type: T

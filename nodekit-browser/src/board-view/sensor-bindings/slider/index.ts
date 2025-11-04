@@ -5,7 +5,6 @@ import type {SliderState} from "../../../types/actions";
 import {SensorBinding} from "../index.ts";
 
 
-// Slider:
 export type SliderBinIndex = number // 0 to num_bins - 1
 export type SliderNormalizedPosition = number // 0 to 1 (left to right, and bottom to top)
 
@@ -17,6 +16,9 @@ export type SliderSample = {
 
 type SliderSubscriber = (sample: SliderSample) => void;
 
+/**
+ *
+ */
 export class SliderSensorBinding extends SensorBinding<SliderSensor> {
     prepare(
         boardView: BoardView
@@ -42,10 +44,13 @@ export class SliderSensorBinding extends SensorBinding<SliderSensor> {
     }
 }
 
+/**
+ *
+ */
 export class SliderSensorView extends RegionView {
-    sliderContainer!: HTMLDivElement;
-    sliderTrack!: HTMLDivElement;
-    sliderThumb!: HTMLDivElement;
+    sliderContainer: HTMLDivElement;
+    sliderTrack: HTMLDivElement;
+    sliderThumb: HTMLDivElement;
 
     private sensor: SliderSensor
     private pendingThumbPosition: number | null = null;
@@ -53,8 +58,8 @@ export class SliderSensorView extends RegionView {
     private frameRequested: boolean = false;
 
     private currentBinIndex: SliderBinIndex | null = null;
-    private binIndexToProportion!: (binIndex: SliderBinIndex) => number;
-    private proportionToNearestBin!: (proportion: number) => SliderBinIndex;
+    private binIndexToProportion: (binIndex: SliderBinIndex) => number;
+    private proportionToNearestBin: (proportion: number) => SliderBinIndex;
     private subscribers: Set<SliderSubscriber> = new Set();
     private isDraggingThumb: boolean = false;
 
@@ -78,6 +83,7 @@ export class SliderSensorView extends RegionView {
         this.sliderThumb = document.createElement('div');
         this.sliderThumb.classList.add('slider-card__thumb');
         this.sliderContainer.appendChild(this.sliderThumb);
+        this.setThumbVisualState('uncommitted')
 
         // Set orientation:
         if (sensor.orientation === 'horizontal') {
@@ -104,25 +110,20 @@ export class SliderSensorView extends RegionView {
         }
 
         // Draw ticks if needed:
-        this.renderTicks(sensor);
+        this.renderTicks();
 
         // Always initialize the thumb to the exact middle, even if num_bins is even:
-        let initial = this.binIndexToProportion(sensor.initial_bin_index)
+        let initial = this.binIndexToProportion(sensor.initial_bin_index);
         if (isNaN(initial) || !isFinite(initial)) {
             initial = 0.5 // fallback
         }
 
         this.scheduleThumbMove(initial)
 
-        // Add event listener for pointer down on the track:
-        this.sliderTrack?.addEventListener('pointerdown', this.onClickTrack);
-
-        // Add event listener for pointer down on the thumb:
-        this.sliderThumb?.addEventListener('pointerdown', this.onPointerDownThumb);
-        // Add event listener for pointer move and up on the document:
+        // Add event listeners:
+        this.sliderTrack.addEventListener('pointerdown', this.onClickTrack);
+        this.sliderThumb.addEventListener('pointerdown', this.onPointerDownThumb);
         document.addEventListener('pointermove', this.onPointerMoveDocument);
-
-        // Add event listener for pointer up on the document:
         document.addEventListener('pointerup', (e) => {
             if (this.isDraggingThumb) {
                 e.preventDefault();
@@ -130,17 +131,19 @@ export class SliderSensorView extends RegionView {
 
                 // Remove CSS class to indicate
                 this.sliderThumb.classList.remove('slider-card__thumb--active');
-
-                // Emit only on pointer up
-                this.emitSliderChange();
+                this.sliderThumb.classList.remove('slider-card__thumb--uncommitted');
 
                 // Release pointer capture:
                 (e.target as HTMLElement).releasePointerCapture(e.pointerId);
+
+                // Emit slider value on pointer up:
+                this.emitSliderValue();
             }
         });
     }
 
-    private renderTicks(sensor: SliderSensor) {
+    private renderTicks() {
+        const sensor = this.sensor;
         // Draw tick marks on the track if show_bin_markers is true
         if (!sensor.show_bin_markers) return;
         if (!this.sliderTrack) return;
@@ -153,7 +156,7 @@ export class SliderSensorView extends RegionView {
         const frag = document.createDocumentFragment();
 
         for (let i = 0; i < bins; i++) {
-            // SKip first and last ticks (they are the ends of the track)
+            // Skip first and last ticks (they are the ends of the track)
             if (i === 0 || i === bins - 1) continue;
 
             // Calculate position:
@@ -188,12 +191,36 @@ export class SliderSensorView extends RegionView {
         }
         this.sliderTrack.appendChild(frag);
     }
+    // Rendering functions
+    private setThumbVisualState(
+        thumbState: 'dragging' | 'committed' | 'uncommitted',
+    ){
+        const activeCssClassName = 'slider-card__thumb--active'
+        const uncommittedCssClassName = 'slider-card__thumb--uncommitted'
+        switch(thumbState){
+            case 'dragging':
+                this.sliderThumb.classList.add(activeCssClassName);
+                this.sliderThumb.classList.remove(uncommittedCssClassName);
+                return
+            case 'committed':
+                this.sliderThumb.classList.remove(activeCssClassName);
+                this.sliderThumb.classList.remove(uncommittedCssClassName);
+                return
+            case 'uncommitted':
+                this.sliderThumb.classList.remove(activeCssClassName);
+                this.sliderThumb.classList.add(uncommittedCssClassName);
+                return
+            default:
+                return
+        }
+    }
 
     private onPointerDownThumb = (e: PointerEvent) => {
         e.preventDefault();
         this.isDraggingThumb = true;
+
         // Add CSS class to indicate dragging:
-        this.sliderThumb.classList.add('slider-card__thumb--active');
+        this.setThumbVisualState('dragging');
 
         // Capture pointer to continue receiving events outside the thumb:
         (e.target as HTMLElement).setPointerCapture(e.pointerId);
@@ -202,7 +229,6 @@ export class SliderSensorView extends RegionView {
     private onPointerMoveDocument = (e: PointerEvent) => {
         if (!this.isDraggingThumb) return;
         e.preventDefault();
-        if (!this.sliderTrack) return;
 
         const rect = this.sliderTrack.getBoundingClientRect();
         let proportion: number;
@@ -226,7 +252,6 @@ export class SliderSensorView extends RegionView {
 
     private onClickTrack = (e: PointerEvent) => {
         e.preventDefault();
-        if (!this.sliderTrack) return;
 
         const rect = this.sliderTrack.getBoundingClientRect();
         let proportion: number;
@@ -254,13 +279,13 @@ export class SliderSensorView extends RegionView {
             (e.target as HTMLElement).releasePointerCapture(e.pointerId);
 
             // Remove CSS class to indicate
-            this.sliderThumb.classList.remove('slider-card__thumb--active');
+            this.setThumbVisualState('committed')
         }
         // Otherwise, start a drag operation:
         else {
             this.isDraggingThumb = true;
             // Add CSS class to indicate
-            this.sliderThumb.classList.add('slider-card__thumb--active');
+            this.setThumbVisualState('dragging');
             // Capture pointer to continue receiving events outside the thumb:
             (e.target as HTMLElement).setPointerCapture(e.pointerId);
         }
@@ -309,13 +334,11 @@ export class SliderSensorView extends RegionView {
             this.pendingThumbPosition = null;
         }
         // Remove event listeners
-        this.sliderTrack?.removeEventListener('pointerdown', this.onClickTrack);
+        this.sliderTrack.removeEventListener('pointerdown', this.onClickTrack);
     }
 
-    private emitSliderChange(
-        //binIndex: SliderBinIndex
-    ) {
-        // Only emit if changed
+    private emitSliderValue() {
+        // Only emit if not null
         if (this.currentBinIndex==null) return;
         const binIndex = this.currentBinIndex ;
         // Create sample
