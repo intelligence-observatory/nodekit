@@ -1,8 +1,9 @@
-import type {CardId, PressableKey, SensorId, SpatialPoint} from "../common.ts";
+import type {PressableKey, SensorId, SpatialPoint} from "../common.ts";
 import type {SliderBinIndex, SliderNormalizedPosition} from "../../board-view/sensor-bindings/slider";
 
 export interface BaseAction<T extends string> {
     action_type: T
+    //t: NodeTimePointMsec, // When the Action was detected by the Sensor
 }
 
 export interface ClickAction extends BaseAction<"ClickAction"> {
@@ -17,23 +18,17 @@ export interface KeyAction extends BaseAction<"KeyAction"> {
 export interface TimeoutAction extends BaseAction<"TimeoutAction"> {}
 
 // SubmitAction
-export interface SliderState {
-    slider_normalized_position: SliderNormalizedPosition // between 0 and 1
-    slider_bin_index: SliderBinIndex
+export interface SliderAction extends BaseAction<"SliderAction"> {
+    normalized_position: SliderNormalizedPosition // between 0 and 1
+    bin_index: SliderBinIndex
 }
-
-export interface FreeTextEntryState {
+export interface FreeTextEntryAction extends BaseAction<"FreeTextEntryAction"> {
     text: string
 }
-
-export interface SubmitAction extends BaseAction<"SubmitAction"> {
-    submitted_values: Record<CardId, FreeTextEntryState | SliderState>
-}
-
 export interface WaitAction extends BaseAction<"WaitAction">{}
 export interface ConfirmAction extends BaseAction<"ConfirmAction">{}
 // Union
-export type SensorValue = ClickAction | TimeoutAction | KeyAction | SubmitAction | SliderState | FreeTextEntryState | WaitAction | ConfirmAction;
+export type SensorValue = ClickAction | TimeoutAction | KeyAction | SliderAction | FreeTextEntryAction | WaitAction | ConfirmAction;
 
 
 export type Action = Record<SensorId, SensorValue>
