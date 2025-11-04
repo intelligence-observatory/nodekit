@@ -9,7 +9,6 @@ bytemuck.workspace = true
 glam.workspace = true
 hashbrown.workspace = true
 hex_color.workspace = true
-nodekit-rs-board = { path = "../nodekit-rs-board" }
 nodekit-rs-graph = { path = "../nodekit-rs-graph" }
 nodekit-rs-image = { path = "../nodekit-rs-image" }
 nodekit-rs-request = { path = "../nodekit-rs-request" }

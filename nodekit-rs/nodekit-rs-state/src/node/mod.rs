@@ -1,14 +1,17 @@
 mod cards_result;
-use crate::components::*;
-use crate::cursor::blit_cursor;
-use crate::node::cards_result::CardsResult;
-use crate::{error::Error, systems::*};
+use crate::{
+    board::*,
+    components::*,
+    cursor::blit_cursor,
+    node::cards_result::CardsResult,
+    error::Error,
+    systems::*
+};
 use blittle::blit;
 use bytemuck::{cast_slice, cast_slice_mut};
 use glam::DVec2;
 use hashbrown::HashMap;
 use hex_color::HexColor;
-use nodekit_rs_board::*;
 use nodekit_rs_graph::{NodeCardsValue, NodeSensorsValue};
 use nodekit_rs_request::Action;
 use nodekit_rs_response::*;
@@ -108,8 +111,8 @@ impl Node {
         Response {
             visual: Some(VisualFrame {
                 buffer: board.to_vec(),
-                width: VISUAL_D_U32,
-                height: VISUAL_D_U32,
+                width: BOARD_D_USIZE,
+                height: BOARD_D_USIZE,
             }),
             audio: None,
             sensor: None,
@@ -215,7 +218,7 @@ impl Node {
                         &card.rect.size,
                         board,
                         &card.rect.position,
-                        &VISUAL_SIZE,
+                        &BOARD_SIZE,
                         STRIDE,
                     );
                     blitted = true;
@@ -226,8 +229,8 @@ impl Node {
         if blitted {
             response.visual = Some(VisualFrame {
                 buffer: board.to_vec(),
-                width: VISUAL_D_U32,
-                height: VISUAL_D_U32,
+                width: BOARD_D_USIZE,
+                height: BOARD_D_USIZE,
             });
         }
         Ok(())

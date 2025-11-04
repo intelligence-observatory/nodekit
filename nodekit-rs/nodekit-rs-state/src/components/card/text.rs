@@ -1,8 +1,10 @@
-use crate::Card;
-use crate::error::Error;
+use crate::{
+    error::Error,
+    Card,
+    board::*
+};
 use blittle::blit;
 use hex_color::HexColor;
-use nodekit_rs_board::{STRIDE, VISUAL_SIZE};
 use nodekit_rs_graph::TextCard;
 use nodekit_rs_text::{Justification, JustificationHorizontal, JustificationVertical};
 use slotmap::new_key_type;
@@ -66,7 +68,7 @@ impl Text {
             &card.rect.size,
             board,
             &card.rect.position,
-            &VISUAL_SIZE,
+            &BOARD_SIZE,
             STRIDE,
         );
         Ok(())

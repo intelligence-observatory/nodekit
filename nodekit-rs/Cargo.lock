@@ -1180,13 +1180,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "nodekit-rs-board"
-version = "0.1.0"
-dependencies = [
- "blittle",
-]
-
-[[package]]
 name = "nodekit-rs-client"
 version = "0.1.0"
 dependencies = [
@@ -1257,7 +1250,6 @@ dependencies = [
  "glam",
  "hashbrown 0.16.0",
  "hex_color",
- "nodekit-rs-board",
  "nodekit-rs-graph",
  "nodekit-rs-image",
  "nodekit-rs-request",

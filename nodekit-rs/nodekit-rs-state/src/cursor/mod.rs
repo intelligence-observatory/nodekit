@@ -2,7 +2,7 @@ mod clamped;
 
 use bytemuck::cast_slice;
 use clamped::Clamped;
-use nodekit_rs_board::*;
+use crate::board::*;
 use std::slice::from_raw_parts_mut;
 
 const DIAMETER: usize = 32;
@@ -21,10 +21,10 @@ pub fn blit_cursor(x: f64, y: f64, board: &mut [u8]) {
         let cursor = cast_slice::<u8, [[u8; 4]; DIAMETER]>(CURSOR);
         // Break the visual bitmap into row slices.
         // We can't use bytemuck for this, but it's very safe, because we're using constants.
-        let ptr = board.as_mut_ptr().cast::<[[u8; 3]; VISUAL_D]>();
+        let ptr = board.as_mut_ptr().cast::<[[u8; 3]; BOARD_D]>();
         unsafe {
             // Iterate through each row we need to blit from and to.
-            for (dst, src) in from_raw_parts_mut(ptr, VISUAL_D)[y.dst_0..y.dst_1]
+            for (dst, src) in from_raw_parts_mut(ptr, BOARD_D)[y.dst_0..y.dst_1]
                 .iter_mut()
                 .zip(cursor[y.src_0..y.src_1].iter())
             {
@@ -56,7 +56,7 @@ mod tests {
 
     #[test]
     fn blit_cursor_image() {
-        let mut visual = vec![0; VISUAL_D * VISUAL_D * STRIDE];
+        let mut visual = vec![0; BOARD_D * BOARD_D * STRIDE];
         blit_cursor(0., 0., &mut visual);
         blit_cursor(0.4, 0.4, &mut visual);
         blit_cursor(-0.4, -0.4, &mut visual);
@@ -66,7 +66,7 @@ mod tests {
         let file = File::create("out.png").unwrap();
         let ref mut w = BufWriter::new(file);
 
-        let mut encoder = png::Encoder::new(w, VISUAL_D as u32, VISUAL_D as u32); // Width is 2 pixels and height is 1.
+        let mut encoder = png::Encoder::new(w, BOARD_D as u32, BOARD_D as u32); // Width is 2 pixels and height is 1.
         encoder.set_color(png::ColorType::Rgb);
         encoder.set_depth(png::BitDepth::Eight);
         let mut writer = encoder.write_header().unwrap();

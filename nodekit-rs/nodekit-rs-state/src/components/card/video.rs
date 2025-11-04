@@ -1,10 +1,10 @@
 use crate::get_w_h;
 use crate::{
+    board::*,
     components::card::{Card, get_path},
     error::Error,
 };
 use blittle::*;
-use nodekit_rs_board::*;
 use nodekit_rs_graph::VideoCard;
 use nodekit_rs_response::AudioFrame;
 use nodekit_rs_video::*;
@@ -65,7 +65,7 @@ impl Video {
                     &card.rect.size,
                     board,
                     &card.rect.position,
-                    &VISUAL_SIZE,
+                    &BOARD_SIZE,
                     3,
                 );
                 // Return audio.

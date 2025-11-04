@@ -1,8 +1,11 @@
-use crate::components::card::get_path;
-use crate::error::Error;
-use crate::{Card, get_w_h};
+use crate::{
+    board::*,
+    error::Error,
+    components::card::get_path,
+    Card,
+    get_w_h
+};
 use blittle::blit;
-use nodekit_rs_board::*;
 use nodekit_rs_graph::ImageCard;
 use nodekit_rs_image::from_png;
 use slotmap::new_key_type;
@@ -37,7 +40,7 @@ impl Image {
             &card.rect.size,
             board,
             &card.rect.position,
-            &VISUAL_SIZE,
+            &BOARD_SIZE,
             STRIDE,
         );
         Ok(())

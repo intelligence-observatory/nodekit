@@ -7,12 +7,15 @@ mod error;
 mod node;
 mod rect;
 mod systems;
+mod board;
 
 pub use crate::components::*;
-use crate::node::{Node, NodeKey};
+use crate::{
+    node::{Node, NodeKey},
+    board::*
+};
 use error::Error;
 use glam::DVec2;
-use nodekit_rs_board::{STRIDE, VISUAL_D};
 use nodekit_rs_graph::Graph;
 use nodekit_rs_request::Action;
 use nodekit_rs_response::Response;
@@ -71,7 +74,7 @@ impl State {
             nodes,
             transitions,
             nodekit_version: value.nodekit_version.clone(),
-            board: vec![0; VISUAL_D * VISUAL_D * STRIDE],
+            board: vec![0; BOARD_D * BOARD_D * STRIDE],
             finished: false,
             cursor: DVec2::default(),
             text_engine: nodekit_rs_text::Text::default(),

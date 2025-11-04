@@ -1,6 +1,5 @@
 [workspace]
 members = [
-    "nodekit-rs-board",
     "nodekit-rs-client",
     "nodekit-rs-fb",
     "nodekit-rs-graph",

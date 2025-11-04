@@ -16,8 +16,8 @@ pub use video::*;
 macro_rules! get_w_h {
     ($card:ident) => {{
         (
-            nodekit_rs_board::size_coordinate($card.w.0) as u32,
-            nodekit_rs_board::size_coordinate($card.h.0) as u32,
+            crate::board::size_coordinate($card.w.0) as u32,
+            crate::board::size_coordinate($card.h.0) as u32,
         )
     }};
 }

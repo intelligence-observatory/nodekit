@@ -1,5 +1,5 @@
 use blittle::*;
-use nodekit_rs_board::*;
+use crate::board::*;
 
 #[derive(Copy, Clone, Default)]
 pub struct Rect {
@@ -17,7 +17,7 @@ impl Rect {
             w: size_coordinate(w),
             h: size_coordinate(h),
         };
-        let position = clip(&position, &VISUAL_SIZE, &mut size);
+        let position = clip(&position, &BOARD_SIZE, &mut size);
         Self { position, size }
     }
 
