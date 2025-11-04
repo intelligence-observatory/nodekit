@@ -1,18 +1,18 @@
 //! This crate contains the core functionality of `nodekit-rs`.
 //! Everything except the socket connection routes to this crate.
 
+mod board;
 mod components;
 mod cursor;
 mod error;
 mod node;
 mod rect;
 mod systems;
-mod board;
 
 pub use crate::components::*;
 use crate::{
+    board::*,
     node::{Node, NodeKey},
-    board::*
 };
 use error::Error;
 use glam::DVec2;

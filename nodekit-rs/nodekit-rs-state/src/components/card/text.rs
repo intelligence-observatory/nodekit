@@ -1,8 +1,4 @@
-use crate::{
-    error::Error,
-    Card,
-    board::*
-};
+use crate::{Card, board::*, error::Error};
 use blittle::blit;
 use hex_color::HexColor;
 use nodekit_rs_graph::TextCard;

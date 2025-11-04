@@ -1,5 +1,5 @@
-use blittle::*;
 use crate::board::*;
+use blittle::*;
 
 #[derive(Copy, Clone, Default)]
 pub struct Rect {

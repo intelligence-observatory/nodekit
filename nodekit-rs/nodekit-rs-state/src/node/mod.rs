@@ -1,11 +1,7 @@
 mod cards_result;
 use crate::{
-    board::*,
-    components::*,
-    cursor::blit_cursor,
-    node::cards_result::CardsResult,
-    error::Error,
-    systems::*
+    board::*, components::*, cursor::blit_cursor, error::Error, node::cards_result::CardsResult,
+    systems::*,
 };
 use blittle::blit;
 use bytemuck::{cast_slice, cast_slice_mut};
@@ -243,8 +239,9 @@ impl Node {
                 self.effects.effects[effect_key],
                 EntityState::StartedNow | EntityState::Active | EntityState::EndedNow
             )
-        }) {
-            blit_cursor(cursor.x, cursor.y, board);
+        }) && let Some(b) = blit_cursor(cursor.x, cursor.y, board)
+        {
+            board.copy_from_slice(&b);
         }
     }
 

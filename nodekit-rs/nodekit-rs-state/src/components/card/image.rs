@@ -1,10 +1,4 @@
-use crate::{
-    board::*,
-    error::Error,
-    components::card::get_path,
-    Card,
-    get_w_h
-};
+use crate::{Card, board::*, components::card::get_path, error::Error, get_w_h};
 use blittle::blit;
 use nodekit_rs_graph::ImageCard;
 use nodekit_rs_image::from_png;
