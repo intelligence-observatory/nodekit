@@ -41,7 +41,7 @@ mod tests {
         assert_eq!(spatial_coordinate(-0.5), 0);
         assert_eq!(spatial_coordinate(0.5), BOARD_D_ISIZE);
 
-        assert_eq!(spatial_coordinate(0.), 0);
-        assert_eq!(spatial_coordinate(1.), BOARD_D_ISIZE);
+        assert_eq!(size_coordinate(0.), 0);
+        assert_eq!(size_coordinate(1.), BOARD_D);
     }
 }

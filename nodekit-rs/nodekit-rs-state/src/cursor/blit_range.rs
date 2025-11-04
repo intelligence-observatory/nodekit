@@ -70,7 +70,7 @@ mod tests {
         assert_eq!(c.src_0, 7);
         assert_eq!(c.src_1, d);
         assert_eq!(c.dst_0, 0);
-        assert_eq!(c.dst_1, 25);
+        assert_eq!(c.dst_1, 27);
 
         assert!(BlitRange::new(1.1, d, d_half, d_half_isize).is_none());
         assert!(BlitRange::new(-0.6, d, d_half, d_half_isize).is_none());

@@ -152,13 +152,13 @@ mod tests {
 
     #[test]
     fn test_video_extraction() {
-        let mut extractor = FrameExtractor::new("../mp4.ia.mp4", 320, 180, false).unwrap();
+        let mut extractor = FrameExtractor::new("test-video.mp4", 320, 180, false).unwrap();
         let mut num_frames = 0u64;
         while let Ok(frame) = extractor.get_next_frame()
             && !matches!(frame, Extraction::EndOfVideo)
         {
             num_frames += 1;
         }
-        assert_eq!(num_frames, 1484);
+        assert_eq!(num_frames, 208);
     }
 }
