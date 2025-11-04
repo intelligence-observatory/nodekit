@@ -3,7 +3,7 @@
 use blittle::*;
 
 pub const BOARD_D: usize = 768;
-pub const BOARD_D_USIZE: u32 = 768;
+pub const BOARD_D_U32: u32 = 768;
 pub const BOARD_D_ISIZE: isize = 768;
 pub const BOARD_D_F64: f64 = 768.;
 pub const BOARD_D_F64_HALF: f64 = 384.;
@@ -29,7 +29,7 @@ mod tests {
 
     #[test]
     fn test_board_constants() {
-        assert_eq!(BOARD_D, BOARD_D_USIZE as usize);
+        assert_eq!(BOARD_D, BOARD_D_U32 as usize);
         assert_eq!(BOARD_D, BOARD_D_ISIZE as usize);
         assert_eq!(BOARD_D, BOARD_D_F64 as usize);
         assert_eq!(BOARD_D / 2, BOARD_D_F64_HALF as usize);

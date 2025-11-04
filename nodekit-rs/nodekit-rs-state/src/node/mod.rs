@@ -1,6 +1,6 @@
 mod cards_result;
 use crate::{
-    board::*, components::*, cursor::blit_cursor, error::Error, node::cards_result::CardsResult,
+    board::*, components::*, cursor::Cursor, error::Error, node::cards_result::CardsResult,
     systems::*,
 };
 use blittle::blit;
@@ -72,6 +72,7 @@ pub struct Node {
     pub effects: Effects,
     pub board_color: [u8; 3],
     state: EntityState,
+    cursor: Cursor,
 }
 
 impl Node {
@@ -89,6 +90,7 @@ impl Node {
             effects,
             board_color,
             state: Default::default(),
+            cursor: Default::default(),
         };
         Ok(node)
     }
@@ -107,8 +109,8 @@ impl Node {
         Response {
             visual: Some(VisualFrame {
                 buffer: board.to_vec(),
-                width: BOARD_D_USIZE,
-                height: BOARD_D_USIZE,
+                width: BOARD_D_U32,
+                height: BOARD_D_U32,
             }),
             audio: None,
             sensor: None,
@@ -121,27 +123,52 @@ impl Node {
         action: Option<Action>,
         cursor: &mut DVec2,
         text_engine: &mut nodekit_rs_text::Text,
+        board_pre_cursor: &mut [u8],
         board: &mut [u8],
     ) -> Result<Response, Error> {
         if self.state == EntityState::Pending {
-            return Ok(self.start(board));
+            return Ok(self.start(board_pre_cursor));
         }
-        if self.state == EntityState::StartedNow {
-            self.state = EntityState::Active;
-        }
-        let mut result = Response::default();
+        let mut response = Response::default();
         // We haven't timed out yet.
-        if !self.tick_timeouts(&mut result) {
+        if !self.tick_timeouts(&mut response) {
+            let mouse_moved = matches!(
+                action.as_ref(),
+                Some(Action::Mouse {
+                    delta: Some(_),
+                    clicked: _
+                })
+            );
+
             // Apply the action.
-            self.on_action(action, cursor, &mut result);
+            self.on_action(action, cursor, &mut response);
             // Tick all timers.
             self.tick_timers();
             // Update all cards.
-            self.tick_cards(text_engine, board, &mut result)?;
-            // Blit the cursor.
-            self.tick_cursor(*cursor, board);
+            let mut blitted = self.tick_cards(text_engine, board_pre_cursor, &mut response)?;
+
+            // Blit the cursor if:
+            // - The node started now
+            // - At least one card blitted
+            // - The mouse moved
+            if self.state == EntityState::StartedNow || blitted || mouse_moved {
+                blitted = self.tick_cursor(*cursor, board_pre_cursor, board);
+            }
+
+            if blitted {
+                response.visual = Some(VisualFrame {
+                    buffer: board.to_vec(),
+                    width: BOARD_D_U32,
+                    height: BOARD_D_U32,
+                });
+            }
         }
-        Ok(result)
+
+        if self.state == EntityState::StartedNow {
+            self.state = EntityState::Active;
+        }
+
+        Ok(response)
     }
 
     fn tick_timers(&mut self) {
@@ -179,7 +206,7 @@ impl Node {
         text_engine: &mut nodekit_rs_text::Text,
         board: &mut [u8],
         response: &mut Response,
-    ) -> Result<(), Error> {
+    ) -> Result<bool, Error> {
         let mut blitted = false;
         for card_key in self.cards.order.iter() {
             let card_key = *card_key;
@@ -221,27 +248,28 @@ impl Node {
                 }
             }
         }
-        // Return the board.
-        if blitted {
-            response.visual = Some(VisualFrame {
-                buffer: board.to_vec(),
-                width: BOARD_D_USIZE,
-                height: BOARD_D_USIZE,
-            });
-        }
-        Ok(())
+        Ok(blitted)
     }
 
-    fn tick_cursor(&self, cursor: DVec2, board: &mut [u8]) {
+    fn tick_cursor(
+        &mut self,
+        cursor: DVec2,
+        board_pre_cursor: &mut [u8],
+        board: &mut [u8],
+    ) -> bool {
         if !self.effects.hide_pointer_effects.keys().any(|k| {
             let effect_key = self.effects.components[k];
             matches!(
                 self.effects.effects[effect_key],
                 EntityState::StartedNow | EntityState::Active | EntityState::EndedNow
             )
-        }) && let Some(b) = blit_cursor(cursor.x, cursor.y, board)
-        {
-            board.copy_from_slice(&b);
+        }) {
+            // Copy the pre-cursor image onto the final image.
+            board.copy_from_slice(board_pre_cursor);
+            self.cursor.blit(cursor, board);
+            true
+        } else {
+            false
         }
     }
 

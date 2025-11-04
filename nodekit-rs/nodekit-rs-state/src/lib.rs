@@ -35,6 +35,10 @@ pub struct State {
     /// This is sent as part of the `Response`.
     pub nodekit_version: String,
     /// An allocated visual board.
+    /// This is the first image, prior to blitting the cursor.
+    board_pre_cursor: Vec<u8>,
+    /// An allocated visual board.
+    /// This is the final image, to which the cursor is blitted.
     board: Vec<u8>,
     /// If true, the graph is done.
     finished: bool,
@@ -68,13 +72,16 @@ impl State {
             transitions.insert(from, map);
         }
         let start = node_ids[&value.start];
+        let board_pre_cursor = vec![0; BOARD_D * BOARD_D * STRIDE];
+        let board = board_pre_cursor.clone();
 
         Ok(Self {
             current: start,
             nodes,
             transitions,
             nodekit_version: value.nodekit_version.clone(),
-            board: vec![0; BOARD_D * BOARD_D * STRIDE],
+            board_pre_cursor,
+            board,
             finished: false,
             cursor: DVec2::default(),
             text_engine: nodekit_rs_text::Text::default(),
@@ -89,6 +96,7 @@ impl State {
                 action,
                 &mut self.cursor,
                 &mut self.text_engine,
+                &mut self.board_pre_cursor,
                 &mut self.board,
             )?;
             // This node ended. Try to get the next node.
