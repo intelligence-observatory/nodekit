@@ -311,7 +311,7 @@ impl Node {
                 }
                 NodeCardsValue::VideoCard(video) => {
                     // Add a video.
-                    let video_key = cards.videos.insert(Video::new(video)?);
+                    let video_key = cards.videos.insert(Video::from_video_card(video)?);
                     cards
                         .components
                         .insert(card_key, CardComponentKey::Video(video_key));

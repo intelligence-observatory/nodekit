@@ -1305,6 +1305,7 @@ version = "0.1.0"
 dependencies = [
  "blittle",
  "bytemuck",
+ "criterion",
  "glam",
  "hashbrown 0.16.0",
  "hex_color",

@@ -9,6 +9,7 @@ pub use image::*;
 use nodekit_rs_graph::{AssetLocator, NodeCardsValue};
 use slotmap::new_key_type;
 use std::path::PathBuf;
+use blittle::{PositionU, Size};
 pub use text::*;
 pub use video::*;
 
@@ -47,6 +48,19 @@ pub struct Card {
     pub rect: Rect,
     pub state: EntityState,
     pub(crate) z_index: i64,
+}
+
+impl Card {
+    pub fn new(x: usize, y: usize, w: usize, h: usize) -> Self {
+        Self {
+            rect: Rect {
+                position: PositionU {x, y},
+                size: Size {w, h}
+            },
+            state: EntityState::Active,
+            z_index: 0
+        }
+    }
 }
 
 impl From<&NodeCardsValue> for Card {

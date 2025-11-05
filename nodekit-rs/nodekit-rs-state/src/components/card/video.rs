@@ -31,7 +31,19 @@ pub struct Video {
 }
 
 impl Video {
-    pub fn new(card: &VideoCard) -> Result<Self, Error> {
+    pub fn new(path: PathBuf, width: u32, height: u32, muted: bool, looped: bool) -> Self {
+        Self {
+            path,
+            width,
+            height,
+            muted,
+            looped,
+            extractor: None,
+            ended: false
+        }
+    }
+    
+    pub fn from_video_card(card: &VideoCard) -> Result<Self, Error> {
         let (width, height) = get_w_h!(card);
         Ok(Self {
             path: get_path(&card.video.locator)?,
@@ -112,5 +124,12 @@ impl Video {
             }
         }
         Ok(blitted)
+    }
+    
+    pub fn reset(&mut self) -> Result<(), Error> {
+        match self.extractor.as_mut() {
+            Some(extractor) => extractor.reset().map_err(Error::Video),
+            None => Ok(())
+        }
     }
 }
