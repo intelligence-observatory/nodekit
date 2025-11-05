@@ -11,3 +11,10 @@ png.workspace = true
 pyo3.workspace = true
 pyo3-stub-gen.workspace = true
 thiserror.workspace = true
+
+[dev-dependencies]
+criterion.workspace = true
+
+[[bench]]
+name = "bench"
+harness = false

@@ -1290,6 +1290,7 @@ dependencies = [
 name = "nodekit-rs-response"
 version = "0.1.0"
 dependencies = [
+ "criterion",
  "fast_image_resize",
  "flatbuffers",
  "nodekit-rs-fb",
