@@ -51,23 +51,6 @@ macro_rules! sensor_and_timer {
     }};
 }
 
-macro_rules! blit_video {
-    ($self:ident, $video_key:ident, $card:ident, $visual:ident, $blitted:ident, $frame:ident) => {{
-        if $card.state == EntityState::StartedNow {
-            $self.cards.videos[*$video_key].load()?;
-        }
-        let video_result = $self.cards.videos[*$video_key]
-            .blit($card, $visual)
-            .map_err(Error::Video)?;
-        if video_result.blitted {
-            $blitted = true;
-        }
-        if let Some(audio) = video_result.audio {
-            $frame.audio = Some(audio);
-        }
-    }};
-}
-
 pub struct Node {
     pub cards: Cards,
     pub timers: Timers,
@@ -223,7 +206,9 @@ impl Node {
                         blitted = true;
                     }
                     CardComponentKey::Video(video_key) => {
-                        blit_video!(self, video_key, card, board, blitted, response);
+                        if self.cards.videos[*video_key].blit(card, board, &mut response.audio)? {
+                            blitted = true; 
+                        }
                     }
                     CardComponentKey::Text(text_key) => {
                         self.cards.text[*text_key].blit(text_engine, card, board)?;
@@ -232,7 +217,9 @@ impl Node {
                 },
                 EntityState::Active => {
                     if let CardComponentKey::Video(video_key) = &self.cards.components[card_key] {
-                        blit_video!(self, video_key, card, board, blitted, response);
+                        if self.cards.videos[*video_key].blit(card, board, &mut response.audio)? {
+                            blitted = true;
+                        }
                     }
                 }
                 // Erase the card.

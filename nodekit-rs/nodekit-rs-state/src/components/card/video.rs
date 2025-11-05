@@ -1,4 +1,4 @@
-use crate::get_w_h;
+use crate::{get_w_h, EntityState};
 use crate::{
     board::*,
     components::card::{Card, get_path},
@@ -51,14 +51,21 @@ impl Video {
         Ok(())
     }
 
+    /// Blit the next frame and possibly set the audio frame.
+    /// Returns true if a blit happened.
     pub fn blit(
         &mut self,
         card: &Card,
         board: &mut [u8],
-    ) -> Result<VideoResult, nodekit_rs_video::Error> {
+        audio: &mut Option<AudioFrame>
+    ) -> Result<bool, Error> {
+        if card.state == EntityState::StartedNow {
+            self.load()?;
+        }
         let extractor = self.extractor.as_mut().unwrap();
-        match extractor.get_next_frame()? {
+        match extractor.get_next_frame().map_err(Error::Video)? {
             Extraction::Frame(frame) => {
+                println!("HERE");
                 // Blit the video frame.
                 blit(
                     frame.video.data(0),
@@ -68,21 +75,20 @@ impl Video {
                     &BOARD_SIZE,
                     3,
                 );
-                // Return audio.
-                Ok(VideoResult {
-                    blitted: true,
-                    audio: frame.audio,
-                })
+                // Set audio.
+                *audio = frame.audio;
+                // A blit happened.
+                Ok(true)
             }
-            Extraction::NoFrame => Ok(VideoResult::default()),
+            Extraction::NoFrame => Ok(false),
             Extraction::EndOfVideo => {
                 if self.looped {
-                    extractor.reset()?;
+                    extractor.reset().map_err(Error::Video)?;
                     // Immediately try to get the next frame.
-                    self.blit(card, board)
+                    self.blit(card, board, audio)
                 } else {
                     self.ended = true;
-                    Ok(VideoResult::default())
+                    Ok(false)
                 }
             }
         }
