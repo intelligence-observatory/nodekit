@@ -1,6 +1,6 @@
 from PIL import Image
 
-from nodekit._internal.ml import Client, graph, noop
+from nodekit._internal.ml import Client, graph
 from nodekit import *
 
 node = Node(
@@ -17,10 +17,10 @@ node = Node(
         ),
         "c": cards.TextCard(
             text="Click the **test image**",
-            x=0,
-            y=0.4,
+            x=-0.5,
+            y=-0.5,
             w=1,
-            h=1,
+            h=0.1,
             justification_vertical='top',
             background_color="#E6E6E600".lower()
         )

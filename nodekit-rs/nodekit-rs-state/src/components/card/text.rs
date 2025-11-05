@@ -18,9 +18,9 @@ pub struct Text {
 
 impl Text {
     pub fn new(card: &TextCard) -> Result<Self, Error> {
-        let text_color = HexColor::parse_rgb(card.text_color.as_str()).map_err(Error::HexColor)?;
+        let text_color = HexColor::parse_rgba(card.text_color.as_str()).map_err(Error::HexColor)?;
         let background_color =
-            HexColor::parse_rgb(card.background_color.as_str()).map_err(Error::HexColor)?;
+            HexColor::parse_rgba(card.background_color.as_str()).map_err(Error::HexColor)?;
         let horizontal = match &card.justification_horizontal {
             nodekit_rs_graph::JustificationHorizontal::Left => JustificationHorizontal::Left,
             nodekit_rs_graph::JustificationHorizontal::Center => JustificationHorizontal::Center,
