@@ -44,6 +44,7 @@ pub struct State {
     finished: bool,
     cursor: DVec2,
     text_engine: nodekit_rs_text::Text,
+    finished_response: Response,
 }
 
 impl State {
@@ -85,14 +86,15 @@ impl State {
             finished: false,
             cursor: DVec2::default(),
             text_engine: nodekit_rs_text::Text::default(),
+            finished_response: Response::finished()
         })
     }
 
-    pub fn tick(&mut self, action: Option<Action>) -> Result<Response, Error> {
+    pub fn tick(&mut self, action: Option<Action>) -> Result<&Response, Error> {
         if self.finished {
-            Ok(Response::finished())
+            Ok(&self.finished_response)
         } else {
-            let response = self.nodes[self.current].tick(
+            self.nodes[self.current].tick(
                 action,
                 &mut self.cursor,
                 &mut self.text_engine,
@@ -100,20 +102,20 @@ impl State {
                 &mut self.board,
             )?;
             // This node ended. Try to get the next node.
-            if response.finished {
-                match response.sensor.as_ref() {
+            if self.nodes[self.current].response.finished {
+                match self.nodes[self.current].response.sensor.as_ref() {
                     Some(sensor) => {
                         let sensor_key = self.nodes[self.current].sensors.sensor_ids[sensor];
                         self.current = self.transitions[self.current][sensor_key];
-                        Ok(response)
+                        Ok(&self.nodes[self.current].response)
                     }
                     None => {
                         self.finished = true;
-                        Ok(Response::finished())
+                        Ok(&self.finished_response)
                     }
                 }
             } else {
-                Ok(response)
+                Ok(&self.nodes[self.current].response)
             }
         }
     }

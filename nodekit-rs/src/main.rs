@@ -14,40 +14,39 @@ async fn main() {
     // Create a connection.
     let mut connection = Connection::new(&args.socket).unwrap();
     let mut state = None;
+    let default_response = Response::default();
     loop {
+        let version = state.as_ref().map(|state: &State| state.nodekit_version.clone());
         // Receive a command.
         let received = connection.receive().await.unwrap();
         // Execute the command or tick.
-        let result = on_receive(&mut state, received).await;
+        let result = on_receive(&mut state, received, &default_response).await;
         // Send the tick result.
         connection
             .send(
                 result,
-                state.as_ref().map(|state| state.nodekit_version.as_str()),
+                version,
             )
             .await
             .unwrap();
     }
 }
 
-async fn on_receive(state: &mut Option<State>, received: Request) -> Response {
+async fn on_receive<'r>(state: &'r mut Option<State>, received: Request, default_response: &'r Response) -> &'r Response {
     match received {
         Request::Graph(graph) => {
             // Convert the graph into stateful information.
-            let mut s = State::new(graph).unwrap();
+            let s = state.insert(State::new(graph).unwrap());
             // Initial tick.
-            let response = s.tick(None).unwrap();
-            // Store the state.
-            *state = Some(s);
-            response
+            s.tick(None).unwrap()
         }
         Request::Tick(action) => match state.as_mut() {
             Some(state) => state.tick(action).unwrap(),
-            None => Response::default(),
+            None => &default_response,
         },
         Request::Reset => {
             *state = None;
-            Response::default()
+            &default_response
         }
     }
 }

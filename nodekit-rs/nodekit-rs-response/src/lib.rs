@@ -36,9 +36,9 @@ pub struct Response {
 }
 
 impl Response {
-    pub fn serialize(&self, version: Option<&str>) -> Vec<u8> {
+    pub fn serialize(&self, version: Option<String>) -> Vec<u8> {
         let mut fbb = FlatBufferBuilder::new();
-        let version = version.map(|version| fbb.create_string(version));
+        let version = version.map(|version| fbb.create_string(&version));
         let visual = self.visual.as_ref().map(|visual| {
             let buffer = Some(fbb.create_vector(&visual.buffer));
             let args = response::VisualFrameArgs {

@@ -57,6 +57,7 @@ pub struct Node {
     pub sensors: Sensors,
     pub effects: Effects,
     pub board_color: [u8; 3],
+    pub response: Response,
     state: EntityState,
     cursor: Cursor,
 }
@@ -77,11 +78,12 @@ impl Node {
             board_color,
             state: Default::default(),
             cursor: Default::default(),
+            response: Default::default()
         };
         Ok(node)
     }
 
-    fn start(&mut self, board: &mut [u8]) -> Response {
+    fn start(&mut self, board: &mut [u8]) {
         // Set the state.
         self.state = EntityState::StartedNow;
         // Fill the board with my color.
@@ -92,16 +94,11 @@ impl Node {
                 pixel[1] = self.board_color[1];
                 pixel[2] = self.board_color[2];
             });
-        Response {
-            visual: Some(VisualFrame {
-                buffer: board.to_vec(),
-                width: BOARD_D_U32,
-                height: BOARD_D_U32,
-            }),
-            audio: None,
-            sensor: None,
-            finished: false,
-        }
+        self.response.visual = Some(VisualFrame {
+            buffer: board.to_vec(),
+            width: BOARD_D_U32,
+            height: BOARD_D_U32,
+        });
     }
 
     pub fn tick(
@@ -111,13 +108,12 @@ impl Node {
         text_engine: &mut nodekit_rs_text::Text,
         board_pre_cursor: &mut [u8],
         board: &mut [u8],
-    ) -> Result<Response, Error> {
+    ) -> Result<(), Error> {
         if self.state == EntityState::Pending {
             self.start(board_pre_cursor);
         }
-        let mut response = Response::default();
         // We haven't timed out yet.
-        if !self.tick_timeouts(&mut response) {
+        if !self.tick_timeouts() {
             let mouse_moved = matches!(
                 action.as_ref(),
                 Some(Action::Mouse {
@@ -127,11 +123,11 @@ impl Node {
             );
 
             // Apply the action.
-            self.on_action(action, cursor, &mut response);
+            self.on_action(action, cursor);
             // Tick all timers.
             self.tick_timers();
             // Update all cards.
-            let mut blitted = self.tick_cards(text_engine, board_pre_cursor, &mut response)?;
+            let mut blitted = self.tick_cards(text_engine, board_pre_cursor)?;
 
             // Blit the cursor if:
             // - The node started now
@@ -142,11 +138,22 @@ impl Node {
             }
 
             if blitted {
-                response.visual = Some(VisualFrame {
-                    buffer: board.to_vec(),
-                    width: BOARD_D_U32,
-                    height: BOARD_D_U32,
-                });
+                match self.response.visual.as_mut() {
+                    // Update the video frame.
+                    Some(visual_frame) => visual_frame.buffer = board.to_vec(),
+                    // Create a new visual frame.
+                    None => {
+                        self.response.visual = Some(VisualFrame {
+                            buffer: board.to_vec(),
+                            width: BOARD_D_U32,
+                            height: BOARD_D_U32,
+                        });
+                    }
+                }
+            }
+            else {
+                // Reset the visual frame.
+                self.response.visual = None;
             }
         }
 
@@ -154,7 +161,7 @@ impl Node {
             self.state = EntityState::Active;
         }
 
-        Ok(response)
+        Ok(())
     }
 
     fn tick_timers(&mut self) {
@@ -174,7 +181,7 @@ impl Node {
         }
     }
 
-    fn tick_timeouts(&mut self, response: &mut Response) -> bool {
+    fn tick_timeouts(&mut self) -> bool {
         let ended = self
             .sensors
             .timeout_sensors
@@ -182,7 +189,7 @@ impl Node {
             .any(|sensor| sensor.tick());
         if ended {
             self.state = EntityState::EndedNow;
-            response.finished = true;
+            self.response.finished = true;
         }
         ended
     }
@@ -191,9 +198,9 @@ impl Node {
         &mut self,
         text_engine: &mut nodekit_rs_text::Text,
         board: &mut [u8],
-        response: &mut Response,
     ) -> Result<bool, Error> {
         let mut blitted = false;
+        let mut audio_frame = false;
         for card_key in self.cards.order.iter() {
             let card_key = *card_key;
             let card = &self.cards.cards[card_key];
@@ -208,9 +215,10 @@ impl Node {
                             blitted = true;
                         }
                         CardComponentKey::Video(video_key) => {
-                            if self.cards.videos[*video_key].blit(card, board, &mut response.audio)? {
+                            if self.cards.videos[*video_key].blit(card, board, &mut self.response.audio)? {
                                 blitted = true;
                             }
+                            audio_frame = self.response.audio.is_some();
                         }
                         CardComponentKey::Text(text_key) => {
                             self.cards.text[*text_key].blit(text_engine, card, board)?;
@@ -221,10 +229,11 @@ impl Node {
                 }
                 EntityState::Active => {
                     if let CardComponentKey::Video(video_key) = &self.cards.components[card_key]
-                        && self.cards.videos[*video_key].blit(card, board, &mut response.audio)?
+                        && self.cards.videos[*video_key].blit(card, board, &mut self.response.audio)?
                     {
                         blitted = true;
                     }
+                    audio_frame = self.response.audio.is_some();
                     Ok(EntityState::Active)
                 }
                 // Erase the card.
@@ -244,6 +253,9 @@ impl Node {
                 }
             }?;
             self.cards.cards[card_key].state = state;
+        }
+        if !audio_frame {
+            self.response.audio = None;
         }
         Ok(blitted)
     }
@@ -270,7 +282,7 @@ impl Node {
         }
     }
 
-    fn on_action(&mut self, action: Option<Action>, cursor: &mut DVec2, response: &mut Response) {
+    fn on_action(&mut self, action: Option<Action>, cursor: &mut DVec2) {
         if let Some(action) = action {
             let sensor_key = match action {
                 Action::Mouse { delta, clicked } => {
@@ -291,8 +303,8 @@ impl Node {
             // End the node.
             if let Some(sensor_key) = sensor_key {
                 self.state = EntityState::EndedNow;
-                response.finished = true;
-                response.sensor = Some(self.sensors.sensors[sensor_key].id.clone());
+                self.response.finished = true;
+                self.response.sensor = Some(self.sensors.sensors[sensor_key].id.clone());
             }
         }
     }
