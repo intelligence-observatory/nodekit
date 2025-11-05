@@ -42,7 +42,7 @@ impl Video {
             ended: false
         }
     }
-    
+
     pub fn from_video_card(card: &VideoCard) -> Result<Self, Error> {
         let (width, height) = get_w_h!(card);
         Ok(Self {

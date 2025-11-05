@@ -197,30 +197,35 @@ impl Node {
         for card_key in self.cards.order.iter() {
             let card_key = *card_key;
             let card = &self.cards.cards[card_key];
-            match &card.state {
+            let state = match &card.state {
                 // Ignore inactive cards.
-                EntityState::Pending | EntityState::Finished => (),
-                EntityState::StartedNow => match &self.cards.components[card_key] {
-                    CardComponentKey::Image(image_key) => {
-                        self.cards.images[*image_key].blit(card, board)?;
-                        blitted = true;
-                    }
-                    CardComponentKey::Video(video_key) => {
-                        if self.cards.videos[*video_key].blit(card, board, &mut response.audio)? {
+                EntityState::Pending => Ok(EntityState::Pending),
+                EntityState::Finished => Ok(EntityState::Finished),
+                EntityState::StartedNow => {
+                    match &self.cards.components[card_key] {
+                        CardComponentKey::Image(image_key) => {
+                            self.cards.images[*image_key].blit(card, board)?;
+                            blitted = true;
+                        }
+                        CardComponentKey::Video(video_key) => {
+                            if self.cards.videos[*video_key].blit(card, board, &mut response.audio)? {
+                                blitted = true;
+                            }
+                        }
+                        CardComponentKey::Text(text_key) => {
+                            self.cards.text[*text_key].blit(text_engine, card, board)?;
                             blitted = true;
                         }
                     }
-                    CardComponentKey::Text(text_key) => {
-                        self.cards.text[*text_key].blit(text_engine, card, board)?;
-                        blitted = true;
-                    }
-                },
+                    Ok(EntityState::StartedNow)
+                }
                 EntityState::Active => {
                     if let CardComponentKey::Video(video_key) = &self.cards.components[card_key]
                         && self.cards.videos[*video_key].blit(card, board, &mut response.audio)?
                     {
                         blitted = true;
                     }
+                    Ok(EntityState::Active)
                 }
                 // Erase the card.
                 EntityState::EndedNow => {
@@ -235,8 +240,10 @@ impl Node {
                         STRIDE,
                     );
                     blitted = true;
+                    Ok(EntityState::Finished)
                 }
-            }
+            }?;
+            self.cards.cards[card_key].state = state;
         }
         Ok(blitted)
     }
