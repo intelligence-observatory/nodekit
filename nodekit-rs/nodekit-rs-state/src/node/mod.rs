@@ -336,7 +336,7 @@ impl Node {
                         .components
                         .insert(card_key, CardComponentKey::Text(text_key));
                 }
-                other => todo!("unsupported card: {:?}", other),
+                other => todo!("unsupported card: {card_id} {:?}", other),
             }
         }
 

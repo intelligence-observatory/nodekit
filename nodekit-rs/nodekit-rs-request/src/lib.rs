@@ -91,7 +91,6 @@ mod tests {
         let n = noop_fb::Noop::create(&mut fbb, &noop_fb::NoopArgs::default());
         noop_fb::finish_noop_buffer(&mut fbb, n);
         let noop = fbb.finished_data();
-        println!("{:?}", noop);
         let prefix = &noop[4..8];
         assert_eq!("noop".as_bytes(), prefix);
         assert!(noop_fb::noop_buffer_has_identifier(noop));
