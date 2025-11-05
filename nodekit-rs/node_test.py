@@ -13,7 +13,7 @@ node = Node(
             h=0.3,
         ),
         "b": cards.VideoCard(
-            video=assets.Video.from_path("nodekit-rs-video/test-video.mp4"), x=0, y=0, w=0.33, h=0.25
+            video=assets.Video.from_path("nodekit-rs-video/test-video.mp4"), x=0, y=0, w=0.33, h=0.25,
         ),
         "c": cards.TextCard(
             text="Click the **test image**",
@@ -22,6 +22,7 @@ node = Node(
             w=1,
             h=1,
             justification_vertical='top',
+            background_color="#E6E6E600".lower()
         )
     },
     sensors={"s": sensors.TimeoutSensor(timeout_msec=20000)},
