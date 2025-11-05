@@ -70,25 +70,25 @@ pub struct VideoExtractor {
     /// The index of this stream in the video file.
     stream_index: usize,
     decoder: Video,
-    scaler: ScalingContext,
+    converter: ScalingContext,
 }
 
 impl VideoExtractor {
-    pub fn new(input: &Input, width: u32, height: u32) -> Result<Self, Error> {
+    pub fn new(input: &Input) -> Result<Self, Error> {
         let (stream_index, decoder) = decoder!(input, Video, video);
         let scaler = ScalingContext::get(
             decoder.format(),
             decoder.width(),
             decoder.height(),
             Pixel::RGB24,
-            width,
-            height,
-            Flags::BILINEAR,
+            decoder.width(),
+            decoder.height(),
+            Flags::FAST_BILINEAR,
         )?;
         Ok(Self {
             stream_index,
             decoder,
-            scaler,
+            converter: scaler,
         })
     }
 
@@ -96,10 +96,10 @@ impl VideoExtractor {
     /// Returns an error if there are no more frames.
     pub fn extract_next_frame(&mut self) -> Result<VideoFrame, Error> {
         let frame = extract!(self, VideoFrame);
-        // Scale the frame.
-        let mut scaled_frame = VideoFrame::empty();
-        self.scaler.run(&frame, &mut scaled_frame)?;
-        Ok(scaled_frame)
+        // Convert to RGB24.
+        let mut rgb_frame = VideoFrame::empty();
+        self.converter.run(&frame, &mut rgb_frame)?;
+        Ok(rgb_frame)
     }
 
     fns!(Video, video);

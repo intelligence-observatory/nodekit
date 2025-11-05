@@ -1252,6 +1252,7 @@ dependencies = [
 name = "nodekit-rs-video"
 version = "0.1.0"
 dependencies = [
+ "fast_image_resize",
  "ffmpeg-next",
  "nodekit-rs-response",
 ]

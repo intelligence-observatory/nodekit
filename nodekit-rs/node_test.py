@@ -7,10 +7,10 @@ node = Node(
     cards={
         "a": cards.ImageCard(
             image=assets.Image.from_path("nodekit-rs-image/test_image.png"),
-            x=0.25,
-            y=0.25,
+            x=-0.25,
+            y=-0.25,
             w=0.25,
-            h=0.3,
+            h=0.5,
         ),
         "b": cards.VideoCard(
             video=assets.Video.from_path("nodekit-rs-video/test-video.mp4"), x=0, y=0, w=0.33, h=0.25,

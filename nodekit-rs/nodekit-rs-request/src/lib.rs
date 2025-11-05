@@ -34,23 +34,20 @@ impl Request {
     pub fn deserialize(buffer: &[u8]) -> Result<Self, Error> {
         if buffer.is_empty() {
             Ok(Self::Tick(None))
+        } else if graph_fb::graph_buffer_has_identifier(buffer) {
+            Self::deserialize_graph(buffer)
+        } else if mouse_fb::mouse_buffer_has_identifier(buffer) {
+            Self::deserialize_mouse(buffer)
+        } else if key_press_fb::key_press_buffer_has_identifier(buffer) {
+            Self::deserialize_key_press(buffer)
+        } else if noop_fb::noop_buffer_has_identifier(buffer) {
+            Ok(Self::Tick(None))
+        } else if reset_fb::reset_buffer_has_identifier(buffer) {
+            Ok(Self::Reset)
         } else {
-            if graph_fb::graph_buffer_has_identifier(buffer) {
-                Self::deserialize_graph(buffer)
-            } else if mouse_fb::mouse_buffer_has_identifier(buffer) {
-                Self::deserialize_mouse(buffer)
-            } else if key_press_fb::key_press_buffer_has_identifier(buffer) {
-                Self::deserialize_key_press(buffer)
-            } else if noop_fb::noop_buffer_has_identifier(buffer) {
-                Ok(Self::Tick(None))
-            } else if reset_fb::reset_buffer_has_identifier(buffer) {
-                Ok(Self::Reset)
-            } else {
-                let id = from_utf8(&buffer[4..8]).map_err(|_| {
-                    Error::PrefixNotUtf8([buffer[4], buffer[5], buffer[6], buffer[7]])
-                })?;
-                Err(Error::Prefix(id.to_string()))
-            }
+            let id = from_utf8(&buffer[4..8])
+                .map_err(|_| Error::PrefixNotUtf8([buffer[4], buffer[5], buffer[6], buffer[7]]))?;
+            Err(Error::Prefix(id.to_string()))
         }
     }
 

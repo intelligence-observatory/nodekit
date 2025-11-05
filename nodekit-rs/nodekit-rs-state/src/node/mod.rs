@@ -207,7 +207,7 @@ impl Node {
                     }
                     CardComponentKey::Video(video_key) => {
                         if self.cards.videos[*video_key].blit(card, board, &mut response.audio)? {
-                            blitted = true; 
+                            blitted = true;
                         }
                     }
                     CardComponentKey::Text(text_key) => {
@@ -216,10 +216,10 @@ impl Node {
                     }
                 },
                 EntityState::Active => {
-                    if let CardComponentKey::Video(video_key) = &self.cards.components[card_key] {
-                        if self.cards.videos[*video_key].blit(card, board, &mut response.audio)? {
-                            blitted = true;
-                        }
+                    if let CardComponentKey::Video(video_key) = &self.cards.components[card_key]
+                        && self.cards.videos[*video_key].blit(card, board, &mut response.audio)?
+                    {
+                        blitted = true;
                     }
                 }
                 // Erase the card.

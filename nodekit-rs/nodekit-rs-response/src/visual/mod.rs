@@ -45,15 +45,28 @@ impl VisualFrame {
 impl VisualFrame {
     /// Resize this frame to `width` and `height`.
     pub fn resize(&mut self, width: u32, height: u32) -> Result<(), VisualFrameError> {
+        Self::resize_buffer(&mut self.buffer, self.width, self.height, width, height)?;
+        self.width = width;
+        self.height = height;
+        Ok(())
+    }
+
+    pub fn resize_buffer(
+        buffer: &mut [u8],
+        src_width: u32,
+        src_height: u32,
+        dst_width: u32,
+        dst_height: u32,
+    ) -> Result<Vec<u8>, VisualFrameError> {
         let src = fast_image_resize::images::Image::from_slice_u8(
-            self.width,
-            self.height,
-            &mut self.buffer,
+            src_width,
+            src_height,
+            buffer,
             PixelType::U8x3,
         )
         .map_err(VisualFrameError::ImageResizeBuffer)?;
         // Resize the image.
-        let mut dst = fast_image_resize::images::Image::new(width, height, PixelType::U8x3);
+        let mut dst = fast_image_resize::images::Image::new(dst_width, dst_height, PixelType::U8x3);
         let options = ResizeOptions {
             algorithm: ResizeAlg::Convolution(FilterType::Bilinear),
             cropping: SrcCropping::None,
@@ -63,9 +76,6 @@ impl VisualFrame {
         resizer
             .resize(&src, &mut dst, Some(&options))
             .map_err(VisualFrameError::ImageResize)?;
-        self.buffer = dst.into_vec();
-        self.width = width;
-        self.height = height;
-        Ok(())
+        Ok(dst.into_vec())
     }
 }

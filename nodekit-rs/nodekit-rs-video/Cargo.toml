@@ -4,5 +4,6 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+fast_image_resize.workspace = true
 ffmpeg-next.workspace = true
 nodekit-rs-response = { path = "../nodekit-rs-response" }

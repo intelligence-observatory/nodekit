@@ -46,14 +46,7 @@ pub struct FrameExtractor {
 }
 
 impl FrameExtractor {
-    /// - `path` is the path to the video.
-    /// - `width` and `height` are the dimensions that we want to scale each video frame to.
-    pub fn new<P: AsRef<Path>>(
-        path: P,
-        width: u32,
-        height: u32,
-        muted: bool,
-    ) -> Result<Self, ffmpeg_next::Error> {
+    pub fn new<P: AsRef<Path>>(path: P, muted: bool) -> Result<Self, Error> {
         let mut input = input(path.as_ref())?;
         // Extract packets.
         let streams = input
@@ -66,7 +59,7 @@ impl FrameExtractor {
         } else {
             AudioExtractor::new(&input).ok()
         };
-        let video = VideoExtractor::new(&input, width, height)?;
+        let video = VideoExtractor::new(&input)?;
         let packet_iter = PacketIter::from(input);
         Ok(Self {
             packet_iter,
@@ -152,7 +145,7 @@ mod tests {
 
     #[test]
     fn test_video_extraction() {
-        let mut extractor = FrameExtractor::new("test-video.mp4", 320, 180, false).unwrap();
+        let mut extractor = FrameExtractor::new("test-video.mp4", false).unwrap();
         let mut num_frames = 0u64;
         while let Ok(frame) = extractor.get_next_frame()
             && !matches!(frame, Extraction::EndOfVideo)
