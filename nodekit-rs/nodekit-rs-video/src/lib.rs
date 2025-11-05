@@ -77,7 +77,7 @@ impl FrameExtractor {
     ///
     /// Returns an error if there was an underlying extraction error or if it's the end of the file.
     /// Returns None if there are no frames yet.
-    pub fn get_next_frame(&mut self) -> Result<Extraction, ffmpeg_next::Error> {
+    pub fn get_next_frame(&mut self) -> Result<Extraction, Error> {
         match self.packet_iter.next() {
             Some((_, packet)) => {
                 let stream_index = self.streams[self.index];
