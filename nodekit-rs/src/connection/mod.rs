@@ -31,7 +31,11 @@ impl Connection {
     }
 
     /// Serialize a tick result and send it.
-    pub async fn send(&mut self, response: &Response, version: Option<String>) -> Result<(), Error> {
+    pub async fn send(
+        &mut self,
+        response: &Response,
+        version: Option<String>,
+    ) -> Result<(), Error> {
         self.socket
             .send(response.serialize(version))
             .await

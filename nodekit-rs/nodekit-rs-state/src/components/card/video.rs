@@ -39,7 +39,7 @@ impl Video {
             muted,
             looped,
             extractor: None,
-            ended: false
+            ended: false,
         }
     }
 
@@ -125,11 +125,11 @@ impl Video {
         }
         Ok(blitted)
     }
-    
+
     pub fn reset(&mut self) -> Result<(), Error> {
         match self.extractor.as_mut() {
             Some(extractor) => extractor.reset().map_err(Error::Video),
-            None => Ok(())
+            None => Ok(()),
         }
     }
 }

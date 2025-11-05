@@ -5,11 +5,11 @@ mod video;
 use super::entity_state::EntityState;
 use crate::error::Error;
 use crate::rect::Rect;
+use blittle::{PositionU, Size};
 pub use image::*;
 use nodekit_rs_graph::{AssetLocator, NodeCardsValue};
 use slotmap::new_key_type;
 use std::path::PathBuf;
-use blittle::{PositionU, Size};
 pub use text::*;
 pub use video::*;
 
@@ -54,11 +54,11 @@ impl Card {
     pub fn new(x: usize, y: usize, w: usize, h: usize) -> Self {
         Self {
             rect: Rect {
-                position: PositionU {x, y},
-                size: Size {w, h}
+                position: PositionU { x, y },
+                size: Size { w, h },
             },
             state: EntityState::Active,
-            z_index: 0
+            z_index: 0,
         }
     }
 }

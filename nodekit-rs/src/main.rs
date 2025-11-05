@@ -16,23 +16,23 @@ async fn main() {
     let mut state = None;
     let default_response = Response::default();
     loop {
-        let version = state.as_ref().map(|state: &State| state.nodekit_version.clone());
+        let version = state
+            .as_ref()
+            .map(|state: &State| state.nodekit_version.clone());
         // Receive a command.
         let received = connection.receive().await.unwrap();
         // Execute the command or tick.
         let result = on_receive(&mut state, received, &default_response).await;
         // Send the tick result.
-        connection
-            .send(
-                result,
-                version,
-            )
-            .await
-            .unwrap();
+        connection.send(result, version).await.unwrap();
     }
 }
 
-async fn on_receive<'r>(state: &'r mut Option<State>, received: Request, default_response: &'r Response) -> &'r Response {
+async fn on_receive<'r>(
+    state: &'r mut Option<State>,
+    received: Request,
+    default_response: &'r Response,
+) -> &'r Response {
     match received {
         Request::Graph(graph) => {
             // Convert the graph into stateful information.

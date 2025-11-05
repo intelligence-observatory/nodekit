@@ -78,7 +78,7 @@ impl Node {
             board_color,
             state: Default::default(),
             cursor: Default::default(),
-            response: Default::default()
+            response: Default::default(),
         };
         Ok(node)
     }
@@ -150,8 +150,7 @@ impl Node {
                         });
                     }
                 }
-            }
-            else {
+            } else {
                 // Reset the visual frame.
                 self.response.visual = None;
             }
@@ -215,7 +214,11 @@ impl Node {
                             blitted = true;
                         }
                         CardComponentKey::Video(video_key) => {
-                            if self.cards.videos[*video_key].blit(card, board, &mut self.response.audio)? {
+                            if self.cards.videos[*video_key].blit(
+                                card,
+                                board,
+                                &mut self.response.audio,
+                            )? {
                                 blitted = true;
                             }
                             audio_frame = self.response.audio.is_some();
@@ -229,7 +232,11 @@ impl Node {
                 }
                 EntityState::Active => {
                     if let CardComponentKey::Video(video_key) = &self.cards.components[card_key]
-                        && self.cards.videos[*video_key].blit(card, board, &mut self.response.audio)?
+                        && self.cards.videos[*video_key].blit(
+                            card,
+                            board,
+                            &mut self.response.audio,
+                        )?
                     {
                         blitted = true;
                     }

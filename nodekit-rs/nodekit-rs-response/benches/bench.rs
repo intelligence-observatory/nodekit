@@ -1,4 +1,4 @@
-use criterion::{criterion_group, criterion_main, Criterion};
+use criterion::{Criterion, criterion_group, criterion_main};
 use nodekit_rs_response::*;
 
 pub fn criterion_benchmark(c: &mut Criterion) {
@@ -9,16 +9,16 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         visual: Some(VisualFrame {
             buffer: vec![0; width * height * stride],
             width: width as u32,
-            height: height as u32
+            height: height as u32,
         }),
         audio: Some(AudioFrame {
             buffer: vec![0; 8192],
             format: Some(AudioFormat::F32),
             channels: 2,
-            rate: 44100
+            rate: 44100,
         }),
         sensor: Some("sensor".to_string()),
-        finished: false
+        finished: false,
     };
     c.bench_function("response serialization", |b| {
         b.iter(|| {

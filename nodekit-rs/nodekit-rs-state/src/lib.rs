@@ -86,7 +86,7 @@ impl State {
             finished: false,
             cursor: DVec2::default(),
             text_engine: nodekit_rs_text::Text::default(),
-            finished_response: Response::finished()
+            finished_response: Response::finished(),
         })
     }
 

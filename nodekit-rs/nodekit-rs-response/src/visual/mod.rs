@@ -45,7 +45,8 @@ impl VisualFrame {
 impl VisualFrame {
     /// Resize this frame to `width` and `height`.
     pub fn resize(&mut self, width: u32, height: u32) -> Result<(), VisualFrameError> {
-        self.buffer = Self::resize_buffer(&mut self.buffer, self.width, self.height, width, height)?;
+        self.buffer =
+            Self::resize_buffer(&mut self.buffer, self.width, self.height, width, height)?;
         self.width = width;
         self.height = height;
         Ok(())
