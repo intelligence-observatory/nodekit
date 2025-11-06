@@ -113,16 +113,19 @@ export async function play(
     let currentNodeId: NodeId = graph.start;
 
     while (true) {
-        // Prepare the Node:
+        // Todo: Evaluate any current Node parameter expressions:
         const node = nodes[currentNodeId];
+
+        // Create and prepare the NodePlay:
         const nodePlay = new NodePlay(
             node,
             assetManager,
         )
-
-        // Mount the Node to the Board:
+        // Mount the NodePlay to the DOM:
         boardViewsContainerDiv.appendChild(nodePlay.root);
+
         await nodePlay.prepare()
+
 
         // Play the Node:
         let result = await nodePlay.run();
@@ -135,12 +138,14 @@ export async function play(
             boardViewsContainerDiv.removeChild(boardViewsContainerDiv.firstChild);
         }
 
+        // Todo: update Graph registers
+
+        // Todo: evaluate the outgoing Transitions for this Node to identify the next Node
         // Get the next Node; if no transition specified, fall through to 'END':
         if (!(currentNodeId in graph.transitions)) {
             break
         }
 
-        // Todo
         break
     }
 
