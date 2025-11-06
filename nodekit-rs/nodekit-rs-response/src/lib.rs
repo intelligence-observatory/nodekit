@@ -52,14 +52,7 @@ impl Response {
         let audio = self.audio.as_ref().map(|audio| {
             let buffer = Some(fbb.create_vector(&audio.buffer));
             let format = match audio.format.as_ref() {
-                Some(format) => match format {
-                    AudioFormat::U8 => response::AudioFormat::U8,
-                    AudioFormat::I16 => response::AudioFormat::I16,
-                    AudioFormat::I32 => response::AudioFormat::I32,
-                    AudioFormat::I64 => response::AudioFormat::I64,
-                    AudioFormat::F32 => response::AudioFormat::F32,
-                    AudioFormat::F64 => response::AudioFormat::F64,
-                },
+                Some(format) => format.as_fb(),
                 None => response::AudioFormat::None,
             };
             let args = response::AudioFrameArgs {
@@ -110,15 +103,7 @@ impl Response {
                 }),
                 audio: response.audio().map(|audio| AudioFrame {
                     buffer: audio.buffer().bytes().to_vec(),
-                    format: match audio.format() {
-                        response::AudioFormat::U8 => Some(AudioFormat::U8),
-                        response::AudioFormat::I16 => Some(AudioFormat::I16),
-                        response::AudioFormat::I32 => Some(AudioFormat::I32),
-                        response::AudioFormat::I64 => Some(AudioFormat::I64),
-                        response::AudioFormat::F32 => Some(AudioFormat::F32),
-                        response::AudioFormat::F64 => Some(AudioFormat::F64),
-                        _ => None,
-                    },
+                    format: AudioFormat::from_fb(audio.format()),
                     channels: audio.channels(),
                     rate: audio.rate(),
                 }),
