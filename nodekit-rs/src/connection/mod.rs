@@ -8,7 +8,6 @@ use nodekit_rs_response::Response;
 /// Receive actions from a client.
 /// Respond with stateful information.
 pub struct Connection {
-    _context: Context,
     socket: Socket,
 }
 
@@ -18,7 +17,6 @@ impl Connection {
         let socket = context.socket(zmq::REP)?;
         socket.bind(endpoint)?;
         Ok(Self {
-            _context: context,
             socket,
         })
     }
