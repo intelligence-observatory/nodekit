@@ -22,7 +22,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     };
     c.bench_function("response serialization", |b| {
         b.iter(|| {
-            response.serialize(Some("0.0.0"));
+            response.serialize(Some("0.0.0".to_string()));
         })
     });
 }
