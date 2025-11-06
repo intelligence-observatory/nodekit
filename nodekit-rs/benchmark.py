@@ -1,5 +1,4 @@
-from PIL import Image
-
+from time import time
 from nodekit._internal.ml import Client, graph, noop
 from nodekit import *
 
@@ -35,7 +34,7 @@ g = Graph(start=node_id,
 
 client = Client()
 response = client.tick(graph(g))
-image = Image.frombytes('RGB',
-                        (response.visual.width, response.visual.height),
-                        response.visual.buffer)
-image.show()
+t0 = time()
+while not response.finished:
+    response = client.tick(noop())
+print(time() - t0)
