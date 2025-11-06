@@ -41,11 +41,11 @@ fn on_receive<'r>(
         }
         Request::Tick(action) => match state.as_mut() {
             Some(state) => state.tick(action).unwrap(),
-            None => &default_response,
+            None => default_response,
         },
         Request::Reset => {
             *state = None;
-            &default_response
+            default_response
         }
     }
 }

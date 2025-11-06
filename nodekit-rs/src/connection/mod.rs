@@ -1,9 +1,9 @@
 mod error;
 
-use zmq::{Context, Socket};
 pub use error::Error;
 use nodekit_rs_request::Request;
 use nodekit_rs_response::Response;
+use zmq::{Context, Socket};
 
 /// Receive actions from a client.
 /// Respond with stateful information.
@@ -16,9 +16,7 @@ impl Connection {
         let context = Context::new();
         let socket = context.socket(zmq::REP)?;
         socket.bind(endpoint)?;
-        Ok(Self {
-            socket,
-        })
+        Ok(Self { socket })
     }
 
     /// Try to receive a message.
@@ -28,11 +26,7 @@ impl Connection {
     }
 
     /// Serialize a tick result and send it.
-    pub fn send(
-        &mut self,
-        response: &Response,
-        version: Option<String>,
-    ) -> Result<(), Error> {
+    pub fn send(&mut self, response: &Response, version: Option<String>) -> Result<(), Error> {
         self.socket
             .send(response.serialize(version), 0)
             .map_err(Error::Zmq)?;

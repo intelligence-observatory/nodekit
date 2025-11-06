@@ -24,11 +24,9 @@ impl Cursor {
         if let Some(x) = BlitRange::new(position.x, WIDTH, WIDTH_HALF, WIDTH_HALF_ISIZE)
             && let Some(y) = BlitRange::new(position.y, HEIGHT, HEIGHT_HALF, HEIGHT_HALF_ISIZE)
         {
-            let mut dst = board.to_vec();
-
             // Break the visual bitmap into row slices.
             // We can't use bytemuck for this, but it's very safe, because we're using constants.
-            let ptr = dst.as_mut_ptr().cast::<[[u8; 3]; BOARD_D]>();
+            let ptr = board.as_mut_ptr().cast::<[[u8; 3]; BOARD_D]>();
             unsafe {
                 // Iterate through each row we need to blit from and to.
                 for (dst, src) in from_raw_parts_mut(ptr, BOARD_D)[y.dst_0..y.dst_1]
