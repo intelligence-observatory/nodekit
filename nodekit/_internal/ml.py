@@ -18,8 +18,8 @@ class Client:
         Returns a `Response` received from the simulator.
         """
 
-        self.socket.send_multipart([request])
-        response = self.socket.recv_multipart()[0]
+        self.socket.send(request)
+        response = self.socket.recv()
         return Response(response)
 
     def __del__(self):

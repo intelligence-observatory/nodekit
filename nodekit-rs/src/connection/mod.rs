@@ -1,23 +1,22 @@
 mod error;
 
-use async_zmq::{Context, Reply, reply};
+use zmq::{Context, Socket};
 pub use error::Error;
 use nodekit_rs_request::Request;
 use nodekit_rs_response::Response;
-use std::ops::Deref;
-use std::vec::IntoIter;
 
 /// Receive actions from a client.
 /// Respond with stateful information.
 pub struct Connection {
     _context: Context,
-    socket: Reply<IntoIter<Vec<u8>>, Vec<u8>>,
+    socket: Socket,
 }
 
 impl Connection {
-    pub fn new(endpoint: &str) -> Result<Self, async_zmq::Error> {
+    pub fn new(endpoint: &str) -> Result<Self, zmq::Error> {
         let context = Context::new();
-        let socket = reply(endpoint)?.bind()?;
+        let socket = context.socket(zmq::REP)?;
+        socket.bind(endpoint)?;
         Ok(Self {
             _context: context,
             socket,
@@ -25,20 +24,19 @@ impl Connection {
     }
 
     /// Try to receive a message.
-    pub async fn receive(&mut self) -> Result<Request, Error> {
-        let message = self.socket.recv().await.map_err(Error::Zmq)?;
-        Request::deserialize(message[0].deref()).map_err(Error::Request)
+    pub fn receive(&mut self) -> Result<Request, Error> {
+        let received = self.socket.recv_bytes(0).map_err(Error::Zmq)?;
+        Request::deserialize(&received).map_err(Error::Request)
     }
 
     /// Serialize a tick result and send it.
-    pub async fn send(
+    pub fn send(
         &mut self,
         response: &Response,
         version: Option<String>,
     ) -> Result<(), Error> {
         self.socket
-            .send(response.serialize(version))
-            .await
+            .send(response.serialize(version), 0)
             .map_err(Error::Zmq)?;
         Ok(())
     }

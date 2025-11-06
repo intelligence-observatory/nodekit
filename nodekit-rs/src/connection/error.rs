@@ -5,5 +5,5 @@ pub enum Error {
     #[error("Request error: {0}")]
     Request(nodekit_rs_request::Error),
     #[error("Network error: {0}")]
-    Zmq(async_zmq::RequestReplyError),
+    Zmq(zmq::Error),
 }

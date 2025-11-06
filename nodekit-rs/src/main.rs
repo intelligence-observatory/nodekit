@@ -8,8 +8,7 @@ use nodekit_rs_request::Request;
 use nodekit_rs_response::Response;
 use nodekit_rs_state::State;
 
-#[tokio::main(flavor = "multi_thread", worker_threads = 10)]
-async fn main() {
+fn main() {
     let args = Args::parse();
     // Create a connection.
     let mut connection = Connection::new(&args.socket).unwrap();
@@ -20,15 +19,15 @@ async fn main() {
             .as_ref()
             .map(|state: &State| state.nodekit_version.clone());
         // Receive a command.
-        let received = connection.receive().await.unwrap();
+        let received = connection.receive().unwrap();
         // Execute the command or tick.
-        let result = on_receive(&mut state, received, &default_response).await;
+        let response = on_receive(&mut state, received, &default_response);
         // Send the tick result.
-        connection.send(result, version).await.unwrap();
+        connection.send(response, version).unwrap();
     }
 }
 
-async fn on_receive<'r>(
+fn on_receive<'r>(
     state: &'r mut Option<State>,
     received: Request,
     default_response: &'r Response,
