@@ -6,14 +6,16 @@ import {type EffectBinding, HideCursorEffectBinding} from "../board-view/effect-
 
 import type {AssetManager} from "../asset-manager";
 
-import type {CardId, SensorId} from "../types/common.ts";
+import type {CardId, SensorId, TimeElapsedMsec} from "../types/common.ts";
 
 
 import {createCardView} from "../board-view/card-views/create.ts";
 import {createSensorBinding} from "../board-view/sensor-bindings/create.ts";
+import type {Clock} from "../clock.ts";
 
 export interface NodePlayRunResult {
-    action: Record<SensorId, SensorValue>;
+    t: TimeElapsedMsec,
+    outcome: Record<SensorId, SensorValue>;
 }
 
 class Deferred<T> {
@@ -59,8 +61,9 @@ export class NodePlay {
     constructor(
         node: Node,
         assetManager: AssetManager,
+        clock: Clock,
     ) {
-        this.boardView = new BoardView(node.board_color);
+        this.boardView = new BoardView(node.board_color, clock);
         this.root = this.boardView.root;
         this.node = node;
         this.scheduler = new EventScheduler();
@@ -163,7 +166,6 @@ export class NodePlay {
         sensorId: SensorId,
         sensorValue: SensorValue
     ): void {
-        console.log(sensorId, sensorValue)
         // Record sensor value update
         this.currentSensorValues[sensorId] = sensorValue;
 
@@ -181,7 +183,7 @@ export class NodePlay {
         this.deferredAction.resolve(action)
     }
 
-    async run(): Promise<NodePlayRunResult> {
+    async run(clock:Clock): Promise<NodePlayRunResult> {
         // Run the NodePlay, returning a Promise which resolves when a Sensor fires and the corresponding Reinforcer has completed.
         if (!this.prepared) {
             // Prepare the NodePlay
@@ -195,6 +197,7 @@ export class NodePlay {
 
         this.boardView.setBoardState(true, true);
         this.boardView.clock.start()
+        const tStart = clock.now()
         this.started = true;
 
         // Kick off scheduler:
@@ -207,7 +210,8 @@ export class NodePlay {
         this.scheduler.stop();
 
         return {
-            action: action,
+            outcome: action,
+            t: tStart,
         }
     }
 }

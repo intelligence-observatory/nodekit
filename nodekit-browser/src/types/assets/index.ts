@@ -32,7 +32,7 @@ export interface BaseAsset<MT extends string> {
     locator: Locator
 }
 
-export interface Image extends BaseAsset<"image/png" | "image/svg+xml"> {}
+export interface Image extends BaseAsset<"image/png" | "image/svg+xml" | "image/gif"> {}
 export interface Video extends BaseAsset<"video/mp4"> {}
 export type Asset = Image | Video;
 

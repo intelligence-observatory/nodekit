@@ -94,6 +94,7 @@ export class BoardView {
 
     constructor(
         boardColor: ColorHexString,
+        clock: Clock,
     ) {
         this.root = document.createElement("div")
         this.root.className = 'board-view'
@@ -105,7 +106,7 @@ export class BoardView {
         document.body.style.backgroundColor = boardColor;
 
         // Set streams
-        this.clock = new Clock();
+        this.clock = clock;
         this.pointerStream = new PointerStream(this.root, this.clock);
         this.keyStream = new KeyStream(this.clock);
 

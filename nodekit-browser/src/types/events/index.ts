@@ -1,4 +1,4 @@
-import type {TimeElapsedMsec} from "../common.ts";
+import type {PressableKey, SpatialPoint, TimeElapsedMsec} from "../common.ts";
 
 export interface BaseEvent<T extends string> {
     event_type: T,
@@ -18,10 +18,24 @@ export interface BrowserContextSampledEvent extends BaseEvent<'BrowserContextSam
     device_pixel_ratio: number,
 }
 
+export interface PointerSampledEvent extends BaseEvent<'PointerSampledEvent'> {
+    x: SpatialPoint,
+    y: SpatialPoint,
+    kind: 'down' | 'up' | 'move'
+}
+
+export interface KeySampledEvent extends BaseEvent<'KeySampledEvent'> {
+    key: PressableKey
+    kind: 'down' | 'up'
+}
+
+
 // Union type:
 export type Event =
     TraceStartedEvent |
     BrowserContextSampledEvent |
     PageSuspendedEvent |
     PageResumedEvent |
+    KeySampledEvent |
+    PointerSampledEvent |
     TraceEndedEvent;

@@ -12,6 +12,7 @@ import {NodePlay} from "./node-play";
 import {version as NODEKIT_VERSION} from '../package.json'
 import {gt, major} from 'semver';
 import {EventArray} from "./event-array.ts";
+import type {NodeResult} from "./types/events/node-events.ts";
 
 /**
  * Plays a Graph, returning a Trace of Events.
@@ -111,7 +112,7 @@ export async function play(
 
     // Assemble transition map:
     let currentNodeId: NodeId = graph.start;
-
+    let nodeResults: NodeResult[] = [];
     while (true) {
         // Todo: Evaluate any current Node parameter expressions:
         const node = nodes[currentNodeId];
@@ -120,6 +121,7 @@ export async function play(
         const nodePlay = new NodePlay(
             node,
             assetManager,
+            clock,
         )
         // Mount the NodePlay to the DOM:
         boardViewsContainerDiv.appendChild(nodePlay.root);
@@ -128,10 +130,14 @@ export async function play(
 
 
         // Play the Node:
-        let result = await nodePlay.run();
-        console.log('')
-        console.log(currentNodeId)
-        console.log(result)
+        let result = await nodePlay.run(clock);
+        nodeResults.push(
+            {
+                node_id: currentNodeId,
+                outcome: result.outcome,
+                t: result.t
+            }
+        )
 
         // Clear the rootBoardContainerDiv of all children:
         while (boardViewsContainerDiv.firstChild) {
@@ -149,9 +155,6 @@ export async function play(
         break
     }
 
-    // End screen:
-    await shellUI.playEndScreen()
-
     // Generate the EndEvent:
     const endEvent: TraceEndedEvent = {
         event_type: "TraceEndedEvent",
@@ -163,10 +166,14 @@ export async function play(
     document.removeEventListener("visibilitychange", onVisibilityChange);
 
     // Assemble trace:
-    const trace = {
+    const trace: Trace = {
         nodekit_version: NODEKIT_VERSION,
         events: eventArray.events,
+        node_results: nodeResults,
     }
+
+    // End screen:
+    await shellUI.playEndScreen()
 
     // Show the Trace in the console:
     shellUI.showConsoleMessageOverlay(

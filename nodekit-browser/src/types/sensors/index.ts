@@ -1,4 +1,4 @@
-import type {CardId, ColorHexString, NodeTimePointMsec, PlainString, PressableKey, SpatialSize} from "../common.ts";
+import type {CardId, NodeTimePointMsec, PlainString, PressableKey, SpatialSize} from "../common.ts";
 import type {Region} from "../region";
 import type {SliderBinIndex} from "../../board-view/sensor-bindings/slider";
 
@@ -12,17 +12,26 @@ export interface WaitSensor extends BaseSensor<"WaitSensor">{
     timeout_msec: NodeTimePointMsec // Must be specified
 }
 
-export interface ConfirmSensor extends BaseSensor<'ConfirmSensor'>{ // todo
+// todo
+export interface ConfirmSensor extends BaseSensor<'ConfirmSensor'>{
     region: Region;
 }
 
-
+/**
+ * Select 1 of N Cards; todo
+ */
 export interface SelectSensor extends BaseSensor<'SelectSensor'>{
-    hover_color: ColorHexString;
-    selected_color: ColorHexString;
     choices: Set<CardId>
-} // Select 1 of N Cards; todo
-export interface MultiSelectSensor extends BaseSensor<'MultiSelectSensor'>{} // Select k>1 of N Cards; todo
+}
+
+/**
+ * Select k>1 of N>1 Cards; todo
+ */
+export interface ManySelectSensor extends BaseSensor<'MultiSelectSensor'>{
+    choices: Set<CardId>
+    min_choices: number;
+    max_choices: number | null;
+}
 
 export interface ClickSensor extends BaseSensor<'ClickSensor'>{ // Click somewhere within a Region
     region: Region
