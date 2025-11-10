@@ -35,7 +35,4 @@ g = Graph(start=node_id,
 
 client = Client()
 response = client.tick(graph(g))
-image = Image.frombytes('RGB',
-                        (response.visual.width, response.visual.height),
-                        response.visual.buffer)
-image.show()
+response.visual.save('out.png')

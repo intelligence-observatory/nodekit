@@ -2,3 +2,5 @@
 target/
 flatc
 .idea/
+out.mp4
+out.png
