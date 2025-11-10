@@ -1,23 +1,19 @@
-use flatbuffers::FlatBufferBuilder;
-use nodekit_rs_fb::{
-    graph as graph_fb, key_press as key_press_fb, mouse as mouse_fb, noop as noop_fb,
-    reset as reset_fb,
-};
-use pyo3::exceptions::PyValueError;
+use glam::DVec2;
+use pyo3::exceptions::{PyRuntimeError, PyValueError};
 use pyo3::{
     prelude::*,
     types::{PyBytes, PyString},
 };
 use pyo3_stub_gen::derive::gen_stub_pyfunction;
+use serde_json::from_str;
+use nodekit_rs_graph::Graph;
+use crate::{Action, Request};
 
 /// Returns a serialized no-op action.
 #[gen_stub_pyfunction]
 #[pyfunction]
-pub fn noop<'py>(py: Python<'py>) -> Bound<'py, PyBytes> {
-    let mut fbb = FlatBufferBuilder::new();
-    let n = noop_fb::Noop::create(&mut fbb, &noop_fb::NoopArgs::default());
-    noop_fb::finish_noop_buffer(&mut fbb, n);
-    PyBytes::new(py, fbb.finished_data())
+pub fn noop<'py>(py: Python<'py>) -> PyResult<Bound<'py, PyBytes>> {
+    Request::Tick(None).serialize(py)
 }
 
 /// Returns a serialized `graph`, which must be of type `nk.Graph`.
@@ -26,15 +22,8 @@ pub fn noop<'py>(py: Python<'py>) -> Bound<'py, PyBytes> {
 pub fn graph<'py>(py: Python<'py>, graph: &Bound<'py, PyAny>) -> PyResult<Bound<'py, PyBytes>> {
     // Assume that this is a valid Graph and try to dump the JSON string.
     let json = graph.getattr("model_dump_json")?.call0()?;
-    // Serialize the JSON string into a Flatbuffer.
-    let mut fbb = FlatBufferBuilder::new();
-    let node_graph = fbb.create_vector(json.cast::<PyString>()?.to_str()?.as_bytes());
-    let args = graph_fb::GraphArgs {
-        node_graph: Some(node_graph),
-    };
-    let graph = graph_fb::Graph::create(&mut fbb, &args);
-    graph_fb::finish_graph_buffer(&mut fbb, graph);
-    Ok(PyBytes::new(py, fbb.finished_data()))
+    let graph = from_str::<Graph>(json.cast::<PyString>()?.to_str()?).map_err(|e| PyRuntimeError::new_err(e.to_string()))?;
+    Request::Graph(graph).serialize(py)
 }
 
 /// Returns a serialized mouse action.
@@ -60,30 +49,17 @@ pub fn mouse<'py>(
                     delta
                 )))
             } else {
-                let mut fbb = FlatBufferBuilder::new();
-                let delta = mouse_fb::Vec2::new(delta.0, delta.1);
-                let click = mouse_fb::Mouse::create(
-                    &mut fbb,
-                    &mouse_fb::MouseArgs {
-                        delta: Some(&delta),
-                        clicked,
-                    },
-                );
-                mouse_fb::finish_mouse_buffer(&mut fbb, click);
-                Ok(PyBytes::new(py, fbb.finished_data()))
+                Request::from(Action::Mouse {
+                    delta: Some(DVec2::new(delta.0, delta.1)),
+                    clicked,
+                }).serialize(py)
             }
         }
         None => {
-            let mut fbb = FlatBufferBuilder::new();
-            let mouse = mouse_fb::Mouse::create(
-                &mut fbb,
-                &mouse_fb::MouseArgs {
-                    delta: None,
-                    clicked,
-                },
-            );
-            mouse_fb::finish_mouse_buffer(&mut fbb, mouse);
-            Ok(PyBytes::new(py, fbb.finished_data()))
+            Request::from(Action::Mouse {
+                delta: None,
+                clicked
+            }).serialize(py)
         }
     }
 }
@@ -95,20 +71,12 @@ pub fn key_press<'py>(
     py: Python<'py>,
     key: &Bound<'py, PyString>,
 ) -> PyResult<Bound<'py, PyBytes>> {
-    let mut fbb = FlatBufferBuilder::new();
-    let key = fbb.create_string(key.to_str()?);
-    let click =
-        key_press_fb::KeyPress::create(&mut fbb, &key_press_fb::KeyPressArgs { key: Some(key) });
-    key_press_fb::finish_key_press_buffer(&mut fbb, click);
-    Ok(PyBytes::new(py, fbb.finished_data()))
+    Request::from(Action::KeyPress(key.to_string())).serialize(py)
 }
 
 /// Returns a serialized command to reset the simulator.
 #[gen_stub_pyfunction]
 #[pyfunction]
-pub fn reset<'py>(py: Python<'py>) -> Bound<'py, PyBytes> {
-    let mut fbb = FlatBufferBuilder::new();
-    let r = reset_fb::Reset::create(&mut fbb, &reset_fb::ResetArgs::default());
-    reset_fb::finish_reset_buffer(&mut fbb, r);
-    PyBytes::new(py, fbb.finished_data())
+pub fn reset<'py>(py: Python<'py>) -> PyResult<Bound<'py, PyBytes>> {
+    Request::Reset.serialize(py)
 }
