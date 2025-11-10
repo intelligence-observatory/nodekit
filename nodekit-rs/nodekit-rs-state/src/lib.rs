@@ -32,8 +32,6 @@ pub struct State {
     nodes: SlotMap<NodeKey, Node>,
     /// The edges in the graph.
     transitions: SecondaryMap<NodeKey, SecondaryMap<SensorKey, NodeKey>>,
-    /// This is sent as part of the `Response`.
-    pub nodekit_version: String,
     /// An allocated visual board.
     /// This is the first image, prior to blitting the cursor.
     board_pre_cursor: Vec<u8>,
@@ -80,13 +78,12 @@ impl State {
             current: start,
             nodes,
             transitions,
-            nodekit_version: value.nodekit_version.clone(),
             board_pre_cursor,
             board,
             finished: false,
             cursor: DVec2::default(),
             text_engine: nodekit_rs_text::Text::default(),
-            finished_response: Response::finished(),
+            finished_response: Response::finished(value.nodekit_version.clone()),
         })
     }
 

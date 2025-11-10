@@ -23,10 +23,9 @@ nodekit-rs-request = { path = "nodekit-rs-request" }
 nodekit-rs-response = { path = "nodekit-rs-response" }
 nodekit-rs-socket = { path = "nodekit-rs-socket" }
 nodekit-rs-state = { path = "nodekit-rs-state" }
-thiserror.workspace = true
-zmq.workspace = true
 
 [workspace.dependencies]
+bincode = "2.0.1"
 blittle = "0.2.1"
 bytemuck = "1.24.0"
 clap = { version = "4.5.50", features = ["derive"] }

@@ -4,11 +4,12 @@
 //! and elsewhere in `nodekit-rs`, particularly when blitting images or extracting video frames.
 
 mod audio;
+mod error;
 mod visual;
 
 pub use audio::*;
-use flatbuffers::FlatBufferBuilder;
-use nodekit_rs_fb::response;
+use bincode::{config::Configuration, Decode, Encode, decode_from_slice, encode_to_vec};
+pub use error::Error;
 use pyo3::exceptions::PyTypeError;
 use pyo3::prelude::*;
 use pyo3::types::PyBytes;
@@ -17,7 +18,7 @@ pub use visual::*;
 
 #[gen_stub_pyclass]
 #[pyclass]
-#[derive(Default)]
+#[derive(Default, Decode, Encode)]
 pub struct Response {
     /// The visual frame.
     /// If None, the visual frame didn't update.
@@ -33,58 +34,26 @@ pub struct Response {
     /// If true, the current node finished on this frame.
     #[pyo3(get)]
     pub finished: bool,
+    /// The nodekit version.
+    #[pyo3(get)]
+    pub version: String,
 }
 
 impl Response {
-    pub fn serialize(&self, version: Option<String>) -> Vec<u8> {
-        let mut fbb = FlatBufferBuilder::new();
-        let version = version.map(|version| fbb.create_string(&version));
-        let visual = self.visual.as_ref().map(|visual| {
-            let buffer = Some(fbb.create_vector(&visual.buffer));
-            let args = response::VisualFrameArgs {
-                buffer,
-                width: visual.width,
-                height: visual.height,
-            };
-            response::VisualFrame::create(&mut fbb, &args)
-        });
-
-        let audio = self.audio.as_ref().map(|audio| {
-            let buffer = Some(fbb.create_vector(&audio.buffer));
-            let format = match audio.format.as_ref() {
-                Some(format) => format.as_fb(),
-                None => response::AudioFormat::None,
-            };
-            let args = response::AudioFrameArgs {
-                buffer,
-                format,
-                rate: audio.rate,
-                channels: audio.channels,
-            };
-            response::AudioFrame::create(&mut fbb, &args)
-        });
-
-        let sensor = self.sensor.as_ref().map(|s| fbb.create_string(s));
-
-        let args = response::ResponseArgs {
-            visual,
-            audio,
-            sensor,
-            finished: self.finished,
-            version,
-        };
-        let offset = response::Response::create(&mut fbb, &args);
-        response::finish_response_buffer(&mut fbb, offset);
-        fbb.finished_data().to_vec()
-    }
-
-    pub fn finished() -> Self {
+    pub const fn finished(version: String) -> Self {
         Self {
             visual: None,
             audio: None,
             sensor: None,
             finished: true,
+            version,
         }
+    }
+}
+
+impl Response {
+    pub fn serialize(&self) -> Result<Vec<u8>, Error> {
+        encode_to_vec::<&Self, Configuration>(self, Configuration::default()).map_err(Error::Encode)
     }
 }
 
@@ -94,23 +63,8 @@ impl Response {
     /// Deserialize a `Response`.
     #[new]
     pub fn deserialize(buffer: &Bound<'_, PyBytes>) -> PyResult<Self> {
-        match response::root_as_response(buffer.as_bytes()) {
-            Ok(response) => Ok(Self {
-                visual: response.visual().map(|visual| VisualFrame {
-                    buffer: visual.buffer().bytes().to_vec(),
-                    width: visual.width(),
-                    height: visual.height(),
-                }),
-                audio: response.audio().map(|audio| AudioFrame {
-                    buffer: audio.buffer().bytes().to_vec(),
-                    format: AudioFormat::from_fb(audio.format()),
-                    channels: audio.channels(),
-                    rate: audio.rate(),
-                }),
-                sensor: response.sensor().map(|sensor| sensor.to_string()),
-                finished: response.finished(),
-            }),
-            Err(error) => Err(PyTypeError::new_err(error.to_string())),
-        }
+        decode_from_slice::<Self, Configuration>(buffer.as_bytes(), Configuration::default())
+            .map(|d| d.0)
+            .map_err(|error| PyTypeError::new_err(error.to_string()))
     }
 }

@@ -1,6 +1,5 @@
-mod error;
-
-pub use error::VisualFrameError;
+use bincode::{Decode, Encode};
+use crate::Error;
 use fast_image_resize::{FilterType, PixelType, ResizeAlg, ResizeOptions, Resizer, SrcCropping};
 use png::{BitDepth, ColorType, Encoder};
 use pyo3::exceptions::{PyFileNotFoundError, PyIOError};
@@ -11,7 +10,7 @@ use std::{fs::File, io::BufWriter};
 /// A raw bitmap `buffer` and its dimensions.
 #[gen_stub_pyclass]
 #[pyclass]
-#[derive(Clone)]
+#[derive(Clone, Decode, Encode)]
 pub struct VisualFrame {
     /// A raw RGB24 bitmap.
     #[pyo3(get)]
@@ -44,7 +43,7 @@ impl VisualFrame {
 
 impl VisualFrame {
     /// Resize this frame to `width` and `height`.
-    pub fn resize(&mut self, width: u32, height: u32) -> Result<(), VisualFrameError> {
+    pub fn resize(&mut self, width: u32, height: u32) -> Result<(), Error> {
         self.buffer =
             Self::resize_buffer(&mut self.buffer, self.width, self.height, width, height)?;
         self.width = width;
@@ -58,14 +57,14 @@ impl VisualFrame {
         src_height: u32,
         dst_width: u32,
         dst_height: u32,
-    ) -> Result<Vec<u8>, VisualFrameError> {
+    ) -> Result<Vec<u8>, Error> {
         let src = fast_image_resize::images::Image::from_slice_u8(
             src_width,
             src_height,
             buffer,
             PixelType::U8x3,
         )
-        .map_err(VisualFrameError::ImageResizeBuffer)?;
+        .map_err(Error::ImageResizeBuffer)?;
         // Resize the image.
         let mut dst = fast_image_resize::images::Image::new(dst_width, dst_height, PixelType::U8x3);
         let options = ResizeOptions {
@@ -76,7 +75,7 @@ impl VisualFrame {
         let mut resizer = Resizer::new();
         resizer
             .resize(&src, &mut dst, Some(&options))
-            .map_err(VisualFrameError::ImageResize)?;
+            .map_err(Error::ImageResize)?;
         Ok(dst.into_vec())
     }
 }

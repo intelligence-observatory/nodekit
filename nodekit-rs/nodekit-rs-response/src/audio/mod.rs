@@ -1,3 +1,4 @@
+use bincode::{Decode, Encode};
 use pyo3::pyclass;
 use pyo3_stub_gen::derive::gen_stub_pyclass;
 
@@ -8,7 +9,7 @@ pub use format::AudioFormat;
 /// A frame of audio data.
 #[gen_stub_pyclass]
 #[pyclass]
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Decode, Encode)]
 pub struct AudioFrame {
     /// Raw wav data.
     #[pyo3(get)]

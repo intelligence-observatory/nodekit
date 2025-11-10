@@ -26,9 +26,9 @@ impl Connection {
     }
 
     /// Serialize a tick result and send it.
-    pub fn send(&mut self, response: &Response, version: Option<String>) -> Result<(), Error> {
+    pub fn send(&mut self, response: &Response) -> Result<(), Error> {
         self.socket
-            .send(response.serialize(version), 0)
+            .send(response.serialize().map_err(Error::Response)?, 0)
             .map_err(Error::Zmq)?;
         Ok(())
     }

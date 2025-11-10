@@ -1,10 +1,10 @@
-use std::sync::{Arc, Mutex};
-use std::thread::spawn;
 use criterion::{Criterion, criterion_group, criterion_main};
 use flatbuffers::FlatBufferBuilder;
-use zmq::Context;
 use nodekit_rs_response::*;
 use nodekit_rs_socket::*;
+use std::sync::{Arc, Mutex};
+use std::thread::spawn;
+use zmq::Context;
 
 const ENDPOINT: &str = "ipc:///tmp/nodekit-rs-socket";
 
@@ -25,6 +25,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             rate: 44100,
         }),
         sensor: Some("sensor".to_string()),
+        version: "0.1.0".to_string(),
         finished: false,
     };
     let mut connection = Connection::new(ENDPOINT).unwrap();
@@ -34,7 +35,9 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     c.bench_function("socket overhead", |b| {
         b.iter(|| {
             connection.receive().unwrap();
-            connection.send(&response, Some("0.0.0".to_string())).unwrap();
+            connection
+                .send(&response)
+                .unwrap();
         })
     });
     *kill.lock().unwrap() = true;
@@ -55,7 +58,7 @@ fn client_thread(kill: Arc<Mutex<bool>>) {
 
 fn noop() -> Vec<u8> {
     let mut fbb = FlatBufferBuilder::new();
-    let n = nodekit_rs_fb::noop::Noop::create(&mut fbb, & nodekit_rs_fb::noop::NoopArgs::default());
+    let n = nodekit_rs_fb::noop::Noop::create(&mut fbb, &nodekit_rs_fb::noop::NoopArgs::default());
     nodekit_rs_fb::noop::finish_noop_buffer(&mut fbb, n);
     fbb.finished_data().to_vec()
 }

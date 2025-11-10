@@ -19,10 +19,11 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         }),
         sensor: Some("sensor".to_string()),
         finished: false,
+        version: "0.1.0".to_string()
     };
     c.bench_function("response serialization", |b| {
         b.iter(|| {
-            response.serialize(Some("0.0.0".to_string()));
+            response.serialize().unwrap();
         })
     });
 }

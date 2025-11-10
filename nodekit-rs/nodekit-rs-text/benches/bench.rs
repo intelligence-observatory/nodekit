@@ -10,22 +10,21 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     let mut text = Text::default();
     c.bench_function("text rendering", |b| {
         b.iter(|| {
-           text
-                .render(
-                    include_str!("../lorem.txt"),
-                    16,
-                    Justification {
-                        horizontal: JustificationHorizontal::Left,
-                        vertical: JustificationVertical::Center,
-                    },
-                    Size {
-                        w: width,
-                        h: height,
-                    },
-                    [0, 0, 0],
-                    [200, 200, 200],
-                )
-                .unwrap();
+            text.render(
+                include_str!("../lorem.txt"),
+                16,
+                Justification {
+                    horizontal: JustificationHorizontal::Left,
+                    vertical: JustificationVertical::Center,
+                },
+                Size {
+                    w: width,
+                    h: height,
+                },
+                [0, 0, 0],
+                [200, 200, 200],
+            )
+            .unwrap();
         })
     });
 }

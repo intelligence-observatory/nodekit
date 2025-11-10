@@ -2,9 +2,9 @@ mod args;
 
 use crate::args::Args;
 use clap::Parser;
-use nodekit_rs_socket::*;
 use nodekit_rs_request::Request;
 use nodekit_rs_response::Response;
+use nodekit_rs_socket::*;
 use nodekit_rs_state::State;
 
 fn main() {
@@ -14,15 +14,12 @@ fn main() {
     let mut state = None;
     let default_response = Response::default();
     loop {
-        let version = state
-            .as_ref()
-            .map(|state: &State| state.nodekit_version.clone());
         // Receive a command.
         let received = connection.receive().unwrap();
         // Execute the command or tick.
         let response = on_receive(&mut state, received, &default_response);
         // Send the tick result.
-        connection.send(response, version).unwrap();
+        connection.send(response).unwrap();
     }
 }
 
