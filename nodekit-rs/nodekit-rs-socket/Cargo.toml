@@ -10,9 +10,8 @@ thiserror.workspace = true
 zmq.workspace = true
 
 [dev-dependencies]
+bincode.workspace = true
 criterion.workspace = true
-nodekit-rs-fb = { path = "../nodekit-rs-fb" }
-flatbuffers.workspace = true
 
 [[bench]]
 name = "bench"

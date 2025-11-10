@@ -1,6 +1,0 @@
-table KeyPress {
-    key:string (required);
-}
-
-root_type KeyPress;
-file_identifier "keyp";

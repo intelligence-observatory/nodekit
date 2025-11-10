@@ -1,6 +1,0 @@
-table Graph {
-    node_graph:[ubyte] (required);
-}
-
-root_type Graph;
-file_identifier "graf";

@@ -1,10 +1,12 @@
 use criterion::{Criterion, criterion_group, criterion_main};
-use flatbuffers::FlatBufferBuilder;
 use nodekit_rs_response::*;
 use nodekit_rs_socket::*;
 use std::sync::{Arc, Mutex};
 use std::thread::spawn;
+use bincode::config::Configuration;
+use bincode::serde::encode_to_vec;
 use zmq::Context;
+use nodekit_rs_request::Request;
 
 const ENDPOINT: &str = "ipc:///tmp/nodekit-rs-socket";
 
@@ -57,10 +59,7 @@ fn client_thread(kill: Arc<Mutex<bool>>) {
 }
 
 fn noop() -> Vec<u8> {
-    let mut fbb = FlatBufferBuilder::new();
-    let n = nodekit_rs_fb::noop::Noop::create(&mut fbb, &nodekit_rs_fb::noop::NoopArgs::default());
-    nodekit_rs_fb::noop::finish_noop_buffer(&mut fbb, n);
-    fbb.finished_data().to_vec()
+    encode_to_vec::<Request, Configuration>(Request::Tick(None), Configuration::default()).unwrap()
 }
 
 fn is_killed(kill_receiver: &Arc<Mutex<bool>>) -> bool {
