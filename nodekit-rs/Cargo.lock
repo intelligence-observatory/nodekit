@@ -1094,14 +1094,12 @@ dependencies = [
 name = "nodekit-rs-request"
 version = "0.1.0"
 dependencies = [
- "bincode",
  "glam",
  "nodekit-rs-graph",
  "pyo3",
  "pyo3-stub-gen",
  "serde",
  "serde_json",
- "thiserror",
 ]
 
 [[package]]
@@ -1121,10 +1119,10 @@ dependencies = [
 name = "nodekit-rs-socket"
 version = "0.1.0"
 dependencies = [
- "bincode",
  "criterion",
  "nodekit-rs-request",
  "nodekit-rs-response",
+ "serde_json",
  "thiserror",
  "zmq",
 ]

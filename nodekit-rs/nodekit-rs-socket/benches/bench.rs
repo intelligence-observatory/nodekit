@@ -3,8 +3,7 @@ use nodekit_rs_response::*;
 use nodekit_rs_socket::*;
 use std::sync::{Arc, Mutex};
 use std::thread::spawn;
-use bincode::config::Configuration;
-use bincode::serde::encode_to_vec;
+use serde_json::to_vec;
 use zmq::Context;
 use nodekit_rs_request::Request;
 
@@ -59,7 +58,7 @@ fn client_thread(kill: Arc<Mutex<bool>>) {
 }
 
 fn noop() -> Vec<u8> {
-    encode_to_vec::<Request, Configuration>(Request::Tick(None), Configuration::default()).unwrap()
+    to_vec(&Request::Tick(None)).unwrap()
 }
 
 fn is_killed(kill_receiver: &Arc<Mutex<bool>>) -> bool {
