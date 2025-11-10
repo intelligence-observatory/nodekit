@@ -1118,10 +1118,11 @@ dependencies = [
 name = "nodekit-rs-socket"
 version = "0.1.0"
 dependencies = [
- "clap",
+ "criterion",
+ "flatbuffers",
+ "nodekit-rs-fb",
  "nodekit-rs-request",
  "nodekit-rs-response",
- "nodekit-rs-state",
  "thiserror",
  "zmq",
 ]
