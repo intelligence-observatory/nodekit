@@ -1,9 +1,8 @@
 mod args;
-mod connection;
 
 use crate::args::Args;
 use clap::Parser;
-use connection::Connection;
+use nodekit_rs_socket::*;
 use nodekit_rs_request::Request;
 use nodekit_rs_response::Response;
 use nodekit_rs_state::State;

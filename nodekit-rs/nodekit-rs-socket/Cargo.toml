@@ -1,0 +1,12 @@
+[package]
+name = "nodekit-rs-socket"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+clap.workspace = true
+nodekit-rs-request = { path = "../nodekit-rs-request" }
+nodekit-rs-response = { path = "../nodekit-rs-response" }
+nodekit-rs-state = { path = "../nodekit-rs-state" }
+thiserror.workspace = true
+zmq.workspace = true

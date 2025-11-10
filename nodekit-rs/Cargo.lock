@@ -1045,6 +1045,7 @@ dependencies = [
  "clap",
  "nodekit-rs-request",
  "nodekit-rs-response",
+ "nodekit-rs-socket",
  "nodekit-rs-state",
  "thiserror",
  "zmq",
@@ -1111,6 +1112,18 @@ dependencies = [
  "pyo3",
  "pyo3-stub-gen",
  "thiserror",
+]
+
+[[package]]
+name = "nodekit-rs-socket"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "nodekit-rs-request",
+ "nodekit-rs-response",
+ "nodekit-rs-state",
+ "thiserror",
+ "zmq",
 ]
 
 [[package]]

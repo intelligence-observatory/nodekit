@@ -6,6 +6,7 @@ members = [
     "nodekit-rs-image",
     "nodekit-rs-request",
     "nodekit-rs-response",
+    "nodekit-rs-socket",
     "nodekit-rs-state",
     "nodekit-rs-text",
     "nodekit-rs-video",
@@ -20,6 +21,7 @@ edition = "2024"
 clap.workspace = true
 nodekit-rs-request = { path = "nodekit-rs-request" }
 nodekit-rs-response = { path = "nodekit-rs-response" }
+nodekit-rs-socket = { path = "nodekit-rs-socket" }
 nodekit-rs-state = { path = "nodekit-rs-state" }
 thiserror.workspace = true
 zmq.workspace = true
