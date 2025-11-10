@@ -1141,6 +1141,7 @@ dependencies = [
  "blittle",
  "bytemuck",
  "cosmic-text",
+ "criterion",
  "markdown",
  "png",
  "thiserror",

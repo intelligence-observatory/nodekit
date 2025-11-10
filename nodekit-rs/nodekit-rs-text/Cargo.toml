@@ -12,3 +12,8 @@ thiserror.workspace = true
 
 [dev-dependencies]
 png.workspace = true
+criterion.workspace = true
+
+[[bench]]
+name = "bench"
+harness = false
