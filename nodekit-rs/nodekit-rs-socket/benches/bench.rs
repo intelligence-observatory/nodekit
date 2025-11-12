@@ -1,11 +1,11 @@
 use criterion::{Criterion, criterion_group, criterion_main};
+use nodekit_rs_request::Request;
 use nodekit_rs_response::*;
 use nodekit_rs_socket::*;
+use serde_json::to_vec;
 use std::sync::{Arc, Mutex};
 use std::thread::spawn;
-use serde_json::to_vec;
 use zmq::Context;
-use nodekit_rs_request::Request;
 
 const ENDPOINT: &str = "ipc:///tmp/nodekit-rs-socket";
 
@@ -36,9 +36,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     c.bench_function("socket overhead", |b| {
         b.iter(|| {
             connection.receive().unwrap();
-            connection
-                .send(&response)
-                .unwrap();
+            connection.send(&response).unwrap();
         })
     });
     *kill.lock().unwrap() = true;

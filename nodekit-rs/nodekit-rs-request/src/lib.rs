@@ -32,8 +32,10 @@ impl Request {
         from_slice(buffer)
     }
 
-    pub(crate) fn serialize<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyBytes>>{
-        to_vec(self).map(|r| PyBytes::new(py, &r)).map_err(|e| PyTypeError::new_err(e.to_string()))
+    pub(crate) fn serialize<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyBytes>> {
+        to_vec(self)
+            .map(|r| PyBytes::new(py, &r))
+            .map_err(|e| PyTypeError::new_err(e.to_string()))
     }
 }
 

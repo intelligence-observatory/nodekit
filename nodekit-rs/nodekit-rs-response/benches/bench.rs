@@ -19,7 +19,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         }),
         sensor: Some("sensor".to_string()),
         finished: false,
-        version: "0.1.0".to_string()
+        version: "0.1.0".to_string(),
     };
     c.bench_function("response serialization", |b| {
         b.iter(|| {

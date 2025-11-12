@@ -8,7 +8,7 @@ mod error;
 mod visual;
 
 pub use audio::*;
-use bincode::{config::Configuration, Decode, Encode, decode_from_slice, encode_to_vec};
+use bincode::{Decode, Encode, config::Configuration, decode_from_slice, encode_to_vec};
 pub use error::Error;
 use pyo3::exceptions::PyTypeError;
 use pyo3::prelude::*;

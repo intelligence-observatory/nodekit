@@ -1,5 +1,5 @@
-use bincode::{Decode, Encode};
 use crate::Error;
+use bincode::{Decode, Encode};
 use fast_image_resize::{FilterType, PixelType, ResizeAlg, ResizeOptions, Resizer, SrcCropping};
 use png::{BitDepth, ColorType, Encoder};
 use pyo3::exceptions::{PyFileNotFoundError, PyIOError};

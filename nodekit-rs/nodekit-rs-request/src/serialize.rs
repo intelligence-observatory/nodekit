@@ -1,4 +1,6 @@
+use crate::{Action, Request};
 use glam::DVec2;
+use nodekit_rs_graph::Graph;
 use pyo3::exceptions::{PyRuntimeError, PyValueError};
 use pyo3::{
     prelude::*,
@@ -6,8 +8,6 @@ use pyo3::{
 };
 use pyo3_stub_gen::derive::gen_stub_pyfunction;
 use serde_json::from_str;
-use nodekit_rs_graph::Graph;
-use crate::{Action, Request};
 
 /// Returns a serialized no-op action.
 #[gen_stub_pyfunction]
@@ -22,7 +22,8 @@ pub fn noop<'py>(py: Python<'py>) -> PyResult<Bound<'py, PyBytes>> {
 pub fn graph<'py>(py: Python<'py>, graph: &Bound<'py, PyAny>) -> PyResult<Bound<'py, PyBytes>> {
     // Assume that this is a valid Graph and try to dump the JSON string.
     let json = graph.getattr("model_dump_json")?.call0()?;
-    let graph = from_str::<Graph>(json.cast::<PyString>()?.to_str()?).map_err(|e| PyRuntimeError::new_err(e.to_string()))?;
+    let graph = from_str::<Graph>(json.cast::<PyString>()?.to_str()?)
+        .map_err(|e| PyRuntimeError::new_err(e.to_string()))?;
     Request::Graph(graph).serialize(py)
 }
 
@@ -52,15 +53,15 @@ pub fn mouse<'py>(
                 Request::from(Action::Mouse {
                     delta: Some(DVec2::new(delta.0, delta.1)),
                     clicked,
-                }).serialize(py)
+                })
+                .serialize(py)
             }
         }
-        None => {
-            Request::from(Action::Mouse {
-                delta: None,
-                clicked
-            }).serialize(py)
-        }
+        None => Request::from(Action::Mouse {
+            delta: None,
+            clicked,
+        })
+        .serialize(py),
     }
 }
 
