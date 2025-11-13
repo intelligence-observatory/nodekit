@@ -10,12 +10,12 @@ pub use size::Size;
 /// The position and size of a card.
 #[gen_stub_pyclass]
 #[pyclass]
-#[derive(Clone)]
+#[derive(Copy, Clone)]
 pub struct Rect {
     #[pyo3(get)]
     pub position: Position,
     #[pyo3(get)]
-    pub size: Size
+    pub size: Size,
 }
 
 #[gen_stub_pymethods]
@@ -24,8 +24,8 @@ impl Rect {
     #[new]
     pub fn new(x: f64, y: f64, w: f64, h: f64) -> Self {
         Self {
-            position: Position{ x, y},
-            size: Size {w, h}
+            position: Position { x, y },
+            size: Size { w, h },
         }
     }
 }

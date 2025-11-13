@@ -6,3 +6,7 @@ edition = "2024"
 [dependencies]
 pyo3.workspace = true
 pyo3-stub-gen.workspace = true
+
+[lib]
+name = "nodekit_rs_models"
+crate-type = ["cdylib", "rlib"]

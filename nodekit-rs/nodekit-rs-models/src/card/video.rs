@@ -1,7 +1,6 @@
-use std::path::PathBuf;
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
-use super::Card;
+use std::path::PathBuf;
 
 /// A .mp4 file.
 #[gen_stub_pyclass]
@@ -27,7 +26,7 @@ impl Video {
         Self {
             path,
             muted,
-            looped
+            looped,
         }
     }
 }

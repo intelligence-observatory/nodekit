@@ -32,20 +32,26 @@ pub struct Text {
     pub justification_horizontal: JustificationHorizontal,
     pub justification_vertical: JustificationVertical,
     /// An RGBA background color e.g. #FF0000FF
-    pub background_color: String
+    pub background_color: String,
 }
 
 #[gen_stub_pymethods]
 #[pymethods]
 impl Text {
     #[new]
-    pub fn new(text: String, font_size: f64, justification_horizontal: JustificationHorizontal, justification_vertical: JustificationVertical, background_color: String) -> Self {
+    pub fn new(
+        text: String,
+        font_size: f64,
+        justification_horizontal: JustificationHorizontal,
+        justification_vertical: JustificationVertical,
+        background_color: String,
+    ) -> Self {
         Self {
             text,
             font_size,
             justification_horizontal,
             justification_vertical,
-            background_color
+            background_color,
         }
     }
 }
