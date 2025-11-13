@@ -1094,6 +1094,7 @@ dependencies = [
 name = "nodekit-rs-models"
 version = "0.1.0"
 dependencies = [
+ "hashbrown 0.16.0",
  "pyo3",
  "pyo3-stub-gen",
 ]

@@ -20,6 +20,7 @@ pub use video::Video;
 /// A card that can be placed on the board, plus a stateful timer.
 #[gen_stub_pyclass]
 #[pyclass]
+#[derive(Clone)]
 pub struct Card {
     /// The position and size of the card.
     pub rect: Rect,
@@ -90,9 +91,11 @@ impl Card {
             }),
         }
     }
+}
 
+impl Card {
     /// The status of the card at time `t_msec`.
-    pub fn status(&mut self, t_msec: u64) -> Status {
+    pub const fn status(&self, t_msec: u64) -> Status {
         if t_msec < self.timer.start_msec {
             Status::Pending
         } else if t_msec == self.timer.start_msec {
@@ -109,5 +112,9 @@ impl Card {
             // No end time.
             Status::Active
         }
+    }
+
+    pub const fn is_visible(&self, t_msec: u64) -> bool {
+        matches!(self.status(t_msec), Status::StartedNow | Status::Active)
     }
 }
