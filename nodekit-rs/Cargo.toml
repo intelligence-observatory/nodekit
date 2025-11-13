@@ -3,6 +3,7 @@ members = [
     "nodekit-rs-client",
     "nodekit-rs-graph",
     "nodekit-rs-image",
+    "nodekit-rs-models",
     "nodekit-rs-request",
     "nodekit-rs-response",
     "nodekit-rs-socket",
