@@ -1091,6 +1091,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "nodekit-rs-models"
+version = "0.1.0"
+dependencies = [
+ "pyo3",
+ "pyo3-stub-gen",
+]
+
+[[package]]
 name = "nodekit-rs-request"
 version = "0.1.0"
 dependencies = [
