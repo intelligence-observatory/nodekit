@@ -35,7 +35,6 @@ pub struct Card {
 #[pymethods]
 impl Card {
     #[staticmethod]
-    #[pyo3(signature = (rect, timer, path, z_index=None, /), text_signature = None)]
     pub fn image_card(rect: Rect, timer: Timer, path: PathBuf, z_index: Option<u32>) -> Self {
         Self {
             rect,
@@ -46,7 +45,6 @@ impl Card {
     }
 
     #[staticmethod]
-    #[pyo3(signature = (rect, timer, path, muted=true, looped=false, z_index=None, /), text_signature = None)]
     pub fn video_card(
         rect: Rect,
         timer: Timer,
@@ -68,7 +66,6 @@ impl Card {
     }
 
     #[staticmethod]
-    #[pyo3(signature = (rect, timer, text, font_size=0.02, justification_horizontal=JustificationHorizontal::Left, justification_vertical=JustificationVertical::Top, background_color="#E6E6E600", z_index=None, /), text_signature = None)]
     #[allow(clippy::too_many_arguments)]
     pub fn text_card(
         rect: Rect,
