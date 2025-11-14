@@ -1,20 +1,20 @@
 use crate::card::{Card, CardType, Video};
+use crate::{Image, Text};
 use hashbrown::HashMap;
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
-use crate::{Image, Text};
 
 macro_rules! get_card_type {
     ($f:ident, $card_type:ident) => {
         pub fn $f(&self) -> Vec<(&$card_type, &Card)> {
             self.cards
-            .values()
-            .filter_map(|card| match &card.card_type {
-                CardType::$card_type(image) => Some((image, card)),
-                _ => None
-            })
-            .collect()
-    }
+                .values()
+                .filter_map(|card| match &card.card_type {
+                    CardType::$card_type(image) => Some((image, card)),
+                    _ => None,
+                })
+                .collect()
+        }
     };
 }
 

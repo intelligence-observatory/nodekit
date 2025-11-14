@@ -3,15 +3,15 @@ mod error;
 use blittle::blit;
 use blittle::stride::RGB;
 use bytemuck::cast_slice_mut;
-use nodekit_rs_models::{nodekit_rs_models::*, Status};
-use nodekit_rs_image::*;
-use nodekit_rs_visual::*;
 pub use error::Error;
+use nodekit_rs_image::*;
+use nodekit_rs_models::{Status, nodekit_rs_models::*};
+use nodekit_rs_visual::*;
 
 #[derive(Default)]
 pub struct Renderer {
     pub board: Vec<u8>,
-    color: [u8; 3]
+    color: [u8; 3],
 }
 
 impl Renderer {
@@ -21,8 +21,7 @@ impl Renderer {
         // Fill the board.
         if self.board.is_empty() {
             self.board = board(self.color);
-        }
-        else {
+        } else {
             cast_slice_mut::<u8, [u8; 3]>(&mut self.board).fill(self.color);
         }
         self.blit(node)
@@ -55,6 +54,13 @@ impl Renderer {
         let erasure = bitmap(width, height, self.color);
         // Blit it.
         let blit_rect = BlitRect::from(rect);
-        blit(&erasure, &blit_rect.size, &mut self.board, &blit_rect.position, &BOARD_SIZE, RGB);
+        blit(
+            &erasure,
+            &blit_rect.size,
+            &mut self.board,
+            &blit_rect.position,
+            &BOARD_SIZE,
+            RGB,
+        );
     }
 }

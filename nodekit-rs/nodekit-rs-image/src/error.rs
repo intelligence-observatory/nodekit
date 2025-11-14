@@ -12,5 +12,5 @@ pub enum Error {
     #[error("This image has indexed colors, which is not supported: {0}")]
     Indexed(PathBuf),
     #[error("{0}")]
-    Visual(nodekit_rs_visual::Error)
+    Visual(nodekit_rs_visual::Error),
 }

@@ -19,7 +19,7 @@ impl From<Position> for DVec2 {
     fn from(value: Position) -> Self {
         Self {
             x: value.x,
-            y: value.y
+            y: value.y,
         }
     }
 }

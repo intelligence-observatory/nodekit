@@ -1,10 +1,10 @@
+use crate::board::{BOARD_SIZE, size_coordinate, spatial_coordinate};
 use blittle::*;
 use nodekit_rs_models::Rect;
-use crate::board::{size_coordinate, spatial_coordinate, BOARD_SIZE};
 
 pub struct BlitRect {
     pub position: PositionU,
-    pub size: Size
+    pub size: Size,
 }
 
 impl From<Rect> for BlitRect {
@@ -16,10 +16,7 @@ impl From<Rect> for BlitRect {
         };
         let mut size = to_blittle_size(&value.size);
         let position = clip(&position, &BOARD_SIZE, &mut size);
-        Self {
-            position,
-            size
-        }
+        Self { position, size }
     }
 }
 

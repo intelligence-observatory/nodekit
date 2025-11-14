@@ -5,11 +5,11 @@ mod text;
 mod timer;
 mod video;
 
+use crate::rect::Rect;
 pub use card_type::CardType;
 pub use image::Image;
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
-use crate::rect::Rect;
 pub use status::Status;
 use std::path::PathBuf;
 pub use text::*;

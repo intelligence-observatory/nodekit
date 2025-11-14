@@ -4,13 +4,13 @@ mod error;
 mod overlay;
 
 pub use blit_rect::*;
+use blittle::*;
 pub use board::*;
 pub use error::Error;
-pub use overlay::*;
-use blittle::*;
 use fast_image_resize::{FilterType, PixelType, ResizeAlg, ResizeOptions, Resizer, SrcCropping};
 use hex_color::HexColor;
 use nodekit_rs_models::Rect;
+pub use overlay::*;
 
 pub fn parse_color(color: &str) -> Result<[u8; STRIDE], Error> {
     let color = HexColor::parse_rgba(color).map_err(|e| Error::HexColor(color.to_string(), e))?;
@@ -31,7 +31,14 @@ impl VisualBuffer {
     pub fn blit(&mut self, rect: Rect, board: &mut [u8]) -> Result<(), Error> {
         let (rect, len) = self.resize_to_fit(rect)?;
         let blit_rect = BlitRect::from(rect);
-        blit(&self.buffer[0..len], &blit_rect.size, board, &blit_rect.position, &BOARD_SIZE, STRIDE);
+        blit(
+            &self.buffer[0..len],
+            &blit_rect.size,
+            board,
+            &blit_rect.position,
+            &BOARD_SIZE,
+            STRIDE,
+        );
         Ok(())
     }
 
@@ -42,8 +49,7 @@ impl VisualBuffer {
             (rect.size.w, rect.size.h)
         } else if rect.size.w < rect.size.h {
             (rect.size.w, rect.size.w * rect.size.w / rect.size.h)
-        }
-        else {
+        } else {
             (rect.size.h, rect.size.h * rect.size.h / rect.size.w)
         };
         // Convert to pixel units.
@@ -57,10 +63,11 @@ impl VisualBuffer {
             &mut self.buffer,
             PixelType::U8x4,
         )
-            .map_err(Error::ImageResizeBuffer)?;
+        .map_err(Error::ImageResizeBuffer)?;
 
         // Resize the image.
-        let mut dst = fast_image_resize::images::Image::new(dst_w as u32, dst_h as u32, PixelType::U8x4);
+        let mut dst =
+            fast_image_resize::images::Image::new(dst_w as u32, dst_h as u32, PixelType::U8x4);
         let options = ResizeOptions {
             algorithm: ResizeAlg::Convolution(FilterType::Bilinear),
             cropping: SrcCropping::None,

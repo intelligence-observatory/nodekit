@@ -1,7 +1,7 @@
 mod card;
+mod input;
 mod node;
 mod rect;
-mod input;
 
 use pyo3::prelude::*;
 
@@ -9,12 +9,12 @@ use pyo3::prelude::*;
 pub mod nodekit_rs_models {
     pub use crate::{
         card::{
-            Card, CardType, Image, JustificationHorizontal, JustificationVertical,
-            Text, Timer, Video,
+            Card, CardType, Image, JustificationHorizontal, JustificationVertical, Text, Timer,
+            Video,
         },
         input::{Input, Pointer},
+        node::Node,
         rect::{Position, Rect, Size},
-        node::Node
     };
 
     use pyo3_stub_gen::define_stub_info_gatherer;

@@ -8,14 +8,14 @@
 
 mod error;
 
+use bytemuck::cast_slice;
+pub use error::Error;
+use nodekit_rs_models::{Image, Rect};
+use nodekit_rs_visual::*;
+use png::{ColorType, Decoder};
 use std::fs::File;
 use std::io::BufReader;
 use std::path::Path;
-use bytemuck::cast_slice;
-use png::{ColorType, Decoder};
-use nodekit_rs_models::{Image, Rect};
-use nodekit_rs_visual::*;
-pub use error::Error;
 
 /// Blit an `image` onto the `board` within a card's `rect`.
 pub fn blit_image(image: &Image, rect: Rect, board: &mut [u8]) -> Result<(), Error> {
@@ -24,11 +24,11 @@ pub fn blit_image(image: &Image, rect: Rect, board: &mut [u8]) -> Result<(), Err
 
 fn load(image: &Image) -> Result<VisualBuffer, Error> {
     let decoder = Decoder::new(BufReader::new(
-        File::open(&image.path).map_err(|e|  Error::OpenFile(e, image.path.clone()))?,
+        File::open(&image.path).map_err(|e| Error::OpenFile(e, image.path.clone()))?,
     ));
     let mut reader = decoder
         .read_info()
-        .map_err(|e|  Error::Decode(e, image.path.clone()))?;
+        .map_err(|e| Error::Decode(e, image.path.clone()))?;
     let mut buffer = vec![
         0;
         reader
@@ -37,17 +37,13 @@ fn load(image: &Image) -> Result<VisualBuffer, Error> {
     ];
     let info = reader
         .next_frame(&mut buffer)
-        .map_err(|e|  Error::Decode(e, image.path.clone()))?;
+        .map_err(|e| Error::Decode(e, image.path.clone()))?;
     // Convert to RGB32.
-    let buffer = convert(
-        &image.path,
-        &buffer[..info.buffer_size()],
-        info.color_type,
-    )?;
+    let buffer = convert(&image.path, &buffer[..info.buffer_size()], info.color_type)?;
     Ok(VisualBuffer {
         buffer,
         width: info.width,
-        height: info.height
+        height: info.height,
     })
 }
 
@@ -92,18 +88,22 @@ fn rgb_to_rgba(buffer: &[u8]) -> Vec<u8> {
 
 #[cfg(test)]
 mod tests {
-    use std::path::PathBuf;
     use super::*;
+    use std::path::PathBuf;
 
     #[test]
     fn test_load_png() {
         let width = 300;
         let height = 600;
         let image = load(&Image {
-            path: PathBuf::from("test_image.png")
-        }).unwrap();
+            path: PathBuf::from("test_image.png"),
+        })
+        .unwrap();
         assert_eq!(image.width, width);
         assert_eq!(image.height, height);
-        assert_eq!(image.buffer.len(), (width * height * STRIDE as u32) as usize);
+        assert_eq!(
+            image.buffer.len(),
+            (width * height * STRIDE as u32) as usize
+        );
     }
 }

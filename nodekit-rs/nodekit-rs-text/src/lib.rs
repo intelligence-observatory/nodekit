@@ -8,9 +8,11 @@ use cosmic_text::fontdb::Source;
 use cosmic_text::{Align, Attrs, Buffer, Color, Family, FontSystem, Metrics, Shaping, SwashCache};
 pub use error::Error;
 use md::{FontSize, parse};
-use std::sync::Arc;
 use nodekit_rs_models::{JustificationHorizontal, JustificationVertical, Rect};
-use nodekit_rs_visual::{bitmap, blit_overlay, overlay, parse_color, to_blittle_size, BlitRect, BOARD_D_F64, STRIDE};
+use nodekit_rs_visual::{
+    BOARD_D_F64, BlitRect, STRIDE, bitmap, blit_overlay, overlay, parse_color,
+};
+use std::sync::Arc;
 use surface::Surface;
 
 pub struct Text {
@@ -19,22 +21,17 @@ pub struct Text {
 }
 
 impl Text {
-    pub fn render(
-        &mut self,
-        rect: Rect,
-        text: &nodekit_rs_models::Text,
-    ) -> Result<Vec<u8>, Error> {
+    pub fn render(&mut self, rect: Rect, text: &nodekit_rs_models::Text) -> Result<Vec<u8>, Error> {
         // Get the font sizes.
         let font_size = FontSize::new((text.font_size * BOARD_D_F64).ceil() as u16);
         let mut buffer = Buffer::new(&mut self.font_system, Metrics::from(&font_size));
         let font_usize = font_size.font_size as usize;
         let line_height_isize = font_size.line_height as isize;
         let blit_rect = BlitRect::from(rect);
-        buffer.set_size(
-            &mut self.font_system,
-            Some((blit_rect.size.w - font_usize * 2) as f32),
-            Some((blit_rect.size.h - font_usize * 2) as f32),
-        );
+        let w = blit_rect.size.w - font_usize * 2;
+        let h = blit_rect.size.h - font_usize * 2;
+        let src_size = Size { w, h };
+        buffer.set_size(&mut self.font_system, Some(w as f32), Some(h as f32));
 
         let text_color = parse_color(&text.text_color).map_err(Error::Visual)?;
         let text_color = Color::rgba(text_color[0], text_color[1], text_color[2], text_color[3]);
@@ -70,7 +67,6 @@ impl Text {
                 * 1.2) as usize;
 
             // Create an empty surface.
-            let src_size = to_blittle_size(&rect.size);
             let mut surface = bitmap(src_size.w, src_size.h, background_color);
             // Draw.
             self.draw(text_color, src_size, &mut surface, &mut buffer);
@@ -97,12 +93,19 @@ impl Text {
         let mut final_surface = bitmap(blit_rect.size.w, blit_rect.size.h, background_color);
         for surface in surfaces {
             let position = PositionI {
-                x: font_usize as isize,
+                x: 0,
                 y: surface.y + y_offset,
             };
             let mut src_size = surface.size;
-            let position = clip(&position, &blit_rect.size, &mut src_size);
-            blit_overlay(&surface.surface, &src_size, &mut final_surface, &position, &blit_rect.size);
+            let mut position = clip(&position, &blit_rect.size, &mut src_size);
+            position.x = font_usize;
+            blit_overlay(
+                &surface.surface,
+                &src_size,
+                &mut final_surface,
+                &position,
+                &blit_rect.size,
+            );
         }
 
         Ok(final_surface)
@@ -175,27 +178,16 @@ mod tests {
             justification_horizontal: JustificationHorizontal::Left,
             justification_vertical: JustificationVertical::Center,
             text_color: "#000000FF".to_string(),
-            background_color: "#AAAAAAFF".to_string()
+            background_color: "#AAAAAAFF".to_string(),
         };
         let rect = Rect {
-            position: nodekit_rs_models::Position {
-                x: -0.5,
-                y: -0.5
-            },
-            size: nodekit_rs_models::Size {
-                w: 1.,
-                h: 1.
-            }
+            position: nodekit_rs_models::Position { x: -0.5, y: -0.5 },
+            size: nodekit_rs_models::Size { w: 1., h: 1. },
         };
 
         // Render the text.
         let mut text = Text::default();
-        let image = text
-            .render(
-                rect,
-                &card
-            )
-            .unwrap();
+        let image = text.render(rect, &card).unwrap();
 
         // Write the result as a .png file.
         let file = File::create("out.png").unwrap();

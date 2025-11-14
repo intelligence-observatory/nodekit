@@ -1,9 +1,9 @@
 mod pointer;
 
+use crate::Position;
+pub use pointer::Pointer;
 use pyo3::{pyclass, pymethods};
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
-pub use pointer::Pointer;
-use crate::Position;
 
 #[gen_stub_pyclass]
 #[pyclass]
@@ -20,11 +20,9 @@ impl Input {
         Self {
             key_press,
             pointer: Pointer {
-                position: Position {
-                    x,y
-                },
-                clicked
-            }
+                position: Position { x, y },
+                clicked,
+            },
         }
     }
 }

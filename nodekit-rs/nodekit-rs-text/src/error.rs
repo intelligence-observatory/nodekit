@@ -10,5 +10,5 @@ pub enum Error {
     #[error("Invalid header depth: {0}")]
     HeaderDepth(u8),
     #[error("{0}")]
-    Visual(nodekit_rs_visual::Error)
+    Visual(nodekit_rs_visual::Error),
 }

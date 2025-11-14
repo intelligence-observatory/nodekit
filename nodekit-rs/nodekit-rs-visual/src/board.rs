@@ -24,7 +24,7 @@ pub const fn size_coordinate(c: f64) -> usize {
     (BOARD_D_F64 * c) as usize
 }
 
-pub fn bitmap(width: usize, height: usize, color: [u8; STRIDE],) -> Vec<u8> {
+pub fn bitmap(width: usize, height: usize, color: [u8; STRIDE]) -> Vec<u8> {
     let mut bitmap = vec![0; width * height * STRIDE];
     cast_slice_mut::<u8, [u8; STRIDE]>(&mut bitmap).fill(color);
     bitmap
