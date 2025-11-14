@@ -1,10 +1,13 @@
 [package]
-name = "nodekit-rs-views"
+name = "nodekit-rs-render"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
 blittle.workspace = true
+bytemuck.workspace = true
 fast_image_resize.workspace = true
+hex_color.workspace = true
 nodekit-rs-models = { path = "../nodekit-rs-models" }
+png.workspace = true
 thiserror.workspace = true

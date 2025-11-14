@@ -4,13 +4,13 @@ members = [
     "nodekit-rs-graph",
     "nodekit-rs-image",
     "nodekit-rs-models",
+    "nodekit-rs-render",
     "nodekit-rs-request",
     "nodekit-rs-response",
     "nodekit-rs-socket",
     "nodekit-rs-state",
     "nodekit-rs-text",
     "nodekit-rs-video",
-    "nodekit-rs-views",
 ]
 
 [package]

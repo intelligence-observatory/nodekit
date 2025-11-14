@@ -1,7 +1,22 @@
-use crate::card::{Card, CardType, Video};
+use crate::card::{Card, CardType, Status, Video};
 use hashbrown::HashMap;
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
+use crate::{Image, Text};
+
+macro_rules! get_card_type {
+    ($f:ident, $card_type:ident) => {
+        pub fn $f(&self) -> Vec<(&$card_type, &Card)> {
+            self.cards
+            .values()
+            .filter_map(|card| match &card.card_type {
+                CardType::$card_type(image) => Some((image, card)),
+                _ => None
+            })
+            .collect()
+    }
+    };
+}
 
 /// A node in a graph.
 #[gen_stub_pyclass]
@@ -35,13 +50,9 @@ impl Node {
 }
 
 impl Node {
-    /// Returns all cards visible at time `self.t_msec`
-    pub fn get_visible_cards(&self) -> Vec<&Card> {
-        self.cards
-            .values()
-            .filter(|card| card.is_visible(self.t_msec))
-            .collect()
-    }
+    get_card_type!(get_images, Image);
+    get_card_type!(get_text, Text);
+    get_card_type!(get_videos, Video);
 
     /// Returns all videos in the node that are visible.
     /// Key: card ID.

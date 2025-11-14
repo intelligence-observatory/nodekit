@@ -22,4 +22,5 @@ pub mod nodekit_rs_models {
     define_stub_info_gatherer!(stub_info);
 }
 
+pub use card::Status;
 pub use nodekit_rs_models::*;

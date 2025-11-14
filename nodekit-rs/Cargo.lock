@@ -1101,6 +1101,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "nodekit-rs-render"
+version = "0.1.0"
+dependencies = [
+ "blittle",
+ "bytemuck",
+ "fast_image_resize",
+ "hex_color",
+ "nodekit-rs-models",
+ "png",
+ "thiserror",
+]
+
+[[package]]
 name = "nodekit-rs-request"
 version = "0.1.0"
 dependencies = [
@@ -1178,16 +1191,6 @@ dependencies = [
  "criterion",
  "ffmpeg-next",
  "nodekit-rs-response",
-]
-
-[[package]]
-name = "nodekit-rs-views"
-version = "0.1.0"
-dependencies = [
- "blittle",
- "fast_image_resize",
- "nodekit-rs-models",
- "thiserror",
 ]
 
 [[package]]

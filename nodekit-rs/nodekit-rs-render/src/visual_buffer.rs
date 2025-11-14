@@ -2,6 +2,7 @@ use blittle::*;
 use blittle::stride::RGB;
 use fast_image_resize::{FilterType, PixelType, ResizeAlg, ResizeOptions, Resizer, SrcCropping};
 use nodekit_rs_models::Rect;
+use crate::blit_rect::BlitRect;
 use crate::board::*;
 use crate::error::Error;
 
@@ -18,17 +19,8 @@ impl VisualBuffer {
     /// Then, blit my buffer onto the board.
     pub fn blit(&mut self, rect: Rect, board: &mut [u8]) -> Result<(), Error> {
         let (rect, len) = self.resize_to_fit(rect)?;
-        // Clip.
-        let position = PositionI {
-            x: spatial_coordinate(rect.position.x),
-            y: spatial_coordinate(rect.position.y),
-        };
-        let mut src_size = Size {
-            w: size_coordinate(rect.size.w),
-            h: size_coordinate(rect.size.h),
-        };
-        let position = clip(&position, &BOARD_SIZE, &mut src_size);
-        blit(&self.buffer[0..len], &src_size, board, &position, &BOARD_SIZE, RGB);
+        let blit_rect = BlitRect::from(rect);
+        blit(&self.buffer[0..len], &blit_rect.size, board, &blit_rect.position, &BOARD_SIZE, RGB);
         Ok(())
     }
 
