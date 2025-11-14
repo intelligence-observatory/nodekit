@@ -1,0 +1,10 @@
+[package]
+name = "nodekit-rs-views"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+blittle.workspace = true
+fast_image_resize.workspace = true
+nodekit-rs-models = { path = "../nodekit-rs-models" }
+thiserror.workspace = true

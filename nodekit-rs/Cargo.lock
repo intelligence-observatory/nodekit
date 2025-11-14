@@ -1181,6 +1181,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "nodekit-rs-views"
+version = "0.1.0"
+dependencies = [
+ "blittle",
+ "fast_image_resize",
+ "nodekit-rs-models",
+ "thiserror",
+]
+
+[[package]]
 name = "nom"
 version = "7.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
