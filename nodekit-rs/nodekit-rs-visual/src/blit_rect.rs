@@ -1,5 +1,4 @@
 use blittle::*;
-use blittle::stride::RGB;
 use nodekit_rs_models::Rect;
 use crate::board::{size_coordinate, spatial_coordinate, BOARD_SIZE};
 

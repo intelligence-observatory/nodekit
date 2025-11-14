@@ -9,9 +9,10 @@ use bytemuck::cast_slice_mut;
 use cosmic_text::fontdb::Source;
 use cosmic_text::{Attrs, Buffer, Color, Family, FontSystem, Metrics, Shaping, SwashCache};
 pub use error::Error;
-pub use justification::{Justification, JustificationHorizontal, JustificationVertical};
 use md::{FontSize, parse};
 use std::sync::Arc;
+use nodekit_rs_models::Rect;
+use nodekit_rs_visual::{parse_color, BlitRect, BOARD_D_F64};
 use surface::Surface;
 
 pub struct Text {
@@ -22,27 +23,26 @@ pub struct Text {
 impl Text {
     pub fn render(
         &mut self,
-        text: &str,
-        font_size: u16,
-        justification: Justification,
-        size: Size,
-        text_color: [u8; 3],
-        background_color: [u8; 3],
+        rect: Rect,
+        text: &nodekit_rs_models::Text,
     ) -> Result<Vec<u8>, Error> {
-        let font_size = FontSize::new(font_size);
+        // Get the font sizes.
+        let font_size = FontSize::new((text.font_size * BOARD_D_F64).ceil() as u16);
         let mut buffer = Buffer::new(&mut self.font_system, Metrics::from(&font_size));
         let font_usize = font_size.font_size as usize;
         let line_height_isize = font_size.line_height as isize;
+        let blit_rect = BlitRect::from(rect);
         buffer.set_size(
             &mut self.font_system,
-            Some((size.w - font_usize * 2) as f32),
-            Some((size.h - font_usize * 2) as f32),
+            Some((blit_rect.size.w - font_usize * 2) as f32),
+            Some((blit_rect.size.h - font_usize * 2) as f32),
         );
 
+        let text_color = parse_color(&text.text_color).map_err(Error::Visual)?;
         let text_color = Color::rgb(text_color[0], text_color[1], text_color[2]);
         let mut attrs = Attrs::new().color(text_color);
         attrs.family = Family::SansSerif;
-        let paragraphs = parse(text, &font_size, attrs.clone())?;
+        let paragraphs = parse(&text.text, &font_size, attrs.clone())?;
         let mut y = 0;
         let mut surfaces = Vec::default();
 

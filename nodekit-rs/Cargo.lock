@@ -1085,7 +1085,8 @@ name = "nodekit-rs-image"
 version = "0.1.0"
 dependencies = [
  "bytemuck",
- "nodekit-rs-response",
+ "nodekit-rs-models",
+ "nodekit-rs-visual",
  "png",
  "thiserror",
 ]
@@ -1106,10 +1107,9 @@ version = "0.1.0"
 dependencies = [
  "blittle",
  "bytemuck",
- "fast_image_resize",
- "hex_color",
+ "nodekit-rs-image",
  "nodekit-rs-models",
- "png",
+ "nodekit-rs-visual",
  "thiserror",
 ]
 
@@ -1180,6 +1180,8 @@ dependencies = [
  "cosmic-text",
  "criterion",
  "markdown",
+ "nodekit-rs-models",
+ "nodekit-rs-visual",
  "png",
  "thiserror",
 ]
@@ -1191,6 +1193,18 @@ dependencies = [
  "criterion",
  "ffmpeg-next",
  "nodekit-rs-response",
+]
+
+[[package]]
+name = "nodekit-rs-visual"
+version = "0.1.0"
+dependencies = [
+ "blittle",
+ "bytemuck",
+ "fast_image_resize",
+ "hex_color",
+ "nodekit-rs-models",
+ "thiserror",
 ]
 
 [[package]]

@@ -8,6 +8,8 @@ blittle.workspace = true
 bytemuck.workspace = true
 cosmic-text.workspace = true
 markdown.workspace = true
+nodekit-rs-models = { path = "../nodekit-rs-models" }
+nodekit-rs-visual = { path = "../nodekit-rs-visual" }
 thiserror.workspace = true
 
 [dev-dependencies]

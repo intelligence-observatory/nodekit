@@ -32,6 +32,8 @@ pub struct Text {
     pub justification_horizontal: JustificationHorizontal,
     pub justification_vertical: JustificationVertical,
     /// An RGBA background color e.g. #FF0000FF
+    pub text_color: String,
+    /// An RGBA background color e.g. #FF0000FF
     pub background_color: String,
 }
 
@@ -44,6 +46,7 @@ impl Text {
         font_size: f64,
         justification_horizontal: JustificationHorizontal,
         justification_vertical: JustificationVertical,
+        text_color: String,
         background_color: String,
     ) -> Self {
         Self {
@@ -51,6 +54,7 @@ impl Text {
             font_size,
             justification_horizontal,
             justification_vertical,
+            text_color,
             background_color,
         }
     }

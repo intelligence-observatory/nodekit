@@ -10,7 +10,7 @@ members = [
     "nodekit-rs-socket",
     "nodekit-rs-state",
     "nodekit-rs-text",
-    "nodekit-rs-video",
+    "nodekit-rs-video", "nodekit-rs-visual",
 ]
 
 [package]

@@ -1,10 +1,22 @@
+mod blit_rect;
+mod board;
+mod error;
+mod overlay;
+
+pub use blit_rect::*;
+pub use board::*;
+pub use error::Error;
+pub use overlay::*;
 use blittle::*;
 use blittle::stride::RGB;
 use fast_image_resize::{FilterType, PixelType, ResizeAlg, ResizeOptions, Resizer, SrcCropping};
+use hex_color::HexColor;
 use nodekit_rs_models::Rect;
-use crate::blit_rect::BlitRect;
-use crate::board::*;
-use crate::error::Error;
+
+pub fn parse_color(color: &str) -> Result<[u8; 4], Error> {
+    let color = HexColor::parse_rgba(color).map_err(|e| Error::HexColor(color.to_string(), e))?;
+    Ok(color.to_le_bytes())
+}
 
 /// A raw RGB24 bitmap and its pixel size.
 pub struct VisualBuffer {

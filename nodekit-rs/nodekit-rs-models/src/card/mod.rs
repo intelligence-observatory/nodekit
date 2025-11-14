@@ -74,6 +74,7 @@ impl Card {
         font_size: f64,
         justification_horizontal: JustificationHorizontal,
         justification_vertical: JustificationVertical,
+        text_color: &str,
         background_color: &str,
         z_index: Option<u32>,
     ) -> Self {
@@ -86,6 +87,7 @@ impl Card {
                 font_size,
                 justification_horizontal,
                 justification_vertical,
+                text_color: text_color.to_string(),
                 background_color: background_color.to_string(),
             }),
         }

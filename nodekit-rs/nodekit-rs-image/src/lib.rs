@@ -8,39 +8,46 @@
 
 mod error;
 
+use std::fs::File;
+use std::io::BufReader;
+use std::path::Path;
 use bytemuck::cast_slice;
-pub use error::Error;
-use nodekit_rs_response::VisualFrame;
 use png::{ColorType, Decoder};
-use std::{fs::File, io::BufReader, path::Path};
+use nodekit_rs_models::{Image, Rect};
+use nodekit_rs_visual::*;
+pub use error::Error;
 
-/// Create a `VisualFrame` from a .png file at `path`.
-pub fn from_png<P: AsRef<Path>>(path: P) -> Result<VisualFrame, Error> {
+/// Blit an `image` onto the `board` within a card's `rect`.
+pub fn blit_image(image: &Image, rect: Rect, board: &mut [u8]) -> Result<(), Error> {
+    load(image)?.blit(rect, board).map_err(Error::Visual)
+}
+
+fn load(image: &Image) -> Result<VisualBuffer, Error> {
     let decoder = Decoder::new(BufReader::new(
-        File::open(path.as_ref()).map_err(|e| Error::OpenFile(e, path.as_ref().to_path_buf()))?,
+        File::open(&image.path).map_err(|e|  Error::OpenFile(e, image.path.clone()))?,
     ));
     let mut reader = decoder
         .read_info()
-        .map_err(|e| Error::Decode(e, path.as_ref().to_path_buf()))?;
+        .map_err(|e|  Error::Decode(e, image.path.clone()))?;
     let mut buffer = vec![
         0;
         reader
             .output_buffer_size()
-            .ok_or(Error::BufferSize(path.as_ref().to_path_buf()))?
+            .ok_or(Error::BufferSize(image.path.clone()))?
     ];
     let info = reader
         .next_frame(&mut buffer)
-        .map_err(|e| Error::Decode(e, path.as_ref().to_path_buf()))?;
+        .map_err(|e|  Error::Decode(e, image.path.clone()))?;
     // Convert to RGB24.
     let buffer = convert(
-        path.as_ref(),
+        &image.path,
         &buffer[..info.buffer_size()],
         info.color_type,
     )?;
-    Ok(VisualFrame {
-        width: info.width,
-        height: info.height,
+    Ok(VisualBuffer {
         buffer,
+        width: info.width,
+        height: info.height
     })
 }
 
@@ -85,13 +92,16 @@ fn rgba_to_rgb(buffer: &[u8]) -> Vec<u8> {
 
 #[cfg(test)]
 mod tests {
+    use std::path::PathBuf;
     use super::*;
 
     #[test]
     fn test_load_png() {
         let width = 300;
         let height = 600;
-        let image = from_png("test_image.png").unwrap();
+        let image = load(&Image {
+            path: PathBuf::from("test_image.png")
+        }).unwrap();
         assert_eq!(image.width, width);
         assert_eq!(image.height, height);
         assert_eq!(image.buffer.len(), (width * height * 3) as usize);
