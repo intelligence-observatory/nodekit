@@ -1,19 +1,25 @@
 mod card;
 mod node;
+mod rect;
+mod input;
 
 use pyo3::prelude::*;
 
 #[pymodule]
 pub mod nodekit_rs_models {
-    #[pymodule_export]
-    pub use crate::card::{
-        Card, CardType, Image, JustificationHorizontal, JustificationVertical, Position, Rect,
-        Size, Text, Timer, Video,
+    pub use crate::{
+        card::{
+            Card, CardType, Image, JustificationHorizontal, JustificationVertical,
+            Text, Timer, Video,
+        },
+        input::{Input, Pointer},
+        rect::{Position, Rect, Size},
+        node::Node
     };
-    #[pymodule_export]
-    pub use crate::node::Node;
 
     use pyo3_stub_gen::define_stub_info_gatherer;
 
     define_stub_info_gatherer!(stub_info);
 }
+
+pub use nodekit_rs_models::*;

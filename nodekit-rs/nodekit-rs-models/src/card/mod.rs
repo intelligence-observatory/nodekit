@@ -1,6 +1,5 @@
 mod card_type;
 mod image;
-mod rect;
 mod status;
 mod text;
 mod timer;
@@ -10,7 +9,7 @@ pub use card_type::CardType;
 pub use image::Image;
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
-pub use rect::{Position, Rect, Size};
+use crate::rect::Rect;
 pub use status::Status;
 use std::path::PathBuf;
 pub use text::*;

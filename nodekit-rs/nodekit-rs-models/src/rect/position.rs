@@ -1,3 +1,4 @@
+use glam::DVec2;
 use pyo3::pyclass;
 use pyo3_stub_gen::derive::gen_stub_pyclass;
 
@@ -12,4 +13,13 @@ pub struct Position {
     /// The y coordinate of the position. -0.5 to 0.5, with 0.0 being the center of the board.
     #[pyo3(get)]
     pub y: f64,
+}
+
+impl From<Position> for DVec2 {
+    fn from(value: Position) -> Self {
+        Self {
+            x: value.x,
+            y: value.y
+        }
+    }
 }
