@@ -1,7 +1,6 @@
 //! Various constants used to describe the size of the visual board.
 
 use blittle::*;
-use blittle::stride::RGB;
 use bytemuck::cast_slice_mut;
 
 pub const BOARD_D: usize = 768;
@@ -13,7 +12,7 @@ pub const BOARD_SIZE: Size = Size {
     w: BOARD_D,
     h: BOARD_D,
 };
-pub const STRIDE: usize = stride::RGB;
+pub const STRIDE: usize = stride::RGBA;
 
 /// Convert a value between -0.5 and 0.5 into a pixel coordinate.
 pub const fn spatial_coordinate(c: f64) -> isize {
@@ -25,13 +24,13 @@ pub const fn size_coordinate(c: f64) -> usize {
     (BOARD_D_F64 * c) as usize
 }
 
-pub fn bitmap(width: usize, height: usize, color: [u8; RGB],) -> Vec<u8> {
-    let mut bitmap = vec![0; width * height * RGB];
-    cast_slice_mut::<u8, [u8; 3]>(&mut bitmap).fill(color);
+pub fn bitmap(width: usize, height: usize, color: [u8; STRIDE],) -> Vec<u8> {
+    let mut bitmap = vec![0; width * height * STRIDE];
+    cast_slice_mut::<u8, [u8; STRIDE]>(&mut bitmap).fill(color);
     bitmap
 }
 
-pub fn board(color: [u8; RGB]) -> Vec<u8> {
+pub fn board(color: [u8; STRIDE]) -> Vec<u8> {
     bitmap(BOARD_D, BOARD_D, color)
 }
 
