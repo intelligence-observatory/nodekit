@@ -14,7 +14,7 @@ use nodekit_rs_models::Rect;
 
 pub fn parse_color(color: &str) -> Result<[u8; STRIDE], Error> {
     let color = HexColor::parse_rgba(color).map_err(|e| Error::HexColor(color.to_string(), e))?;
-    Ok(color.to_le_bytes())
+    Ok(color.to_be_bytes())
 }
 
 /// A raw RGB24 bitmap and its pixel size.

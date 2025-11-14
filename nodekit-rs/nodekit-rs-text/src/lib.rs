@@ -1,18 +1,16 @@
 mod error;
-mod justification;
 mod md;
 mod surface;
 
-use blittle::stride::RGB;
-use blittle::{PositionI, Size, blit, clip};
+use blittle::{PositionI, Size, clip};
 use bytemuck::cast_slice_mut;
 use cosmic_text::fontdb::Source;
-use cosmic_text::{Attrs, Buffer, Color, Family, FontSystem, Metrics, Shaping, SwashCache};
+use cosmic_text::{Align, Attrs, Buffer, Color, Family, FontSystem, Metrics, Shaping, SwashCache};
 pub use error::Error;
 use md::{FontSize, parse};
 use std::sync::Arc;
-use nodekit_rs_models::Rect;
-use nodekit_rs_visual::{parse_color, BlitRect, BOARD_D_F64};
+use nodekit_rs_models::{JustificationHorizontal, JustificationVertical, Rect};
+use nodekit_rs_visual::{bitmap, blit_overlay, overlay, parse_color, to_blittle_size, BlitRect, BOARD_D_F64, STRIDE};
 use surface::Surface;
 
 pub struct Text {
@@ -39,12 +37,13 @@ impl Text {
         );
 
         let text_color = parse_color(&text.text_color).map_err(Error::Visual)?;
-        let text_color = Color::rgb(text_color[0], text_color[1], text_color[2]);
+        let text_color = Color::rgba(text_color[0], text_color[1], text_color[2], text_color[3]);
         let mut attrs = Attrs::new().color(text_color);
         attrs.family = Family::SansSerif;
         let paragraphs = parse(&text.text, &font_size, attrs.clone())?;
         let mut y = 0;
         let mut surfaces = Vec::default();
+        let background_color = parse_color(&text.background_color).map_err(Error::Visual)?;
 
         for paragraph in paragraphs {
             // Set the metrics of this paragraph.
@@ -59,7 +58,7 @@ impl Text {
                     .map(|span| (span.text.as_str(), span.attrs.clone())),
                 &attrs,
                 Shaping::Advanced,
-                Some(justification.horizontal.into()),
+                Some(Self::get_align(text.justification_horizontal)),
             );
             buffer.shape_until_scroll(&mut self.font_system, true);
 
@@ -71,11 +70,8 @@ impl Text {
                 * 1.2) as usize;
 
             // Create an empty surface.
-            let src_size = Size {
-                w: size.w,
-                h: height,
-            };
-            let mut surface = Self::get_surface(src_size, background_color);
+            let src_size = to_blittle_size(&rect.size);
+            let mut surface = bitmap(src_size.w, src_size.h, background_color);
             // Draw.
             self.draw(text_color, src_size, &mut surface, &mut buffer);
             // Store.
@@ -86,48 +82,34 @@ impl Text {
             });
 
             // Update y
-            y += height as isize + line_height_isize;
+            y += height.cast_signed() + line_height_isize;
         }
 
         // The total height.
         let height = y - line_height_isize;
-        let y_offset = match justification.vertical {
+        let y_offset = match text.justification_vertical {
             JustificationVertical::Top => 0,
-            JustificationVertical::Center => size.h as isize / 2 - height / 2,
-            JustificationVertical::Bottom => size.h as isize - height,
+            JustificationVertical::Center => blit_rect.size.h.cast_signed() / 2 - height / 2,
+            JustificationVertical::Bottom => blit_rect.size.h.cast_signed() - height,
         } + line_height_isize;
 
         // Blit onto the final surface.
-        let mut final_surface = Self::get_surface(size, background_color);
+        let mut final_surface = bitmap(blit_rect.size.w, blit_rect.size.h, background_color);
         for surface in surfaces {
             let position = PositionI {
-                x: 0,
+                x: font_usize as isize,
                 y: surface.y + y_offset,
             };
             let mut src_size = surface.size;
-            let mut position_u = clip(&position, &size, &mut src_size);
-            position_u.x = font_usize;
-            blit(
-                &surface.surface,
-                &src_size,
-                &mut final_surface,
-                &position_u,
-                &size,
-                RGB,
-            );
+            let position = clip(&position, &blit_rect.size, &mut src_size);
+            blit_overlay(&surface.surface, &src_size, &mut final_surface, &position, &blit_rect.size);
         }
 
         Ok(final_surface)
     }
 
-    fn get_surface(size: Size, color: [u8; 3]) -> Vec<u8> {
-        let mut surface = vec![0; size.w * size.h * RGB];
-        // Fill the surface.
-        cast_slice_mut::<u8, [u8; 3]>(&mut surface).copy_from_slice(&vec![color; size.w * size.h]);
-        surface
-    }
-
     fn draw(&mut self, text_color: Color, size: Size, surface: &mut [u8], buffer: &mut Buffer) {
+        let dst = cast_slice_mut::<u8, [u8; STRIDE]>(surface);
         buffer.draw(
             &mut self.font_system,
             &mut self.swash_cache,
@@ -135,24 +117,23 @@ impl Text {
             |x, y, w, h, color| {
                 let x1 = (x as usize + w as usize).min(size.w);
                 let y1 = (y as usize + h as usize).min(size.h);
-                let dst = cast_slice_mut::<u8, [u8; 3]>(surface);
                 let alpha = color.a();
                 if alpha > 0 {
-                    let alpha = alpha as f64 / 255.;
                     (x as usize..x1).zip(y as usize..y1).for_each(|(x, y)| {
                         let index = x + y * size.w;
-                        dst[index]
-                            .iter_mut()
-                            .zip(color.as_rgba())
-                            .for_each(|(below, above)| {
-                                // Source: https://www.reddit.com/r/rust/comments/mvbn2g/compositing_colors/
-                                let result = *below as f64 * (1. - alpha) + above as f64 * alpha;
-                                *below = result.round() as u8
-                            });
+                        overlay(&color.as_rgba(), &mut dst[index]);
                     });
                 }
             },
         )
+    }
+
+    const fn get_align(justification: JustificationHorizontal) -> Align {
+        match justification {
+            JustificationHorizontal::Left => Align::Left,
+            JustificationHorizontal::Center => Align::Center,
+            JustificationHorizontal::Right => Align::Right,
+        }
     }
 }
 
@@ -185,25 +166,34 @@ mod tests {
 
     #[test]
     fn test_text_render() {
-        let width = 1024;
+        let width = 768;
         let height = 768;
+
+        let card = nodekit_rs_models::Text {
+            text: include_str!("../lorem.txt").to_string(),
+            font_size: 0.02,
+            justification_horizontal: JustificationHorizontal::Left,
+            justification_vertical: JustificationVertical::Center,
+            text_color: "#000000FF".to_string(),
+            background_color: "#AAAAAAFF".to_string()
+        };
+        let rect = Rect {
+            position: nodekit_rs_models::Position {
+                x: -0.5,
+                y: -0.5
+            },
+            size: nodekit_rs_models::Size {
+                w: 1.,
+                h: 1.
+            }
+        };
 
         // Render the text.
         let mut text = Text::default();
         let image = text
             .render(
-                include_str!("../lorem.txt"),
-                16,
-                Justification {
-                    horizontal: JustificationHorizontal::Left,
-                    vertical: JustificationVertical::Center,
-                },
-                Size {
-                    w: width,
-                    h: height,
-                },
-                [0, 0, 0],
-                [200, 200, 200],
+                rect,
+                &card
             )
             .unwrap();
 
@@ -211,7 +201,7 @@ mod tests {
         let file = File::create("out.png").unwrap();
         let ref mut w = BufWriter::new(file);
         let mut encoder = png::Encoder::new(w, width as u32, height as u32); // Width is 2 pixels and height is 1.
-        encoder.set_color(png::ColorType::Rgb);
+        encoder.set_color(png::ColorType::Rgba);
         encoder.set_depth(png::BitDepth::Eight);
         let mut writer = encoder.write_header().unwrap();
         writer.write_image_data(&image).unwrap();

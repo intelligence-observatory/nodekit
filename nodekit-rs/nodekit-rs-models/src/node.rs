@@ -1,4 +1,4 @@
-use crate::card::{Card, CardType, Status, Video};
+use crate::card::{Card, CardType, Video};
 use hashbrown::HashMap;
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
