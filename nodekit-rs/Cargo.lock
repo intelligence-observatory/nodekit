@@ -1109,6 +1109,7 @@ dependencies = [
  "bytemuck",
  "nodekit-rs-image",
  "nodekit-rs-models",
+ "nodekit-rs-text",
  "nodekit-rs-visual",
  "thiserror",
 ]

@@ -1,7 +1,6 @@
 mod error;
 
 use blittle::blit;
-use blittle::stride::RGB;
 use bytemuck::cast_slice_mut;
 pub use error::Error;
 use nodekit_rs_image::*;
@@ -11,39 +10,57 @@ use nodekit_rs_visual::*;
 #[derive(Default)]
 pub struct Renderer {
     pub board: Vec<u8>,
-    color: [u8; 3],
+    color: [u8; STRIDE],
+    text: nodekit_rs_text::Text,
 }
 
 impl Renderer {
     pub fn start_node(&mut self, node: &Node) -> Result<(), Error> {
-        let color = parse_color(&node.board_color).map_err(Error::ParseColor)?;
-        self.color = [color[0], color[1], color[2]];
+        self.color = parse_color(&node.board_color).map_err(Error::ParseColor)?;
         // Fill the board.
         if self.board.is_empty() {
             self.board = board(self.color);
         } else {
-            cast_slice_mut::<u8, [u8; 3]>(&mut self.board).fill(self.color);
+            cast_slice_mut::<u8, [u8; STRIDE]>(&mut self.board).fill(self.color);
         }
         self.blit(node)
     }
 
     pub fn blit(&mut self, node: &Node) -> Result<(), Error> {
-        self.images(node)?;
-        Ok(())
-    }
-
-    fn images(&mut self, node: &Node) -> Result<(), Error> {
-        for (image, card) in node.get_images().iter() {
-            let status = card.status(node.t_msec);
-            // Blit the image now.
-            if status == Status::StartedNow {
-                blit_image(image, card.rect, &mut self.board).map_err(Error::Image)?;
-            }
-            // Erase the image.
-            else if status == Status::EndedNow {
-                self.erase(card.rect);
+        for card in node.get_ordered_cards().iter() {
+            match card.status(node.t_msec) {
+                Status::Pending | Status::Finished => (),
+                Status::StartedNow => {
+                    match &card.card_type {
+                        CardType::Image(image) => blit_image(image, card.rect, &mut self.board).map_err(Error::Image)?,
+                        CardType::Text(text) => self.blit_text(card, text)?,
+                        CardType::Video(video) => todo!(),
+                    }
+                }
+                Status::Active => {
+                    if let CardType::Video(video) = &card.card_type {
+                        // TODO
+                    }
+                }
+                Status::EndedNow => {
+                    self.erase(card.rect);
+                }
             }
         }
+        Ok(())
+    }
+    fn blit_text(&mut self, card: &Card, text: &Text) -> Result<(), Error> {
+        let src = self.text.render(card.rect, &text).map_err(Error::Text)?;
+        // Blit it.
+        let blit_rect = BlitRect::from(card.rect);
+        blit(
+            &src,
+            &blit_rect.size,
+            &mut self.board,
+            &blit_rect.position,
+            &BOARD_SIZE,
+            STRIDE,
+        );
         Ok(())
     }
 
@@ -60,7 +77,7 @@ impl Renderer {
             &mut self.board,
             &blit_rect.position,
             &BOARD_SIZE,
-            RGB,
+            STRIDE,
         );
     }
 }

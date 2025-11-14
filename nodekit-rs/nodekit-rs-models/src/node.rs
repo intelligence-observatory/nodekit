@@ -4,20 +4,6 @@ use hashbrown::HashMap;
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 
-macro_rules! get_card_type {
-    ($f:ident, $card_type:ident) => {
-        pub fn $f(&self) -> Vec<(&$card_type, &Card)> {
-            self.cards
-                .values()
-                .filter_map(|card| match &card.card_type {
-                    CardType::$card_type(image) => Some((image, card)),
-                    _ => None,
-                })
-                .collect()
-        }
-    };
-}
-
 /// A node in a graph.
 #[gen_stub_pyclass]
 #[pyclass]
@@ -50,10 +36,13 @@ impl Node {
 }
 
 impl Node {
-    get_card_type!(get_images, Image);
-    get_card_type!(get_text, Text);
-    get_card_type!(get_videos, Video);
-
+    /// Returns the cards in their render order.
+    pub fn get_ordered_cards(&self) -> Vec<&Card> {
+        let mut cards = self.cards.values().collect::<Vec<&Card>>();
+        cards.sort_by(|a, b| a.z_index.cmp(&b.z_index));
+        cards
+    }
+    
     /// Returns all videos in the node that are visible.
     /// Key: card ID.
     /// Value: The video, and the current time in the video, in milliseconds.
