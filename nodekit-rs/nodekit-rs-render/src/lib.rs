@@ -30,13 +30,13 @@ impl Renderer {
         for card in node.get_ordered_cards().iter() {
             match card.status(node.t_msec) {
                 Status::Pending | Status::Finished => (),
-                Status::StartedNow => {
-                    match &card.card_type {
-                        CardType::Image(image) => blit_image(image, card.rect, &mut self.board).map_err(Error::Image)?,
-                        CardType::Text(text) => self.blit_text(card, text)?,
-                        CardType::Video(video) => todo!(),
+                Status::StartedNow => match &card.card_type {
+                    CardType::Image(image) => {
+                        blit_image(image, card.rect, &mut self.board).map_err(Error::Image)?
                     }
-                }
+                    CardType::Text(text) => self.blit_text(card, text)?,
+                    CardType::Video(video) => todo!(),
+                },
                 Status::Active => {
                     if let CardType::Video(video) = &card.card_type {
                         // TODO
@@ -49,6 +49,7 @@ impl Renderer {
         }
         Ok(())
     }
+
     fn blit_text(&mut self, card: &Card, text: &Text) -> Result<(), Error> {
         let src = self.text.render(card.rect, &text).map_err(Error::Text)?;
         // Blit it.

@@ -42,7 +42,7 @@ impl Node {
         cards.sort_by(|a, b| a.z_index.cmp(&b.z_index));
         cards
     }
-    
+
     /// Returns all videos in the node that are visible.
     /// Key: card ID.
     /// Value: The video, and the current time in the video, in milliseconds.
