@@ -2,7 +2,7 @@ use crate::{STRIDE, spatial_coordinate, to_blittle_size};
 use blittle::{PositionI, clip};
 use bytemuck::{cast_slice, cast_slice_mut};
 
-/// Overlay `src` onto `dst`, blending colors using the alpha channel. 
+/// Overlay `src` onto `dst`, blending colors using the alpha channel.
 pub fn overlay(
     src: &[u8],
     src_size: &blittle::Size,

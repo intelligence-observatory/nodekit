@@ -2,7 +2,6 @@ use crate::board::{BOARD_SIZE, size_coordinate, spatial_coordinate};
 use blittle::*;
 use nodekit_rs_models::Rect;
 
-
 /// A rect with coordinates that can be used to blit to a pixel bitmap.
 pub struct BlitRect {
     pub position: PositionU,
