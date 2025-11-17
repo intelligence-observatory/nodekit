@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 ffmpeg-next.workspace = true
+mp4.workspace = true
 nodekit-rs-response = { path = "../nodekit-rs-response" }
 
 [dev-dependencies]

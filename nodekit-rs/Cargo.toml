@@ -38,6 +38,7 @@ glam = { version = "0.30.9", features = ["serde"] }
 hashbrown = "0.16.0"
 hex_color = "3.0.0"
 markdown = "1.0.0-alpha.24"
+mp4 = "0.14.0"
 png = "0.18.0"
 pyo3 = { version = "0.27.1", features = ["experimental-inspect", "extension-module"] }
 pyo3-stub-gen = { version = "0.17.0", default-features = false, features = ["either", "infer_signature", "ordered-float"] }

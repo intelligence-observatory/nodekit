@@ -5,6 +5,7 @@ mod extraction;
 mod extractor;
 mod frame;
 mod packet_iter;
+mod mp4;
 
 pub use extraction::Extraction;
 use extractor::{AudioExtractor, VideoExtractor};

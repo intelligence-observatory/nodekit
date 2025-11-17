@@ -195,6 +195,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "byteorder"
+version = "1.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1fd0f2584146f6f2ef48085050886acf353beff7305ebd1ae69500e27c67f64b"
+
+[[package]]
+name = "bytes"
+version = "1.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b35204fbdc0b3f4446b89fc1ac2cf84a8a68971995d0bf2e925ec7cd960f9cb3"
+
+[[package]]
 name = "cast"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -539,7 +551,7 @@ dependencies = [
  "cfg-if",
  "document-features",
  "num-traits",
- "thiserror",
+ "thiserror 2.0.17",
 ]
 
 [[package]]
@@ -1052,6 +1064,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "mp4"
+version = "0.14.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c9ef834d5ed55e494a2ae350220314dc4aacd1c43a9498b00e320e0ea352a5c3"
+dependencies = [
+ "byteorder",
+ "bytes",
+ "num-rational",
+ "serde",
+ "serde_json",
+ "thiserror 1.0.69",
+]
+
+[[package]]
 name = "nodekit-rs"
 version = "0.1.0"
 dependencies = [
@@ -1088,7 +1114,7 @@ dependencies = [
  "nodekit-rs-models",
  "nodekit-rs-visual",
  "png",
- "thiserror",
+ "thiserror 2.0.17",
 ]
 
 [[package]]
@@ -1111,7 +1137,7 @@ dependencies = [
  "nodekit-rs-models",
  "nodekit-rs-text",
  "nodekit-rs-visual",
- "thiserror",
+ "thiserror 2.0.17",
 ]
 
 [[package]]
@@ -1136,7 +1162,7 @@ dependencies = [
  "png",
  "pyo3",
  "pyo3-stub-gen",
- "thiserror",
+ "thiserror 2.0.17",
 ]
 
 [[package]]
@@ -1147,7 +1173,7 @@ dependencies = [
  "nodekit-rs-request",
  "nodekit-rs-response",
  "serde_json",
- "thiserror",
+ "thiserror 2.0.17",
  "zmq",
 ]
 
@@ -1169,7 +1195,7 @@ dependencies = [
  "nodekit-rs-video",
  "png",
  "slotmap",
- "thiserror",
+ "thiserror 2.0.17",
 ]
 
 [[package]]
@@ -1184,7 +1210,7 @@ dependencies = [
  "nodekit-rs-models",
  "nodekit-rs-visual",
  "png",
- "thiserror",
+ "thiserror 2.0.17",
 ]
 
 [[package]]
@@ -1193,6 +1219,7 @@ version = "0.1.0"
 dependencies = [
  "criterion",
  "ffmpeg-next",
+ "mp4",
  "nodekit-rs-response",
 ]
 
@@ -1205,7 +1232,7 @@ dependencies = [
  "fast_image_resize",
  "hex_color",
  "nodekit-rs-models",
- "thiserror",
+ "thiserror 2.0.17",
 ]
 
 [[package]]
@@ -1216,6 +1243,16 @@ checksum = "d273983c5a657a70a3e8f2a01329822f3b8c8172b73826411a55751e404a0a4a"
 dependencies = [
  "memchr",
  "minimal-lexical",
+]
+
+[[package]]
+name = "num-bigint"
+version = "0.4.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a5e44f723f1133c9deac646763579fdb3ac745e418f2a7af9cd0c431da1f20b9"
+dependencies = [
+ "num-integer",
+ "num-traits",
 ]
 
 [[package]]
@@ -1234,6 +1271,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7969661fd2958a5cb096e56c8e1ad0444ac2bbcd0061bd28660485a44879858f"
 dependencies = [
  "num-traits",
+]
+
+[[package]]
+name = "num-rational"
+version = "0.4.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f83d14da390562dca69fc84082e73e548e1ad308d24accdedd2720017cb37824"
+dependencies = [
+ "num-bigint",
+ "num-integer",
+ "num-traits",
+ "serde",
 ]
 
 [[package]]
@@ -1897,11 +1946,31 @@ checksum = "df7f62577c25e07834649fc3b39fafdc597c0a3527dc1c60129201ccfcbaa50c"
 
 [[package]]
 name = "thiserror"
+version = "1.0.69"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b6aaf5339b578ea85b50e080feb250a3e8ae8cfcdff9a461c9ec2904bc923f52"
+dependencies = [
+ "thiserror-impl 1.0.69",
+]
+
+[[package]]
+name = "thiserror"
 version = "2.0.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f63587ca0f12b72a0600bcba1d40081f830876000bb46dd2337a3051618f4fc8"
 dependencies = [
- "thiserror-impl",
+ "thiserror-impl 2.0.17",
+]
+
+[[package]]
+name = "thiserror-impl"
+version = "1.0.69"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4fee6c4efc90059e10f81e6d42c60a18f76588c3d74cb83a0b242a2b6c7504c1"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]
