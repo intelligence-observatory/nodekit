@@ -2,27 +2,8 @@ use crate::{STRIDE, spatial_coordinate, to_blittle_size};
 use blittle::{PositionI, clip};
 use bytemuck::{cast_slice, cast_slice_mut};
 
-pub fn clip_blit_overlay(
-    src: &[u8],
-    src_size: &nodekit_rs_models::Size,
-    dst: &mut [u8],
-    dst_position: &nodekit_rs_models::Position,
-    dst_size: &nodekit_rs_models::Size,
-) {
-    // Convert to pixel coordinates.
-    let dst_position = PositionI {
-        x: spatial_coordinate(dst_position.x),
-        y: spatial_coordinate(dst_position.y),
-    };
-    let mut src_size = to_blittle_size(&src_size);
-    let dst_size = to_blittle_size(&dst_size);
-    let dst_position = clip(&dst_position, &dst_size, &mut src_size);
-
-    // Overlay.
-    blit_overlay(src, &src_size, dst, &dst_position, &dst_size);
-}
-
-pub fn blit_overlay(
+/// Overlay `src` onto `dst`, blending colors using the alpha channel. 
+pub fn overlay(
     src: &[u8],
     src_size: &blittle::Size,
     dst: &mut [u8],
@@ -43,7 +24,7 @@ pub fn blit_overlay(
             .iter()
             .zip(dst[dst_index..dst_index + src_size.w].iter_mut())
             .for_each(|(src, dst)| {
-                overlay(src, dst);
+                overlay_pixel(src, dst);
             });
     });
 }
@@ -52,7 +33,8 @@ const fn get_index(x: usize, y: usize, w: usize) -> usize {
     x + y * w
 }
 
-pub const fn overlay(src: &[u8; STRIDE], dst: &mut [u8; STRIDE]) {
+/// Overlay a `src` pixel onto a `dst` pixel.
+pub const fn overlay_pixel(src: &[u8; STRIDE], dst: &mut [u8; STRIDE]) {
     if src[3] == dst[3] {
         dst[0] = src[0];
         dst[1] = src[1];
@@ -119,22 +101,22 @@ mod tests {
     fn test_overlay() {
         let mut dst = [255, 255, 255, 255];
         let mut src = [0, 0, 0, 0];
-        overlay(&src, &mut dst);
+        overlay_pixel(&src, &mut dst);
         assert_eq!(dst, [255, 255, 255, 255]);
 
         dst = [200, 170, 30, 100];
         src = [100, 200, 120, 255];
-        overlay(&src, &mut dst);
+        overlay_pixel(&src, &mut dst);
         assert_eq!(dst, [100, 200, 120, 255]);
 
         dst = [255, 255, 255, 255];
         src = [0, 0, 0, 255];
-        overlay(&src, &mut dst);
+        overlay_pixel(&src, &mut dst);
         assert_eq!(dst, [0, 0, 0, 255]);
 
         dst = [200, 170, 30, 100];
         src = [100, 200, 120, 50];
-        overlay(&src, &mut dst);
+        overlay_pixel(&src, &mut dst);
         assert_eq!(dst, [161, 181, 64, 130]);
     }
 }

@@ -24,12 +24,14 @@ pub const fn size_coordinate(c: f64) -> usize {
     (BOARD_D_F64 * c) as usize
 }
 
+/// Create a bitmap and fill it with a color.
 pub fn bitmap(width: usize, height: usize, color: [u8; STRIDE]) -> Vec<u8> {
     let mut bitmap = vec![0; width * height * STRIDE];
     cast_slice_mut::<u8, [u8; STRIDE]>(&mut bitmap).fill(color);
     bitmap
 }
 
+/// Create a bitmap with the dimensions of the board.
 pub fn board(color: [u8; STRIDE]) -> Vec<u8> {
     bitmap(BOARD_D, BOARD_D, color)
 }

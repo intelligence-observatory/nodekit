@@ -10,7 +10,7 @@ pub use error::Error;
 use md::{FontSize, parse};
 use nodekit_rs_models::{JustificationHorizontal, JustificationVertical, Rect};
 use nodekit_rs_visual::{
-    BOARD_D_F64, BlitRect, STRIDE, bitmap, blit_overlay, overlay, parse_color,
+    BOARD_D_F64, BlitRect, STRIDE, bitmap, overlay, overlay_pixel, parse_color,
 };
 use std::sync::Arc;
 use surface::Surface;
@@ -99,7 +99,7 @@ impl Text {
             let mut src_size = surface.size;
             let mut position = clip(&position, &blit_rect.size, &mut src_size);
             position.x = font_usize;
-            blit_overlay(
+            overlay(
                 &surface.surface,
                 &src_size,
                 &mut final_surface,
@@ -124,7 +124,7 @@ impl Text {
                 if alpha > 0 {
                     (x as usize..x1).zip(y as usize..y1).for_each(|(x, y)| {
                         let index = x + y * size.w;
-                        overlay(&color.as_rgba(), &mut dst[index]);
+                        overlay_pixel(&color.as_rgba(), &mut dst[index]);
                     });
                 }
             },

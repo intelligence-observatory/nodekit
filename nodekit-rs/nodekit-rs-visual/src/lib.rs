@@ -1,3 +1,5 @@
+//! Visual buffer functionality that is shared by images, text, and video.
+
 mod blit_rect;
 mod board;
 mod error;
@@ -12,12 +14,13 @@ use hex_color::HexColor;
 use nodekit_rs_models::Rect;
 pub use overlay::*;
 
+/// Convert a hex string e.g. `"#FF0000FF"` to bytes.
 pub fn parse_color(color: &str) -> Result<[u8; STRIDE], Error> {
     let color = HexColor::parse_rgba(color).map_err(|e| Error::HexColor(color.to_string(), e))?;
     Ok(color.to_be_bytes())
 }
 
-/// A raw RGB24 bitmap and its pixel size.
+/// A raw RGB32 bitmap and its pixel size.
 pub struct VisualBuffer {
     /// A raw RGB24 bitmap.
     pub buffer: Vec<u8>,
