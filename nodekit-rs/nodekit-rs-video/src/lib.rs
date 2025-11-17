@@ -1,158 +1,84 @@
-//! This crate provides the means of extracting frame data from a video.
-//! It doesn't provide any blitting or processing functionality.
+mod error;
 
-mod extraction;
-mod extractor;
-mod frame;
-mod packet_iter;
-mod mp4;
+pub use error::Error;
+use scuffle_ffmpeg::codec::EncoderCodec;
+use scuffle_ffmpeg::decoder::Decoder;
+use scuffle_ffmpeg::encoder::{Encoder, VideoEncoderSettings};
+use scuffle_ffmpeg::io::{Input, Output, OutputOptions};
+use scuffle_ffmpeg::{AVCodecID, AVMediaType, AVPictureType, AVPixelFormat};
+use std::io::Cursor;
+use scuffle_ffmpeg::frame::VideoFrame;
 
-pub use extraction::Extraction;
-use extractor::{AudioExtractor, VideoExtractor};
-pub use ffmpeg_next::Error;
-use ffmpeg_next::format::Sample;
-use ffmpeg_next::{
-    format::input,
-    util::frame::{audio::Audio as AudioFrame, video::Video as VideoFrame},
-};
-pub use frame::Frame;
-use nodekit_rs_response::AudioFormat;
-use packet_iter::PacketIter;
-use std::{
-    collections::VecDeque,
-    path::{Path, PathBuf},
-};
-
-/// Extract frames from a video.
-/// This opens a video and keeps it open until `FrameExtractor` is dropped.
-pub struct FrameExtractor {
-    /// A packet iterator that consumes the ffmpeg input struct.
-    packet_iter: PacketIter<'static>,
-    /// `PacketIter` can successfully retrieve frames but not streams.
-    /// A pointer is dereferenced at some point and I don't know why.
-    /// But all we need to know about the streams is their index.
-    /// So, those indices are cached here.
-    streams: Vec<usize>,
-    /// The current index in `streams`.
-    index: usize,
-    /// None if the video doesn't have audio.
-    audio: Option<AudioExtractor>,
-    video: VideoExtractor,
-    /// Pending video frames. The extractors can extract more than one frame.
-    video_frames: VecDeque<VideoFrame>,
-    /// Pending audio frames. The extractors can extract more than one frame.
-    audio_frames: VecDeque<AudioFrame>,
-    /// The path to the video file. Required for looping.
-    path: PathBuf,
-}
-
-impl FrameExtractor {
-    pub fn new<P: AsRef<Path>>(path: P, muted: bool) -> Result<Self, Error> {
-        let mut input = input(path.as_ref())?;
-        // Extract packets.
-        let streams = input
-            .packets()
-            .map(|(stream, _)| stream.index())
-            .collect::<Vec<usize>>();
-        let input = ffmpeg_next::format::input(path.as_ref())?;
-        let audio = if muted {
-            None
-        } else {
-            AudioExtractor::new(&input).ok()
-        };
-        let video = VideoExtractor::new(&input)?;
-        let packet_iter = PacketIter::from(input);
-        Ok(Self {
-            packet_iter,
-            audio,
-            video,
-            video_frames: VecDeque::default(),
-            audio_frames: VecDeque::default(),
-            streams,
-            index: 0,
-            path: path.as_ref().to_path_buf(),
-        })
-    }
-
-    /// Read packets and try to get a new frame.
-    ///
-    /// Returns an error if there was an underlying extraction error or if it's the end of the file.
-    /// Returns None if there are no frames yet.
-    pub fn get_next_frame(&mut self) -> Result<Extraction, Error> {
-        match self.packet_iter.next() {
-            Some((_, packet)) => {
-                let stream_index = self.streams[self.index];
-                if let Some(audio) = self.audio.as_mut()
-                    && stream_index == audio.stream_index()
-                {
-                    audio.send_packet(&packet)?;
-                    while let Ok(frame) = audio.extract_next_frame() {
-                        self.audio_frames.push_back(frame);
-                    }
-                } else if stream_index == self.video.stream_index() {
-                    self.video.send_packet(&packet)?;
-                    while let Ok(frame) = self.video.extract_next_frame() {
-                        self.video_frames.push_back(frame);
-                    }
-                }
-                self.index += 1;
-                // There is a video frame.
-                // There is an expected audio frame.
-                let have_audio_frame = if self.audio.is_some() {
-                    !self.audio_frames.is_empty()
-                } else {
-                    true
-                };
-                Ok(if !self.video_frames.is_empty() && have_audio_frame {
-                    let video = self.video_frames.pop_front().unwrap();
-                    let audio = self.audio_frames.pop_front().map(|a| {
-                        let format = match a.format() {
-                            Sample::U8(_) => Some(AudioFormat::U8),
-                            Sample::I16(_) => Some(AudioFormat::I16),
-                            Sample::I32(_) => Some(AudioFormat::I32),
-                            Sample::I64(_) => Some(AudioFormat::I64),
-                            Sample::F32(_) => Some(AudioFormat::F32),
-                            Sample::F64(_) => Some(AudioFormat::F64),
-                            Sample::None => None,
-                        };
-                        nodekit_rs_response::AudioFrame {
-                            buffer: a.data(0).to_vec(),
-                            rate: a.rate(),
-                            channels: a.channels(),
-                            format,
-                        }
-                    });
-                    Extraction::Frame(Frame { video, audio })
-                } else {
-                    Extraction::NoFrame
-                })
-            }
-            None => Ok(Extraction::EndOfVideo),
+pub fn get_frame(
+    buffer: &[u8],
+    t_msec: u64,
+    width: u32,
+    height: u32,
+) -> Result<Vec<u8>, Error> {
+    // Open the buffer.
+    let cursor = Cursor::new(buffer);
+    let mut input = Input::seekable(cursor).map_err(Error::Ffmpeg)?;
+    // Get the streams.
+    let streams = input.streams();
+    let video = streams
+        .best(AVMediaType::Video)
+        .ok_or(Error::NoVideoTrack)?;
+    let video_index = streams
+        .best_index(AVMediaType::Video)
+        .ok_or(Error::NoVideoTrack)? as i32;
+    let mut video_decoder = Decoder::new(&video)
+        .map_err(Error::Ffmpeg)?
+        .video().map_err(|_| Error::NotVideoDecoder)?;
+    let video_settings = VideoEncoderSettings::builder()
+        .width(width.cast_signed())
+        .height(height.cast_signed())
+        .pixel_format(AVPixelFormat::Yuv420p)
+        .frame_rate(video_decoder.frame_rate())
+        .build();
+    let codec = EncoderCodec::new(AVCodecID::RawVideo).ok_or(Error::X264)?;
+    let mut output = Output::seekable(
+        Cursor::new(Vec::default()),
+        OutputOptions::builder().format_name("rawvideo").map_err(Error::Ffmpeg)?.build(),
+    ).map_err(Error::Ffmpeg)?;
+    let mut video_encoder = Encoder::new(
+        codec,
+        &mut output,
+        video.time_base(),
+        video.time_base(),
+        video_settings,
+    ).map_err(Error::Ffmpeg)?;
+    output.write_header().map_err(Error::Ffmpeg)?;
+    let mut frame = None;
+    while frame.is_none() {
+        let packet = input.receive_packet().unwrap().unwrap();
+        if packet.stream_index() == video_index {
+            video_decoder.send_packet(&packet).map_err(Error::Ffmpeg)?;
+            frame = video_decoder.receive_frame().map_err(Error::Ffmpeg)?;
         }
     }
-
-    /// Reset to loop the video.
-    pub fn reset(&mut self) -> Result<(), ffmpeg_next::Error> {
-        let input = input(&self.path)?;
-        self.packet_iter = PacketIter::from(input);
-        self.index = 0;
-        Ok(())
+    let frame = frame.unwrap();
+    println!("{} {} {:?} {:?}", frame.width(), frame.height(), frame.pts(), frame.format());
+    video_encoder.send_frame(&frame).map_err(Error::Ffmpeg)?;
+    while let Some(packet) = video_encoder.receive_packet().map_err(Error::Ffmpeg)? {
+        println!("{}", packet.stream_index());
+        output.write_packet(&packet).map_err(Error::Ffmpeg)?;
     }
+    output.write_trailer().unwrap();
+    Ok(output.into_inner().into_inner())
 }
+
 
 #[cfg(test)]
 mod tests {
+    use std::fs::write;
     use super::*;
 
     #[test]
-    fn test_video_extraction() {
-        let mut extractor = FrameExtractor::new("test-video.mp4", false).unwrap();
-        let mut num_frames = 0u64;
-        while let Ok(frame) = extractor.get_next_frame()
-            && !matches!(frame, Extraction::EndOfVideo)
-        {
-            num_frames += 1;
-        }
-        assert_eq!(num_frames, 208);
+    fn test_framerate() {
+        let width = 400;
+        let height = 300;
+        let frame = get_frame(include_bytes!("../test-video.mp4"), 0, width, height).unwrap();
+        let _ = write("out.raw", &frame);
+        assert_eq!(frame.len(), (width * height * 3) as usize);
     }
 }

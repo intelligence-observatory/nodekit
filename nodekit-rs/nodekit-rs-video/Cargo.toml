@@ -4,9 +4,9 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-ffmpeg-next.workspace = true
-mp4.workspace = true
-nodekit-rs-response = { path = "../nodekit-rs-response" }
+nodekit-rs-models = { path = "../nodekit-rs-models" }
+scuffle-ffmpeg.workspace = true
+thiserror.workspace = true
 
 [dev-dependencies]
 criterion.workspace = true
@@ -14,3 +14,13 @@ criterion.workspace = true
 [[bench]]
 name = "bench"
 harness = false
+
+[package.metadata.vcpkg]
+git = "https://github.com/microsoft/vcpkg"
+rev = "e2bb93a35f70851c2bfb60006f1f7659cd1637d1"
+
+[package.metadata.vcpkg.target]
+x86_64-apple-darwin = { triplet = "x64-osx" }
+x86_64-unknown-linux-gnu = {triplet = "x64-linux", install = [
+    "ffmpeg"
+] }
