@@ -2,10 +2,12 @@ use criterion::{Criterion, criterion_group, criterion_main};
 use nodekit_rs_video::*;
 
 pub fn criterion_benchmark(c: &mut Criterion) {
+    let video = include_bytes!("../test-video.mp4");
+    let width = 400;
+    let height = 300;
     c.bench_function("video frame extraction", |b| {
         b.iter(|| {
-            let mut extractor = FrameExtractor::new("test-video.mp4", false).unwrap();
-            while !matches!(extractor.get_next_frame().unwrap(), Extraction::EndOfVideo) {}
+            get_frame(video, 300, width, height).unwrap();
         })
     });
 }
