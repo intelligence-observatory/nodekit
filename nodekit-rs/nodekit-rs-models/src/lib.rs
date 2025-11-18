@@ -1,6 +1,5 @@
 mod card;
-mod input;
-mod node;
+mod state;
 mod rect;
 
 use pyo3::prelude::*;
@@ -12,8 +11,7 @@ pub mod nodekit_rs_models {
             Card, CardType, Image, JustificationHorizontal, JustificationVertical, Text, Timer,
             Video,
         },
-        input::{Input, Pointer},
-        node::Node,
+        state::State,
         rect::{Position, Rect, Size},
     };
 
@@ -22,5 +20,5 @@ pub mod nodekit_rs_models {
     define_stub_info_gatherer!(stub_info);
 }
 
-pub use card::Status;
+pub use card::{CardKey, Status};
 pub use nodekit_rs_models::*;

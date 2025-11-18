@@ -11,8 +11,10 @@ use md::{FontSize, parse};
 use nodekit_rs_models::{Card, JustificationHorizontal, JustificationVertical, Rect};
 use nodekit_rs_visual::{BOARD_D_F64, BlitRect, STRIDE, bitmap, overlay, overlay_pixel, parse_color, BOARD_SIZE};
 use std::sync::Arc;
+use pyo3::pyclass;
 use surface::Surface;
 
+#[pyclass]
 pub struct Text {
     font_system: FontSystem,
     swash_cache: SwashCache,

@@ -1151,9 +1151,9 @@ name = "nodekit-rs-models"
 version = "0.1.0"
 dependencies = [
  "glam",
- "hashbrown 0.16.0",
  "pyo3",
  "pyo3-stub-gen",
+ "slotmap",
 ]
 
 [[package]]
@@ -1167,6 +1167,9 @@ dependencies = [
  "nodekit-rs-text",
  "nodekit-rs-video",
  "nodekit-rs-visual",
+ "pyo3",
+ "pyo3-stub-gen",
+ "slotmap",
  "thiserror",
 ]
 
@@ -1240,6 +1243,7 @@ dependencies = [
  "nodekit-rs-models",
  "nodekit-rs-visual",
  "png",
+ "pyo3",
  "thiserror",
 ]
 

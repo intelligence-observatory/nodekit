@@ -5,9 +5,9 @@ edition = "2024"
 
 [dependencies]
 glam.workspace = true
-hashbrown.workspace = true
 pyo3.workspace = true
 pyo3-stub-gen.workspace = true
+slotmap.workspace = true
 
 [lib]
 name = "nodekit_rs_models"

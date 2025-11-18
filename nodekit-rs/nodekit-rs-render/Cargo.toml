@@ -11,4 +11,7 @@ nodekit-rs-models = { path = "../nodekit-rs-models" }
 nodekit-rs-text = { path = "../nodekit-rs-text" }
 nodekit-rs-video = { path = "../nodekit-rs-video" }
 nodekit-rs-visual = { path = "../nodekit-rs-visual" }
+pyo3.workspace = true
+pyo3-stub-gen.workspace = true
+slotmap.workspace = true
 thiserror.workspace = true

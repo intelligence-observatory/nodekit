@@ -12,9 +12,12 @@ use pyo3::prelude::*;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 pub use status::Status;
 use std::path::PathBuf;
+use slotmap::new_key_type;
 pub use text::*;
 pub use timer::Timer;
 pub use video::Video;
+
+new_key_type! { pub struct CardKey; }
 
 /// A card that can be placed on the board, plus a stateful timer.
 #[gen_stub_pyclass]
