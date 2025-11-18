@@ -1,4 +1,6 @@
 #!/bin/bash
 
-./stub_gen.sh
+set -e
+
+cargo run --example stub_gen
 maturin develop --release --uv

@@ -8,7 +8,7 @@ use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use slotmap::SecondaryMap;
 pub use error::Error;
 use nodekit_rs_image::*;
-use nodekit_rs_models::{Status, nodekit_rs_models::*, CardKey};
+use nodekit_rs_models::*;
 use nodekit_rs_visual::*;
 
 #[pyclass]

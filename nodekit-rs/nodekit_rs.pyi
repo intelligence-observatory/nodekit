@@ -15,13 +15,9 @@ class Card:
     @staticmethod
     def image_card(rect: Rect, timer: Timer, path: builtins.str | os.PathLike | pathlib.Path, z_index: typing.Optional[builtins.int]) -> Card: ...
     @staticmethod
-    def video_card(rect: Rect, timer: Timer, path: builtins.str | os.PathLike | pathlib.Path, muted: builtins.bool, looped: builtins.bool, z_index: typing.Optional[builtins.int]) -> Card: ...
+    def video_card(rect: Rect, timer: Timer, path: builtins.str | os.PathLike | pathlib.Path, looped: builtins.bool, z_index: typing.Optional[builtins.int]) -> Card: ...
     @staticmethod
-    def text_card(rect: Rect, timer: Timer, text: builtins.str, font_size: builtins.float, justification_horizontal: JustificationHorizontal, justification_vertical: JustificationVertical, background_color: builtins.str, z_index: typing.Optional[builtins.int]) -> Card: ...
-    def status(self, t_msec: builtins.int) -> Status:
-        r"""
-        The status of the card at time `t_msec`.
-        """
+    def text_card(rect: Rect, timer: Timer, text: builtins.str, font_size: builtins.float, justification_horizontal: JustificationHorizontal, justification_vertical: JustificationVertical, text_color: builtins.str, background_color: builtins.str, z_index: typing.Optional[builtins.int]) -> Card: ...
 
 @typing.final
 class Image:
@@ -49,6 +45,7 @@ class Position:
         r"""
         The y coordinate of the position. -0.5 to 0.5, with 0.0 being the center of the board.
         """
+    def __new__(cls, x: builtins.float, y: builtins.float) -> Position: ...
 
 @typing.final
 class Rect:
@@ -60,6 +57,11 @@ class Rect:
     @property
     def size(self) -> Size: ...
     def __new__(cls, x: builtins.float, y: builtins.float, w: builtins.float, h: builtins.float) -> Rect: ...
+
+@typing.final
+class Renderer:
+    def new(self) -> Renderer: ...
+    def render(self, state: State) -> builtins.list[builtins.int]: ...
 
 @typing.final
 class Size:
@@ -78,8 +80,22 @@ class Size:
         """
 
 @typing.final
+class State:
+    r"""
+    Describes the state of the simulator.
+    """
+    def __new__(cls, board_color: builtins.str) -> State:
+        r"""
+        `board_color` must be a valid RGBA hex string e.g. "#808080ff"
+        """
+    def add_card(self, card: Card) -> None:
+        r"""
+        Add a card to the state.
+        """
+
+@typing.final
 class Text:
-    def __new__(cls, text: builtins.str, font_size: builtins.float, justification_horizontal: JustificationHorizontal, justification_vertical: JustificationVertical, background_color: builtins.str) -> Text: ...
+    def __new__(cls, text: builtins.str, font_size: builtins.float, justification_horizontal: JustificationHorizontal, justification_vertical: JustificationVertical, text_color: builtins.str, background_color: builtins.str) -> Text: ...
 
 @typing.final
 class Timer:
@@ -99,16 +115,16 @@ class Video:
         The path of the source file.
         """
     @property
-    def muted(self) -> builtins.bool:
-        r"""
-        If true, the video will be muted.
-        """
-    @property
     def looped(self) -> builtins.bool:
         r"""
         If true, the video will play in a loop.
         """
-    def __new__(cls, path: builtins.str | os.PathLike | pathlib.Path, muted: builtins.bool, looped: builtins.bool) -> Video: ...
+    @property
+    def t_msec(self) -> builtins.int:
+        r"""
+        The time elapsed in the video.
+        """
+    def __new__(cls, path: builtins.str | os.PathLike | pathlib.Path, looped: builtins.bool) -> Video: ...
 
 @typing.final
 class CardType(enum.Enum):
@@ -130,30 +146,4 @@ class JustificationVertical(enum.Enum):
     Top = ...
     Center = ...
     Bottom = ...
-
-@typing.final
-class Status(enum.Enum):
-    r"""
-    The status of a timer.
-    """
-    Pending = ...
-    r"""
-    The timer hasn't started.
-    """
-    StartedNow = ...
-    r"""
-    The timer just started.
-    """
-    Active = ...
-    r"""
-    The timer is running.
-    """
-    EndedNow = ...
-    r"""
-    The timer just ended.
-    """
-    Finished = ...
-    r"""
-    The timer has ended.
-    """
 

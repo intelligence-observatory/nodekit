@@ -4,7 +4,7 @@ requires = ["maturin>=1.1,<2.0"]
 build-backend = "maturin"
 
 [project]
-name = "nodekit_rs_models"
+name = "nodekit_rs"
 version = "0.1.0"
 authors = [
     { name = "Esther Alter", email = "alters@mit.edu" }
