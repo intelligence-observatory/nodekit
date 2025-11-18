@@ -1,13 +1,12 @@
 mod card;
-mod state;
 mod rect;
+mod state;
 
 pub use crate::{
     card::{
-        Card, CardType, Image, JustificationHorizontal, JustificationVertical, Text, Timer,
-        Video, Status, CardKey,
+        Card, CardKey, CardType, Image, JustificationHorizontal, JustificationVertical, Status,
+        Text, Timer, Video,
     },
-    state::State,
     rect::{Position, Rect, Size},
+    state::State,
 };
-

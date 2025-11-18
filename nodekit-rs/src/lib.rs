@@ -3,8 +3,8 @@ use pyo3::prelude::*;
 #[pymodule]
 pub mod nodekit_rs {
     pub use nodekit_rs_models::{
-        Card, CardType, Image, JustificationHorizontal, JustificationVertical, Text, Timer,
-        Video, Position, Rect, Size
+        Card, CardType, Image, JustificationHorizontal, JustificationVertical, Position, Rect,
+        Size, Text, Timer, Video,
     };
     pub use nodekit_rs_render::Renderer;
 

@@ -26,7 +26,7 @@ impl Video {
         Self {
             path,
             looped,
-            t_msec: 0
+            t_msec: 0,
         }
     }
 }

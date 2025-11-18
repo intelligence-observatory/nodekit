@@ -10,9 +10,9 @@ pub use card_type::CardType;
 pub use image::Image;
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
+use slotmap::new_key_type;
 pub use status::Status;
 use std::path::PathBuf;
-use slotmap::new_key_type;
 pub use text::*;
 pub use timer::Timer;
 pub use video::Video;
@@ -59,7 +59,7 @@ impl Card {
             rect,
             timer,
             z_index,
-            card_type: CardType::Video(Video::new(path, looped))
+            card_type: CardType::Video(Video::new(path, looped)),
         }
     }
 

@@ -2,16 +2,18 @@ mod error;
 mod md;
 mod surface;
 
-use blittle::{PositionI, Size, clip, blit};
+use blittle::{PositionI, Size, blit, clip};
 use bytemuck::cast_slice_mut;
 use cosmic_text::fontdb::Source;
 use cosmic_text::{Align, Attrs, Buffer, Color, Family, FontSystem, Metrics, Shaping, SwashCache};
 pub use error::Error;
 use md::{FontSize, parse};
 use nodekit_rs_models::{Card, JustificationHorizontal, JustificationVertical, Rect};
-use nodekit_rs_visual::{BOARD_D_F64, BlitRect, STRIDE, bitmap, overlay, overlay_pixel, parse_color, BOARD_SIZE};
-use std::sync::Arc;
+use nodekit_rs_visual::{
+    BOARD_D_F64, BOARD_SIZE, BlitRect, STRIDE, bitmap, overlay, overlay_pixel, parse_color,
+};
 use pyo3::pyclass;
+use std::sync::Arc;
 use surface::Surface;
 
 #[pyclass]
@@ -21,7 +23,12 @@ pub struct Text {
 }
 
 impl Text {
-    pub fn blit(&mut self, card: &Card, text: &nodekit_rs_models::Text, board: &mut [u8]) -> Result<(), Error> {
+    pub fn blit(
+        &mut self,
+        card: &Card,
+        text: &nodekit_rs_models::Text,
+        board: &mut [u8],
+    ) -> Result<(), Error> {
         let src = self.render(card.rect, text)?;
         // Blit it.
         let blit_rect = BlitRect::from(card.rect);
@@ -35,7 +42,7 @@ impl Text {
         );
         Ok(())
     }
-    
+
     pub fn render(&mut self, rect: Rect, text: &nodekit_rs_models::Text) -> Result<Vec<u8>, Error> {
         // Get the font sizes.
         let font_size = FontSize::new((text.font_size * BOARD_D_F64).ceil() as u16);

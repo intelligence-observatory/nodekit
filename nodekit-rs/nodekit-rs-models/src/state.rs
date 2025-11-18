@@ -1,8 +1,8 @@
 use crate::card::Card;
+use crate::{CardKey, Position};
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use slotmap::SlotMap;
-use crate::{CardKey, Position};
 
 /// Describes the state of the simulator.
 #[gen_stub_pyclass]
@@ -28,7 +28,7 @@ impl State {
             cards: Default::default(),
             t_msec: 0,
             board_color,
-            cursor: Position::default()
+            cursor: Position::default(),
         }
     }
 
