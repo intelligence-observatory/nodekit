@@ -2,10 +2,12 @@ use pyo3::prelude::*;
 
 #[pymodule]
 pub mod nodekit_rs {
+    #[pymodule_export]
     pub use nodekit_rs_models::{
         Card, CardType, Image, JustificationHorizontal, JustificationVertical, Position, Rect,
-        Size, Text, Timer, Video,
+        Size, State, Text, Timer, Video,
     };
+    #[pymodule_export]
     pub use nodekit_rs_render::Renderer;
 
     use pyo3_stub_gen::define_stub_info_gatherer;

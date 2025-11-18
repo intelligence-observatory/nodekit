@@ -1,38 +1,55 @@
 from PIL import Image
 
-from nodekit._internal.ml import Client, graph, noop
-from nodekit import *
+from nodekit_rs import Card, Rect, Timer, JustificationHorizontal, JustificationVertical, State, Renderer
 
-node = Node(
-    cards={
-        "a": cards.ImageCard(
-            image=assets.Image.from_path("nodekit-rs-image/test_image.png"),
-            x=-0.25,
-            y=-0.25,
-            w=0.25,
-            h=0.5,
-        ),
-        "b": cards.VideoCard(
-            video=assets.Video.from_path("nodekit-rs-video/test-video.mp4"), x=0, y=0, w=0.33, h=0.25,
-        ),
-        "c": cards.TextCard(
-            text="Click the **test image**",
-            x=-0.5,
-            y=-0.5,
-            w=1,
-            h=0.1,
-            justification_vertical='top',
-            background_color="#E6E6E600".lower()
-        )
-    },
-    sensors={"s": sensors.TimeoutSensor(timeout_msec=20000)},
+card_b = Card.video_card(
+    rect=Rect(0, 0, 0.33, 0.25),
+    timer=Timer(0, None),
+    path="nodekit-rs-video/test-video.mp4",
+    z_index=1,
+    looped=False
+)
+card_c = Card.text_card(
+    rect=Rect(-0.5, -0.5, 1, 0.1),
+    timer=Timer(0, None),
+    justification_horizontal=JustificationHorizontal.Left,
+    justification_vertical=JustificationVertical.Top,
+    background_color='#E6E6E600',
+    font_size=0.02,
+    text="Click the **test image**",
+    text_color='#000000FF',
+    z_index=2
 )
 
-node_id = "0"
-g = Graph(start=node_id,
-          nodes={node_id: node},
-          transitions={})
+state = State('#AAAAAAFF')
+state.add_card(Card.image_card(
+    rect=Rect(-0.25, -0.25, 0.25, 0.5),
+    timer=Timer(0, None),
+    path="nodekit-rs-image/test_image.png",
+    z_index=0
+))
+state.add_card(Card.video_card(
+    rect=Rect(0, 0, 0.33, 0.25),
+    timer=Timer(0, None),
+    path="nodekit-rs-video/test-video.mp4",
+    z_index=1,
+    looped=False
+))
+state.add_card(Card.text_card(
+    rect=Rect(-0.5, -0.5, 1, 0.1),
+    timer=Timer(0, None),
+    justification_horizontal=JustificationHorizontal.Left,
+    justification_vertical=JustificationVertical.Top,
+    background_color='#E6E6E600',
+    font_size=0.02,
+    text="Click the **test image**",
+    text_color='#000000FF',
+    z_index=2
+))
 
-client = Client()
-response = client.tick(graph(g))
-response.visual.save('out.png')
+renderer = Renderer()
+state.t_msec = 300
+board = renderer.render(state)
+
+# TODO wrap this elsewhere
+Image.frombytes('RGBA', (768, 768), board).show()

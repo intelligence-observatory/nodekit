@@ -60,8 +60,15 @@ class Rect:
 
 @typing.final
 class Renderer:
+    r"""
+    Render a `State` while storing an internal cache of loaded data (fonts, video buffers, etc.)
+    """
     def new(self) -> Renderer: ...
-    def render(self, state: State) -> builtins.list[builtins.int]: ...
+    def render(self, state: State) -> bytes:
+        r"""
+        Render `state`.
+        Returns a raw byte array with shape: (768, 768, 4)
+        """
 
 @typing.final
 class Size:
@@ -84,6 +91,16 @@ class State:
     r"""
     Describes the state of the simulator.
     """
+    @property
+    def t_msec(self) -> builtins.int:
+        r"""
+        The time elapsed from the start of the node.
+        """
+    @t_msec.setter
+    def t_msec(self, value: builtins.int) -> None:
+        r"""
+        The time elapsed from the start of the node.
+        """
     def __new__(cls, board_color: builtins.str) -> State:
         r"""
         `board_color` must be a valid RGBA hex string e.g. "#808080ff"

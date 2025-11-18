@@ -8,14 +8,18 @@ use nodekit_rs_models::*;
 use nodekit_rs_visual::*;
 use pyo3::exceptions::PyRuntimeError;
 use pyo3::prelude::*;
+use pyo3::types::PyBytes;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use slotmap::SecondaryMap;
 
+/// Render a `State` while storing an internal cache of loaded data (fonts, video buffers, etc.)
 #[pyclass]
 #[gen_stub_pyclass]
 #[derive(Default)]
 pub struct Renderer {
-    pub board: Vec<u8>,
+    /// The board bitmap.
+    board: Vec<u8>,
+    /// The background color.
     color: [u8; STRIDE],
     /// Cached text engine.
     text: nodekit_rs_text::Text,
@@ -31,10 +35,12 @@ impl Renderer {
         Self::default()
     }
 
-    pub fn render(&mut self, state: &State) -> PyResult<&Vec<u8>> {
+    /// Render `state`.
+    /// Returns a raw byte array with shape: (768, 768, 4)
+    pub fn render<'py>(&mut self, py: Python<'py>, state: &State) -> PyResult<Bound<'py, PyBytes>> {
         self.blit(state)
             .map_err(|e| PyRuntimeError::new_err(e.to_string()))?;
-        Ok(&self.board)
+        Ok(PyBytes::new(py, &self.board))
     }
 }
 

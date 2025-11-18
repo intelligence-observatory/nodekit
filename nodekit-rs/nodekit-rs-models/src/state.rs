@@ -11,6 +11,7 @@ pub struct State {
     /// The node's cards.
     pub cards: SlotMap<CardKey, Card>,
     /// The time elapsed from the start of the node.
+    #[pyo3(get, set)]
     pub t_msec: u64,
     /// The background color.
     pub board_color: String,
