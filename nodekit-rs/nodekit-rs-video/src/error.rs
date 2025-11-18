@@ -11,6 +11,8 @@ pub enum Error {
     NotVideoDecoder,
     #[error("Failed to find x264 codec")]
     X264,
+    #[error("Failed to find a frame at t={0}")]
+    NoFrame(u64),
     #[error("Got an empty frame")]
     NoData,
     #[error("Frame row {0} doesn't exist")]

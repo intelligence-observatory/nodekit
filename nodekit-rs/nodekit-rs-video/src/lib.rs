@@ -1,12 +1,15 @@
 mod error;
 
 pub use error::Error;
-use scuffle_ffmpeg::decoder::Decoder;
+use scuffle_ffmpeg::decoder::{Decoder, VideoDecoder};
 use scuffle_ffmpeg::io::Input;
 use scuffle_ffmpeg::scaler::VideoScaler;
 use scuffle_ffmpeg::{AVMediaType, AVPixelFormat};
 use std::io::Cursor;
 use std::ops::{Deref, DerefMut};
+use scuffle_ffmpeg::consts::Const;
+use scuffle_ffmpeg::frame::VideoFrame;
+use scuffle_ffmpeg::stream::Stream;
 
 pub fn get_frame(buffer: &[u8], t_msec: u64, width: u32, height: u32) -> Result<Vec<u8>, Error> {
     // Open the buffer.
@@ -24,15 +27,30 @@ pub fn get_frame(buffer: &[u8], t_msec: u64, width: u32, height: u32) -> Result<
         .map_err(Error::Ffmpeg)?
         .video()
         .map_err(|_| Error::NotVideoDecoder)?;
+    let frame_rate = 1. / video.r_frame_rate().as_f64() * 1000.;
+    let mut t0 = 0.;
+    let t1 = t_msec as f64;
     let mut frame = None;
-    while frame.is_none() {
-        let packet = input.receive_packet().unwrap().unwrap();
-        if packet.stream_index() == video_index {
-            video_decoder.send_packet(&packet).map_err(Error::Ffmpeg)?;
-            frame = video_decoder.receive_frame().map_err(Error::Ffmpeg)?;
+    while t0 <= t1 {
+        while frame.is_none() {
+            let packet = input.receive_packet().unwrap().unwrap();
+            if packet.stream_index() == video_index {
+                video_decoder.send_packet(&packet).map_err(Error::Ffmpeg)?;
+                while let Ok(Some(f)) = video_decoder.receive_frame().map_err(Error::Ffmpeg) {
+                    frame = Some(f);
+                    t0 += frame_rate;
+                    if t0 >= t1 {
+                        break;
+                    }
+                };
+            }
+            if t0 >= t1 {
+                break;
+            }
         }
     }
-    let frame = frame.unwrap();
+    let frame = frame.ok_or(Error::NoFrame(t_msec))?;
+    println!("{:?}", frame.best_effort_timestamp());
     let mut scaler = VideoScaler::new(
         frame.width() as i32,
         frame.height() as i32,
@@ -63,7 +81,7 @@ mod tests {
     fn test_framerate() {
         let width = 400;
         let height = 300;
-        let frame = get_frame(include_bytes!("../test-video.mp4"), 0, width, height).unwrap();
+        let frame = get_frame(include_bytes!("../test-video.mp4"), 300, width, height).unwrap();
         let _ = write("out.raw", &frame);
         assert_eq!(frame.len(), (width * height * 3) as usize);
     }
