@@ -1,11 +1,8 @@
-import pydantic
-
 import enum
 from abc import ABC
 from typing import Dict, Union, Annotated, Literal
 
 import pydantic
-import functools
 
 # %%
 type BaseValue = str | float | int | bool
@@ -21,6 +18,7 @@ type VariableName = str
 # %% Root
 class OpEnum(enum.Enum):
     var = 'var'
+    last_outcome = 'last_outcome' # The last Node outcome
     get = 'get'
     lit = 'lit'
 
@@ -58,6 +56,8 @@ class Var(BaseExpression):
     name: 'VariableName'
     scope: Literal['l', 'g'] = 'g'  # Whether to read from the local (l) or global (g) variable file
 
+class LastOutcome(BaseExpression):
+    op: Literal[OpEnum.last_outcome] = OpEnum.last_outcome
 
 class Get(BaseExpression):
     """
@@ -65,7 +65,7 @@ class Get(BaseExpression):
     """
     op: Literal[OpEnum.get] = OpEnum.get
     container: 'Expression'  # Array- or Struct-valued
-    key: 'Expression'  # ArrayIndex or StructKey
+    key: StructKey | ArrayIndex  # ArrayIndex or StructKey
 
 
 class Lit(BaseExpression):
@@ -152,7 +152,7 @@ class Div(BaseArithmeticOperation):
     op: Literal[OpEnum.div] = OpEnum.div
 
 
-# %% Array operations - Futur
+# %% Array operations - Future
 class ArrayOp(BaseExpression, ABC):
     array: 'Expression'  # Expression must be array-valued
 
@@ -195,6 +195,7 @@ type Expression = Annotated[
     Union[
         # Root
         Var,
+            LastOutcome,
         Get,
         Lit,
             # Logic

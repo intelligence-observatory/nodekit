@@ -16,6 +16,7 @@ export type SHA256 = string & { __brand: 'SHA256' };
 
 export type NodeId = string & { __brand: 'NodeId' };
 export type SensorId = string & { __brand: 'SensorId' };
+export type RegisterId = string & { __brand: 'RegisterId' };
 export type CardId = string & { __brand: 'CardId' };
 
 
