@@ -112,8 +112,4 @@ impl Card {
             Status::Active
         }
     }
-
-    pub const fn is_visible(&self, t_msec: u64) -> bool {
-        matches!(self.status(t_msec), Status::StartedNow | Status::Active)
-    }
 }

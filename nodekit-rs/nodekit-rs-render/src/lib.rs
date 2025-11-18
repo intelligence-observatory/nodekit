@@ -53,7 +53,7 @@ impl Renderer {
         for (card_key, card) in state.get_ordered_cards().iter() {
             match card.status(state.t_msec) {
                 Status::Pending | Status::Finished => (),
-                Status::StartedNow => match &card.card_type {
+                Status::StartedNow | Status::Active => match &card.card_type {
                     CardType::Image(image) => {
                         blit_image(image, card.rect, &mut self.board).map_err(Error::Image)?
                     }
@@ -68,14 +68,6 @@ impl Renderer {
                             .map_err(Error::Video)?
                     }
                 },
-                Status::Active => {
-                    if let CardType::Video(video) = &card.card_type {
-                        let t_msec = video.t_msec - state.t_msec;
-                        self.videos[*card_key]
-                            .blit(t_msec, &mut self.board)
-                            .map_err(Error::Video)?
-                    }
-                }
                 Status::EndedNow => {
                     self.erase(card.rect);
                 }
