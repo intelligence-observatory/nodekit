@@ -9,5 +9,6 @@ bytemuck.workspace = true
 nodekit-rs-image = { path = "../nodekit-rs-image" }
 nodekit-rs-models = { path = "../nodekit-rs-models" }
 nodekit-rs-text = { path = "../nodekit-rs-text" }
+nodekit-rs-video = { path = "../nodekit-rs-video" }
 nodekit-rs-visual = { path = "../nodekit-rs-visual" }
 thiserror.workspace = true

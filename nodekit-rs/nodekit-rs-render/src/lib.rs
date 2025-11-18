@@ -34,12 +34,12 @@ impl Renderer {
                     CardType::Image(image) => {
                         blit_image(image, card.rect, &mut self.board).map_err(Error::Image)?
                     }
-                    CardType::Text(text) => self.blit_text(card, text)?,
-                    CardType::Video(video) => todo!(),
+                    CardType::Text(text) => self.text.blit(card, text, &mut self.board).map_err(Error::Text)?,
+                    CardType::Video(video) => nodekit_rs_video::blit(card, video, &mut self.board).map_err(Error::Video)?,
                 },
                 Status::Active => {
                     if let CardType::Video(video) = &card.card_type {
-                        // TODO
+                        nodekit_rs_video::blit(card, video, &mut self.board).map_err(Error::Video)?;
                     }
                 }
                 Status::EndedNow => {
@@ -47,21 +47,6 @@ impl Renderer {
                 }
             }
         }
-        Ok(())
-    }
-
-    fn blit_text(&mut self, card: &Card, text: &Text) -> Result<(), Error> {
-        let src = self.text.render(card.rect, &text).map_err(Error::Text)?;
-        // Blit it.
-        let blit_rect = BlitRect::from(card.rect);
-        blit(
-            &src,
-            &blit_rect.size,
-            &mut self.board,
-            &blit_rect.position,
-            &BOARD_SIZE,
-            STRIDE,
-        );
         Ok(())
     }
 

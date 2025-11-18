@@ -38,7 +38,7 @@ fn load(image: &Image) -> Result<VisualBuffer, Error> {
     let info = reader
         .next_frame(&mut buffer)
         .map_err(|e| Error::Decode(e, image.path.clone()))?;
-    // Convert to RGB32.
+    // Convert to RGBA32.
     let buffer = convert(&image.path, &buffer[..info.buffer_size()], info.color_type)?;
     Ok(VisualBuffer {
         buffer,
@@ -47,7 +47,7 @@ fn load(image: &Image) -> Result<VisualBuffer, Error> {
     })
 }
 
-/// Convert `buffer` from a `color_type` to RGB24.
+/// Convert `buffer` from a `color_type` to RGBA32.
 fn convert(path: &Path, buffer: &[u8], color_type: ColorType) -> Result<Vec<u8>, Error> {
     match color_type {
         ColorType::Rgb => Ok(rgb_to_rgba(buffer)),

@@ -49,7 +49,6 @@ impl Card {
         rect: Rect,
         timer: Timer,
         path: PathBuf,
-        muted: bool,
         looped: bool,
         z_index: Option<u32>,
     ) -> Self {
@@ -57,11 +56,7 @@ impl Card {
             rect,
             timer,
             z_index,
-            card_type: CardType::Video(Video {
-                path,
-                muted,
-                looped,
-            }),
+            card_type: CardType::Video(Video::new(path, looped))
         }
     }
 

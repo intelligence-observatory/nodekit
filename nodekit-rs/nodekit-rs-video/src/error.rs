@@ -1,8 +1,11 @@
 use scuffle_ffmpeg::error::FfmpegError;
+use std::path::PathBuf;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum Error {
+    #[error("File not found: {0} {1}")]
+    FileNotFound(PathBuf, std::io::Error),
     #[error("ffmpeg error: {0}")]
     Ffmpeg(FfmpegError),
     #[error("Failed to find a video track")]

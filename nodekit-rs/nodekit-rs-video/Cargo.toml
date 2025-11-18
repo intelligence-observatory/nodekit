@@ -4,7 +4,10 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+blittle.workspace = true
+bytemuck.workspace = true
 nodekit-rs-models = { path = "../nodekit-rs-models" }
+nodekit-rs-visual = { path = "../nodekit-rs-visual" }
 scuffle-ffmpeg.workspace = true
 thiserror.workspace = true
 

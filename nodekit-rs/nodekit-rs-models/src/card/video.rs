@@ -10,23 +10,23 @@ pub struct Video {
     /// The path of the source file.
     #[pyo3(get)]
     pub path: PathBuf,
-    /// If true, the video will be muted.
-    #[pyo3(get)]
-    pub muted: bool,
     /// If true, the video will play in a loop.
     #[pyo3(get)]
     pub looped: bool,
+    /// The time elapsed in the video.
+    #[pyo3(get)]
+    pub t_msec: u64,
 }
 
 #[gen_stub_pymethods]
 #[pymethods]
 impl Video {
     #[new]
-    pub fn new(path: PathBuf, muted: bool, looped: bool) -> Self {
+    pub fn new(path: PathBuf, looped: bool) -> Self {
         Self {
             path,
-            muted,
             looped,
+            t_msec: 0
         }
     }
 }

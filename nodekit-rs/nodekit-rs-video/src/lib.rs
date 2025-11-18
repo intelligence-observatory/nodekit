@@ -1,15 +1,64 @@
 mod error;
 
+use bytemuck::cast_slice;
 pub use error::Error;
+use nodekit_rs_models::Card;
+use nodekit_rs_visual::*;
 use scuffle_ffmpeg::{
-    decoder::Decoder,
-    io::Input,
-    scaler::VideoScaler,
-    AVMediaType,
-    AVPixelFormat,
-    frame::VideoFrame
+    AVMediaType, AVPixelFormat, decoder::Decoder, frame::VideoFrame, io::Input, scaler::VideoScaler,
 };
+use std::fs::read;
 use std::io::Cursor;
+
+pub fn blit(card: &Card, video: &nodekit_rs_models::Video, board: &mut [u8]) -> Result<(), Error> {
+    // Load the video.
+    let buffer = read(&video.path).map_err(|e| Error::FileNotFound(video.path.clone(), e))?;
+    let (width, height) = get_size(&buffer)?;
+    let rect = ResizedRect::new(&card.rect, width, height);
+    let frame = get_frame(&buffer, video.t_msec, rect.width, rect.height)?;
+
+    // Convert to RGBA.
+    // TODO this is too slow. Fix it!
+    let mut buffer_rgba = vec![[255; 4]; rect.width as usize * rect.height as usize];
+    for (src, dst) in cast_slice::<u8, [u8; 3]>(&frame)
+        .iter()
+        .zip(buffer_rgba.iter_mut())
+    {
+        dst[0] = src[0];
+        dst[1] = src[1];
+        dst[2] = src[2];
+    }
+
+    // Blit.
+    let blit_rect = BlitRect::from(rect.rect);
+    blittle::blit(
+        cast_slice::<[u8; 4], u8>(&buffer_rgba),
+        &blit_rect.size,
+        board,
+        &blit_rect.position,
+        &BOARD_SIZE,
+        STRIDE,
+    );
+    Ok(())
+}
+
+pub fn get_size(buffer: &[u8]) -> Result<(u32, u32), Error> {
+    let cursor = Cursor::new(buffer);
+    let input = Input::seekable(cursor).map_err(Error::Ffmpeg)?;
+    // Get the streams.
+    let streams = input.streams();
+    let video = streams
+        .best(AVMediaType::Video)
+        .ok_or(Error::NoVideoTrack)?;
+    let video_decoder = Decoder::new(&video)
+        .map_err(Error::Ffmpeg)?
+        .video()
+        .map_err(|_| Error::NotVideoDecoder)?;
+    Ok((
+        video_decoder.width().cast_unsigned(),
+        video_decoder.height().cast_unsigned(),
+    ))
+}
 
 pub fn get_frame(buffer: &[u8], t_msec: u64, width: u32, height: u32) -> Result<Vec<u8>, Error> {
     // Open the buffer.
@@ -40,9 +89,9 @@ pub fn get_frame(buffer: &[u8], t_msec: u64, width: u32, height: u32) -> Result<
                 frame_index += 1;
                 if frame_index >= target_frame_index {
                     got_frame = true;
-                    break
+                    break;
                 }
-            };
+            }
         }
         if got_frame {
             break;

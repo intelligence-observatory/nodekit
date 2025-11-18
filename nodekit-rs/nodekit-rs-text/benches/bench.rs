@@ -16,7 +16,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         background_color: "#AAAAAAFF".to_string(),
     };
     let rect = Rect {
-        position: nodekit_rs_models::Position { x: -0.5, y: -0.5 },
+        position: Position { x: -0.5, y: -0.5 },
         size: nodekit_rs_models::Size { w: 1., h: 1. },
     };
 
