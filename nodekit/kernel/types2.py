@@ -18,7 +18,7 @@ class Transition(pydantic.BaseModel):
         description='Should be boolean-valued.',
         examples=[
             expr.Eq( # outcome.sensor_values['choice']=='left'",
-                lhs=expr.Get(container=expr.LastOutcome(), key='sensor_values.choice'),
+                lhs=expr.Get(container=expr.SensorValueField(), key='sensor_values.choice'),
                 rhs=expr.Lit(value='left')
             ),
         ]
