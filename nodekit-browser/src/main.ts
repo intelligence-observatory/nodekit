@@ -12,7 +12,7 @@ import {NodePlay} from "./node-play";
 import {version as NODEKIT_VERSION} from '../package.json'
 import {gt, major} from 'semver';
 import {EventArray} from "./event-array.ts";
-import type {NodeResult} from "./types/events/node-events.ts";
+import type {NodeOutcome} from "./types/events/node-events.ts";
 
 /**
  * Plays a Graph, returning a Trace of Events.
@@ -112,7 +112,7 @@ export async function play(
 
     // Assemble transition map:
     let currentNodeId: NodeId = graph.start;
-    let nodeResults: NodeResult[] = [];
+    let nodeResults: NodeOutcome[] = [];
     while (true) {
         // Todo: Evaluate any current Node parameter expressions:
         const node = nodes[currentNodeId];
@@ -134,7 +134,7 @@ export async function play(
         nodeResults.push(
             {
                 node_id: currentNodeId,
-                outcome: result.outcome,
+                sensor_values: result.outcome,
                 t: result.t
             }
         )
@@ -169,7 +169,7 @@ export async function play(
     const trace: Trace = {
         nodekit_version: NODEKIT_VERSION,
         events: eventArray.events,
-        node_results: nodeResults,
+        node_outcomes: nodeResults,
     }
 
     // End screen:

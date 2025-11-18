@@ -1,10 +1,10 @@
 import type {Card} from "./cards";
 import type {Sensor} from "./sensors";
 import type {Effect} from "./effects/base.ts";
-import type {Event} from "./events";
 import type {ColorHexString, NodeId, CardId, SensorId, RegisterId} from "./common.ts";
-import type {NodeResult} from "./events/node-events.ts";
+import type {NodeOutcome} from "./events/node-events.ts";
 import type {Value} from "./expressions/expressions.ts";
+import type {Event} from "./events";
 
 export interface Node {
     cards: Record<CardId, Card>;
@@ -23,7 +23,6 @@ export interface Graph {
 
 export interface Trace {
     nodekit_version: string;
-    events: Event[];
-    node_results: NodeResult[];
+    events: Event[]
+    node_outcomes: NodeOutcome[];
 }
-
