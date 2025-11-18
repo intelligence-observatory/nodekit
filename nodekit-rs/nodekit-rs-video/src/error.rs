@@ -10,5 +10,9 @@ pub enum Error {
     #[error("Decoder is not a video decoder")]
     NotVideoDecoder,
     #[error("Failed to find x264 codec")]
-    X264
+    X264,
+    #[error("Got an empty frame")]
+    NoData,
+    #[error("Frame row {0} doesn't exist")]
+    NotEnoughRows(usize),
 }
