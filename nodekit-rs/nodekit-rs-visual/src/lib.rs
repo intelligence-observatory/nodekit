@@ -61,14 +61,14 @@ impl VisualBuffer {
             src_width,
             src_height,
             &mut buffer,
-            PixelType::U8x4,
+            PixelType::U8x3,
         )
         .map_err(Error::ImageResizeBuffer)?;
 
         // Resize the image.
         let width = rect.size.w as u32;
         let height = rect.size.h as u32;
-        let mut dst = fast_image_resize::images::Image::new(width, height, PixelType::U8x4);
+        let mut dst = fast_image_resize::images::Image::new(width, height, PixelType::U8x3);
         let options = ResizeOptions {
             algorithm: ResizeAlg::Convolution(FilterType::Bilinear),
             cropping: SrcCropping::None,

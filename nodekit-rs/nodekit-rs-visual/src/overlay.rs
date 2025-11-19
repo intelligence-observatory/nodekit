@@ -54,7 +54,13 @@ pub const fn overlay_pixel(src: &[u8; RGBA], dst: &mut [u8; STRIDE]) {
 }
 
 /// Source: https://www.reddit.com/r/rust/comments/mvbn2g/compositing_colors
-const fn overlay_c(src: u8, dst: u8, src_alpha: f64, one_minus_src_a: f64, alpha_final: f64) -> u8 {
+pub const fn overlay_c(
+    src: u8,
+    dst: u8,
+    src_alpha: f64,
+    one_minus_src_a: f64,
+    alpha_final: f64,
+) -> u8 {
     ((((src as f64 / 255.) * src_alpha + (dst as f64 / 255.) * one_minus_src_a) / alpha_final)
         * 255.) as u8
 }

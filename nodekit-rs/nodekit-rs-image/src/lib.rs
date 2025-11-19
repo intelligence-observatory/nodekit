@@ -8,7 +8,7 @@
 
 mod error;
 
-use bytemuck::cast_slice;
+use bytemuck::{cast_slice, cast_slice_mut};
 pub use error::Error;
 use nodekit_rs_models::{Image, Rect};
 use nodekit_rs_visual::*;
@@ -45,40 +45,60 @@ pub fn load(image: &Image, rect: Rect) -> Result<VisualBuffer, Error> {
 /// Convert `buffer` from a `color_type` to RGBA32.
 fn convert(path: &Path, buffer: &[u8], color_type: ColorType) -> Result<Vec<u8>, Error> {
     match color_type {
-        ColorType::Rgb => Ok(rgb_to_rgba(buffer)),
+        ColorType::Rgb => Ok(buffer.to_vec()),
         ColorType::Indexed => Err(Error::Indexed(path.to_path_buf())),
-        ColorType::Rgba => Ok(buffer.to_vec()),
-        ColorType::Grayscale => Ok(grayscale_to_rgba(buffer)),
-        ColorType::GrayscaleAlpha => Ok(grayscale_alpha_to_rgba(buffer)),
+        ColorType::Rgba => Ok(rgba_to_rgb(buffer)),
+        ColorType::Grayscale => Ok(grayscale_to_rgb(buffer)),
+        ColorType::GrayscaleAlpha => Ok(grayscale_alpha_to_rgb(buffer)),
     }
 }
 
-fn grayscale_to_rgba(buffer: &[u8]) -> Vec<u8> {
-    let mut dst = vec![[0; STRIDE]; buffer.len() * STRIDE];
-    for (src, dst) in buffer.iter().zip(dst.iter_mut()) {
-        let src = *src;
-        *dst = [src, src, src, 255];
+fn grayscale_to_rgb(buffer: &[u8]) -> Vec<u8> {
+    let mut dst = vec![0; buffer.len() * STRIDE];
+    for (src, dst) in buffer
+        .iter()
+        .zip(cast_slice_mut::<u8, [u8; STRIDE]>(&mut dst).iter_mut())
+    {
+        let c = *src;
+        dst[0] = c;
+        dst[1] = c;
+        dst[2] = c;
     }
-    cast_slice::<[u8; STRIDE], u8>(&dst).to_vec()
+    dst
 }
 
-fn grayscale_alpha_to_rgba(buffer: &[u8]) -> Vec<u8> {
+fn grayscale_alpha_to_rgb(buffer: &[u8]) -> Vec<u8> {
     let src = cast_slice::<u8, [u8; 2]>(buffer);
-    let mut dst = vec![[0; STRIDE]; src.len()];
-    for (src, dst) in src.iter().zip(dst.iter_mut()) {
-        let c = src[0];
-        *dst = [c, c, c, src[1]];
+    let mut dst = vec![0; src.len() * STRIDE];
+    for (src, dst) in src
+        .iter()
+        .zip(cast_slice_mut::<u8, [u8; STRIDE]>(&mut dst).iter_mut())
+    {
+        let c = if src[1] == 255 {
+            src[0]
+        } else {
+            let a = src[1] as f64 / 255.;
+            let one_minus_src_a = 1. - a;
+            let f = a + one_minus_src_a;
+            overlay_c(src[0], 255, a, one_minus_src_a, f)
+        };
+        dst[0] = c;
+        dst[1] = c;
+        dst[2] = c;
     }
-    cast_slice::<[u8; STRIDE], u8>(&dst).to_vec()
+    dst
 }
 
-fn rgb_to_rgba(buffer: &[u8]) -> Vec<u8> {
-    let src = cast_slice::<u8, [u8; 3]>(buffer);
-    let mut dst = vec![[0; STRIDE]; src.len()];
-    for (src, dst) in src.iter().zip(dst.iter_mut()) {
-        *dst = [src[0], src[1], src[2], 255];
+fn rgba_to_rgb(buffer: &[u8]) -> Vec<u8> {
+    let src = cast_slice::<u8, [u8; 4]>(buffer);
+    let mut dst = vec![0; src.len() * STRIDE];
+    for (src, dst) in src
+        .iter()
+        .zip(cast_slice_mut::<u8, [u8; STRIDE]>(&mut dst).iter_mut())
+    {
+        overlay_pixel(src, dst);
     }
-    cast_slice::<[u8; STRIDE], u8>(&dst).to_vec()
+    dst
 }
 
 #[cfg(test)]
@@ -86,6 +106,33 @@ mod tests {
     use super::*;
     use nodekit_rs_models::{Position, Size};
     use std::path::PathBuf;
+
+    #[test]
+    fn test_rgba_to_rgb() {
+        let w = 400;
+        let h = 300;
+        let rgb = rgba_to_rgb(&vec![255; w * h * 4]);
+        assert_eq!(rgb.len(), w * h * STRIDE);
+        assert!(rgb.into_iter().all(|c| c == 255));
+    }
+
+    #[test]
+    fn test_grayscale_to_rgb() {
+        let w = 400;
+        let h = 300;
+        let rgb = grayscale_to_rgb(&vec![255; w * h]);
+        assert_eq!(rgb.len(), w * h * STRIDE);
+        assert!(rgb.into_iter().all(|c| c == 255));
+    }
+
+    #[test]
+    fn test_grayscale_alpha_to_rgb() {
+        let w = 400;
+        let h = 300;
+        let rgb = grayscale_alpha_to_rgb(&vec![0; w * h * 2]);
+        assert_eq!(rgb.len(), w * h * STRIDE);
+        assert!(rgb.into_iter().all(|c| c == 255));
+    }
 
     #[test]
     fn test_load_png() {
