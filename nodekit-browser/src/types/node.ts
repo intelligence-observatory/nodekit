@@ -21,7 +21,12 @@ export interface RacePredicate extends BaseNodePredicate<'RacePredicate'> {
     items: NodePredicate[] | '*'
 }
 
-export type NodePredicate = SensorFulfilledPredicate | AllPredicate | RacePredicate ;
+export interface AtLeastPredicate extends BaseNodePredicate<'AtLeastPredicate'> {
+    items: NodePredicate[]
+    min: number;
+}
+
+export type NodePredicate = SensorFulfilledPredicate | AllPredicate | RacePredicate | AtLeastPredicate;
 
 export interface Node {
     cards: Record<CardId, Card>;

@@ -250,6 +250,23 @@ function evaluateExitPredicate(
                 );
             }
         }
+        case "AtLeastPredicate": {
+            const { min, items } = predicate;
+
+            // Trivial thresholds: 0 or less is always satisfied
+            if (min <= 0) return true;
+
+            let count = 0;
+            for (const child of items) {
+                if (evaluateExitPredicate(child, sensorValuesMap)) {
+                    count++;
+                    if (count >= min) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
         default: {
             const _exhaustive: never = predicate;
             throw new Error(`Unsupported predicate: ${JSON.stringify(_exhaustive)}`)
