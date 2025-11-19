@@ -6,23 +6,23 @@ export interface BaseSensorValue<T extends string> {
     t: TimeElapsedMsec, // When the Sensor was set to this SensorValue
 }
 
-export interface ClickSensorValue extends BaseSensorValue<"ClickAction"> {
+export interface ClickSensorValue extends BaseSensorValue<"ClickSensorValue"> {
     x: SpatialPoint;
     y: SpatialPoint;
 }
 
-export interface KeySensorValue extends BaseSensorValue<"KeyAction"> {
+export interface KeySensorValue extends BaseSensorValue<"KeySensorValue"> {
     key: PressableKey;
 }
 
-export interface SliderSensorValue extends BaseSensorValue<"SliderAction"> {
+export interface SliderSensorValue extends BaseSensorValue<"SliderSensorValue"> {
     bin_index: SliderBinIndex
 }
-export interface FreeTextEntrySensorValue extends BaseSensorValue<"FreeTextEntryAction"> {
+export interface FreeTextEntrySensorValue extends BaseSensorValue<"FreeTextEntrySensorValue"> {
     text: string
 }
 
-export interface WaitSensorValue extends BaseSensorValue<"WaitAction">{}
+export interface WaitSensorValue extends BaseSensorValue<"WaitSensorValue">{}
 
 // Union
 export type SensorValue =
