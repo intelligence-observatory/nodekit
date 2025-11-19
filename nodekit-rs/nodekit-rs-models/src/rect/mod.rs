@@ -29,3 +29,12 @@ impl Rect {
         }
     }
 }
+
+impl Rect {
+    pub const fn overlaps(&self, value: &Self) -> bool {
+        self.position.x < value.position.x + value.size.w
+            && self.position.x + self.size.w > value.position.x
+            && self.position.y > value.position.y + value.size.h
+            && self.position.y + self.size.h < value.position.y
+    }
+}

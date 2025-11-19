@@ -13,7 +13,7 @@ use fast_image_resize::{FilterType, PixelType, ResizeAlg, ResizeOptions, Resizer
 use hex_color::HexColor;
 use nodekit_rs_models::Rect;
 pub use overlay::*;
-pub use resized_rect::ResizedRect;
+use resized_rect::ResizedRect;
 
 /// Convert a hex string e.g. `"#FF0000FF"` to bytes.
 pub fn parse_color(color: &str) -> Result<[u8; STRIDE], Error> {
@@ -25,10 +25,21 @@ pub fn parse_color(color: &str) -> Result<[u8; STRIDE], Error> {
 pub struct VisualBuffer {
     /// A raw RGB32 bitmap.
     pub buffer: Vec<u8>,
-    pub rect: ResizedRect,
+    pub rect: BlitRect,
 }
 
 impl VisualBuffer {
+    pub fn blit(&self, board: &mut [u8]) {
+        blittle::blit(
+            &self.buffer,
+            &self.rect.size,
+            board,
+            &self.rect.position,
+            &BOARD_SIZE,
+            STRIDE,
+        );
+    }
+
     /// Resize to fit within the bounds of `dst`.
     pub fn new_resized(
         mut buffer: Vec<u8>,
@@ -62,6 +73,7 @@ impl VisualBuffer {
             .map_err(Error::ImageResize)?;
         // Set the new buffer.
         let buffer = dst.buffer().to_vec();
+        let rect = BlitRect::from(rect);
         Ok(Self { buffer, rect })
     }
 }

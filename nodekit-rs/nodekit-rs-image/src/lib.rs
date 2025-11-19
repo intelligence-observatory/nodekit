@@ -84,22 +84,22 @@ fn rgb_to_rgba(buffer: &[u8]) -> Vec<u8> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::path::PathBuf;
     use nodekit_rs_models::{Position, Size};
+    use std::path::PathBuf;
 
     #[test]
     fn test_load_png() {
         let width = 300;
         let height = 600;
-        let image = load(&Image {
-            path: PathBuf::from("test_image.png"),
-        }, Rect {
-            size: Size {
-                w: 0.9,
-                h: 0.9
+        let image = load(
+            &Image {
+                path: PathBuf::from("test_image.png"),
             },
-            position: Position::default(),
-        })
+            Rect {
+                size: Size { w: 0.9, h: 0.9 },
+                position: Position::default(),
+            },
+        )
         .unwrap();
         assert_eq!(image.rect.size.w, 345);
         assert_eq!(image.rect.size.h, 691);

@@ -8,7 +8,7 @@ pub struct ResizedRect {
 }
 
 impl ResizedRect {
-    pub fn new(rect: &Rect, src_width: u32, src_height: u32) -> Self {
+    pub const fn new(rect: &Rect, src_width: u32, src_height: u32) -> Self {
         let dst_size = Size {
             w: size_coordinate(rect.size.w),
             h: size_coordinate(rect.size.h),
@@ -37,7 +37,7 @@ impl ResizedRect {
         }
     }
 
-    fn get_resized(src: &Size, dst: &Size) -> Size {
+    const fn get_resized(src: &Size, dst: &Size) -> Size {
         let rw = src.w as f64 / dst.w as f64;
         let rh = src.h as f64 / dst.h as f64;
         if rw > rh {

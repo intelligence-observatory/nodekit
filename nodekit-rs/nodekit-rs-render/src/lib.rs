@@ -1,9 +1,11 @@
+mod asset;
 mod error;
 
+use crate::asset::Asset;
 use blittle::blit;
 use bytemuck::cast_slice_mut;
-use hashbrown::HashSet;
 pub use error::Error;
+use hashbrown::HashSet;
 use nodekit_rs_image::*;
 use nodekit_rs_models::*;
 use nodekit_rs_visual::*;
@@ -24,13 +26,12 @@ pub struct Renderer {
     /// The background color.
     color: [u8; STRIDE],
     /// Cached text engine.
-    text: nodekit_rs_text::Text,
-    /// Cached video buffers.
-    videos: SecondaryMap<CardKey, nodekit_rs_video::Video>,
-    images: SecondaryMap<CardKey, VisualBuffer>,
+    text_engine: nodekit_rs_text::TextEngine,
+    /// Cached assets.
+    assets: SecondaryMap<CardKey, Asset>,
     visible: HashSet<CardKey>,
     /// The known state ID.
-    id: Option<Uuid>
+    id: Option<Uuid>,
 }
 
 #[pymethods]
@@ -52,40 +53,72 @@ impl Renderer {
 
 impl Renderer {
     fn blit(&mut self, state: &State) -> Result<(), Error> {
-        // Clear the video cache and the visual board.
-        if state.t_msec == 0 || self.board.is_empty() {
+        // New state.
+        if self.is_new_state(state) {
             self.clear(state)?;
         }
-        for (card_key, card) in state.get_ordered_cards().iter() {
-            match card.status(state.t_msec) {
-                Status::Pending | Status::Finished => (),
-                Status::StartedNow | Status::Active => match &card.card_type {
-                    CardType::Image(image) => {
-                        blit_image(image, card.rect, &mut self.board).map_err(Error::Image)?
+
+        // Erase.
+        for card_key in
+            state
+                .cards
+                .iter()
+                .filter_map(|(k, card)| {
+                    if !card.is_visible(state.t_msec) && self.visible.contains(&k) {
+                        Some(state.cards.iter().map(move |a| (k, a)).filter_map(
+                            |(k, (o, card))| {
+                                if o != k
+                                    && card.rect.overlaps(&card.rect)
+                                    && self.visible.contains(&o)
+                                {
+                                    Some(o)
+                                } else {
+                                    None
+                                }
+                            },
+                        ))
+                    } else {
+                        None
                     }
-                    CardType::Text(text) => self
-                        .text
-                        .blit(card, text, &mut self.board)
-                        .map_err(Error::Text)?,
-                    CardType::Video(video) => {
-                        let t_msec = video.t_msec - state.t_msec;
-                        self.videos[*card_key]
-                            .blit(t_msec, &mut self.board)
-                            .map_err(Error::Video)?
+                })
+                .flatten()
+                .collect::<HashSet<CardKey>>()
+        {
+            self.erase(&card_key, state.cards[card_key].rect);
+        }
+
+        // Show.
+        for (k, _) in state
+            .cards
+            .iter()
+            .filter(|(_, card)| card.is_visible(state.t_msec))
+        {
+            match self.assets.get_mut(k).unwrap() {
+                Asset::Image(image) => {
+                    // Show something new.
+                    if !self.visible.contains(&k) {
+                        image.blit(&mut self.board);
                     }
-                },
-                Status::EndedNow => {
-                    self.erase(card.rect);
                 }
+                Asset::Video(video) => {
+                    // TODO start time.
+                    video
+                        .blit(state.t_msec, &mut self.board)
+                        .map_err(Error::Video)?;
+                }
+            }
+            // Remember visibility.
+            if !self.visible.contains(&k) {
+                self.visible.insert(k);
             }
         }
         Ok(())
     }
-    
+
     fn is_new_state(&self, state: &State) -> bool {
         self.id.is_none_or(|id| id != state.id)
     }
-    
+
     fn clear(&mut self, state: &State) -> Result<(), Error> {
         // Get the background color.
         self.color = parse_color(&state.board_color).map_err(Error::ParseColor)?;
@@ -100,31 +133,45 @@ impl Renderer {
         // Set the ID.
         self.id = Some(state.id);
         // Clear the asset caches.
-        self.images.clear();
-        self.videos.clear();
-        // Cache images.
-        Ok(())
+        self.assets.clear();
+        // Cache assets.
+        self.cache(state)
     }
-    
-    fn cache_images(&mut self, state: &State) -> Result<(), Error> {
-        for (key, (card, image)) in state.cards.iter().filter_map(|(key, card)| {
-            if let CardType::Image(image) = &card.card_type {
-                Some((key, (card, image)))
-            } else {
-                None
+
+    fn cache(&mut self, state: &State) -> Result<(), Error> {
+        for (key, card) in state.cards.iter() {
+            match &card.card_type {
+                CardType::Image(image) => {
+                    self.assets.insert(
+                        key,
+                        Asset::Image(load(image, card.rect).map_err(Error::Image)?),
+                    );
+                }
+                CardType::Text(text) => {
+                    self.assets.insert(
+                        key,
+                        Asset::Image(
+                            self.text_engine
+                                .render(card.rect, text)
+                                .map_err(Error::Text)?,
+                        ),
+                    );
+                }
+                CardType::Video(video) => {
+                    self.assets.insert(
+                        key,
+                        Asset::Video(
+                            nodekit_rs_video::Video::new(card, video).map_err(Error::Video)?,
+                        ),
+                    );
+                }
             }
-        }) {
-            nodekit_rs_image::blit_image()
-            self.videos.insert(
-                key,
-                nodekit_rs_video::Video::new(card, video).map_err(Error::Video)?,
-            );
         }
         Ok(())
     }
 
     /// Erase a section of the board by filling it with the background color.
-    fn erase_section(&mut self, rect: Rect) {
+    fn erase(&mut self, key: &CardKey, rect: Rect) {
         let width = size_coordinate(rect.size.w);
         let height = size_coordinate(rect.size.h);
         // An empty image.
@@ -139,25 +186,7 @@ impl Renderer {
             &BOARD_SIZE,
             STRIDE,
         );
-    }
-
-    fn clear(&mut self, state: &State) -> Result<(), Error> {
-
-
-        // Load videos into memory.
-        for (key, (card, video)) in state.cards.iter().filter_map(|(key, card)| {
-            if let CardType::Video(video) = &card.card_type {
-                Some((key, (card, video)))
-            } else {
-                None
-            }
-        }) {
-            self.videos.insert(
-                key,
-                nodekit_rs_video::Video::new(card, video).map_err(Error::Video)?,
-            );
-        }
-
-        self.blit(state)
+        // Remove the card.
+        self.visible.remove(key);
     }
 }

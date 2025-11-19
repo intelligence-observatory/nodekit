@@ -1,3 +1,4 @@
+use crate::ResizedRect;
 use crate::board::{BOARD_SIZE, size_coordinate, spatial_coordinate};
 use blittle::*;
 use nodekit_rs_models::Rect;
@@ -21,7 +22,15 @@ impl From<Rect> for BlitRect {
     }
 }
 
-pub(crate) const fn to_blittle_size(size: &nodekit_rs_models::Size) -> Size {
+impl From<ResizedRect> for BlitRect {
+    fn from(value: ResizedRect) -> Self {
+        let mut size = value.size;
+        let position = clip(&value.position, &BOARD_SIZE, &mut size);
+        Self { size, position }
+    }
+}
+
+pub const fn to_blittle_size(size: &nodekit_rs_models::Size) -> Size {
     Size {
         w: size_coordinate(size.w),
         h: size_coordinate(size.h),

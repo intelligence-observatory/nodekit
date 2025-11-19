@@ -12,8 +12,9 @@ use std::io::Cursor;
 
 pub struct Video {
     pub buffer: Vec<u8>,
-    pub rect: ResizedRect,
-    pub blit_rect: BlitRect,
+    pub width: usize,
+    pub height: usize,
+    pub rect: BlitRect,
 }
 
 impl Video {
@@ -21,22 +22,20 @@ impl Video {
         // Load the video.
         let buffer = read(&video.path).map_err(|e| Error::FileNotFound(video.path.clone(), e))?;
         let (width, height) = Self::get_size(&buffer)?;
-        let rect = ResizedRect::new(&card.rect, width, height);
-        let blit_rect = BlitRect::from(rect.dst_rect);
+        let rect = BlitRect::from(card.rect);
         Ok(Self {
             buffer,
             rect,
-            blit_rect,
+            width,
+            height,
         })
     }
 
     pub fn blit(&self, t_msec: u64, board: &mut [u8]) -> Result<(), Error> {
         let frame = self.get_frame(t_msec)?;
-
         // Convert to RGBA.
         // TODO this is too slow. Fix it!
-        let mut buffer_rgba =
-            vec![[255; 4]; self.rect.src_width as usize * self.rect.src_height as usize];
+        let mut buffer_rgba = vec![[255; 4]; self.width * self.height];
         for (src, dst) in cast_slice::<u8, [u8; 3]>(&frame)
             .iter()
             .zip(buffer_rgba.iter_mut())
@@ -49,16 +48,16 @@ impl Video {
         // Blit.
         blittle::blit(
             cast_slice::<[u8; 4], u8>(&buffer_rgba),
-            &self.blit_rect.size,
+            &self.rect.size,
             board,
-            &self.blit_rect.position,
+            &self.rect.position,
             &BOARD_SIZE,
             STRIDE,
         );
         Ok(())
     }
 
-    fn get_size(buffer: &[u8]) -> Result<(u32, u32), Error> {
+    fn get_size(buffer: &[u8]) -> Result<(usize, usize), Error> {
         let cursor = Cursor::new(buffer);
         let input = Input::seekable(cursor).map_err(Error::Ffmpeg)?;
         // Get the streams.
@@ -71,8 +70,8 @@ impl Video {
             .video()
             .map_err(|_| Error::NotVideoDecoder)?;
         Ok((
-            video_decoder.width().cast_unsigned(),
-            video_decoder.height().cast_unsigned(),
+            video_decoder.width().cast_unsigned() as usize,
+            video_decoder.height().cast_unsigned() as usize,
         ))
     }
 
@@ -118,8 +117,8 @@ impl Video {
             frame.width() as i32,
             frame.height() as i32,
             AVPixelFormat::Yuv420p,
-            self.rect.src_width as i32,
-            self.rect.src_height as i32,
+            self.width.cast_signed() as i32,
+            self.height.cast_signed() as i32,
             AVPixelFormat::Rgb24,
         )
         .map_err(Error::Ffmpeg)?;
@@ -127,7 +126,7 @@ impl Video {
         let data = frame.data(0).ok_or(Error::NoData)?;
         let width_3 = frame.width() * 3;
         let mut out = vec![0; width_3 * frame.height()];
-        for y in 0..self.rect.src_height as usize {
+        for y in 0..self.height {
             let row = data.get_row(y).ok_or(Error::NotEnoughRows(y))?;
             let index = y * width_3;
             out[index..index + width_3].copy_from_slice(&row[0..width_3]);
@@ -139,7 +138,7 @@ impl Video {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use nodekit_rs_models::{Position, Rect, Size};
+    use blittle::PositionU;
     use std::fs::write;
 
     #[test]
@@ -147,19 +146,18 @@ mod tests {
         let width = 400;
         let height = 300;
 
-        let rect = ResizedRect::new(
-            &Rect {
-                position: Position { x: 0., y: 0. },
-                size: Size { w: 0.52, h: 0.39 },
+        let rect = BlitRect {
+            position: PositionU { x: 0, y: 0 },
+            size: blittle::Size {
+                w: width,
+                h: height,
             },
-            width,
-            height,
-        );
-        let blit_rect = BlitRect::from(rect.dst_rect);
+        };
         let video = Video {
             buffer: include_bytes!("../test-video.mp4").to_vec(),
+            width,
+            height,
             rect,
-            blit_rect,
         };
 
         let frame = video.get_frame(300).unwrap();

@@ -1,22 +1,24 @@
+use blittle::PositionU;
 use criterion::{Criterion, criterion_group, criterion_main};
-use nodekit_rs_models::{Position, Rect, Size};
 use nodekit_rs_video::*;
-use nodekit_rs_visual::{BlitRect, ResizedRect};
+use nodekit_rs_visual::BlitRect;
 
 pub fn criterion_benchmark(c: &mut Criterion) {
-    let rect = ResizedRect::new(
-        &Rect {
-            position: Position { x: 0., y: 0. },
-            size: Size { w: 0.52, h: 0.39 },
+    let width = 400;
+    let height = 300;
+
+    let rect = BlitRect {
+        position: PositionU { x: 0, y: 0 },
+        size: blittle::Size {
+            w: width,
+            h: height,
         },
-        400,
-        300,
-    );
-    let blit_rect = BlitRect::from(rect.dst_rect);
+    };
     let video = Video {
         buffer: include_bytes!("../test-video.mp4").to_vec(),
+        width,
+        height,
         rect,
-        blit_rect,
     };
 
     c.bench_function("video frame extraction", |b| {

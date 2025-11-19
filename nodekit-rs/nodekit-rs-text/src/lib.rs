@@ -2,58 +2,47 @@ mod error;
 mod md;
 mod surface;
 
-use blittle::{PositionI, Size, blit, clip};
+use blittle::{PositionI, Size, clip};
 use bytemuck::cast_slice_mut;
 use cosmic_text::fontdb::Source;
 use cosmic_text::{Align, Attrs, Buffer, Color, Family, FontSystem, Metrics, Shaping, SwashCache};
 pub use error::Error;
 use md::{FontSize, parse};
-use nodekit_rs_models::{Card, JustificationHorizontal, JustificationVertical, Rect};
+use nodekit_rs_models::{JustificationHorizontal, JustificationVertical, Rect};
 use nodekit_rs_visual::{
-    BOARD_D_F64, BOARD_SIZE, BlitRect, STRIDE, bitmap, overlay, overlay_pixel, parse_color,
+    BOARD_D_F64, BlitRect, STRIDE, VisualBuffer, bitmap, overlay, overlay_pixel, parse_color,
+    to_blittle_size,
 };
 use pyo3::pyclass;
 use std::sync::Arc;
 use surface::Surface;
 
 #[pyclass]
-pub struct Text {
+pub struct TextEngine {
     font_system: FontSystem,
     swash_cache: SwashCache,
 }
 
-impl Text {
-    pub fn blit(
+impl TextEngine {
+    pub fn render(
         &mut self,
-        card: &Card,
+        rect: Rect,
         text: &nodekit_rs_models::Text,
-        board: &mut [u8],
-    ) -> Result<(), Error> {
-        let src = self.render(card.rect, text)?;
-        // Blit it.
-        let blit_rect = BlitRect::from(card.rect);
-        blit(
-            &src,
-            &blit_rect.size,
-            board,
-            &blit_rect.position,
-            &BOARD_SIZE,
-            STRIDE,
-        );
-        Ok(())
-    }
-
-    pub fn render(&mut self, rect: Rect, text: &nodekit_rs_models::Text) -> Result<Vec<u8>, Error> {
+    ) -> Result<VisualBuffer, Error> {
         // Get the font sizes.
         let font_size = FontSize::new((text.font_size * BOARD_D_F64).ceil() as u16);
         let mut buffer = Buffer::new(&mut self.font_system, Metrics::from(&font_size));
         let font_usize = font_size.font_size as usize;
         let line_height_isize = font_size.line_height as isize;
-        let blit_rect = BlitRect::from(rect);
-        let w = blit_rect.size.w - font_usize * 2;
-        let h = blit_rect.size.h - font_usize * 2;
-        let src_size = Size { w, h };
-        buffer.set_size(&mut self.font_system, Some(w as f32), Some(h as f32));
+        let mut src_size = to_blittle_size(&rect.size);
+        // Padding.
+        src_size.w -= font_usize * 2;
+        src_size.h -= font_usize * 2;
+        buffer.set_size(
+            &mut self.font_system,
+            Some(src_size.w as f32),
+            Some(src_size.h as f32),
+        );
 
         let text_color = parse_color(&text.text_color).map_err(Error::Visual)?;
         let text_color = Color::rgba(text_color[0], text_color[1], text_color[2], text_color[3]);
@@ -107,30 +96,33 @@ impl Text {
         let height = y - line_height_isize;
         let y_offset = match text.justification_vertical {
             JustificationVertical::Top => 0,
-            JustificationVertical::Center => blit_rect.size.h.cast_signed() / 2 - height / 2,
-            JustificationVertical::Bottom => blit_rect.size.h.cast_signed() - height,
+            JustificationVertical::Center => src_size.h.cast_signed() / 2 - height / 2,
+            JustificationVertical::Bottom => src_size.h.cast_signed() - height,
         } + line_height_isize;
 
         // Blit onto the final surface.
-        let mut final_surface = bitmap(blit_rect.size.w, blit_rect.size.h, background_color);
+        let mut final_surface = bitmap(src_size.w, src_size.h, background_color);
         for surface in surfaces {
             let position = PositionI {
                 x: 0,
                 y: surface.y + y_offset,
             };
-            let mut src_size = surface.size;
-            let mut position = clip(&position, &blit_rect.size, &mut src_size);
+            let mut surface_size = surface.size;
+            let mut position = clip(&position, &src_size, &mut surface_size);
             position.x = font_usize;
             overlay(
                 &surface.surface,
-                &src_size,
+                &surface_size,
                 &mut final_surface,
                 &position,
-                &blit_rect.size,
+                &src_size,
             );
         }
 
-        Ok(final_surface)
+        Ok(VisualBuffer {
+            buffer: final_surface,
+            rect: BlitRect::from(rect),
+        })
     }
 
     fn draw(&mut self, text_color: Color, size: Size, surface: &mut [u8], buffer: &mut Buffer) {
@@ -162,7 +154,7 @@ impl Text {
     }
 }
 
-impl Default for Text {
+impl Default for TextEngine {
     fn default() -> Self {
         let mut font_system = FontSystem::new();
         font_system
@@ -208,7 +200,7 @@ mod tests {
         };
 
         // Render the text.
-        let mut text = Text::default();
+        let mut text = TextEngine::default();
         let image = text.render(rect, &card).unwrap();
 
         // Write the result as a .png file.
@@ -218,6 +210,6 @@ mod tests {
         encoder.set_color(png::ColorType::Rgba);
         encoder.set_depth(png::BitDepth::Eight);
         let mut writer = encoder.write_header().unwrap();
-        writer.write_image_data(&image).unwrap();
+        writer.write_image_data(&image.buffer).unwrap();
     }
 }

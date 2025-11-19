@@ -21,10 +21,10 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     };
 
     // Render the text.
-    let mut text = Text::default();
+    let mut text = TextEngine::default();
 
     // Render the text.
-    let mut text = Text::default();
+    let mut text = TextEngine::default();
     c.bench_function("text rendering", |b| {
         b.iter(|| {
             text.render(rect, &card).unwrap();

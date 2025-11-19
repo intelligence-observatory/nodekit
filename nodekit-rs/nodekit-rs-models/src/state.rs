@@ -43,9 +43,13 @@ impl State {
 }
 
 impl State {
-    /// Returns the cards in their render order.
-    pub fn get_ordered_cards(&self) -> Vec<(CardKey, &Card)> {
-        let mut cards = self.cards.iter().collect::<Vec<(CardKey, &Card)>>();
+    /// Returns the visible cards in their render order.
+    pub fn get_visible_cards(&self) -> Vec<(CardKey, &Card)> {
+        let mut cards = self
+            .cards
+            .iter()
+            .filter(|(_, card)| card.is_visible(self.t_msec))
+            .collect::<Vec<(CardKey, &Card)>>();
         cards.sort_by(|a, b| a.1.z_index.cmp(&b.1.z_index));
         cards
     }
