@@ -219,7 +219,7 @@ function evaluateExitPredicate(
     sensorValuesMap: SensorValuesMap,
 ): boolean{
     switch (predicate.predicate_type){
-        case "SensorFulfilledPredicate": {
+        case "SensorResolvedPredicate": {
             // Return true if
             const sensorValue = sensorValuesMap[predicate.sensor_id];
             return sensorValue !== null;

@@ -1,7 +1,7 @@
 import type {KeySensor} from "../../../types/sensors";
 import type {BoardView} from "../../board-view.ts";
 import type {KeySample} from "../../../input-streams/key-stream.ts";
-import type {KeyAction} from "../../../types/actions";
+import type {KeySensorValue} from "../../../types/actions";
 import {SensorBinding} from "../index.ts";
 
 /**
@@ -20,9 +20,9 @@ export class KeySensorBinding extends SensorBinding<KeySensor> {
             if (!keys.has(keySample.key)) {
                 return;
             }
-            const action: KeyAction = {
+            const action: KeySensorValue = {
                 t: keySample.t,
-                action_type: "KeyAction",
+                sensor_value_type: "KeySensorValue",
                 key: keySample.key,
             };
 

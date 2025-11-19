@@ -1,7 +1,7 @@
 import {SensorBinding} from "../index.ts";
 import type {WaitSensor} from "../../../types/sensors";
 import type {BoardView} from "../../board-view.ts";
-import type {WaitAction} from "../../../types/actions";
+import type {WaitSensorValue} from "../../../types/actions";
 import type {Clock} from "../../../clock.ts";
 
 export class WaitSensorBinding extends SensorBinding<WaitSensor>{
@@ -16,8 +16,8 @@ export class WaitSensorBinding extends SensorBinding<WaitSensor>{
         // Set a timeout
         setTimeout(
             () => {
-                const waitAction: WaitAction = {
-                    action_type: "WaitAction",
+                const waitAction: WaitSensorValue = {
+                    sensor_value_type: "WaitSensorValue",
                     t: this.clock.now()
                 }
                 this.emit(waitAction)

@@ -1,7 +1,7 @@
 import type {ClickSensor} from "../../../types/sensors";
 import {type BoardView, checkPointInRegion} from "../../board-view.ts";
 import type {PointerSample} from "../../../input-streams/pointer-stream.ts";
-import type {ClickAction} from "../../../types/actions";
+import type {ClickSensorValue} from "../../../types/actions";
 import {SensorBinding} from "../index.ts";
 
 /**
@@ -26,9 +26,9 @@ export class ClickSensorBinding extends SensorBinding<ClickSensor> {
                 region,
             );
             if (inside) {
-                const action: ClickAction = {
+                const action: ClickSensorValue = {
                     t: pointerSample.t,
-                    action_type: "ClickAction",
+                    sensor_value_type: "ClickSensorValue",
                     x: pointerSample.x,
                     y: pointerSample.y,
                 };

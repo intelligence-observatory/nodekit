@@ -1,7 +1,7 @@
 import './free-text-entry.css'
 import type {FreeTextEntrySensor} from "../../../types/sensors";
 import {BoardCoordinateSystem, type BoardView, RegionView} from "../../board-view.ts";
-import type {FreeTextEntryAction} from "../../../types/actions";
+import type {FreeTextEntrySensorValue} from "../../../types/actions";
 import {SensorBinding} from "../index.ts";
 
 
@@ -19,8 +19,8 @@ export class FreeTextEntrySensorBinding extends SensorBinding<FreeTextEntrySenso
 
         // Subscribe
         const freeTextEnteredCallback = (sample: string): void => {
-            const sensorValue: FreeTextEntryAction = {
-                action_type: 'FreeTextEntryAction',
+            const sensorValue: FreeTextEntrySensorValue = {
+                sensor_value_type: 'FreeTextEntrySensorValue',
                 text: sample,
                 t: boardView.clock.now(),
             }

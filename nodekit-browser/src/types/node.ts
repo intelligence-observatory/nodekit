@@ -11,7 +11,7 @@ export interface BaseNodePredicate<T extends string> {
     predicate_type: T
 }
 
-export interface SensorFulfilledPredicate extends BaseNodePredicate<'SensorFulfilledPredicate'> {
+export interface SensorResolvedPredicate extends BaseNodePredicate<'SensorResolvedPredicate'> {
     sensor_id: SensorId
 }
 export interface AllPredicate extends BaseNodePredicate<'AllPredicate'> {
@@ -26,7 +26,7 @@ export interface AtLeastPredicate extends BaseNodePredicate<'AtLeastPredicate'> 
     min: number;
 }
 
-export type NodePredicate = SensorFulfilledPredicate | AllPredicate | RacePredicate | AtLeastPredicate;
+export type NodePredicate = SensorResolvedPredicate | AllPredicate | RacePredicate | AtLeastPredicate;
 
 export interface Node {
     cards: Record<CardId, Card>;
