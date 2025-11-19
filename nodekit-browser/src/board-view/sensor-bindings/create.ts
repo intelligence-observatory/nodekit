@@ -6,6 +6,7 @@ import {FreeTextEntrySensorBinding} from "./free-text-entry/free-text-entry.ts";
 import {KeySensorBinding} from "./key";
 import {ClickSensorBinding} from "./click";
 import {WaitSensorBinding} from "./wait";
+import {SelectSensorBinding} from "./select";
 
 export function createSensorBinding(
     sensor: Sensor,
@@ -33,6 +34,10 @@ export function createSensorBinding(
         }
         case "WaitSensor": {
             sensorBinding = new WaitSensorBinding(sensor);
+            break
+        }
+        case "SelectSensor": {
+            sensorBinding = new SelectSensorBinding(sensor);
             break
         }
         default: {

@@ -22,7 +22,7 @@ export class ImageCardView extends CardView<ImageCard> {
         );
 
         this.image.classList.add('image-card__content');
-        this.image.draggable = false; // Prevents dragging the image in the browser
+        this.image.draggable = false;
         this.imageContainer.appendChild(this.image);
     }
 }

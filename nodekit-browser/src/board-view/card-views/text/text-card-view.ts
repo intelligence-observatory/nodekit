@@ -20,7 +20,6 @@ export class TextCardView extends CardView<TextCard> {
         this.textContainer.classList.add('text-card');
         this.root.appendChild(this.textContainer);
 
-
         // Set styles based on card parameters:
         this.textContainer.style.backgroundColor = this.card.background_color;
 

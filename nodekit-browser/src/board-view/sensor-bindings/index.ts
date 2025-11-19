@@ -26,8 +26,7 @@ export abstract class SensorBinding<S extends Sensor> {
     /**
      * Called when the NodePlay begins.
      */
-    start(){
-    }
+    start(){}
 
     public subscribe(
         callback: (sensorValue: SensorValue) => void

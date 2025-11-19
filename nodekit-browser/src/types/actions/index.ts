@@ -1,4 +1,4 @@
-import type {PressableKey, SensorId, SpatialPoint, TimeElapsedMsec} from "../common.ts";
+import type {CardId, PressableKey, SensorId, SpatialPoint, TimeElapsedMsec} from "../common.ts";
 import type {SliderBinIndex} from "../../board-view/sensor-bindings/slider";
 
 export interface BaseSensorValue<T extends string> {
@@ -29,6 +29,9 @@ export interface FreeTextEntrySensorValue extends BaseSensorValue<"FreeTextEntry
 
 export interface WaitSensorValue extends BaseSensorValue<"WaitSensorValue">{}
 
+export interface SelectSensorValue extends BaseSensorValue<"SelectSensorValue">{
+    selection: CardId
+}
 
 // Union
 export type SensorValue =
@@ -36,7 +39,8 @@ export type SensorValue =
     | KeySensorValue
     | SliderSensorValue
     | FreeTextEntrySensorValue
-    | WaitSensorValue;
+    | WaitSensorValue
+    | SelectSensorValue
 
 export type Maybe<T> = T | UnresolvedSensorValue;
 export type SensorValuesMap = Record<SensorId, Maybe<SensorValue>>
