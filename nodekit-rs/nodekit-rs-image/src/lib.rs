@@ -143,13 +143,13 @@ mod tests {
                 path: PathBuf::from("test_image.png"),
             },
             Rect {
-                size: Size { w: 0.9, h: 0.9 },
+                size: Size { w: 1., h: 1. },
                 position: Position::default(),
             },
         )
         .unwrap();
-        assert_eq!(image.rect.size.w, 345);
-        assert_eq!(image.rect.size.h, 691);
+        assert_eq!(image.rect.size.w, 384);
+        assert_eq!(image.rect.size.h, 768);
         assert_eq!(
             image.buffer.len(),
             image.rect.size.w * image.rect.size.h * STRIDE
