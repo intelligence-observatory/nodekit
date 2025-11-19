@@ -2,6 +2,7 @@ mod error;
 
 use blittle::blit;
 use bytemuck::cast_slice_mut;
+use hashbrown::HashSet;
 pub use error::Error;
 use nodekit_rs_image::*;
 use nodekit_rs_models::*;
@@ -11,6 +12,7 @@ use pyo3::prelude::*;
 use pyo3::types::PyBytes;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use slotmap::SecondaryMap;
+use uuid::Uuid;
 
 /// Render a `State` while storing an internal cache of loaded data (fonts, video buffers, etc.)
 #[pyclass]
@@ -25,6 +27,10 @@ pub struct Renderer {
     text: nodekit_rs_text::Text,
     /// Cached video buffers.
     videos: SecondaryMap<CardKey, nodekit_rs_video::Video>,
+    images: SecondaryMap<CardKey, VisualBuffer>,
+    visible: HashSet<CardKey>,
+    /// The known state ID.
+    id: Option<Uuid>
 }
 
 #[pymethods]
@@ -75,9 +81,50 @@ impl Renderer {
         }
         Ok(())
     }
+    
+    fn is_new_state(&self, state: &State) -> bool {
+        self.id.is_none_or(|id| id != state.id)
+    }
+    
+    fn clear(&mut self, state: &State) -> Result<(), Error> {
+        // Get the background color.
+        self.color = parse_color(&state.board_color).map_err(Error::ParseColor)?;
+        // Fill the board.
+        if self.board.is_empty() {
+            self.board = board(self.color);
+        } else {
+            cast_slice_mut::<u8, [u8; STRIDE]>(&mut self.board).fill(self.color);
+        }
+        // Clear the visible keys.
+        self.visible.clear();
+        // Set the ID.
+        self.id = Some(state.id);
+        // Clear the asset caches.
+        self.images.clear();
+        self.videos.clear();
+        // Cache images.
+        Ok(())
+    }
+    
+    fn cache_images(&mut self, state: &State) -> Result<(), Error> {
+        for (key, (card, image)) in state.cards.iter().filter_map(|(key, card)| {
+            if let CardType::Image(image) = &card.card_type {
+                Some((key, (card, image)))
+            } else {
+                None
+            }
+        }) {
+            nodekit_rs_image::blit_image()
+            self.videos.insert(
+                key,
+                nodekit_rs_video::Video::new(card, video).map_err(Error::Video)?,
+            );
+        }
+        Ok(())
+    }
 
     /// Erase a section of the board by filling it with the background color.
-    fn erase(&mut self, rect: Rect) {
+    fn erase_section(&mut self, rect: Rect) {
         let width = size_coordinate(rect.size.w);
         let height = size_coordinate(rect.size.h);
         // An empty image.
@@ -95,16 +142,7 @@ impl Renderer {
     }
 
     fn clear(&mut self, state: &State) -> Result<(), Error> {
-        self.color = parse_color(&state.board_color).map_err(Error::ParseColor)?;
-        // Fill the board.
-        if self.board.is_empty() {
-            self.board = board(self.color);
-        } else {
-            cast_slice_mut::<u8, [u8; STRIDE]>(&mut self.board).fill(self.color);
-        }
 
-        // Clear the video buffers.
-        self.videos.clear();
 
         // Load videos into memory.
         for (key, (card, video)) in state.cards.iter().filter_map(|(key, card)| {

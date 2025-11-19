@@ -3,6 +3,7 @@ use crate::{CardKey, Position};
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use slotmap::SlotMap;
+use uuid::Uuid;
 
 /// Describes the state of the simulator.
 #[gen_stub_pyclass]
@@ -17,6 +18,8 @@ pub struct State {
     pub board_color: String,
     /// The position of the cursor.
     pub cursor: Position,
+    /// A unique ID.
+    pub id: Uuid,
 }
 
 #[gen_stub_pymethods]
@@ -24,18 +27,18 @@ pub struct State {
 impl State {
     /// `board_color` must be a valid RGBA hex string e.g. "#808080ff"
     #[new]
-    pub fn new(board_color: String) -> Self {
+    pub fn new(board_color: String, cards: Vec<Card>) -> Self {
+        let mut cards_map = SlotMap::default();
+        for card in cards {
+            cards_map.insert(card);
+        }
         Self {
-            cards: Default::default(),
+            cards: cards_map,
             t_msec: 0,
             board_color,
             cursor: Position::default(),
+            id: Uuid::new_v4(),
         }
-    }
-
-    /// Add a card to the state.
-    pub fn add_card(&mut self, card: Card) {
-        self.cards.insert(card);
     }
 }
 

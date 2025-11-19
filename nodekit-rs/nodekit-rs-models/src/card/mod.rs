@@ -1,6 +1,5 @@
 mod card_type;
 mod image;
-mod status;
 mod text;
 mod timer;
 mod video;
@@ -11,7 +10,6 @@ pub use image::Image;
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use slotmap::new_key_type;
-pub use status::Status;
 use std::path::PathBuf;
 pub use text::*;
 pub use timer::Timer;
@@ -93,23 +91,12 @@ impl Card {
 }
 
 impl Card {
-    /// The status of the card at time `t_msec`.
-    pub const fn status(&self, t_msec: u64) -> Status {
-        if t_msec < self.timer.start_msec {
-            Status::Pending
-        } else if t_msec == self.timer.start_msec {
-            Status::StartedNow
-        } else if let Some(end_msec) = self.timer.end_msec {
-            if t_msec < end_msec {
-                Status::Active
-            } else if t_msec == end_msec {
-                Status::EndedNow
-            } else {
-                Status::Finished
+    /// Returns true if the card is visible at `t_msec`.
+    pub const fn is_visible(&self, t_msec: u64) -> bool {
+        t_msec >= self.timer.start_msec
+            && match self.timer.end_msec {
+                Some(end_msec) => t_msec < end_msec,
+                None => true,
             }
-        } else {
-            // No end time.
-            Status::Active
-        }
     }
 }

@@ -17,12 +17,9 @@ use std::fs::File;
 use std::io::BufReader;
 use std::path::Path;
 
-/// Blit an `image` onto the `board` within a card's `rect`.
-pub fn blit_image(image: &Image, rect: Rect, board: &mut [u8]) -> Result<(), Error> {
-    load(image)?.blit(rect, board).map_err(Error::Visual)
-}
-
-fn load(image: &Image) -> Result<VisualBuffer, Error> {
+/// Load an image into memory.
+/// Resize the image as needed.
+pub fn load(image: &Image, rect: Rect) -> Result<VisualBuffer, Error> {
     let decoder = Decoder::new(BufReader::new(
         File::open(&image.path).map_err(|e| Error::OpenFile(e, image.path.clone()))?,
     ));
@@ -40,11 +37,9 @@ fn load(image: &Image) -> Result<VisualBuffer, Error> {
         .map_err(|e| Error::Decode(e, image.path.clone()))?;
     // Convert to RGBA32.
     let buffer = convert(&image.path, &buffer[..info.buffer_size()], info.color_type)?;
-    Ok(VisualBuffer {
-        buffer,
-        width: info.width,
-        height: info.height,
-    })
+
+    // Resize.
+    VisualBuffer::new_resized(buffer, info.width, info.height, rect).map_err(Error::Visual)
 }
 
 /// Convert `buffer` from a `color_type` to RGBA32.
@@ -90,6 +85,7 @@ fn rgb_to_rgba(buffer: &[u8]) -> Vec<u8> {
 mod tests {
     use super::*;
     use std::path::PathBuf;
+    use nodekit_rs_models::{Position, Size};
 
     #[test]
     fn test_load_png() {
@@ -97,13 +93,19 @@ mod tests {
         let height = 600;
         let image = load(&Image {
             path: PathBuf::from("test_image.png"),
+        }, Rect {
+            size: Size {
+                w: 0.9,
+                h: 0.9
+            },
+            position: Position::default(),
         })
         .unwrap();
-        assert_eq!(image.width, width);
-        assert_eq!(image.height, height);
+        assert_eq!(image.rect.size.w, 345);
+        assert_eq!(image.rect.size.h, 691);
         assert_eq!(
             image.buffer.len(),
-            (width * height * STRIDE as u32) as usize
+            image.rect.size.w * image.rect.size.h * STRIDE
         );
     }
 }

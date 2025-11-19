@@ -6,6 +6,7 @@ edition = "2024"
 [dependencies]
 blittle.workspace = true
 bytemuck.workspace = true
+hashbrown.workspace = true
 nodekit-rs-image = { path = "../nodekit-rs-image" }
 nodekit-rs-models = { path = "../nodekit-rs-models" }
 nodekit-rs-text = { path = "../nodekit-rs-text" }
@@ -15,3 +16,4 @@ pyo3.workspace = true
 pyo3-stub-gen.workspace = true
 slotmap.workspace = true
 thiserror.workspace = true
+uuid.workspace = true

@@ -12,7 +12,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         400,
         300,
     );
-    let blit_rect = BlitRect::from(rect.rect);
+    let blit_rect = BlitRect::from(rect.dst_rect);
     let video = Video {
         buffer: include_bytes!("../test-video.mp4").to_vec(),
         rect,

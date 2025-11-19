@@ -22,7 +22,7 @@ impl Video {
         let buffer = read(&video.path).map_err(|e| Error::FileNotFound(video.path.clone(), e))?;
         let (width, height) = Self::get_size(&buffer)?;
         let rect = ResizedRect::new(&card.rect, width, height);
-        let blit_rect = BlitRect::from(rect.rect);
+        let blit_rect = BlitRect::from(rect.dst_rect);
         Ok(Self {
             buffer,
             rect,
@@ -35,7 +35,8 @@ impl Video {
 
         // Convert to RGBA.
         // TODO this is too slow. Fix it!
-        let mut buffer_rgba = vec![[255; 4]; self.rect.width as usize * self.rect.height as usize];
+        let mut buffer_rgba =
+            vec![[255; 4]; self.rect.src_width as usize * self.rect.src_height as usize];
         for (src, dst) in cast_slice::<u8, [u8; 3]>(&frame)
             .iter()
             .zip(buffer_rgba.iter_mut())
@@ -117,8 +118,8 @@ impl Video {
             frame.width() as i32,
             frame.height() as i32,
             AVPixelFormat::Yuv420p,
-            self.rect.width as i32,
-            self.rect.height as i32,
+            self.rect.src_width as i32,
+            self.rect.src_height as i32,
             AVPixelFormat::Rgb24,
         )
         .map_err(Error::Ffmpeg)?;
@@ -126,7 +127,7 @@ impl Video {
         let data = frame.data(0).ok_or(Error::NoData)?;
         let width_3 = frame.width() * 3;
         let mut out = vec![0; width_3 * frame.height()];
-        for y in 0..self.rect.height as usize {
+        for y in 0..self.rect.src_height as usize {
             let row = data.get_row(y).ok_or(Error::NotEnoughRows(y))?;
             let index = y * width_3;
             out[index..index + width_3].copy_from_slice(&row[0..width_3]);
@@ -154,7 +155,7 @@ mod tests {
             width,
             height,
         );
-        let blit_rect = BlitRect::from(rect.rect);
+        let blit_rect = BlitRect::from(rect.dst_rect);
         let video = Video {
             buffer: include_bytes!("../test-video.mp4").to_vec(),
             rect,
