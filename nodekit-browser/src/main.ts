@@ -129,7 +129,6 @@ export async function play(
 
         await nodePlay.prepare()
 
-
         // Play the Node:
         let result = await nodePlay.run(clock);
         nodeResults.push(

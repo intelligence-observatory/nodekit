@@ -6,11 +6,29 @@ import type {NodeOutcome} from "./events/node-events.ts";
 import type {Expression, Value} from "./expressions/expressions.ts";
 import type {Event} from "./events";
 
+
+export interface BaseNodePredicate<T extends string> {
+    predicate_type: T
+}
+
+export interface SensorFulfilledPredicate extends BaseNodePredicate<'SensorFulfilledPredicate'> {
+    sensor_id: SensorId
+}
+export interface AllPredicate extends BaseNodePredicate<'AllPredicate'> {
+    items: NodePredicate[] | '*'
+}
+export interface RacePredicate extends BaseNodePredicate<'RacePredicate'> {
+    items: NodePredicate[] | '*'
+}
+
+export type NodePredicate = SensorFulfilledPredicate | AllPredicate | RacePredicate ;
+
 export interface Node {
     cards: Record<CardId, Card>;
     sensors: Record<SensorId, Sensor>;
     effects: Effect[];
     board_color: ColorHexString;
+    exit: NodePredicate;
 }
 
 

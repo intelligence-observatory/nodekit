@@ -49,27 +49,27 @@ class Graph(pydantic.BaseModel):
     nodekit_version: Literal["0.1.0"] = pydantic.Field(default=VERSION)
 
 # %%
-class SensorPredicateEnum(enum.Enum):
+class NodePredicateEnum(enum.Enum):
     fulfilled = 'fulfilled'
     all = "all"
     race =  "race"
 
-class BaseSensorPredicate(pydantic.BaseModel):
-    type: SensorPredicateEnum
+class BaseNodePredicate(pydantic.BaseModel):
+    predicate_type: NodePredicateEnum
 
-class SensorFulfilledPredicate(BaseSensorPredicate):
-    type: Literal[SensorPredicateEnum.fulfilled] = SensorPredicateEnum.fulfilled
+class SensorFulfilledPredicate(BaseNodePredicate):
+    predicate_type: Literal[NodePredicateEnum.fulfilled] = NodePredicateEnum.fulfilled
     sensor_id: SensorId
 
-class AllPredicate(BaseSensorPredicate):
-    type: Literal[SensorPredicateEnum.all] = SensorPredicateEnum.all
-    items: List['SensorPredicate'] | Literal['*']
+class AllPredicate(BaseNodePredicate):
+    predicate_type: Literal[NodePredicateEnum.all] = NodePredicateEnum.all
+    items: List['NodePredicate'] | Literal['*']
 
-class RacePredicate(BaseSensorPredicate):
-    type: Literal[SensorPredicateEnum.race] = SensorPredicateEnum.race
-    items: List['SensorPredicate']
+class RacePredicate(BaseNodePredicate):
+    predicate_type: Literal[NodePredicateEnum.race] = NodePredicateEnum.race
+    items: List['NodePredicate']
 
-type SensorPredicate = Annotated[
+type NodePredicate = Annotated[
     Union[
         SensorFulfilledPredicate,
         AllPredicate,
@@ -108,7 +108,7 @@ class Node(pydantic.BaseModel):
         description="Set of Sensors that each denote an Action Set.",
     )
 
-    exit: SensorPredicate = pydantic.Field(
+    exit: NodePredicate = pydantic.Field(
         description='The definition of the conditions that will end the Node. If None (default), the Node ends when all Sensors are fulfilled.',
         default=AllPredicate(items='*'),
         validate_default=True,

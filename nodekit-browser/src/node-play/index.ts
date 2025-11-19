@@ -1,5 +1,5 @@
-import type {Node} from "../types/node.ts";
-import type {Action, SensorValue} from "../types/actions/";
+import type {Node, NodePredicate} from "../types/node.ts";
+import type {SensorValuesMap, SensorValue} from "../types/actions/";
 import {BoardView} from "../board-view/board-view.ts";
 import {EventScheduler} from "./event-scheduler.ts";
 import {type EffectBinding, HideCursorEffectBinding} from "../board-view/effect-bindings";
@@ -15,7 +15,7 @@ import type {Clock} from "../clock.ts";
 
 export interface NodePlayRunResult {
     t: TimeElapsedMsec,
-    outcome: Record<SensorId, SensorValue>;
+    outcome: SensorValuesMap;
 }
 
 class Deferred<T> {
@@ -52,7 +52,7 @@ export class NodePlay {
     private scheduler: EventScheduler
 
     // Resolvers
-    private deferredAction: Deferred<Action> = new Deferred<Action>()
+    private deferredAction: Deferred<SensorValuesMap> = new Deferred<SensorValuesMap>()
     private currentSensorValues: Record<SensorId, SensorValue | null>
 
     // Assets
@@ -169,18 +169,15 @@ export class NodePlay {
         // Record sensor value update
         this.currentSensorValues[sensorId] = sensorValue;
 
-        // Check if all sensors reported
-        let action: Record<SensorId, SensorValue> = {}
-        for (let sensorIdUnbranded in this.currentSensorValues){
-            const sensorId = sensorIdUnbranded as SensorId;
-            if (this.currentSensorValues[sensorId] === null) {
-                return
-            }
-            action[sensorId] = this.currentSensorValues[sensorId];
-        }
+        // Check if the exit predicate has been met
+        const canExit = evaluateExitPredicate(
+            this.node.exit,
+            this.currentSensorValues,
+        )
 
-        // Resolve once all sensors have had values set at least once
-        this.deferredAction.resolve(action)
+        if (canExit){
+            this.deferredAction.resolve(this.currentSensorValues)
+        }
     }
 
     async run(clock:Clock): Promise<NodePlayRunResult> {
@@ -213,5 +210,50 @@ export class NodePlay {
             outcome: action,
             t: tStart,
         }
+    }
+}
+
+
+function evaluateExitPredicate(
+    predicate: NodePredicate,
+    sensorValuesMap: SensorValuesMap,
+): boolean{
+    switch (predicate.predicate_type){
+        case "SensorFulfilledPredicate": {
+            // Return true if
+            const sensorValue = sensorValuesMap[predicate.sensor_id];
+            return sensorValue !== null;
+        }
+        case "AllPredicate": {
+            if (predicate.items === "*") {
+                // Wildcard: all sensors must be fulfilled (non-null)
+                return Object.values(sensorValuesMap).every(
+                    (value) => value !== null,
+                );
+            } else {
+                // Conjunction over child predicates
+                return predicate.items.every((child) =>
+                    evaluateExitPredicate(child, sensorValuesMap),
+                );
+            }
+        }
+        case "RacePredicate": {
+            if (predicate.items === "*") {
+                // Wildcard: at least one sensor is fulfilled
+                return Object.values(sensorValuesMap).some(
+                    (value) => value !== null,
+                );
+            } else {
+                // Disjunction over child predicates
+                return predicate.items.some((child) =>
+                    evaluateExitPredicate(child, sensorValuesMap),
+                );
+            }
+        }
+        default: {
+            const _exhaustive: never = predicate;
+            throw new Error(`Unsupported predicate: ${JSON.stringify(_exhaustive)}`)
+        }
+
     }
 }

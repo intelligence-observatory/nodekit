@@ -25,7 +25,8 @@ export interface FreeTextEntryAction extends BaseAction<"FreeTextEntryAction"> {
     text: string
 }
 export interface WaitAction extends BaseAction<"WaitAction">{}
-export interface ConfirmAction extends BaseAction<"ConfirmAction">{}
+
 // Union
-export type SensorValue = ClickAction | TimeoutAction | KeyAction | SliderAction | FreeTextEntryAction | WaitAction | ConfirmAction;
-export type Action = Record<SensorId, SensorValue>
+export type SensorValue = ClickAction | TimeoutAction | KeyAction | SliderAction | FreeTextEntryAction | WaitAction ;
+export type Maybe<T> = T | null;
+export type SensorValuesMap = Record<SensorId, Maybe<SensorValue>>
