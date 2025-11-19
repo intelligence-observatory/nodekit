@@ -18,7 +18,14 @@ use resized_rect::ResizedRect;
 /// Convert a hex string e.g. `"#FF0000FF"` to bytes.
 pub fn parse_color(color: &str) -> Result<[u8; STRIDE], Error> {
     let color = HexColor::parse_rgba(color).map_err(|e| Error::HexColor(color.to_string(), e))?;
-    Ok(color.to_be_bytes())
+    if color.a == 255 {
+        Ok([color.r, color.g, color.b])
+    } else {
+        // Overlay onto white.
+        let mut dst = [255, 255, 255];
+        overlay_pixel(&color.to_be_bytes(), &mut dst);
+        Ok(dst)
+    }
 }
 
 /// A raw RGB32 bitmap and its pixel size.

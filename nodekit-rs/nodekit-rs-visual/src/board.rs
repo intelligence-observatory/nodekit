@@ -12,7 +12,7 @@ pub const BOARD_SIZE: Size = Size {
     w: BOARD_D,
     h: BOARD_D,
 };
-pub const STRIDE: usize = stride::RGBA;
+pub const STRIDE: usize = stride::RGB;
 
 /// Convert a value between -0.5 and 0.5 into a pixel coordinate.
 pub const fn spatial_coordinate(c: f64) -> isize {
