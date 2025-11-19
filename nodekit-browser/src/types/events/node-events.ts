@@ -1,8 +1,8 @@
-import type {NodeId, SensorId, TimeElapsedMsec} from "../common.ts";
-import type {SensorValue} from "../actions";
+import type {NodeId, TimeElapsedMsec} from "../common.ts";
+import type {SensorValuesMap} from "../actions";
 
 export interface NodeOutcome {
     t: TimeElapsedMsec // Start time of the Node, relative to Trace start
     node_id: NodeId
-    sensor_values: Record<SensorId, SensorValue> // Final, rolled up sensor values
+    sensor_values: SensorValuesMap // Final, rolled up sensor values
 }

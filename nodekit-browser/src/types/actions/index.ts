@@ -2,8 +2,8 @@ import type {PressableKey, SensorId, SpatialPoint, TimeElapsedMsec} from "../com
 import type {SliderBinIndex} from "../../board-view/sensor-bindings/slider";
 
 export interface BaseAction<T extends string> {
-    t: TimeElapsedMsec, // When the Action was detected by the Sensor
     action_type: T
+    t: TimeElapsedMsec, // When the Action was detected by the Sensor
 }
 
 export interface ClickAction extends BaseAction<"ClickAction"> {
@@ -17,7 +17,6 @@ export interface KeyAction extends BaseAction<"KeyAction"> {
 
 export interface TimeoutAction extends BaseAction<"TimeoutAction"> {}
 
-// SubmitAction
 export interface SliderAction extends BaseAction<"SliderAction"> {
     bin_index: SliderBinIndex
 }

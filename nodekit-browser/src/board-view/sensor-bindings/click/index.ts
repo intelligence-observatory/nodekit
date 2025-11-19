@@ -27,6 +27,7 @@ export class ClickSensorBinding extends SensorBinding<ClickSensor> {
             );
             if (inside) {
                 const action: ClickAction = {
+                    t: pointerSample.t,
                     action_type: "ClickAction",
                     x: pointerSample.x,
                     y: pointerSample.y,

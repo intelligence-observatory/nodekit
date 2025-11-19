@@ -1,4 +1,4 @@
-import type {SensorValue} from "../actions";
+import type {SensorValuesMap} from "../actions";
 import type {RegisterId, SensorId} from "../common.ts";
 
 export type BaseValue = string | number | boolean;
@@ -287,7 +287,7 @@ export function evl(
     expression: Expression,
     graph_registers: Record<RegisterId, Value>,
     local_variables: VariableFile,
-    last_sensor_values: Record<SensorId, SensorValue>
+    last_sensor_values: SensorValuesMap
 ): Value {
     switch (expression.op) {
         // =====================

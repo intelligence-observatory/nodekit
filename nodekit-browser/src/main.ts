@@ -190,8 +190,8 @@ export async function play(
     // Assemble trace:
     const trace: Trace = {
         nodekit_version: NODEKIT_VERSION,
-        events: eventArray.events,
         node_outcomes: nodeResults,
+        events: eventArray.events,
     }
 
     // End screen:

@@ -169,11 +169,25 @@
                         "orientation": "horizontal",
                         "show_bin_markers": true,
                     },
+                    "slider-test2": {
+                        "sensor_type": "SliderSensor",
+                        "region":{
+                            "x": 0.0,
+                            "y": -0.3,
+                            "w": 1,
+                            "h": 0.05,
+                            "mask": 'rectangle',
+                        },
+                        "num_bins": 100,
+                        "initial_bin_index": 25,
+                        "orientation": "horizontal",
+                        "show_bin_markers": false,
+                    },
                 },
                 "effects": [],
                 "board_color": "gray",
                 "exit": {
-                    'predicate_type': 'AllPredicate',
+                    'predicate_type': 'RacePredicate',
                     'items': '*'
                 }
             },

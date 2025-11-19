@@ -5,17 +5,12 @@ import type {SliderBinIndex} from "../../board-view/sensor-bindings/slider";
 
 interface BaseSensor<T extends string> {
     sensor_type: T
-    timeout_msec: NodeTimePointMsec | null;
 }
 
 export interface WaitSensor extends BaseSensor<"WaitSensor">{
     timeout_msec: NodeTimePointMsec // Must be specified
 }
 
-// todo
-export interface ConfirmSensor extends BaseSensor<'ConfirmSensor'>{
-    region: Region;
-}
 
 /**
  * Select 1 of N Cards; todo
@@ -27,7 +22,7 @@ export interface SelectSensor extends BaseSensor<'SelectSensor'>{
 /**
  * Select k>1 of N>1 Cards; todo
  */
-export interface ManySelectSensor extends BaseSensor<'MultiSelectSensor'>{
+export interface MultiSelectSensor extends BaseSensor<'MultiSelectSensor'>{
     choices: Set<CardId>
     min_choices: number;
     max_choices: number | null;
@@ -57,4 +52,4 @@ export interface SliderSensor extends BaseSensor<'SliderSensor'>{
     region: Region
 }
 
-export type Sensor = ClickSensor | KeySensor  | SliderSensor | FreeTextEntrySensor | WaitSensor | ConfirmSensor; // | SelectSensor
+export type Sensor = ClickSensor | KeySensor  | SliderSensor | FreeTextEntrySensor | WaitSensor; // | SelectSensor
