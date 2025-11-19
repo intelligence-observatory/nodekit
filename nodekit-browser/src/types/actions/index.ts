@@ -6,6 +6,11 @@ export interface BaseSensorValue<T extends string> {
     t: TimeElapsedMsec, // When the Sensor was set to this SensorValue
 }
 
+export interface UnresolvedSensorValue{
+    // Value of an unresolved Sensor
+    sensor_value_type: 'UnresolvedSensorValue'
+}
+
 export interface ClickSensorValue extends BaseSensorValue<"ClickSensorValue"> {
     x: SpatialPoint;
     y: SpatialPoint;
@@ -24,6 +29,7 @@ export interface FreeTextEntrySensorValue extends BaseSensorValue<"FreeTextEntry
 
 export interface WaitSensorValue extends BaseSensorValue<"WaitSensorValue">{}
 
+
 // Union
 export type SensorValue =
     | ClickSensorValue
@@ -32,5 +38,5 @@ export type SensorValue =
     | FreeTextEntrySensorValue
     | WaitSensorValue;
 
-export type Maybe<T> = T | null;
+export type Maybe<T> = T | UnresolvedSensorValue;
 export type SensorValuesMap = Record<SensorId, Maybe<SensorValue>>

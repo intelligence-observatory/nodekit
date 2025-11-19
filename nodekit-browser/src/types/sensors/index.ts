@@ -14,6 +14,7 @@ export interface WaitSensor extends BaseSensor<"WaitSensor">{
 
 /**
  * Select 1 of N Cards; todo
+ * Subtle, optional hover and selection effect.
  */
 export interface SelectSensor extends BaseSensor<'SelectSensor'>{
     choices: Set<CardId>
@@ -26,6 +27,9 @@ export interface MultiSelectSensor extends BaseSensor<'MultiSelectSensor'>{
     choices: Set<CardId>
     min_choices: number;
     max_choices: number | null;
+
+    reset_button?: CardId
+    submit_button?: CardId
 }
 
 export interface ClickSensor extends BaseSensor<'ClickSensor'>{ // Click somewhere within a Region
@@ -42,6 +46,9 @@ export interface FreeTextEntrySensor extends BaseSensor<'FreeTextEntrySensor'>{
     min_length: number;
     max_length: number | null;
     region: Region
+
+    // todo reset_button?: CardId
+    // todo submit_button?: CardId
 }
 
 export interface SliderSensor extends BaseSensor<'SliderSensor'>{
@@ -50,6 +57,9 @@ export interface SliderSensor extends BaseSensor<'SliderSensor'>{
     initial_bin_index: SliderBinIndex;
     orientation: 'horizontal' | 'vertical';
     region: Region
+
+    // todo reset_button?: CardId
+    // todo submit_button?: CardId
 }
 
 export type Sensor = ClickSensor | KeySensor  | SliderSensor | FreeTextEntrySensor | WaitSensor; // | SelectSensor

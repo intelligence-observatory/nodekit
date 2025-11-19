@@ -1,5 +1,5 @@
 import type {Node, NodePredicate} from "../types/node.ts";
-import type {SensorValuesMap, SensorValue} from "../types/actions/";
+import type {SensorValuesMap, SensorValue, UnresolvedSensorValue} from "../types/actions/";
 import {BoardView} from "../board-view/board-view.ts";
 import {EventScheduler} from "./event-scheduler.ts";
 import {type EffectBinding, HideCursorEffectBinding} from "../board-view/effect-bindings";
@@ -53,7 +53,7 @@ export class NodePlay {
 
     // Resolvers
     private deferredAction: Deferred<SensorValuesMap> = new Deferred<SensorValuesMap>()
-    private currentSensorValues: Record<SensorId, SensorValue | null>
+    private currentSensorValues: SensorValuesMap
 
     // Assets
     private assetManager: AssetManager;
@@ -122,7 +122,10 @@ export class NodePlay {
                     },
                 }
             )
-            this.currentSensorValues[sensorId] = null;
+            const valueInit: UnresolvedSensorValue = {
+                sensor_value_type:'UnresolvedSensorValue',
+            }
+            this.currentSensorValues[sensorId] = valueInit;
         }
 
         // Prepare and schedule Effects:
