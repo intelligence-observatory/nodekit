@@ -130,9 +130,65 @@
                 "effects": [],
                 "board_color": "gray"
             },
+            "my-node2": {
+                "timeout_msec": 400,
+                "cards": {
+                    "hello-text": {
+                        "card_type": "TextCard",
+                        "region":{
+                            "x": -0.4,
+                            "y": -0.4,
+                            "w": 0.2,
+                            "h": 0.1,
+                            "mask": 'rectangle',
+                        },
+                        "text": "I am a TextCard.",
+                        "font_size": 0.03,
+                        "justification_horizontal": "center",
+                        "justification_vertical": "center",
+                        "text_color": "#000000ff",
+                        "background_color": "#e6e6e6ff"
+                    },
+                },
+                "sensors": {
+                    "slider-test": {
+                        "sensor_type": "SliderSensor",
+                        "region":{
+                            "x": 0.0,
+                            "y": -0.25,
+                            "w": 1,
+                            "h": 0.05,
+                            "mask": 'rectangle',
+                        },
+                        "num_bins": 7,
+                        "initial_bin_index": 5,
+                        "orientation": "horizontal",
+                        "show_bin_markers": true,
+                    },
+                },
+                "effects": [],
+                "board_color": "gray"
+            },
         },
-        "transitions": {},
-        "nodekit_version": "0.1.0"
+        "transitions": {
+            'my-node': [
+                {
+                    'when': {
+                        'op': 'lit',
+                        'value': true,
+                    },
+                    'to': 'my-node2',
+                    'register_updates': {
+                        'hello': {
+                            'op': 'lit',
+                            'value': 'world',
+                        }
+                    },
+                }
+            ]
+        },
+        "nodekit_version": "0.1.0",
+        'registers': {},
     }
 
     import {play} from '/src/main.ts';

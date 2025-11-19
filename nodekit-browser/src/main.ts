@@ -3,7 +3,7 @@ import {Clock} from "./clock.ts";
 import type {Graph, Trace} from "./types/node.ts";
 import {getBrowserContext} from "./user-gates/browser-context.ts";
 import {checkDeviceIsValid} from "./user-gates/device-gate.ts";
-import type {NodeId, TimeElapsedMsec} from "./types/common.ts";
+import type {NodeId, RegisterId, TimeElapsedMsec} from "./types/common.ts";
 import {createNodeKitRootDiv} from "./ui/ui-builder.ts";
 import {AssetManager} from "./asset-manager";
 import {ShellUI} from "./ui/shell-ui/shell-ui.ts";
@@ -13,6 +13,7 @@ import {version as NODEKIT_VERSION} from '../package.json'
 import {gt, major} from 'semver';
 import {EventArray} from "./event-array.ts";
 import type {NodeOutcome} from "./types/events/node-events.ts";
+import {evl} from "./types/expressions/expressions.ts";
 
 /**
  * Plays a Graph, returning a Trace of Events.
@@ -144,15 +145,37 @@ export async function play(
             boardViewsContainerDiv.removeChild(boardViewsContainerDiv.firstChild);
         }
 
-        // Todo: update Graph registers
-
-        // Todo: evaluate the outgoing Transitions for this Node to identify the next Node
-        // Get the next Node; if no transition specified, fall through to 'END':
+        // Get the next Node; if no Transitions for this Node are given, fall through to 'END':
         if (!(currentNodeId in graph.transitions)) {
+            console.log('No transitions found')
             break
         }
 
-        break
+        let nextNodeId = null;
+        let transitions = graph.transitions[currentNodeId];
+        for (const transition of transitions){
+            const value = evl(transition.when, graph.registers, {}, result.outcome)
+            console.log('transition value', value)
+            if (value === true){
+                // Valid transition found:
+                nextNodeId = transition.to;
+
+                // Update graph registers:
+                for (const [registerId, updateExpression] of Object.entries(transition.register_updates)){
+                    const updateValue = evl(updateExpression, graph.registers, {}, result.outcome);
+                    console.log(registerId, updateValue)
+                    graph.registers[registerId as RegisterId] = updateValue
+                    console.log('registers', graph.registers)
+                }
+            }
+        }
+
+        if (nextNodeId === null){
+            break
+        }
+
+        currentNodeId = nextNodeId;
+
     }
 
     // Generate the EndEvent:
