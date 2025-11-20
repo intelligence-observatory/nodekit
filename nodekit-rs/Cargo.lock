@@ -933,6 +933,7 @@ name = "nodekit-rs-image"
 version = "0.1.0"
 dependencies = [
  "bytemuck",
+ "criterion",
  "nodekit-rs-models",
  "nodekit-rs-visual",
  "png",

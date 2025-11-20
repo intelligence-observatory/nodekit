@@ -9,3 +9,10 @@ nodekit-rs-models = { path = "../nodekit-rs-models" }
 nodekit-rs-visual = { path = "../nodekit-rs-visual" }
 png.workspace = true
 thiserror.workspace = true
+
+[dev-dependencies]
+criterion.workspace = true
+
+[[bench]]
+name = "bench"
+harness = false

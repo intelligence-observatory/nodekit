@@ -144,7 +144,7 @@ mod tests {
                 position: Position { x: -0.5, y: -0.5 },
             },
         )
-        .unwrap();
+            .unwrap();
         assert_eq!(image.rect.size.w, 384);
         assert_eq!(image.rect.size.h, 768);
         assert_eq!(

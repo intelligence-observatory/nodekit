@@ -1,4 +1,3 @@
-use blittle::Size;
 use criterion::{Criterion, criterion_group, criterion_main};
 use nodekit_rs_models::{JustificationHorizontal, JustificationVertical, Position, Rect};
 use nodekit_rs_text::*;
