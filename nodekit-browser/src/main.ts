@@ -1,7 +1,7 @@
-import type {BrowserContextSampledEvent, Event, PageResumedEvent, PageSuspendedEvent, TraceEndedEvent, TraceStartedEvent} from "./types/events";
+import type {Event, PageResumedEvent, PageSuspendedEvent, TraceEndedEvent, TraceStartedEvent} from "./types/events";
 import {Clock} from "./clock.ts";
 import type {Graph, Trace} from "./types/node.ts";
-import {getBrowserContext} from "./user-gates/browser-context.ts";
+import {sampleBrowserContext} from "./user-gates/browser-context.ts";
 import {checkDeviceIsValid} from "./user-gates/device-gate.ts";
 import type {NodeId, RegisterId, TimeElapsedMsec} from "./types/common.ts";
 import {createNodeKitRootDiv} from "./ui/ui-builder.ts";
@@ -96,17 +96,7 @@ export async function play(
     document.addEventListener("visibilitychange", onVisibilityChange)
 
     // Emit the BrowserContextEvent:
-    const browserContext = getBrowserContext();
-    const browserContextEvent: BrowserContextSampledEvent = {
-        event_type: "BrowserContextSampledEvent",
-        t: clock.now(),
-        user_agent: browserContext.userAgent,
-        viewport_width_px: browserContext.viewportWidthPx,
-        viewport_height_px: browserContext.viewportHeightPx,
-        display_width_px: browserContext.displayWidthPx,
-        display_height_px: browserContext.displayHeightPx,
-        device_pixel_ratio: browserContext.devicePixelRatio,
-    }
+    const browserContextEvent = sampleBrowserContext(clock);
     eventArray.push(browserContextEvent);
 
     const nodes = graph.nodes;

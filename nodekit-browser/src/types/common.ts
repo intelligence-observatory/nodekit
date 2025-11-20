@@ -1,6 +1,9 @@
 export type SpatialSize = number & { __brand: 'SpatialSize' };
 export type SpatialPoint = number & { __brand: 'SpatialPoint' };
 
+export type PixelSize = number & {__brand: 'PixelSize'};
+export type PixelPoint = number & {__brand: 'PixelPoint'};
+
 export type NodeTimePointMsec = number & { __brand: 'NodeTimePointMsec' };
 export type TimeElapsedMsec = number & { __brand: 'TimeElapsedMsec' };
 

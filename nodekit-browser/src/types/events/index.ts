@@ -1,4 +1,5 @@
 import type {CardId, NodeId, PressableKey, SensorId, SpatialPoint, TimeElapsedMsec} from "../common.ts";
+import type {BrowserContextSampledEvent} from "./browser-context.ts";
 
 export interface BaseEvent<T extends string> {
     event_type: T,
@@ -8,14 +9,7 @@ export interface BaseEvent<T extends string> {
 // System events:
 export interface PageSuspendedEvent extends BaseEvent<'PageSuspendedEvent'>{}
 export interface PageResumedEvent extends BaseEvent<'PageResumedEvent'>{}
-export interface BrowserContextSampledEvent extends BaseEvent<'BrowserContextSampledEvent'>{
-    user_agent: string,
-    viewport_width_px: number,
-    viewport_height_px: number,
-    display_width_px: number,
-    display_height_px: number,
-    device_pixel_ratio: number,
-}
+
 
 export interface TraceStartedEvent extends BaseEvent<'TraceStartedEvent'>{}
 export interface TraceEndedEvent extends BaseEvent<'TraceEndedEvent'>{}
