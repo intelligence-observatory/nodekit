@@ -22,6 +22,7 @@ export class SelectSensorBinding extends SensorBinding<SelectSensor> {
         const pointerCallback = (pointerSample: PointerSample) => {
             // Track which card should end up selected after this event
             let nextSelection: CardId | null = null;
+            let selectionMade= false;
 
             for (const cardId of cardIds) {
                 const cardView = cardViewMap[cardId as CardId];
@@ -33,8 +34,6 @@ export class SelectSensorBinding extends SensorBinding<SelectSensor> {
                 );
 
                 if (!inside) {
-                    // Not under the pointer: no hover, and selection state will be
-                    // handled after the loop.
                     cardView.setHoverState(false);
                     continue;
                 }
@@ -47,6 +46,8 @@ export class SelectSensorBinding extends SensorBinding<SelectSensor> {
                     nextSelection = cardId;
 
                     currentSelection = cardId;
+                    selectionMade = true;
+
 
                     // Emit selection
                     const sensorValue: SelectSensorValue = {
@@ -62,7 +63,7 @@ export class SelectSensorBinding extends SensorBinding<SelectSensor> {
             }
 
             // Deselect all others (and optionally clear selection if click on empty space)
-            if (pointerSample.sampleType === 'down') {
+            if (selectionMade) {
                 for (const cardId of cardIds) {
                     if (cardId === nextSelection) continue;
                     const cardView = cardViewMap[cardId as CardId];
