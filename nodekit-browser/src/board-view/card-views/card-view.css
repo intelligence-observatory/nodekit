@@ -1,5 +1,6 @@
 .card--selected {
-    border: 2px solid rgba(50, 50, 50, 0.9);
+    outline: 2px solid rgba(50, 50, 50, 0.9);
+    outline-offset: -2px; /* or tweak to taste */
 }
 
 .card--hovered::after{

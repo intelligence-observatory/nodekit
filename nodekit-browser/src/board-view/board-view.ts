@@ -194,9 +194,6 @@ export abstract class RegionView {
             this.root.style.zIndex = region.z_index.toString()
         }
     }
-
-
-
 }
 
 export function checkPointInRegion(
