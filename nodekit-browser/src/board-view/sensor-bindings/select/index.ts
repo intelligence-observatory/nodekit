@@ -52,7 +52,7 @@ export class SelectSensorBinding extends SensorBinding<SelectSensor> {
 
                     // Emit selection
                     const sensorValue: SelectAction = {
-                        sensor_value_type: 'SelectAction',
+                        action_type: 'SelectAction',
                         t: boardView.clock.now(),
                         selection: cardId,
                     };

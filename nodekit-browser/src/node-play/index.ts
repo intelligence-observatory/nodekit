@@ -130,7 +130,7 @@ export class NodePlay {
                 }
             )
             const valueInit: UnresolvedSensorValue = {
-                sensor_value_type:'UnresolvedSensorValue',
+                action_type:'UnresolvedSensorValue',
             }
             this.currentSensorValues[sensorId] = valueInit;
         }
@@ -237,7 +237,7 @@ function evaluateExitPredicate(
             if (predicate.items === "*") {
                 // Wildcard: all sensors must be fulfilled (non-null)
                 return Object.values(sensorValuesMap).every(
-                    (value) => value.sensor_value_type !== 'UnresolvedSensorValue',
+                    (value) => value.action_type !== 'UnresolvedSensorValue',
                 );
             } else {
                 // Conjunction over child predicates
@@ -250,7 +250,7 @@ function evaluateExitPredicate(
             if (predicate.items === "*") {
                 // Wildcard: at least one sensor is fulfilled
                 return Object.values(sensorValuesMap).some(
-                    (value) => value.sensor_value_type !== 'UnresolvedSensorValue',
+                    (value) => value.action_type !== 'UnresolvedSensorValue',
                 );
             } else {
                 // Disjunction over child predicates

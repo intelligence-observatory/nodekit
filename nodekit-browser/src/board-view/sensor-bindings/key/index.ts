@@ -22,7 +22,7 @@ export class KeySensorBinding extends SensorBinding<KeySensor> {
             }
             const action: KeyAction = {
                 t: keySample.t,
-                sensor_value_type: "KeyAction",
+                action_type: "KeyAction",
                 key: keySample.key,
             };
 

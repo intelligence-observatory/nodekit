@@ -35,7 +35,7 @@ export class SliderSensorBinding extends SensorBinding<SliderSensor> {
         const sliderChangedCallback = (sliderSample: SliderSample): void => {
             const sliderValue: SliderAction = {
                 t: boardView.clock.now(),
-                sensor_value_type: 'SliderAction',
+                action_type: 'SliderAction',
                 bin_index: sliderSample.binIndex
             }
             this.emit(sliderValue)

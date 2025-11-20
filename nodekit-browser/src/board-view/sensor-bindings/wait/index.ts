@@ -17,7 +17,7 @@ export class WaitSensorBinding extends SensorBinding<WaitSensor>{
         setTimeout(
             () => {
                 const waitAction: WaitAction = {
-                    sensor_value_type: "WaitAction",
+                    action_type: "WaitAction",
                     t: this.clock.now()
                 }
                 this.emit(waitAction)

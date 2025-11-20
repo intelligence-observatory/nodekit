@@ -20,7 +20,7 @@ export class FreeTextEntrySensorBinding extends SensorBinding<FreeTextEntrySenso
         // Subscribe
         const freeTextEnteredCallback = (sample: string): void => {
             const sensorValue: FreeTextEntryAction = {
-                sensor_value_type: 'FreeTextEntryAction',
+                action_type: 'FreeTextEntryAction',
                 text: sample,
                 t: boardView.clock.now(),
             }

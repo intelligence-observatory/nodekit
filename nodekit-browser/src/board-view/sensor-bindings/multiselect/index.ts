@@ -40,7 +40,7 @@ export class MultiSelectSensorBinding extends SensorBinding<MultiSelectSensor> {
 
         const emitMultiSelectValue = () => {
             const sensorValue: MultiSelectAction = {
-                sensor_value_type: "MultiSelectAction",
+                action_type: "MultiSelectAction",
                 t: boardView.clock.now(),
                 selections: Array.from(currentSelections),
             };
