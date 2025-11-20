@@ -12,12 +12,13 @@ import {renderTextContent, type TextContentParameters} from "../../../utils.ts";
 
 
 export class TextCardView extends CardView<TextCard> {
-    textContainer: HTMLDivElement | undefined;
+    textContainer!: HTMLDivElement;
 
     async prepare(
     ) {
         this.textContainer = document.createElement('div');
         this.textContainer.classList.add('text-card');
+        this.root.style.borderRadius='8px'
         this.root.appendChild(this.textContainer);
 
         // Set styles based on card parameters:

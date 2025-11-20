@@ -1,9 +1,10 @@
 import type {SelectSensor} from "../../../types/sensors";
-import type {BoardView} from "../../board-view.ts";
+import {type BoardView, checkPointInRegion} from "../../board-view.ts";
 import {SensorBinding} from "../index.ts";
 import type {SelectSensorValue} from "../../../types/actions";
 import type {CardViewMap} from "../../../node-play";
 import type {CardId} from "../../../types/common.ts";
+import type {PointerSample} from "../../../input-streams/pointer-stream.ts";
 
 /**
  *
@@ -16,23 +17,62 @@ export class SelectSensorBinding extends SensorBinding<SelectSensor> {
 
         const cardIds = this.sensor.choices;
 
-        for (const cardId of cardIds){
-            let cardView= cardViewMap[cardId as CardId]
-            cardView.setSelectability(true);
-            cardView.setHoverability(true);
+        let currentSelection: CardId | null = null;
 
-            cardView.subscribeSelections(
-                (selected:boolean) =>{
-                    if (!selected) return
+        const pointerCallback = (pointerSample: PointerSample) => {
+            // Track which card should end up selected after this event
+            let nextSelection: CardId | null = null;
+
+            for (const cardId of cardIds) {
+                const cardView = cardViewMap[cardId as CardId];
+
+                const inside = checkPointInRegion(
+                    pointerSample.x,
+                    pointerSample.y,
+                    cardView.card.region,
+                );
+
+                if (!inside) {
+                    // Not under the pointer: no hover, and selection state will be
+                    // handled after the loop.
+                    cardView.setHoverState(false);
+                    continue;
+                }
+
+                // Pointer is inside this card
+                if (pointerSample.sampleType === 'down') {
+                    // Select this card
+                    cardView.setSelectedState(true);
+                    cardView.setHoverState(false);
+                    nextSelection = cardId;
+
+                    currentSelection = cardId;
+
+                    // Emit selection
                     const sensorValue: SelectSensorValue = {
                         sensor_value_type: 'SelectSensorValue',
+                        t: boardView.clock.now(),
                         selection: cardId,
-                        t: boardView.clock.now()
-                    }
-                    this.emit(sensorValue)
+                    };
+                    this.emit(sensorValue);
+                } else {
+                    // e.g. 'move' over the card
+                    cardView.setHoverState(true);
                 }
-            )
-        }
+            }
+
+            // Deselect all others (and optionally clear selection if click on empty space)
+            if (pointerSample.sampleType === 'down') {
+                for (const cardId of cardIds) {
+                    if (cardId === nextSelection) continue;
+                    const cardView = cardViewMap[cardId as CardId];
+                    cardView.setSelectedState(false);
+                }
+            }
+        };
+
+        boardView.pointerStream.subscribe(pointerCallback);
+
 
     }
 }

@@ -34,6 +34,29 @@
                     //    "muted": true,
                     //    "loop": false
                     //},
+                    "hello-image": {
+                        "card_type": "ImageCard",
+                        "region":{
+                            "x": 0,
+                            "y": 0,
+                            "w": 0.4,
+                            "h": 0.2,
+                            "mask": 'rectangle',
+                        },
+                        "image": {
+                            "sha256": 'yo',
+                            "media_type": "image/png",
+                            "locator": {
+                                "locator_type":'RelativePath',
+                                "relative_path":"./assets/image/png/f66018c63e5de97a4a022f8d0da2083d44a842abcc27195b6cca13980a77dc7b.png"
+                            }
+                        },
+                        "font_size": 0.03,
+                        "justification_horizontal": "center",
+                        "justification_vertical": "center",
+                        "text_color": "#000000ff",
+                        "background_color": "#e6e6e6ff"
+                    },
                     "hello-text": {
                         "card_type": "TextCard",
                         "region":{
@@ -53,7 +76,7 @@
                     "text2": {
                         "card_type": "TextCard",
                         "region":{
-                            "x": 0.4,
+                            "x": 0.35,
                             "y": -0.4,
                             "w": 0.2,
                             "h": 0.1,
@@ -74,7 +97,7 @@
                     },
                     "clicky": {
                         "sensor_type": "SelectSensor",
-                        "choices":["hello-text", 'text2'],
+                        "choices":["hello-text", 'text2', 'hello-image'],
                     },
                     "slider-test": {
                         "sensor_type": "SliderSensor",
