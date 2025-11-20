@@ -10,3 +10,6 @@ fast_image_resize.workspace = true
 hex_color.workspace = true
 nodekit-rs-models = { path = "../nodekit-rs-models" }
 thiserror.workspace = true
+
+[dev-dependencies]
+png.workspace = true

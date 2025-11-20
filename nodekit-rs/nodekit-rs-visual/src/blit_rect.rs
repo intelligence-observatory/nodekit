@@ -36,3 +36,28 @@ pub const fn to_blittle_size(size: &nodekit_rs_models::Size) -> Size {
         h: size_coordinate(size.h),
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::{BOARD_D, to_blittle_size};
+
+    #[test]
+    fn test_blittle_size() {
+        let mut a = nodekit_rs_models::Size { w: 0., h: 0. };
+        let mut b = to_blittle_size(&a);
+        assert_eq!(b.w, 0);
+        assert_eq!(b.h, 0);
+
+        a.w = 1.;
+        a.h = 1.;
+        b = to_blittle_size(&a);
+        assert_eq!(b.w, BOARD_D);
+        assert_eq!(b.h, BOARD_D);
+
+        a.w = 0.5;
+        a.h = 0.5;
+        b = to_blittle_size(&a);
+        assert_eq!(b.w, BOARD_D / 2);
+        assert_eq!(b.h, BOARD_D / 2);
+    }
+}

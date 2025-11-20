@@ -84,3 +84,96 @@ impl VisualBuffer {
         Ok(Self { buffer, rect })
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use blittle::PositionU;
+    use bytemuck::cast_slice;
+    use nodekit_rs_models::{Position, Size};
+    use png::ColorType;
+    use std::fs::File;
+    use std::io::BufWriter;
+
+    #[test]
+    fn test_visual_buffer() {
+        let buffer = include_bytes!("../test_image.raw").to_vec();
+        encode(
+            "test.png",
+            &VisualBuffer {
+                buffer,
+                rect: BlitRect {
+                    position: PositionU::default(),
+                    size: blittle::Size { w: 300, h: 600 },
+                },
+            },
+            ColorType::Rgba,
+        );
+    }
+
+    #[test]
+    fn test_visual_buffer_blit() {
+        let mut board = board([255, 0, 255]);
+
+        let visual = VisualBuffer {
+            buffer: get_rgb_buffer(),
+            rect: BlitRect {
+                position: PositionU::default(),
+                size: blittle::Size { w: 300, h: 600 },
+            },
+        };
+        visual.blit(&mut board);
+        encode(
+            "blitted.png",
+            &VisualBuffer {
+                buffer: board,
+                rect: BlitRect {
+                    position: PositionU::default(),
+                    size: blittle::Size {
+                        w: BOARD_D,
+                        h: BOARD_D,
+                    },
+                },
+            },
+            ColorType::Rgb,
+        );
+    }
+
+    #[test]
+    fn test_image_resize() {
+        let resized = VisualBuffer::new_resized(
+            get_rgb_buffer(),
+            300,
+            600,
+            Rect {
+                position: Position { x: -0.5, y: -0.5 },
+                size: Size { w: 1., h: 1. },
+            },
+        )
+        .unwrap();
+        assert_eq!(resized.rect.position.x, 192);
+        assert_eq!(resized.rect.position.y, 0);
+        assert_eq!(resized.rect.size.w, 384);
+        assert_eq!(resized.rect.size.h, 768);
+        encode("resized.png", &resized, ColorType::Rgb);
+    }
+
+    fn encode(filename: &str, visual: &VisualBuffer, color_type: ColorType) {
+        let file = File::create(filename).unwrap();
+        let ref mut w = BufWriter::new(file);
+        let mut encoder =
+            png::Encoder::new(w, visual.rect.size.w as u32, visual.rect.size.h as u32); // Width is 2 pixels and height is 1.
+        encoder.set_color(color_type);
+        encoder.set_depth(png::BitDepth::Eight);
+        let mut writer = encoder.write_header().unwrap();
+        writer.write_image_data(&visual.buffer).unwrap();
+    }
+
+    fn get_rgb_buffer() -> Vec<u8> {
+        cast_slice::<u8, [u8; 4]>(include_bytes!("../test_image.raw"))
+            .into_iter()
+            .map(|pixel| [pixel[0], pixel[1], pixel[2]])
+            .flatten()
+            .collect::<Vec<u8>>()
+    }
+}
