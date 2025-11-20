@@ -2,7 +2,7 @@ mod error;
 mod md;
 mod surface;
 
-use blittle::{PositionI, Size, clip};
+use blittle::{PositionI, Size, blit, clip};
 use bytemuck::cast_slice_mut;
 use cosmic_text::fontdb::Source;
 use cosmic_text::{Align, Attrs, Buffer, Color, Family, FontSystem, Metrics, Shaping, SwashCache};
@@ -10,7 +10,7 @@ pub use error::Error;
 use md::{FontSize, parse};
 use nodekit_rs_models::{JustificationHorizontal, JustificationVertical, Rect};
 use nodekit_rs_visual::{
-    BOARD_D_F64, BlitRect, STRIDE, VisualBuffer, bitmap, overlay, overlay_pixel, parse_color,
+    BOARD_D_F64, BlitRect, STRIDE, VisualBuffer, bitmap, overlay_pixel, parse_color,
     to_blittle_size,
 };
 use pyo3::pyclass;
@@ -34,18 +34,15 @@ impl TextEngine {
         let mut buffer = Buffer::new(&mut self.font_system, Metrics::from(&font_size));
         let font_usize = font_size.font_size as usize;
         let line_height_isize = font_size.line_height as isize;
-        let mut src_size = to_blittle_size(&rect.size);
-        // Padding.
-        src_size.w -= font_usize * 2;
-        src_size.h -= font_usize * 2;
+        let src_size = to_blittle_size(&rect.size);
         buffer.set_size(
             &mut self.font_system,
-            Some(src_size.w as f32),
-            Some(src_size.h as f32),
+            Some((src_size.w - font_usize * 2) as f32),
+            Some((src_size.h - font_usize * 2) as f32),
         );
 
         let text_color = parse_color(&text.text_color).map_err(Error::Visual)?;
-        let text_color = Color::rgba(text_color[0], text_color[1], text_color[2], text_color[3]);
+        let text_color = Color::rgba(text_color[0], text_color[1], text_color[2], 255);
         let mut attrs = Attrs::new().color(text_color);
         attrs.family = Family::SansSerif;
         let paragraphs = parse(&text.text, &font_size, attrs.clone())?;
@@ -110,15 +107,19 @@ impl TextEngine {
             let mut surface_size = surface.size;
             let mut position = clip(&position, &src_size, &mut surface_size);
             position.x = font_usize;
-            overlay(
+            surface_size.w -= font_usize * 2;
+            // No need to overlay.
+            blit(
                 &surface.surface,
                 &surface_size,
                 &mut final_surface,
                 &position,
                 &src_size,
+                STRIDE,
             );
         }
 
+        // TODO apply alpha to final blit.
         Ok(VisualBuffer {
             buffer: final_surface,
             rect: BlitRect::from(rect),
@@ -207,9 +208,15 @@ mod tests {
         let file = File::create("out.png").unwrap();
         let ref mut w = BufWriter::new(file);
         let mut encoder = png::Encoder::new(w, width as u32, height as u32); // Width is 2 pixels and height is 1.
-        encoder.set_color(png::ColorType::Rgba);
+        encoder.set_color(png::ColorType::Rgb);
         encoder.set_depth(png::BitDepth::Eight);
         let mut writer = encoder.write_header().unwrap();
+        assert_eq!(image.rect.size.w, 768);
+        assert_eq!(image.rect.size.h, 768);
+        assert_eq!(
+            image.buffer.len(),
+            image.rect.size.w * image.rect.size.h * STRIDE
+        );
         writer.write_image_data(&image.buffer).unwrap();
     }
 }
