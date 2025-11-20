@@ -19,11 +19,3 @@
     pointer-events: none;   /* clicks go through */
     z-index: 2;             /* sit on top of children */
 }
-
-.board-region.hovered::after{
-    background: rgba(0, 0, 0, 0.1);
-}
-
-.board-region.selected{
-    outline: 2px solid var(--cognition-standard-color);
-}
