@@ -1,7 +1,7 @@
 import type {MultiSelectSensor} from "../../../types/sensors";
 import {type BoardView} from "../../board-view.ts";
 import {SensorBinding} from "../index.ts";
-import type {MultiSelectSensorValue} from "../../../types/actions";
+import type {MultiSelectAction} from "../../../types/actions";
 import type {CardViewMap} from "../../../node-play";
 import type {CardId} from "../../../types/common.ts";
 import type {PointerSample} from "../../../input-streams/pointer-stream.ts";
@@ -39,8 +39,8 @@ export class MultiSelectSensorBinding extends SensorBinding<MultiSelectSensor> {
         };
 
         const emitMultiSelectValue = () => {
-            const sensorValue: MultiSelectSensorValue = {
-                sensor_value_type: "MultiSelectSensorValue",
+            const sensorValue: MultiSelectAction = {
+                sensor_value_type: "MultiSelectAction",
                 t: boardView.clock.now(),
                 selections: Array.from(currentSelections),
             };

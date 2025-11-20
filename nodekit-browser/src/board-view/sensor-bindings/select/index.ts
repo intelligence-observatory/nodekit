@@ -1,7 +1,7 @@
 import type {SelectSensor} from "../../../types/sensors";
 import {type BoardView} from "../../board-view.ts";
 import {SensorBinding} from "../index.ts";
-import type {SelectSensorValue} from "../../../types/actions";
+import type {SelectAction} from "../../../types/actions";
 import type {CardViewMap} from "../../../node-play";
 import type {CardId} from "../../../types/common.ts";
 import type {PointerSample} from "../../../input-streams/pointer-stream.ts";
@@ -51,8 +51,8 @@ export class SelectSensorBinding extends SensorBinding<SelectSensor> {
 
 
                     // Emit selection
-                    const sensorValue: SelectSensorValue = {
-                        sensor_value_type: 'SelectSensorValue',
+                    const sensorValue: SelectAction = {
+                        sensor_value_type: 'SelectAction',
                         t: boardView.clock.now(),
                         selection: cardId,
                     };

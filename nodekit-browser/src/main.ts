@@ -124,7 +124,7 @@ export async function play(
         nodeResults.push(
             {
                 node_id: currentNodeId,
-                sensor_values: result.outcome,
+                action: result.outcome,
                 t: result.t
             }
         )

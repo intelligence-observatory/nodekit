@@ -1,5 +1,5 @@
 import type {Node, NodePredicate} from "../types/node.ts";
-import type {SensorValuesMap, SensorValue, UnresolvedSensorValue} from "../types/actions/";
+import type {SensorValue, SensorValuesMap, UnresolvedSensorValue} from "../types/actions/";
 import {BoardView} from "../board-view/board-view.ts";
 import {EventScheduler} from "./event-scheduler.ts";
 import {type EffectBinding, HideCursorEffectBinding} from "../board-view/effect-bindings";
