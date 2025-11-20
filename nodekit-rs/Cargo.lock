@@ -1004,6 +1004,7 @@ version = "0.1.0"
 dependencies = [
  "blittle",
  "bytemuck",
+ "criterion",
  "fast_image_resize",
  "hex_color",
  "nodekit-rs-models",
