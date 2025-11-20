@@ -28,6 +28,8 @@ export async function play(
     previousEvents: Event[] = [],
     debugMode: boolean=false,
 ): Promise<Trace> {
+    const clock = new Clock();
+    clock.start()
 
     // If no onEventCallback is provided, use a no-op function:
     if (!onEventCallback) {
@@ -58,7 +60,6 @@ export async function play(
 
     shellUI.showSessionConnectingOverlay()
     const assetManager = new AssetManager();
-    const clock = new Clock();
 
     shellUI.hideSessionConnectingOverlay()
 
@@ -68,7 +69,6 @@ export async function play(
     }
 
 
-    clock.start()
     const startEvent: TraceStartedEvent = {
         event_type: "TraceStartedEvent",
         t: 0 as TimeElapsedMsec,

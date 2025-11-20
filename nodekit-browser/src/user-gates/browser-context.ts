@@ -13,7 +13,6 @@ export function sampleBrowserContext(clock: Clock): BrowserContextSampledEvent {
             width_px: screen.width as PixelSize,
             height_px: screen.height as PixelSize,
         },
-
         viewport: {
             width_px: window.innerWidth as PixelSize,
             height_px: window.innerHeight as PixelSize,
