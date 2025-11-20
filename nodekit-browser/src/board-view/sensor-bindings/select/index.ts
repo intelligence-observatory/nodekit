@@ -55,8 +55,8 @@ export class SelectSensorBinding extends SensorBinding<SelectSensor> {
                         selection: cardId,
                     };
                     this.emit(sensorValue);
-                } else {
-                    // e.g. 'move' over the card
+                }
+                if (currentSelection !== cardId){
                     cardView.setHoverState(true);
                 }
             }
