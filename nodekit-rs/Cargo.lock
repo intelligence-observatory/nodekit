@@ -102,9 +102,9 @@ checksum = "812e12b5285cc515a9c72a5c1d3b6d46a19dac5acfef5265968c166106e31dd3"
 
 [[package]]
 name = "blittle"
-version = "0.2.2"
+version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3ee7561fcc5959527c406cd1d201357e3e0c3618ce50ccc5752b7da750b4c228"
+checksum = "37fe8b69cf7e381d5e9b94bdea7d81e80625ce75964527f3e3ad90f83c0b96de"
 
 [[package]]
 name = "bon"
