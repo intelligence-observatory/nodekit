@@ -1,6 +1,5 @@
 import type {CardId, PressableKey, SensorId, SpatialPoint, TimeElapsedMsec} from "../common.ts";
 import type {SliderBinIndex} from "../../board-view/sensor-bindings/slider";
-import type {MultiSelectSensor} from "../sensors";
 
 export interface BaseSensorValue<T extends string> {
     sensor_value_type: T

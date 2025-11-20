@@ -31,7 +31,7 @@ export class MultiSelectSensorBinding extends SensorBinding<MultiSelectSensor> {
                 cardView.setSelectedState(isSelected);
 
                 if (atMax && !isSelected) {
-                    cardView.setOpacity(0.5);
+                    cardView.setOpacity(0.25);
                 } else {
                     cardView.setOpacity(1);
                 }
@@ -61,7 +61,6 @@ export class MultiSelectSensorBinding extends SensorBinding<MultiSelectSensor> {
                 );
 
                 if (!inside) {
-                    // Not under pointer: no hover
                     cardView.setHoverState(false);
                     continue;
                 }
@@ -77,25 +76,23 @@ export class MultiSelectSensorBinding extends SensorBinding<MultiSelectSensor> {
 
                 if (pointerSample.sampleType === "down") {
                     if (isSelected) {
-                        // Deselect, respecting minSelections
-                        if (currentSelections.size > minSelections) {
-                            currentSelections.delete(cardId);
-                            changed = true;
-                        }
+                        currentSelections.delete(cardId);
+                        changed = true;
                     } else {
-                        // Select, respecting maxSelections
                         if (currentSelections.size < maxSelections) {
                             currentSelections.add(cardId);
                             changed = true;
                         }
-                        // If already at max, click on disabled card does nothing
                     }
                 }
             }
 
             if (changed) {
                 updateCardViews();
-                emitMultiSelectValue();
+                if (currentSelections.size >= minSelections){
+                    emitMultiSelectValue();
+                }
+
             }
         };
 
