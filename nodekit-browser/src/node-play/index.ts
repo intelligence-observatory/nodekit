@@ -205,6 +205,7 @@ export class NodePlay {
         this.boardView.setBoardState(true, true);
         this.boardView.clock.start()
         const tStart = clock.now()
+        console.log('tstart', tStart)
         this.started = true;
 
         // Kick off scheduler:

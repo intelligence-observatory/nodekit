@@ -13,7 +13,6 @@ export interface ImageCard extends BaseCard<'ImageCard'>{
 
 export interface VideoCard extends BaseCard<'VideoCard'>{
     video: Video;
-    muted: boolean;
     loop: boolean;
     start: boolean;
 }

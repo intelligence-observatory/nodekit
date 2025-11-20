@@ -17,23 +17,25 @@
             "my-node": {
                 "timeout_msec": 400,
                 "cards": {
-                    //"video": {
-                    //    "card_type": "VideoCard",
-                    //    "x": 0.0,
-                    //    "y": 0.0,
-                    //    "w": 0.3,
-                    //    "h": 0.3,
-                    //    "video": {
-                    //        "sha256": "3f224a8b6a7917ae1364cf2cc9daf7a5f7073bfe0fb5d9b638d8a6efc1c867f7",
-                    //        "media_type": "video/mp4",
-                    //        "locator": {
-                    //            "locator_type": "RelativePath",
-                    //            "relative_path": "assets/video/mp4/3f224a8b6a7917ae1364cf2cc9daf7a5f7073bfe0fb5d9b638d8a6efc1c867f7.mp4"
-                    //        }
-                    //    },
-                    //    "muted": true,
-                    //    "loop": false
-                    //},
+                    "video": {
+                        "card_type": "VideoCard",
+                        "region":{
+                            "x": 0.25,
+                            "y": 0.,
+                            "w": 0.2,
+                            "h": 0.2,
+                            "mask": 'rectangle',
+                        },
+                        "video": {
+                            "sha256": "3f224a8b6a7917ae1364cf2cc9daf7a5f7073bfe0fb5d9b638d8a6efc1c867f7",
+                            "media_type": "video/mp4",
+                            "locator": {
+                                "locator_type": "RelativePath",
+                                "relative_path": "assets/video/mp4/3f224a8b6a7917ae1364cf2cc9daf7a5f7073bfe0fb5d9b638d8a6efc1c867f7.mp4"
+                            }
+                        },
+                        "loop": false
+                    },
                     "hello-image": {
                         "card_type": "ImageCard",
                         "region":{
@@ -129,35 +131,7 @@
                         "orientation": "horizontal",
                         "show_bin_markers": false,
                     },
-                    "slider-vertical": {
-                        "sensor_type": "SliderSensor",
-                        "region":{
-                            "x": -0.25,
-                            "y": 0,
-                            "w": 0.1,
-                            "h": 0.3,
-                            "mask": 'rectangle',
-                        },
 
-                        "num_bins": 100,
-                        "show_bin_markers": true,
-                        "initial_bin_index": 80,
-                        "orientation": "vertical"
-                    },
-                    "slider-vertical2": {
-                        "sensor_type": "SliderSensor",
-                        "region":{
-                            "x": -0.4,
-                            "y": 0,
-                            "w": 0.1,
-                            "h": 0.3,
-                            "mask": 'rectangle',
-                        },
-                        "num_bins": 7,
-                        "initial_bin_index": 2,
-                        "show_bin_markers": true,
-                        "orientation": "vertical"
-                    },
                     "free-text-test": {
                         "sensor_type": "FreeTextEntrySensor",
                         "region": {
@@ -204,6 +178,35 @@
                     },
                 },
                 "sensors": {
+                    "slider-vertical": {
+                        "sensor_type": "SliderSensor",
+                        "region":{
+                            "x": -0.25,
+                            "y": 0,
+                            "w": 0.1,
+                            "h": 0.3,
+                            "mask": 'rectangle',
+                        },
+
+                        "num_bins": 100,
+                        "show_bin_markers": true,
+                        "initial_bin_index": 80,
+                        "orientation": "vertical"
+                    },
+                    "slider-vertical2": {
+                        "sensor_type": "SliderSensor",
+                        "region":{
+                            "x": -0.4,
+                            "y": 0,
+                            "w": 0.1,
+                            "h": 0.3,
+                            "mask": 'rectangle',
+                        },
+                        "num_bins": 7,
+                        "initial_bin_index": 2,
+                        "show_bin_markers": true,
+                        "orientation": "vertical"
+                    },
                     "slider-test": {
                         "sensor_type": "SliderSensor",
                         "region":{

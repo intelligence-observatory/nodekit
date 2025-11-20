@@ -21,7 +21,7 @@ export class VideoCardView extends CardView<VideoCard> {
         this.videoContainer.appendChild(this.video);
 
         // Set audio:
-        this.video.muted = this.card.muted;
+        this.video.muted = true;
 
         // Set looping:
         this.video.loop = this.card.loop;
@@ -29,7 +29,6 @@ export class VideoCardView extends CardView<VideoCard> {
         // Prevent dragging the video in the browser:
         this.video.draggable = true;
 
-        // Play the video then
     }
 
     onStart() {
@@ -53,16 +52,14 @@ export class VideoCardView extends CardView<VideoCard> {
            }
         });
         // Start playing the video now. Throw an error if it doesn't start within two frames:
-        if (this.card.start){ // todo: remove this hack and expose start/stop/scrub public methods on VideoCard
-            this.video.play()
-            let startedSuccessfully = Promise.race([playing, timeout]);
+        // todo: remove this hack and expose start/stop/scrub public methods on VideoCard
+        this.video.play()
+        let startedSuccessfully = Promise.race([playing, timeout]);
 
-            // Catch a playback error, but just keep going:
-            startedSuccessfully.catch((e) => {
-                console.error(e);
-            })
-        }
-
+        // Catch a playback error, but just keep going:
+        startedSuccessfully.catch((e) => {
+            console.error(e);
+        })
     }
 
     onDestroy() {
