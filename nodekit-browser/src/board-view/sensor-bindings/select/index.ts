@@ -1,10 +1,11 @@
 import type {SelectSensor} from "../../../types/sensors";
-import {type BoardView, checkPointInRegion} from "../../board-view.ts";
+import {type BoardView} from "../../board-view.ts";
 import {SensorBinding} from "../index.ts";
 import type {SelectSensorValue} from "../../../types/actions";
 import type {CardViewMap} from "../../../node-play";
 import type {CardId} from "../../../types/common.ts";
 import type {PointerSample} from "../../../input-streams/pointer-stream.ts";
+import {checkPointInRegion} from "../../../utils.ts";
 
 /**
  *

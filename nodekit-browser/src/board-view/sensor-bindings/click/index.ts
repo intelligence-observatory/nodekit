@@ -1,8 +1,9 @@
 import type {ClickSensor} from "../../../types/sensors";
-import {type BoardView, checkPointInRegion} from "../../board-view.ts";
+import {type BoardView} from "../../board-view.ts";
 import type {PointerSample} from "../../../input-streams/pointer-stream.ts";
 import type {ClickSensorValue} from "../../../types/actions";
 import {SensorBinding} from "../index.ts";
+import {checkPointInRegion} from "../../../utils.ts";
 
 /**
  *
