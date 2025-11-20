@@ -1007,6 +1007,7 @@ dependencies = [
  "fast_image_resize",
  "hex_color",
  "nodekit-rs-models",
+ "png",
  "thiserror",
 ]
 
