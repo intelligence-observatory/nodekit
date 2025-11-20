@@ -991,7 +991,6 @@ name = "nodekit-rs-video"
 version = "0.1.0"
 dependencies = [
  "blittle",
- "bytemuck",
  "criterion",
  "nodekit-rs-models",
  "nodekit-rs-visual",

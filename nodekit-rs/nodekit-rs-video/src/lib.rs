@@ -1,9 +1,9 @@
 mod error;
 
-use bytemuck::cast_slice;
 pub use error::Error;
 use nodekit_rs_models::Card;
 use nodekit_rs_visual::*;
+use scuffle_ffmpeg::decoder::DecoderOptions;
 use scuffle_ffmpeg::{
     AVMediaType, AVPixelFormat, decoder::Decoder, frame::VideoFrame, io::Input, scaler::VideoScaler,
 };
@@ -33,21 +33,9 @@ impl Video {
 
     pub fn blit(&self, t_msec: u64, board: &mut [u8]) -> Result<(), Error> {
         let frame = self.get_frame(t_msec)?;
-        // Convert to RGBA.
-        // TODO this is too slow. Fix it!
-        let mut buffer_rgba = vec![[255; 4]; self.width * self.height];
-        for (src, dst) in cast_slice::<u8, [u8; 3]>(&frame)
-            .iter()
-            .zip(buffer_rgba.iter_mut())
-        {
-            dst[0] = src[0];
-            dst[1] = src[1];
-            dst[2] = src[2];
-        }
-
         // Blit.
         blittle::blit(
-            cast_slice::<[u8; 4], u8>(&buffer_rgba),
+            &frame,
             &self.rect.size,
             board,
             &self.rect.position,
@@ -87,10 +75,16 @@ impl Video {
         let video_index = streams
             .best_index(AVMediaType::Video)
             .ok_or(Error::NoVideoTrack)? as i32;
-        let mut video_decoder = Decoder::new(&video)
-            .map_err(Error::Ffmpeg)?
-            .video()
-            .map_err(|_| Error::NotVideoDecoder)?;
+        let mut video_decoder = Decoder::with_options(
+            &video,
+            DecoderOptions {
+                codec: None,
+                thread_count: 2,
+            },
+        )
+        .map_err(Error::Ffmpeg)?
+        .video()
+        .map_err(|_| Error::NotVideoDecoder)?;
         let mut frame_index = 0;
         let target_frame_index = (t_msec as f64 / 1000. * video.r_frame_rate().as_f64()) as usize;
         let mut frame: Option<VideoFrame> = None;
@@ -99,7 +93,7 @@ impl Video {
             let packet = packet.map_err(Error::Ffmpeg)?;
             if packet.stream_index() == video_index {
                 video_decoder.send_packet(&packet).map_err(Error::Ffmpeg)?;
-                while let Ok(Some(f)) = video_decoder.receive_frame().map_err(Error::Ffmpeg) {
+                while let Ok(Some(f)) = video_decoder.receive_frame() {
                     frame = Some(f);
                     frame_index += 1;
                     if frame_index >= target_frame_index {
@@ -124,7 +118,7 @@ impl Video {
         .map_err(Error::Ffmpeg)?;
         let frame = scaler.process(&frame).map_err(Error::Ffmpeg)?;
         let data = frame.data(0).ok_or(Error::NoData)?;
-        let width_3 = frame.width() * 3;
+        let width_3 = frame.width() * STRIDE;
         let mut out = vec![0; width_3 * frame.height()];
         for y in 0..self.height {
             let row = data.get_row(y).ok_or(Error::NotEnoughRows(y))?;
