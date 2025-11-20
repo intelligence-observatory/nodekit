@@ -7,10 +7,12 @@ import {KeySensorBinding} from "./key";
 import {ClickSensorBinding} from "./click";
 import {WaitSensorBinding} from "./wait";
 import {SelectSensorBinding} from "./select";
+import type {CardViewMap} from "../../node-play";
 
 export function createSensorBinding(
     sensor: Sensor,
     boardView: BoardView,
+    cardViewMap: CardViewMap,
 ): SensorBinding<Sensor> {
 
     // Factory function for creating a SensorBinding
@@ -48,6 +50,7 @@ export function createSensorBinding(
 
     sensorBinding.prepare(
         boardView,
+        cardViewMap,
     );
     return sensorBinding
 }

@@ -12,6 +12,7 @@ import type {CardId, SensorId, TimeElapsedMsec} from "../types/common.ts";
 import {createCardView} from "../board-view/card-views/create.ts";
 import {createSensorBinding} from "../board-view/sensor-bindings/create.ts";
 import type {Clock} from "../clock.ts";
+import type {CardView} from "../board-view/card-views/card-view.ts";
 
 export interface NodePlayRunResult {
     t: TimeElapsedMsec,
@@ -40,6 +41,8 @@ class Deferred<T> {
 }
 
 //
+
+export type CardViewMap = Record<CardId, CardView>
 export class NodePlay {
     public root: HTMLDivElement
 
@@ -75,6 +78,7 @@ export class NodePlay {
         let assetManager = this.assetManager
 
         // Prepare and schedule Cards:
+        const cardViewMap: CardViewMap = {}
         for (let cardIdUnbranded in this.node.cards) {
             // Type annotate cardId:
             let cardId = cardIdUnbranded as CardId;
@@ -87,6 +91,8 @@ export class NodePlay {
                 this.boardView,
             )
             await cardView.prepare(assetManager)
+
+            cardViewMap[cardId] = cardView;
 
             this.scheduler.scheduleEvent(
                 {
@@ -110,6 +116,7 @@ export class NodePlay {
             const sensorBinding = createSensorBinding(
                 sensor,
                 this.boardView,
+                cardViewMap,
             )
             sensorBinding.subscribe(
                 (sensorValue: SensorValue): void => (this.sensorEventHandler(sensorId, sensorValue))
