@@ -37,7 +37,6 @@ pub fn load(image: &Image, rect: Rect) -> Result<VisualBuffer, Error> {
         .map_err(|e| Error::Decode(e, image.path.clone()))?;
     // Convert to RGBA32.
     let buffer = convert(&image.path, &buffer[..info.buffer_size()], info.color_type)?;
-
     // Resize.
     VisualBuffer::new_resized(buffer, info.width, info.height, rect).map_err(Error::Visual)
 }
@@ -136,15 +135,13 @@ mod tests {
 
     #[test]
     fn test_load_png() {
-        let width = 300;
-        let height = 600;
         let image = load(
             &Image {
                 path: PathBuf::from("test_image.png"),
             },
             Rect {
                 size: Size { w: 1., h: 1. },
-                position: Position::default(),
+                position: Position { x: -0.5, y: -0.5 },
             },
         )
         .unwrap();
