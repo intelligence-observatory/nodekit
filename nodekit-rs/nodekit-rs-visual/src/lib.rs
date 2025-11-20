@@ -56,6 +56,14 @@ impl VisualBuffer {
     ) -> Result<Self, Error> {
         // Resize to fit within `dst_size`.
         let rect = ResizedRect::new(&dst, src_width, src_height);
+
+        // No need to resize.
+        if rect.size.w == src_width as usize && rect.size.h == src_height as usize {
+            return Ok(Self {
+                buffer: buffer.clone(),
+                rect: BlitRect::from(rect),
+            });
+        }
         // Create an image view.
         let src = fast_image_resize::images::Image::from_slice_u8(
             src_width,
