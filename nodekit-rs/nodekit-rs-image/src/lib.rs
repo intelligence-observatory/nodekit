@@ -36,9 +36,9 @@ pub fn load(image: &Image, rect: Rect) -> Result<VisualBuffer, Error> {
         .next_frame(&mut buffer)
         .map_err(|e| Error::Decode(e, image.path.clone()))?;
     // Convert to RGBA32.
-    let buffer = convert(&image.path, &buffer[..info.buffer_size()], info.color_type)?;
+    let mut buffer = convert(&image.path, &buffer[..info.buffer_size()], info.color_type)?;
     // Resize.
-    VisualBuffer::new_resized(buffer, info.width, info.height, rect).map_err(Error::Visual)
+    VisualBuffer::new_resized(&mut buffer, info.width, info.height, rect).map_err(Error::Visual)
 }
 
 /// Convert `buffer` from a `color_type` to RGBA32.

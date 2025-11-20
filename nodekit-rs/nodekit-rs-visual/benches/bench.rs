@@ -1,8 +1,8 @@
-use criterion::{Criterion, criterion_group, criterion_main};
 use blittle::PositionU;
 use bytemuck::cast_slice;
-use nodekit_rs_visual::*;
+use criterion::{Criterion, criterion_group, criterion_main};
 use nodekit_rs_models::Rect;
+use nodekit_rs_visual::*;
 
 fn get_rgb_buffer() -> Vec<u8> {
     cast_slice::<u8, [u8; 4]>(include_bytes!("../test_image.raw"))
@@ -23,14 +23,12 @@ fn criterion_benchmark(c: &mut Criterion) {
         },
     };
 
-    c.bench_function("blit visual buffer", |b| {
-        b.iter(|| visual.blit(&mut board))
-    });
+    c.bench_function("blit visual buffer", |b| b.iter(|| visual.blit(&mut board)));
 
-    let buffer = get_rgb_buffer();
+    let mut buffer = get_rgb_buffer();
     let rect = Rect::new(-0.5, -0.5, 1., 1.);
     c.bench_function("resize visual buffer", |b| {
-        b.iter(|| VisualBuffer::new_resized(buffer.clone(), 300, 600, rect))
+        b.iter(|| VisualBuffer::new_resized(&mut buffer, 300, 600, rect))
     });
 }
 

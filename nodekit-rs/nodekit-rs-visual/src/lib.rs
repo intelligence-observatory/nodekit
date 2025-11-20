@@ -49,7 +49,7 @@ impl VisualBuffer {
 
     /// Resize to fit within the bounds of `dst`.
     pub fn new_resized(
-        mut buffer: Vec<u8>,
+        buffer: &mut Vec<u8>,
         src_width: u32,
         src_height: u32,
         dst: Rect,
@@ -60,7 +60,7 @@ impl VisualBuffer {
         let src = fast_image_resize::images::Image::from_slice_u8(
             src_width,
             src_height,
-            &mut buffer,
+            buffer,
             PixelType::U8x3,
         )
         .map_err(Error::ImageResizeBuffer)?;
@@ -142,7 +142,7 @@ mod tests {
     #[test]
     fn test_image_resize() {
         let resized = VisualBuffer::new_resized(
-            get_rgb_buffer(),
+            &mut get_rgb_buffer(),
             300,
             600,
             Rect {
