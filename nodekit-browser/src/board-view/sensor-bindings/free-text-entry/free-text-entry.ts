@@ -32,48 +32,6 @@ export class FreeTextEntrySensorBinding extends SensorBinding<FreeTextEntrySenso
     }
 }
 
-export class FreeTextEntrySensorView2 extends RegionView {
-    freeTextInputElement: HTMLTextAreaElement;
-
-    constructor(
-        sensor: FreeTextEntrySensor,
-        boardCoords: BoardCoordinateSystem
-    ){
-        super(sensor.region, boardCoords)
-
-        this.freeTextInputElement = document.createElement('textarea' );
-        this.freeTextInputElement.classList.add('free-text-entry-card');
-        this.freeTextInputElement.spellcheck=false;
-
-
-        // Set font size:
-        this.freeTextInputElement.style.fontSize = this.boardCoords.getSizePx(sensor.font_size) + 'px';
-
-        // Set the initial prompt:
-        this.freeTextInputElement.placeholder = sensor.prompt;
-
-        // Cap the max length:
-        let maxLength = 10000 // Arbitrary large number if null
-        if (sensor.max_length !== null){
-            maxLength = sensor.max_length;
-        }
-        this.freeTextInputElement.maxLength = maxLength;
-
-        this.root.appendChild(this.freeTextInputElement);
-    }
-
-    subscribe(callback: (sample: string) => void): void {
-        // Add an event listener
-        this.freeTextInputElement.addEventListener(
-            'input',
-            (event) => {
-                const value = (event.target as HTMLTextAreaElement).value;
-                console.log('Updated text:', value);
-                callback(value)
-            });
-    }
-}
-
 export class FreeTextEntrySensorView extends RegionView {
     private textAreaElement: HTMLTextAreaElement;
     private doneButton: HTMLButtonElement;
