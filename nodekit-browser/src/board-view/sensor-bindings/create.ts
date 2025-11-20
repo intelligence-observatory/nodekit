@@ -8,6 +8,7 @@ import {ClickSensorBinding} from "./click";
 import {WaitSensorBinding} from "./wait";
 import {SelectSensorBinding} from "./select";
 import type {CardViewMap} from "../../node-play";
+import {MultiSelectSensorBinding} from "./multiselect";
 
 export function createSensorBinding(
     sensor: Sensor,
@@ -40,6 +41,10 @@ export function createSensorBinding(
         }
         case "SelectSensor": {
             sensorBinding = new SelectSensorBinding(sensor);
+            break
+        }
+        case "MultiSelectSensor": {
+            sensorBinding = new MultiSelectSensorBinding(sensor);
             break
         }
         default: {

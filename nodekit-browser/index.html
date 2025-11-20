@@ -96,8 +96,10 @@
                         "timeout_msec":500,
                     },
                     "clicky": {
-                        "sensor_type": "SelectSensor",
+                        "sensor_type": "MultiSelectSensor",
                         "choices":["hello-text", 'text2', 'hello-image'],
+                        "min_selections": 1,
+                        "max_selections": 2,
                     },
                     "slider-test": {
                         "sensor_type": "SliderSensor",

@@ -24,9 +24,9 @@ export interface SelectSensor extends BaseSensor<'SelectSensor'>{
  * Select k>1 of N>1 Cards; todo
  */
 export interface MultiSelectSensor extends BaseSensor<'MultiSelectSensor'>{
-    choices: Set<CardId>
-    min_choices: number;
-    max_choices: number | null;
+    choices: CardId[]
+    min_selections: number;
+    max_selections: number | null;
 
     // todo reset_button?: CardId
     // todo submit_button?: CardId
@@ -69,3 +69,4 @@ export type Sensor =
     | FreeTextEntrySensor
     | WaitSensor
     | SelectSensor
+    | MultiSelectSensor

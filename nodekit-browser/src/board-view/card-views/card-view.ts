@@ -19,6 +19,7 @@ export abstract class CardView<C extends Card = Card> extends RegionView{
     abstract prepare(_assetManager:AssetManager): Promise<void>;
     onStart(): void {}
     onDestroy(): void {}
+
     setHoverState(
         hovered:boolean,
     ){
@@ -39,7 +40,11 @@ export abstract class CardView<C extends Card = Card> extends RegionView{
         else{
             this.root.classList.remove('card--selected')
         }
+    }
 
+    setOpacity(opacity:number){
+        // Between 0 and 1
+        this.root.style.opacity = `${Math.min(1, Math.max(0, opacity))*100}%`
     }
 }
 
