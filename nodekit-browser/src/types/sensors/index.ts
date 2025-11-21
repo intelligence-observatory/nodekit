@@ -1,4 +1,4 @@
-import type {CardId, NodeTimePointMsec, PlainString, PressableKey, SpatialSize} from "../common.ts";
+import type {CardId, NodeTimePointMsec, PlainString, PressableKey, SensorId, SpatialSize} from "../common.ts";
 import type {Region} from "../region";
 import type {SliderBinIndex} from "../../board-view/sensor-bindings/slider";
 
@@ -44,7 +44,15 @@ export interface SliderSensor extends BaseSensor<'SliderSensor'>{
     region: Region
 }
 
-// Combinators
+// Recursive types
+export interface ProductSensor extends BaseSensor<'ProductSensor'> {
+    children: Record<SensorId, Sensor>
+}
+
+export interface SumSensor extends BaseSensor<'SumSensor'> {
+    children: Record<SensorId, Sensor>
+}
+
 
 export type Sensor =
     | ClickSensor
@@ -54,3 +62,6 @@ export type Sensor =
     | WaitSensor
     | SelectSensor
     | MultiSelectSensor
+    | ProductSensor
+    | SumSensor
+

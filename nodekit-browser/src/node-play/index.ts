@@ -1,21 +1,21 @@
-import type {Node, NodePredicate} from "../types/node.ts";
-import type {Action, SensorValuesMap, UnresolvedSensorValue} from "../types/actions/";
+import type {Node} from "../types/node.ts";
+import type {Action} from "../types/actions/";
 import {BoardView} from "../board-view/board-view.ts";
 import {EventScheduler} from "./event-scheduler.ts";
 
 import type {AssetManager} from "../asset-manager";
 
-import type {CardId, SensorId, TimeElapsedMsec} from "../types/common.ts";
+import type {CardId, TimeElapsedMsec} from "../types/common.ts";
 
 
 import {createCardView} from "../board-view/card-views/create.ts";
-import {createSensorBinding} from "../board-view/sensor-bindings/create.ts";
+import {createSensorBinding} from "../board-view/sensor-bindings/create-sensor-binding.ts";
 import type {Clock} from "../clock.ts";
 import type {CardView} from "../board-view/card-views/card-view.ts";
 
 export interface NodePlayRunResult {
     t: TimeElapsedMsec,
-    outcome: SensorValuesMap;
+    action: Action;
 }
 
 class Deferred<T> {
@@ -52,8 +52,7 @@ export class NodePlay {
     private scheduler: EventScheduler
 
     // Resolvers
-    private deferredAction: Deferred<SensorValuesMap> = new Deferred<SensorValuesMap>()
-    private currentSensorValues: SensorValuesMap
+    private deferredAction: Deferred<Action> = new Deferred<Action>()
 
     // Assets
     private assetManager: AssetManager;
@@ -68,7 +67,6 @@ export class NodePlay {
         this.node = node;
         this.scheduler = new EventScheduler();
         this.assetManager=assetManager;
-        this.currentSensorValues = {};
     }
 
     public async prepare() {
@@ -106,31 +104,27 @@ export class NodePlay {
             )
         }
 
-        // Create and subscribe to SensorBindings:
-        for (let sensorIdUnbranded in this.node.sensors) {
-            const sensorId = sensorIdUnbranded as SensorId;
-            const sensor = this.node.sensors[sensorId];
-            const sensorBinding = createSensorBinding(
-                sensor,
-                this.boardView,
-                cardViewMap,
-            )
-            sensorBinding.subscribe(
-                (sensorValue: Action): void => (this.sensorEventHandler(sensorId, sensorValue))
-            )
-            this.scheduler.scheduleEvent(
-                {
-                    triggerTimeMsec: 0,
-                    triggerFunc: () => {
-                        sensorBinding.start();
-                    },
-                }
-            )
-            const valueInit: UnresolvedSensorValue = {
-                action_type:'UnresolvedSensorValue',
+        // Create SensorBinding:
+        const sensorBinding = createSensorBinding(
+            this.node.sensor,
+            this.boardView,
+            cardViewMap,
+        )
+
+        // Subscribe to SensorBinding:
+        console.log('da', this.deferredAction)
+        sensorBinding.subscribe(
+            (action) => {this.deferredAction.resolve(action)}
+        )
+
+        this.scheduler.scheduleEvent(
+            {
+                triggerTimeMsec: 0,
+                triggerFunc: () => {
+                    sensorBinding.start();
+                },
             }
-            this.currentSensorValues[sensorId] = valueInit;
-        }
+        )
 
         // Check if Pointer is shown in this Node:
         if (this.node.hide_pointer){
@@ -138,24 +132,6 @@ export class NodePlay {
         }
 
         this.prepared = true;
-    }
-
-    private sensorEventHandler(
-        sensorId: SensorId,
-        sensorValue: Action
-    ): void {
-        // Record sensor value update
-        this.currentSensorValues[sensorId] = sensorValue;
-
-        // Check if the exit predicate has been met
-        const canExit = evaluateExitPredicate(
-            this.node.exit,
-            this.currentSensorValues,
-        )
-
-        if (canExit){
-            this.deferredAction.resolve(this.currentSensorValues)
-        }
     }
 
     async run(clock:Clock): Promise<NodePlayRunResult> {
@@ -179,74 +155,15 @@ export class NodePlay {
 
         // Wait for Action:
         const action = await this.deferredAction.promise;
+        console.log('action', action)
 
         // Clean up NodePlay:
         this.scheduler.stop();
 
         return {
-            outcome: action,
+            action: action,
             t: tStart,
         }
     }
 }
 
-
-function evaluateExitPredicate(
-    predicate: NodePredicate,
-    sensorValuesMap: SensorValuesMap,
-): boolean{
-    switch (predicate.predicate_type){
-        case "SensorResolvedPredicate": {
-            // Return true if
-            const sensorValue = sensorValuesMap[predicate.sensor_id];
-            return sensorValue !== null;
-        }
-        case "AllPredicate": {
-            if (predicate.items === "*") {
-                // Wildcard: all sensors must be fulfilled (non-null)
-                return Object.values(sensorValuesMap).every(
-                    (value) => value.action_type !== 'UnresolvedSensorValue',
-                );
-            } else {
-                // Conjunction over child predicates
-                return predicate.items.every((child) =>
-                    evaluateExitPredicate(child, sensorValuesMap),
-                );
-            }
-        }
-        case "RacePredicate": {
-            if (predicate.items === "*") {
-                // Wildcard: at least one sensor is fulfilled
-                return Object.values(sensorValuesMap).some(
-                    (value) => value.action_type !== 'UnresolvedSensorValue',
-                );
-            } else {
-                // Disjunction over child predicates
-                return predicate.items.some((child) =>
-                    evaluateExitPredicate(child, sensorValuesMap),
-                );
-            }
-        }
-        case "AtLeastPredicate": {
-            const { min, items } = predicate;
-
-            // Trivial thresholds: 0 or less is always satisfied
-            if (min <= 0) return true;
-
-            let count = 0;
-            for (const child of items) {
-                if (evaluateExitPredicate(child, sensorValuesMap)) {
-                    count++;
-                    if (count >= min) {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-        default: {
-            const _exhaustive: never = predicate;
-            throw new Error(`Unsupported predicate: ${JSON.stringify(_exhaustive)}`)
-        }
-    }
-}

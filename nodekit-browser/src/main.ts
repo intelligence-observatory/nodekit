@@ -104,7 +104,6 @@ export async function play(
     let currentNodeId: NodeId = graph.start;
     let nodeResults: NodeOutcome[] = [];
     while (true) {
-        // Todo: Evaluate any current Node parameter expressions:
         const node = nodes[currentNodeId];
 
         // Create and prepare the NodePlay:
@@ -123,7 +122,7 @@ export async function play(
         nodeResults.push(
             {
                 node_id: currentNodeId,
-                action: result.outcome,
+                action: result.action,
                 t: result.t
             }
         )
@@ -142,7 +141,7 @@ export async function play(
         let nextNodeId = null;
         let transitions = graph.transitions[currentNodeId];
         for (const transition of transitions){
-            const value = evl(transition.when, graph.registers, {}, result.outcome)
+            const value = evl(transition.when, graph.registers, {}, result.action)
             console.log('transition value', value)
             if (value === true){
                 // Valid transition found:
@@ -150,7 +149,7 @@ export async function play(
 
                 // Update graph registers:
                 for (const [registerId, updateExpression] of Object.entries(transition.register_updates)){
-                    const updateValue = evl(updateExpression, graph.registers, {}, result.outcome);
+                    const updateValue = evl(updateExpression, graph.registers, {}, result.action);
                     console.log(registerId, updateValue)
                     graph.registers[registerId as RegisterId] = updateValue
                     console.log('registers', graph.registers)

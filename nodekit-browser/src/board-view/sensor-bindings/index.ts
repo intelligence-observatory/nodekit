@@ -18,10 +18,10 @@ export abstract class SensorBinding<S extends Sensor> {
 
     /**
      * Should be called by the SensorBinding whenever a new valid SensorValue has been set by the agent.
-     * @param sensorValue
+     * @param action
      */
-    protected emit(sensorValue: Action): void{
-        this.subscriptions.forEach(cb => cb(sensorValue));
+    protected emit(action: Action): void{
+        this.subscriptions.forEach(cb => cb(action));
     }
 
     /**
@@ -30,7 +30,7 @@ export abstract class SensorBinding<S extends Sensor> {
     start(){}
 
     public subscribe(
-        callback: (sensorValue: Action) => void
+        callback: (action: Action) => void
     ): void {
         this.subscriptions.push(callback);
     }

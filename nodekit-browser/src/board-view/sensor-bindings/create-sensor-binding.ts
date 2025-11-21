@@ -9,6 +9,8 @@ import {WaitSensorBinding} from "./wait";
 import {SelectSensorBinding} from "./select";
 import type {CardViewMap} from "../../node-play";
 import {MultiSelectSensorBinding} from "./multiselect";
+import type {SensorId} from "../../types/common.ts";
+import {ProductSensorBinding, SumSensorBinding} from "./combinators.ts";
 
 export function createSensorBinding(
     sensor: Sensor,
@@ -45,6 +47,25 @@ export function createSensorBinding(
         }
         case "MultiSelectSensor": {
             sensorBinding = new MultiSelectSensorBinding(sensor);
+            break
+        }
+        case "SumSensor":
+        case "ProductSensor":{
+            let childBindings: Record<SensorId, SensorBinding<Sensor>> = {}
+
+            for (const [sensorId, childSensor] of Object.entries(sensor.children)){
+                childBindings[sensorId as SensorId] = createSensorBinding(childSensor, boardView, cardViewMap)
+            }
+            switch (sensor.sensor_type){
+                case "ProductSensor":
+                    sensorBinding = new ProductSensorBinding(sensor, childBindings);
+                    break
+                case "SumSensor":
+                    sensorBinding = new SumSensorBinding(sensor, childBindings);
+                    break
+                default:
+                    throw new Error()
+            }
             break
         }
         default: {

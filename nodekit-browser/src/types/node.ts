@@ -1,38 +1,16 @@
 import type {Card} from "./cards";
 import type {Sensor} from "./sensors";
-import type {ColorHexString, NodeId, CardId, SensorId, RegisterId} from "./common.ts";
+import type {CardId, ColorHexString, NodeId, RegisterId} from "./common.ts";
 import type {NodeOutcome} from "./events/node-events.ts";
 import type {Expression, Value} from "./expressions/expressions.ts";
 import type {Event} from "./events";
 
 
-export interface BaseNodePredicate<T extends string> {
-    predicate_type: T
-}
-
-export interface SensorResolvedPredicate extends BaseNodePredicate<'SensorResolvedPredicate'> {
-    sensor_id: SensorId
-}
-export interface AllPredicate extends BaseNodePredicate<'AllPredicate'> {
-    items: NodePredicate[] | '*'
-}
-export interface RacePredicate extends BaseNodePredicate<'RacePredicate'> {
-    items: NodePredicate[] | '*'
-}
-
-export interface AtLeastPredicate extends BaseNodePredicate<'AtLeastPredicate'> {
-    items: NodePredicate[]
-    min: number;
-}
-
-export type NodePredicate = SensorResolvedPredicate | AllPredicate | RacePredicate | AtLeastPredicate;
-
 export interface Node {
     cards: Record<CardId, Card>;
-    sensors: Record<SensorId, Sensor>;
-    hide_pointer: boolean
+    sensor: Sensor;
     board_color: ColorHexString;
-    exit: NodePredicate;
+    hide_pointer: boolean
 }
 
 export interface Transition {

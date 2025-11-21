@@ -11,7 +11,7 @@
 <script type="module" src="src/main.ts"></script>
 <script type="module">
 
-    let graph={
+    let graph = {
         "start": "my-node",
         "nodes": {
             "my-node": {
@@ -19,7 +19,7 @@
                 "cards": {
                     "video": {
                         "card_type": "VideoCard",
-                        "region":{
+                        "region": {
                             "x": 0.25,
                             "y": 0.,
                             "w": 0.2,
@@ -38,7 +38,7 @@
                     },
                     "hello-image": {
                         "card_type": "ImageCard",
-                        "region":{
+                        "region": {
                             "x": 0,
                             "y": 0,
                             "w": 0.4,
@@ -49,8 +49,8 @@
                             "sha256": 'yo',
                             "media_type": "image/png",
                             "locator": {
-                                "locator_type":'RelativePath',
-                                "relative_path":"./assets/image/png/f66018c63e5de97a4a022f8d0da2083d44a842abcc27195b6cca13980a77dc7b.png"
+                                "locator_type": 'RelativePath',
+                                "relative_path": "./assets/image/png/f66018c63e5de97a4a022f8d0da2083d44a842abcc27195b6cca13980a77dc7b.png"
                             }
                         },
                         "font_size": 0.03,
@@ -61,7 +61,7 @@
                     },
                     "hello-text": {
                         "card_type": "TextCard",
-                        "region":{
+                        "region": {
                             "x": -0.4,
                             "y": -0.4,
                             "w": 0.2,
@@ -77,7 +77,7 @@
                     },
                     "text2": {
                         "card_type": "TextCard",
-                        "region":{
+                        "region": {
                             "x": 0.35,
                             "y": -0.4,
                             "w": 0.2,
@@ -92,77 +92,25 @@
                         "background_color": "#e6e6e6ff"
                     },
                 },
-                "sensors": {
-                    "wait": {
-                        "sensor_type": "WaitSensor",
-                        "timeout_msec":500,
-                    },
-                    "clicky": {
-                        "sensor_type": "MultiSelectSensor",
-                        "choices":["hello-text", 'text2', 'hello-image'],
-                        "min_selections": 1,
-                        "max_selections": 2,
-                    },
-                    "slider-test": {
-                        "sensor_type": "SliderSensor",
-                        "region":{
-                            "x": 0.0,
-                            "y": -0.25,
-                            "w": 1,
-                            "h": 0.05,
-                            "mask": 'rectangle',
-                        },
-                        "num_bins": 7,
-                        "initial_bin_index": 5,
-                        "orientation": "horizontal",
-                        "show_bin_markers": true,
-                    },
-                    "slider-test2": {
-                        "sensor_type": "SliderSensor",
-                        "region":{
-                            "x": 0.0,
-                            "y": -0.3,
-                            "w": 1,
-                            "h": 0.05,
-                            "mask": 'rectangle',
-                        },
-                        "num_bins": 100,
-                        "initial_bin_index": 25,
-                        "orientation": "horizontal",
-                        "show_bin_markers": false,
-                    },
-
-                    "free-text-test": {
-                        "sensor_type": "FreeTextEntrySensor",
-                        "region": {
-                            "x": 0.0,
-                            "y": 0.4,
-                            "w": 0.6,
-                            "h": 0.2,
-                            "mask": 'rectangle',
-                            "z_index":0,
-                        },
-                        "prompt": "I am a FreeTextEntrySensor. Type into me...",
-                        "font_size": 0.02,
-                        "text_color": "#ce3a3a",
-                        "background_color": "#ffffff",
-                        "max_length": null,
-                        "min_length": 2,
+                "sensor": {
+                    sensor_type: "ProductSensor",
+                    children: {
+                        'my-multi-select': {
+                            "sensor_type": "MultiSelectSensor",
+                            "choices": ["hello-text", 'text2', 'hello-image'],
+                            "min_selections": 1,
+                            "max_selections": 2,
+                        }
                     }
                 },
-                "effects": [],
                 "board_color": "gray",
-                "exit": {
-                    'predicate_type': 'AllPredicate',
-                    'items': '*'
-                }
             },
             "my-node2": {
                 "timeout_msec": 400,
                 "cards": {
                     "hello-text": {
                         "card_type": "TextCard",
-                        "region":{
+                        "region": {
                             "x": -0.4,
                             "y": -0.4,
                             "w": 0.2,
@@ -180,7 +128,7 @@
                 "sensors": {
                     "slider-vertical": {
                         "sensor_type": "SliderSensor",
-                        "region":{
+                        "region": {
                             "x": -0.25,
                             "y": 0,
                             "w": 0.1,
@@ -195,7 +143,7 @@
                     },
                     "slider-vertical2": {
                         "sensor_type": "SliderSensor",
-                        "region":{
+                        "region": {
                             "x": -0.4,
                             "y": 0,
                             "w": 0.1,
@@ -209,7 +157,7 @@
                     },
                     "slider-test": {
                         "sensor_type": "SliderSensor",
-                        "region":{
+                        "region": {
                             "x": 0.0,
                             "y": -0.25,
                             "w": 1,
@@ -223,7 +171,7 @@
                     },
                     "slider-test2": {
                         "sensor_type": "SliderSensor",
-                        "region":{
+                        "region": {
                             "x": 0.0,
                             "y": -0.3,
                             "w": 1,
