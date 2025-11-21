@@ -1,11 +1,11 @@
-import type {SensorValue} from "../../types/actions";
+import type {Action} from "../../types/actions";
 import type {Sensor} from "../../types/sensors";
 import {type BoardView} from "../board-view.ts";
 import type {CardViewMap} from "../../node-play";
 
 
 export abstract class SensorBinding<S extends Sensor> {
-    private subscriptions: ((sensorValue: SensorValue) => void)[] = []
+    private subscriptions: ((sensorValue: Action) => void)[] = []
     protected sensor: S
 
     constructor(
@@ -20,7 +20,7 @@ export abstract class SensorBinding<S extends Sensor> {
      * Should be called by the SensorBinding whenever a new valid SensorValue has been set by the agent.
      * @param sensorValue
      */
-    protected emit(sensorValue: SensorValue): void{
+    protected emit(sensorValue: Action): void{
         this.subscriptions.forEach(cb => cb(sensorValue));
     }
 
@@ -30,7 +30,7 @@ export abstract class SensorBinding<S extends Sensor> {
     start(){}
 
     public subscribe(
-        callback: (sensorValue: SensorValue) => void
+        callback: (sensorValue: Action) => void
     ): void {
         this.subscriptions.push(callback);
     }

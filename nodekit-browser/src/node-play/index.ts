@@ -1,8 +1,7 @@
 import type {Node, NodePredicate} from "../types/node.ts";
-import type {SensorValue, SensorValuesMap, UnresolvedSensorValue} from "../types/actions/";
+import type {Action, SensorValuesMap, UnresolvedSensorValue} from "../types/actions/";
 import {BoardView} from "../board-view/board-view.ts";
 import {EventScheduler} from "./event-scheduler.ts";
-import {type EffectBinding, HideCursorEffectBinding} from "../board-view/effect-bindings";
 
 import type {AssetManager} from "../asset-manager";
 
@@ -39,8 +38,6 @@ class Deferred<T> {
         this.resolveFunc(value);
     }
 }
-
-//
 
 export type CardViewMap = Record<CardId, CardView>
 export class NodePlay {
@@ -119,7 +116,7 @@ export class NodePlay {
                 cardViewMap,
             )
             sensorBinding.subscribe(
-                (sensorValue: SensorValue): void => (this.sensorEventHandler(sensorId, sensorValue))
+                (sensorValue: Action): void => (this.sensorEventHandler(sensorId, sensorValue))
             )
             this.scheduler.scheduleEvent(
                 {
@@ -135,38 +132,9 @@ export class NodePlay {
             this.currentSensorValues[sensorId] = valueInit;
         }
 
-        // Prepare and schedule Effects:
-        for (const effect of this.node.effects){
-            // There is only one EffectBinding type for now, so just instantiate it directly:
-            const effectBinding: EffectBinding = new HideCursorEffectBinding(this.boardView)
-            // Schedule the effect start
-            this.scheduler.scheduleEvent(
-                {
-                    triggerTimeMsec: effect.start_msec,
-                    triggerFunc: () => {
-                        effectBinding.start();
-                    },
-                }
-            )
-
-            // Schedule the effect end, if applicable
-            if (effect.end_msec !== null) {
-                this.scheduler.scheduleEvent(
-                    {
-                        triggerTimeMsec: effect.end_msec,
-                        triggerFunc: () => {
-                            effectBinding.stop();
-                        },
-                    }
-                )
-            }
-
-            // Schedule effects always end
-            this.scheduler.scheduleOnStop(
-                () => {
-                    effectBinding.stop();
-                }
-            )
+        // Check if Pointer is shown in this Node:
+        if (this.node.hide_pointer){
+            this.boardView.root.style.cursor = 'none';
         }
 
         this.prepared = true;
@@ -174,7 +142,7 @@ export class NodePlay {
 
     private sensorEventHandler(
         sensorId: SensorId,
-        sensorValue: SensorValue
+        sensorValue: Action
     ): void {
         // Record sensor value update
         this.currentSensorValues[sensorId] = sensorValue;
@@ -280,6 +248,5 @@ function evaluateExitPredicate(
             const _exhaustive: never = predicate;
             throw new Error(`Unsupported predicate: ${JSON.stringify(_exhaustive)}`)
         }
-
     }
 }

@@ -1,6 +1,5 @@
 import type {Card} from "./cards";
 import type {Sensor} from "./sensors";
-import type {Effect} from "./effects/base.ts";
 import type {ColorHexString, NodeId, CardId, SensorId, RegisterId} from "./common.ts";
 import type {NodeOutcome} from "./events/node-events.ts";
 import type {Expression, Value} from "./expressions/expressions.ts";
@@ -31,11 +30,10 @@ export type NodePredicate = SensorResolvedPredicate | AllPredicate | RacePredica
 export interface Node {
     cards: Record<CardId, Card>;
     sensors: Record<SensorId, Sensor>;
-    effects: Effect[];
+    hide_pointer: boolean
     board_color: ColorHexString;
     exit: NodePredicate;
 }
-
 
 export interface Transition {
     when: Expression

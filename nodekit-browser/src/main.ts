@@ -68,7 +68,6 @@ export async function play(
         await shellUI.playStartScreen()
     }
 
-
     const startEvent: TraceStartedEvent = {
         event_type: "TraceStartedEvent",
         t: 0 as TimeElapsedMsec,
@@ -164,7 +163,6 @@ export async function play(
         }
 
         currentNodeId = nextNodeId;
-
     }
 
     // Generate the EndEvent:

@@ -37,8 +37,21 @@ export interface MultiSelectAction extends BaseAction<"MultiSelectAction">{
     selections: CardId[]
 }
 
+export interface JointAction extends BaseAction<'JointAction'> {
+    children: Record<SensorId, Action>
+}
+
+export interface RaceAction extends BaseAction<'RaceAction'>{
+    winner: SensorId
+    action: Action
+}
+
+export interface SequentialAction extends BaseAction<'SequentialAction'>{
+    sequence: Action[]
+}
+
 // Union
-export type SensorValue =
+export type Action =
     | ClickAction
     | KeyAction
     | SliderAction
@@ -46,6 +59,9 @@ export type SensorValue =
     | WaitAction
     | SelectAction
     | MultiSelectAction
+    | JointAction
+    | RaceAction
+    | SequentialAction
 
 export type Maybe<T> = T | UnresolvedSensorValue;
-export type SensorValuesMap = Record<SensorId, Maybe<SensorValue>>
+export type SensorValuesMap = Record<SensorId, Maybe<Action>>

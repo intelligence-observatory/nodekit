@@ -2,7 +2,6 @@ import type {CardId, NodeTimePointMsec, PlainString, PressableKey, SpatialSize} 
 import type {Region} from "../region";
 import type {SliderBinIndex} from "../../board-view/sensor-bindings/slider";
 
-
 interface BaseSensor<T extends string> {
     sensor_type: T
 }
@@ -44,6 +43,8 @@ export interface SliderSensor extends BaseSensor<'SliderSensor'>{
     orientation: 'horizontal' | 'vertical';
     region: Region
 }
+
+// Combinators
 
 export type Sensor =
     | ClickSensor
