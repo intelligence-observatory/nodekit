@@ -1,10 +1,10 @@
-import type {SensorValuesMap} from "../actions";
-import type {RegisterId, SensorId} from "../common.ts";
+import type {RegisterId} from "../common.ts";
+import type {Action} from "../actions";
 
 export type BaseValue = string | number | boolean;
 // Note: TypeScript does not distinguish int vs float; both are `number`.
 
-export type StructKey = string;
+export type StructKey = string; // Dot notation is expected
 
 // Recursive JSON-like struct: map from string to Value.
 export type Struct = { [key: StructKey]: Value };
@@ -25,7 +25,7 @@ export type VariableName = string;
 
 export type Op =
     | "var"
-    | "svf" // sensorvalue field
+    | "af" // action field
     | "get"
     | "lit"
     | "if"
@@ -70,10 +70,12 @@ export interface Var extends BaseExpression {
     scope?: "l" | "g";
 }
 
-export interface SensorValueField extends BaseExpression {
-    op: "svf";
-    sensor_id: SensorId;
-    field: StructKey;
+export interface ActionField extends BaseExpression {
+    /**
+     * Access a field in the last Action.
+     */
+    op: "af";
+    key: StructKey
 }
 
 export interface Get extends BaseExpression {
@@ -250,7 +252,7 @@ export interface Fold extends ArrayOp {
 export type Expression =
 // Root
     | Var
-    | SensorValueField
+    | ActionField
     | Get
     | Lit
     // Logic
@@ -283,11 +285,14 @@ export type Expression =
 
 export type VariableFile = Record<VariableName, Value>;
 
-export function evl(
-    expression: Expression,
+export interface EvlContext {
     graph_registers: Record<RegisterId, Value>,
     local_variables: VariableFile,
-    last_sensor_values: SensorValuesMap
+    last_action: Action
+}
+export function evl(
+    expression: Expression,
+    context: EvlContext,
 ): Value {
     switch (expression.op) {
         // =====================
@@ -296,37 +301,24 @@ export function evl(
         case "var": {
             const scope = expression.scope ?? "g";
             if (scope === "l") {
-                if (!(expression.name in local_variables)) {
+                if (!(expression.name in context.local_variables)) {
                     throw new Error(`Local variable '${expression.name}' not found`);
                 }
-                return local_variables[expression.name];
+                return context.local_variables[expression.name];
             } else {
-                if (!(expression.name in graph_registers)) {
+                if (!(expression.name in context.graph_registers)) {
                     throw new Error(`Graph register '${expression.name}' not found`);
                 }
-                return graph_registers[expression.name as RegisterId];
+                return context.graph_registers[expression.name as RegisterId];
             }
         }
-        case "svf": {
-            const { sensor_id, field } = expression;
-            const sensor = last_sensor_values[sensor_id];
-            if (!sensor) {
-                throw new Error(`Sensor '${sensor_id}' not found in last_sensor_values`);
-            }
-            const value = (sensor as any)[field];
-            if (value === undefined) {
-                throw new Error(
-                    `Field '${field}' not found on SensorValue for sensor '${sensor_id}'`
-                );
-            }
-            return value as Value;
+        case "af": {
+            break
         }
         case "get": {
             const containerVal = evl(
                 expression.container,
-                graph_registers,
-                local_variables,
-                last_sensor_values
+                context,
             );
             const key = expression.key;
 
@@ -367,9 +359,7 @@ export function evl(
         case "if": {
             const condVal = evl(
                 expression.cond,
-                graph_registers,
-                local_variables,
-                last_sensor_values
+                context,
             );
             if (typeof condVal !== "boolean") {
                 throw new Error(`if: condition must be boolean, got '${typeof condVal}'`);
@@ -377,16 +367,12 @@ export function evl(
             if (condVal) {
                 return evl(
                     expression.then,
-                    graph_registers,
-                    local_variables,
-                    last_sensor_values
+                    context,
                 );
             } else {
                 return evl(
                     expression.otherwise,
-                    graph_registers,
-                    local_variables,
-                    last_sensor_values
+                    context,
                 );
             }
         }
@@ -398,9 +384,7 @@ export function evl(
         case "not": {
             const v = evl(
                 expression.operand,
-                graph_registers,
-                local_variables,
-                last_sensor_values
+                context,
             );
             if (typeof v !== "boolean") {
                 throw new Error(`not: operand must be boolean, got '${typeof v}'`);
@@ -411,7 +395,8 @@ export function evl(
         case "and": {
             // short-circuit
             for (const arg of expression.args) {
-                const v = evl(arg, graph_registers, local_variables, last_sensor_values);
+                const v = evl(
+                    arg, context,);
                 if (typeof v !== "boolean") {
                     throw new Error(`and: all args must be boolean, got '${typeof v}'`);
                 }
@@ -423,7 +408,7 @@ export function evl(
         case "or": {
             // short-circuit
             for (const arg of expression.args) {
-                const v = evl(arg, graph_registers, local_variables, last_sensor_values);
+                const v = evl(arg, context,);
                 if (typeof v !== "boolean") {
                     throw new Error(`or: all args must be boolean, got '${typeof v}'`);
                 }
@@ -439,15 +424,11 @@ export function evl(
         case "eq": {
             const lhs = evl(
                 expression.lhs,
-                graph_registers,
-                local_variables,
-                last_sensor_values
+                context,
             );
             const rhs = evl(
                 expression.rhs,
-                graph_registers,
-                local_variables,
-                last_sensor_values
+                context,
             );
             // strict equality; you can swap this for deep equality if needed
             return lhs === rhs;
@@ -456,15 +437,11 @@ export function evl(
         case "ne": {
             const lhs = evl(
                 expression.lhs,
-                graph_registers,
-                local_variables,
-                last_sensor_values
+                context,
             );
             const rhs = evl(
                 expression.rhs,
-                graph_registers,
-                local_variables,
-                last_sensor_values
+                context,
             );
             return lhs !== rhs;
         }
@@ -475,15 +452,11 @@ export function evl(
         case "le": {
             const lhs = evl(
                 expression.lhs,
-                graph_registers,
-                local_variables,
-                last_sensor_values
+                context,
             );
             const rhs = evl(
                 expression.rhs,
-                graph_registers,
-                local_variables,
-                last_sensor_values
+                context,
             );
 
             if (typeof lhs !== typeof rhs) {
@@ -519,15 +492,11 @@ export function evl(
         case "div": {
             const lhs = evl(
                 expression.lhs,
-                graph_registers,
-                local_variables,
-                last_sensor_values
+                context,
             );
             const rhs = evl(
                 expression.rhs,
-                graph_registers,
-                local_variables,
-                last_sensor_values
+                context,
             );
 
             if (typeof lhs !== "number" || typeof rhs !== "number") {
@@ -558,9 +527,7 @@ export function evl(
         case "slice": {
             const arrayVal = evl(
                 expression.array,
-                graph_registers,
-                local_variables,
-                last_sensor_values
+                context,
             );
             if (!Array.isArray(arrayVal)) {
                 throw new Error(`slice: array must be array, got '${typeof arrayVal}'`);
@@ -568,9 +535,7 @@ export function evl(
 
             const startVal = evl(
                 expression.start,
-                graph_registers,
-                local_variables,
-                last_sensor_values
+                context,
             );
             if (typeof startVal !== "number") {
                 throw new Error(`slice: start must be number, got '${typeof startVal}'`);
@@ -580,9 +545,7 @@ export function evl(
             if (expression.end !== null) {
                 const evEnd = evl(
                     expression.end,
-                    graph_registers,
-                    local_variables,
-                    last_sensor_values
+                    context,
                 );
                 if (typeof evEnd !== "number") {
                     throw new Error(`slice: end must be number, got '${typeof evEnd}'`);
@@ -596,9 +559,7 @@ export function evl(
         case "map": {
             const arrayVal = evl(
                 expression.array,
-                graph_registers,
-                local_variables,
-                last_sensor_values
+                context,
             );
             if (!Array.isArray(arrayVal)) {
                 throw new Error(`map: array must be array, got '${typeof arrayVal}'`);
@@ -607,15 +568,13 @@ export function evl(
             const curName = expression.cur ?? "xcur";
 
             return arrayVal.map((elem) => {
-                const extendedLocals: VariableFile = {
-                    ...local_variables,
+                context.local_variables = {
+                    ...context.local_variables,
                     [curName]: elem,
                 };
                 return evl(
                     expression.func,
-                    graph_registers,
-                    extendedLocals,
-                    last_sensor_values
+                    context,
                 );
             }) as ArrayValue;
         }
@@ -623,9 +582,7 @@ export function evl(
         case "filter": {
             const arrayVal = evl(
                 expression.array,
-                graph_registers,
-                local_variables,
-                last_sensor_values
+                context,
             );
             if (!Array.isArray(arrayVal)) {
                 throw new Error(`filter: array must be array, got '${typeof arrayVal}'`);
@@ -635,15 +592,13 @@ export function evl(
 
             const result: ArrayValue = [];
             for (const elem of arrayVal) {
-                const extendedLocals: VariableFile = {
-                    ...local_variables,
+                context.local_variables = {
+                    ...context.local_variables,
                     [curName]: elem,
                 };
                 const keep = evl(
                     expression.predicate,
-                    graph_registers,
-                    extendedLocals,
-                    last_sensor_values
+                    context,
                 );
                 if (typeof keep !== "boolean") {
                     throw new Error(
@@ -660,9 +615,7 @@ export function evl(
         case "fold": {
             const arrayVal = evl(
                 expression.array,
-                graph_registers,
-                local_variables,
-                last_sensor_values
+                context,
             );
             if (!Array.isArray(arrayVal)) {
                 throw new Error(`fold: array must be array, got '${typeof arrayVal}'`);
@@ -670,24 +623,20 @@ export function evl(
 
             let acc = evl(
                 expression.init,
-                graph_registers,
-                local_variables,
-                last_sensor_values
+                context,
             );
             const accName = expression.acc ?? "xagg";
             const curName = expression.cur ?? "xcur";
 
             for (const elem of arrayVal) {
-                const extendedLocals: VariableFile = {
-                    ...local_variables,
+                context.local_variables = {
+                    ...context.local_variables,
                     [accName]: acc,
                     [curName]: elem,
                 };
                 acc = evl(
                     expression.func,
-                    graph_registers,
-                    extendedLocals,
-                    last_sensor_values
+                    context,
                 );
             }
             return acc;

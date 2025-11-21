@@ -6,11 +6,6 @@ export interface BaseAction<T extends string> {
     t: TimeElapsedMsec, // When the Sensor was set to this SensorValue
 }
 
-export interface UnresolvedSensorValue{
-    // Value of an unresolved Sensor
-    action_type: 'UnresolvedSensorValue'
-}
-
 export interface ClickAction extends BaseAction<"ClickAction"> {
     x: SpatialPoint;
     y: SpatialPoint;
@@ -58,5 +53,3 @@ export type Action =
     | ProductAction
     | SumAction
 
-export type Maybe<T> = T | UnresolvedSensorValue;
-export type SensorValuesMap = Record<SensorId, Maybe<Action>>

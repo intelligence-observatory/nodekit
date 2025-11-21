@@ -112,7 +112,6 @@ export class NodePlay {
         )
 
         // Subscribe to SensorBinding:
-        console.log('da', this.deferredAction)
         sensorBinding.subscribe(
             (action) => {this.deferredAction.resolve(action)}
         )

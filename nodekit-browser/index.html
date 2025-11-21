@@ -15,7 +15,6 @@
         "start": "my-node",
         "nodes": {
             "my-node": {
-                "timeout_msec": 400,
                 "cards": {
                     "video": {
                         "card_type": "VideoCard",
@@ -104,111 +103,10 @@
                     }
                 },
                 "board_color": "gray",
-            },
-            "my-node2": {
-                "timeout_msec": 400,
-                "cards": {
-                    "hello-text": {
-                        "card_type": "TextCard",
-                        "region": {
-                            "x": -0.4,
-                            "y": -0.4,
-                            "w": 0.2,
-                            "h": 0.1,
-                            "mask": 'rectangle',
-                        },
-                        "text": "I am a TextCard.",
-                        "font_size": 0.03,
-                        "justification_horizontal": "center",
-                        "justification_vertical": "center",
-                        "text_color": "#000000ff",
-                        "background_color": "#e6e6e6ff"
-                    },
-                },
-                "sensors": {
-                    "slider-vertical": {
-                        "sensor_type": "SliderSensor",
-                        "region": {
-                            "x": -0.25,
-                            "y": 0,
-                            "w": 0.1,
-                            "h": 0.3,
-                            "mask": 'rectangle',
-                        },
-
-                        "num_bins": 100,
-                        "show_bin_markers": true,
-                        "initial_bin_index": 80,
-                        "orientation": "vertical"
-                    },
-                    "slider-vertical2": {
-                        "sensor_type": "SliderSensor",
-                        "region": {
-                            "x": -0.4,
-                            "y": 0,
-                            "w": 0.1,
-                            "h": 0.3,
-                            "mask": 'rectangle',
-                        },
-                        "num_bins": 7,
-                        "initial_bin_index": 2,
-                        "show_bin_markers": true,
-                        "orientation": "vertical"
-                    },
-                    "slider-test": {
-                        "sensor_type": "SliderSensor",
-                        "region": {
-                            "x": 0.0,
-                            "y": -0.25,
-                            "w": 1,
-                            "h": 0.05,
-                            "mask": 'rectangle',
-                        },
-                        "num_bins": 7,
-                        "initial_bin_index": 5,
-                        "orientation": "horizontal",
-                        "show_bin_markers": true,
-                    },
-                    "slider-test2": {
-                        "sensor_type": "SliderSensor",
-                        "region": {
-                            "x": 0.0,
-                            "y": -0.3,
-                            "w": 1,
-                            "h": 0.05,
-                            "mask": 'rectangle',
-                        },
-                        "num_bins": 100,
-                        "initial_bin_index": 25,
-                        "orientation": "horizontal",
-                        "show_bin_markers": false,
-                    },
-                },
-                "effects": [],
-                "board_color": "gray",
-                "exit": {
-                    'predicate_type': 'RacePredicate',
-                    'items': '*'
-                }
+                "show_pointer": true,
             },
         },
-        "transitions": {
-            'my-node': [
-                {
-                    'when': {
-                        'op': 'lit',
-                        'value': false,
-                    },
-                    'to': 'my-node2',
-                    'register_updates': {
-                        'hello': {
-                            'op': 'lit',
-                            'value': 'world',
-                        }
-                    },
-                }
-            ]
-        },
+        "transitions": {},
         "nodekit_version": "0.1.0",
         'registers': {},
     }
@@ -218,19 +116,18 @@
     window.focus();
 
     window.onload = async () => {
-        // Add focus
         let trace = await play(
             graph,
             (event) => {
+                // Avoid noise in the log
                 if ("PointerSampledEvent" === event.event_type) {
-                    return; // too much noise in the log
+                    return;
                 }
                 console.log(event);
             },
             [],
             true,
         )
-        console.log(trace)
     };
 </script>
 

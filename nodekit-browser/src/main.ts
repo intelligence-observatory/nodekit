@@ -141,7 +141,14 @@ export async function play(
         let nextNodeId = null;
         let transitions = graph.transitions[currentNodeId];
         for (const transition of transitions){
-            const value = evl(transition.when, graph.registers, {}, result.action)
+            const value = evl(
+                transition.when,
+                {
+                    graph_registers: graph.registers,
+                    local_variables: {},
+                    last_action: result.action
+                }
+            )
             console.log('transition value', value)
             if (value === true){
                 // Valid transition found:
@@ -149,7 +156,14 @@ export async function play(
 
                 // Update graph registers:
                 for (const [registerId, updateExpression] of Object.entries(transition.register_updates)){
-                    const updateValue = evl(updateExpression, graph.registers, {}, result.action);
+                    const updateValue = evl(
+                        updateExpression,
+                        {
+                            graph_registers: graph.registers,
+                            local_variables: {},
+                            last_action: result.action
+                        }
+                    );
                     console.log(registerId, updateValue)
                     graph.registers[registerId as RegisterId] = updateValue
                     console.log('registers', graph.registers)
