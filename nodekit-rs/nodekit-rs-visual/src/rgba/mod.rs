@@ -31,7 +31,7 @@ impl RgbaBuffer {
                     .for_each(|(src_x, dst_x)| {
                         let src_index = Self::get_index(src_x, src_y, src_w);
                         let dst_index = Self::get_index(dst_x, dst_y, BOARD_D);
-                        Self::overlay_pixel(&src[src_index], &mut dst[dst_index]);
+                        Self::overlay_pixel_rgb(&src[src_index], &mut dst[dst_index]);
                     });
             });
     }
@@ -53,7 +53,7 @@ impl RgbaBuffer {
     }
 
     /// Overlay a `src` pixel onto a `dst` pixel.
-    pub const fn overlay_pixel(src: &[u8; RGBA], dst: &mut [u8; STRIDE]) {
+    pub const fn overlay_pixel_rgb(src: &[u8; RGBA], dst: &mut [u8; STRIDE]) {
         // If `src` is totally opaque, then just copy it over.
         if src[3] == 255 {
             dst[0] = src[0];
@@ -68,6 +68,28 @@ impl RgbaBuffer {
                 dst[0] = Self::overlay_c(src[0], dst[0], src_alpha, one_minus_src_a, alpha_final);
                 dst[1] = Self::overlay_c(src[1], dst[1], src_alpha, one_minus_src_a, alpha_final);
                 dst[2] = Self::overlay_c(src[2], dst[2], src_alpha, one_minus_src_a, alpha_final);
+            }
+        }
+    }
+
+    /// Overlay a `src` pixel onto a `dst` pixel.
+    pub const fn overlay_pixel_rgba(src: &[u8; RGBA], dst: &mut [u8; RGBA]) {
+        // If `src` is totally opaque, then just copy it over.
+        if src[3] == 255 {
+            dst[0] = src[0];
+            dst[1] = src[1];
+            dst[2] = src[2];
+            dst[3] = src[3];
+        } else {
+            let src_alpha = src[3] as f64 / 255.;
+            let dst_alpha = dst[3] as f64 / 255.;
+            let one_minus_src_a = 1. - src_alpha;
+            let alpha_final = src_alpha + dst_alpha * one_minus_src_a;
+            if alpha_final > 0. {
+                dst[0] = Self::overlay_c(src[0], dst[0], src_alpha, one_minus_src_a, alpha_final);
+                dst[1] = Self::overlay_c(src[1], dst[1], src_alpha, one_minus_src_a, alpha_final);
+                dst[2] = Self::overlay_c(src[2], dst[2], src_alpha, one_minus_src_a, alpha_final);
+                dst[3] = (alpha_final * 255.) as u8
             }
         }
     }
@@ -99,22 +121,22 @@ mod tests {
     fn test_overlay_pixel() {
         let mut dst = [255, 255, 255];
         let mut src = [0, 0, 0, 255];
-        RgbaBuffer::overlay_pixel(&src, &mut dst);
+        RgbaBuffer::overlay_pixel_rgb(&src, &mut dst);
         assert_eq!(dst, [0, 0, 0]);
 
         dst = [200, 170, 30];
         src = [100, 200, 120, 255];
-        RgbaBuffer::overlay_pixel(&src, &mut dst);
+        RgbaBuffer::overlay_pixel_rgb(&src, &mut dst);
         assert_eq!(dst, [100, 200, 120]);
 
         dst = [0, 255, 255];
         src = [255, 0, 0, 255];
-        RgbaBuffer::overlay_pixel(&src, &mut dst);
+        RgbaBuffer::overlay_pixel_rgb(&src, &mut dst);
         assert_eq!(dst, [255, 0, 0]);
 
         dst = [200, 170, 30];
         src = [100, 200, 120, 50];
-        RgbaBuffer::overlay_pixel(&src, &mut dst);
+        RgbaBuffer::overlay_pixel_rgb(&src, &mut dst);
         assert_eq!(dst, [180, 175, 47]);
     }
 

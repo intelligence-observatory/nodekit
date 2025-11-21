@@ -34,7 +34,7 @@ pub fn parse_color_rgb(color: &str) -> Result<[u8; STRIDE], Error> {
     } else {
         // Overlay onto white.
         let mut dst = [255, 255, 255];
-        RgbaBuffer::overlay_pixel(&color.to_be_bytes(), &mut dst);
+        RgbaBuffer::overlay_pixel_rgb(&color.to_be_bytes(), &mut dst);
         Ok(dst)
     }
 }

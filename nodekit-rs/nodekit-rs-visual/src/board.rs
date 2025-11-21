@@ -1,7 +1,7 @@
 //! Various constants used to describe the size of the visual board.
 
-use blittle::*;
 use blittle::stride::RGBA;
+use blittle::*;
 use bytemuck::cast_slice_mut;
 
 pub const BOARD_D: usize = 768;

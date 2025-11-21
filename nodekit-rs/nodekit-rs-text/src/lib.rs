@@ -2,17 +2,20 @@ mod error;
 mod md;
 mod surface;
 
-use blittle::{PositionI, Size, blit, clip};
+use blittle::stride::RGBA;
+use blittle::{PositionI, Size};
 use bytemuck::cast_slice_mut;
 use cosmic_text::fontdb::Source;
 use cosmic_text::{Align, Attrs, Buffer, Color, Family, FontSystem, Metrics, Shaping, SwashCache};
 pub use error::Error;
 use md::{FontSize, parse};
 use nodekit_rs_models::{JustificationHorizontal, JustificationVertical, Rect};
-use nodekit_rs_visual::{BOARD_D_F64, STRIDE, bitmap_rgb, parse_color_rgba, to_blittle_size, bitmap_rgba, RgbaBuffer};
+use nodekit_rs_visual::{
+    BOARD_D_F64, ResizedRect, RgbaBuffer, RgbaRects, bitmap_rgba, parse_color_rgba,
+    spatial_coordinate, to_blittle_size,
+};
 use pyo3::pyclass;
 use std::sync::Arc;
-use blittle::stride::RGBA;
 use surface::Surface;
 
 #[pyclass]
@@ -22,16 +25,16 @@ pub struct TextEngine {
 }
 
 impl TextEngine {
-    pub fn blit(
+    pub fn render(
         &mut self,
         rect: Rect,
         text: &nodekit_rs_models::Text,
-        board: &mut [u8],
-    ) -> Result<(), Error> {
+    ) -> Result<Vec<RgbaBuffer>, Error> {
         // Get the font sizes.
         let font_size = FontSize::new((text.font_size * BOARD_D_F64).ceil() as u16);
         let mut buffer = Buffer::new(&mut self.font_system, Metrics::from(&font_size));
         let font_usize = font_size.font_size as usize;
+        let font_isize = font_size.font_size as isize;
         let line_height_isize = font_size.line_height as isize;
         let src_size = to_blittle_size(&rect.size);
         buffer.set_size(
@@ -96,32 +99,30 @@ impl TextEngine {
             JustificationVertical::Bottom => src_size.h.cast_signed() - height,
         } + line_height_isize;
 
+        let offset = PositionI {
+            x: spatial_coordinate(rect.position.x),
+            y: spatial_coordinate(rect.position.y),
+        };
         // Blit onto the final surface.
-        for surface in surfaces {
-            let position = PositionI {
-                x: 0,
-                y: surface.y + y_offset,
-            };
-            let mut surface_size = surface.size;
-            let mut position = clip(&position, &src_size, &mut surface_size);
-            position.x = font_usize;
-            surface_size.w -= font_usize * 2;
-            // No need to overlay.
-            blit(
-                &surface.surface,
-                &surface_size,
-                &mut final_surface,
-                &position,
-                &src_size,
-                STRIDE,
-            );
-        }
-
-        // TODO apply alpha to final blit.
-        Ok(VisualBuffer {
-            buffer: final_surface,
-            rect: RgbRect::from(rect),
-        })
+        Ok(surfaces
+            .into_iter()
+            .filter_map(|surface| {
+                let position = PositionI {
+                    x: offset.x - font_isize,
+                    y: offset.y + surface.y + y_offset,
+                };
+                let mut surface_size = surface.size;
+                surface_size.w -= font_usize * 2;
+                RgbaRects::new(&ResizedRect {
+                    position,
+                    size: surface_size,
+                })
+                .map(|rects| RgbaBuffer {
+                    buffer: surface.surface,
+                    rects,
+                })
+            })
+            .collect())
     }
 
     fn draw(&mut self, text_color: Color, size: Size, surface: &mut [u8], buffer: &mut Buffer) {
@@ -137,7 +138,7 @@ impl TextEngine {
                 if alpha > 0 {
                     (x as usize..x1).zip(y as usize..y1).for_each(|(x, y)| {
                         let index = x + y * size.w;
-                        RgbaBuffer::overlay_pixel(&color.as_rgba(), &mut dst[index]);
+                        RgbaBuffer::overlay_pixel_rgba(&color.as_rgba(), &mut dst[index]);
                     });
                 }
             },
@@ -177,14 +178,12 @@ impl Default for TextEngine {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use nodekit_rs_visual::{BOARD_D_U32, board};
     use std::fs::File;
     use std::io::BufWriter;
 
     #[test]
     fn test_text_render() {
-        let width = 768;
-        let height = 768;
-
         let card = nodekit_rs_models::Text {
             text: include_str!("../lorem.txt").to_string(),
             font_size: 0.02,
@@ -200,21 +199,18 @@ mod tests {
 
         // Render the text.
         let mut text = TextEngine::default();
-        let image = text.render(rect, &card).unwrap();
+        let mut board = board([200, 200, 200]);
+        for buffer in text.render(rect, &card).unwrap() {
+            buffer.blit(&mut board);
+        }
 
         // Write the result as a .png file.
         let file = File::create("out.png").unwrap();
         let ref mut w = BufWriter::new(file);
-        let mut encoder = png::Encoder::new(w, width as u32, height as u32); // Width is 2 pixels and height is 1.
+        let mut encoder = png::Encoder::new(w, BOARD_D_U32, BOARD_D_U32); // Width is 2 pixels and height is 1.
         encoder.set_color(png::ColorType::Rgb);
         encoder.set_depth(png::BitDepth::Eight);
         let mut writer = encoder.write_header().unwrap();
-        assert_eq!(image.rect.size.w, 768);
-        assert_eq!(image.rect.size.h, 768);
-        assert_eq!(
-            image.buffer.len(),
-            image.rect.size.w * image.rect.size.h * STRIDE
-        );
-        writer.write_image_data(&image.buffer).unwrap();
+        writer.write_image_data(&board).unwrap();
     }
 }

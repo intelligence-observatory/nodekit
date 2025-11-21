@@ -103,6 +103,14 @@ impl Renderer {
                         image.blit(&mut self.board_pre_cursor);
                     }
                 }
+                Asset::Text(text) => {
+                    // Show something new.
+                    if !self.visible.contains(&k) {
+                        for text in text {
+                            text.blit(&mut self.board_pre_cursor);
+                        }
+                    }
+                }
                 Asset::Video(video) => {
                     // TODO start time.
                     video
@@ -159,7 +167,7 @@ impl Renderer {
                 CardType::Text(text) => {
                     self.assets.insert(
                         key,
-                        Asset::Image(
+                        Asset::Text(
                             self.text_engine
                                 .render(card.rect, text)
                                 .map_err(Error::Text)?,
