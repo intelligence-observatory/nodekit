@@ -10,7 +10,7 @@ pub use error::Error;
 use md::{FontSize, parse};
 use nodekit_rs_models::{JustificationHorizontal, JustificationVertical, Rect};
 use nodekit_rs_visual::{
-    BOARD_D_F64, BlitRect, RgbRect, STRIDE, VisualBuffer, bitmap, overlay_pixel, parse_color,
+    BOARD_D_F64, RgbaRect, STRIDE, bitmap, parse_color,
     to_blittle_size,
 };
 use pyo3::pyclass;
@@ -24,11 +24,12 @@ pub struct TextEngine {
 }
 
 impl TextEngine {
-    pub fn render(
+    pub fn blit(
         &mut self,
         rect: Rect,
         text: &nodekit_rs_models::Text,
-    ) -> Result<VisualBuffer, Error> {
+        board: &mut [u8]
+    ) -> Result<(), Error> {
         // Get the font sizes.
         let font_size = FontSize::new((text.font_size * BOARD_D_F64).ceil() as u16);
         let mut buffer = Buffer::new(&mut self.font_system, Metrics::from(&font_size));
