@@ -21,8 +21,8 @@ use uuid::Uuid;
 #[gen_stub_pyclass]
 #[derive(Default)]
 pub struct Renderer {
-    /// The board bitmap.
-    board: Vec<u8>,
+    /// The board bitmap, prior to blitting the cursor.
+    board_pre_cursor: Vec<u8>,
     /// The background color.
     color: [u8; STRIDE],
     /// Cached text engine.
@@ -47,7 +47,7 @@ impl Renderer {
     pub fn render<'py>(&mut self, py: Python<'py>, state: &State) -> PyResult<Bound<'py, PyBytes>> {
         self.blit(state)
             .map_err(|e| PyRuntimeError::new_err(e.to_string()))?;
-        Ok(PyBytes::new(py, &self.board))
+        Ok(PyBytes::new(py, &self.board_pre_cursor))
     }
 }
 
@@ -97,13 +97,13 @@ impl Renderer {
                 Asset::Image(image) => {
                     // Show something new.
                     if !self.visible.contains(&k) {
-                        image.blit(&mut self.board);
+                        image.blit(&mut self.board_pre_cursor);
                     }
                 }
                 Asset::Video(video) => {
                     // TODO start time.
                     video
-                        .blit(state.t_msec, &mut self.board)
+                        .blit(state.t_msec, &mut self.board_pre_cursor)
                         .map_err(Error::Video)?;
                 }
             }
@@ -123,10 +123,10 @@ impl Renderer {
         // Get the background color.
         self.color = parse_color(&state.board_color).map_err(Error::ParseColor)?;
         // Fill the board.
-        if self.board.is_empty() {
-            self.board = board(self.color);
+        if self.board_pre_cursor.is_empty() {
+            self.board_pre_cursor = board(self.color);
         } else {
-            cast_slice_mut::<u8, [u8; STRIDE]>(&mut self.board).fill(self.color);
+            cast_slice_mut::<u8, [u8; STRIDE]>(&mut self.board_pre_cursor).fill(self.color);
         }
         // Clear the visible keys.
         self.visible.clear();
@@ -181,7 +181,7 @@ impl Renderer {
         blit(
             &erasure,
             &blit_rect.size,
-            &mut self.board,
+            &mut self.board_pre_cursor,
             &blit_rect.position,
             &BOARD_SIZE,
             STRIDE,
