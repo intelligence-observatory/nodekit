@@ -1,34 +1,41 @@
-use blittle::{PositionI, Size, clip};
+use blittle::{PositionI, Size};
 use nodekit_rs_models::Position;
 use nodekit_rs_visual::*;
 
 const CURSOR_SIZE: Size = Size { w: 34, h: 44 };
 
 /// A cursor icon.
-pub struct Cursor {
-    cursor: Vec<u8>,
-}
+pub struct Cursor(RgbaBuffer);
 
 impl Cursor {
     /// Blit the cursor onto the `board` image.
     pub fn blit(&mut self, position: &Position, board: &mut [u8]) {
         // Convert to pixel coordinates.
-        let position = PositionI {
-            x: spatial_coordinate(position.x),
-            y: spatial_coordinate(position.y),
+        let rect = ResizedRect {
+            position: PositionI {
+                x: spatial_coordinate(position.x),
+                y: spatial_coordinate(position.y),
+            },
+            size: CURSOR_SIZE,
         };
-        let mut src_size = CURSOR_SIZE;
-        // Clip.
-        let position = clip(&position, &BOARD_SIZE, &mut src_size);
-        overlay(&self.cursor, &src_size, board, &position, &BOARD_SIZE);
+
+        // Convert to an RGBA area.
+        if let Some(rects) = RgbaRects::new(&rect) {
+            // Set the rects.
+            self.0.rects = rects;
+            // Blit to the board.
+            self.0.blit(board);
+        }
     }
 }
 
 impl Default for Cursor {
     fn default() -> Self {
-        Self {
-            cursor: include_bytes!("../cursor").to_vec(),
-        }
+        let buffer = RgbaBuffer {
+            buffer: include_bytes!("../cursor").to_vec(),
+            rects: Default::default(),
+        };
+        Self(buffer)
     }
 }
 
@@ -40,20 +47,14 @@ mod tests {
     #[test]
     fn test_cursor_size() {
         let cursor = Cursor::default();
-        assert_eq!(cursor.cursor.len(), CURSOR_SIZE.w * CURSOR_SIZE.h * 4);
+        assert_eq!(cursor.0.buffer.len(), CURSOR_SIZE.w * CURSOR_SIZE.h * 4);
     }
 
     #[test]
     fn blit_cursor_image() {
         let mut visual = board([50, 100, 50]);
         let mut cursor = Cursor::default();
-        cursor.blit(
-            &Position {
-                x: -0.519,
-                y: -0.499,
-            },
-            &mut visual,
-        );
+        cursor.blit(&Position { x: 0., y: 0. }, &mut visual);
 
         let file = File::create("out.png").unwrap();
         let ref mut w = BufWriter::new(file);

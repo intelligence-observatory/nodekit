@@ -2,6 +2,7 @@ use super::RgbaRange;
 use crate::resized_rect::ResizedRect;
 use blittle::*;
 
+#[derive(Default, Debug)]
 pub struct RgbaRect {
     /// Top left.
     pub xy0: PositionU,
@@ -10,6 +11,7 @@ pub struct RgbaRect {
 }
 
 /// A rect with coordinates that can be used to blit an RGBA bitmap to an RGB bitmap.
+#[derive(Default, Debug)]
 pub struct RgbaRects {
     pub src: RgbaRect,
     pub dst: RgbaRect,

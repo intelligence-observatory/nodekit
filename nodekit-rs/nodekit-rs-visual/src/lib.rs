@@ -12,7 +12,7 @@ pub use error::Error;
 use fast_image_resize::{FilterType, PixelType, ResizeAlg, ResizeOptions, Resizer, SrcCropping};
 use hex_color::HexColor;
 use nodekit_rs_models::Rect;
-use resized_rect::ResizedRect;
+pub use resized_rect::ResizedRect;
 pub use rgb::*;
 pub use rgba::*;
 
