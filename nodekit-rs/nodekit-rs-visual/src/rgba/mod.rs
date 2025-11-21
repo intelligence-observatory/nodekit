@@ -1,7 +1,7 @@
 mod rect;
 mod rgba_range;
 
-use crate::{Error, STRIDE, resize};
+use crate::{BOARD_D, Error, STRIDE, resize};
 use blittle::stride::RGBA;
 use bytemuck::{cast_slice, cast_slice_mut};
 use fast_image_resize::PixelType;
@@ -23,7 +23,6 @@ impl RgbaBuffer {
         let dst = cast_slice_mut::<u8, [u8; STRIDE]>(dst);
 
         let src_w = self.rects.src.xy1.x - self.rects.src.xy0.x;
-        let dst_w = self.rects.dst.xy1.x - self.rects.dst.xy0.x;
         (self.rects.src.xy0.y..self.rects.src.xy1.y)
             .zip(self.rects.dst.xy0.y..self.rects.dst.xy1.y)
             .for_each(|(src_y, dst_y)| {
@@ -31,7 +30,7 @@ impl RgbaBuffer {
                     .zip(self.rects.dst.xy0.x..self.rects.dst.xy1.x)
                     .for_each(|(src_x, dst_x)| {
                         let src_index = Self::get_index(src_x, src_y, src_w);
-                        let dst_index = Self::get_index(dst_x, dst_y + src_y, dst_w);
+                        let dst_index = Self::get_index(dst_x, dst_y, BOARD_D);
                         Self::overlay_pixel(&src[src_index], &mut dst[dst_index]);
                     });
             });
