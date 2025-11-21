@@ -28,11 +28,11 @@ pub fn parse_color(color: &str) -> Result<[u8; STRIDE], Error> {
     }
 }
 
-/// A raw RGB32 bitmap and its pixel size.
+/// A raw RGB24 bitmap and its pixel size.
 pub struct VisualBuffer {
-    /// A raw RGB32 bitmap.
+    /// A raw RGB24 bitmap.
     pub buffer: Vec<u8>,
-    pub rect: BlitRect,
+    pub rect: RgbRect,
 }
 
 impl VisualBuffer {
@@ -61,7 +61,7 @@ impl VisualBuffer {
         if rect.size.w == src_width as usize && rect.size.h == src_height as usize {
             return Ok(Self {
                 buffer: buffer.clone(),
-                rect: BlitRect::from(rect),
+                rect: RgbRect::from(rect),
             });
         }
         // Create an image view.
@@ -88,7 +88,7 @@ impl VisualBuffer {
             .map_err(Error::ImageResize)?;
         // Set the new buffer.
         let buffer = dst.buffer().to_vec();
-        let rect = BlitRect::from(rect);
+        let rect = RgbRect::from(rect);
         Ok(Self { buffer, rect })
     }
 }
@@ -110,7 +110,7 @@ mod tests {
             "test.png",
             &VisualBuffer {
                 buffer,
-                rect: BlitRect {
+                rect: RgbRect {
                     position: PositionU::default(),
                     size: blittle::Size { w: 300, h: 600 },
                 },
@@ -125,7 +125,7 @@ mod tests {
 
         let visual = VisualBuffer {
             buffer: get_rgb_buffer(),
-            rect: BlitRect {
+            rect: RgbRect {
                 position: PositionU::default(),
                 size: blittle::Size { w: 300, h: 600 },
             },
@@ -135,7 +135,7 @@ mod tests {
             "blitted.png",
             &VisualBuffer {
                 buffer: board,
-                rect: BlitRect {
+                rect: RgbRect {
                     position: PositionU::default(),
                     size: blittle::Size {
                         w: BOARD_D,

@@ -929,6 +929,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "nodekit-rs-cursor"
+version = "0.1.0"
+dependencies = [
+ "blittle",
+ "nodekit-rs-models",
+ "nodekit-rs-visual",
+ "png",
+]
+
+[[package]]
 name = "nodekit-rs-image"
 version = "0.1.0"
 dependencies = [

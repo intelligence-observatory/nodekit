@@ -1,31 +1,25 @@
-use crate::STRIDE;
+use crate::{RgbaRect, STRIDE};
 use blittle::stride::RGBA;
 use bytemuck::{cast_slice, cast_slice_mut};
 
 /// Overlay `src` onto `dst`, blending colors using the alpha channel in `src`.
 pub fn overlay(
     src: &[u8],
-    src_size: &blittle::Size,
     dst: &mut [u8],
-    dst_position: &blittle::PositionU,
-    dst_size: &blittle::Size,
+    rect: &RgbaRect,
 ) {
-    if src_size.w == 0 || src_size.h == 0 {
-        return;
-    }
     // Overlay.
     let src = cast_slice::<u8, [u8; RGBA]>(src);
     let dst = cast_slice_mut::<u8, [u8; STRIDE]>(dst);
 
-    (0..src_size.h).for_each(|src_y| {
-        let src_index = get_index(0, src_y, src_size.w);
-        let dst_index = get_index(dst_position.x, dst_position.y + src_y, dst_size.w);
-        src[src_index..src_index + src_size.w]
-            .iter()
-            .zip(dst[dst_index..dst_index + src_size.w].iter_mut())
-            .for_each(|(src, dst)| {
-                overlay_pixel(src, dst);
-            });
+    let src_w = rect.src.xy1.x - rect.src.xy0.x;
+    let dst_w = rect.dst.xy1.x - rect.dst.xy0.x;
+    (rect.src.xy0.y..rect.src.xy1.y).zip(rect.dst.xy0.y..rect.dst.xy1.y).for_each(|(src_y, dst_y)| {
+        (rect.src.xy0.x..rect.src.xy1.x).zip(rect.dst.xy0.x..rect.dst.xy1.x).for_each(|(src_x, dst_x)| {
+            let src_index = get_index(src_x, src_y, src_w);
+            let dst_index = get_index(dst_x, dst_y + src_y, dst_w);
+            overlay_pixel(&src[src_index], &mut dst[dst_index]);
+        });
     });
 }
 

@@ -9,10 +9,7 @@ use cosmic_text::{Align, Attrs, Buffer, Color, Family, FontSystem, Metrics, Shap
 pub use error::Error;
 use md::{FontSize, parse};
 use nodekit_rs_models::{JustificationHorizontal, JustificationVertical, Rect};
-use nodekit_rs_visual::{
-    BOARD_D_F64, BlitRect, STRIDE, VisualBuffer, bitmap, overlay_pixel, parse_color,
-    to_blittle_size,
-};
+use nodekit_rs_visual::{BOARD_D_F64, BlitRect, STRIDE, VisualBuffer, bitmap, overlay_pixel, parse_color, to_blittle_size, RgbRect};
 use pyo3::pyclass;
 use std::sync::Arc;
 use surface::Surface;
@@ -122,7 +119,7 @@ impl TextEngine {
         // TODO apply alpha to final blit.
         Ok(VisualBuffer {
             buffer: final_surface,
-            rect: BlitRect::from(rect),
+            rect: RgbRect::from(rect),
         })
     }
 

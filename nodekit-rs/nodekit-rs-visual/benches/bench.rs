@@ -17,7 +17,7 @@ fn criterion_benchmark(c: &mut Criterion) {
 
     let visual = VisualBuffer {
         buffer: get_rgb_buffer(),
-        rect: BlitRect {
+        rect: RgbRect {
             position: PositionU::default(),
             size: blittle::Size { w: 300, h: 600 },
         },
