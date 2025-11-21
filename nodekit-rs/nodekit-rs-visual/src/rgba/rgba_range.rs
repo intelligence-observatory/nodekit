@@ -15,7 +15,7 @@ pub struct RgbaRange {
 impl RgbaRange {
     pub const fn new(c: isize, d: usize) -> Option<Self> {
         let d_half_isize = d.cast_signed() / 2;
-        if c + d_half_isize < 0 || c > BOARD_D_ISIZE {
+        if c + d_half_isize < 0 || c >= BOARD_D_ISIZE {
             None
         } else if c < 0 {
             let src_0 = c.unsigned_abs();
@@ -47,7 +47,6 @@ impl RgbaRange {
 #[cfg(test)]
 mod tests {
     use super::*;
-    const VISUAL_R: usize = BOARD_D / 2;
 
     #[test]
     fn test_clamped() {
@@ -55,20 +54,20 @@ mod tests {
         let c = RgbaRange::new(0, d).unwrap();
         assert_eq!(c.src_0, 0);
         assert_eq!(c.src_1, d);
-        assert_eq!(c.dst_0, VISUAL_R);
-        assert_eq!(c.dst_1, VISUAL_R + d);
+        assert_eq!(c.dst_0, 0);
+        assert_eq!(c.dst_1, d);
 
         let c = RgbaRange::new(768, d).unwrap();
         assert_eq!(c.src_0, 0);
-        assert_eq!(c.src_1, d / 2 - 1);
-        assert_eq!(c.dst_0, BOARD_D - 1);
+        assert_eq!(c.src_1, d / 2);
+        assert_eq!(c.dst_0, BOARD_D);
         assert_eq!(c.dst_1, BOARD_D);
 
         let c = RgbaRange::new(-1, d).unwrap();
-        assert_eq!(c.src_0, 7);
+        assert_eq!(c.src_0, 1);
         assert_eq!(c.src_1, d);
         assert_eq!(c.dst_0, 0);
-        assert_eq!(c.dst_1, 27);
+        assert_eq!(c.dst_1, 33);
 
         assert!(RgbaRange::new(800, d).is_none());
         assert!(RgbaRange::new(-800, d).is_none());
