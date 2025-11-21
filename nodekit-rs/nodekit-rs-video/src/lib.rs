@@ -156,6 +156,6 @@ mod tests {
 
         let frame = video.get_frame(300).unwrap();
         let _ = write("out.raw", &frame);
-        assert_eq!(frame.len(), (width * height * 3) as usize);
+        assert_eq!(frame.len(), (width * height * 3));
     }
 }

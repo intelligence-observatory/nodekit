@@ -9,12 +9,10 @@ use cosmic_text::{Align, Attrs, Buffer, Color, Family, FontSystem, Metrics, Shap
 pub use error::Error;
 use md::{FontSize, parse};
 use nodekit_rs_models::{JustificationHorizontal, JustificationVertical, Rect};
-use nodekit_rs_visual::{
-    BOARD_D_F64, RgbaRect, STRIDE, bitmap, parse_color,
-    to_blittle_size,
-};
+use nodekit_rs_visual::{BOARD_D_F64, STRIDE, bitmap_rgb, parse_color_rgba, to_blittle_size, bitmap_rgba, RgbaBuffer};
 use pyo3::pyclass;
 use std::sync::Arc;
+use blittle::stride::RGBA;
 use surface::Surface;
 
 #[pyclass]
@@ -28,7 +26,7 @@ impl TextEngine {
         &mut self,
         rect: Rect,
         text: &nodekit_rs_models::Text,
-        board: &mut [u8]
+        board: &mut [u8],
     ) -> Result<(), Error> {
         // Get the font sizes.
         let font_size = FontSize::new((text.font_size * BOARD_D_F64).ceil() as u16);
@@ -42,14 +40,14 @@ impl TextEngine {
             Some((src_size.h - font_usize * 2) as f32),
         );
 
-        let text_color = parse_color(&text.text_color).map_err(Error::Visual)?;
+        let text_color = parse_color_rgba(&text.text_color).map_err(Error::Visual)?;
         let text_color = Color::rgba(text_color[0], text_color[1], text_color[2], 255);
         let mut attrs = Attrs::new().color(text_color);
         attrs.family = Family::SansSerif;
         let paragraphs = parse(&text.text, &font_size, attrs.clone())?;
         let mut y = 0;
         let mut surfaces = Vec::default();
-        let background_color = parse_color(&text.background_color).map_err(Error::Visual)?;
+        let background_color = parse_color_rgba(&text.background_color).map_err(Error::Visual)?;
 
         for paragraph in paragraphs {
             // Set the metrics of this paragraph.
@@ -76,7 +74,7 @@ impl TextEngine {
                 * 1.2) as usize;
 
             // Create an empty surface.
-            let mut surface = bitmap(src_size.w, src_size.h, background_color);
+            let mut surface = bitmap_rgba(src_size.w, src_size.h, background_color);
             // Draw.
             self.draw(text_color, src_size, &mut surface, &mut buffer);
             // Store.
@@ -99,7 +97,6 @@ impl TextEngine {
         } + line_height_isize;
 
         // Blit onto the final surface.
-        let mut final_surface = bitmap(src_size.w, src_size.h, background_color);
         for surface in surfaces {
             let position = PositionI {
                 x: 0,
@@ -128,7 +125,7 @@ impl TextEngine {
     }
 
     fn draw(&mut self, text_color: Color, size: Size, surface: &mut [u8], buffer: &mut Buffer) {
-        let dst = cast_slice_mut::<u8, [u8; STRIDE]>(surface);
+        let dst = cast_slice_mut::<u8, [u8; RGBA]>(surface);
         buffer.draw(
             &mut self.font_system,
             &mut self.swash_cache,
@@ -140,7 +137,7 @@ impl TextEngine {
                 if alpha > 0 {
                     (x as usize..x1).zip(y as usize..y1).for_each(|(x, y)| {
                         let index = x + y * size.w;
-                        overlay_pixel(&color.as_rgba(), &mut dst[index]);
+                        RgbaBuffer::overlay_pixel(&color.as_rgba(), &mut dst[index]);
                     });
                 }
             },

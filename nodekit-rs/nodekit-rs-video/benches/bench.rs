@@ -1,13 +1,13 @@
 use blittle::PositionU;
 use criterion::{Criterion, criterion_group, criterion_main};
 use nodekit_rs_video::*;
-use nodekit_rs_visual::BlitRect;
+use nodekit_rs_visual::RgbRect;
 
 pub fn criterion_benchmark(c: &mut Criterion) {
     let width = 400;
     let height = 300;
 
-    let rect = BlitRect {
+    let rect = RgbRect {
         position: PositionU { x: 0, y: 0 },
         size: blittle::Size {
             w: width,

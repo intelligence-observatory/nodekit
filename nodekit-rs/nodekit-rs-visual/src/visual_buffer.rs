@@ -2,7 +2,7 @@ use crate::{RgbBuffer, RgbaBuffer};
 
 pub enum VisualBuffer {
     Rgb(RgbBuffer),
-    Rgba(RgbaBuffer)
+    Rgba(RgbaBuffer),
 }
 
 impl VisualBuffer {

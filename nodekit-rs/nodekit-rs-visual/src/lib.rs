@@ -8,6 +8,7 @@ mod rgba;
 mod visual_buffer;
 
 use blittle::Size;
+use blittle::stride::RGBA;
 pub use board::*;
 pub use error::Error;
 use fast_image_resize::{FilterType, PixelType, ResizeAlg, ResizeOptions, Resizer, SrcCropping};
@@ -25,8 +26,8 @@ pub const fn to_blittle_size(size: &nodekit_rs_models::Size) -> Size {
     }
 }
 
-/// Convert a hex string e.g. `"#FF0000FF"` to bytes.
-pub fn parse_color(color: &str) -> Result<[u8; STRIDE], Error> {
+/// Convert a hex string e.g. `"#FF0000FF"` to an RGB24 color.
+pub fn parse_color_rgb(color: &str) -> Result<[u8; STRIDE], Error> {
     let color = HexColor::parse_rgba(color).map_err(|e| Error::HexColor(color.to_string(), e))?;
     if color.a == 255 {
         Ok([color.r, color.g, color.b])
@@ -38,8 +39,14 @@ pub fn parse_color(color: &str) -> Result<[u8; STRIDE], Error> {
     }
 }
 
+/// Convert a hex string e.g. `"#FF0000FF"` to an RGB32 color.
+pub fn parse_color_rgba(color: &str) -> Result<[u8; RGBA], Error> {
+    let color = HexColor::parse_rgba(color).map_err(|e| Error::HexColor(color.to_string(), e))?;
+    Ok(color.to_be_bytes())
+}
+
 fn resize(
-    buffer: &mut Vec<u8>,
+    buffer: &mut [u8],
     src_width: u32,
     src_height: u32,
     dst: Rect,
@@ -50,7 +57,7 @@ fn resize(
 
     // No need to resize.
     if rect.size.w == src_width as usize && rect.size.h == src_height as usize {
-        return Ok((buffer.clone(), rect));
+        return Ok((buffer.to_vec(), rect));
     }
 
     // Create an image view.

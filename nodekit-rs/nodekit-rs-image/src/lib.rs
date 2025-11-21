@@ -35,15 +35,33 @@ pub fn load(image: &Image, rect: Rect) -> Result<VisualBuffer, Error> {
         .next_frame(&mut buffer)
         .map_err(|e| Error::Decode(e, image.path.clone()))?;
     match info.color_type {
-        ColorType::Rgb => Ok(VisualBuffer::Rgb(RgbBuffer::new_resized(&mut buffer, info.width, info.height, rect).map_err(Error::Visual)?)),
-        ColorType::Rgba => Ok(VisualBuffer::Rgba(RgbaBuffer::new_resized(&mut buffer, info.width, info.height, rect).map_err(Error::Visual)?)),
+        ColorType::Rgb => Ok(VisualBuffer::Rgb(
+            RgbBuffer::new_resized(&mut buffer, info.width, info.height, rect)
+                .map_err(Error::Visual)?,
+        )),
+        ColorType::Rgba => Ok(VisualBuffer::Rgba(
+            RgbaBuffer::new_resized(&mut buffer, info.width, info.height, rect)
+                .map_err(Error::Visual)?,
+        )),
         ColorType::Indexed => Err(Error::Indexed(image.path.clone())),
-        ColorType::Grayscale => {
-            Ok(VisualBuffer::Rgb(RgbBuffer::new_resized(&mut grayscale_to_rgb(&buffer), info.width, info.height, rect).map_err(Error::Visual)?))
-        },
-        ColorType::GrayscaleAlpha => {
-            Ok(VisualBuffer::Rgba(RgbaBuffer::new_resized(&mut grayscale_alpha_to_rgba(&buffer), info.width, info.height, rect).map_err(Error::Visual)?))
-        }
+        ColorType::Grayscale => Ok(VisualBuffer::Rgb(
+            RgbBuffer::new_resized(
+                &mut grayscale_to_rgb(&buffer),
+                info.width,
+                info.height,
+                rect,
+            )
+            .map_err(Error::Visual)?,
+        )),
+        ColorType::GrayscaleAlpha => Ok(VisualBuffer::Rgba(
+            RgbaBuffer::new_resized(
+                &mut grayscale_alpha_to_rgba(&buffer),
+                info.width,
+                info.height,
+                rect,
+            )
+            .map_err(Error::Visual)?,
+        )),
     }
 }
 
@@ -97,7 +115,7 @@ mod tests {
         let h = 300;
         let rgb = grayscale_alpha_to_rgba(&vec![0; w * h * 2]);
         assert_eq!(rgb.len(), w * h * 4);
-        assert!(rgb.into_iter().all(|c| c == 255));
+        assert!(rgb.into_iter().all(|c| c == 0));
     }
 
     #[test]

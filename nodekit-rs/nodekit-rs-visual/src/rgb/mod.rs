@@ -27,7 +27,7 @@ impl RgbBuffer {
 
     /// Resize to fit within the bounds of `dst`.
     pub fn new_resized(
-        buffer: &mut Vec<u8>,
+        buffer: &mut [u8],
         src_width: u32,
         src_height: u32,
         dst: Rect,

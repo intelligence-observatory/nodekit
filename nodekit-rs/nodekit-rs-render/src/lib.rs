@@ -6,6 +6,7 @@ use blittle::blit;
 use bytemuck::cast_slice_mut;
 pub use error::Error;
 use hashbrown::HashSet;
+use nodekit_rs_cursor::Cursor;
 use nodekit_rs_image::*;
 use nodekit_rs_models::*;
 use nodekit_rs_visual::*;
@@ -15,7 +16,6 @@ use pyo3::types::PyBytes;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use slotmap::SecondaryMap;
 use uuid::Uuid;
-use nodekit_rs_cursor::Cursor;
 
 /// Render a `State` while storing an internal cache of loaded data (fonts, video buffers, etc.)
 #[pyclass]
@@ -115,7 +115,7 @@ impl Renderer {
                 self.visible.insert(k);
             }
         }
-        
+
         // Copy to the final blit.
         self.board.copy_from_slice(&self.board_pre_cursor);
         // Blit the cursor.
@@ -129,7 +129,7 @@ impl Renderer {
 
     fn clear(&mut self, state: &State) -> Result<(), Error> {
         // Get the background color.
-        self.color = parse_color(&state.board_color).map_err(Error::ParseColor)?;
+        self.color = parse_color_rgb(&state.board_color).map_err(Error::ParseColor)?;
         // Fill the board.
         if self.board_pre_cursor.is_empty() {
             self.board_pre_cursor = board(self.color);
@@ -184,7 +184,7 @@ impl Renderer {
         let width = size_coordinate(rect.size.w);
         let height = size_coordinate(rect.size.h);
         // An empty image.
-        let erasure = bitmap(width, height, self.color);
+        let erasure = bitmap_rgb(width, height, self.color);
         // Blit it.
         let rgb_rect = RgbRect::from(rect);
         blit(
