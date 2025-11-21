@@ -958,6 +958,7 @@ dependencies = [
  "blittle",
  "bytemuck",
  "hashbrown 0.16.0",
+ "nodekit-rs-cursor",
  "nodekit-rs-image",
  "nodekit-rs-models",
  "nodekit-rs-text",

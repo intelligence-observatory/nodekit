@@ -15,6 +15,7 @@ use pyo3::types::PyBytes;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use slotmap::SecondaryMap;
 use uuid::Uuid;
+use nodekit_rs_cursor::Cursor;
 
 /// Render a `State` while storing an internal cache of loaded data (fonts, video buffers, etc.)
 #[pyclass]
@@ -23,6 +24,7 @@ use uuid::Uuid;
 pub struct Renderer {
     /// The board bitmap, prior to blitting the cursor.
     board_pre_cursor: Vec<u8>,
+    board: Vec<u8>,
     /// The background color.
     color: [u8; STRIDE],
     /// Cached text engine.
@@ -32,6 +34,7 @@ pub struct Renderer {
     visible: HashSet<CardKey>,
     /// The known state ID.
     id: Option<Uuid>,
+    cursor: Cursor,
 }
 
 #[pymethods]
@@ -47,7 +50,7 @@ impl Renderer {
     pub fn render<'py>(&mut self, py: Python<'py>, state: &State) -> PyResult<Bound<'py, PyBytes>> {
         self.blit(state)
             .map_err(|e| PyRuntimeError::new_err(e.to_string()))?;
-        Ok(PyBytes::new(py, &self.board_pre_cursor))
+        Ok(PyBytes::new(py, &self.board))
     }
 }
 
@@ -112,6 +115,11 @@ impl Renderer {
                 self.visible.insert(k);
             }
         }
+        
+        // Copy to the final blit.
+        self.board.copy_from_slice(&self.board_pre_cursor);
+        // Blit the cursor.
+        self.cursor.blit(&state.pointer, &mut self.board);
         Ok(())
     }
 
@@ -125,6 +133,7 @@ impl Renderer {
         // Fill the board.
         if self.board_pre_cursor.is_empty() {
             self.board_pre_cursor = board(self.color);
+            self.board = self.board_pre_cursor.clone();
         } else {
             cast_slice_mut::<u8, [u8; STRIDE]>(&mut self.board_pre_cursor).fill(self.color);
         }
@@ -177,12 +186,12 @@ impl Renderer {
         // An empty image.
         let erasure = bitmap(width, height, self.color);
         // Blit it.
-        let blit_rect = BlitRect::from(rect);
+        let rgb_rect = RgbRect::from(rect);
         blit(
             &erasure,
-            &blit_rect.size,
+            &rgb_rect.size,
             &mut self.board_pre_cursor,
-            &blit_rect.position,
+            &rgb_rect.position,
             &BOARD_SIZE,
             STRIDE,
         );

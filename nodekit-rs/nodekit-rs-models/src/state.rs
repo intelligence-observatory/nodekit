@@ -17,7 +17,7 @@ pub struct State {
     /// The background color.
     pub board_color: String,
     /// The position of the cursor.
-    pub cursor: Position,
+    pub pointer: Position,
     /// A unique ID.
     pub id: Uuid,
 }
@@ -36,7 +36,7 @@ impl State {
             cards: cards_map,
             t_msec: 0,
             board_color,
-            cursor: Position::default(),
+            pointer: Position::default(),
             id: Uuid::new_v4(),
         }
     }

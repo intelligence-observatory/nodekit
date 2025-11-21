@@ -5,6 +5,7 @@ mod error;
 mod resized_rect;
 mod rgb;
 mod rgba;
+mod visual_buffer;
 
 use blittle::Size;
 pub use board::*;
@@ -15,6 +16,7 @@ use nodekit_rs_models::Rect;
 pub use resized_rect::ResizedRect;
 pub use rgb::*;
 pub use rgba::*;
+pub use visual_buffer::*;
 
 pub const fn to_blittle_size(size: &nodekit_rs_models::Size) -> Size {
     Size {

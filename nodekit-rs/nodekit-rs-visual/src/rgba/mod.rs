@@ -17,10 +17,10 @@ pub struct RgbaBuffer {
 
 impl RgbaBuffer {
     /// Overlay pixels onto `dst`.
-    pub fn blit(&self, dst: &mut [u8]) {
+    pub fn blit(&self, board: &mut [u8]) {
         // Overlay.
         let src = cast_slice::<u8, [u8; RGBA]>(&self.buffer);
-        let dst = cast_slice_mut::<u8, [u8; STRIDE]>(dst);
+        let dst = cast_slice_mut::<u8, [u8; STRIDE]>(board);
 
         let src_w = self.rects.src.xy1.x - self.rects.src.xy0.x;
         (self.rects.src.xy0.y..self.rects.src.xy1.y)

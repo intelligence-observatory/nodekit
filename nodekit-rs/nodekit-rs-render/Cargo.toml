@@ -7,6 +7,7 @@ edition = "2024"
 blittle.workspace = true
 bytemuck.workspace = true
 hashbrown.workspace = true
+nodekit-rs-cursor = { path = "../nodekit-rs-cursor" }
 nodekit-rs-image = { path = "../nodekit-rs-image" }
 nodekit-rs-models = { path = "../nodekit-rs-models" }
 nodekit-rs-text = { path = "../nodekit-rs-text" }
