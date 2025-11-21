@@ -13,28 +13,27 @@ pub struct RgbaRange {
 }
 
 impl RgbaRange {
-    pub const fn new(c: f64, d: usize) -> Option<Self> {
+    pub const fn new(c: isize, d: usize) -> Option<Self> {
         let d_half_isize = d.cast_signed() / 2;
-        let dst = spatial_coordinate(c);
-        if dst + d_half_isize < 0 || dst > BOARD_D_ISIZE {
+        if c + d_half_isize < 0 || c > BOARD_D_ISIZE {
             None
-        } else if dst < 0 {
-            let src_0 = dst.unsigned_abs();
+        } else if c < 0 {
+            let src_0 = c.unsigned_abs();
             Some(Self {
                 src_0,
                 src_1: d,
                 dst_0: 0,
                 dst_1: d - src_0,
             })
-        } else if dst + d_half_isize > BOARD_D_ISIZE {
+        } else if c + d_half_isize > BOARD_D_ISIZE {
             Some(Self {
                 src_0: 0,
-                src_1: (dst.unsigned_abs() + d / 2) - BOARD_D,
-                dst_0: dst.unsigned_abs(),
+                src_1: (c.unsigned_abs() + d / 2) - BOARD_D,
+                dst_0: c.unsigned_abs(),
                 dst_1: BOARD_D,
             })
         } else {
-            let dst = dst.unsigned_abs();
+            let dst = c.unsigned_abs();
             Some(Self {
                 src_0: 0,
                 src_1: d,
@@ -53,25 +52,25 @@ mod tests {
     #[test]
     fn test_clamped() {
         let d: usize = 34;
-        let c = RgbaRange::new(0., d).unwrap();
+        let c = RgbaRange::new(0, d).unwrap();
         assert_eq!(c.src_0, 0);
         assert_eq!(c.src_1, d);
         assert_eq!(c.dst_0, VISUAL_R);
         assert_eq!(c.dst_1, VISUAL_R + d);
 
-        let c = RgbaRange::new(0.499, d).unwrap();
+        let c = RgbaRange::new(768, d).unwrap();
         assert_eq!(c.src_0, 0);
         assert_eq!(c.src_1, d / 2 - 1);
         assert_eq!(c.dst_0, BOARD_D - 1);
         assert_eq!(c.dst_1, BOARD_D);
 
-        let c = RgbaRange::new(-0.51, d).unwrap();
+        let c = RgbaRange::new(-1, d).unwrap();
         assert_eq!(c.src_0, 7);
         assert_eq!(c.src_1, d);
         assert_eq!(c.dst_0, 0);
         assert_eq!(c.dst_1, 27);
 
-        assert!(RgbaRange::new(1.1, d).is_none());
-        assert!(RgbaRange::new(-0.6, d).is_none());
+        assert!(RgbaRange::new(800, d).is_none());
+        assert!(RgbaRange::new(-800, d).is_none());
     }
 }

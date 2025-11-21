@@ -1,9 +1,8 @@
-use crate::blit_rect::rgba_range::RgbaRange;
-use crate::board::*;
-use blittle::{PositionU, Size};
-use nodekit_rs_models::Rect;
+use blittle::*;
+use crate::resized_rect::ResizedRect;
+use super::RgbaRange;
 
-pub struct Region {
+pub struct RgbaRect {
     /// Top left.
     pub xy0: PositionU,
     /// Bottom right.
@@ -11,21 +10,17 @@ pub struct Region {
 }
 
 /// A rect with coordinates that can be used to blit an RGBA bitmap to an RGB bitmap.
-pub struct RgbaRect {
-    pub src: Region,
-    pub dst: Region,
+pub struct RgbaRects {
+    pub src: RgbaRect,
+    pub dst: RgbaRect,
 }
 
-impl RgbaRect {
-    pub const fn new(src_rect: &Rect) -> Option<Self> {
-        let size = Size {
-            w: size_coordinate(src_rect.size.w),
-            h: size_coordinate(src_rect.size.h),
-        };
-        if let Some(xs) = RgbaRange::new(src_rect.position.x, size.w)
-            && let Some(ys) = RgbaRange::new(src_rect.position.y, size.h)
+impl RgbaRects {
+    pub const fn new(src_rect: &ResizedRect) -> Option<Self> {
+        if let Some(xs) = RgbaRange::new(src_rect.position.x, src_rect.size.w)
+            && let Some(ys) = RgbaRange::new(src_rect.position.y, src_rect.size.h)
         {
-            let src = Region {
+            let src = RgbaRect {
                 xy0: PositionU {
                     x: xs.src_0,
                     y: ys.src_0,
@@ -37,7 +32,7 @@ impl RgbaRect {
                     }
                 },
             };
-            let dst = Region {
+            let dst = RgbaRect {
                 xy0: PositionU {
                     x: xs.dst_0,
                     y: ys.dst_0,
