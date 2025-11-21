@@ -16,6 +16,7 @@ export interface SelectSensor extends BaseSensor<'SelectSensor'>{
 
 export interface MultiSelectSensor extends BaseSensor<'MultiSelectSensor'>{
     choices: CardId[]
+
     min_selections: number;
     max_selections: number | null;
 }
