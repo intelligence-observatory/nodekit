@@ -1,6 +1,6 @@
-use std::fmt::{Display, Formatter};
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
+use std::fmt::{Display, Formatter};
 
 /// The position of a card.
 #[gen_stub_pyclass]

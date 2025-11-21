@@ -1,5 +1,5 @@
-use thiserror::Error;
 use nodekit_rs_models::Rect;
+use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum Error {

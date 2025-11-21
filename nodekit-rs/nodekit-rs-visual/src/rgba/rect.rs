@@ -1,6 +1,6 @@
-use blittle::*;
-use crate::resized_rect::ResizedRect;
 use super::RgbaRange;
+use crate::resized_rect::ResizedRect;
+use blittle::*;
 
 pub struct RgbaRect {
     /// Top left.

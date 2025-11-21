@@ -1,9 +1,9 @@
 mod position;
 mod size;
 
-use std::fmt::{Display, Formatter};
 use pyo3::{pyclass, pymethods};
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
+use std::fmt::{Display, Formatter};
 
 pub use position::Position;
 pub use size::Size;

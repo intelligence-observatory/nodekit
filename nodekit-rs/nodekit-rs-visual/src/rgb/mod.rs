@@ -1,10 +1,10 @@
 mod rect;
 
-pub use rect::*;
 use crate::board::*;
-use crate::{resize, Error};
+use crate::{Error, resize};
 use fast_image_resize::PixelType;
 use nodekit_rs_models::Rect;
+pub use rect::*;
 
 /// A raw RGB24 bitmap and its pixel size.
 pub struct RgbBuffer {
@@ -100,7 +100,7 @@ mod tests {
                 size: Size { w: 1., h: 1. },
             },
         )
-            .unwrap();
+        .unwrap();
         assert_eq!(resized.rect.position.x, 192);
         assert_eq!(resized.rect.position.y, 0);
         assert_eq!(resized.rect.size.w, BOARD_D / 2);
@@ -121,6 +121,6 @@ mod tests {
     }
 
     fn get_rgb_buffer() -> Vec<u8> {
-        include_bytes!("../test_files/rgb.raw").to_vec()
+        include_bytes!("../../test_files/rgb.raw").to_vec()
     }
 }

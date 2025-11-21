@@ -1,20 +1,22 @@
-mod rgba_range;
 mod rect;
+mod rgba_range;
 
+use crate::{Error, STRIDE, resize};
 use blittle::stride::RGBA;
 use bytemuck::{cast_slice, cast_slice_mut};
 use fast_image_resize::PixelType;
 use nodekit_rs_models::Rect;
+pub use rect::*;
 use rgba_range::*;
-pub use rect::RgbaRects;
-use crate::{resize, Error, STRIDE};
 
+/// An RGBA32 bitmap and its blit area.
 pub struct RgbaBuffer {
     pub buffer: Vec<u8>,
     pub rects: RgbaRects,
 }
 
 impl RgbaBuffer {
+    /// Overlay pixels onto `dst`.
     pub fn blit(&self, dst: &mut [u8]) {
         // Overlay.
         let src = cast_slice::<u8, [u8; RGBA]>(&self.buffer);
@@ -22,15 +24,19 @@ impl RgbaBuffer {
 
         let src_w = self.rects.src.xy1.x - self.rects.src.xy0.x;
         let dst_w = self.rects.dst.xy1.x - self.rects.dst.xy0.x;
-        (self.rects.src.xy0.y..self.rects.src.xy1.y).zip(self.rects.dst.xy0.y..self.rects.dst.xy1.y).for_each(|(src_y, dst_y)| {
-            (self.rects.src.xy0.x..self.rects.src.xy1.x).zip(self.rects.dst.xy0.x..self.rects.dst.xy1.x).for_each(|(src_x, dst_x)| {
-                let src_index = Self::get_index(src_x, src_y, src_w);
-                let dst_index = Self::get_index(dst_x, dst_y + src_y, dst_w);
-                Self::overlay_pixel(&src[src_index], &mut dst[dst_index]);
+        (self.rects.src.xy0.y..self.rects.src.xy1.y)
+            .zip(self.rects.dst.xy0.y..self.rects.dst.xy1.y)
+            .for_each(|(src_y, dst_y)| {
+                (self.rects.src.xy0.x..self.rects.src.xy1.x)
+                    .zip(self.rects.dst.xy0.x..self.rects.dst.xy1.x)
+                    .for_each(|(src_x, dst_x)| {
+                        let src_index = Self::get_index(src_x, src_y, src_w);
+                        let dst_index = Self::get_index(dst_x, dst_y + src_y, dst_w);
+                        Self::overlay_pixel(&src[src_index], &mut dst[dst_index]);
+                    });
             });
-        });
     }
-    
+
     /// Resize to fit within the bounds of `dst`.
     pub fn new_resized(
         buffer: &mut Vec<u8>,
@@ -82,14 +88,13 @@ impl RgbaBuffer {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+    use crate::{BOARD_D, BOARD_D_U32, board};
+    use blittle::PositionU;
+    use nodekit_rs_models::{Position, Size};
+    use png::ColorType;
     use std::fs::File;
     use std::io::BufWriter;
-    use blittle::PositionU;
-    use png::ColorType;
-    use nodekit_rs_models::{Position, Size};
-    use crate::{board, BOARD_D, BOARD_D_U32};
-    use crate::rgba::rect::RgbaRect;
-    use super::*;
 
     #[test]
     fn test_overlay_pixel() {
@@ -119,35 +124,28 @@ mod tests {
         let mut board = board([255, 0, 255]);
         let mut src = get_rgba_buffer();
         // Semi-transparent.
-        cast_slice_mut::<u8, [u8; 4]>(&mut src).iter_mut().for_each(|pixel| {
-            pixel[3] = 200;
-        });
+        cast_slice_mut::<u8, [u8; 4]>(&mut src)
+            .iter_mut()
+            .for_each(|pixel| {
+                pixel[3] = 200;
+            });
         let src_w = 300;
         let src_h = 600;
         let visual = RgbaBuffer {
             buffer: src,
             rects: RgbaRects {
                 src: RgbaRect {
-                    xy0: PositionU {
-                        x: 0,
-                        y: 0
-                    },
-                    xy1: PositionU {
-                        x: src_w,
-                        y: src_h
-                    }
+                    xy0: PositionU { x: 0, y: 0 },
+                    xy1: PositionU { x: src_w, y: src_h },
                 },
                 dst: RgbaRect {
-                    xy0: PositionU {
-                        x: 0,
-                        y: 0
-                    },
+                    xy0: PositionU { x: 0, y: 0 },
                     xy1: PositionU {
                         x: BOARD_D / 2,
-                        y: BOARD_D
-                    }
-                }
-            }
+                        y: BOARD_D,
+                    },
+                },
+            },
         };
         visual.blit(&mut board);
         encode(
@@ -155,7 +153,7 @@ mod tests {
             &board,
             BOARD_D_U32,
             BOARD_D_U32,
-            ColorType::Rgb
+            ColorType::Rgb,
         );
     }
 
@@ -170,17 +168,22 @@ mod tests {
                 size: Size { w: 1., h: 1. },
             },
         )
-            .unwrap();
+        .unwrap();
         assert_eq!(resized.rects.dst.xy0.x, 192);
         assert_eq!(resized.rects.dst.xy0.y, 0);
-        encode("rgba_resized.png", &resized.buffer, BOARD_D_U32 / 2, BOARD_D_U32, ColorType::Rgba);
+        encode(
+            "rgba_resized.png",
+            &resized.buffer,
+            BOARD_D_U32 / 2,
+            BOARD_D_U32,
+            ColorType::Rgba,
+        );
     }
 
     fn encode(filename: &str, buffer: &[u8], width: u32, height: u32, color_type: ColorType) {
         let file = File::create(filename).unwrap();
         let ref mut w = BufWriter::new(file);
-        let mut encoder =
-            png::Encoder::new(w, width, height);
+        let mut encoder = png::Encoder::new(w, width, height);
         encoder.set_color(color_type);
         encoder.set_depth(png::BitDepth::Eight);
         let mut writer = encoder.write_header().unwrap();
@@ -188,6 +191,6 @@ mod tests {
     }
 
     fn get_rgba_buffer() -> Vec<u8> {
-        include_bytes!("../test_files/rgba.raw").to_vec()
+        include_bytes!("../../test_files/rgba.raw").to_vec()
     }
 }

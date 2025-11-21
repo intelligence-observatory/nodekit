@@ -1,6 +1,6 @@
-use std::fmt::{Display, Formatter};
 use pyo3::pyclass;
 use pyo3_stub_gen::derive::gen_stub_pyclass;
+use std::fmt::{Display, Formatter};
 
 /// The size of a card.
 #[gen_stub_pyclass]
@@ -14,7 +14,6 @@ pub struct Size {
     #[pyo3(get)]
     pub h: f64,
 }
-
 
 impl Display for Size {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {

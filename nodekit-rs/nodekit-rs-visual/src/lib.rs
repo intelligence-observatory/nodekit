@@ -52,13 +52,9 @@ fn resize(
     }
 
     // Create an image view.
-    let src = fast_image_resize::images::Image::from_slice_u8(
-        src_width,
-        src_height,
-        buffer,
-        pixel_type
-    )
-        .map_err(Error::ImageResizeBuffer)?;
+    let src =
+        fast_image_resize::images::Image::from_slice_u8(src_width, src_height, buffer, pixel_type)
+            .map_err(Error::ImageResizeBuffer)?;
 
     // Resize the image.
     let width = rect.size.w as u32;
