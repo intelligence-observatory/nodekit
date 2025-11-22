@@ -38,7 +38,7 @@
                     "hello-image": {
                         "card_type": "ImageCard",
                         "region": {
-                            "x": 0,
+                            "x": -0.1,
                             "y": 0,
                             "w": 0.4,
                             "h": 0.2,
@@ -90,6 +90,22 @@
                         "text_color": "#000000ff",
                         "background_color": "#e6e6e6ff"
                     },
+                    "submit-button": {
+                        "card_type": "TextCard",
+                        "region": {
+                            "x": 0.,
+                            "y": -0.4,
+                            "w": 0.2,
+                            "h": 0.05,
+                            "mask": 'rectangle',
+                        },
+                        "text": "Submit",
+                        "font_size": 0.03,
+                        "justification_horizontal": "center",
+                        "justification_vertical": "center",
+                        "text_color": "#ffffffff",
+                        "background_color": "green"
+                    },
                 },
                 "sensor": {
                     sensor_type: "ProductSensor",
@@ -99,6 +115,7 @@
                             "choices": ["hello-text", 'text2', 'hello-image'],
                             "min_selections": 1,
                             "max_selections": 2,
+                            "confirm_button": 'submit-button',
                         },
                         'my-free-text': {
                             "sensor_type": "FreeTextEntrySensor",

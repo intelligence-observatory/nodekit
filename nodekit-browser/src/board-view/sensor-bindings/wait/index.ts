@@ -22,7 +22,7 @@ export class WaitSensorBinding extends SensorBinding<WaitSensor>{
                 }
                 this.emit(waitAction)
             },
-            this.sensor.timeout_msec,
+            this.sensor.duration_msec,
         )
 
     }

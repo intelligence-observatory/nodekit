@@ -154,7 +154,7 @@ export async function play(
                 // Valid transition found:
                 nextNodeId = transition.to;
 
-                // Update graph registers:
+                // Update Graph registers:
                 for (const [registerId, updateExpression] of Object.entries(transition.register_updates)){
                     const updateValue = evl(
                         updateExpression,
@@ -166,8 +166,8 @@ export async function play(
                     );
                     console.log(registerId, updateValue)
                     graph.registers[registerId as RegisterId] = updateValue
-                    console.log('registers', graph.registers)
                 }
+                console.warn('registers updated', graph.registers)
             }
         }
 

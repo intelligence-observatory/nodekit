@@ -7,27 +7,39 @@ interface BaseSensor<T extends string> {
 }
 
 export interface WaitSensor extends BaseSensor<"WaitSensor">{
-    timeout_msec: NodeTimePointMsec // Must be specified
+    duration_msec: NodeTimePointMsec // Must be specified
 }
 
 export interface SelectSensor extends BaseSensor<'SelectSensor'>{
+    // Choose exactly 1 element from a finite set.
     choices: CardId[]
 }
 
-export interface MultiSelectSensor extends BaseSensor<'MultiSelectSensor'>{
-    choices: CardId[]
-
-    min_selections: number;
-    max_selections: number | null;
-}
-
-export interface ClickSensor extends BaseSensor<'ClickSensor'>{ // Click somewhere within a Region
+export interface ClickSensor extends BaseSensor<'ClickSensor'>{
     region: Region
 }
 
 export interface KeySensor extends BaseSensor<'KeySensor'>{
     keys: Set<PressableKey>
 }
+
+export interface SliderSensor extends BaseSensor<'SliderSensor'>{
+    num_bins: number;
+    show_bin_markers: boolean;
+    initial_bin_index: SliderBinIndex;
+    orientation: 'horizontal' | 'vertical';
+    region: Region
+    confirm_button: CardId, // Choices are locked after this; enabled only after min_selections are reached
+}
+
+export interface MultiSelectSensor extends BaseSensor<'MultiSelectSensor'>{
+    // Select a subset of a to b elements from a finite set.
+    choices: CardId[]
+    min_selections: number;
+    max_selections: number;
+    confirm_button: CardId, // Choices are locked after this; enabled only after min_selections are reached
+}
+
 
 export interface FreeTextEntrySensor extends BaseSensor<'FreeTextEntrySensor'>{
     prompt: PlainString;
@@ -37,20 +49,15 @@ export interface FreeTextEntrySensor extends BaseSensor<'FreeTextEntrySensor'>{
     region: Region
 }
 
-export interface SliderSensor extends BaseSensor<'SliderSensor'>{
-    num_bins: number;
-    show_bin_markers: boolean;
-    initial_bin_index: SliderBinIndex;
-    orientation: 'horizontal' | 'vertical';
-    region: Region
-}
 
-// Recursive types
+// Combinator types
 export interface ProductSensor extends BaseSensor<'ProductSensor'> {
+    // When all children have yielded an Action, emits a Product<Action[]>
     children: Record<SensorId, Sensor>
 }
 
 export interface SumSensor extends BaseSensor<'SumSensor'> {
+    // Emits the latest child Action as Tagged<Action>
     children: Record<SensorId, Sensor>
 }
 

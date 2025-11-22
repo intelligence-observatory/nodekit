@@ -15,16 +15,21 @@ export class MultiSelectSensorBinding extends SensorBinding<MultiSelectSensor> {
         boardView: BoardView,
         cardViewMap: CardViewMap,
     ) {
-        const cardIds = this.sensor.choices;
+        const choiceCardIds = this.sensor.choices;
+        const confirmCardId = this.sensor.confirm_button;
         const minSelections = this.sensor.min_selections ?? 0;
-        const maxSelections = this.sensor.max_selections ?? cardIds.length;
+        const maxSelections = this.sensor.max_selections ?? choiceCardIds.length;
 
         const currentSelections: Set<CardId> = new Set();
+
+        const confirmCard = cardViewMap[confirmCardId]
+        confirmCard.setOpacity(0.1)
+        let canConfirm = false;
 
         const updateCardViews = () => {
             const atMax = currentSelections.size >= maxSelections;
 
-            for (const cardId of cardIds) {
+            for (const cardId of choiceCardIds) {
                 const cardView = cardViewMap[cardId as CardId];
                 const isSelected = currentSelections.has(cardId);
 
@@ -51,7 +56,7 @@ export class MultiSelectSensorBinding extends SensorBinding<MultiSelectSensor> {
             const atMax = currentSelections.size >= maxSelections;
             let changed = false;
 
-            for (const cardId of cardIds) {
+            for (const cardId of choiceCardIds) {
                 const cardView = cardViewMap[cardId as CardId];
 
                 const inside = checkPointInRegion(
@@ -90,9 +95,32 @@ export class MultiSelectSensorBinding extends SensorBinding<MultiSelectSensor> {
             if (changed) {
                 updateCardViews();
                 if (currentSelections.size >= minSelections){
-                    emitMultiSelectValue();
+                    canConfirm = true;
                 }
+                else{
+                    canConfirm = false;
+                }
+            }
 
+            if (canConfirm) {
+                confirmCard.setOpacity(1);
+                const inside = checkPointInRegion(
+                    pointerSample.x,
+                    pointerSample.y,
+                    confirmCard.card.region,
+                );
+
+                if (inside) {
+                    confirmCard.setHoverState(true);
+                } else {
+                    confirmCard.setHoverState(false);
+                }
+                if (pointerSample.sampleType === "down") {
+                    emitMultiSelectValue()
+                }
+            }
+            else{
+                confirmCard.setOpacity(0.1)
             }
         };
 

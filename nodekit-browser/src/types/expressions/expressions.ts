@@ -12,12 +12,118 @@ export type Struct = { [key: StructKey]: Value };
 export type ArrayIndex = number;
 
 // Recursive array of Values
-export type ArrayValue = Value[];
+export type Array = Value[];
 
 // Full Value type
-export type Value = BaseValue | ArrayValue | Struct;
+export type Value = BaseValue | Array | Struct;
 
 export type VariableName = string;
+
+
+function accessContainerValue(
+    container: any, // Todo
+    containerKey: StructKey | ArrayIndex,
+): Value {
+
+
+    if (Array.isArray(container)) {
+        // Array branch: require numeric index
+        if (typeof containerKey !== "number" || !Number.isInteger(containerKey)) {
+            throw new Error(
+                `Expected numeric ArrayIndex, got '${String(containerKey)}'`,
+            );
+        }
+
+        const idx = containerKey;
+        if (idx < 0 || idx >= container.length) {
+            throw new Error(
+                `Array index out of bounds: index=${idx}, length=${container.length}`,
+            );
+        }
+        return container[idx];
+    }
+    else if (typeof container === "object") {
+        // Struct branch: require string key
+        if (typeof containerKey !== "string") {
+            throw new Error(
+                `Expected string StructKey, got '${String(containerKey)}'`,
+            );
+        }
+
+        return accessStructValue(
+            container,
+            containerKey,
+        );
+    }
+    else{
+        throw new Error(`Did not receive a valid container Value; got ${container}`)
+    }
+
+
+}
+
+
+// Container utils
+function accessStructValue(
+    struct: Struct,
+    key: StructKey,
+    ): Value {
+    // Allow "" or "." to mean "root"
+    if (key === "" || key === ".") {
+        return struct;
+    }
+
+    // Support leading dot: ".foo.0.1" -> ["foo", "0", "1"]
+    const segments = key.split(".").filter(seg => seg.length > 0);
+
+    let current: Value = struct;
+
+    for (let i = 0; i < segments.length; i++) {
+        const seg = segments[i];
+
+        if (Array.isArray(current)) {
+            // Array case: segment must be an integer index
+            const idx = Number(seg);
+            if (!Number.isInteger(idx)) {
+                const traversed = segments.slice(0, i).join(".") || "<root>";
+                throw new Error(
+                    `Expected numeric index at segment '${seg}' while traversing '${traversed}'`,
+                );
+            }
+            if (idx < 0 || idx >= current.length) {
+                const traversed = segments.slice(0, i).join(".") || "<root>";
+                throw new Error(
+                    `Array index out of bounds at segment '${seg}' (index=${idx}) while traversing '${traversed}', length=${current.length}`,
+                );
+            }
+            current = current[idx];
+            continue;
+        }
+
+        if (typeof current === "object" && current !== null) {
+            // Struct case
+            const currentStruct = current as Struct;
+            if (!(seg in currentStruct)) {
+                const traversed = segments.slice(0, i).join(".") || "<root>";
+                throw new Error(
+                    `Key '${seg}' not found while traversing '${traversed}' in path '${key}'`,
+                );
+            }
+            current = currentStruct[seg];
+            continue;
+        }
+
+        // Neither struct nor array: cannot descend further
+        const traversed = segments.slice(0, i).join(".") || "<root>";
+        throw new Error(
+            `Cannot access segment '${seg}' at '${traversed}': current value is not indexable`,
+        );
+    }
+
+    return current;
+}
+
+
 
 // =====================
 // Op tag (no enums)
@@ -65,14 +171,13 @@ export interface Var extends BaseExpression {
     name: VariableName;
     /**
      * Whether to read from the local (l) or global (g) variable file.
-     * Default at runtime: 'g'.
      */
-    scope?: "l" | "g";
+    scope: "l" | "g";
 }
 
 export interface ActionField extends BaseExpression {
     /**
-     * Access a field in the last Action.
+     * Access a field in the last completed Node's Action.
      */
     op: "af";
     key: StructKey
@@ -206,9 +311,8 @@ export interface Map extends ArrayOp {
     op: "map";
     /**
      * The variable name of the current array element.
-     * Default at runtime: 'xcur'.
      */
-    cur?: VariableName;
+    cur: VariableName;
     /**
      * Expression that will be applied to each element of the array.
      */
@@ -219,9 +323,8 @@ export interface Filter extends ArrayOp {
     op: "filter";
     /**
      * The variable name of the current array element.
-     * Default at runtime: 'xcur'.
      */
-    cur?: VariableName;
+    cur: VariableName;
     /**
      * Expression that will be applied to each element of the array
      * and interpreted as a predicate.
@@ -234,14 +337,12 @@ export interface Fold extends ArrayOp {
     init: Expression;
     /**
      * The ID of the current cumulant.
-     * Default at runtime: 'xagg'.
      */
-    acc?: VariableName;
+    acc: VariableName;
     /**
      * The variable name of the current array element.
-     * Default at runtime: 'xcur'.
      */
-    cur?: VariableName;
+    cur: VariableName;
     func: Expression;
 }
 
@@ -313,7 +414,8 @@ export function evl(
             }
         }
         case "af": {
-            break
+
+            return accessContainerValue(context.last_action, expression.key)
         }
         case "get": {
             const containerVal = evl(
@@ -321,31 +423,7 @@ export function evl(
                 context,
             );
             const key = expression.key;
-
-            if (Array.isArray(containerVal)) {
-                if (typeof key !== "number") {
-                    throw new Error(`Array index must be a number, got '${typeof key}'`);
-                }
-                if (key < 0 || key >= containerVal.length) {
-                    throw new Error(`Array index '${key}' out of bounds`);
-                }
-                return containerVal[key] as Value;
-            }
-
-            if (containerVal && typeof containerVal === "object") {
-                const structVal = containerVal as Struct;
-                if (typeof key !== "string") {
-                    throw new Error(`Struct key must be a string, got '${typeof key}'`);
-                }
-                if (!(key in structVal)) {
-                    throw new Error(`Struct key '${key}' not found`);
-                }
-                return structVal[key];
-            }
-
-            throw new Error(
-                `get: container must be array or struct, got '${typeof containerVal}'`
-            );
+            return accessContainerValue(containerVal, key)
         }
 
         case "lit": {
@@ -553,7 +631,7 @@ export function evl(
                 endVal = evEnd;
             }
 
-            return arrayVal.slice(startVal, endVal) as ArrayValue;
+            return arrayVal.slice(startVal, endVal) as Array;
         }
 
         case "map": {
@@ -576,7 +654,7 @@ export function evl(
                     expression.func,
                     context,
                 );
-            }) as ArrayValue;
+            }) as Array;
         }
 
         case "filter": {
@@ -590,7 +668,7 @@ export function evl(
 
             const curName = expression.cur ?? "xcur";
 
-            const result: ArrayValue = [];
+            const result: Array = [];
             for (const elem of arrayVal) {
                 context.local_variables = {
                     ...context.local_variables,
@@ -625,8 +703,8 @@ export function evl(
                 expression.init,
                 context,
             );
-            const accName = expression.acc ?? "xagg";
-            const curName = expression.cur ?? "xcur";
+            const accName = expression.acc;
+            const curName = expression.cur;
 
             for (const elem of arrayVal) {
                 context.local_variables = {
