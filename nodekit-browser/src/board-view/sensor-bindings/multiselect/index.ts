@@ -25,6 +25,7 @@ export class MultiSelectSensorBinding extends SensorBinding<MultiSelectSensor> {
         const confirmCard = cardViewMap[confirmCardId]
         confirmCard.setOpacity(0.1)
         let canConfirm = false;
+        let confirmed = false;
 
         const updateCardViews = () => {
             const atMax = currentSelections.size >= maxSelections;
@@ -53,6 +54,9 @@ export class MultiSelectSensorBinding extends SensorBinding<MultiSelectSensor> {
         };
 
         const pointerCallback = (pointerSample: PointerSample) => {
+            if (confirmed){
+                return
+            }
             const atMax = currentSelections.size >= maxSelections;
             let changed = false;
 
@@ -112,12 +116,16 @@ export class MultiSelectSensorBinding extends SensorBinding<MultiSelectSensor> {
 
                 if (inside) {
                     confirmCard.setHoverState(true);
+                    if (pointerSample.sampleType === "down") {
+                        emitMultiSelectValue()
+                        confirmed = true;
+                        confirmCard.setOpacity(0.5)
+                        confirmCard.setSelectedState(true)
+                    }
                 } else {
                     confirmCard.setHoverState(false);
                 }
-                if (pointerSample.sampleType === "down") {
-                    emitMultiSelectValue()
-                }
+
             }
             else{
                 confirmCard.setOpacity(0.1)
