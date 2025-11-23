@@ -114,7 +114,14 @@
         "min_length": 5,
         "max_length": null,
         "region": {'x': 0, 'y': 0.25, 'w': 0.75, 'h': 0.25},
+    }
 
+    const productSensor = {
+        "sensor_type": "ProductSensor",
+        "children": {
+            'child-sensor1': freeTextEntrySensor,
+            'child-sensor2': selectSensor,
+        }
     }
 
 
@@ -141,7 +148,7 @@
                     },
                     "loop": false
                 },
-                "sensor": selectSensor,
+                "sensor": productSensor,
                 "board_color": "gray",
                 "show_pointer": true,
             },

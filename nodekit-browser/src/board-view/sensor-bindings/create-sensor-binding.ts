@@ -9,6 +9,7 @@ import {WaitSensorBinding} from "./wait";
 import {SelectSensorBinding} from "./select";
 import {MultiSelectSensorBinding} from "./multiselect";
 import type {AssetManager} from "../../asset-manager";
+import {ProductSensorBinding, SumSensorBinding} from "./combinators.ts";
 
 
 export async function createSensorBinding(
@@ -71,6 +72,22 @@ export async function createSensorBinding(
         }
         case "MultiSelectSensor": {
             sensorBinding = new MultiSelectSensorBinding(
+                sensor,
+                boardView,
+                assetManager,
+            );
+            break
+        }
+        case "ProductSensor": {
+            sensorBinding = new ProductSensorBinding(
+                sensor,
+                boardView,
+                assetManager,
+            );
+            break
+        }
+        case "SumSensor": {
+            sensorBinding = new SumSensorBinding(
                 sensor,
                 boardView,
                 assetManager,

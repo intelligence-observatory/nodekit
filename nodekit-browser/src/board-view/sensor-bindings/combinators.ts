@@ -1,26 +1,26 @@
 import {SensorBinding} from "./index.ts";
 import type {ProductSensor, Sensor, SumSensor} from "../../types/sensors";
 import type {BoardView} from "../board-view.ts";
-import type {CardViewMap} from "../../node-play";
-import type {SensorId} from "../../types/common.ts";
 import type {Action, ProductAction, SumAction} from "../../types/actions";
 import type {Clock} from "../../clock.ts";
+import {createSensorBinding} from "./create-sensor-binding.ts";
 
 
 export class ProductSensorBinding extends SensorBinding<ProductSensor>{
-    private childBindings: Record<SensorId, SensorBinding<Sensor>>;
-    private currentSensorStates: Record<SensorId, Action | null> = {}
-    private clock!: Clock
-    constructor(
-        sensor: ProductSensor,
-        childBindings: Record<SensorId, SensorBinding<Sensor>>
-    ) {
-        this.childBindings=childBindings;
-        for (const [sensorId, sensorBinding] of Object.entries(this.childBindings)){
-            this.currentSensorStates[sensorId as SensorId] = null;
+    private childActions: Record<string, Action | null> = {}
+
+    async prepare() {
+        for (const [childId, childSensor] of Object.entries(this.params.sensor.children)){
+            this.childActions[childId] = null;
+
+            let sensorBinding = await createSensorBinding(
+                childSensor,
+                this.params.boardView,
+                this.params.assetManager,
+            )
             sensorBinding.subscribe(
                 (action:Action) => {
-                    this.currentSensorStates[sensorId as SensorId] = action;
+                    this.childActions[childId] = action;
                     let finalAction = this.checkValid();
                     if (finalAction !==null){
                         this.emit(finalAction)
@@ -30,28 +30,21 @@ export class ProductSensorBinding extends SensorBinding<ProductSensor>{
         }
     }
 
-    prepare(
-        boardView: BoardView,
-        _cardViewMap: CardViewMap
-    ) {
-        this.clock = boardView.clock;
-    }
-
     checkValid(): ProductAction | null {
-        let finalSensorStates: Record<SensorId, Action> = {}
-        for (const sensorId of Object.keys(this.childBindings)){
-            const sid = sensorId as SensorId;
-            if (this.currentSensorStates[sid] === null){
+        let childActionsFinal: Record<string, Action> = {}
+        for (const sensorId of Object.keys(this.childActions)){
+            const sid = sensorId;
+            if (this.childActions[sid] === null){
                 return null
             }
             else{
-                finalSensorStates[sid] = this.currentSensorStates[sid]
+                childActionsFinal[sid] = this.childActions[sid]
             }
         }
         return {
             action_type: 'ProductAction',
-            child_actions: finalSensorStates,
-            t: this.clock.now()
+            child_actions: childActionsFinal,
+            t: this.params.boardView.clock.now()
         }
     }
 }

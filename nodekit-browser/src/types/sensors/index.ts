@@ -39,7 +39,6 @@ export interface SliderSensor extends BaseSensor<'SliderSensor'>{
     initial_bin_index: SliderBinIndex;
     orientation: 'horizontal' | 'vertical';
     region: Region
-    confirm_button: Card, // Choices are locked after this; enabled only after min_selections are reached
 }
 
 export interface FreeTextEntrySensor extends BaseSensor<'FreeTextEntrySensor'>{
@@ -71,6 +70,6 @@ export type Sensor =
     | WaitSensor
     | SelectSensor
     | MultiSelectSensor
-    //| ProductSensor
-    //| SumSensor
+    | ProductSensor
+    | SumSensor
 
