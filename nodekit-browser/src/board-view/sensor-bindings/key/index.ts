@@ -31,5 +31,8 @@ export class KeySensorBinding extends SensorBinding<KeySensor> {
         boardView.keyStream.subscribe(
             keyCallback
         )
+
     }
+
+
 }

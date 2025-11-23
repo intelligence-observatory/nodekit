@@ -25,7 +25,7 @@ export interface FreeTextEntryAction extends BaseAction<"FreeTextEntryAction"> {
 export interface WaitAction extends BaseAction<"WaitAction">{}
 
 export interface SelectAction extends BaseAction<"SelectAction">{
-    selection: CardId
+    selection: string
 }
 
 export interface MultiSelectAction extends BaseAction<"MultiSelectAction">{

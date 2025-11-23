@@ -1,13 +1,13 @@
 import type {Card} from "./cards";
 import type {Sensor} from "./sensors";
-import type {CardId, ColorHexString, NodeId, RegisterId} from "./common.ts";
+import type {ColorHexString, NodeId, RegisterId} from "./common.ts";
 import type {NodeOutcome} from "./events/node-events.ts";
 import type {Expression, Value} from "./expressions/expressions.ts";
 import type {Event} from "./events";
 
 
 export interface Node {
-    cards: Record<CardId, Card>;
+    card: Card;
     sensor: Sensor;
     board_color: ColorHexString;
     hide_pointer: boolean

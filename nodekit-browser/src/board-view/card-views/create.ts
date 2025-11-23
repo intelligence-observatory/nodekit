@@ -4,12 +4,14 @@ import {ImageCardView} from "./image/image-card-view.ts";
 import {VideoCardView} from "./video/video-card-view.ts";
 import {TextCardView} from "./text/text-card-view.ts";
 import {CardView} from "./card-view.ts";
+import type {AssetManager} from "../../asset-manager";
 
 
-export function createCardView(
+export async function createCardView(
     card: Card,
     boardView: BoardView,
-): CardView {
+    assetManager: AssetManager,
+): Promise<CardView> {
 
     const boardCoords = boardView.getCoordinateSystem();
     let cardView: CardView | null = null;
@@ -28,15 +30,17 @@ export function createCardView(
             break
         case "TextCard":
             cardView = new TextCardView(
-                card, boardCoords
+                card,
+                boardCoords
             )
             break
         default:
-            throw new Error(`Unsupported Card type: ${JSON.stringify(card)}`);
+            const _exhaustive: never = card;
+            throw new Error(`Unsupported Card type: ${JSON.stringify(_exhaustive)}`);
     }
 
     // Mount CardView to BoardView:
     boardView.root.appendChild(cardView.root);
-
+    await cardView.prepare(assetManager)
     return cardView
 }

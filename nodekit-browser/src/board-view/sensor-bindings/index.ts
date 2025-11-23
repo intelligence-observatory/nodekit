@@ -1,7 +1,7 @@
 import type {Action} from "../../types/actions";
 import type {Sensor} from "../../types/sensors";
 import {type BoardView} from "../board-view.ts";
-import type {CardViewMap} from "../../node-play";
+import type {AssetManager} from "../../asset-manager";
 
 
 export abstract class SensorBinding<S extends Sensor> {
@@ -14,7 +14,7 @@ export abstract class SensorBinding<S extends Sensor> {
         this.sensor = sensor;
     }
 
-    abstract prepare(boardView: BoardView, cardViewMap: CardViewMap): void;
+    abstract prepare(boardView: BoardView, assetManager:AssetManager): Promise<void> ;
 
     /**
      * Should be called by the SensorBinding whenever a new valid SensorValue has been set by the agent.

@@ -2,31 +2,38 @@ import type {SelectSensor} from "../../../types/sensors";
 import {type BoardView} from "../../board-view.ts";
 import {SensorBinding} from "../index.ts";
 import type {SelectAction} from "../../../types/actions";
-import type {CardViewMap} from "../../../node-play";
-import type {CardId} from "../../../types/common.ts";
 import type {PointerSample} from "../../../input-streams/pointer-stream.ts";
 import {checkPointInRegion} from "../../../utils.ts";
+import type {CardView} from "../../card-views/card-view.ts";
+import {createCardView} from "../../card-views/create.ts";
 
 /**
  *
  */
 export class SelectSensorBinding extends SensorBinding<SelectSensor> {
-    prepare(
+    async prepare(
         boardView: BoardView,
-        cardViewMap: CardViewMap,
     ) {
 
-        const cardIds = this.sensor.choices;
+        // Prepare choices views
+        const cardViewMap: Record<string, CardView> = {};
+        let choiceIds = [];
 
-        let currentSelection: CardId | null = null;
+        for (const [choiceId, choiceCard] of Object.entries(this.sensor.choices)){
+            cardViewMap[choiceId] = await createCardView(choiceCard, boardView);
+            choiceIds.push(choiceId);
+        }
+        choiceIds.sort()
+
+        let currentSelection: string | null = null;
 
         const pointerCallback = (pointerSample: PointerSample) => {
             // Track which card should end up selected after this event
-            let nextSelection: CardId | null = null;
+            let nextSelection: string | null = null;
             let selectionMade= false;
 
-            for (const cardId of cardIds) {
-                const cardView = cardViewMap[cardId as CardId];
+            for (const choiceId of choiceIds) {
+                const cardView = cardViewMap[choiceId];
 
                 const inside = checkPointInRegion(
                     pointerSample.x,
@@ -44,9 +51,9 @@ export class SelectSensorBinding extends SensorBinding<SelectSensor> {
                     // Select this card
                     cardView.setSelectedState(true);
                     cardView.setHoverState(false);
-                    nextSelection = cardId;
+                    nextSelection = choiceId;
 
-                    currentSelection = cardId;
+                    currentSelection = choiceId;
                     selectionMade = true;
 
 
@@ -54,20 +61,20 @@ export class SelectSensorBinding extends SensorBinding<SelectSensor> {
                     const sensorValue: SelectAction = {
                         action_type: 'SelectAction',
                         t: boardView.clock.now(),
-                        selection: cardId,
+                        selection: choiceId,
                     };
                     this.emit(sensorValue);
                 }
-                if (currentSelection !== cardId){
+                if (currentSelection !== choiceId){
                     cardView.setHoverState(true);
                 }
             }
 
             // Deselect all others (and optionally clear selection if click on empty space)
             if (selectionMade) {
-                for (const cardId of cardIds) {
-                    if (cardId === nextSelection) continue;
-                    const cardView = cardViewMap[cardId as CardId];
+                for (const choiceId of choiceIds) {
+                    if (choiceId === nextSelection) continue;
+                    const cardView = cardViewMap[choiceId];
                     cardView.setSelectedState(false);
                 }
             }

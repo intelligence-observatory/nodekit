@@ -70,45 +70,34 @@ export class NodePlay {
     }
 
     public async prepare() {
-        let assetManager = this.assetManager
 
-        // Prepare and schedule Cards:
-        const cardViewMap: CardViewMap = {}
-        for (let cardIdUnbranded in this.node.cards) {
-            // Type annotate cardId:
-            let cardId = cardIdUnbranded as CardId;
+        // Prepare Card:
+        const cardView = await createCardView(
+            this.node.card,
+            this.boardView,
+            this.assetManager,
+        )
 
-            const card = this.node.cards[cardId];
+        this.scheduler.scheduleEvent(
+            {
+                triggerTimeMsec: 0,
+                triggerFunc: () => {
+                    cardView.onStart()
+                },
+            }
+        )
 
-            // Prepare CardViews:
-            const cardView = createCardView(
-                card,
-                this.boardView,
-            )
-            await cardView.prepare(assetManager)
-
-            cardViewMap[cardId] = cardView;
-
-            this.scheduler.scheduleEvent(
-                {
-                    triggerTimeMsec: 0,
-                    triggerFunc: () => {
-                        cardView.onStart()
-                    },
-                }
-            )
-            this.scheduler.scheduleOnStop(
-                () => {
-                    cardView.onDestroy()
-                }
-            )
-        }
+        this.scheduler.scheduleOnStop(
+            () => {
+                cardView.onDestroy()
+            }
+        )
 
         // Create SensorBinding:
-        const sensorBinding = createSensorBinding(
+        const sensorBinding = await createSensorBinding(
             this.node.sensor,
             this.boardView,
-            cardViewMap,
+            this.assetManager,
         )
 
         // Subscribe to SensorBinding:
