@@ -1,5 +1,4 @@
 import type {SelectSensor} from "../../../types/sensors";
-import {type BoardView} from "../../board-view.ts";
 import {SensorBinding} from "../index.ts";
 import type {SelectAction} from "../../../types/actions";
 import type {PointerSample} from "../../../input-streams/pointer-stream.ts";
@@ -11,16 +10,14 @@ import {createCardView} from "../../card-views/create.ts";
  *
  */
 export class SelectSensorBinding extends SensorBinding<SelectSensor> {
-    async prepare(
-        boardView: BoardView,
-    ) {
+    async prepare() {
 
         // Prepare choices views
         const cardViewMap: Record<string, CardView> = {};
         let choiceIds = [];
 
-        for (const [choiceId, choiceCard] of Object.entries(this.sensor.choices)){
-            cardViewMap[choiceId] = await createCardView(choiceCard, boardView);
+        for (const [choiceId, choiceCard] of Object.entries(this.params.sensor.choices)){
+            cardViewMap[choiceId] = await createCardView(choiceCard, this.params.boardView, this.params.assetManager);
             choiceIds.push(choiceId);
         }
         choiceIds.sort()
@@ -60,7 +57,7 @@ export class SelectSensorBinding extends SensorBinding<SelectSensor> {
                     // Emit selection
                     const sensorValue: SelectAction = {
                         action_type: 'SelectAction',
-                        t: boardView.clock.now(),
+                        t: this.params.boardView.clock.now(),
                         selection: choiceId,
                     };
                     this.emit(sensorValue);
@@ -80,7 +77,7 @@ export class SelectSensorBinding extends SensorBinding<SelectSensor> {
             }
         };
 
-        boardView.pointerStream.subscribe(pointerCallback);
+        this.params.boardView.pointerStream.subscribe(pointerCallback);
 
 
     }

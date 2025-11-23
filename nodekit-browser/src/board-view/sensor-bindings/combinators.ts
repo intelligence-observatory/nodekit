@@ -15,7 +15,6 @@ export class ProductSensorBinding extends SensorBinding<ProductSensor>{
         sensor: ProductSensor,
         childBindings: Record<SensorId, SensorBinding<Sensor>>
     ) {
-        super(sensor);
         this.childBindings=childBindings;
         for (const [sensorId, sensorBinding] of Object.entries(this.childBindings)){
             this.currentSensorStates[sensorId as SensorId] = null;

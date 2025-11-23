@@ -1,4 +1,4 @@
-import type {CardId, NodeTimePointMsec, PlainString, PressableKey, SensorId, SpatialSize} from "../common.ts";
+import type {NodeTimePointMsec, PlainString, PressableKey, SensorId, SpatialSize} from "../common.ts";
 import type {Region} from "../region";
 import type {SliderBinIndex} from "../../board-view/sensor-bindings/slider";
 import type {Card} from "../cards";
@@ -16,6 +16,15 @@ export interface SelectSensor extends BaseSensor<'SelectSensor'>{
     choices: Record<string, Card>
 }
 
+export interface MultiSelectSensor extends BaseSensor<'MultiSelectSensor'>{
+    // Select a subset of a to b elements from a finite set.
+    choices: Record<string, Card>
+    min_selections: number;
+    max_selections: number;
+    confirm_button: Card, // Choices are locked after this; enabled only after min_selections are reached
+}
+
+
 export interface ClickSensor extends BaseSensor<'ClickSensor'>{
     region: Region
 }
@@ -30,17 +39,8 @@ export interface SliderSensor extends BaseSensor<'SliderSensor'>{
     initial_bin_index: SliderBinIndex;
     orientation: 'horizontal' | 'vertical';
     region: Region
-    confirm_button: CardId, // Choices are locked after this; enabled only after min_selections are reached
+    confirm_button: Card, // Choices are locked after this; enabled only after min_selections are reached
 }
-
-export interface MultiSelectSensor extends BaseSensor<'MultiSelectSensor'>{
-    // Select a subset of a to b elements from a finite set.
-    choices: CardId[]
-    min_selections: number;
-    max_selections: number;
-    confirm_button: CardId, // Choices are locked after this; enabled only after min_selections are reached
-}
-
 
 export interface FreeTextEntrySensor extends BaseSensor<'FreeTextEntrySensor'>{
     prompt: PlainString;
@@ -71,6 +71,6 @@ export type Sensor =
     | WaitSensor
     | SelectSensor
     | MultiSelectSensor
-    | ProductSensor
-    | SumSensor
+    //| ProductSensor
+    //| SumSensor
 

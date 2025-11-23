@@ -2,13 +2,11 @@ export type SpatialSize = number & { __brand: 'SpatialSize' };
 export type SpatialPoint = number & { __brand: 'SpatialPoint' };
 
 export type PixelSize = number & {__brand: 'PixelSize'};
-export type PixelPoint = number & {__brand: 'PixelPoint'};
 
 export type NodeTimePointMsec = number & { __brand: 'NodeTimePointMsec' };
 export type TimeElapsedMsec = number & { __brand: 'TimeElapsedMsec' };
 
 export type PlainString = string & { __brand: 'PlainString' };
-export type RegularExpressionString = string & { __brand: 'RegularExpressionString' };
 export type MarkdownString = string & { __brand: 'MarkdownString'}
 export type ColorHexString = string & { __brand: 'ColorHexString' };
 

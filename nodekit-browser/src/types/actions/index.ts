@@ -29,7 +29,7 @@ export interface SelectAction extends BaseAction<"SelectAction">{
 }
 
 export interface MultiSelectAction extends BaseAction<"MultiSelectAction">{
-    selections: CardId[]
+    selections: string[]
 }
 
 export interface ProductAction extends BaseAction<'ProductAction'> {

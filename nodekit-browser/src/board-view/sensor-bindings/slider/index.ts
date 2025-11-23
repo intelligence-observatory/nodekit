@@ -1,6 +1,6 @@
 import './slider.css'
 import type {SliderSensor} from "../../../types/sensors";
-import {BoardCoordinateSystem, type BoardView, RegionView} from "../../board-view.ts";
+import {BoardCoordinateSystem, RegionView} from "../../board-view.ts";
 import type {SliderAction} from "../../../types/actions";
 import {SensorBinding} from "../index.ts";
 
@@ -20,21 +20,20 @@ type SliderSubscriber = (sample: SliderSample) => void;
  *
  */
 export class SliderSensorBinding extends SensorBinding<SliderSensor> {
-    prepare(
-        boardView: BoardView
+    async prepare(
     ) {
         const sliderCardView = new SliderSensorView(
-            this.sensor,
-            boardView.getCoordinateSystem()
+            this.params.sensor,
+            this.params.boardView.getCoordinateSystem()
         )
 
         // Bind
-        boardView.root.appendChild(sliderCardView.root)
+        this.params.boardView.root.appendChild(sliderCardView.root)
 
         // Subscribe
         const sliderChangedCallback = (sliderSample: SliderSample): void => {
             const sliderValue: SliderAction = {
-                t: boardView.clock.now(),
+                t: this.params.boardView.clock.now(),
                 action_type: 'SliderAction',
                 bin_index: sliderSample.binIndex
             }

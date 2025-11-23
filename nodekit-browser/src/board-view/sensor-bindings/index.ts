@@ -6,32 +6,33 @@ import type {AssetManager} from "../../asset-manager";
 
 export abstract class SensorBinding<S extends Sensor> {
     private subscriptions: ((sensorValue: Action) => void)[] = []
-    protected sensor: S
+    protected readonly params: {
+        sensor: S;
+        boardView: BoardView;
+        assetManager: AssetManager
+    };
 
     constructor(
-        sensor: S
-    ){
-        this.sensor = sensor;
+        sensor: S,
+        boardView: BoardView,
+        assetManager: AssetManager,
+    ) {
+        this.params = {
+            sensor: sensor,
+            boardView: boardView,
+            assetManager: assetManager,
+        }
     }
-
-    abstract prepare(boardView: BoardView, assetManager:AssetManager): Promise<void> ;
-
-    /**
-     * Should be called by the SensorBinding whenever a new valid SensorValue has been set by the agent.
-     * @param action
-     */
+    
+    async prepare(): Promise<void> {}
+    
+    start(){}
+    
     protected emit(action: Action): void{
         this.subscriptions.forEach(cb => cb(action));
     }
 
-    /**
-     * Called when the NodePlay begins.
-     */
-    start(){}
-
-    public subscribe(
-        callback: (action: Action) => void
-    ): void {
+    public subscribe(callback: (action: Action) => void): void {
         this.subscriptions.push(callback);
     }
 }

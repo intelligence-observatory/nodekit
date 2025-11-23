@@ -1,38 +1,51 @@
 import type {MultiSelectSensor} from "../../../types/sensors";
-import {type BoardView} from "../../board-view.ts";
 import {SensorBinding} from "../index.ts";
 import type {MultiSelectAction} from "../../../types/actions";
-import type {CardViewMap} from "../../../node-play";
-import type {CardId} from "../../../types/common.ts";
 import type {PointerSample} from "../../../input-streams/pointer-stream.ts";
 import {checkPointInRegion} from "../../../utils.ts";
+import {createCardView} from "../../card-views/create.ts";
+import type {CardView} from "../../card-views/card-view.ts";
 
 /**
  *
  */
 export class MultiSelectSensorBinding extends SensorBinding<MultiSelectSensor> {
-    prepare(
-        boardView: BoardView,
-        cardViewMap: CardViewMap,
-    ) {
-        const choiceCardIds = this.sensor.choices;
-        const confirmCardId = this.sensor.confirm_button;
-        const minSelections = this.sensor.min_selections ?? 0;
-        const maxSelections = this.sensor.max_selections ?? choiceCardIds.length;
+    async prepare() {
+        const choiceCardIds = this.params.sensor.choices;
+        const minSelections = this.params.sensor.min_selections ?? 0;
+        const maxSelections = this.params.sensor.max_selections ?? choiceCardIds.length;
 
-        const currentSelections: Set<CardId> = new Set();
+        const currentSelections: Set<string> = new Set();
 
-        const confirmCard = cardViewMap[confirmCardId]
-        confirmCard.setOpacity(0.1)
+        // Place choice cards
+        const cardViewMap: Record<string, CardView> = {};
+        let choiceIds = [];
+        for (const [choiceId, choiceCard] of Object.entries(this.params.sensor.choices)){
+            cardViewMap[choiceId] = await createCardView(
+                choiceCard,
+                this.params.boardView,
+                this.params.assetManager,
+            )
+            choiceIds.push(choiceId)
+        }
+        choiceIds.sort()
+
+        // Place confirm card
+        const confirmCardView = await createCardView(
+            this.params.sensor.confirm_button,
+            this.params.boardView,
+            this.params.assetManager,
+        )
+        confirmCardView.setOpacity(0.1)
         let canConfirm = false;
         let confirmed = false;
 
         const updateCardViews = () => {
             const atMax = currentSelections.size >= maxSelections;
 
-            for (const cardId of choiceCardIds) {
-                const cardView = cardViewMap[cardId as CardId];
-                const isSelected = currentSelections.has(cardId);
+            for (const choiceId of choiceIds) {
+                const cardView = cardViewMap[choiceId];
+                const isSelected = currentSelections.has(choiceId);
 
                 cardView.setSelectedState(isSelected);
 
@@ -47,7 +60,7 @@ export class MultiSelectSensorBinding extends SensorBinding<MultiSelectSensor> {
         const emitMultiSelectValue = () => {
             const sensorValue: MultiSelectAction = {
                 action_type: "MultiSelectAction",
-                t: boardView.clock.now(),
+                t: this.params.boardView.clock.now(),
                 selections: Array.from(currentSelections),
             };
             this.emit(sensorValue);
@@ -60,8 +73,8 @@ export class MultiSelectSensorBinding extends SensorBinding<MultiSelectSensor> {
             const atMax = currentSelections.size >= maxSelections;
             let changed = false;
 
-            for (const cardId of choiceCardIds) {
-                const cardView = cardViewMap[cardId as CardId];
+            for (const cardId of choiceIds) {
+                const cardView = cardViewMap[cardId];
 
                 const inside = checkPointInRegion(
                     pointerSample.x,
@@ -107,31 +120,31 @@ export class MultiSelectSensorBinding extends SensorBinding<MultiSelectSensor> {
             }
 
             if (canConfirm) {
-                confirmCard.setOpacity(1);
+                confirmCardView.setOpacity(1);
                 const inside = checkPointInRegion(
                     pointerSample.x,
                     pointerSample.y,
-                    confirmCard.card.region,
+                    confirmCardView.card.region,
                 );
 
                 if (inside) {
-                    confirmCard.setHoverState(true);
+                    confirmCardView.setHoverState(true);
                     if (pointerSample.sampleType === "down") {
                         emitMultiSelectValue()
                         confirmed = true;
-                        confirmCard.setOpacity(0.5)
-                        confirmCard.setSelectedState(true)
+                        confirmCardView.setOpacity(0.5)
+                        confirmCardView.setSelectedState(true)
                     }
                 } else {
-                    confirmCard.setHoverState(false);
+                    confirmCardView.setHoverState(false);
                 }
 
             }
             else{
-                confirmCard.setOpacity(0.1)
+                confirmCardView.setOpacity(0.1)
             }
         };
 
-        boardView.pointerStream.subscribe(pointerCallback);
+        this.params.boardView.pointerStream.subscribe(pointerCallback);
     }
 }

@@ -84,3 +84,26 @@ export function checkPointInRegion(
             throw new Error(`Unknown mask: ${region.mask}`);
     }
 }
+
+export class Deferred<T> {
+    public readonly promise: Promise<T>
+    private resolveFunc!: (value: T) => void;
+    private alreadyCalled: boolean = false;
+
+    constructor() {
+        this.promise = new Promise<T>(
+            res => {
+                this.resolveFunc = res;
+            }
+        )
+    }
+
+    resolve(value: T) {
+        if (this.alreadyCalled) {
+            console.warn("Warning: DeferredValue.resolve called multiple times; ignoring subsequent calls.", value);
+            return
+        }
+        this.alreadyCalled = true;
+        this.resolveFunc(value);
+    }
+}

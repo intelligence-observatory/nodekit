@@ -10,41 +10,71 @@ import {SelectSensorBinding} from "./select";
 import {MultiSelectSensorBinding} from "./multiselect";
 import type {AssetManager} from "../../asset-manager";
 
+
 export async function createSensorBinding(
     sensor: Sensor,
     boardView: BoardView,
     assetManager: AssetManager,
 ): Promise<SensorBinding<Sensor>> {
 
-    // Factory function for creating a SensorBinding
     let sensorBinding: SensorBinding<Sensor> | null = null;
+
     switch (sensor.sensor_type) {
+        case "WaitSensor": {
+            sensorBinding = new WaitSensorBinding(
+                sensor,
+                boardView,
+                assetManager,
+            );
+            break
+        }
         case "KeySensor": {
-            sensorBinding = new KeySensorBinding(sensor);
+            sensorBinding = new KeySensorBinding(
+                sensor,
+                boardView,
+                assetManager,
+            );
             break
         }
         case "ClickSensor": {
-            sensorBinding = new ClickSensorBinding(sensor);
+            sensorBinding = new ClickSensorBinding(
+                sensor,
+                boardView,
+                assetManager,
+            );
             break
         }
         case "SliderSensor": {
-            sensorBinding = new SliderSensorBinding(sensor);
+            sensorBinding = new SliderSensorBinding(
+                sensor,
+                boardView,
+                assetManager,
+            );
             break;
         }
         case "FreeTextEntrySensor": {
-            sensorBinding = new FreeTextEntrySensorBinding(sensor);
+            sensorBinding = new FreeTextEntrySensorBinding(
+                sensor,
+                boardView,
+                assetManager,
+            );
             break
         }
-        case "WaitSensor": {
-            sensorBinding = new WaitSensorBinding(sensor);
-            break
-        }
+
         case "SelectSensor": {
-            sensorBinding = new SelectSensorBinding(sensor);
+            sensorBinding = new SelectSensorBinding(
+                sensor,
+                boardView,
+                assetManager,
+            );
             break
         }
         case "MultiSelectSensor": {
-            sensorBinding = new MultiSelectSensorBinding(sensor);
+            sensorBinding = new MultiSelectSensorBinding(
+                sensor,
+                boardView,
+                assetManager,
+            );
             break
         }
         default: {
@@ -53,9 +83,6 @@ export async function createSensorBinding(
         }
     }
 
-    await sensorBinding.prepare(
-        boardView,
-        assetManager,
-    );
+    await sensorBinding.prepare();
     return sensorBinding
 }

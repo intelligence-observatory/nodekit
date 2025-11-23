@@ -1,5 +1,4 @@
 import type {KeySensor} from "../../../types/sensors";
-import type {BoardView} from "../../board-view.ts";
 import type {KeySample} from "../../../input-streams/key-stream.ts";
 import type {KeyAction} from "../../../types/actions";
 import {SensorBinding} from "../index.ts";
@@ -8,10 +7,8 @@ import {SensorBinding} from "../index.ts";
  *
  */
 export class KeySensorBinding extends SensorBinding<KeySensor> {
-    prepare(
-        boardView: BoardView
-    ) {
-        const keys = this.sensor.keys;
+    async prepare() {
+        const keys = this.params.sensor.keys;
 
         const keyCallback = (keySample: KeySample) => {
             if (keySample.sampleType !== 'down') {
@@ -28,11 +25,8 @@ export class KeySensorBinding extends SensorBinding<KeySensor> {
 
             this.emit(action)
         }
-        boardView.keyStream.subscribe(
+        this.params.boardView.keyStream.subscribe(
             keyCallback
         )
-
     }
-
-
 }
