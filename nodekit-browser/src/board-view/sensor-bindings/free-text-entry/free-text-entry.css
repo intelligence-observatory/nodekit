@@ -24,7 +24,7 @@
     font-family: var(--font-family-sans), sans-serif;
     box-sizing: border-box;
     border-radius: 8px 8px 0 0;
-    box-shadow: inset 1px 1px 1px rgba(0,0,0,.2);
+    box-shadow: inset 1px 1px 1px rgba(0,0,0,.1);
 }
 
 /* Bottom gutter holds button; fixed height */
