@@ -5,7 +5,6 @@ import type {NodeOutcome} from "./events/node-events.ts";
 import type {Expression, Value} from "./expressions/expressions.ts";
 import type {Event} from "./events";
 
-
 export interface Node {
     stimulus: Card;
     sensor: Sensor;
