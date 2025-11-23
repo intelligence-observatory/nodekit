@@ -1,27 +1,27 @@
 import {SensorBinding} from "./index.ts";
 import type {ProductSensor, Sensor, SumSensor} from "../../types/sensors";
-import type {BoardView} from "../board-view.ts";
 import type {Action, ProductAction, SumAction} from "../../types/actions";
-import type {Clock} from "../../clock.ts";
 import {createSensorBinding} from "./create-sensor-binding.ts";
 
 
 export class ProductSensorBinding extends SensorBinding<ProductSensor>{
-    private childActions: Record<string, Action | null> = {}
+
+    private childBindings: Record<string, SensorBinding<Sensor>> = {}
 
     async prepare() {
+        let childActions: Record<string, Action | null> = {}
         for (const [childId, childSensor] of Object.entries(this.params.sensor.children)){
-            this.childActions[childId] = null;
+            childActions[childId] = null;
 
-            let sensorBinding = await createSensorBinding(
+            this.childBindings[childId] = await createSensorBinding(
                 childSensor,
                 this.params.boardView,
                 this.params.assetManager,
             )
-            sensorBinding.subscribe(
+            this.childBindings[childId].subscribe(
                 (action:Action) => {
-                    this.childActions[childId] = action;
-                    let finalAction = this.checkValid();
+                    childActions[childId] = action;
+                    let finalAction = this.checkValid(childActions);
                     if (finalAction !==null){
                         this.emit(finalAction)
                     }
@@ -30,15 +30,15 @@ export class ProductSensorBinding extends SensorBinding<ProductSensor>{
         }
     }
 
-    checkValid(): ProductAction | null {
+    private checkValid(childActions: Record<string, Action | null>): ProductAction | null {
         let childActionsFinal: Record<string, Action> = {}
-        for (const sensorId of Object.keys(this.childActions)){
+        for (const sensorId of Object.keys(childActions)){
             const sid = sensorId;
-            if (this.childActions[sid] === null){
+            if (childActions[sid] === null){
                 return null
             }
             else{
-                childActionsFinal[sid] = this.childActions[sid]
+                childActionsFinal[sid] = childActions[sid]
             }
         }
         return {
@@ -47,42 +47,49 @@ export class ProductSensorBinding extends SensorBinding<ProductSensor>{
             t: this.params.boardView.clock.now()
         }
     }
+
+    start(){
+        // Start all children
+        for (const [_, childSensorBinding] of Object.entries(this.childBindings)){
+            childSensorBinding.start();
+        }
+    }
 }
 
 
 export class SumSensorBinding extends SensorBinding<SumSensor>{
-    private childBindings: Record<SensorId, SensorBinding<Sensor>>;
-    private currentSensorStates: Record<SensorId, Action | null> = {}
-    private clock!: Clock
-    constructor(
-        sensor: SumSensor,
-        childBindings: Record<SensorId, SensorBinding<Sensor>>
-    ) {
-        super(sensor);
-        this.childBindings=childBindings;
-        for (const [sensorId, sensorBinding] of Object.entries(this.childBindings)){
-            this.currentSensorStates[sensorId as SensorId] = null;
-            sensorBinding.subscribe(
+
+    private childBindings: Record<string, SensorBinding<Sensor>> = {}
+
+    async prepare() {
+        let childActions: Record<string, Action | null> = {}
+        for (const [childId, childSensor] of Object.entries(this.params.sensor.children)){
+            childActions[childId] = null;
+
+            this.childBindings[childId] = await createSensorBinding(
+                childSensor,
+                this.params.boardView,
+                this.params.assetManager,
+            )
+            this.childBindings[childId].subscribe(
                 (action:Action) => {
-                    // First one wins
+                    // Emit immediately
                     const sumAction: SumAction = {
                         action_type: 'SumAction',
-                        t: this.clock.now(),
-                        winner_id: sensorId as SensorId,
+                        winner_id: childId,
                         winner_action: action,
+                        t: this.params.boardView.clock.now()
                     }
                     this.emit(sumAction)
-
                 }
             )
         }
     }
 
-    prepare(
-        boardView: BoardView,
-        _cardViewMap: CardViewMap
-    ) {
-        this.clock = boardView.clock;
+    start(){
+        // Start all children
+        for (const [_, childSensorBinding] of Object.entries(this.childBindings)){
+            childSensorBinding.start();
+        }
     }
-
 }

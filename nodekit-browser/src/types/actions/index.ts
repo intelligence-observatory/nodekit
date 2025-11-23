@@ -1,4 +1,4 @@
-import type {CardId, PressableKey, SensorId, SpatialPoint, TimeElapsedMsec} from "../common.ts";
+import type {PressableKey, SpatialPoint, TimeElapsedMsec} from "../common.ts";
 import type {SliderBinIndex} from "../../board-view/sensor-bindings/slider";
 
 export interface BaseAction<T extends string> {
@@ -33,11 +33,11 @@ export interface MultiSelectAction extends BaseAction<"MultiSelectAction">{
 }
 
 export interface ProductAction extends BaseAction<'ProductAction'> {
-    child_actions: Record<SensorId, Action>
+    child_actions: Record<string, Action>
 }
 
 export interface SumAction extends BaseAction<'SumAction'>{
-    winner_id: SensorId
+    winner_id: string
     winner_action: Action
 }
 
