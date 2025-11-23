@@ -56,8 +56,8 @@ export class FreeTextEntrySensorView extends RegionView {
         const gutter = document.createElement('div');
         gutter.classList.add('free-text-entry__gutter');
 
-        const defaultText=''
         const doneText='Done' // '↵'
+        const defaultText='';
         const doneButton = document.createElement('button');
         doneButton.classList.add('free-text-entry__submit');
         doneButton.textContent=defaultText;
@@ -68,8 +68,8 @@ export class FreeTextEntrySensorView extends RegionView {
         wrapper.appendChild(gutter);
         this.root.appendChild(wrapper);
 
-        // Basic interaction
-        textAreaElement.addEventListener('input', () => {
+
+        const updateAppearance = () =>{
             const submittable = textAreaElement.value.trim().length >= sensor.min_length
             doneButton.textContent = submittable ? doneText:defaultText;
 
@@ -81,11 +81,16 @@ export class FreeTextEntrySensorView extends RegionView {
                 doneButton.classList.remove('submittable')
                 doneButton.disabled=true;
             }
-
+        }
+        // Basic interaction
+        textAreaElement.addEventListener('input', () => {
+            updateAppearance()
         });
 
         this.textAreaElement = textAreaElement;
         this.doneButton = doneButton;
+
+        updateAppearance()
     }
 
     subscribe(callback: (sample: string) => void): void {
