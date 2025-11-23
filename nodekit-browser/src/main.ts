@@ -19,13 +19,11 @@ import {evl} from "./types/expressions/expressions.ts";
  * Plays a Graph, returning a Trace of Events.
  * @param graph
  * @param onEventCallback
- * @param previousEvents
  * @param debugMode
  */
 export async function play(
     graph: Graph,
     onEventCallback: ((event: Event) => void) | null = null,
-    previousEvents: Event[] = [],
     debugMode: boolean=false,
 ): Promise<Trace> {
     const clock = new Clock();
@@ -36,8 +34,7 @@ export async function play(
         onEventCallback = (_event: Event) => {};
     }
 
-    // Todo: the previousEvents can be processed to obtain the current state of the task. Otherwise, we always start from scratch.
-    const eventArray = new EventArray(previousEvents, onEventCallback);
+    const eventArray = new EventArray(onEventCallback);
 
     // Initialize divs:
     const nodeKitDiv = createNodeKitRootDiv();
@@ -118,7 +115,7 @@ export async function play(
         await nodePlay.prepare()
 
         // Play the Node:
-        let result = await nodePlay.run(clock);
+        let result = await nodePlay.run();
         nodeResults.push(
             {
                 node_id: currentNodeId,

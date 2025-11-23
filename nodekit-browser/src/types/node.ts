@@ -7,7 +7,7 @@ import type {Event} from "./events";
 
 
 export interface Node {
-    card: Card;
+    stimulus: Card;
     sensor: Sensor;
     board_color: ColorHexString;
     hide_pointer: boolean

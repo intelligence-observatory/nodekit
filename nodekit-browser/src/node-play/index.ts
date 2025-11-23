@@ -38,7 +38,7 @@ export class NodePlay {
 
     async prepare() {
         const cardView = await createCardView(
-            this.node.card,
+            this.node.stimulus,
             this.boardView,
             this.assetManager,
         )
@@ -63,7 +63,6 @@ export class NodePlay {
             this.assetManager,
         )
 
-        // Subscribe to SensorBinding:
         sensorBinding.subscribe(
             (action) => {this.deferredAction.resolve(action)}
         )
@@ -84,7 +83,7 @@ export class NodePlay {
         this.prepared = true;
     }
 
-    async run(clock:Clock): Promise<NodePlayRunResult> {
+    async run(): Promise<NodePlayRunResult> {
         // Run the NodePlay, returning a Promise which resolves when a Sensor fires and the corresponding Reinforcer has completed.
         if (!this.prepared) {
             // Prepare the NodePlay
@@ -97,7 +96,7 @@ export class NodePlay {
         }
 
         this.boardView.setBoardState(true, true);
-        const tStart = clock.now()
+        const tStart = this.boardView.clock.now()
         this.started = true;
 
         // Kick off scheduler:
