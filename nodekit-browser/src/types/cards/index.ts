@@ -26,4 +26,8 @@ export interface TextCard extends BaseCard<'TextCard'>{
     background_color: ColorHexString
 }
 
-export type Card = ImageCard | VideoCard | TextCard;
+export interface GroupCard extends BaseCard<'GroupCard'>{
+    children: Record<string, Card>
+}
+
+export type Card = ImageCard | VideoCard | TextCard | GroupCard;

@@ -1,6 +1,7 @@
 import type {CardId, NodeTimePointMsec, PlainString, PressableKey, SensorId, SpatialSize} from "../common.ts";
 import type {Region} from "../region";
 import type {SliderBinIndex} from "../../board-view/sensor-bindings/slider";
+import type {Card} from "../cards";
 
 interface BaseSensor<T extends string> {
     sensor_type: T
@@ -12,7 +13,7 @@ export interface WaitSensor extends BaseSensor<"WaitSensor">{
 
 export interface SelectSensor extends BaseSensor<'SelectSensor'>{
     // Choose exactly 1 element from a finite set.
-    choices: CardId[]
+    choices: Record<string, Card>
 }
 
 export interface ClickSensor extends BaseSensor<'ClickSensor'>{

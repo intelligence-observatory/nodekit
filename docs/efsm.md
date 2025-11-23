@@ -15,7 +15,7 @@ A Graph describes a behavioral task as an [extended finite state machine](https:
   - `.transitions: Dict[NodeId, List[Transition]]`. The list of edges emanating from each Node. Evaluated left-to-right. Each `Transition` has: 
     - `.when: Expression<bool>`. Note in practice, this tends to be an Expression involving `ActionField`. For certain sophisticated flows (e.g. psychophysical staircases), Graph registers are also used.
     - `.to: NodeId`. Which Node to transition to, assuming `.when` is True.
-    - `.register_updates: Dict[RegisterId, Expression]`. Effectuated only if this Transition is taken. All Expressions are evaluated first, then all are committed. In practice, this tends to be used rarely.
+    - `.register_updates: Dict[RegisterId, Expression]`. Performed only if this Transition is taken. All Expressions are evaluated first, then all are committed. In practice, this tends to be used rarely.
   - `.registers: Dict[RegisterId, Value]`. The initial register file of the EFSM.
 
 ## Trace
