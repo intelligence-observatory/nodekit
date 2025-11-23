@@ -2,7 +2,7 @@ import type {Event, PageResumedEvent, PageSuspendedEvent, TraceEndedEvent, Trace
 import {Clock} from "./clock.ts";
 import type {Graph, Trace} from "./types/node.ts";
 import {sampleBrowserContext} from "./user-gates/browser-context.ts";
-import {checkDeviceIsValid} from "./user-gates/device-gate.ts";
+import {userDeviceIsValid} from "./user-gates/device-gate.ts";
 import type {NodeId, RegisterId, TimeElapsedMsec} from "./types/common.ts";
 import {createNodeKitRootDiv} from "./ui/ui-builder.ts";
 import {AssetManager} from "./asset-manager";
@@ -23,16 +23,12 @@ import {evl} from "./types/expressions/expressions.ts";
  */
 export async function play(
     graph: Graph,
-    onEventCallback: ((event: Event) => void) | null = null,
+    onEventCallback: ((event: Event) => void) = (_event: Event) => {},
     debugMode: boolean=false,
 ): Promise<Trace> {
+
     const clock = new Clock();
     clock.start()
-
-    // If no onEventCallback is provided, use a no-op function:
-    if (!onEventCallback) {
-        onEventCallback = (_event: Event) => {};
-    }
 
     const eventArray = new EventArray(onEventCallback);
 
@@ -49,7 +45,7 @@ export async function play(
     }
 
     // Device gate:
-    if (!checkDeviceIsValid()){
+    if (!userDeviceIsValid()){
         const error = new Error('Unsupported device for NodeKit. Please use a desktop browser.');
         shellUI.showErrorOverlay(error);
         throw error;

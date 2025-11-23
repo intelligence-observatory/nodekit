@@ -1,6 +1,6 @@
 import {UAParser} from "ua-parser-js";
 
-export function checkDeviceIsValid(): boolean {
+export function userDeviceIsValid(): boolean {
     // Infer the user device:
     const parser = new UAParser();
     const detectedDevice = parser.getDevice();
