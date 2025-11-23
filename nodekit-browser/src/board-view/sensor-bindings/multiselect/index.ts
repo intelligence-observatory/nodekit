@@ -11,9 +11,8 @@ import type {CardView} from "../../card-views/card-view.ts";
  */
 export class MultiSelectSensorBinding extends SensorBinding<MultiSelectSensor> {
     async prepare() {
-        const choiceCardIds = this.params.sensor.choices;
-        const minSelections = this.params.sensor.min_selections ?? 0;
-        const maxSelections = this.params.sensor.max_selections ?? choiceCardIds.length;
+        const minSelections = this.params.sensor.min_selections;
+        const maxSelections = this.params.sensor.max_selections ?? Object.keys(this.params.sensor.choices).length;
 
         const currentSelections: Set<string> = new Set();
 
@@ -42,11 +41,9 @@ export class MultiSelectSensorBinding extends SensorBinding<MultiSelectSensor> {
 
         const updateCardViews = () => {
             const atMax = currentSelections.size >= maxSelections;
-
             for (const choiceId of choiceIds) {
                 const cardView = cardViewMap[choiceId];
                 const isSelected = currentSelections.has(choiceId);
-
                 cardView.setSelectedState(isSelected);
 
                 if (atMax && !isSelected) {
@@ -100,7 +97,8 @@ export class MultiSelectSensorBinding extends SensorBinding<MultiSelectSensor> {
                     if (isSelected) {
                         currentSelections.delete(cardId);
                         changed = true;
-                    } else {
+                    }
+                    else {
                         if (currentSelections.size < maxSelections) {
                             currentSelections.add(cardId);
                             changed = true;
@@ -111,12 +109,7 @@ export class MultiSelectSensorBinding extends SensorBinding<MultiSelectSensor> {
 
             if (changed) {
                 updateCardViews();
-                if (currentSelections.size >= minSelections){
-                    canConfirm = true;
-                }
-                else{
-                    canConfirm = false;
-                }
+                canConfirm = currentSelections.size >= minSelections;
             }
 
             if (canConfirm) {
