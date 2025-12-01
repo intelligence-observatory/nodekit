@@ -85,6 +85,28 @@
         },
     }
 
+    const compositeCard2 = {
+        "card_type": "CompositeCard",
+        "children": {
+            'child-card-11':{
+                "card_type": "TextCard",
+                "region": {
+                    "x": -0.4,
+                    "y": -0.25,
+                    "w": 0.2,
+                    "h": 0.1,
+                    "mask": 'rectangle',
+                },
+                "text": "I am a child of a CompositeCard.",
+                "font_size": 0.01,
+                "justification_horizontal": "center",
+                "justification_vertical": "center",
+                "text_color": "#000000ff",
+                "background_color": "#e6e6e6ff"
+            },
+        }
+    }
+
     const multiSelectSensor = {
         sensor_type: "MultiSelectSensor",
         choices: {
@@ -142,7 +164,8 @@
                 "justification_vertical": "center",
                 "text_color": "#000000ff",
                 "background_color": "#e6e6e6ff"
-            }
+            },
+            "choice3": compositeCard2,
         },
         min_selections: 2,
         max_selections: null,
@@ -199,7 +222,7 @@
         "sensor_type": "ProductSensor",
         "children": {
             'child-sensor1': freeTextEntrySensor,
-            'child-sensor2': selectSensor,
+            //'child-sensor2': selectSensor,
             'select3': multiSelectSensor,
         }
     }
@@ -227,12 +250,6 @@
         "card_type": "CompositeCard",
         "children": {
             'child-card-1':videoCard
-        }
-    }
-    const compositeCard2 = {
-        "card_type": "CompositeCard",
-        "children": {
-            'child-card-11':videoCard
         }
     }
 

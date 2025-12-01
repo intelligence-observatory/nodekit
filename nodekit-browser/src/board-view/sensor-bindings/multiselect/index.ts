@@ -2,9 +2,8 @@ import type {MultiSelectSensor} from "../../../types/sensors";
 import {SensorBinding} from "../index.ts";
 import type {MultiSelectAction} from "../../../types/actions";
 import type {PointerSample} from "../../../input-streams/pointer-stream.ts";
-import {checkPointInRegion} from "../../../utils.ts";
 import {createCardView} from "../../card-views/create.ts";
-import type {CardView} from "../../card-views/card-view.ts";
+import type {CardView} from "../../card-views/base-card-view.ts";
 
 /**
  *
@@ -73,10 +72,9 @@ export class MultiSelectSensorBinding extends SensorBinding<MultiSelectSensor> {
             for (const cardId of choiceIds) {
                 const cardView = cardViewMap[cardId];
 
-                const inside = checkPointInRegion(
+                const inside = cardView.checkPointInCard(
                     pointerSample.x,
                     pointerSample.y,
-                    cardView.card.region,
                 );
 
                 if (!inside) {
@@ -114,10 +112,9 @@ export class MultiSelectSensorBinding extends SensorBinding<MultiSelectSensor> {
 
             if (canConfirm) {
                 confirmCardView.setOpacity(1);
-                const inside = checkPointInRegion(
+                const inside = confirmCardView.checkPointInCard(
                     pointerSample.x,
                     pointerSample.y,
-                    confirmCardView.card.region,
                 );
 
                 if (inside) {

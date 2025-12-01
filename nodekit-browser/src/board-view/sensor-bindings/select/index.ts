@@ -2,8 +2,7 @@ import type {SelectSensor} from "../../../types/sensors";
 import {SensorBinding} from "../index.ts";
 import type {SelectAction} from "../../../types/actions";
 import type {PointerSample} from "../../../input-streams/pointer-stream.ts";
-import {checkPointInRegion} from "../../../utils.ts";
-import type {CardView} from "../../card-views/card-view.ts";
+import type {CardView} from "../../card-views/base-card-view.ts";
 import {createCardView} from "../../card-views/create.ts";
 
 /**
@@ -32,10 +31,9 @@ export class SelectSensorBinding extends SensorBinding<SelectSensor> {
             for (const choiceId of choiceIds) {
                 const cardView = cardViewMap[choiceId];
 
-                const inside = checkPointInRegion(
+                const inside = cardView.checkPointInCard(
                     pointerSample.x,
                     pointerSample.y,
-                    cardView.card.region,
                 );
 
                 if (!inside) {

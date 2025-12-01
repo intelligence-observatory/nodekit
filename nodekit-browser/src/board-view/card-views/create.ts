@@ -3,9 +3,8 @@ import {BoardView} from "../board-view.ts";
 import {ImageCardView} from "./image/image-card-view.ts";
 import {VideoCardView} from "./video/video-card-view.ts";
 import {TextCardView} from "./text/text-card-view.ts";
-import {CardView} from "./card-view.ts";
+import {type CardView, CompositeCardView} from "./base-card-view.ts";
 import type {AssetManager} from "../../asset-manager";
-import {CompositeCardView} from "./composite/composite-card-view.ts";
 
 
 export async function createCardView(
@@ -56,7 +55,6 @@ export async function createCardView(
 
             cardView = new CompositeCardView(
                 card,
-                boardCoords,
                 childViews,
             )
             break

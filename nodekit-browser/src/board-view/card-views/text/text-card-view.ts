@@ -1,7 +1,7 @@
 import type {SpatialSize,} from "../../../types/common.ts";
 
 import './text-card-view.css'
-import {CardView} from "../card-view.ts";
+import {LeafCardView} from "../base-card-view.ts";
 import type {TextCard} from "../../../types/cards";
 import {renderTextContent, type TextContentParameters} from "../../../utils.ts";
 
@@ -11,7 +11,7 @@ import {renderTextContent, type TextContentParameters} from "../../../utils.ts";
  */
 
 
-export class TextCardView extends CardView<TextCard> {
+export class TextCardView extends LeafCardView<TextCard> {
     textContainer!: HTMLDivElement;
 
     async prepare(

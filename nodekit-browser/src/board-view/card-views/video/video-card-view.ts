@@ -1,10 +1,10 @@
 import './video-card.css'
-import {CardView} from "../card-view.ts";
+import {LeafCardView} from "../base-card-view.ts";
 import type {VideoCard} from "../../../types/cards";
 import type {AssetManager} from "../../../asset-manager";
 
 
-export class VideoCardView extends CardView<VideoCard> {
+export class VideoCardView extends LeafCardView<VideoCard> {
 
     videoContainer: HTMLDivElement | undefined;
     video: HTMLVideoElement | undefined;
