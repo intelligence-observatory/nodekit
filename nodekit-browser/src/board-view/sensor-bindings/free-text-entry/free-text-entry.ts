@@ -35,7 +35,6 @@ export class FreeTextEntrySensorView {
     private doneButton: HTMLButtonElement;
     public root: HTMLElement
 
-
     constructor(
         sensor: FreeTextEntrySensor,
         boardCoords: BoardCoordinateSystem

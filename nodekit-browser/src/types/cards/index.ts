@@ -4,17 +4,20 @@ import type {Region} from "../region";
 
 export interface BaseCard<T extends string> {
     card_type: T
-    region: Region
 }
 
 export interface ImageCard extends BaseCard<'ImageCard'>{
     image: Image;
+    region: Region
+
 }
 
 export interface VideoCard extends BaseCard<'VideoCard'>{
     video: Video;
     loop: boolean;
     start: boolean;
+    region: Region
+
 }
 
 export interface TextCard extends BaseCard<'TextCard'>{
@@ -24,6 +27,11 @@ export interface TextCard extends BaseCard<'TextCard'>{
     justification_vertical: 'top' | 'center' | 'bottom';
     text_color: ColorHexString;
     background_color: ColorHexString
+    region: Region
 }
 
-export type Card = ImageCard | VideoCard | TextCard;
+export interface CompositeCard extends BaseCard<'CompositeCard'>{
+    children: Record<string, Card>
+}
+
+export type Card = ImageCard | VideoCard | TextCard | CompositeCard;
