@@ -1,6 +1,6 @@
 import './free-text-entry.css'
 import type {FreeTextEntrySensor} from "../../../types/sensors";
-import {BoardCoordinateSystem, RegionView} from "../../board-view.ts";
+import {BoardCoordinateSystem, createRegionDiv} from "../../board-view.ts";
 import type {FreeTextEntryAction} from "../../../types/actions";
 import {SensorBinding} from "../index.ts";
 
@@ -30,15 +30,18 @@ export class FreeTextEntrySensorBinding extends SensorBinding<FreeTextEntrySenso
     }
 }
 
-export class FreeTextEntrySensorView extends RegionView {
+export class FreeTextEntrySensorView {
     private textAreaElement: HTMLTextAreaElement;
     private doneButton: HTMLButtonElement;
+    public root: HTMLElement
+
 
     constructor(
         sensor: FreeTextEntrySensor,
         boardCoords: BoardCoordinateSystem
     ) {
-        super(sensor.region, boardCoords);
+        this.root = createRegionDiv(sensor.region, boardCoords);
+
 
         // Parent wrapper
         const wrapper = document.createElement('div');

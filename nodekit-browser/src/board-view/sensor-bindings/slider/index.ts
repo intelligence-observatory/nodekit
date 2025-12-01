@@ -1,6 +1,6 @@
 import './slider.css'
 import type {SliderSensor} from "../../../types/sensors";
-import {BoardCoordinateSystem, RegionView} from "../../board-view.ts";
+import {BoardCoordinateSystem, createRegionDiv} from "../../board-view.ts";
 import type {SliderAction} from "../../../types/actions";
 import {SensorBinding} from "../index.ts";
 
@@ -47,11 +47,13 @@ export class SliderSensorBinding extends SensorBinding<SliderSensor> {
 /**
  *
  */
-export class SliderSensorView extends RegionView {
+export class SliderSensorView {
     sliderContainer: HTMLDivElement;
     sliderTrack: HTMLDivElement;
     sliderThumb: HTMLDivElement;
 
+    public root: HTMLElement
+    private boardCoords: BoardCoordinateSystem
     private sensor: SliderSensor
     private pendingThumbPosition: SliderNormalizedPosition | null = null;
     private rafId: number | null = null;
@@ -66,7 +68,9 @@ export class SliderSensorView extends RegionView {
         sensor: SliderSensor,
         boardCoords: BoardCoordinateSystem,
     ){
-        super(sensor.region, boardCoords);
+        this.root = createRegionDiv(sensor.region, boardCoords);
+        this.boardCoords = boardCoords;
+
         this.sensor=sensor;
 
         // Make container

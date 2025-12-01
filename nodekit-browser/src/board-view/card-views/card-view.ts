@@ -1,18 +1,21 @@
 import './card-view.css'
 
 import type {Card} from "../../types/cards";
-import {type BoardCoordinateSystem, RegionView} from "../board-view.ts";
+import {type BoardCoordinateSystem, createRegionDiv} from "../board-view.ts";
 import type {AssetManager} from "../../asset-manager";
 
 
-export abstract class CardView<C extends Card = Card> extends RegionView{
+export abstract class CardView<C extends Card = Card>{
+    root: HTMLElement;
+    boardCoords: BoardCoordinateSystem
     card: C
 
     constructor(
         card: C,
         boardCoords: BoardCoordinateSystem,
     ) {
-        super(card.region, boardCoords)
+        this.root = createRegionDiv(card.region, boardCoords);
+        this.boardCoords = boardCoords;
         this.card = card;
     }
 

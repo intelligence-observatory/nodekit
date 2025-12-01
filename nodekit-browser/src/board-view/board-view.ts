@@ -144,58 +144,6 @@ export class BoardView {
     }
 }
 
-/**
- * A view of a Region on the Board. Instantiates a <div>.
- */
-export abstract class RegionView {
-    root: HTMLElement;
-    boardCoords: BoardCoordinateSystem
-
-    constructor(
-        region: Region,
-        boardCoords: BoardCoordinateSystem,
-    ) {
-        // Create the Card's root element
-        this.root = document.createElement('div');
-        this.root.classList.add('board-region');
-        this.boardCoords = boardCoords
-
-        // Configure Card position and size:
-        const {leftPx, topPx} = boardCoords.getBoardLocationPx(
-            region.x,
-            region.y,
-            region.w,
-            region.h
-        )
-
-        const {widthPx, heightPx} = boardCoords.getBoardRectanglePx(
-            region.w,
-            region.h
-        );
-
-        this.root.style.left = `${leftPx}px`;
-        this.root.style.top = `${topPx}px`;
-        this.root.style.width = `${widthPx}px`;
-        this.root.style.height = `${heightPx}px`;
-
-        switch (region.mask){
-            case 'ellipse':
-                this.root.style.borderRadius = '50%';
-                break
-            case 'rectangle':
-                break
-            default:
-                const _exhaustive: never = region.mask
-                console.warn(`Found unsupported Region.mask: ${JSON.stringify(_exhaustive)}`)
-                break
-        }
-
-        if (typeof region.z_index === 'number') {
-            this.root.style.zIndex = region.z_index.toString()
-        }
-    }
-}
-
 export function createRegionDiv(
     region: Region,
     boardCoords: BoardCoordinateSystem
