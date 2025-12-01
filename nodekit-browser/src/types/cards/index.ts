@@ -34,4 +34,5 @@ export interface CompositeCard extends BaseCard<'CompositeCard'>{
     children: Record<string, Card>
 }
 
-export type Card = ImageCard | VideoCard | TextCard | CompositeCard;
+export type LeafCard = ImageCard | VideoCard | TextCard;
+export type Card = LeafCard | CompositeCard;

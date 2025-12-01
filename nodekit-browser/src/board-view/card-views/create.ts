@@ -5,6 +5,7 @@ import {VideoCardView} from "./video/video-card-view.ts";
 import {TextCardView} from "./text/text-card-view.ts";
 import {CardView} from "./card-view.ts";
 import type {AssetManager} from "../../asset-manager";
+import {CompositeCardView} from "./composite/composite-card-view.ts";
 
 
 export async function createCardView(
@@ -32,6 +33,31 @@ export async function createCardView(
             cardView = new TextCardView(
                 card,
                 boardCoords
+            )
+            break
+        case "CompositeCard":
+            // Instantiate all children
+            const childPromises = Object.entries(card.children).map(
+                async ([key, childCard]) => {
+                    const childView = await createCardView(
+                        childCard,
+                        boardView,
+                        assetManager,
+                    );
+                    return [key, childView] as const;
+                },
+            );
+
+            // Await them all at once
+            const resolvedEntries = await Promise.all(childPromises);
+
+            const childViews: Record<string, CardView> =
+                Object.fromEntries(resolvedEntries);
+
+            cardView = new CompositeCardView(
+                card,
+                boardCoords,
+                childViews,
             )
             break
         default:

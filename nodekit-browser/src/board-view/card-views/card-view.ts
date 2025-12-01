@@ -14,7 +14,15 @@ export abstract class CardView<C extends Card = Card>{
         card: C,
         boardCoords: BoardCoordinateSystem,
     ) {
-        this.root = createRegionDiv(card.region, boardCoords);
+        // If a leaf Card, instantiate the root as a region div:
+
+        if (card.card_type === 'CompositeCard') {
+            // no region on composite, so use a plain div
+            this.root = document.createElement('div');
+        } else {
+            // card is now narrowed to LeafCard
+            this.root = createRegionDiv(card.region, boardCoords);
+        }
         this.boardCoords = boardCoords;
         this.card = card;
     }
