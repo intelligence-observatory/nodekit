@@ -1,5 +1,5 @@
 import './video-card.css'
-import {LeafCardView} from "../base-card-view.ts";
+import {LeafCardView} from "../card-view.ts";
 import type {VideoCard} from "../../../types/cards";
 import type {AssetManager} from "../../../asset-manager";
 

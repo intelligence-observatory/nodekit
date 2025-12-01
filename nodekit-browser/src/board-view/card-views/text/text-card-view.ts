@@ -1,7 +1,7 @@
 import type {SpatialSize,} from "../../../types/common.ts";
 
 import './text-card-view.css'
-import {LeafCardView} from "../base-card-view.ts";
+import {LeafCardView} from "../card-view.ts";
 import type {TextCard} from "../../../types/cards";
 import {renderTextContent, type TextContentParameters} from "../../../utils.ts";
 

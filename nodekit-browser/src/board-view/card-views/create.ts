@@ -3,7 +3,7 @@ import {BoardView} from "../board-view.ts";
 import {ImageCardView} from "./image/image-card-view.ts";
 import {VideoCardView} from "./video/video-card-view.ts";
 import {TextCardView} from "./text/text-card-view.ts";
-import {type CardView, CompositeCardView} from "./base-card-view.ts";
+import {type CardView, CompositeCardView} from "./card-view.ts";
 import type {AssetManager} from "../../asset-manager";
 
 

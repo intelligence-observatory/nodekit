@@ -3,7 +3,7 @@ import {SensorBinding} from "../index.ts";
 import type {MultiSelectAction} from "../../../types/actions";
 import type {PointerSample} from "../../../input-streams/pointer-stream.ts";
 import {createCardView} from "../../card-views/create.ts";
-import type {CardView} from "../../card-views/base-card-view.ts";
+import type {CardView} from "../../card-views/card-view.ts";
 
 /**
  *
