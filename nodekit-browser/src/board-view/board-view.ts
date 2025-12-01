@@ -177,8 +177,8 @@ export function createRegionDiv(
         case 'rectangle':
             break
         default:
-            const _exhaustive: never = region
-            console.warn(`Found unsupported Region.mask. Region: ${JSON.stringify(_exhaustive)}`)
+            const _exhaustive: never = region.mask
+            console.warn(`Found unsupported Region.mask ${_exhaustive}. Region: ${JSON.stringify(region)}`)
             break
     }
 

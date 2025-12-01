@@ -20,6 +20,29 @@ export abstract class BaseCardView<C extends Card = Card>{
     abstract prepare(_assetManager:AssetManager): Promise<void>;
     onStart(): void {}
     onDestroy(): void {}
+    abstract setHoverState(hovered:boolean):void
+    abstract setSelectedState(selected:boolean):void
+    abstract setOpacity(opacity:number):void
+
+    abstract checkPointInCard(
+        x: SpatialPoint,
+        y: SpatialPoint,
+    ): boolean
+}
+
+
+export abstract class LeafCardView<C extends LeafCard = LeafCard> extends BaseCardView<C>{
+    boardCoords: BoardCoordinateSystem
+    constructor(
+        card: C,
+        boardCoords: BoardCoordinateSystem,
+    ) {
+
+        // If a leaf Card, instantiate the root as a region div:
+        const root = createRegionDiv(card.region, boardCoords);
+        super(card, root)
+        this.boardCoords = boardCoords;
+    }
 
     setHoverState(
         hovered:boolean,
@@ -46,26 +69,6 @@ export abstract class BaseCardView<C extends Card = Card>{
     setOpacity(opacity:number){
         // Between 0 and 1
         this.root.style.opacity = `${Math.min(1, Math.max(0, opacity))*100}%`
-    }
-
-    abstract checkPointInCard(
-        x: SpatialPoint,
-        y: SpatialPoint,
-    ): boolean
-}
-
-
-export abstract class LeafCardView<C extends LeafCard = LeafCard> extends BaseCardView<C>{
-    boardCoords: BoardCoordinateSystem
-    constructor(
-        card: C,
-        boardCoords: BoardCoordinateSystem,
-    ) {
-
-        // If a leaf Card, instantiate the root as a region div:
-        const root = createRegionDiv(card.region, boardCoords);
-        super(card, root)
-        this.boardCoords = boardCoords;
     }
 
     checkPointInCard(
@@ -130,12 +133,35 @@ export class CompositeCardView extends BaseCardView<CompositeCard>{
             cardView.onDestroy()
         }
     }
+    setHoverState(hovered:boolean):void{
+        for (const cardView of Object.values(this.childViews)) {
+            cardView.setHoverState(hovered);
+        }
+    }
+    setSelectedState(selected:boolean):void{
+        for (const cardView of Object.values(this.childViews)) {
+            cardView.setSelectedState(selected);
+        }
+
+    }
+    setOpacity(opacity:number):void{
+        for (const cardView of Object.values(this.childViews)) {
+            cardView.setOpacity(opacity);
+        }
+
+    }
 
     checkPointInCard(
-        _x: SpatialPoint,
-        _y: SpatialPoint
+        x: SpatialPoint,
+        y: SpatialPoint
     ): boolean {
-        return false;
+        for (const cardView of Object.values(this.childViews)){
+            let inside = cardView.checkPointInCard(x, y)
+            if (inside){
+                return true
+            }
+        }
+        return false
     }
 }
 
