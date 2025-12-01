@@ -178,7 +178,7 @@ export function createRegionDiv(
             break
         default:
             const _exhaustive: never = region.mask
-            console.warn(`Found unsupported Region.mask: ${JSON.stringify(_exhaustive)}`)
+            console.warn(`Found unsupported Region.mask: ${JSON.stringify(region)}`)
             break
     }
 
