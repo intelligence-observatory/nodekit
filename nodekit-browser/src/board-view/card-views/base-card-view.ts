@@ -107,11 +107,8 @@ export class CompositeCardView extends BaseCardView<CompositeCard>{
         card: CompositeCard,
         childViews: Record<string, CardView>
     ){
-        const root = new HTMLDivElement()
-        super(
-            card,
-            root
-        )
+        const root = document.createElement('div')
+        super(card, root)
         this.childViews = childViews
 
         // Mount all childViews to root

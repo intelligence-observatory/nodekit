@@ -52,7 +52,6 @@ export async function createCardView(
 
             const childViews: Record<string, CardView> =
                 Object.fromEntries(resolvedEntries);
-
             cardView = new CompositeCardView(
                 card,
                 childViews,
