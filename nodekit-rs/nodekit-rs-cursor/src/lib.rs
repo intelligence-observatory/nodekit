@@ -1,4 +1,4 @@
-use blittle::{PositionI, Size};
+use blittle::{clip, PositionI, Size};
 use nodekit_rs_models::Position;
 use nodekit_rs_visual::*;
 
@@ -9,7 +9,7 @@ pub struct Cursor(RgbaBuffer);
 
 impl Cursor {
     /// Blit the cursor onto the `board` image.
-    pub fn blit(&mut self, position: &Position, board: &mut [u8]) {
+    pub fn blit(&mut self, position: &Position, board: &mut Board) {
         // Convert to pixel coordinates.
         let rect = ResizedRect {
             position: PositionI {
@@ -18,7 +18,16 @@ impl Cursor {
             },
             size: CURSOR_SIZE,
         };
+        
+        let position = PositionI {
+            x: spatial_coordinate(position.x),
+            y: spatial_coordinate(position.y),
+        };
+        let mut size = CURSOR_SIZE;
+        let position = clip(&position, &BOARD_SIZE, &mut size);
+        
 
+        
         // Convert to an RGBA area.
         if let Some(rects) = RgbaRects::new(&rect) {
             // Set the rects.

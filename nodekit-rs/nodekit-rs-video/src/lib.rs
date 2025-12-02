@@ -14,7 +14,7 @@ pub struct Video {
     pub buffer: Vec<u8>,
     pub width: usize,
     pub height: usize,
-    pub rect: RgbRect,
+    pub rect: Rect,
 }
 
 impl Video {
@@ -22,7 +22,7 @@ impl Video {
         // Load the video.
         let buffer = read(&video.path).map_err(|e| Error::FileNotFound(video.path.clone(), e))?;
         let (width, height) = Self::get_size(&buffer)?;
-        let rect = RgbRect::from(card.rect);
+        let rect = Rect::from(card.rect);
         Ok(Self {
             buffer,
             rect,
@@ -140,7 +140,7 @@ mod tests {
         let width = 400;
         let height = 300;
 
-        let rect = RgbRect {
+        let rect = Rect {
             position: PositionU { x: 0, y: 0 },
             size: blittle::Size {
                 w: width,
@@ -156,6 +156,6 @@ mod tests {
 
         let frame = video.get_frame(300).unwrap();
         let _ = write("out.raw", &frame);
-        assert_eq!(frame.len(), (width * height * 3));
+        assert_eq!(frame.len(), width * height * 3);
     }
 }

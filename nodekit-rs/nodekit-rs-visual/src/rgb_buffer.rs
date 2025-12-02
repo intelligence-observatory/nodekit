@@ -1,39 +1,31 @@
-mod rect;
-
-use crate::board::*;
 use crate::{Error, resize};
 use fast_image_resize::PixelType;
-use nodekit_rs_models::Rect;
-pub use rect::*;
+use crate::rect::Rect;
 
 /// A raw RGB24 bitmap and its pixel size.
 pub struct RgbBuffer {
     /// A raw RGB24 bitmap.
-    pub buffer: Vec<u8>,
-    pub rect: RgbRect,
+    pub(crate) buffer: Vec<u8>,
+    pub(crate) rect: Rect,
 }
 
 impl RgbBuffer {
-    pub fn blit(&self, board: &mut [u8]) {
-        blittle::blit(
-            &self.buffer,
-            &self.rect.size,
-            board,
-            &self.rect.position,
-            &BOARD_SIZE,
-            STRIDE,
-        );
+    pub fn new(buffer: Vec<u8>, rect: Rect) -> Self {
+        Self {
+            buffer,
+            rect
+        }
     }
-
+    
     /// Resize to fit within the bounds of `dst`.
     pub fn new_resized(
         buffer: &mut [u8],
         src_width: u32,
         src_height: u32,
-        dst: Rect,
+        dst: nodekit_rs_models::Rect,
     ) -> Result<Self, Error> {
-        let (buffer, rect) = resize(buffer, src_width, src_height, dst, PixelType::U8x3)?;
-        let rect = RgbRect::from(rect);
+        let (buffer, rect) = resize(buffer, src_width, src_height, &dst, PixelType::U8x3)?;
+        let rect = Rect::from(rect);
         Ok(Self { buffer, rect })
     }
 }
@@ -41,6 +33,7 @@ impl RgbBuffer {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::board::*;
     use blittle::PositionU;
     use nodekit_rs_models::{Position, Size};
     use png::ColorType;
@@ -54,7 +47,7 @@ mod tests {
             "rgb_test.png",
             &RgbBuffer {
                 buffer,
-                rect: RgbRect {
+                rect: Rect {
                     position: PositionU::default(),
                     size: blittle::Size { w: 300, h: 600 },
                 },
@@ -64,21 +57,21 @@ mod tests {
 
     #[test]
     fn test_rgb_buffer_blit() {
-        let mut board = board([255, 0, 255]);
+        let mut board = Board::new([255, 0, 255]);
 
         let visual = RgbBuffer {
             buffer: get_rgb_buffer(),
-            rect: RgbRect {
+            rect: Rect {
                 position: PositionU::default(),
                 size: blittle::Size { w: 300, h: 600 },
             },
         };
-        visual.blit(&mut board);
+        board.blit(&visual);
         encode(
             "rgb_blit.png",
             &RgbBuffer {
-                buffer: board,
-                rect: RgbRect {
+                buffer: board.get_board().to_vec(),
+                rect: Rect {
                     position: PositionU::default(),
                     size: blittle::Size {
                         w: BOARD_D,
@@ -95,12 +88,12 @@ mod tests {
             &mut get_rgb_buffer(),
             300,
             600,
-            Rect {
+            nodekit_rs_models::Rect {
                 position: Position { x: -0.5, y: -0.5 },
                 size: Size { w: 1., h: 1. },
             },
         )
-        .unwrap();
+            .unwrap();
         assert_eq!(resized.rect.position.x, 192);
         assert_eq!(resized.rect.position.y, 0);
         assert_eq!(resized.rect.size.w, BOARD_D / 2);
@@ -121,6 +114,6 @@ mod tests {
     }
 
     fn get_rgb_buffer() -> Vec<u8> {
-        include_bytes!("../../test_files/rgb.raw").to_vec()
+        include_bytes!("../test_files/rgb.raw").to_vec()
     }
 }

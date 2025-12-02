@@ -1,0 +1,55 @@
+use blittle::overlay::Vec4;
+use blittle::stride::RGBA;
+use crate::rect::Rect;
+use crate::STRIDE;
+
+pub struct RgbaBuffer {
+    pub(crate) buffer: Vec<Vec4>,
+    pub(crate) rect: Rect
+}
+
+impl RgbaBuffer {
+    pub fn new_rgba(rect: Rect, color: [u8; RGBA]) -> Self {
+        let color = Vec4::new(color[0] as f32 / 255.,
+                              color[1] as f32 / 255., 
+                              color[2] as f32 / 255., 
+                              color[3] as f32 / 255.);
+        let buffer = vec![color; rect.size.w * rect.size.h];
+        Self {
+            buffer,
+            rect
+        }
+    }
+
+    /// Overlay a `src` pixel onto a `dst` pixel.
+    pub(crate) const fn overlay_pixel_rgb(src: &[u8; RGBA], dst: &mut [u8; STRIDE]) {
+        // If `src` is totally opaque, then just copy it over.
+        if src[3] == 255 {
+            dst[0] = src[0];
+            dst[1] = src[1];
+            dst[2] = src[2];
+        } else {
+            let src_alpha = src[3] as f64 / 255.;
+            // https://github.com/aiueo13/image-overlay/blob/master/src/blend/fns.rs
+            let one_minus_src_a = 1. - src_alpha;
+            let alpha_final = src_alpha + one_minus_src_a;
+            if alpha_final > 0. {
+                dst[0] = Self::overlay_c(src[0], dst[0], src_alpha, one_minus_src_a, alpha_final);
+                dst[1] = Self::overlay_c(src[1], dst[1], src_alpha, one_minus_src_a, alpha_final);
+                dst[2] = Self::overlay_c(src[2], dst[2], src_alpha, one_minus_src_a, alpha_final);
+            }
+        }
+    }
+
+    /// Source: https://www.reddit.com/r/rust/comments/mvbn2g/compositing_colors
+    const fn overlay_c(
+        src: u8,
+        dst: u8,
+        src_alpha: f64,
+        one_minus_src_a: f64,
+        alpha_final: f64,
+    ) -> u8 {
+        ((((src as f64 / 255.) * src_alpha + (dst as f64 / 255.) * one_minus_src_a) / alpha_final)
+            * 255.) as u8
+    }
+}

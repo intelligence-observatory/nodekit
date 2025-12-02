@@ -3,21 +3,22 @@
 mod board;
 mod error;
 mod resized_rect;
-mod rgb;
-mod rgba;
 mod visual_buffer;
+mod rgba_buffer;
+mod rect;
+mod rgb_buffer;
 
 use blittle::Size;
 use blittle::stride::RGBA;
 pub use board::*;
 pub use error::Error;
+pub use rect::Rect;
 use fast_image_resize::{FilterType, PixelType, ResizeAlg, ResizeOptions, Resizer, SrcCropping};
 use hex_color::HexColor;
-use nodekit_rs_models::Rect;
 pub use resized_rect::ResizedRect;
-pub use rgb::*;
-pub use rgba::*;
 pub use visual_buffer::*;
+pub use crate::rgb_buffer::RgbBuffer;
+pub use crate::rgba_buffer::RgbaBuffer;
 
 pub const fn to_blittle_size(size: &nodekit_rs_models::Size) -> Size {
     Size {
@@ -49,11 +50,11 @@ fn resize(
     buffer: &mut [u8],
     src_width: u32,
     src_height: u32,
-    dst: Rect,
+    dst: &nodekit_rs_models::Rect,
     pixel_type: PixelType,
 ) -> Result<(Vec<u8>, ResizedRect), Error> {
     // Resize to fit within `dst_size`.
-    let rect = ResizedRect::new(&dst, src_width, src_height);
+    let rect = ResizedRect::new(dst, src_width, src_height);
 
     // No need to resize.
     if rect.size.w == src_width as usize && rect.size.h == src_height as usize {

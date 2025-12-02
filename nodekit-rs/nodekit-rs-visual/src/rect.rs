@@ -1,16 +1,14 @@
 use crate::ResizedRect;
 use crate::board::{BOARD_SIZE, size_coordinate, spatial_coordinate};
 use blittle::*;
-use nodekit_rs_models::Rect;
 
-/// A rect with coordinates that can be used to blit an RGB bitmap to an RGB bitmap.
-pub struct RgbRect {
+pub struct Rect {
     pub position: PositionU,
     pub size: Size,
 }
 
-impl From<Rect> for RgbRect {
-    fn from(value: Rect) -> Self {
+impl From<nodekit_rs_models::Rect> for Rect {
+    fn from(value: nodekit_rs_models::Rect) -> Self {
         // Clip.
         let position = PositionI {
             x: spatial_coordinate(value.position.x),
@@ -22,7 +20,7 @@ impl From<Rect> for RgbRect {
     }
 }
 
-impl From<ResizedRect> for RgbRect {
+impl From<ResizedRect> for Rect {
     fn from(value: ResizedRect) -> Self {
         let mut size = value.size;
         let position = clip(&value.position, &BOARD_SIZE, &mut size);

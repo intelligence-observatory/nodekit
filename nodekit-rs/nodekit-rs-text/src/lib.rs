@@ -41,14 +41,20 @@ impl TextEngine {
 
         let mut position = PositionI {
             x: spatial_coordinate(rect.position.x),
-            y: spatial_coordinate(rect.position.y)
+            y: spatial_coordinate(rect.position.y),
         };
         let mut src_size = to_blittle_size(&rect.size);
 
         let mut buffers = Vec::default();
 
         // Add padding rects.
-        Self::add_padding(&mut buffers, position, &src_size, font_usize, background_color);
+        Self::add_padding(
+            &mut buffers,
+            position,
+            &src_size,
+            font_usize,
+            background_color,
+        );
 
         // Apply padding.
         src_size.w -= font_usize * 2;
@@ -136,7 +142,14 @@ impl TextEngine {
             .collect())
     }
 
-    fn draw(&mut self, text_color: Color, size: Size, y_offset: usize, buffer: &mut Buffer, dst: &mut [[u8; RGBA]]) {
+    fn draw(
+        &mut self,
+        text_color: Color,
+        size: Size,
+        y_offset: usize,
+        buffer: &mut Buffer,
+        dst: &mut [[u8; RGBA]],
+    ) {
         buffer.draw(
             &mut self.font_system,
             &mut self.swash_cache,
@@ -163,11 +176,17 @@ impl TextEngine {
         }
     }
 
-    fn add_padding(buffers: &mut Vec<RgbaBuffer>, position: PositionI, src_size: &Size, font_usize: usize, background_color: [u8; 4]) {
+    fn add_padding(
+        buffers: &mut Vec<RgbaBuffer>,
+        position: PositionI,
+        src_size: &Size,
+        font_usize: usize,
+        background_color: [u8; 4],
+    ) {
         let padding_horizontal = bitmap_rgba(src_size.w, font_usize, background_color);
         let horizontal_size = Size {
             w: src_size.w,
-            h: font_usize
+            h: font_usize,
         };
         if let Some(top) = RgbaRects::new(&ResizedRect {
             position,
@@ -175,19 +194,19 @@ impl TextEngine {
         }) {
             buffers.push(RgbaBuffer {
                 buffer: padding_horizontal.clone(),
-                rects: top
+                rects: top,
             })
         };
         if let Some(bottom) = RgbaRects::new(&ResizedRect {
             position: PositionI {
                 x: position.x,
-                y: position.y + (src_size.h - font_usize).cast_signed()
+                y: position.y + (src_size.h - font_usize).cast_signed(),
             },
             size: horizontal_size,
         }) {
             buffers.push(RgbaBuffer {
                 buffer: padding_horizontal.clone(),
-                rects: bottom
+                rects: bottom,
             })
         };
 
@@ -195,31 +214,31 @@ impl TextEngine {
         let padding_vertical = bitmap_rgba(font_usize, vertical_h, background_color);
         let vertical_size = Size {
             w: font_usize,
-            h: vertical_h
+            h: vertical_h,
         };
         let vertical_y = position.y + vertical_h.cast_signed();
         if let Some(left) = RgbaRects::new(&ResizedRect {
             position: PositionI {
                 x: position.x,
-                y: vertical_y
+                y: vertical_y,
             },
             size: vertical_size,
         }) {
             buffers.push(RgbaBuffer {
                 buffer: padding_vertical.clone(),
-                rects: left
+                rects: left,
             })
         };
         if let Some(right) = RgbaRects::new(&ResizedRect {
             position: PositionI {
                 x: position.x + (src_size.w - font_usize).cast_signed(),
-                y: vertical_y
+                y: vertical_y,
             },
             size: vertical_size,
         }) {
             buffers.push(RgbaBuffer {
                 buffer: padding_horizontal.clone(),
-                rects: right
+                rects: right,
             })
         };
     }
