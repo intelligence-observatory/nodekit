@@ -1,4 +1,4 @@
-import type {Event, PageResumedEvent, PageSuspendedEvent, TraceEndedEvent, TraceStartedEvent} from "./types/events";
+import type {ActionTakenEvent, Event, NodeEndedEvent, NodeStartedEvent, PageResumedEvent, PageSuspendedEvent, TraceEndedEvent, TraceStartedEvent} from "./types/events";
 import {Clock} from "./clock.ts";
 import type {Graph, Trace} from "./types/node.ts";
 import {sampleBrowserContext} from "./user-gates/browser-context.ts";
@@ -12,7 +12,6 @@ import {NodePlay} from "./node-play";
 import {version as NODEKIT_VERSION} from '../package.json'
 import {gt, major} from 'semver';
 import {EventArray} from "./event-array.ts";
-import type {NodeOutcome} from "./types/events/node-events.ts";
 import {evl} from "./types/expressions/expressions.ts";
 
 /**
@@ -95,7 +94,6 @@ export async function play(
 
     // Assemble transition map:
     let currentNodeId: NodeId = graph.start;
-    let nodeResults: NodeOutcome[] = [];
     while (true) {
         const node = nodes[currentNodeId];
 
@@ -112,13 +110,27 @@ export async function play(
 
         // Play the Node:
         let result = await nodePlay.run();
-        nodeResults.push(
-            {
-                node_id: currentNodeId,
-                action: result.action,
-                t: result.t
-            }
-        )
+
+        // Wrap result into Events:
+        const eStart: NodeStartedEvent = {
+            event_type: 'NodeStartedEvent',
+            t: result.tStart,
+            node_id: currentNodeId,
+        }
+        eventArray.push(eStart)
+        const e: ActionTakenEvent = {
+            event_type: 'ActionTakenEvent',
+            node_id: currentNodeId,
+            action: result.action,
+            t: result.action.t
+        }
+        eventArray.push(e)
+        const eEnd: NodeEndedEvent = {
+            event_type: 'NodeEndedEvent',
+            t: result.tEnd,
+            node_id: currentNodeId,
+        }
+        eventArray.push(eEnd)
 
         // Clear the rootBoardContainerDiv of all children:
         while (boardViewsContainerDiv.firstChild) {
@@ -127,7 +139,7 @@ export async function play(
 
         // Get the next Node; if no Transitions for this Node are given, fall through to 'END':
         if (!(currentNodeId in graph.transitions)) {
-            console.log('No transitions found')
+            console.log('No transitions found; Graph finished')
             break
         }
 
@@ -184,7 +196,6 @@ export async function play(
     // Assemble trace:
     const trace: Trace = {
         nodekit_version: NODEKIT_VERSION,
-        node_outcomes: nodeResults,
         events: eventArray.events,
     }
 

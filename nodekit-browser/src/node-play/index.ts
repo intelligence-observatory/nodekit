@@ -3,15 +3,17 @@ import type {Action} from "../types/actions/";
 import {BoardView} from "../board-view/board-view.ts";
 import {EventScheduler} from "./event-scheduler.ts";
 import type {AssetManager} from "../asset-manager";
-import type {TimeElapsedMsec} from "../types/common.ts";
 import {createCardView} from "../board-view/card-views/create.ts";
 import {createSensorBinding} from "../board-view/sensor-bindings/create-sensor-binding.ts";
 import type {Clock} from "../clock.ts";
 import {Deferred} from "../utils.ts";
+import type {TimeElapsedMsec} from "../types/common.ts";
 
 export interface NodePlayRunResult {
-    t: TimeElapsedMsec,
+    tStart: TimeElapsedMsec,
     action: Action;
+    tEnd: TimeElapsedMsec,
+
 }
 
 export class NodePlay {
@@ -107,10 +109,12 @@ export class NodePlay {
 
         // Clean up NodePlay:
         this.scheduler.stop();
+        const tEnd = this.boardView.clock.now()
 
         return {
+            tStart:tStart,
+            tEnd:tEnd,
             action: action,
-            t: tStart,
         }
     }
 }

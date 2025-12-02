@@ -3,7 +3,7 @@ import type {SliderBinIndex} from "../../board-view/sensor-bindings/slider";
 
 export interface BaseAction<T extends string> {
     action_type: T
-    t: TimeElapsedMsec, // When the Sensor was set to this SensorValue
+    t: TimeElapsedMsec, // When the Action was generated
 }
 
 export interface ClickAction extends BaseAction<"ClickAction"> {

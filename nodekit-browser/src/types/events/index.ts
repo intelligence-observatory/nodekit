@@ -1,5 +1,6 @@
-import type {CardId, NodeId, PressableKey, SensorId, SpatialPoint, TimeElapsedMsec} from "../common.ts";
+import type {NodeId, PressableKey, SpatialPoint, TimeElapsedMsec} from "../common.ts";
 import type {BrowserContextSampledEvent} from "./browser-context.ts";
+import type {Action} from "../actions";
 
 export interface BaseEvent<T extends string> {
     event_type: T,
@@ -8,10 +9,11 @@ export interface BaseEvent<T extends string> {
 
 // System events:
 export interface PageSuspendedEvent extends BaseEvent<'PageSuspendedEvent'>{}
+
 export interface PageResumedEvent extends BaseEvent<'PageResumedEvent'>{}
 
-
 export interface TraceStartedEvent extends BaseEvent<'TraceStartedEvent'>{}
+
 export interface TraceEndedEvent extends BaseEvent<'TraceEndedEvent'>{}
 
 // Node events:
@@ -19,22 +21,13 @@ interface BaseNodeEvent<T extends string> extends BaseEvent<T>{
     node_id: NodeId
 }
 
-export interface NodeEnteredEvent extends BaseNodeEvent<'NodeEnteredEvent'>{
-    // Fired when the node is entered
-}
-export interface CardChangedEvent extends BaseNodeEvent<'CardChangedEvent'> {
-    card_id: CardId
-    changes: Record<string, any> // Card property : new value
+export interface NodeStartedEvent extends BaseNodeEvent<'NodeStartedEvent'>{}
+
+export interface ActionTakenEvent extends BaseNodeEvent<'ActionTakenEvent'>{
+    action: Action
 }
 
-export interface SensorValueChangedEvent extends BaseNodeEvent<'SensorValueChangedEvent'> {
-    sensor_id: SensorId
-    changes: Record<string, any> // SensorValue property : new value
-}
-
-export interface NodeExitedEvent extends BaseNodeEvent<'NodeExitedEvent'> {
-    // Fired when the node is exited
-}
+export interface NodeEndedEvent extends BaseNodeEvent<'NodeEndedEvent'> {}
 
 // Agent inputs:
 export interface PointerInputEvent extends BaseEvent<'PointerInputEvent'> {
@@ -51,14 +44,13 @@ export interface KeyInputEvent extends BaseEvent<'KeyInputEvent'> {
 
 // Union type:
 export type Event =
-    BrowserContextSampledEvent |
-    PageSuspendedEvent |
-    PageResumedEvent |
-    KeyInputEvent |
-    PointerInputEvent |
-    CardChangedEvent |
-    SensorValueChangedEvent |
-    NodeExitedEvent |
-    NodeEnteredEvent |
-    TraceStartedEvent |
-    TraceEndedEvent
+    | BrowserContextSampledEvent
+    | PageSuspendedEvent
+    | PageResumedEvent
+    | KeyInputEvent
+    | PointerInputEvent
+    | NodeStartedEvent
+    | ActionTakenEvent
+    | NodeEndedEvent
+    | TraceStartedEvent
+    | TraceEndedEvent
