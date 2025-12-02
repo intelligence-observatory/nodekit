@@ -1,7 +1,8 @@
-use blittle::overlay::Vec4;
+use blittle::overlay::{rgba8_to_rgba32, Vec4};
 use blittle::stride::RGBA;
+use fast_image_resize::PixelType;
 use crate::rect::Rect;
-use crate::STRIDE;
+use crate::{resize, Error, STRIDE};
 
 pub struct RgbaBuffer {
     pub(crate) buffer: Vec<Vec4>,
@@ -11,14 +12,27 @@ pub struct RgbaBuffer {
 impl RgbaBuffer {
     pub fn new_rgba(rect: Rect, color: [u8; RGBA]) -> Self {
         let color = Vec4::new(color[0] as f32 / 255.,
-                              color[1] as f32 / 255., 
-                              color[2] as f32 / 255., 
+                              color[1] as f32 / 255.,
+                              color[2] as f32 / 255.,
                               color[3] as f32 / 255.);
         let buffer = vec![color; rect.size.w * rect.size.h];
         Self {
             buffer,
             rect
         }
+    }
+
+    /// Resize to fit within the bounds of `dst`.
+    pub fn new_resized(
+        buffer: &mut [u8],
+        src_width: u32,
+        src_height: u32,
+        dst: nodekit_rs_models::Rect,
+    ) -> Result<Self, Error> {
+        let (buffer, rect) = resize(buffer, src_width, src_height, &dst, PixelType::U8x3)?;
+        let rect = Rect::from(rect);
+        let buffer = rgba8_to_rgba32(&buffer);
+        Ok(Self { buffer, rect })
     }
 
     /// Overlay a `src` pixel onto a `dst` pixel.

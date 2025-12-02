@@ -7,10 +7,12 @@ mod visual_buffer;
 mod rgba_buffer;
 mod rect;
 mod rgb_buffer;
+mod cursor;
 
 use blittle::Size;
 use blittle::stride::RGBA;
 pub use board::*;
+pub use cursor::Cursor;
 pub use error::Error;
 pub use rect::Rect;
 use fast_image_resize::{FilterType, PixelType, ResizeAlg, ResizeOptions, Resizer, SrcCropping};

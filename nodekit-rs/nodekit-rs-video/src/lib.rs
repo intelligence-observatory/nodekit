@@ -31,20 +31,6 @@ impl Video {
         })
     }
 
-    pub fn blit(&self, t_msec: u64, board: &mut [u8]) -> Result<(), Error> {
-        let frame = self.get_frame(t_msec)?;
-        // Blit.
-        blittle::blit(
-            &frame,
-            &self.rect.size,
-            board,
-            &self.rect.position,
-            &BOARD_SIZE,
-            STRIDE,
-        );
-        Ok(())
-    }
-
     fn get_size(buffer: &[u8]) -> Result<(usize, usize), Error> {
         let cursor = Cursor::new(buffer);
         let input = Input::seekable(cursor).map_err(Error::Ffmpeg)?;
@@ -63,7 +49,7 @@ impl Video {
         ))
     }
 
-    pub fn get_frame(&self, t_msec: u64) -> Result<Vec<u8>, Error> {
+    pub fn get_frame(&self, t_msec: u64) -> Result<RgbBuffer, Error> {
         // Open the buffer.
         let cursor = Cursor::new(&self.buffer);
         let mut input = Input::seekable(cursor).map_err(Error::Ffmpeg)?;
@@ -125,7 +111,7 @@ impl Video {
             let index = y * width_3;
             out[index..index + width_3].copy_from_slice(&row[0..width_3]);
         }
-        Ok(out)
+        Ok(RgbBuffer::new(out, self.rect.clone()))
     }
 }
 
@@ -155,7 +141,8 @@ mod tests {
         };
 
         let frame = video.get_frame(300).unwrap();
-        let _ = write("out.raw", &frame);
-        assert_eq!(frame.len(), width * height * 3);
+        let buffer = frame.buffer_ref();
+        let _ = write("out.raw", &buffer);
+        assert_eq!(buffer.len(), width * height * 3);
     }
 }

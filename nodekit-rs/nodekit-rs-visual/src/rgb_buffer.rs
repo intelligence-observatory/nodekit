@@ -28,6 +28,10 @@ impl RgbBuffer {
         let rect = Rect::from(rect);
         Ok(Self { buffer, rect })
     }
+    
+    pub fn buffer_ref(&self) -> &[u8] {
+        &self.buffer
+    }
 }
 
 #[cfg(test)]
@@ -66,11 +70,11 @@ mod tests {
                 size: blittle::Size { w: 300, h: 600 },
             },
         };
-        board.blit(&visual);
+        board.blit_rgb(&visual);
         encode(
             "rgb_blit.png",
             &RgbBuffer {
-                buffer: board.get_board().to_vec(),
+                buffer: board.get_board_without_cursor().to_vec(),
                 rect: Rect {
                     position: PositionU::default(),
                     size: blittle::Size {

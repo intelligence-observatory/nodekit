@@ -1190,16 +1190,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "nodekit-rs-cursor"
-version = "0.1.0"
-dependencies = [
- "blittle",
- "nodekit-rs-models",
- "nodekit-rs-visual",
- "png",
-]
-
-[[package]]
 name = "nodekit-rs-image"
 version = "0.1.0"
 dependencies = [
@@ -1228,7 +1218,6 @@ dependencies = [
  "blittle",
  "bytemuck",
  "hashbrown 0.16.0",
- "nodekit-rs-cursor",
  "nodekit-rs-image",
  "nodekit-rs-models",
  "nodekit-rs-text",

@@ -2,6 +2,7 @@ use crate::ResizedRect;
 use crate::board::{BOARD_SIZE, size_coordinate, spatial_coordinate};
 use blittle::*;
 
+#[derive(Clone)]
 pub struct Rect {
     pub position: PositionU,
     pub size: Size,

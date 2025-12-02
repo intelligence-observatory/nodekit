@@ -6,7 +6,6 @@ use blittle::blit;
 use bytemuck::cast_slice_mut;
 pub use error::Error;
 use hashbrown::HashSet;
-use nodekit_rs_cursor::Cursor;
 use nodekit_rs_image::*;
 use nodekit_rs_models::*;
 use nodekit_rs_visual::*;
@@ -22,16 +21,11 @@ use uuid::Uuid;
 #[gen_stub_pyclass]
 #[derive(Default)]
 pub struct Renderer {
-    /// The board bitmap, prior to blitting the cursor.
-    board_pre_cursor: Vec<u8>,
-    board: Vec<u8>,
-    /// The background color.
-    color: [u8; STRIDE],
+    board: Board,
     /// Cached text engine.
     text_engine: nodekit_rs_text::TextEngine,
     /// Cached assets.
     assets: SecondaryMap<CardKey, Asset>,
-    visible: HashSet<CardKey>,
     /// The known state ID.
     id: Option<Uuid>,
     cursor: Cursor,
@@ -46,48 +40,19 @@ impl Renderer {
     }
 
     /// Render `state`.
-    /// Returns a raw byte array with shape: (768, 768, 4)
+    /// Returns a raw byte array with shape: (768, 768, 3)
     pub fn render<'py>(&mut self, py: Python<'py>, state: &State) -> PyResult<Bound<'py, PyBytes>> {
-        self.blit(state)
+        let board = self.blit(state)
             .map_err(|e| PyRuntimeError::new_err(e.to_string()))?;
-        Ok(PyBytes::new(py, &self.board))
+        Ok(PyBytes::new(py, board))
     }
 }
 
 impl Renderer {
-    fn blit(&mut self, state: &State) -> Result<(), Error> {
+    fn blit(&mut self, state: &State) -> Result<&[u8], Error> {
         // New state.
         if self.is_new_state(state) {
             self.clear(state)?;
-        }
-
-        // Erase.
-        for card_key in
-            state
-                .cards
-                .iter()
-                .filter_map(|(k, card)| {
-                    if !card.is_visible(state.t_msec) && self.visible.contains(&k) {
-                        Some(state.cards.iter().map(move |a| (k, a)).filter_map(
-                            |(k, (o, card))| {
-                                if o != k
-                                    && card.rect.overlaps(&card.rect)
-                                    && self.visible.contains(&o)
-                                {
-                                    Some(o)
-                                } else {
-                                    None
-                                }
-                            },
-                        ))
-                    } else {
-                        None
-                    }
-                })
-                .flatten()
-                .collect::<HashSet<CardKey>>()
-        {
-            self.erase(&card_key, state.cards[card_key].rect);
         }
 
         // Show.
@@ -98,61 +63,57 @@ impl Renderer {
         {
             match self.assets.get_mut(k).unwrap() {
                 Asset::Image(image) => {
-                    // Show something new.
-                    if !self.visible.contains(&k) {
-                        image.blit(&mut self.board_pre_cursor);
-                    }
+                    self.board.blit(image);
                 }
                 Asset::Text(text) => {
-                    // Show something new.
-                    if !self.visible.contains(&k) {
-                        for text in text {
-                            text.blit(&mut self.board_pre_cursor);
-                        }
+                    for text in text {
+                        self.board.overlay_rgba(text);
                     }
                 }
                 Asset::Video(video) => {
                     // TODO start time.
-                    video
-                        .blit(state.t_msec, &mut self.board_pre_cursor)
-                        .map_err(Error::Video)?;
+                    self.board.blit_rgb(&video.get_frame(state.t_msec).map_err(Error::Video)?);
                 }
-            }
-            // Remember visibility.
-            if !self.visible.contains(&k) {
-                self.visible.insert(k);
             }
         }
 
         // Copy to the final blit.
-        self.board.copy_from_slice(&self.board_pre_cursor);
-        // Blit the cursor.
-        self.cursor.blit(&state.pointer, &mut self.board);
-        Ok(())
+        Ok(self.board.blit_cursor(&self.cursor.0, &Cursor::rect(state.pointer)))
     }
 
     fn is_new_state(&self, state: &State) -> bool {
         self.id.is_none_or(|id| id != state.id)
     }
 
-    fn clear(&mut self, state: &State) -> Result<(), Error> {
-        // Get the background color.
-        self.color = parse_color_rgb(&state.board_color).map_err(Error::ParseColor)?;
-        // Fill the board.
-        if self.board_pre_cursor.is_empty() {
-            self.board_pre_cursor = board(self.color);
-            self.board = self.board_pre_cursor.clone();
-        } else {
-            cast_slice_mut::<u8, [u8; STRIDE]>(&mut self.board_pre_cursor).fill(self.color);
+    fn start(&mut self, state: &State) -> Result<(), Error> {
+        match self.id.as_mut() {
+            Some(id) => {
+                if *id == state.id {
+                    // Clear the board. Keep cached assets.
+                    self.board.clear();
+                    Ok(())
+                }
+                else {
+                    // Clear the board and re-cache.
+                    *id = state.id;
+                    self.fill_and_cache(state)
+                }
+            }
+            None => {
+                // Start the first run and cache.
+                self.id = Some(state.id);
+                self.fill_and_cache(state)
+            }
         }
-        // Clear the visible keys.
-        self.visible.clear();
-        // Set the ID.
-        self.id = Some(state.id);
+    }
+    
+    fn fill_and_cache(&mut self, state: &State) -> Result<(), Error> {
         // Clear the asset caches.
         self.assets.clear();
         // Cache assets.
-        self.cache(state)
+        self.cache(state)?;
+        self.board.fill(parse_color_rgb(&state.board_color).map_err(Error::ParseColor)?);
+        Ok(())
     }
 
     fn cache(&mut self, state: &State) -> Result<(), Error> {
@@ -185,25 +146,5 @@ impl Renderer {
             }
         }
         Ok(())
-    }
-
-    /// Erase a section of the board by filling it with the background color.
-    fn erase(&mut self, key: &CardKey, rect: Rect) {
-        let width = size_coordinate(rect.size.w);
-        let height = size_coordinate(rect.size.h);
-        // An empty image.
-        let erasure = bitmap_rgb(width, height, self.color);
-        // Blit it.
-        let rgb_rect = RgbRect::from(rect);
-        blit(
-            &erasure,
-            &rgb_rect.size,
-            &mut self.board_pre_cursor,
-            &rgb_rect.position,
-            &BOARD_SIZE,
-            STRIDE,
-        );
-        // Remove the card.
-        self.visible.remove(key);
     }
 }
