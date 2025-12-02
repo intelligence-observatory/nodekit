@@ -1,7 +1,7 @@
 mod rect;
 mod rgba_range;
 
-use crate::{BOARD_D, Error, STRIDE, resize};
+use crate::{BOARD_D, Error, STRIDE, resize, Board};
 use blittle::stride::RGBA;
 use bytemuck::{cast_slice, cast_slice_mut};
 use fast_image_resize::PixelType;
@@ -17,7 +17,7 @@ pub struct RgbaBuffer {
 
 impl RgbaBuffer {
     /// Overlay pixels onto `dst`.
-    pub fn blit(&self, board: &mut [u8]) {
+    pub fn blit(&self, board: &mut Board) {
         // Overlay.
         let src = cast_slice::<u8, [u8; RGBA]>(&self.buffer);
         let dst = cast_slice_mut::<u8, [u8; STRIDE]>(board);
@@ -110,7 +110,7 @@ impl RgbaBuffer {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{BOARD_D, BOARD_D_U32, board};
+    use crate::{BOARD_D, BOARD_D_U32, board, Board};
     use blittle::PositionU;
     use nodekit_rs_models::{Position, Size};
     use png::ColorType;
@@ -142,7 +142,7 @@ mod tests {
 
     #[test]
     fn test_rgba_buffer_blit() {
-        let mut board = board([255, 0, 255]);
+        let mut board = Board::new([255, 0, 255]);
         let mut src = get_rgba_buffer();
         // Semi-transparent.
         cast_slice_mut::<u8, [u8; 4]>(&mut src)

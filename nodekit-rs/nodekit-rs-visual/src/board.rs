@@ -2,6 +2,7 @@
 
 use blittle::stride::RGBA;
 use blittle::*;
+use blittle::overlay::*;
 use bytemuck::cast_slice_mut;
 
 pub const BOARD_D: usize = 768;
@@ -39,9 +40,70 @@ pub fn bitmap_rgba(width: usize, height: usize, color: [u8; RGBA]) -> Vec<u8> {
     bitmap
 }
 
-/// Create a bitmap with the dimensions of the board.
-pub fn board(color: [u8; STRIDE]) -> Vec<u8> {
-    bitmap_rgb(BOARD_D, BOARD_D, color)
+pub struct Board {
+    board8: Vec<u8>,
+    board32: Vec<Vec4>,
+    dirty: bool,
+}
+
+impl Board {
+    pub fn new(color: [u8; STRIDE]) -> Self {
+        // Create the boards.
+        let board8 = bitmap_rgb(BOARD_D, BOARD_D, color);
+        let board32 = rgb8_to_rgba32(&board8);
+        Self {
+            board8,
+            board32,
+            dirty: false
+        }
+    }
+
+    /// Blit RGB8 onto the board.
+    pub fn blit_rgb8(&mut self, src: &[u8],
+                     src_size: &Size,
+                     dst_position: &PositionU) {
+        // Apply the overlays.
+        self.apply_overlays();
+        // Then blit on top of them.
+        blit(src, src_size, &mut self.board8, dst_position, &BOARD_SIZE, STRIDE);
+    }
+
+    /// Overlay `src` onto the board.
+    /// Call `apply_overlays()` when all overlay operations are done.
+    pub fn overlay_rgb8(&mut self, src: &[u8],
+                                src_size: &Size,
+                                dst_position: &PositionU, alpha: u8) {
+        self.dirty = true;
+        overlay_rgb8(src, src_size, &mut self.board32, dst_position, &BOARD_SIZE, alpha);
+    }
+
+    pub fn overlay_rgb8a(&mut self, src: &[u8],
+                                   src_size: &Size,
+                                   dst_position: &PositionU) {
+        self.dirty = true;
+        overlay_rgba8(src, src_size, &mut self.board32, dst_position, &BOARD_SIZE);
+    }
+
+    /// Overlay `src` onto the board.
+    /// Call `apply_overlays()` when all overlay operations are done.
+    pub fn overlay_rgba32(mut self, src: &[Vec4], src_size: &Size,
+                       dst_position: &PositionU) {
+        self.dirty = true;
+        overlay_rgba32(src, src_size, &mut self.board32, dst_position, &BOARD_SIZE);
+    }
+
+    /// Apply all overlay operations to the board.
+    pub fn apply_overlays(&mut self) {
+        if self.dirty {
+            self.dirty = false;
+            rgba32_to_rgb8_in_place(&self.board32, &mut self.board8);
+        }
+    }
+
+    pub fn get_board(&mut self) -> &[u8] {
+        self.apply_overlays();
+        &self.board8
+    }
 }
 
 #[cfg(test)]

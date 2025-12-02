@@ -210,9 +210,11 @@ dependencies = [
 
 [[package]]
 name = "blittle"
-version = "0.2.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "37fe8b69cf7e381d5e9b94bdea7d81e80625ce75964527f3e3ad90f83c0b96de"
+version = "0.3.0"
+dependencies = [
+ "bytemuck",
+ "glam",
+]
 
 [[package]]
 name = "bon"
@@ -740,6 +742,12 @@ dependencies = [
  "r-efi",
  "wasip2",
 ]
+
+[[package]]
+name = "glam"
+version = "0.30.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bd47b05dddf0005d850e5644cae7f2b14ac3df487979dbfff3b56f20b1a6ae46"
 
 [[package]]
 name = "glob"
