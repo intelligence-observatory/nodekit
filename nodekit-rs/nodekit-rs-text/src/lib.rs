@@ -3,17 +3,14 @@ mod md;
 mod surface;
 
 use blittle::stride::RGBA;
-use blittle::{PositionI, Size};
+use blittle::{clip, PositionI, Size};
 use bytemuck::cast_slice_mut;
 use cosmic_text::fontdb::Source;
 use cosmic_text::{Align, Attrs, Buffer, Color, Family, FontSystem, Metrics, Shaping, SwashCache};
 pub use error::Error;
 use md::{FontSize, parse};
 use nodekit_rs_models::{JustificationHorizontal, JustificationVertical, Rect};
-use nodekit_rs_visual::{
-    BOARD_D_F64, ResizedRect, RgbaBuffer, RgbaRects, bitmap_rgba, parse_color_rgba,
-    spatial_coordinate, to_blittle_size,
-};
+use nodekit_rs_visual::{BOARD_D_F64, ResizedRect, RgbaBuffer, RgbaRects, bitmap_rgba, parse_color_rgba, spatial_coordinate, to_blittle_size, BOARD_SIZE, VisualBuffer};
 use pyo3::pyclass;
 use std::sync::Arc;
 use surface::Surface;
@@ -29,8 +26,29 @@ impl TextEngine {
         &mut self,
         rect: Rect,
         text: &nodekit_rs_models::Text,
-    ) -> Result<Vec<RgbaBuffer>, Error> {
-        let background_color = parse_color_rgba(&text.background_color).map_err(Error::Visual)?;
+    ) -> Result<Option<RgbaBuffer>, Error> {
+        let mut position = PositionI {
+            x: spatial_coordinate(rect.position.x),
+            y: spatial_coordinate(rect.position.y),
+        };
+        let mut src_size = to_blittle_size(&rect.size);
+        let mut blit_size = src_size.clone();
+        let position_u = clip(&position, &BOARD_SIZE, &mut blit_size);
+        // No blits.
+        if blit_size.w == 0 || blit_size.h == 0 {
+            return Ok(None);
+        }
+
+        // Create the background.
+        let mut buffers = vec![RgbaBuffer::new_rgba(nodekit_rs_visual::Rect {
+            position: position_u,
+            size: src_size
+        },  parse_color_rgba(&text.background_color).map_err(Error::Visual)?)];
+
+        let mut text_surface = RgbaBuffer::new_rgba(nodekit_rs_visual::Rect {
+            position: position_u,
+            size: src_size
+        },  [0, 0, 0, 0]);
 
         // Get the font sizes.
         let font_size = FontSize::new((text.font_size * BOARD_D_F64).ceil() as u16);
@@ -39,32 +57,11 @@ impl TextEngine {
         let font_isize = font_size.font_size as isize;
         let line_height = font_size.line_height as usize;
 
-        let mut position = PositionI {
-            x: spatial_coordinate(rect.position.x),
-            y: spatial_coordinate(rect.position.y),
-        };
-        let mut src_size = to_blittle_size(&rect.size);
-
-        let mut buffers = Vec::default();
-
-        // Add padding rects.
-        Self::add_padding(
-            &mut buffers,
-            position,
-            &src_size,
-            font_usize,
-            background_color,
-        );
-
         // Apply padding.
         src_size.w -= font_usize * 2;
         src_size.h -= font_usize * 2;
         position.x += font_isize;
         position.y += font_isize;
-
-        // Create an empty surface.
-        let mut background = bitmap_rgba(src_size.w, src_size.h, background_color);
-        let dst = cast_slice_mut::<u8, [u8; 4]>(&mut background);
 
         buffer.set_size(
             &mut self.font_system,
@@ -108,7 +105,7 @@ impl TextEngine {
             y += height + line_height;
         }
 
-        // The total height.
+        // The total height of the text.
         let height = y - line_height;
         let y_offset = match text.justification_vertical {
             JustificationVertical::Top => 0,
@@ -148,7 +145,7 @@ impl TextEngine {
         size: Size,
         y_offset: usize,
         buffer: &mut Buffer,
-        dst: &mut [[u8; RGBA]],
+        dst: &mut VisualBuffer,
     ) {
         buffer.draw(
             &mut self.font_system,
