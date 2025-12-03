@@ -32,7 +32,7 @@ def make_physion_trial(
         },
         sensors={
             "fixated": nk.sensors.WaitSensor(
-                until_msec=int(gen.random() * 1000 + 500)
+                duration_msec=int(gen.random() * 1000 + 500)
             )
         },
     )
@@ -169,7 +169,7 @@ def make_physion_trial(
                 font_size=0.08,
             )
         },
-        sensors={"wait": nk.sensors.WaitSensor(until_msec=1000)},
+        sensors={"wait": nk.sensors.WaitSensor(duration_msec=1000)},
     )
 
     reward_color = (50, 50, 200)
@@ -185,7 +185,7 @@ def make_physion_trial(
                 font_size=0.08,
             )
         },
-        sensors={"wait": nk.sensors.WaitSensor(until_msec=300)},
+        sensors={"wait": nk.sensors.WaitSensor(duration_msec=300)},
     )
 
     transitions = {

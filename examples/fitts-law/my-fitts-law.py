@@ -57,7 +57,7 @@ def make_fitts_trial(
                 h=target_card.h,
             ),
             "timed-out": nk.sensors.WaitSensor(
-                until_msec=maximum_time_msec,
+                duration_msec=maximum_time_msec,
             ),
         },
     )
@@ -77,7 +77,7 @@ def make_fitts_trial(
         },
         sensors={
             "wait": nk.sensors.WaitSensor(
-                until_msec=400,
+                duration_msec=400,
             )
         },
     )
@@ -97,7 +97,7 @@ def make_fitts_trial(
         },
         sensors={
             "wait": nk.sensors.WaitSensor(
-                until_msec=3000,
+                duration_msec=3000,
             )
         },
     )

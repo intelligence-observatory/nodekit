@@ -28,7 +28,7 @@ export interface MultiSelectSensor extends BaseSensor<'MultiSelectSensor'>{
     // Select a subset of a to b elements from a finite set.
     choices: Record<string, Card>
     min_selections: number;
-    max_selections: number;
+    max_selections: number | null;
     confirm_button: Card, // Choices are locked after this; enabled only after min_selections are reached
 }
 

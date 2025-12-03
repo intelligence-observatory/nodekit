@@ -111,7 +111,7 @@ def make_stroop_trial(
             key="y",
         ),
         "timeout": nk.sensors.WaitSensor(
-            until_msec=max_response_time_msec,
+            duration_msec=max_response_time_msec,
         ),
     }
 
@@ -137,7 +137,7 @@ def make_stroop_trial(
         },
         sensors={
             "wait": nk.sensors.WaitSensor(
-                until_msec=500,
+                duration_msec=500,
             )
         },
         board_color="#FFFFFF",  # White background
@@ -157,7 +157,7 @@ def make_stroop_trial(
         },
         sensors={
             "wait": nk.sensors.WaitSensor(
-                until_msec=2000,
+                duration_msec=2000,
             )
         },
         board_color="#FFFFFF",  # White background
@@ -178,7 +178,7 @@ def make_stroop_trial(
         },
         sensors={
             "wait": nk.sensors.WaitSensor(
-                until_msec=2000,
+                duration_msec=2000,
             )
         },
         board_color="#FFFFFF",  # White background

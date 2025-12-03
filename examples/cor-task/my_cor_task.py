@@ -110,7 +110,7 @@ def make_mts_trial(
                 font_size=0.08,
             )
         },
-        sensors={"wait": nk.sensors.WaitSensor(until_msec=1000)},
+        sensors={"wait": nk.sensors.WaitSensor(duration_msec=1000)},
     )
 
     reward_color = (50, 50, 200)
@@ -126,7 +126,7 @@ def make_mts_trial(
                 font_size=0.08,
             )
         },
-        sensors={"wait": nk.sensors.WaitSensor(until_msec=300)},
+        sensors={"wait": nk.sensors.WaitSensor(duration_msec=300)},
     )
 
     transitions = {

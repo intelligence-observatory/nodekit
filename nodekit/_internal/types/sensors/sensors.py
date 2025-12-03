@@ -1,4 +1,4 @@
-from typing import Literal, Annotated, Union, Self
+from typing import Literal, Annotated, Union, Self, Dict
 import re
 import pydantic
 
@@ -9,9 +9,26 @@ from nodekit._internal.types.common import (
     SpatialSize,
     Mask,
     CardId,
-ColorHexString, MarkdownString
+    ColorHexString, MarkdownString
 )
-from nodekit._internal.types.sensors.base import BaseSensor, TemporallyBoundedSensor, VisualSensorMixin
+
+from nodekit._internal.types.cards import Card
+from abc import ABC
+
+import pydantic
+
+from nodekit._internal.types.common import NodeTimePointMsec, SpatialPoint, SpatialSize
+from nodekit._internal.types.regions import Region
+
+
+# %%
+class BaseSensor(pydantic.BaseModel, ABC):
+    """
+    A Sensor is a listener for Participant behavior.
+    When a Sensor is triggered, it emits an Action and optionally applies an Outcome.
+    """
+
+    sensor_type: str
 
 
 # %%
@@ -21,46 +38,38 @@ class WaitSensor(BaseSensor):
     """
 
     sensor_type: Literal["WaitSensor"] = "WaitSensor"
-    until_msec: NodeTimePointMsec = pydantic.Field(
+    duration_msec: NodeTimePointMsec = pydantic.Field(
         description="The number of milliseconds from the start of the Node when the Sensor triggers.",
         gt=0,
     )
 
 
 # %%
-
-
-# %%
-class ClickSensor(TemporallyBoundedSensor):
+class ClickSensor(BaseSensor):
     sensor_type: Literal["ClickSensor"] = "ClickSensor"
-    x: SpatialPoint = pydantic.Field(
-        description="The center of the bounding box of the clickable region, along the Board x-axis."
-    )
-    y: SpatialPoint = pydantic.Field(
-        description="The center of the bounding box of the clickable region, along the Board y-axis."
-    )
-    w: SpatialSize = pydantic.Field(
-        description="The width of the bounding box of the clickable region, in Board units.",
-        gt=0,
-    )
-    h: SpatialSize = pydantic.Field(
-        description="The height of the bounding box of the clickable region, in Board units.",
-        gt=0,
-    )
-    mask: Mask = pydantic.Field(
-        description='The shape of the clickable region. "rectangle" uses the box itself; "ellipse" inscribes an ellipse within the box.',
-        default="rectangle",
-        validate_default=True,
-    )
+    region: Region
+
 
 # %%
-class SelectSensor(TemporallyBoundedSensor):
+class KeySensor(BaseSensor):
+    sensor_type: Literal["KeySensor"] = "KeySensor"
+    keys: list[PressableKey] = pydantic.Field(
+        description="The keys that triggers the Sensor when pressed down."
+    )
+
+
+# %%
+class SelectSensor(BaseSensor):
     sensor_type: Literal["SelectSensor"] = "SelectSensor"
-    choices: list[CardId]
+    choices: Dict[str, Card]
+
+
+# %%
+class MultiSelectSensor(BaseSensor):
+    sensor_type: Literal["MultiSelectSensor"] = "MultiSelectSensor"
+    choices: Dict[str, Card]
 
     min_selections: int = pydantic.Field(
-        default=1,
-        validate_default=True,
         ge=0,
         description='The minimum number of Cards before the Sensor fires.',
     )
@@ -72,8 +81,7 @@ class SelectSensor(TemporallyBoundedSensor):
         description='If None, the selection can contain up to the number of available Cards.'
     )
 
-    hover_color: ColorHexString
-    selected_color: ColorHexString
+    confirm_button: Card
 
     @pydantic.model_validator(mode='after')
     def validate_selections_vals(self) -> Self:
@@ -83,18 +91,18 @@ class SelectSensor(TemporallyBoundedSensor):
             )
         return self
 
+
 # %%
+class SliderSensor(BaseSensor):
+    num_bins: int = pydantic.Field(gt=1)
+    initial_bin_index: int
+    show_bin_markers: bool = True
+    orientation: Literal["horizontal", "vertical"] = "horizontal"
+    region: Region
 
 
 # %%
-class KeySensor(TemporallyBoundedSensor):
-    sensor_type: Literal["KeySensor"] = "KeySensor"
-    keys: list[PressableKey] = pydantic.Field(
-        description="The keys that triggers the Sensor when pressed down."
-    )
-
-# %%
-class FreeTextEntrySensor(TemporallyBoundedSensor, VisualSensorMixin):
+class FreeTextEntrySensor(BaseSensor):
     sensor_type: Literal["FreeTextEntrySensor"] = "FreeTextEntrySensor"
 
     prompt: str = pydantic.Field(
@@ -105,15 +113,6 @@ class FreeTextEntrySensor(TemporallyBoundedSensor, VisualSensorMixin):
     font_size: SpatialSize = pydantic.Field(
         description="The height of the em-box, in Board units.",
         default=0.02,
-    )
-
-    text_color: ColorHexString = pydantic.Field(
-        default="#000000", validate_default=True
-    )
-    background_color: ColorHexString = pydantic.Field(
-        default="#ffffff",  # White by default
-        validate_default=True,
-        description="The background color of the entry field.",
     )
 
     min_length: int = pydantic.Field(
@@ -130,26 +129,20 @@ class FreeTextEntrySensor(TemporallyBoundedSensor, VisualSensorMixin):
         le=10000,
     )
 
-    pattern: re.Pattern | None = None
-
+    region: Region
 
 
 # %%
-class SubmitSensor(TemporallyBoundedSensor, VisualSensorMixin):
-    """
-    A special Sensor which toggles between a locked and ready state, based on all other non-SubmitSensor sensors.
-    When ready, it may be pressed by the agent, which causes it to enter into submittable state.
+class ProductSensor(BaseSensor):
+    sensor_type: Literal["ProductSensor"] = "ProductSensor"
+    children: Dict[str, 'Sensor']
 
-    If any other non-SubmitSensor exits submittable status, the SubmitSensor goes into locked state.
-    """
 
-    sensor_type: Literal["SubmitSensor"] = "SubmitSensor"
+# %%
+class SumSensor(BaseSensor):
+    sensor_type: Literal["SumSensor"] = "SumSensor"
+    children: Dict[str, 'Sensor']
 
-    locked_text: MarkdownString = '...'
-    locked_color: ColorHexString
-
-    ready_text: MarkdownString = 'Submit'
-    ready_color: ColorHexString
 
 # %%
 Sensor = Annotated[
@@ -157,7 +150,12 @@ Sensor = Annotated[
         WaitSensor,
         ClickSensor,
         KeySensor,
-        SubmitSensor,
+        SelectSensor,
+        MultiSelectSensor,
+        SliderSensor,
+        FreeTextEntrySensor,
+        ProductSensor,
+        SumSensor,
     ],
     pydantic.Field(discriminator="sensor_type"),
 ]
