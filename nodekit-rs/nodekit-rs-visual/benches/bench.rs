@@ -12,44 +12,26 @@ fn get_rgba_buffer() -> Vec<u8> {
 }
 
 fn criterion_benchmark(c: &mut Criterion) {
-    let mut board = board([255, 0, 255]);
+    let mut board = Board::new([255, 0, 255]);
 
-    let rgb = RgbBuffer {
-        buffer: get_rgb_buffer(),
-        rect: RgbRect {
-            position: PositionU::default(),
-            size: blittle::Size { w: 300, h: 600 },
-        },
+    let rect = nodekit_rs_visual::Rect {
+        position: PositionU::default(),
+        size: blittle::Size { w: 300, h: 600 },
     };
 
-    c.bench_function("blit rgb buffer", |b| b.iter(|| rgb.blit(&mut board)));
+    let rgb = RgbBuffer::new(get_rgb_buffer(), rect.clone());
+
+    c.bench_function("blit rgb buffer", |b| b.iter(|| board.blit_rgb(&rgb)));
 
     let mut rgb = get_rgb_buffer();
-    let rect = Rect::new(-0.5, -0.5, 1., 1.);
+    let rect_model = Rect::new(-0.5, -0.5, 1., 1.);
     c.bench_function("resize rgb buffer", |b| {
-        b.iter(|| RgbBuffer::new_resized(&mut rgb, 300, 600, rect))
+        b.iter(|| RgbBuffer::new_resized(&mut rgb, 300, 600, rect_model))
     });
 
-    let src_w = 300;
-    let src_h = 600;
-    let rgba = RgbaBuffer {
-        buffer: get_rgba_buffer(),
-        rects: RgbaRects {
-            src: RgbaRect {
-                xy0: PositionU { x: 0, y: 0 },
-                xy1: PositionU { x: src_w, y: src_h },
-            },
-            dst: RgbaRect {
-                xy0: PositionU { x: 0, y: 0 },
-                xy1: PositionU {
-                    x: BOARD_D / 2,
-                    y: BOARD_D,
-                },
-            },
-        },
-    };
+    let rgba = RgbaBuffer::new_rgba(rect, [255, 0, 255, 255]);
 
-    c.bench_function("blit rgba buffer", |b| b.iter(|| rgba.blit(&mut board)));
+    c.bench_function("blit rgba buffer", |b| b.iter(|| board.overlay_rgba(&rgba)));
 
     let mut rgba = get_rgba_buffer();
     let rect = Rect::new(-0.5, -0.5, 1., 1.);
