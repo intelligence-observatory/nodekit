@@ -1,19 +1,15 @@
 mod error;
 mod md;
-mod surface;
 
-use blittle::stride::RGBA;
 use blittle::{clip, PositionI, Size};
-use bytemuck::cast_slice_mut;
 use cosmic_text::fontdb::Source;
 use cosmic_text::{Align, Attrs, Buffer, Color, Family, FontSystem, Metrics, Shaping, SwashCache};
 pub use error::Error;
 use md::{FontSize, parse};
 use nodekit_rs_models::{JustificationHorizontal, JustificationVertical, Rect};
-use nodekit_rs_visual::{BOARD_D_F64, ResizedRect, RgbaBuffer, RgbaRects, bitmap_rgba, parse_color_rgba, spatial_coordinate, to_blittle_size, BOARD_SIZE, VisualBuffer};
+use nodekit_rs_visual::{BOARD_D_F64, RgbaBuffer, parse_color_rgba, spatial_coordinate, to_blittle_size, BOARD_SIZE};
 use pyo3::pyclass;
 use std::sync::Arc;
-use surface::Surface;
 
 #[pyclass]
 pub struct TextEngine {
@@ -26,33 +22,30 @@ impl TextEngine {
         &mut self,
         rect: Rect,
         text: &nodekit_rs_models::Text,
-    ) -> Result<Option<RgbaBuffer>, Error> {
+    ) -> Result<Vec<RgbaBuffer>, Error> {
         let mut position = PositionI {
             x: spatial_coordinate(rect.position.x),
             y: spatial_coordinate(rect.position.y),
         };
         let mut src_size = to_blittle_size(&rect.size);
+        // Clip the position and size.
         let mut blit_size = src_size.clone();
         let position_u = clip(&position, &BOARD_SIZE, &mut blit_size);
+
         // No blits.
         if blit_size.w == 0 || blit_size.h == 0 {
-            return Ok(None);
+            return Ok(Vec::default());
         }
 
         // Create the background.
         let mut buffers = vec![RgbaBuffer::new_rgba(nodekit_rs_visual::Rect {
             position: position_u,
-            size: src_size
+            size: blit_size
         },  parse_color_rgba(&text.background_color).map_err(Error::Visual)?)];
-
-        let mut text_surface = RgbaBuffer::new_rgba(nodekit_rs_visual::Rect {
-            position: position_u,
-            size: src_size
-        },  [0, 0, 0, 0]);
 
         // Get the font sizes.
         let font_size = FontSize::new((text.font_size * BOARD_D_F64).ceil() as u16);
-        let mut buffer = Buffer::new(&mut self.font_system, Metrics::from(&font_size));
+        let mut text_buffer = Buffer::new(&mut self.font_system, Metrics::from(&font_size));
         let font_usize = font_size.font_size as usize;
         let font_isize = font_size.font_size as isize;
         let line_height = font_size.line_height as usize;
@@ -63,24 +56,37 @@ impl TextEngine {
         position.x += font_isize;
         position.y += font_isize;
 
-        buffer.set_size(
+        text_buffer.set_size(
             &mut self.font_system,
             Some(src_size.w as f32),
             Some(src_size.h as f32),
         );
 
+        // Get the text color.
         let text_color = parse_color_rgba(&text.text_color).map_err(Error::Visual)?;
         let text_color = Color::rgba(text_color[0], text_color[1], text_color[2], text_color[3]);
+
+        // Prepare font attributes.
         let mut attrs = Attrs::new().color(text_color);
         attrs.family = Family::SansSerif;
+
+        // Draw glyphs onto this buffer.
+        let mut text_surface = RgbaBuffer::new_rgba(nodekit_rs_visual::Rect {
+            position: position_u,
+            size: blit_size
+        },  [0, 0, 0, 0]);
+
+        // Parse the markdown text.
         let paragraphs = parse(&text.text, &font_size, attrs.clone())?;
+
+        // Shape the glyphs.
         let mut y = 0;
         for paragraph in paragraphs {
             // Set the metrics of this paragraph.
-            buffer.set_metrics(&mut self.font_system, paragraph.metrics);
+            text_buffer.set_metrics(&mut self.font_system, paragraph.metrics);
 
             // Shape the text.
-            buffer.set_rich_text(
+            text_buffer.set_rich_text(
                 &mut self.font_system,
                 paragraph
                     .spans
@@ -90,53 +96,42 @@ impl TextEngine {
                 Shaping::Advanced,
                 Some(Self::get_align(text.justification_horizontal)),
             );
-            buffer.shape_until_scroll(&mut self.font_system, true);
+            text_buffer.shape_until_scroll(&mut self.font_system, true);
 
             // Get the total rendered height.
-            let height = (buffer
+            let height = (text_buffer
                 .layout_runs()
                 .map(|layout| layout.line_height)
                 .sum::<f32>()
                 * 1.2) as usize;
 
             // Draw.
-            self.draw(text_color, src_size, y, &mut buffer, dst);
+            self.draw(text_color, src_size, y, &mut text_buffer, &mut text_surface);
             // Update y
             y += height + line_height;
         }
 
         // The total height of the text.
-        let height = y - line_height;
+        let height = (y - line_height).cast_signed();
+
+        // Get the vertical justification.
         let y_offset = match text.justification_vertical {
             JustificationVertical::Top => 0,
             JustificationVertical::Center => src_size.h.cast_signed() / 2 - height / 2,
             JustificationVertical::Bottom => src_size.h.cast_signed() - height,
-        } + line_height;
+        } + line_height.cast_signed();
 
-        let offset = PositionI {
-            x: spatial_coordinate(rect.position.x),
-            y: spatial_coordinate(rect.position.y),
-        };
-        // Blit onto the final surface.
-        Ok(surfaces
-            .into_iter()
-            .filter_map(|surface| {
-                let position = PositionI {
-                    x: offset.x + font_isize,
-                    y: offset.y + surface.y + y_offset,
-                };
-                let mut surface_size = surface.size;
-                surface_size.w -= font_usize * 2;
-                RgbaRects::new(&ResizedRect {
-                    position,
-                    size: surface_size,
-                })
-                .map(|rects| RgbaBuffer {
-                    buffer: surface.surface,
-                    rects,
-                })
-            })
-            .collect())
+        // Clip the text surface, now accounting for vertical justification.
+        let mut text_surface_position = PositionI::from(text_surface.rect.position);
+        text_surface_position.y += y_offset;
+        let mut size = src_size;
+        text_surface.rect.position = clip(&text_surface_position, &BOARD_SIZE, &mut size);
+        text_surface.rect.size = size;
+
+        // Append the text surface.
+        buffers.push(text_surface);
+
+        Ok(buffers)
     }
 
     fn draw(
@@ -145,7 +140,7 @@ impl TextEngine {
         size: Size,
         y_offset: usize,
         buffer: &mut Buffer,
-        dst: &mut VisualBuffer,
+        dst: &mut RgbaBuffer,
     ) {
         buffer.draw(
             &mut self.font_system,
@@ -158,7 +153,7 @@ impl TextEngine {
                 if alpha > 0 {
                     (x as usize..x1).zip(y as usize..y1).for_each(|(x, y)| {
                         let index = x + y * size.w;
-                        RgbaBuffer::overlay_pixel_rgba(&color.as_rgba(), &mut dst[index]);
+                        dst.overlay_pixel_rgba(&color.as_rgba(), index);
                     });
                 }
             },
@@ -171,73 +166,6 @@ impl TextEngine {
             JustificationHorizontal::Center => Align::Center,
             JustificationHorizontal::Right => Align::Right,
         }
-    }
-
-    fn add_padding(
-        buffers: &mut Vec<RgbaBuffer>,
-        position: PositionI,
-        src_size: &Size,
-        font_usize: usize,
-        background_color: [u8; 4],
-    ) {
-        let padding_horizontal = bitmap_rgba(src_size.w, font_usize, background_color);
-        let horizontal_size = Size {
-            w: src_size.w,
-            h: font_usize,
-        };
-        if let Some(top) = RgbaRects::new(&ResizedRect {
-            position,
-            size: horizontal_size,
-        }) {
-            buffers.push(RgbaBuffer {
-                buffer: padding_horizontal.clone(),
-                rects: top,
-            })
-        };
-        if let Some(bottom) = RgbaRects::new(&ResizedRect {
-            position: PositionI {
-                x: position.x,
-                y: position.y + (src_size.h - font_usize).cast_signed(),
-            },
-            size: horizontal_size,
-        }) {
-            buffers.push(RgbaBuffer {
-                buffer: padding_horizontal.clone(),
-                rects: bottom,
-            })
-        };
-
-        let vertical_h = src_size.h - font_usize * 2;
-        let padding_vertical = bitmap_rgba(font_usize, vertical_h, background_color);
-        let vertical_size = Size {
-            w: font_usize,
-            h: vertical_h,
-        };
-        let vertical_y = position.y + vertical_h.cast_signed();
-        if let Some(left) = RgbaRects::new(&ResizedRect {
-            position: PositionI {
-                x: position.x,
-                y: vertical_y,
-            },
-            size: vertical_size,
-        }) {
-            buffers.push(RgbaBuffer {
-                buffer: padding_vertical.clone(),
-                rects: left,
-            })
-        };
-        if let Some(right) = RgbaRects::new(&ResizedRect {
-            position: PositionI {
-                x: position.x + (src_size.w - font_usize).cast_signed(),
-                y: vertical_y,
-            },
-            size: vertical_size,
-        }) {
-            buffers.push(RgbaBuffer {
-                buffer: padding_horizontal.clone(),
-                rects: right,
-            })
-        };
     }
 }
 
@@ -265,7 +193,7 @@ impl Default for TextEngine {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use nodekit_rs_visual::{BOARD_D_U32, board};
+    use nodekit_rs_visual::{BOARD_D_U32, Board};
     use std::fs::File;
     use std::io::BufWriter;
 
@@ -286,10 +214,12 @@ mod tests {
 
         // Render the text.
         let mut text = TextEngine::default();
-        let mut board = board([200, 200, 200]);
+        let mut board = Board::new([200, 200, 200]);
         for buffer in text.render(rect, &card).unwrap() {
-            buffer.blit(&mut board);
+            board.overlay_rgba(&buffer);
         }
+
+        let board = board.get_board_without_cursor();
 
         // Write the result as a .png file.
         let file = File::create("out.png").unwrap();

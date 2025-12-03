@@ -28,7 +28,7 @@ impl RgbBuffer {
         let rect = Rect::from(rect);
         Ok(Self { buffer, rect })
     }
-    
+
     pub fn buffer_ref(&self) -> &[u8] {
         &self.buffer
     }

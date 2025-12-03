@@ -1,5 +1,5 @@
 use blittle::{clip, PositionI, Size};
-use blittle::overlay::Vec4;
+use blittle::overlay::*;
 use blittle::stride::RGBA;
 use bytemuck::cast_slice;
 use nodekit_rs_models::Position;
@@ -28,7 +28,7 @@ impl Cursor {
 impl Default for Cursor {
     fn default() -> Self {
         let buffer = cast_slice::<u8, [u8; RGBA]>(include_bytes!("../cursor")).iter().map(|pixel| {
-            Vec4::new(pixel[0] as f32 * 255., pixel[1] as f32 * 255., pixel[2] as f32 * 255., pixel[3] as f32 * 255.)
+            rgba8_to_rgba32_color(pixel)
         }).collect();
         Self(buffer)
     }

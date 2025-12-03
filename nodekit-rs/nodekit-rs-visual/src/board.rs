@@ -1,6 +1,5 @@
 //! Various constants used to describe the size of the visual board.
 
-use blittle::stride::RGBA;
 use blittle::*;
 use blittle::overlay::*;
 use bytemuck::cast_slice_mut;
@@ -33,13 +32,6 @@ pub const fn size_coordinate(c: f64) -> usize {
 pub fn bitmap_rgb(width: usize, height: usize, color: [u8; STRIDE]) -> Vec<u8> {
     let mut bitmap = vec![0; width * height * STRIDE];
     cast_slice_mut::<u8, [u8; STRIDE]>(&mut bitmap).fill(color);
-    bitmap
-}
-
-/// Create a bitmap and fill it with a color.
-pub fn bitmap_rgba(width: usize, height: usize, color: [u8; RGBA]) -> Vec<u8> {
-    let mut bitmap = vec![0; width * height * RGBA];
-    cast_slice_mut::<u8, [u8; RGBA]>(&mut bitmap).fill(color);
     bitmap
 }
 
@@ -119,6 +111,12 @@ impl Board {
         self.dirty = false;
         &self.board8_final
     }
+    
+    pub fn get_board_without_cursor(&mut self) -> &[u8] {
+        // Apply remaining overlays.
+        self.apply_overlays();
+        &self.board8_without_cursor
+    }
 
     fn apply_overlays(&mut self) {
         if self.dirty {
@@ -130,13 +128,6 @@ impl Board {
             self.dirty = false;
         }
     }
-    
-    #[cfg(test)]
-    pub(crate) fn get_board_without_cursor(&mut self) -> &[u8] {
-        // Apply remaining overlays.
-        self.apply_overlays();
-        &self.board8_without_cursor
-    } 
 }
 
 impl Default for Board {
