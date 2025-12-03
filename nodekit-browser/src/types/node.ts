@@ -12,7 +12,7 @@ export interface Node {
 }
 
 export interface Transition {
-    when: Expression
+    when: Expression<Boolean>
     to: NodeId
     register_updates: Record<RegisterId, Expression>
 }

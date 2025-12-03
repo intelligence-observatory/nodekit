@@ -8,10 +8,11 @@ export interface EvlContext {
     last_action: Action
 }
 
-export function evl<V = Value>(
-    expression: Expression<V>,
+
+export function evl(
+    expression: Expression,
     context: EvlContext,
-): V {
+): Value  {
     switch (expression.op) {
         // =====================
         // Root
@@ -20,16 +21,16 @@ export function evl<V = Value>(
             if (!(expression.id in context.graph_registers)) {
                 throw new Error(`Graph register '${expression.id}' not found`);
             }
-            return context.graph_registers[expression.id] as V;
+            return context.graph_registers[expression.id]
         }
         case "loc": {
             if (!(expression.name in context.local_variables)) {
                 throw new Error(`Local variable '${expression.name}' not found`);
             }
-            return context.local_variables[expression.name] as V;
+            return context.local_variables[expression.name];
         }
         case "la": {
-            return context.last_action as V;
+            return context.last_action;
         }
         case "lit": {
             return expression.value;
@@ -42,9 +43,6 @@ export function evl<V = Value>(
                 expression.cond,
                 context,
             );
-            if (typeof condVal !== "boolean") {
-                throw new Error(`if: condition must be boolean, got '${typeof condVal}'`);
-            }
             if (condVal) {
                 return evl(
                     expression.then,
@@ -61,16 +59,12 @@ export function evl<V = Value>(
         // =====================
         // Boolean logic
         // =====================
-
         case "not": {
             const v = evl(
                 expression.operand,
                 context,
             );
-            if (typeof v !== "boolean") {
-                throw new Error(`not: operand must be boolean, got '${typeof v}'`);
-            }
-            return !v;
+            return !v as Boolean;
         }
 
         case "and": {
