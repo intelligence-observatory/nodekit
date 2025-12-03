@@ -9,6 +9,7 @@ from nodekit._internal.types.common import (
     NodeId,
     SpatialPoint,
 )
+from nodekit._internal.types.actions.actions import Action
 
 
 # %%
