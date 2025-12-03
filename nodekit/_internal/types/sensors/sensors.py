@@ -1,23 +1,10 @@
+from abc import ABC
 from typing import Literal, Annotated, Union, Self, Dict
-import re
-import pydantic
 
-from nodekit._internal.types.common import (
-    PressableKey,
-    NodeTimePointMsec,
-    SpatialPoint,
-    SpatialSize,
-    Mask,
-    CardId,
-    ColorHexString, MarkdownString
-)
+import pydantic
 
 from nodekit._internal.types.cards import Card
-from abc import ABC
-
-import pydantic
-
-from nodekit._internal.types.common import NodeTimePointMsec, SpatialPoint, SpatialSize
+from nodekit._internal.types.common import PressableKey, NodeTimePointMsec, SpatialSize
 from nodekit._internal.types.regions import Region
 
 
