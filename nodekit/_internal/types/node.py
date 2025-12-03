@@ -1,41 +1,18 @@
-from typing import Dict, List
-
 import pydantic
 
 from nodekit._internal.types.cards import Card
 from nodekit._internal.types.common import ColorHexString
-from nodekit._internal.types.effects.effects import Effect
 from nodekit._internal.types.sensors.sensors import Sensor
 
 
 # %%
 class Node(pydantic.BaseModel):
-    cards: Dict[str, Card] = pydantic.Field(
-        description=("Set of Cards placed on the Board."),
-    )
-
-    sensors: Dict[str, Sensor] = pydantic.Field(
-        min_length=1,
-        description="Set of Sensors that listen for a Participant Action. The first Sensor that is triggered ends the Node.",
-    )
-    effects: List[Effect] = pydantic.Field(default_factory=list)
+    stimulus: Card
+    sensor: Sensor
 
     board_color: ColorHexString = pydantic.Field(
         description='The color of the Board during this Node (the "background color").',
         default="#808080ff",
         validate_default=True,
     )
-
-
-# %%
-"""
-Example:
-
-{
-    tag: 'bla'
-    stimulus: 
-    
-}
- 
-"""
-
+    hide_pointer: bool = False
