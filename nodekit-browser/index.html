@@ -240,12 +240,42 @@
         },
     }
 
+    const sliderSensorH = {
+        "sensor_type": 'SliderSensor',
+        "num_bins":5,
+        "show_bin_markers":true,
+        "initial_bin_index":2,
+        "orientation": 'horizontal',
+        'region':{
+            'x': 0.25,
+            'y': 0.25,
+            'w': 0.3,
+            'h': 0.1,
+            'mask':'rectangle',
+        }
+    }
+    const sliderSensorV = {
+        "sensor_type": 'SliderSensor',
+        "num_bins":100,
+        "show_bin_markers":false,
+        "initial_bin_index":2,
+        "orientation": 'vertical',
+        'region':{
+            'x': -0.45,
+            'y': 0.25,
+            'w': 0.05,
+            'h': 0.5,
+            'mask':'rectangle',
+        }
+    }
     const productSensor = {
         "sensor_type": "ProductSensor",
         "children": {
             'child-sensor1': freeTextEntrySensor,
             //'child-sensor2': selectSensor,
             'select3': multiSelectSensor,
+            'slider': sliderSensorH,
+            'sliderV': sliderSensorV,
         }
     }
 

@@ -1,4 +1,4 @@
-import type {NodeTimePointMsec, PlainString, PressableKey, SensorId, SpatialSize} from "../common.ts";
+import type {NodeTimePointMsec, PlainString, PressableKey, SpatialSize} from "../common.ts";
 import type {Region} from "../region";
 import type {SliderBinIndex} from "../../board-view/sensor-bindings/slider";
 import type {Card} from "../cards";
@@ -7,8 +7,16 @@ interface BaseSensor<T extends string> {
     sensor_type: T
 }
 
+// Leaf Sensors
 export interface WaitSensor extends BaseSensor<"WaitSensor">{
-    duration_msec: NodeTimePointMsec // Must be specified
+    duration_msec: NodeTimePointMsec
+}
+export interface ClickSensor extends BaseSensor<'ClickSensor'>{
+    region: Region
+}
+
+export interface KeySensor extends BaseSensor<'KeySensor'>{
+    keys: Set<PressableKey>
 }
 
 export interface SelectSensor extends BaseSensor<'SelectSensor'>{
@@ -22,15 +30,6 @@ export interface MultiSelectSensor extends BaseSensor<'MultiSelectSensor'>{
     min_selections: number;
     max_selections: number;
     confirm_button: Card, // Choices are locked after this; enabled only after min_selections are reached
-}
-
-
-export interface ClickSensor extends BaseSensor<'ClickSensor'>{
-    region: Region
-}
-
-export interface KeySensor extends BaseSensor<'KeySensor'>{
-    keys: Set<PressableKey>
 }
 
 export interface SliderSensor extends BaseSensor<'SliderSensor'>{
@@ -49,16 +48,14 @@ export interface FreeTextEntrySensor extends BaseSensor<'FreeTextEntrySensor'>{
     region: Region
 }
 
-
-// Combinator types
 export interface ProductSensor extends BaseSensor<'ProductSensor'> {
-    // When all children have yielded an Action, emits a Product<Action[]>
-    children: Record<SensorId, Sensor>
+    // Once all children's last emissions are a valid Action, emit a Product<Action[]>
+    children: Record<string, Sensor>
 }
 
 export interface SumSensor extends BaseSensor<'SumSensor'> {
-    // Emits the latest child Action as Tagged<Action>
-    children: Record<SensorId, Sensor>
+    // Emits the first valid child Action as a Tagged<Action>
+    children: Record<string, Sensor>
 }
 
 
