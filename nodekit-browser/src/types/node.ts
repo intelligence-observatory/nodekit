@@ -21,8 +21,9 @@ export interface Graph {
     nodekit_version: string;
     nodes: Record<NodeId, Node>;
     transitions: Record<NodeId, Transition[]>;
-    registers: Record<RegisterId, Value>
     start: NodeId;
+    registers: Record<RegisterId, Value>
+
 }
 
 export interface Trace {
