@@ -12,7 +12,8 @@ import {NodePlay} from "./node-play";
 import {version as NODEKIT_VERSION} from '../package.json'
 import {gt, major} from 'semver';
 import {EventArray} from "./event-array.ts";
-import {evl} from "./types/expressions/expressions.ts";
+
+import {evl} from "./types/expressions/interpreter.ts";
 
 /**
  * Plays a Graph, returning a Trace of Events.
