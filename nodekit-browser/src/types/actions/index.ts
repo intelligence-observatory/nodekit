@@ -37,8 +37,8 @@ export interface ProductAction extends BaseAction<'ProductAction'> {
 }
 
 export interface SumAction extends BaseAction<'SumAction'>{
-    winner_id: string
-    winner_action: Action
+    child_id: string
+    child_action: Action
 }
 
 // Union

@@ -76,8 +76,8 @@ export class SumSensorBinding extends SensorBinding<SumSensor>{
                     // Emit immediately
                     const sumAction: SumAction = {
                         action_type: 'SumAction',
-                        winner_id: childId,
-                        winner_action: action,
+                        child_id: childId,
+                        child_action: action,
                         t: this.params.boardView.clock.now()
                     }
                     this.emit(sumAction)
