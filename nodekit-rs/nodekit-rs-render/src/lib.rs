@@ -185,7 +185,7 @@ mod tests {
             ),
             Card::text_card(
                 Rect {
-                    position: Position { x: 0., y: 0. },
+                    position: Position { x: -0.5, y: -0.5 },
                     size: Size { w: 1., h: 1. },
                 },
                 Timer::new(200, None),
@@ -201,8 +201,6 @@ mod tests {
 
         let mut state = State::new("#AAAAAAFF".to_string(), cards);
         let mut renderer = Renderer::default();
-        renderer.start(&state).unwrap();
-
         render_image(&mut renderer, &mut state, 0, "000.png");
         render_image(&mut renderer, &mut state, 100, "100.png");
         render_image(&mut renderer, &mut state, 200, "200.png");
@@ -211,6 +209,7 @@ mod tests {
 
     fn render_image(renderer: &mut Renderer, state: &mut State, t_msec: u64, filename: &str) {
         state.t_msec = t_msec;
+        renderer.start(&state).unwrap();
         nodekit_rs_png::board_to_png(filename, renderer.blit(state).unwrap());
     }
 }
