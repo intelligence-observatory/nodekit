@@ -67,7 +67,7 @@ class Renderer:
     def render(self, state: State) -> bytes:
         r"""
         Render `state`.
-        Returns a raw byte array with shape: (768, 768, 4)
+        Returns a raw byte array with shape: (768, 768, 3)
         """
 
 @typing.final
@@ -101,13 +101,9 @@ class State:
         r"""
         The time elapsed from the start of the node.
         """
-    def __new__(cls, board_color: builtins.str) -> State:
+    def __new__(cls, board_color: builtins.str, cards: typing.Sequence[Card]) -> State:
         r"""
         `board_color` must be a valid RGBA hex string e.g. "#808080ff"
-        """
-    def add_card(self, card: Card) -> None:
-        r"""
-        Add a card to the state.
         """
 
 @typing.final
