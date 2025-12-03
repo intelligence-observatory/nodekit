@@ -1,5 +1,4 @@
-import type {NodeId, PressableKey, SpatialPoint, TimeElapsedMsec} from "../common.ts";
-import type {BrowserContextSampledEvent} from "./browser-context.ts";
+import type {NodeId, PixelSize, PressableKey, SpatialPoint, TimeElapsedMsec} from "../common.ts";
 import type {Action} from "../actions";
 
 export interface BaseEvent<T extends string> {
@@ -8,13 +7,27 @@ export interface BaseEvent<T extends string> {
 }
 
 // System events:
-export interface PageSuspendedEvent extends BaseEvent<'PageSuspendedEvent'>{}
-
-export interface PageResumedEvent extends BaseEvent<'PageResumedEvent'>{}
 
 export interface TraceStartedEvent extends BaseEvent<'TraceStartedEvent'>{}
 
 export interface TraceEndedEvent extends BaseEvent<'TraceEndedEvent'>{}
+
+export interface PageSuspendedEvent extends BaseEvent<'PageSuspendedEvent'>{}
+
+export interface PageResumedEvent extends BaseEvent<'PageResumedEvent'>{}
+
+interface RegionSizePx {
+    width_px: PixelSize,
+    height_px: PixelSize
+}
+
+export interface BrowserContextSampledEvent extends BaseEvent<'BrowserContextSampledEvent'> {
+    user_agent: string,
+    timestamp_client: string, // ISO8601
+    device_pixel_ratio: number,
+    display: RegionSizePx,
+    viewport: RegionSizePx,
+}
 
 // Node events:
 interface BaseNodeEvent<T extends string> extends BaseEvent<T>{
@@ -30,25 +43,24 @@ export interface ActionTakenEvent extends BaseNodeEvent<'ActionTakenEvent'>{
 export interface NodeEndedEvent extends BaseNodeEvent<'NodeEndedEvent'> {}
 
 // Agent inputs:
-export interface PointerInputEvent extends BaseEvent<'PointerInputEvent'> {
+export interface PointerSampledEvent extends BaseEvent<'PointerSampledEvent'> {
     x: SpatialPoint,
     y: SpatialPoint,
     kind: 'down' | 'up' | 'move'
 }
 
-export interface KeyInputEvent extends BaseEvent<'KeyInputEvent'> {
+export interface KeySampledEvent extends BaseEvent<'KeySampledEvent'> {
     key: PressableKey
     kind: 'down' | 'up'
 }
-
 
 // Union type:
 export type Event =
     | BrowserContextSampledEvent
     | PageSuspendedEvent
     | PageResumedEvent
-    | KeyInputEvent
-    | PointerInputEvent
+    | KeySampledEvent
+    | PointerSampledEvent
     | NodeStartedEvent
     | ActionTakenEvent
     | NodeEndedEvent

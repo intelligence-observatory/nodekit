@@ -1,6 +1,6 @@
-import type {BrowserContextSampledEvent} from "../types/events/browser-context.ts";
 import type {Clock} from "../clock.ts";
 import type {PixelSize} from "../types/common.ts";
+import type {BrowserContextSampledEvent} from "../types/events";
 
 export function sampleBrowserContext(clock: Clock): BrowserContextSampledEvent {
     return {

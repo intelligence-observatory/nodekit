@@ -4,11 +4,9 @@ from typing import Literal, Annotated, Union
 
 import pydantic
 
-from nodekit._internal.types.actions.actions import Action
 from nodekit._internal.types.common import (
     TimeElapsedMsec,
     NodeId,
-    SensorId,
     SpatialPoint,
 )
 
@@ -18,13 +16,9 @@ class EventTypeEnum(str, enum.Enum):
     TraceStartedEvent = "TraceStartedEvent"
     TraceEndedEvent = "TraceEndedEvent"
 
-    NodeEnteredEvent = "NodeEnteredEvent"
-    CardShownEvent = "CardShownEvent"
-    CardHiddenEvent = "CardHiddenEvent"
-    SensorArmedEvent = "SensorArmedEvent"
-    SensorFiredEvent = "SensorFiredEvent"
-    SensorDisarmedEvent = "SensorDisarmedEvent"
-    NodeExitedEvent = "NodeExitedEvent"
+    NodeStartedEvent = "NodeStartedEvent"
+    ActionTakenEvent = "ActionTakenEvent"
+    NodeEndedEvent = "NodeEndedEvent"
 
     PointerSampledEvent = "PointerSampledEvent"
     KeySampledEvent = "KeySampledEvent"
@@ -42,26 +36,21 @@ class BaseEvent(pydantic.BaseModel):
     )
 
 
-# %%
+# %% System events
 class TraceStartedEvent(BaseEvent):
-    event_type: Literal[EventTypeEnum.TraceStartedEvent] = (
-        EventTypeEnum.TraceStartedEvent
-    )
+    event_type: Literal[EventTypeEnum.TraceStartedEvent] = EventTypeEnum.TraceStartedEvent
 
 
 class TraceEndedEvent(BaseEvent):
     event_type: Literal[EventTypeEnum.TraceEndedEvent] = EventTypeEnum.TraceEndedEvent
 
 
-# %%
 class PageSuspendedEvent(BaseEvent):
     """
     Emitted when a Participant suspends the page (e.g., closes the tab or navigates away).
     """
 
-    event_type: Literal[EventTypeEnum.PageSuspendedEvent] = (
-        EventTypeEnum.PageSuspendedEvent
-    )
+    event_type: Literal[EventTypeEnum.PageSuspendedEvent] = EventTypeEnum.PageSuspendedEvent
 
 
 class PageResumedEvent(BaseEvent):
@@ -72,14 +61,26 @@ class PageResumedEvent(BaseEvent):
     event_type: Literal[EventTypeEnum.PageResumedEvent] = EventTypeEnum.PageResumedEvent
 
 
+class RegionSizePx(pydantic.BaseModel):
+    width_px: int
+    height_px: int
+
+
+class BrowserContextSampledEvent(BaseEvent):
+    event_type: Literal[EventTypeEnum.BrowserContextSampledEvent] = EventTypeEnum.BrowserContextSampledEvent
+    user_agent: str
+    timestamp_client: str
+    device_pixel_ratio: float = pydantic.Field(description="The ratio between physical pixels and logical CSS pixels on the device.")
+    display: RegionSizePx
+    viewport: RegionSizePx
+
+
 # %%
 class PointerSampledEvent(BaseEvent):
-    event_type: Literal[EventTypeEnum.PointerSampledEvent] = (
-        EventTypeEnum.PointerSampledEvent
-    )
-    kind: Literal["move", "down", "up"]
+    event_type: Literal[EventTypeEnum.PointerSampledEvent] = EventTypeEnum.PointerSampledEvent
     x: SpatialPoint
     y: SpatialPoint
+    kind: Literal["move", "down", "up"]
 
 
 class KeySampledEvent(BaseEvent):
@@ -93,104 +94,34 @@ class BaseNodeEvent(BaseEvent):
     node_id: NodeId
 
 
-class NodeEnteredEvent(BaseNodeEvent):
-    event_type: Literal[EventTypeEnum.NodeEnteredEvent] = EventTypeEnum.NodeEnteredEvent
+class NodeStartedEvent(BaseNodeEvent):
+    event_type: Literal[EventTypeEnum.NodeStartedEvent] = EventTypeEnum.NodeStartedEvent
 
 
-class NodeExitedEvent(BaseNodeEvent):
-    event_type: Literal[EventTypeEnum.NodeExitedEvent] = EventTypeEnum.NodeExitedEvent
-
-
-# %%
-class CardShownEvent(BaseNodeEvent):
-    event_type: Literal[EventTypeEnum.CardShownEvent] = EventTypeEnum.CardShownEvent
-    card_id: str = pydantic.Field(
-        description="Identifies the Card in the Node that was shown."
-    )
-
-
-# Some cards emit other events to the EventStream, like SliderCard. This should be called...
-# ...
-
-
-class CardHiddenEvent(BaseNodeEvent):
-    event_type: Literal[EventTypeEnum.CardHiddenEvent] = EventTypeEnum.CardHiddenEvent
-    card_id: str = pydantic.Field(
-        description="Identifies the Card in the Node that was hidden."
-    )
-
-
-# %%
-class SensorArmedEvent(BaseNodeEvent):
-    event_type: Literal[EventTypeEnum.SensorArmedEvent] = EventTypeEnum.SensorArmedEvent
-    sensor_id: SensorId = pydantic.Field(
-        description="Identifies the Sensor in the Node that was armed."
-    )
-
-
-class SensorFiredEvent(BaseNodeEvent):
-    event_type: Literal[EventTypeEnum.SensorFiredEvent] = EventTypeEnum.SensorFiredEvent
-    sensor_id: SensorId = pydantic.Field(
-        description="Identifies the Sensor in the Node that was triggered."
-    )
+class ActionTakenEvent(BaseNodeEvent):
+    event_type: Literal[EventTypeEnum.ActionTakenEvent] = EventTypeEnum.ActionTakenEvent
     action: Action
 
 
-class SensorDisarmedEvent(BaseNodeEvent):
-    event_type: Literal[EventTypeEnum.SensorDisarmedEvent] = (
-        EventTypeEnum.SensorDisarmedEvent
-    )
-    sensor_id: SensorId = pydantic.Field(
-        description="Identifies the Sensor in the Node that was disarmed."
-    )
-
-
-# %%
-class BrowserContextSampledEvent(BaseEvent):
-    """
-    Emitted to capture browser context information, such as user agent and viewport size.
-    """
-
-    event_type: Literal[EventTypeEnum.BrowserContextSampledEvent] = (
-        EventTypeEnum.BrowserContextSampledEvent
-    )
-    user_agent: str = pydantic.Field(
-        description="User agent string of the browser or application rendering the board."
-    )
-
-    display_width_px: int
-    display_height_px: int
-
-    viewport_width_px: int
-    viewport_height_px: int
-
-    device_pixel_ratio: float = pydantic.Field(
-        description="The ratio between physical pixels and logical CSS pixels on the device."
-    )
+class NodeEndedEvent(BaseNodeEvent):
+    event_type: Literal[EventTypeEnum.NodeEndedEvent] = EventTypeEnum.NodeEndedEvent
 
 
 # %%
 type Event = Annotated[
     Union[
-        # Graph flow:
+        # System events flow:
         TraceStartedEvent,
         TraceEndedEvent,
-        # Node flow:
-        NodeEnteredEvent,
-        CardShownEvent,
-        CardHiddenEvent,
-        SensorArmedEvent,
-        SensorFiredEvent,
-        SensorDisarmedEvent,
-        NodeExitedEvent,
-        # Input streams:
-        PointerSampledEvent,
-        KeySampledEvent,
-        # Page navigation:
         PageSuspendedEvent,
         PageResumedEvent,
-        # Context:
         BrowserContextSampledEvent,
+            # Node events:
+        NodeStartedEvent,
+        NodeEndedEvent,
+            # Agent inputs:
+        PointerSampledEvent,
+        KeySampledEvent,
     ],
     pydantic.Field(discriminator="event_type"),
 ]
