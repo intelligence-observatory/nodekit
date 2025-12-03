@@ -11,6 +11,7 @@ scuffle-ffmpeg.workspace = true
 thiserror.workspace = true
 
 [dev-dependencies]
+nodekit-rs-png = { path = "../nodekit-rs-png" }
 criterion.workspace = true
 
 [[bench]]

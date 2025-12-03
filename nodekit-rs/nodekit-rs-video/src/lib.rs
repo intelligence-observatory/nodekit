@@ -118,21 +118,17 @@ impl Video {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use blittle::PositionU;
-    use std::fs::write;
+    use nodekit_rs_models::{Position, Size};
 
     #[test]
-    fn test_framerate() {
+    fn test_video() {
         let width = 400;
         let height = 300;
+        let rect = Rect::from(nodekit_rs_models::Rect {
+            position: Position { x: 0., y: 0.1 },
+            size: Size { w: 0.4, h: 0.6 },
+        });
 
-        let rect = Rect {
-            position: PositionU { x: 0, y: 0 },
-            size: blittle::Size {
-                w: width,
-                h: height,
-            },
-        };
         let video = Video {
             buffer: include_bytes!("../test-video.mp4").to_vec(),
             width,
@@ -141,8 +137,12 @@ mod tests {
         };
 
         let frame = video.get_frame(300).unwrap();
-        let buffer = frame.buffer_ref();
-        let _ = write("out.raw", &buffer);
-        assert_eq!(buffer.len(), width * height * 3);
+
+        // Write the frame.
+        nodekit_rs_png::rgb_to_png("frame.png", frame.buffer_ref(), width as u32, height as u32);
+
+        let mut board = Board::new([255, 255, 255]);
+        board.blit_rgb(&frame);
+        nodekit_rs_png::board_to_png("board.png", board.get_board_without_cursor());
     }
 }

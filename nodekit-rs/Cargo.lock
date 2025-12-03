@@ -1240,6 +1240,7 @@ dependencies = [
  "blittle",
  "criterion",
  "nodekit-rs-models",
+ "nodekit-rs-png",
  "nodekit-rs-visual",
  "scuffle-ffmpeg",
  "thiserror",
