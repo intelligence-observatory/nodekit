@@ -1,7 +1,7 @@
 mod error;
 
 pub use error::Error;
-use nodekit_rs_models::Card;
+use nodekit_rs_models::{Card, CardType};
 use nodekit_rs_visual::*;
 use scuffle_ffmpeg::decoder::DecoderOptions;
 use scuffle_ffmpeg::{
@@ -22,7 +22,7 @@ impl Video {
         // Load the video.
         let buffer = read(&video.path).map_err(|e| Error::FileNotFound(video.path.clone(), e))?;
         let (width, height) = Self::get_size(&buffer)?;
-        let rect = Rect::from(card.rect);
+        let rect = Rect::from(ResizedRect::new(&card.rect, width as u32, height as u32));
         Ok(Self {
             buffer,
             rect,
@@ -117,29 +117,30 @@ impl Video {
 
 #[cfg(test)]
 mod tests {
+    use std::path::PathBuf;
     use super::*;
-    use nodekit_rs_models::{Position, Size};
+    use nodekit_rs_models::{Position, Size, Timer};
 
     #[test]
     fn test_video() {
-        let width = 400;
-        let height = 300;
-        let rect = Rect::from(nodekit_rs_models::Rect {
+
+
+        let card = Card::video_card(nodekit_rs_models::Rect {
             position: Position { x: 0., y: 0.1 },
             size: Size { w: 0.4, h: 0.6 },
-        });
-
-        let video = Video {
-            buffer: include_bytes!("../test-video.mp4").to_vec(),
-            width,
-            height,
-            rect,
+        }, Timer::new(0, None), PathBuf::from("test-video.mp4"), false, None);
+        let video = if let CardType::Video(video) = &card.card_type {
+            video
+        }
+        else {
+            panic!("oh no")
         };
+        let video = Video::new(&card, video).unwrap();
 
         let frame = video.get_frame(300).unwrap();
 
         // Write the frame.
-        nodekit_rs_png::rgb_to_png("frame.png", frame.buffer_ref(), width as u32, height as u32);
+        nodekit_rs_png::rgb_to_png("frame.png", frame.buffer_ref(), video.width as u32, video.height as u32);
 
         let mut board = Board::new([255, 255, 255]);
         board.blit_rgb(&frame);
