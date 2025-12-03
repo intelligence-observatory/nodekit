@@ -1,4 +1,4 @@
-import type {PlainString, PressableKey, SpatialSize, TimeDurationMsec} from "../common.ts";
+import type {PressableKey, SpatialSize, TimeDurationMsec} from "../common.ts";
 import type {Region} from "../region";
 import type {SliderBinIndex} from "../../board-view/sensor-bindings/slider";
 import type {Card} from "../cards";
