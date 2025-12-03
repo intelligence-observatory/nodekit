@@ -21,8 +21,15 @@ impl Video {
     pub fn new(card: &Card, video: &nodekit_rs_models::Video) -> Result<Self, Error> {
         // Load the video.
         let buffer = read(&video.path).map_err(|e| Error::FileNotFound(video.path.clone(), e))?;
+        // Get the actual size of the video.
         let (width, height) = Self::get_size(&buffer)?;
-        let rect = Rect::from(ResizedRect::new(&card.rect, width as u32, height as u32));
+        // Get the reect, resized to fit within the card.
+        let rect = ResizedRect::new(&card.rect, width as u32, height as u32);
+        // Store the resized dimensions.
+        let width = rect.size.w;
+        let height = rect.size.h;
+        // Get the rect used for blitting.
+        let rect = Rect::from(rect);
         Ok(Self {
             buffer,
             rect,
@@ -117,22 +124,25 @@ impl Video {
 
 #[cfg(test)]
 mod tests {
-    use std::path::PathBuf;
     use super::*;
     use nodekit_rs_models::{CardType, Position, Size, Timer};
+    use std::path::PathBuf;
 
     #[test]
     fn test_video() {
-
-
-        let card = Card::video_card(nodekit_rs_models::Rect {
-            position: Position { x: 0., y: 0.1 },
-            size: Size { w: 0.4, h: 0.6 },
-        }, Timer::new(0, None), PathBuf::from("test-video.mp4"), false, None);
+        let card = Card::video_card(
+            nodekit_rs_models::Rect {
+                position: Position { x: 0., y: 0.1 },
+                size: Size { w: 0.4, h: 0.6 },
+            },
+            Timer::new(0, None),
+            PathBuf::from("test-video.mp4"),
+            false,
+            None,
+        );
         let video = if let CardType::Video(video) = &card.card_type {
             video
-        }
-        else {
+        } else {
             panic!("oh no")
         };
         let video = Video::new(&card, video).unwrap();
@@ -140,7 +150,12 @@ mod tests {
         let frame = video.get_frame(300).unwrap();
 
         // Write the frame.
-        nodekit_rs_png::rgb_to_png("frame.png", frame.buffer_ref(), video.width as u32, video.height as u32);
+        nodekit_rs_png::rgb_to_png(
+            "frame.png",
+            frame.buffer_ref(),
+            video.width as u32,
+            video.height as u32,
+        );
 
         let mut board = Board::new([255, 255, 255]);
         board.blit_rgb(&frame);
