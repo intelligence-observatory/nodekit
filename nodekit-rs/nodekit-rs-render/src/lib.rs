@@ -2,10 +2,7 @@ mod asset;
 mod error;
 
 use crate::asset::Asset;
-use blittle::blit;
-use bytemuck::cast_slice_mut;
 pub use error::Error;
-use hashbrown::HashSet;
 use nodekit_rs_image::*;
 use nodekit_rs_models::*;
 use nodekit_rs_visual::*;
@@ -53,7 +50,7 @@ impl Renderer {
     fn blit(&mut self, state: &State) -> Result<&[u8], Error> {
         // New state.
         if self.is_new_state(state) {
-            self.clear(state)?;
+            self.start(state)?;
         }
 
         // Show.
