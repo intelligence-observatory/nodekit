@@ -1,7 +1,7 @@
 mod error;
 
 pub use error::Error;
-use nodekit_rs_models::{Card, CardType};
+use nodekit_rs_models::Card;
 use nodekit_rs_visual::*;
 use scuffle_ffmpeg::decoder::DecoderOptions;
 use scuffle_ffmpeg::{
@@ -119,7 +119,7 @@ impl Video {
 mod tests {
     use std::path::PathBuf;
     use super::*;
-    use nodekit_rs_models::{Position, Size, Timer};
+    use nodekit_rs_models::{CardType, Position, Size, Timer};
 
     #[test]
     fn test_video() {
