@@ -91,9 +91,11 @@ impl Board {
 
     pub fn overlay_rgba(&mut self, buffer: &RgbaBuffer) {
         // Mark as dirty.
-        self.dirty = true;
-        // Convert RGB8 data into RGBA32 data.
-        rgb8_to_rgba32_in_place(&self.board8_without_cursor, &mut self.board32);
+        if !self.dirty {
+            self.dirty = true;
+            // Convert RGB8 data into RGBA32 data.
+            rgb8_to_rgba32_in_place(&self.board8_without_cursor, &mut self.board32);
+        }
         // Overlay.
         overlay_rgba32(&buffer.buffer, &mut self.board32, &buffer.rect);
     }
