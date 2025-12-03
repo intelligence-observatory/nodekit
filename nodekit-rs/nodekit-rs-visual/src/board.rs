@@ -109,9 +109,9 @@ impl Board {
     pub fn blit_cursor(&mut self, buffer: &[Vec4], rect: &Rect) -> &[u8] {
         // Apply remaining overlays.
         self.apply_overlays();
-        // Overlay cursor.
         // Convert RGB8 data into RGBA32 data.
         rgb8_to_rgba32_in_place(&self.board8_without_cursor, &mut self.board32);
+        // Overlay cursor.
         overlay_rgba32(
             &buffer,
             &rect.size,
@@ -187,7 +187,7 @@ mod tests {
     fn test_blit_cursor() {
         let mut board = Board::new([200, 200, 200]);
         let cursor = Cursor::default();
-        blit_cursor("0_center.png", &mut board, &cursor, Position::default());
+        blit_cursor("cursor.png", &mut board, &cursor, Position::default());
     }
 
     fn blit_cursor(filename: &str, board: &mut Board, cursor: &Cursor, pointer: Position) {
