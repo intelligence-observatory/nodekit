@@ -149,3 +149,79 @@ impl Renderer {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use std::fs::File;
+    use std::io::BufWriter;
+    use nodekit_rs_models::*;
+    use std::path::PathBuf;
+    use nodekit_rs_visual::BOARD_D_U32;
+    use crate::Renderer;
+
+    #[test]
+    fn test_render() {
+        let image_path = PathBuf::from("../nodekit-rs-image/test_image.png");
+        assert!(image_path.exists());
+        let video_path = PathBuf::from("../nodekit-rs-video/test-video.mp4");
+        assert!(video_path.exists());
+
+        let cards = vec![
+            Card::image_card(
+                Rect {
+                    position: Position { x: -0.4, y: -0.4 },
+                    size: Size { w: 0.3, h: 0.3 },
+                },
+                Timer::new(0, None),
+                image_path,
+                Some(0),
+            ),
+            Card::video_card(
+                Rect {
+                    position: Position { x: 0., y: 0.1 },
+                    size: Size { w: 0.4, h: 0.6 },
+                },
+                Timer::new(100, Some(500)),
+                video_path,
+                false,
+                Some(1),
+            ),
+            Card::text_card(
+                Rect {
+                    position: Position { x: 0., y: 0. },
+                    size: Size { w: 1., h: 1. },
+                },
+                Timer::new(200, None),
+                include_str!("../../nodekit-rs-text/lorem.txt").to_string(),
+                0.02,
+                JustificationHorizontal::Left,
+                JustificationVertical::Center,
+                "#003300FF",
+                "#EEEEEE11",
+                Some(2),
+            ),
+        ];
+
+        let mut state = State::new("#AAAAAAFF".to_string(), cards);
+        let mut renderer = Renderer::default();
+        renderer.start(&state).unwrap();
+
+        render_image(&mut renderer, &mut state, 0, "000.png");
+        render_image(&mut renderer, &mut state, 100, "100.png");
+        render_image(&mut renderer, &mut state, 200, "200.png");
+        render_image(&mut renderer, &mut state, 600, "600.png");
+    }
+
+    fn render_image(renderer: &mut Renderer, state: &mut State, t_msec: u64, filename: &str) {
+        state.t_msec = t_msec;
+        let board = renderer.blit(state).unwrap();
+        let file = File::create(filename).unwrap();
+        let ref mut w = BufWriter::new(file);
+        let mut encoder =
+            png::Encoder::new(w, BOARD_D_U32, BOARD_D_U32);
+        encoder.set_color(png::ColorType::Rgb);
+        encoder.set_depth(png::BitDepth::Eight);
+        let mut writer = encoder.write_header().unwrap();
+        writer.write_image_data(&board).unwrap();
+    }
+}

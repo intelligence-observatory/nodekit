@@ -23,14 +23,16 @@ impl RgbaBuffer {
         src_height: u32,
         dst: nodekit_rs_models::Rect,
     ) -> Result<Self, Error> {
-        let (buffer, rect) = resize(buffer, src_width, src_height, &dst, PixelType::U8x3)?;
+        let (buffer, rect) = resize(buffer, src_width, src_height, &dst, PixelType::U8x4)?;
         let rect = Rect::from(rect);
         let buffer = rgba8_to_rgba32(&buffer);
         Ok(Self { buffer, rect })
     }
 
     pub fn overlay_pixel_rgba(&mut self, src: &[u8; RGBA], dst_index: usize) {
-        overlay_pixel(&rgba8_to_rgba32_color(src), &mut self.buffer[dst_index]);
+        if dst_index < self.buffer.len() {
+            overlay_pixel(&rgba8_to_rgba32_color(src), &mut self.buffer[dst_index]);
+        }
     }
 
     /// Overlay a `src` pixel onto a `dst` pixel.
