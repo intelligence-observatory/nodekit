@@ -4,10 +4,10 @@ import pydantic
 
 from nodekit import VERSION
 from nodekit._internal.types.cards import Card
-from nodekit._internal.types.events.events import Event
 from nodekit._internal.types.common import ColorHexString, NodeId, RegisterId
+from nodekit._internal.types.events.events import Event
 from nodekit._internal.types.sensors.sensors import Sensor
-
+from nodekit._internal.types.expressions.expressions import Value, Expression
 
 # %%
 class Node(pydantic.BaseModel):
