@@ -152,12 +152,9 @@ impl Renderer {
 
 #[cfg(test)]
 mod tests {
-    use std::fs::File;
-    use std::io::BufWriter;
+    use crate::Renderer;
     use nodekit_rs_models::*;
     use std::path::PathBuf;
-    use nodekit_rs_visual::BOARD_D_U32;
-    use crate::Renderer;
 
     #[test]
     fn test_render() {
@@ -214,14 +211,6 @@ mod tests {
 
     fn render_image(renderer: &mut Renderer, state: &mut State, t_msec: u64, filename: &str) {
         state.t_msec = t_msec;
-        let board = renderer.blit(state).unwrap();
-        let file = File::create(filename).unwrap();
-        let ref mut w = BufWriter::new(file);
-        let mut encoder =
-            png::Encoder::new(w, BOARD_D_U32, BOARD_D_U32);
-        encoder.set_color(png::ColorType::Rgb);
-        encoder.set_depth(png::BitDepth::Eight);
-        let mut writer = encoder.write_header().unwrap();
-        writer.write_image_data(&board).unwrap();
+        nodekit_rs_png::board_to_png(filename, renderer.blit(state).unwrap());
     }
 }

@@ -203,9 +203,7 @@ impl Default for TextEngine {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use nodekit_rs_visual::{BOARD_D_U32, Board};
-    use std::fs::File;
-    use std::io::BufWriter;
+    use nodekit_rs_visual::Board;
 
     #[test]
     fn test_text_render() {
@@ -229,15 +227,7 @@ mod tests {
             board.overlay_rgba(&buffer);
         }
 
-        let board = board.get_board_without_cursor();
-
         // Write the result as a .png file.
-        let file = File::create("out.png").unwrap();
-        let ref mut w = BufWriter::new(file);
-        let mut encoder = png::Encoder::new(w, BOARD_D_U32, BOARD_D_U32); // Width is 2 pixels and height is 1.
-        encoder.set_color(png::ColorType::Rgb);
-        encoder.set_depth(png::BitDepth::Eight);
-        let mut writer = encoder.write_header().unwrap();
-        writer.write_image_data(&board).unwrap();
+        nodekit_rs_png::board_to_png("out.png", board.get_board_without_cursor());
     }
 }

@@ -6,7 +6,7 @@ use fast_image_resize::PixelType;
 pub struct RgbBuffer {
     /// A raw RGB24 bitmap.
     pub(crate) buffer: Vec<u8>,
-    pub(crate) rect: Rect,
+    pub rect: Rect,
 }
 
 impl RgbBuffer {
@@ -37,56 +37,30 @@ mod tests {
     use crate::board::*;
     use blittle::PositionU;
     use nodekit_rs_models::{Position, Size};
-    use png::ColorType;
-    use std::fs::File;
-    use std::io::BufWriter;
 
     #[test]
     fn test_rgb_buffer() {
         let buffer = get_rgb_buffer();
-        encode(
-            "rgb_test.png",
-            &RgbBuffer {
-                buffer,
-                rect: Rect {
-                    position: PositionU::default(),
-                    size: blittle::Size { w: 300, h: 600 },
-                },
-            },
+        nodekit_rs_png::rgb_to_png(
+            "test_rgb.png",
+            buffer.buffer_ref(),
+            buffer.rect.size.w as u32,
+            buffer.rect.size.h as u32,
         );
     }
 
     #[test]
     fn test_rgb_buffer_blit() {
         let mut board = Board::new([255, 0, 255]);
-
-        let visual = RgbBuffer {
-            buffer: get_rgb_buffer(),
-            rect: Rect {
-                position: PositionU::default(),
-                size: blittle::Size { w: 300, h: 600 },
-            },
-        };
-        board.blit_rgb(&visual);
-        encode(
-            "rgb_blit.png",
-            &RgbBuffer {
-                buffer: board.get_board_without_cursor().to_vec(),
-                rect: Rect {
-                    position: PositionU::default(),
-                    size: blittle::Size {
-                        w: BOARD_D,
-                        h: BOARD_D,
-                    },
-                },
-            },
-        );
+        board.blit_rgb(&get_rgb_buffer());
+        nodekit_rs_png::board_to_png("rgb_blit.png", board.get_board_without_cursor());
     }
 
     #[test]
     fn test_rgb_buffer_resize() {
+        let mut buffer = include_bytes!("../test_files/rgb.raw").to_vec();
         let resized = RgbBuffer::new_resized(
-            &mut get_rgb_buffer(),
+            &mut buffer,
             300,
             600,
             nodekit_rs_models::Rect {
@@ -100,21 +74,21 @@ mod tests {
         assert_eq!(resized.rect.size.w, BOARD_D / 2);
         assert_eq!(resized.rect.size.h, BOARD_D);
         assert_eq!(resized.buffer.len(), (BOARD_D / 2) * BOARD_D * 3);
-        encode("rgb_resize.png", &resized);
+        nodekit_rs_png::rgb_to_png(
+            "rgb_resize.png",
+            &resized.buffer,
+            resized.rect.size.w as u32,
+            resized.rect.size.h as u32,
+        );
     }
 
-    fn encode(filename: &str, visual: &RgbBuffer) {
-        let file = File::create(filename).unwrap();
-        let ref mut w = BufWriter::new(file);
-        let mut encoder =
-            png::Encoder::new(w, visual.rect.size.w as u32, visual.rect.size.h as u32);
-        encoder.set_color(ColorType::Rgb);
-        encoder.set_depth(png::BitDepth::Eight);
-        let mut writer = encoder.write_header().unwrap();
-        writer.write_image_data(&visual.buffer).unwrap();
-    }
-
-    fn get_rgb_buffer() -> Vec<u8> {
-        include_bytes!("../test_files/rgb.raw").to_vec()
+    fn get_rgb_buffer() -> RgbBuffer {
+        RgbBuffer {
+            buffer: include_bytes!("../test_files/rgb.raw").to_vec(),
+            rect: Rect {
+                position: PositionU::default(),
+                size: blittle::Size { w: 300, h: 600 },
+            },
+        }
     }
 }

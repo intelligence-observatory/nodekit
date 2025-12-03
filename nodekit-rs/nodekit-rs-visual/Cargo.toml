@@ -13,7 +13,7 @@ thiserror.workspace = true
 
 [dev-dependencies]
 criterion.workspace = true
-png.workspace = true
+nodekit-rs-png = { path = "../nodekit-rs-png" }
 
 [[bench]]
 name = "bench"

@@ -1,6 +1,8 @@
 use crate::rect::Rect;
 use crate::{Error, STRIDE, resize};
-use blittle::overlay::{Vec4, overlay_pixel, rgba8_to_rgba32, rgba8_to_rgba32_color};
+use blittle::overlay::{
+    Vec4, overlay_pixel, rgba8_to_rgba32, rgba8_to_rgba32_color, rgba32_to_rgb8,
+};
 use blittle::stride::RGBA;
 use fast_image_resize::PixelType;
 
@@ -33,6 +35,10 @@ impl RgbaBuffer {
         if dst_index < self.buffer.len() {
             overlay_pixel(&rgba8_to_rgba32_color(src), &mut self.buffer[dst_index]);
         }
+    }
+
+    pub fn get_buffer(&self) -> Vec<u8> {
+        rgba32_to_rgb8(&self.buffer)
     }
 
     /// Overlay a `src` pixel onto a `dst` pixel.

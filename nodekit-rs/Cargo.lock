@@ -1195,15 +1195,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "nodekit-rs-png"
+version = "0.1.0"
+dependencies = [
+ "png",
+]
+
+[[package]]
 name = "nodekit-rs-render"
 version = "0.1.0"
 dependencies = [
  "nodekit-rs-image",
  "nodekit-rs-models",
+ "nodekit-rs-png",
  "nodekit-rs-text",
  "nodekit-rs-video",
  "nodekit-rs-visual",
- "png",
  "pyo3",
  "pyo3-stub-gen",
  "slotmap",
@@ -1216,13 +1223,12 @@ name = "nodekit-rs-text"
 version = "0.1.0"
 dependencies = [
  "blittle",
- "bytemuck",
  "cosmic-text",
  "criterion",
  "markdown",
  "nodekit-rs-models",
+ "nodekit-rs-png",
  "nodekit-rs-visual",
- "png",
  "pyo3",
  "thiserror",
 ]
@@ -1249,7 +1255,7 @@ dependencies = [
  "fast_image_resize",
  "hex_color",
  "nodekit-rs-models",
- "png",
+ "nodekit-rs-png",
  "thiserror",
 ]
 

@@ -158,12 +158,9 @@ impl Default for Board {
 
 #[cfg(test)]
 mod tests {
-    use std::fs::File;
-    use std::io::BufWriter;
-    use png::ColorType;
-    use nodekit_rs_models::Position;
-    use crate::Cursor;
     use super::*;
+    use crate::Cursor;
+    use nodekit_rs_models::Position;
 
     #[test]
     fn test_board_constants() {
@@ -187,18 +184,9 @@ mod tests {
     fn test_blit_cursor() {
         let mut board = Board::new([200, 200, 200]);
         let cursor = Cursor::default();
-        blit_cursor("cursor.png", &mut board, &cursor, Position::default());
-    }
-
-    fn blit_cursor(filename: &str, board: &mut Board, cursor: &Cursor, pointer: Position) {
-        let file = File::create(filename).unwrap();
-        let ref mut w = BufWriter::new(file);
-        let mut encoder =
-            png::Encoder::new(w, BOARD_D_U32, BOARD_D_U32);
-        encoder.set_color(ColorType::Rgb);
-        encoder.set_depth(png::BitDepth::Eight);
-        let mut writer = encoder.write_header().unwrap();
-        writer.write_image_data(&board.blit_cursor(&cursor.0, &Cursor::rect(pointer))).unwrap();
-        board.clear();
+        nodekit_rs_png::board_to_png(
+            "cursor.png",
+            &board.blit_cursor(&cursor.0, &Cursor::rect(Position::default())),
+        );
     }
 }
