@@ -2,10 +2,9 @@ from __future__ import annotations
 
 import pydantic
 from typing import Annotated, Dict, Literal, Optional
+from abc import ABC
 
-# =====================
-# Value
-# =====================
+# %% Value
 
 # Base
 type BaseValue = str | int | float | bool
@@ -22,22 +21,11 @@ type Array = list["Value"]
 type Value = BaseValue | Array | Struct
 
 
-# =====================
-# Expression base
-# =====================
-
+# %% Expression
 type VariableName = str
 
-
-class BaseExpression(pydantic.BaseModel):
+class BaseExpression(pydantic.BaseModel, ABC):
     op: str
-
-    model_config = pydantic.ConfigDict(extra="forbid")
-
-
-# =====================
-# Root expressions
-# =====================
 
 class Var(BaseExpression):
     op: Literal["var"] = "var"
@@ -48,12 +36,11 @@ class Var(BaseExpression):
     )
 
 
-class ActionField(BaseExpression):
+class LastAction(BaseExpression):
     """
-    Access a field in the last completed Node's Action.
+    Evaluates to the last completed Node's Action.
     """
-    op: Literal["af"] = "af"
-    key: StructKey
+    op: Literal["la"] = "la"
 
 
 class Get(BaseExpression):
@@ -75,10 +62,7 @@ class Lit(BaseExpression):
     value: Value
 
 
-# =====================
-# Conditional
-# =====================
-
+# %% Conditional
 class If(BaseExpression):
     op: Literal["if"] = "if"
     cond: "Expression"
@@ -86,10 +70,7 @@ class If(BaseExpression):
     otherwise: "Expression"
 
 
-# =====================
-# Boolean logic
-# =====================
-
+# %% Boolean logic
 class Not(BaseExpression):
     op: Literal["not"] = "not"
     operand: "Expression"
@@ -107,11 +88,9 @@ class And(BaseExpression):
     args: list["Expression"]
 
 
-# =====================
-# Binary comparators
-# =====================
 
-class BaseCmp(BaseExpression):
+# %% Binary comparators
+class BaseCmp(BaseExpression, ABC):
     lhs: "Expression"
     rhs: "Expression"
 
@@ -140,11 +119,9 @@ class Le(BaseCmp):
     op: Literal["le"] = "le"
 
 
-# =====================
-# Arithmetic
-# =====================
 
-class BaseArithmeticOperation(BaseExpression):
+# %% Arithmetic
+class BaseArithmeticOperation(BaseExpression, ABC):
     lhs: "Expression"
     rhs: "Expression"
 
@@ -165,11 +142,9 @@ class Div(BaseArithmeticOperation):
     op: Literal["div"] = "div"
 
 
-# =====================
-# Array operations
-# =====================
 
-class ArrayOp(BaseExpression):
+# %% Array operations
+class ArrayOp(BaseExpression, ABC):
     # Expression must be array-valued at runtime
     array: "Expression"
 
@@ -213,7 +188,7 @@ class Fold(ArrayOp):
 
 Expression = Annotated[
     Var
-    | ActionField
+    | LastAction
     | Get
     | Lit
     | If
@@ -241,7 +216,7 @@ Expression = Annotated[
 # Ensure forward refs are resolved (Pydantic v2)
 for _model in (
         Var,
-        ActionField,
+        LastAction,
         Get,
         Lit,
         If,

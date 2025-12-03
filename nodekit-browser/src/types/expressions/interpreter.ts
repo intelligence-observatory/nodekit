@@ -119,7 +119,7 @@ export function evl(
         // Root
         // =====================
         case "var": {
-            const scope = expression.scope ?? "g";
+            const scope = expression.scope;
             if (scope === "l") {
                 if (!(expression.name in context.local_variables)) {
                     throw new Error(`Local variable '${expression.name}' not found`);
@@ -132,9 +132,8 @@ export function evl(
                 return context.graph_registers[expression.name as RegisterId];
             }
         }
-        case "af": {
-
-            return accessContainerValue(context.last_action, expression.key)
+        case "la": {
+            return context.last_action
         }
         case "get": {
             const containerVal = evl(

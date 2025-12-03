@@ -25,12 +25,11 @@ export interface Var extends BaseExpression {
     scope: "l" | "g";
 }
 
-export interface ActionField extends BaseExpression {
+export interface LastAction extends BaseExpression {
     /**
-     * Access a field in the last completed Node's Action.
+     * Evaluates to the last completed Node's Action.
      */
-    op: "af";
-    key: StructKey
+    op: "la"
 }
 
 export interface Get extends BaseExpression {
@@ -197,7 +196,7 @@ export interface Fold extends ArrayOp {
 export type Expression =
     // Root
     | Var
-    | ActionField
+    | LastAction
     | Get
     | Lit
     // Logic
