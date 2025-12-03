@@ -8,36 +8,9 @@ export type Value = BaseValue | Array | Struct;
 
 // Expression
 export type VariableName = string;
-export type Op =
-    | "var"
-    | "af" // action field
-    | "get"
-    | "lit"
-    | "if"
-    | "not"
-    | "and"
-    | "or"
-    | "eq"
-    | "ne"
-    | "gt"
-    | "ge"
-    | "lt"
-    | "le"
-    | "add"
-    | "sub"
-    | "mul"
-    | "div"
-    | "slice"
-    | "map"
-    | "filter"
-    | "fold";
 
-
-// =====================
-// Base expression
-// =====================
 export interface BaseExpression {
-    op: Op;
+    op: string;
 }
 
 // =====================
@@ -147,7 +120,6 @@ export interface Le extends BaseCmp {
 // =====================
 // Arithmetic
 // =====================
-
 export interface BaseArithmeticOperation extends BaseExpression {
     lhs: Expression;
     rhs: Expression;
@@ -172,7 +144,6 @@ export interface Div extends BaseArithmeticOperation {
 // =====================
 // Array operations
 // =====================
-
 export interface ArrayOp extends BaseExpression {
     // Expression must be array-valued at runtime
     array: Expression;
