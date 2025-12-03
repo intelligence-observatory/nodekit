@@ -1,11 +1,11 @@
 //! Various constants used to describe the size of the visual board.
 
-use blittle::*;
-use blittle::overlay::*;
-use bytemuck::cast_slice_mut;
-use crate::{Rect, VisualBuffer};
 use crate::rgb_buffer::RgbBuffer;
 use crate::rgba_buffer::RgbaBuffer;
+use crate::{Rect, VisualBuffer};
+use blittle::overlay::*;
+use blittle::*;
+use bytemuck::cast_slice_mut;
 
 pub const BOARD_D: usize = 768;
 pub const BOARD_D_U32: u32 = 768;
@@ -41,7 +41,7 @@ pub struct Board {
     board32: Vec<Vec4>,
     board32_zeros: Vec<Vec4>,
     dirty: bool,
-    color: [u8; STRIDE]
+    color: [u8; STRIDE],
 }
 
 impl Board {
@@ -56,7 +56,7 @@ impl Board {
             board32,
             board32_zeros,
             dirty: false,
-            color
+            color,
         }
     }
 
@@ -64,15 +64,15 @@ impl Board {
         self.color = color;
         self.clear();
     }
-    
+
     pub fn clear(&mut self) {
         fill(&mut self.board8_without_cursor, self.color);
     }
-    
+
     pub fn blit(&mut self, buffer: &VisualBuffer) {
         match buffer {
             VisualBuffer::Rgb(buffer) => self.blit_rgb(buffer),
-            VisualBuffer::Rgba(buffer) => self.overlay_rgba(buffer)
+            VisualBuffer::Rgba(buffer) => self.overlay_rgba(buffer),
         }
     }
 
@@ -81,7 +81,14 @@ impl Board {
         // Apply the overlays.
         self.apply_overlays();
         // Then blit on top of them.
-        blit(&buffer.buffer, &buffer.rect.size, &mut self.board8_without_cursor, &buffer.rect.position, &BOARD_SIZE, STRIDE);
+        blit(
+            &buffer.buffer,
+            &buffer.rect.size,
+            &mut self.board8_without_cursor,
+            &buffer.rect.position,
+            &BOARD_SIZE,
+            STRIDE,
+        );
     }
 
     pub fn overlay_rgba(&mut self, buffer: &RgbaBuffer) {
@@ -90,7 +97,13 @@ impl Board {
         // Convert RGB8 data into RGBA32 data.
         rgb8_to_rgba32_in_place(&self.board8_without_cursor, &mut self.board32);
         // Overlay.
-        overlay_rgba32(&buffer.buffer, &buffer.rect.size, &mut self.board32, &buffer.rect.position, &BOARD_SIZE);
+        overlay_rgba32(
+            &buffer.buffer,
+            &buffer.rect.size,
+            &mut self.board32,
+            &buffer.rect.position,
+            &BOARD_SIZE,
+        );
     }
 
     pub fn blit_cursor(&mut self, buffer: &[Vec4], rect: &Rect) -> &[u8] {
@@ -99,10 +112,17 @@ impl Board {
         // Overlay cursor.
         // Convert RGB8 data into RGBA32 data.
         rgb8_to_rgba32_in_place(&self.board8_without_cursor, &mut self.board32);
-        overlay_rgba32(&buffer, &rect.size, &mut self.board32, &rect.position, &BOARD_SIZE);
+        overlay_rgba32(
+            &buffer,
+            &rect.size,
+            &mut self.board32,
+            &rect.position,
+            &BOARD_SIZE,
+        );
 
         // Copy to the final board.
-        self.board8_final.copy_from_slice(&self.board8_without_cursor);
+        self.board8_final
+            .copy_from_slice(&self.board8_without_cursor);
         // Apply the overlaid cursor.
         rgba32_to_rgb8_in_place(&self.board32, &mut self.board8_final);
         // Clear overlays.
@@ -111,7 +131,7 @@ impl Board {
         self.dirty = false;
         &self.board8_final
     }
-    
+
     pub fn get_board_without_cursor(&mut self) -> &[u8] {
         // Apply remaining overlays.
         self.apply_overlays();

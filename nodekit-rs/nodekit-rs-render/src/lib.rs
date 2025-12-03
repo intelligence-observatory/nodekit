@@ -42,7 +42,8 @@ impl Renderer {
     /// Render `state`.
     /// Returns a raw byte array with shape: (768, 768, 3)
     pub fn render<'py>(&mut self, py: Python<'py>, state: &State) -> PyResult<Bound<'py, PyBytes>> {
-        let board = self.blit(state)
+        let board = self
+            .blit(state)
             .map_err(|e| PyRuntimeError::new_err(e.to_string()))?;
         Ok(PyBytes::new(py, board))
     }
@@ -72,13 +73,16 @@ impl Renderer {
                 }
                 Asset::Video(video) => {
                     // TODO start time.
-                    self.board.blit_rgb(&video.get_frame(state.t_msec).map_err(Error::Video)?);
+                    self.board
+                        .blit_rgb(&video.get_frame(state.t_msec).map_err(Error::Video)?);
                 }
             }
         }
 
         // Copy to the final blit.
-        Ok(self.board.blit_cursor(&self.cursor.0, &Cursor::rect(state.pointer)))
+        Ok(self
+            .board
+            .blit_cursor(&self.cursor.0, &Cursor::rect(state.pointer)))
     }
 
     fn is_new_state(&self, state: &State) -> bool {
@@ -92,8 +96,7 @@ impl Renderer {
                     // Clear the board. Keep cached assets.
                     self.board.clear();
                     Ok(())
-                }
-                else {
+                } else {
                     // Clear the board and re-cache.
                     *id = state.id;
                     self.fill_and_cache(state)
@@ -106,13 +109,14 @@ impl Renderer {
             }
         }
     }
-    
+
     fn fill_and_cache(&mut self, state: &State) -> Result<(), Error> {
         // Clear the asset caches.
         self.assets.clear();
         // Cache assets.
         self.cache(state)?;
-        self.board.fill(parse_color_rgb(&state.board_color).map_err(Error::ParseColor)?);
+        self.board
+            .fill(parse_color_rgb(&state.board_color).map_err(Error::ParseColor)?);
         Ok(())
     }
 

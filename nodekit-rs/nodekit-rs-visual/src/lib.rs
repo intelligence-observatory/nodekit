@@ -1,26 +1,26 @@
 //! Visual buffer functionality that is shared by images, text, and video.
 
 mod board;
-mod error;
-mod resized_rect;
-mod visual_buffer;
-mod rgba_buffer;
-mod rect;
-mod rgb_buffer;
 mod cursor;
+mod error;
+mod rect;
+mod resized_rect;
+mod rgb_buffer;
+mod rgba_buffer;
+mod visual_buffer;
 
+pub use crate::rgb_buffer::RgbBuffer;
+pub use crate::rgba_buffer::RgbaBuffer;
 use blittle::Size;
 use blittle::stride::RGBA;
 pub use board::*;
 pub use cursor::Cursor;
 pub use error::Error;
-pub use rect::Rect;
 use fast_image_resize::{FilterType, PixelType, ResizeAlg, ResizeOptions, Resizer, SrcCropping};
 use hex_color::HexColor;
+pub use rect::Rect;
 pub use resized_rect::ResizedRect;
 pub use visual_buffer::*;
-pub use crate::rgb_buffer::RgbBuffer;
-pub use crate::rgba_buffer::RgbaBuffer;
 
 pub const fn to_blittle_size(size: &nodekit_rs_models::Size) -> Size {
     Size {

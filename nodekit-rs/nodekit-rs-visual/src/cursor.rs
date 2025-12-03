@@ -1,9 +1,9 @@
-use blittle::{clip, PositionI, Size};
+use crate::*;
 use blittle::overlay::*;
 use blittle::stride::RGBA;
+use blittle::{PositionI, Size, clip};
 use bytemuck::cast_slice;
 use nodekit_rs_models::Position;
-use crate::*;
 
 const CURSOR_SIZE: Size = Size { w: 34, h: 44 };
 
@@ -18,18 +18,16 @@ impl Cursor {
         };
         let mut size = CURSOR_SIZE;
         let position = clip(&position, &BOARD_SIZE, &mut size);
-        Rect {
-            position,
-            size
-        }
+        Rect { position, size }
     }
 }
 
 impl Default for Cursor {
     fn default() -> Self {
-        let buffer = cast_slice::<u8, [u8; RGBA]>(include_bytes!("../cursor")).iter().map(|pixel| {
-            rgba8_to_rgba32_color(pixel)
-        }).collect();
+        let buffer = cast_slice::<u8, [u8; RGBA]>(include_bytes!("../cursor"))
+            .iter()
+            .map(|pixel| rgba8_to_rgba32_color(pixel))
+            .collect();
         Self(buffer)
     }
 }

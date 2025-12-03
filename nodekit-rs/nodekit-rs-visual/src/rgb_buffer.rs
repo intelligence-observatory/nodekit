@@ -1,6 +1,6 @@
+use crate::rect::Rect;
 use crate::{Error, resize};
 use fast_image_resize::PixelType;
-use crate::rect::Rect;
 
 /// A raw RGB24 bitmap and its pixel size.
 pub struct RgbBuffer {
@@ -11,12 +11,9 @@ pub struct RgbBuffer {
 
 impl RgbBuffer {
     pub fn new(buffer: Vec<u8>, rect: Rect) -> Self {
-        Self {
-            buffer,
-            rect
-        }
+        Self { buffer, rect }
     }
-    
+
     /// Resize to fit within the bounds of `dst`.
     pub fn new_resized(
         buffer: &mut [u8],
@@ -97,7 +94,7 @@ mod tests {
                 size: Size { w: 1., h: 1. },
             },
         )
-            .unwrap();
+        .unwrap();
         assert_eq!(resized.rect.position.x, 192);
         assert_eq!(resized.rect.position.y, 0);
         assert_eq!(resized.rect.size.w, BOARD_D / 2);

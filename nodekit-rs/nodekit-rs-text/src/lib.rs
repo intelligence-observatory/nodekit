@@ -1,13 +1,15 @@
 mod error;
 mod md;
 
-use blittle::{clip, PositionI, Size};
+use blittle::{PositionI, Size, clip};
 use cosmic_text::fontdb::Source;
 use cosmic_text::{Align, Attrs, Buffer, Color, Family, FontSystem, Metrics, Shaping, SwashCache};
 pub use error::Error;
 use md::{FontSize, parse};
 use nodekit_rs_models::{JustificationHorizontal, JustificationVertical, Rect};
-use nodekit_rs_visual::{BOARD_D_F64, RgbaBuffer, parse_color_rgba, spatial_coordinate, to_blittle_size, BOARD_SIZE};
+use nodekit_rs_visual::{
+    BOARD_D_F64, BOARD_SIZE, RgbaBuffer, parse_color_rgba, spatial_coordinate, to_blittle_size,
+};
 use pyo3::pyclass;
 use std::sync::Arc;
 
@@ -38,10 +40,13 @@ impl TextEngine {
         }
 
         // Create the background.
-        let mut buffers = vec![RgbaBuffer::new_rgba(nodekit_rs_visual::Rect {
-            position: position_u,
-            size: blit_size
-        },  parse_color_rgba(&text.background_color).map_err(Error::Visual)?)];
+        let mut buffers = vec![RgbaBuffer::new_rgba(
+            nodekit_rs_visual::Rect {
+                position: position_u,
+                size: blit_size,
+            },
+            parse_color_rgba(&text.background_color).map_err(Error::Visual)?,
+        )];
 
         // Get the font sizes.
         let font_size = FontSize::new((text.font_size * BOARD_D_F64).ceil() as u16);
@@ -71,10 +76,13 @@ impl TextEngine {
         attrs.family = Family::SansSerif;
 
         // Draw glyphs onto this buffer.
-        let mut text_surface = RgbaBuffer::new_rgba(nodekit_rs_visual::Rect {
-            position: position_u,
-            size: blit_size
-        },  [0, 0, 0, 0]);
+        let mut text_surface = RgbaBuffer::new_rgba(
+            nodekit_rs_visual::Rect {
+                position: position_u,
+                size: blit_size,
+            },
+            [0, 0, 0, 0],
+        );
 
         // Parse the markdown text.
         let paragraphs = parse(&text.text, &font_size, attrs.clone())?;
@@ -151,10 +159,12 @@ impl TextEngine {
                 let y1 = (y as usize + h as usize + y_offset).min(size.h);
                 let alpha = color.a();
                 if alpha > 0 {
-                    (x as usize..x1).zip(y as usize..y1).for_each(|(x, y)| {
-                        let index = x + y * size.w;
-                        dst.overlay_pixel_rgba(&color.as_rgba(), index);
-                    });
+                    (x as usize..x1)
+                        .zip(y as usize + y_offset..y1)
+                        .for_each(|(x, y)| {
+                            let index = x + y * size.w;
+                            dst.overlay_pixel_rgba(&color.as_rgba(), index);
+                        });
                 }
             },
         )
