@@ -18,7 +18,7 @@ use std::io::BufReader;
 
 /// Load an image into memory.
 /// Resize the image as needed.
-pub fn load(image: &Image, rect: Rect) -> Result<VisualBuffer, Error> {
+pub fn load(image: &Image, rect: Rect) -> Result<Option<VisualBuffer>, Error> {
     let decoder = Decoder::new(BufReader::new(
         File::open(&image.path).map_err(|e| Error::OpenFile(e, image.path.clone()))?,
     ));
@@ -35,33 +35,33 @@ pub fn load(image: &Image, rect: Rect) -> Result<VisualBuffer, Error> {
         .next_frame(&mut buffer)
         .map_err(|e| Error::Decode(e, image.path.clone()))?;
     match info.color_type {
-        ColorType::Rgb => Ok(VisualBuffer::Rgb(
+        ColorType::Rgb => Ok(
             RgbBuffer::new_resized(&mut buffer, info.width, info.height, rect)
-                .map_err(Error::Visual)?,
-        )),
-        ColorType::Rgba => Ok(VisualBuffer::Rgba(
+                .map_err(Error::Visual)?
+                .map(VisualBuffer::Rgb),
+        ),
+        ColorType::Rgba => Ok(
             RgbaBuffer::new_resized(&mut buffer, info.width, info.height, rect)
-                .map_err(Error::Visual)?,
-        )),
+                .map_err(Error::Visual)?
+                .map(VisualBuffer::Rgba),
+        ),
         ColorType::Indexed => Err(Error::Indexed(image.path.clone())),
-        ColorType::Grayscale => Ok(VisualBuffer::Rgb(
-            RgbBuffer::new_resized(
-                &mut grayscale_to_rgb(&buffer),
-                info.width,
-                info.height,
-                rect,
-            )
-            .map_err(Error::Visual)?,
-        )),
-        ColorType::GrayscaleAlpha => Ok(VisualBuffer::Rgba(
-            RgbaBuffer::new_resized(
-                &mut grayscale_alpha_to_rgba(&buffer),
-                info.width,
-                info.height,
-                rect,
-            )
-            .map_err(Error::Visual)?,
-        )),
+        ColorType::Grayscale => Ok(RgbBuffer::new_resized(
+            &mut grayscale_to_rgb(&buffer),
+            info.width,
+            info.height,
+            rect,
+        )
+        .map_err(Error::Visual)?
+        .map(VisualBuffer::Rgb)),
+        ColorType::GrayscaleAlpha => Ok(RgbaBuffer::new_resized(
+            &mut grayscale_alpha_to_rgba(&buffer),
+            info.width,
+            info.height,
+            rect,
+        )
+        .map_err(Error::Visual)?
+        .map(VisualBuffer::Rgba)),
     }
 }
 
@@ -129,6 +129,7 @@ mod tests {
                 position: Position { x: -0.5, y: -0.5 },
             },
         )
+        .unwrap()
         .unwrap();
         assert!(matches!(image, VisualBuffer::Rgba(_)));
     }

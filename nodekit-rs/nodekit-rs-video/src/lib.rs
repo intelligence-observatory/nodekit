@@ -1,5 +1,6 @@
 mod error;
 
+use blittle::ClippedRect;
 pub use error::Error;
 use nodekit_rs_models::Card;
 use nodekit_rs_visual::*;
@@ -14,28 +15,29 @@ pub struct Video {
     pub buffer: Vec<u8>,
     pub width: usize,
     pub height: usize,
-    pub rect: Rect,
+    pub rect: ClippedRect,
 }
 
 impl Video {
-    pub fn new(card: &Card, video: &nodekit_rs_models::Video) -> Result<Self, Error> {
+    pub fn new(card: &Card, video: &nodekit_rs_models::Video) -> Result<Option<Self>, Error> {
         // Load the video.
         let buffer = read(&video.path).map_err(|e| Error::FileNotFound(video.path.clone(), e))?;
         // Get the actual size of the video.
         let (width, height) = Self::get_size(&buffer)?;
-        // Get the reect, resized to fit within the card.
+        // Get the rect, resized to fit within the card.
         let rect = ResizedRect::new(&card.rect, width as u32, height as u32);
         // Store the resized dimensions.
         let width = rect.size.w;
         let height = rect.size.h;
-        // Get the rect used for blitting.
-        let rect = Rect::from(rect);
-        Ok(Self {
-            buffer,
-            rect,
-            width,
-            height,
-        })
+        // Get the clipping rect.
+        Ok(
+            ClippedRect::new(rect.position, BOARD_SIZE, rect.size).map(|rect| Self {
+                buffer,
+                rect,
+                width,
+                height,
+            }),
+        )
     }
 
     fn get_size(buffer: &[u8]) -> Result<(usize, usize), Error> {
@@ -118,7 +120,7 @@ impl Video {
             let index = y * width_3;
             out[index..index + width_3].copy_from_slice(&row[0..width_3]);
         }
-        Ok(RgbBuffer::new(out, self.rect.clone()))
+        Ok(RgbBuffer::new(out, self.rect))
     }
 }
 
@@ -145,7 +147,7 @@ mod tests {
         } else {
             panic!("oh no")
         };
-        let video = Video::new(&card, video).unwrap();
+        let video = Video::new(&card, video).unwrap().unwrap();
 
         let frame = video.get_frame(300).unwrap();
 

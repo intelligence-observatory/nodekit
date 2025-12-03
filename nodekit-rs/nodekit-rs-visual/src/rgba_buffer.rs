@@ -1,5 +1,5 @@
-use crate::rect::Rect;
-use crate::{Error, STRIDE, resize};
+use crate::{BOARD_SIZE, Error, STRIDE, resize};
+use blittle::ClippedRect;
 use blittle::overlay::{
     Vec4, overlay_pixel, rgba8_to_rgba32, rgba8_to_rgba32_color, rgba32_to_rgb8,
 };
@@ -8,13 +8,13 @@ use fast_image_resize::PixelType;
 
 pub struct RgbaBuffer {
     pub(crate) buffer: Vec<Vec4>,
-    pub rect: Rect,
+    pub rect: ClippedRect,
 }
 
 impl RgbaBuffer {
-    pub fn new_rgba(rect: Rect, color: [u8; RGBA]) -> Self {
+    pub fn new_rgba(rect: ClippedRect, color: [u8; RGBA]) -> Self {
         let color = rgba8_to_rgba32_color(&color);
-        let buffer = vec![color; rect.size.w * rect.size.h];
+        let buffer = vec![color; rect.src_size.w * rect.src_size.h];
         Self { buffer, rect }
     }
 
@@ -24,11 +24,13 @@ impl RgbaBuffer {
         src_width: u32,
         src_height: u32,
         dst: nodekit_rs_models::Rect,
-    ) -> Result<Self, Error> {
+    ) -> Result<Option<Self>, Error> {
         let (buffer, rect) = resize(buffer, src_width, src_height, &dst, PixelType::U8x4)?;
-        let rect = Rect::from(rect);
         let buffer = rgba8_to_rgba32(&buffer);
-        Ok(Self { buffer, rect })
+        Ok(
+            ClippedRect::new(rect.position, BOARD_SIZE, rect.size)
+                .map(|rect| Self { buffer, rect }),
+        )
     }
 
     pub fn overlay_pixel_rgba(&mut self, src: &[u8; RGBA], dst_index: usize) {

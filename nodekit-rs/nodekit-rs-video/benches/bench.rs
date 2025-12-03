@@ -1,19 +1,21 @@
-use blittle::PositionU;
+use blittle::{ClippedRect, PositionI};
 use criterion::{Criterion, criterion_group, criterion_main};
 use nodekit_rs_video::*;
-use nodekit_rs_visual::Rect;
+use nodekit_rs_visual::BOARD_SIZE;
 
 pub fn criterion_benchmark(c: &mut Criterion) {
     let width = 400;
     let height = 300;
 
-    let rect = Rect {
-        position: PositionU { x: 0, y: 0 },
-        size: blittle::Size {
+    let rect = ClippedRect::new(
+        PositionI::default(),
+        BOARD_SIZE,
+        blittle::Size {
             w: width,
             h: height,
         },
-    };
+    )
+    .unwrap();
     let video = Video {
         buffer: include_bytes!("../test-video.mp4").to_vec(),
         width,

@@ -1,4 +1,4 @@
-use blittle::PositionU;
+use blittle::{ClippedRect, PositionI};
 use criterion::{Criterion, criterion_group, criterion_main};
 use nodekit_rs_models::Rect;
 use nodekit_rs_visual::*;
@@ -14,10 +14,12 @@ fn get_rgba_buffer() -> Vec<u8> {
 fn criterion_benchmark(c: &mut Criterion) {
     let mut board = Board::new([255, 0, 255]);
 
-    let rect = nodekit_rs_visual::Rect {
-        position: PositionU::default(),
-        size: blittle::Size { w: 300, h: 600 },
-    };
+    let rect = ClippedRect::new(
+        PositionI::default(),
+        BOARD_SIZE,
+        blittle::Size { w: 300, h: 600 },
+    )
+    .unwrap();
 
     let rgb = RgbBuffer::new(get_rgb_buffer(), rect.clone());
 

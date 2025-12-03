@@ -1,16 +1,16 @@
-use crate::rect::Rect;
-use crate::{Error, resize};
+use crate::{BOARD_SIZE, Error, resize};
+use blittle::ClippedRect;
 use fast_image_resize::PixelType;
 
 /// A raw RGB24 bitmap and its pixel size.
 pub struct RgbBuffer {
     /// A raw RGB24 bitmap.
     pub(crate) buffer: Vec<u8>,
-    pub rect: Rect,
+    pub rect: ClippedRect,
 }
 
 impl RgbBuffer {
-    pub fn new(buffer: Vec<u8>, rect: Rect) -> Self {
+    pub fn new(buffer: Vec<u8>, rect: ClippedRect) -> Self {
         Self { buffer, rect }
     }
 
@@ -20,10 +20,12 @@ impl RgbBuffer {
         src_width: u32,
         src_height: u32,
         dst: nodekit_rs_models::Rect,
-    ) -> Result<Self, Error> {
+    ) -> Result<Option<Self>, Error> {
         let (buffer, rect) = resize(buffer, src_width, src_height, &dst, PixelType::U8x3)?;
-        let rect = Rect::from(rect);
-        Ok(Self { buffer, rect })
+        Ok(
+            ClippedRect::new(rect.position, BOARD_SIZE, rect.size)
+                .map(|rect| Self { buffer, rect }),
+        )
     }
 
     pub fn buffer_ref(&self) -> &[u8] {
@@ -35,7 +37,7 @@ impl RgbBuffer {
 mod tests {
     use super::*;
     use crate::board::*;
-    use blittle::PositionU;
+    use blittle::PositionI;
     use nodekit_rs_models::{Position, Size};
 
     #[test]
@@ -44,8 +46,8 @@ mod tests {
         nodekit_rs_png::rgb_to_png(
             "test_rgb.png",
             buffer.buffer_ref(),
-            buffer.rect.size.w as u32,
-            buffer.rect.size.h as u32,
+            buffer.rect.src_size.w as u32,
+            buffer.rect.src_size.h as u32,
         );
     }
 
@@ -68,27 +70,30 @@ mod tests {
                 size: Size { w: 1., h: 1. },
             },
         )
+        .unwrap()
         .unwrap();
-        assert_eq!(resized.rect.position.x, 192);
-        assert_eq!(resized.rect.position.y, 0);
-        assert_eq!(resized.rect.size.w, BOARD_D / 2);
-        assert_eq!(resized.rect.size.h, BOARD_D);
+        assert_eq!(resized.rect.dst_position_clipped.x, 192);
+        assert_eq!(resized.rect.dst_position_clipped.y, 0);
+        assert_eq!(resized.rect.src_size_clipped.w, BOARD_D / 2);
+        assert_eq!(resized.rect.src_size_clipped.h, BOARD_D);
         assert_eq!(resized.buffer.len(), (BOARD_D / 2) * BOARD_D * 3);
         nodekit_rs_png::rgb_to_png(
             "rgb_resize.png",
             &resized.buffer,
-            resized.rect.size.w as u32,
-            resized.rect.size.h as u32,
+            resized.rect.src_size_clipped.w as u32,
+            resized.rect.src_size_clipped.h as u32,
         );
     }
 
     fn get_rgb_buffer() -> RgbBuffer {
         RgbBuffer {
             buffer: include_bytes!("../test_files/rgb.raw").to_vec(),
-            rect: Rect {
-                position: PositionU::default(),
-                size: blittle::Size { w: 300, h: 600 },
-            },
+            rect: ClippedRect::new(
+                PositionI::default(),
+                BOARD_SIZE,
+                blittle::Size { w: 300, h: 600 },
+            )
+            .unwrap(),
         }
     }
 }

@@ -121,10 +121,9 @@ impl Renderer {
         for (key, card) in state.cards.iter() {
             match &card.card_type {
                 CardType::Image(image) => {
-                    self.assets.insert(
-                        key,
-                        Asset::Image(load(image, card.rect).map_err(Error::Image)?),
-                    );
+                    if let Some(image) = load(image, card.rect).map_err(Error::Image)? {
+                        self.assets.insert(key, Asset::Image(image));
+                    }
                 }
                 CardType::Text(text) => {
                     self.assets.insert(
@@ -137,12 +136,11 @@ impl Renderer {
                     );
                 }
                 CardType::Video(video) => {
-                    self.assets.insert(
-                        key,
-                        Asset::Video(
-                            nodekit_rs_video::Video::new(card, video).map_err(Error::Video)?,
-                        ),
-                    );
+                    if let Some(video) =
+                        nodekit_rs_video::Video::new(card, video).map_err(Error::Video)?
+                    {
+                        self.assets.insert(key, Asset::Video(video));
+                    }
                 }
             }
         }
@@ -185,7 +183,7 @@ mod tests {
             ),
             Card::text_card(
                 Rect {
-                    position: Position { x: -0.5, y: -0.5 },
+                    position: Position { x: 0., y: 0. },
                     size: Size { w: 1., h: 1. },
                 },
                 Timer::new(200, None),

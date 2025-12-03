@@ -17,8 +17,8 @@ pub fn rgba_to_png(filename: &str, buffer: &[u8], width: u32, height: u32) {
 }
 
 fn to_png(filename: &str, buffer: &[u8], width: u32, height: u32, color_type: ColorType) {
-    let file = File::create(filename).unwrap();
-    let ref mut w = BufWriter::new(file);
+    let mut file = File::create(filename).unwrap();
+    let w = BufWriter::new(&mut file);
     let mut encoder = png::Encoder::new(w, width, height);
     encoder.set_color(color_type);
     encoder.set_depth(png::BitDepth::Eight);
