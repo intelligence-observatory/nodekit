@@ -1,57 +1,42 @@
-import type {Dict, List, RegisterId, Value} from "../value.ts";
+import type {List, RegisterId, Value} from "../value.ts";
 import type {Action} from "../actions";
 import type {Expression, LocalVariableName} from "./expressions.ts";
 
-export type LocalVariableFile = Record<LocalVariableName, Value>;
-
 export interface EvlContext {
     graph_registers: Record<RegisterId, Value>,
-    local_variables: LocalVariableFile,
+    local_variables: Record<LocalVariableName, Value>,
     last_action: Action
 }
 
-export function evl(
-    expression: Expression,
+export function evl<V = Value>(
+    expression: Expression<V>,
     context: EvlContext,
-): Value {
+): V {
     switch (expression.op) {
         // =====================
         // Root
         // =====================
-        case "var": {
-            const scope = expression.scope;
-            if (scope === "l") {
-                if (!(expression.name in context.local_variables)) {
-                    throw new Error(`Local variable '${expression.name}' not found`);
-                }
-                return context.local_variables[expression.name];
-            } else {
-                if (!(expression.name in context.graph_registers)) {
-                    throw new Error(`Graph register '${expression.name}' not found`);
-                }
-                return context.graph_registers[expression.name as RegisterId];
+        case "reg": {
+            if (!(expression.id in context.graph_registers)) {
+                throw new Error(`Graph register '${expression.id}' not found`);
             }
+            return context.graph_registers[expression.id] as V;
+        }
+        case "loc": {
+            if (!(expression.name in context.local_variables)) {
+                throw new Error(`Local variable '${expression.name}' not found`);
+            }
+            return context.local_variables[expression.name] as V;
         }
         case "la": {
-            return context.last_action as Dict
+            return context.last_action as V;
         }
-        case "get": {
-            const containerVal = evl(
-                expression.container,
-                context,
-            );
-            const key = expression.key;
-            return accessContainerValue(containerVal, key)
-        }
-
         case "lit": {
             return expression.value;
         }
-
         // =====================
         // Conditional
         // =====================
-
         case "if": {
             const condVal = evl(
                 expression.cond,

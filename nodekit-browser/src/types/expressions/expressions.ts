@@ -2,8 +2,10 @@ import type {Boolean, String, Dict, Float, Integer, List, RegisterId, Value} fro
 import type {Action} from "../actions";
 
 export type LocalVariableName = String;
+type Numeric = Integer | Float;
+type Comparable = Numeric | String;
 
-export interface BaseExpression<V> {
+export interface BaseExpression<V=Value> {
     op: string;
     __result?: V
 }
@@ -11,7 +13,7 @@ export interface BaseExpression<V> {
 // =====================
 // Root expressions
 // =====================
-export interface Reg<V=Value> extends BaseExpression<V> {
+export interface Reg<V extends Value = Value> extends BaseExpression<V> {
     /**
      * Evaluates to the value stored in the specified Graph Register.
      */
@@ -19,7 +21,7 @@ export interface Reg<V=Value> extends BaseExpression<V> {
     id: RegisterId;
 }
 
-export interface Local<V=Value> extends BaseExpression<V> {
+export interface Local<V extends Value = Value> extends BaseExpression<V> {
     /**
      * Evaluates to the value of the specified Local Variable.
      */
@@ -29,12 +31,12 @@ export interface Local<V=Value> extends BaseExpression<V> {
 
 export interface LastAction extends BaseExpression<Action> {
     /**
-     * Evaluates to the last completed Node's Action, which is a Dict.
+     * Evaluates to the last completed Node's Action.
      */
     op: "la"
 }
 
-export interface GetListItem<V=Value> extends BaseExpression<V> {
+export interface GetListItem<V extends Value = Value> extends BaseExpression<V> {
     /**
      * Get an item from a List.
      */
@@ -42,7 +44,7 @@ export interface GetListItem<V=Value> extends BaseExpression<V> {
     list: Expression<List>;
     index: Expression<Integer>;
 }
-export interface GetDictValue<V=Value> extends BaseExpression<V> {
+export interface GetDictValue<V extends Value = Value> extends BaseExpression<V> {
     /**
      * Get a value from a Dict.
      */
@@ -74,19 +76,19 @@ export interface If<V=Value> extends BaseExpression<V> {
 // =====================
 export interface Not extends BaseExpression<Boolean> {
     op: "not";
-    operand: Expression;
+    operand: Expression<Boolean>;
 }
 
 export interface Or extends BaseExpression<Boolean> {
     op: "or";
     // variadic
-    args: Expression[];
+    args: Expression<Boolean>[];
 }
 
 export interface And extends BaseExpression<Boolean> {
     op: "and";
     // variadic
-    args: Expression[];
+    args: Expression<Boolean>[];
 }
 
 // =====================
@@ -94,8 +96,8 @@ export interface And extends BaseExpression<Boolean> {
 // =====================
 
 export interface BaseCmp extends BaseExpression<Boolean> {
-    lhs: Expression;
-    rhs: Expression;
+    lhs: Expression<Comparable>;
+    rhs: Expression<Comparable>;
 }
 
 export interface Eq extends BaseCmp {
@@ -125,9 +127,9 @@ export interface Le extends BaseCmp {
 // =====================
 // Arithmetic
 // =====================
-export interface BaseArithmeticOperation<T=Float | Integer> extends BaseExpression<T> {
-    lhs: Expression;
-    rhs: Expression;
+export interface BaseArithmeticOperation<T extends Numeric = Numeric> extends BaseExpression<T> {
+    lhs: Expression<Numeric>;
+    rhs: Expression<Numeric>;
 }
 
 export interface Add extends BaseArithmeticOperation {
@@ -149,18 +151,18 @@ export interface Div extends BaseArithmeticOperation<Float> {
 // =====================
 // Array operations
 // =====================
-export interface ArrayOp<T> extends BaseExpression<T> {
+export interface ListOp<V extends Value = Value> extends BaseExpression<V> {
     // Expression must be array-valued at runtime
-    array: Expression;
+    array: Expression<List>;
 }
 
-export interface Slice extends ArrayOp<List> {
+export interface Slice extends ListOp<List> {
     op: "slice";
-    start: Expression;
-    end: Expression | null;
+    start: Expression<Integer>;
+    end: Expression<Integer> | null;
 }
 
-export interface Map extends ArrayOp<List> {
+export interface Map extends ListOp<List> {
     op: "map";
     /**
      * The variable name the current array element will be assigned to in locals. Can be referenced in the func: Expression with Loc(...).
@@ -169,10 +171,10 @@ export interface Map extends ArrayOp<List> {
     /**
      * Expression that will be applied to each element of the array.
      */
-    func: Expression;
+    func: Expression<Value>;
 }
 
-export interface Filter extends ArrayOp<List> {
+export interface Filter extends ListOp<List> {
     op: "filter";
     /**
      * The variable name the current array element will be assigned to in locals. Can be referenced in the func: Expression with Loc(...).
@@ -182,12 +184,12 @@ export interface Filter extends ArrayOp<List> {
      * Expression that will be applied to each element of the array
      * and interpreted as a predicate.
      */
-    predicate: Expression;
+    predicate: Expression<Boolean>;
 }
 
-export interface Fold extends ArrayOp<Value> {
+export interface Fold<V extends Value = Value> extends ListOp<V> {
     op: "fold";
-    init: Expression;
+    init: Expression<V>;
     /**
      * The variable name the cumulant will be assigned to. Can be referenced in the func: Expression with Var(...).
      */
@@ -196,19 +198,19 @@ export interface Fold extends ArrayOp<Value> {
      * The variable name the current array element will be assigned to in locals. Can be referenced in the func: Expression with Loc(...).
      */
     cur: LocalVariableName;
-    func: Expression;
+    func: Expression<V>;
 }
 
-export type Expression<V = Value> =
+export type AnyExpression =
     // Root
-    | Reg<V>
-    | Local<V>
+    | Reg
+    | Local
     | LastAction
-    | GetListItem<V>
-    | GetDictValue<V>
-    | Lit<V>
+    | GetListItem
+    | GetDictValue
+    | Lit
     // Logic
-    | If<V>
+    | If
     // Boolean
     | Not
     | Or
@@ -226,7 +228,9 @@ export type Expression<V = Value> =
     | Mul
     | Div
     // Array ops
-    | Slice<V>
-    | Map<V>
-    | Filter<V>
-    | Fold<V>;
+    | Slice
+    | Map
+    | Filter
+    | Fold
+
+export type Expression<V = Value> = Extract<AnyExpression, {__result?: V}>
