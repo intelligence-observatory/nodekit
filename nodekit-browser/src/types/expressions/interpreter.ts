@@ -1,112 +1,12 @@
-import type {RegisterId} from "../common.ts";
+import type {Dict, List, RegisterId, Value} from "../value.ts";
 import type {Action} from "../actions";
-import type {Array, ArrayIndex, Expression, Struct, StructKey, Value, VariableName} from "./expressions.ts";
+import type {Expression, LocalVariableName} from "./expressions.ts";
 
-function accessContainerValue(
-    container: any, // Todo
-    containerKey: StructKey | ArrayIndex,
-): Value {
-
-
-    if (Array.isArray(container)) {
-        // Array branch: require numeric index
-        if (typeof containerKey !== "number" || !Number.isInteger(containerKey)) {
-            throw new Error(
-                `Expected numeric ArrayIndex, got '${String(containerKey)}'`,
-            );
-        }
-
-        const idx = containerKey;
-        if (idx < 0 || idx >= container.length) {
-            throw new Error(
-                `Array index out of bounds: index=${idx}, length=${container.length}`,
-            );
-        }
-        return container[idx];
-    } else if (typeof container === "object") {
-        // Struct branch: require string key
-        if (typeof containerKey !== "string") {
-            throw new Error(
-                `Expected string StructKey, got '${String(containerKey)}'`,
-            );
-        }
-
-        return accessStructValue(
-            container,
-            containerKey,
-        );
-    } else {
-        throw new Error(`Did not receive a valid container Value; got ${container}`)
-    }
-
-
-}
-
-// Container utils
-function accessStructValue(
-    struct: Struct,
-    key: StructKey,
-): Value {
-    // Allow "" or "." to mean "root"
-    if (key === "" || key === ".") {
-        return struct;
-    }
-
-    // Support leading dot: ".foo.0.1" -> ["foo", "0", "1"]
-    const segments = key.split(".").filter(seg => seg.length > 0);
-
-    let current: Value = struct;
-
-    for (let i = 0; i < segments.length; i++) {
-        const seg = segments[i];
-
-        if (Array.isArray(current)) {
-            // Array case: segment must be an integer index
-            const idx = Number(seg);
-            if (!Number.isInteger(idx)) {
-                const traversed = segments.slice(0, i).join(".") || "<root>";
-                throw new Error(
-                    `Expected numeric index at segment '${seg}' while traversing '${traversed}'`,
-                );
-            }
-            if (idx < 0 || idx >= current.length) {
-                const traversed = segments.slice(0, i).join(".") || "<root>";
-                throw new Error(
-                    `Array index out of bounds at segment '${seg}' (index=${idx}) while traversing '${traversed}', length=${current.length}`,
-                );
-            }
-            current = current[idx];
-            continue;
-        }
-
-        if (typeof current === "object" && current !== null) {
-            // Struct case
-            const currentStruct = current as Struct;
-            if (!(seg in currentStruct)) {
-                const traversed = segments.slice(0, i).join(".") || "<root>";
-                throw new Error(
-                    `Key '${seg}' not found while traversing '${traversed}' in path '${key}'`,
-                );
-            }
-            current = currentStruct[seg];
-            continue;
-        }
-
-        // Neither struct nor array: cannot descend further
-        const traversed = segments.slice(0, i).join(".") || "<root>";
-        throw new Error(
-            `Cannot access segment '${seg}' at '${traversed}': current value is not indexable`,
-        );
-    }
-
-    return current;
-}
-
-export type VariableFile = Record<VariableName, Value>;
+export type LocalVariableFile = Record<LocalVariableName, Value>;
 
 export interface EvlContext {
     graph_registers: Record<RegisterId, Value>,
-    local_variables: VariableFile,
+    local_variables: LocalVariableFile,
     last_action: Action
 }
 
@@ -133,7 +33,7 @@ export function evl(
             }
         }
         case "la": {
-            return context.last_action
+            return context.last_action as Dict
         }
         case "get": {
             const containerVal = evl(
@@ -319,12 +219,12 @@ export function evl(
         // =====================
         // Array ops
         // =====================
-
         case "slice": {
             const arrayVal = evl(
                 expression.array,
                 context,
             );
+
             if (!Array.isArray(arrayVal)) {
                 throw new Error(`slice: array must be array, got '${typeof arrayVal}'`);
             }
@@ -348,20 +248,19 @@ export function evl(
                 }
                 endVal = evEnd;
             }
-
-            return arrayVal.slice(startVal, endVal) as Array;
+            return arrayVal.slice(startVal, endVal) as List;
         }
-
         case "map": {
             const arrayVal = evl(
                 expression.array,
                 context,
             );
+
             if (!Array.isArray(arrayVal)) {
                 throw new Error(`map: array must be array, got '${typeof arrayVal}'`);
             }
 
-            const curName = expression.cur ?? "xcur";
+            const curName = expression.cur;
 
             return arrayVal.map((elem) => {
                 context.local_variables = {
@@ -372,7 +271,7 @@ export function evl(
                     expression.func,
                     context,
                 );
-            }) as Array;
+            }) as List;
         }
 
         case "filter": {
@@ -384,9 +283,9 @@ export function evl(
                 throw new Error(`filter: array must be array, got '${typeof arrayVal}'`);
             }
 
-            const curName = expression.cur ?? "xcur";
+            const curName = expression.cur;
 
-            const result: Array = [];
+            const result: List = [];
             for (const elem of arrayVal) {
                 context.local_variables = {
                     ...context.local_variables,

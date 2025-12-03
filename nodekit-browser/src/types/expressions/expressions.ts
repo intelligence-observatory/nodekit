@@ -1,83 +1,89 @@
-// Value
-export type BaseValue = string | number | boolean;
-export type StructKey = string; // Dot notation is expected
-export type Struct = { [key: StructKey]: Value };
-export type ArrayIndex = number;
-export type Array = Value[];
-export type Value = BaseValue | Array | Struct;
+import type {Boolean, String, Dict, Float, Integer, List, RegisterId, Value} from "../value.ts";
+import type {Action} from "../actions";
 
-// Expression
-export type VariableName = string;
+export type LocalVariableName = String;
 
-export interface BaseExpression {
+export interface BaseExpression<V> {
     op: string;
+    __result?: V
 }
 
 // =====================
 // Root expressions
 // =====================
-export interface Var extends BaseExpression {
-    op: "var";
-    name: VariableName;
+export interface Reg<V=Value> extends BaseExpression<V> {
     /**
-     * Whether to read from the local (l) or global (g) variable file.
+     * Evaluates to the value stored in the specified Graph Register.
      */
-    scope: "l" | "g";
+    op: "reg";
+    id: RegisterId;
 }
 
-export interface LastAction extends BaseExpression {
+export interface Local<V=Value> extends BaseExpression<V> {
     /**
-     * Evaluates to the last completed Node's Action.
+     * Evaluates to the value of the specified Local Variable.
+     */
+    op: "loc";
+    name: LocalVariableName;
+}
+
+export interface LastAction extends BaseExpression<Action> {
+    /**
+     * Evaluates to the last completed Node's Action, which is a Dict.
      */
     op: "la"
 }
 
-export interface Get extends BaseExpression {
+export interface GetListItem<V=Value> extends BaseExpression<V> {
     /**
-     * Get an element from a container (Array or Struct).
+     * Get an item from a List.
      */
-    op: "get";
-    // Expression must evaluate to an array- or struct-valued result
-    container: Expression;
-    // ArrayIndex or StructKey
-    key: StructKey | ArrayIndex;
+    op: "gli";
+    list: Expression<List>;
+    index: Expression<Integer>;
+}
+export interface GetDictValue<V=Value> extends BaseExpression<V> {
+    /**
+     * Get a value from a Dict.
+     */
+    op: "gdv";
+    dict: Expression<Dict>;
+    key: Expression<String>;
 }
 
-export interface Lit extends BaseExpression {
+export interface Lit<V=Value> extends BaseExpression<V> {
     /**
      * Literal value.
      */
     op: "lit";
-    value: Value;
+    value: V;
 }
 
 // =====================
 // Conditional
 // =====================
-
-export interface If extends BaseExpression {
+export interface If<V=Value> extends BaseExpression<V> {
     op: "if";
-    cond: Expression;
-    then: Expression;
-    otherwise: Expression;
+    cond: Expression<Boolean>;
+    then: Expression<V>;
+    otherwise: Expression<V>;
 }
 
 // =====================
 // Boolean logic
 // =====================
-
-export interface Not extends BaseExpression {
+export interface Not extends BaseExpression<Boolean> {
     op: "not";
     operand: Expression;
 }
 
-export interface Or extends BaseExpression {
+export interface Or extends BaseExpression<Boolean> {
     op: "or";
     // variadic
     args: Expression[];
 }
 
-export interface And extends BaseExpression {
+export interface And extends BaseExpression<Boolean> {
     op: "and";
     // variadic
     args: Expression[];
@@ -87,7 +93,7 @@ export interface And extends BaseExpression {
 // Binary comparators
 // =====================
 
-export interface BaseCmp extends BaseExpression {
+export interface BaseCmp extends BaseExpression<Boolean> {
     lhs: Expression;
     rhs: Expression;
 }
@@ -119,7 +125,7 @@ export interface Le extends BaseCmp {
 // =====================
 // Arithmetic
 // =====================
-export interface BaseArithmeticOperation extends BaseExpression {
+export interface BaseArithmeticOperation<T=Float | Integer> extends BaseExpression<T> {
     lhs: Expression;
     rhs: Expression;
 }
@@ -136,42 +142,42 @@ export interface Mul extends BaseArithmeticOperation {
     op: "mul";
 }
 
-export interface Div extends BaseArithmeticOperation {
+export interface Div extends BaseArithmeticOperation<Float> {
     op: "div";
 }
 
 // =====================
 // Array operations
 // =====================
-export interface ArrayOp extends BaseExpression {
+export interface ArrayOp<T> extends BaseExpression<T> {
     // Expression must be array-valued at runtime
     array: Expression;
 }
 
-export interface Slice extends ArrayOp {
+export interface Slice extends ArrayOp<List> {
     op: "slice";
     start: Expression;
     end: Expression | null;
 }
 
-export interface Map extends ArrayOp {
+export interface Map extends ArrayOp<List> {
     op: "map";
     /**
-     * The variable name of the current array element.
+     * The variable name the current array element will be assigned to in locals. Can be referenced in the func: Expression with Loc(...).
      */
-    cur: VariableName;
+    cur: LocalVariableName;
     /**
      * Expression that will be applied to each element of the array.
      */
     func: Expression;
 }
 
-export interface Filter extends ArrayOp {
+export interface Filter extends ArrayOp<List> {
     op: "filter";
     /**
-     * The variable name of the current array element.
+     * The variable name the current array element will be assigned to in locals. Can be referenced in the func: Expression with Loc(...).
      */
-    cur: VariableName;
+    cur: LocalVariableName;
     /**
      * Expression that will be applied to each element of the array
      * and interpreted as a predicate.
@@ -179,28 +185,30 @@ export interface Filter extends ArrayOp {
     predicate: Expression;
 }
 
-export interface Fold extends ArrayOp {
+export interface Fold extends ArrayOp<Value> {
     op: "fold";
     init: Expression;
     /**
-     * The ID of the current cumulant.
+     * The variable name the cumulant will be assigned to. Can be referenced in the func: Expression with Var(...).
      */
-    acc: VariableName;
+    acc: LocalVariableName;
     /**
-     * The variable name of the current array element.
+     * The variable name the current array element will be assigned to in locals. Can be referenced in the func: Expression with Loc(...).
      */
-    cur: VariableName;
+    cur: LocalVariableName;
     func: Expression;
 }
 
-export type Expression =
+export type Expression<V = Value> =
     // Root
-    | Var
+    | Reg<V>
+    | Local<V>
     | LastAction
-    | Get
-    | Lit
+    | GetListItem<V>
+    | GetDictValue<V>
+    | Lit<V>
     // Logic
-    | If
+    | If<V>
     // Boolean
     | Not
     | Or
@@ -218,7 +226,7 @@ export type Expression =
     | Mul
     | Div
     // Array ops
-    | Slice
-    | Map
-    | Filter
-    | Fold;
+    | Slice<V>
+    | Map<V>
+    | Filter<V>
+    | Fold<V>;

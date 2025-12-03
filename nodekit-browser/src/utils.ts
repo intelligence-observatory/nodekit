@@ -1,4 +1,4 @@
-import type {ColorHexString, MarkdownString, SpatialPoint, SpatialSize} from "./types/common.ts";
+import type {ColorHexString, MarkdownString, SpatialPoint, SpatialSize} from "./types/value.ts";
 import {marked} from "marked";
 import DOMPurify from "dompurify";
 import type {Region} from "./types/region";

@@ -1,7 +1,7 @@
 import type {Card} from "./cards";
 import type {Sensor} from "./sensors";
-import type {ColorHexString, NodeId, RegisterId} from "./common.ts";
-import type {Expression, Value} from "./expressions/expressions.ts";
+import type {ColorHexString, NodeId, RegisterId, Value} from "./value.ts";
+import type {Expression} from "./expressions/expressions.ts";
 import type {Event} from "./events";
 
 export interface Node {

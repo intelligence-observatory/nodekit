@@ -7,7 +7,7 @@ import {createCardView} from "../board-view/card-views/create.ts";
 import {createSensorBinding} from "../board-view/sensor-bindings/create-sensor-binding.ts";
 import type {Clock} from "../clock.ts";
 import {Deferred} from "../utils.ts";
-import type {TimeElapsedMsec} from "../types/common.ts";
+import type {TimeElapsedMsec} from "../types/value.ts";
 
 export interface NodePlayRunResult {
     tStart: TimeElapsedMsec,

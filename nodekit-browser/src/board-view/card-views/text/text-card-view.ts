@@ -1,4 +1,4 @@
-import type {SpatialSize,} from "../../../types/common.ts";
+import type {SpatialSize,} from "../../../types/value.ts";
 
 import './text-card-view.css'
 import {LeafCardView} from "../card-view.ts";

@@ -1,4 +1,4 @@
-import type {ColorHexString, SpatialPoint, SpatialSize} from "../types/common.ts";
+import type {ColorHexString, SpatialPoint, SpatialSize} from "../types/value.ts";
 import './board-view.css'
 import {PointerStream} from "../input-streams/pointer-stream.ts";
 import {KeyStream} from "../input-streams/key-stream.ts";

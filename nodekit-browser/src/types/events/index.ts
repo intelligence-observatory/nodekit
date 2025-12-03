@@ -1,4 +1,4 @@
-import type {NodeId, PixelSize, PressableKey, SpatialPoint, TimeElapsedMsec} from "../common.ts";
+import type {NodeId, PixelSize, PressableKey, SpatialPoint, TimeElapsedMsec} from "../value.ts";
 import type {Action} from "../actions";
 
 export interface BaseEvent<T extends string> {

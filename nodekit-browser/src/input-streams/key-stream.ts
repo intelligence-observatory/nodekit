@@ -1,7 +1,7 @@
 import type {Clock} from "../clock.ts";
 
 type KeySampleType = 'down' | 'up';
-import type {PressableKey, TimeElapsedMsec} from "../types/common.ts";
+import type {PressableKey, TimeElapsedMsec} from "../types/value.ts";
 
 export interface KeySample {
     sampleType: KeySampleType

@@ -3,7 +3,7 @@ import './card-view.css'
 import type {Card, CompositeCard, LeafCard} from "../../types/cards";
 import {type BoardCoordinateSystem, createRegionDiv} from "../board-view.ts";
 import type {AssetManager} from "../../asset-manager";
-import type {SpatialPoint} from "../../types/common.ts";
+import type {SpatialPoint} from "../../types/value.ts";
 
 
 
