@@ -1,4 +1,4 @@
-import type {NodeTimePointMsec, PlainString, PressableKey, SpatialSize} from "../common.ts";
+import type {PlainString, PressableKey, SpatialSize, TimeDurationMsec} from "../common.ts";
 import type {Region} from "../region";
 import type {SliderBinIndex} from "../../board-view/sensor-bindings/slider";
 import type {Card} from "../cards";
@@ -9,7 +9,7 @@ interface BaseSensor<T extends string> {
 
 // Leaf Sensors
 export interface WaitSensor extends BaseSensor<"WaitSensor">{
-    duration_msec: NodeTimePointMsec
+    duration_msec: TimeDurationMsec
 }
 export interface ClickSensor extends BaseSensor<'ClickSensor'>{
     region: Region
@@ -41,7 +41,7 @@ export interface SliderSensor extends BaseSensor<'SliderSensor'>{
 }
 
 export interface FreeTextEntrySensor extends BaseSensor<'FreeTextEntrySensor'>{
-    prompt: PlainString;
+    prompt: string;
     font_size: SpatialSize;
     min_length: number;
     max_length: number | null;

@@ -2,14 +2,7 @@ from typing import Literal, Annotated
 
 import pydantic
 
-# %% Assets
-SHA256 = Annotated[str, pydantic.Field(pattern=r"^[a-f0-9]{64}$")]
-
-type ImageMediaType = Literal["image/png", "image/svg+xml"]
-type VideoMediaType = Literal["video/mp4"]
-type MediaType = ImageMediaType | VideoMediaType
-
-# %% Space
+# %% Spatial
 type SpatialSize = Annotated[
     float,
     pydantic.Field(
@@ -19,35 +12,35 @@ type SpatialSize = Annotated[
         description="A spatial size relative to the smaller extent of the board (width or height, whichever is smaller). For example, a value of 0.5 corresponds to half the smaller extent of the board.",
     ),
 ]
+
 type SpatialPoint = Annotated[float, pydantic.Field(strict=True, ge=-0.5, le=0.5)]
 
-
 Mask = Annotated[
-    Literal["rectangle", "ellipse"],
+    Literal["ellipse", "rectangle"],
     pydantic.Field(
         description='Describes the shape of a region inside of a bounding box. "rectangle" uses the box itself; "ellipse" inscribes a tightly fitted ellipse within the box.'
     ),
 ]
+
 # %% Time
-NodeTimePointMsec = Annotated[
+type TimeElapsedMsec = Annotated[
     int,
     pydantic.Field(
         strict=True,
-        ge=0,
-        description="A point in time relative to the start of a Node.",
-    ),
-]
-TimeElapsedMsec = Annotated[
-    int,
-    pydantic.Field(
-        strict=True,
-        ge=0,
-        description="An elapsed duration of time in milliseconds, relative to the start of the Trace.",
+        description="A time point, relative to some origin.",
     ),
 ]
 
+type TimeDurationMsec = Annotated[
+    int,
+    pydantic.Field(
+        strict=True,
+        ge=0,
+        description="A duration of time in milliseconds, relative to the start of the Trace.",
+    )
+]
 # %% Text
-MarkdownString = str
+type MarkdownString = Annotated[str, pydantic.Field(strict=True, description='Markdown-formatted string')]
 
 
 def _normalize_hex_code(value: str) -> str:
@@ -57,7 +50,7 @@ def _normalize_hex_code(value: str) -> str:
     return value.lower()  # Lowercase
 
 
-ColorHexString = Annotated[
+type ColorHexString = Annotated[
     str,
     pydantic.BeforeValidator(_normalize_hex_code),
     pydantic.Field(
@@ -68,7 +61,6 @@ ColorHexString = Annotated[
 ]
 
 # %% Keyboard
-# Enter, spacebar, arrow keys, and alphanumeric keys:
 PressableKey = Literal[
     "Enter",
     " ",
@@ -114,6 +106,12 @@ PressableKey = Literal[
     "9",
 ]
 
+# %% Assets
+SHA256 = Annotated[str, pydantic.Field(pattern=r"^[a-f0-9]{64}$")]
+type ImageMediaType = Literal["image/png", "image/svg+xml"]
+type VideoMediaType = Literal["video/mp4"]
+type MediaType = ImageMediaType | VideoMediaType
+
 
 # %% Identifiers
 type NodeId = Annotated[
@@ -123,21 +121,9 @@ type NodeId = Annotated[
     ),
 ]
 
-type SensorId = Annotated[
+type RegisterId = Annotated[
     str,
     pydantic.Field(
-        description="An identifier for a Sensor which is unique within a Node.",
-    ),
+        description='An identifier for a Graph register.'
+    )
 ]
-
-type CardId = Annotated[
-    str,
-    pydantic.Field(
-        description="An identifier for a Card which is unique within a Node.",
-    ),
-]
-
-# %% JSON
-type JsonValue = (
-    str | int | float | bool | None | list[JsonValue] | dict[str, JsonValue]
-)

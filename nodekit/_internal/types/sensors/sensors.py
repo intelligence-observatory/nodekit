@@ -4,7 +4,11 @@ from typing import Literal, Annotated, Union, Self, Dict
 import pydantic
 
 from nodekit._internal.types.cards import Card
-from nodekit._internal.types.common import PressableKey, NodeTimePointMsec, SpatialSize
+from nodekit._internal.types.common import (
+    PressableKey,
+    SpatialSize,
+    TimeDurationMsec,
+)
 from nodekit._internal.types.regions import Region
 
 
@@ -25,7 +29,7 @@ class WaitSensor(BaseSensor):
     """
 
     sensor_type: Literal["WaitSensor"] = "WaitSensor"
-    duration_msec: NodeTimePointMsec = pydantic.Field(
+    duration_msec: TimeDurationMsec = pydantic.Field(
         description="The number of milliseconds from the start of the Node when the Sensor triggers.",
         gt=0,
     )
