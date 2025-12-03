@@ -32,6 +32,52 @@ export function evl(
         case "la": {
             return context.last_action;
         }
+        case "gli": {
+            const listVal = evl(
+                expression.list,
+                context,
+            );
+            if (!Array.isArray(listVal)) {
+                throw new Error(`gli: list must be array, got '${typeof listVal}'`);
+            }
+
+            const indexVal = evl(
+                expression.index,
+                context,
+            );
+            if (typeof indexVal !== "number") {
+                throw new Error(`gli: index must be number, got '${typeof indexVal}'`);
+            }
+
+            if (indexVal < 0 || indexVal >= listVal.length) {
+                throw new Error(`gli: index out of bounds, got index ${indexVal} for list of length ${listVal.length}`);
+            }
+
+            return listVal[indexVal];
+        }
+        case "gdv" :{
+            const dictVal = evl(
+                expression.dict,
+                context,
+            );
+            if (typeof dictVal !== "object" || dictVal === null || Array.isArray(dictVal)) {
+                throw new Error(`gdv: dict must be object, got '${typeof dictVal}'`);
+            }
+
+            const keyVal = evl(
+                expression.key,
+                context,
+            );
+            if (typeof keyVal !== "string") {
+                throw new Error(`gdv: key must be string, got '${typeof keyVal}'`);
+            }
+
+            if (!(keyVal in dictVal)) {
+                throw new Error(`gdv: key '${keyVal}' not found in dict`);
+            }
+
+            return (dictVal as Record<string, Value>)[keyVal];
+        }
         case "lit": {
             return expression.value;
         }
@@ -64,7 +110,7 @@ export function evl(
                 expression.operand,
                 context,
             );
-            return !v as Boolean;
+            return !v;
         }
 
         case "and": {
@@ -95,7 +141,6 @@ export function evl(
         // =====================
         // Comparators
         // =====================
-
         case "eq": {
             const lhs = evl(
                 expression.lhs,
@@ -105,10 +150,8 @@ export function evl(
                 expression.rhs,
                 context,
             );
-            // strict equality; you can swap this for deep equality if needed
             return lhs === rhs;
         }
-
         case "ne": {
             const lhs = evl(
                 expression.lhs,
@@ -120,7 +163,6 @@ export function evl(
             );
             return lhs !== rhs;
         }
-
         case "gt":
         case "ge":
         case "lt":
@@ -154,6 +196,9 @@ export function evl(
                     return (lhs as any) < (rhs as any);
                 case "le":
                     return (lhs as any) <= (rhs as any);
+                default:
+                    const _exhaustive: never = expression;
+                    throw new Error(`Unsupported comparator op: ${(_exhaustive as any).op}`);
             }
         }
 
@@ -192,12 +237,53 @@ export function evl(
                         throw new Error("div: division by zero");
                     }
                     return lhs / rhs;
+                default:
+                    const _exhaustive: never = expression;
+                    throw new Error(`Unsupported arithmetic op: ${(_exhaustive as any).op}`);
             }
         }
 
         // =====================
         // Array ops
         // =====================
+        case "append":{
+            const arrayVal = evl(
+                expression.array,
+                context,
+            );
+
+            if (!Array.isArray(arrayVal)) {
+                throw new Error(`append: array must be array, got '${typeof arrayVal}'`);
+            }
+
+            const valueVal = evl(
+                expression.value,
+                context,
+            );
+
+            return [...arrayVal, valueVal] as List;
+        }
+        case "concat": {
+            const arrayVal = evl(
+                expression.array,
+                context,
+            );
+
+            if (!Array.isArray(arrayVal)) {
+                throw new Error(`concat: array must be array, got '${typeof arrayVal}'`);
+            }
+
+            const valueVal = evl(
+                expression.value,
+                context,
+            );
+
+            if (!Array.isArray(valueVal)) {
+                throw new Error(`concat: value must be array, got '${typeof valueVal}'`);
+            }
+
+            return [...arrayVal, ...valueVal] as List;
+        }
         case "slice": {
             const arrayVal = evl(
                 expression.array,
@@ -252,7 +338,6 @@ export function evl(
                 );
             }) as List;
         }
-
         case "filter": {
             const arrayVal = evl(
                 expression.array,
@@ -285,7 +370,6 @@ export function evl(
             }
             return result;
         }
-
         case "fold": {
             const arrayVal = evl(
                 expression.array,
