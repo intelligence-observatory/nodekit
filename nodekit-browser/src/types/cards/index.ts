@@ -15,9 +15,7 @@ export interface ImageCard extends BaseCard<'ImageCard'>{
 export interface VideoCard extends BaseCard<'VideoCard'>{
     video: Video;
     loop: boolean;
-    start: boolean;
     region: Region
-
 }
 
 export interface TextCard extends BaseCard<'TextCard'>{
