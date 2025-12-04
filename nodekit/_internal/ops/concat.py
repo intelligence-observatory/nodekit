@@ -1,20 +1,22 @@
-from typing import List, Union, Dict
+from typing import List, Union, Dict, Iterable
 
-from nodekit._internal.types.graph import Graph
+from nodekit._internal.types.expressions.expressions import Lit
+from nodekit._internal.types.graph import Graph, Transition
 from nodekit._internal.types.node import Node
-from nodekit._internal.types.value import NodeId
+from nodekit._internal.types.value import NodeId, RegisterId, Value
+
 
 
 # %%
 def concat(
     sequence: List[Union[Graph, Node]],
-    ids: List[NodeId] | None = None,
+    ids: List[str] | None = None,
 ) -> Graph:
     """
     A convenience method for returning a Graph which executes the given List[Node | Graph]  in the given order.
     The items are automatically issued namespace ids '0', '1', ... in order, unless `ids` is given.
     """
-    #
+
     if len(sequence) == 0:
         raise ValueError("Sequence must have at least one item.")
 
@@ -28,7 +30,10 @@ def concat(
 
     # Assemble Graph:
     nodes: Dict[NodeId, Node] = {}
-    transitions: Dict[NodeId, Dict[SensorId, NodeId]] = {}
+    transitions: Dict[NodeId, list[Transition]] = {}
+    registers: Dict[RegisterId, Value] = {}
+
+    prev_terminal_node_ids: List[NodeId] = []
 
     for i_child, child in enumerate(sequence):
         if isinstance(child, Node):
@@ -38,6 +43,11 @@ def concat(
 
             # Get pointer to the entry port for this Node:
             start_node_id = current_node_id
+
+            # Ensure transitions key exists for terminal detection
+            transitions.setdefault(current_node_id, [])
+
+            terminal_node_ids = [current_node_id]
         elif isinstance(child, Graph):
             # Register nodes with namespaced ids:
             current_node_namespace = ids[i_child]
@@ -49,50 +59,48 @@ def concat(
             # Add transitions that describe the internal structure of this sub-graph:
             for from_id, sensor_map in child.transitions.items():
                 new_from_id = f"{current_node_namespace}/{from_id}"
-                transitions[new_from_id] = {
-                    sensor_id: f"{current_node_namespace}/{to_id}"
-                    for sensor_id, to_id in sensor_map.items()
-                }
+                transitions.setdefault(new_from_id, [])
+                for tr in sensor_map:
+                    transitions[new_from_id].append(
+                        Transition(
+                            when=tr.when,
+                            to=f"{current_node_namespace}/{tr.to}",
+                            register_updates={
+                                f"{current_node_namespace}/{reg_id}": expr
+                                for reg_id, expr in tr.register_updates.items()
+                            },
+                        )
+                    )
 
             # Get pointer to the entry port for this sub-graph:
             start_node_id = f"{current_node_namespace}/{child.start}"
+
+            # Namespace registers
+            for reg_id, value in child.registers.items():
+                namespaced_reg_id = f"{current_node_namespace}/{reg_id}"
+                registers[namespaced_reg_id] = value
+
+            # Terminal nodes: any node without outgoing transitions (or empty list)
+            namespaced_node_ids = [
+                f"{current_node_namespace}/{node_id}" for node_id in child.nodes.keys()
+            ]
+            terminal_node_ids = [nid for nid in namespaced_node_ids if len(transitions.get(nid, [])) == 0]
         else:
             raise ValueError(f"Invalid item in sequence: {child}")
 
         # Connect outgoing ports of previous Node | Graph to the start Node of this Node | Graph:
         if i_child > 0:
-            prev_namespace = ids[i_child - 1]
+            for terminal_id in prev_terminal_node_ids:
+                transitions.setdefault(terminal_id, [])
+                transitions[terminal_id].append(
+                    Transition(
+                        when=Lit(value=True),
+                        to=start_node_id,
+                        register_updates={},
+                    )
+                )
 
-            # Todo: this is a slow O(N^2) approach
-
-            # Connect terminal Sensors in previous namespace to this Node:
-            for prev_node_id in nodes.keys():
-                prev_node = nodes[prev_node_id]
-
-                if (
-                    prev_node_id == prev_namespace
-                ):  # The previous item in sequence was a Node
-                    # Should not have any transitions yet
-                    assert prev_node_id not in transitions
-                    transitions[prev_node_id] = {}
-
-                    # Connect all its sensors to the start of this Node
-                    for sensor_id in prev_node.sensors.keys():
-                        transitions[prev_node_id][sensor_id] = start_node_id
-
-                    break  # No need to check other Nodes
-
-                if prev_node_id.startswith(
-                    f"{prev_namespace}/"
-                ):  # The previous item in sequence was a Graph; this is one of its Nodes
-                    # Connect any of this Node's terminal sensors to the start of this Node
-                    for sensor_id in prev_node.sensors.keys():
-                        # If this sensor_id does not have a transition, add one linking it here
-                        if prev_node_id not in transitions:
-                            transitions[prev_node_id] = {}
-
-                        if sensor_id not in transitions[prev_node_id]:
-                            transitions[prev_node_id][sensor_id] = start_node_id
+        prev_terminal_node_ids = terminal_node_ids
 
     # Derive the start node id
     if isinstance(sequence[0], Node):
@@ -106,4 +114,7 @@ def concat(
         nodes=nodes,
         start=start_node_id,
         transitions=transitions,
+        registers=registers,
     )
+
+
