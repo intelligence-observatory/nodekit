@@ -45,7 +45,7 @@ class FreeTextEntryAction(pydantic.BaseModel):
 
 # %%
 class WaitAction(BaseAction):
-    action_type: Literal["TimeoutAction"] = "WaitAction"
+    action_type: Literal["WaitAction"] = "WaitAction"
 
 
 # %%

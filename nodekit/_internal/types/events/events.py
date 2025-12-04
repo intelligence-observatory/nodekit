@@ -129,6 +129,7 @@ type Event = Annotated[
         BrowserContextSampledEvent,
         # Node events:
         NodeStartedEvent,
+        ActionTakenEvent,
         NodeEndedEvent,
         # Agent inputs:
         PointerSampledEvent,
