@@ -23,7 +23,9 @@ __all__ = [
 from nodekit._internal.version import VERSION
 
 # Incoming models:
-from nodekit._internal.types.node import Node, Graph, Trace
+from nodekit._internal.types.node import Node
+from nodekit._internal.types.trace import Trace
+from nodekit._internal.types.graph import Graph
 
 import nodekit.cards as cards
 import nodekit.assets as assets
