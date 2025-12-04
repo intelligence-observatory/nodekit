@@ -397,28 +397,3 @@ export function evl(
         }
     }
 }
-
-function withLocal<T>(
-    context: EvlContext,
-    name: LocalVariableName,
-    value: Value,
-    f: () => T,
-): T {
-    const prev = Object.prototype.hasOwnProperty.call(context.localVariables, name)
-        ? context.localVariables[name]
-        : undefined;
-
-    // Set / shadow
-    context.localVariables[name] = value;
-
-    try {
-        return f();
-    } finally {
-        // Restore
-        if (prev === undefined) {
-            delete context.local_variables[name];
-        } else {
-            context.local_variables[name] = prev;
-        }
-    }
-}
