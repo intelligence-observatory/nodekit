@@ -88,6 +88,7 @@ class MultiSelectSensor(BaseSensor):
 
 # %%
 class SliderSensor(BaseSensor):
+    sensor_type: Literal["SliderSensor"] = "SliderSensor"
     num_bins: int = pydantic.Field(gt=1)
     initial_bin_index: int
     show_bin_markers: bool = True

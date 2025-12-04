@@ -28,7 +28,7 @@ type SpatialSize = Annotated[
 
 type SpatialPoint = Annotated[Float, pydantic.Field(strict=True, ge=-0.5, le=0.5)]
 
-Mask = Annotated[
+type Mask = Annotated[
     Literal["ellipse", "rectangle"],
     pydantic.Field(
         description='Describes the shape of a region inside of a bounding box. "rectangle" uses the box itself; "ellipse" inscribes a tightly fitted ellipse within the box.'
@@ -122,7 +122,7 @@ PressableKey = Literal[
 ]
 
 # %% Assets
-SHA256 = Annotated[String, pydantic.Field(pattern=r"^[a-f0-9]{64}$")]
+type SHA256 = Annotated[String, pydantic.Field(pattern=r"^[a-f0-9]{64}$")]
 type ImageMediaType = Literal["image/png", "image/svg+xml"]
 type VideoMediaType = Literal["video/mp4"]
 type MediaType = ImageMediaType | VideoMediaType
