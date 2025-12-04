@@ -1,9 +1,10 @@
-from nodekit._internal.types.value import NodeId
-from typing import List, Tuple
 from collections import defaultdict, deque
+from typing import List, Tuple
+
 from nodekit import Graph
+from nodekit._internal.types.value import NodeId
 
-
+# %%
 def topological_sort(
     graph: Graph,
 ) -> List[NodeId]:

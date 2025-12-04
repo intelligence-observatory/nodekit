@@ -22,7 +22,7 @@ class Graph(pydantic.BaseModel):
         description="A mapping from (NodeId, SensorId) to the next Node that will be transitioned if the Sensor is triggered in that Node."
     )
     start: NodeId
-    registers: Dict[RegisterId, Value]
+    registers: Dict[RegisterId, Value] = pydantic.Field(default_factory=dict)
 
     @pydantic.model_validator(mode="after")
     def check_graph_is_valid(
