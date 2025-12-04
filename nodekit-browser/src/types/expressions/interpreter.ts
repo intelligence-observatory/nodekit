@@ -317,17 +317,18 @@ export function evl(
             }
 
             const curName = expression.cur;
+            const baseLocals = context.localVariables;
 
-            return arrayVal.map((elem) => {
-                let contextCur = {
+            return arrayVal.map((elem) => evl(
+                expression.func,
+                {
                     ...context,
-                    [curName]: elem,
-                };
-                return evl(
-                    expression.func,
-                    contextCur,
-                );
-            }) as List;
+                    localVariables: {
+                        ...baseLocals,
+                        [curName]: elem,
+                    },
+                },
+            )) as List;
         }
         case "filter": {
             const arrayVal = evl(
@@ -339,16 +340,19 @@ export function evl(
             }
 
             const curName = expression.cur;
+            const baseLocals = context.localVariables;
 
             const result: List = [];
             for (const elem of arrayVal) {
-                context.local_variables = {
-                    ...context.local_variables,
-                    [curName]: elem,
-                };
                 const keep = evl(
                     expression.predicate,
-                    context,
+                    {
+                        ...context,
+                        localVariables: {
+                            ...baseLocals,
+                            [curName]: elem,
+                        },
+                    },
                 );
                 if (typeof keep !== "boolean") {
                     throw new Error(
@@ -376,16 +380,19 @@ export function evl(
             );
             const accName = expression.acc;
             const curName = expression.cur;
+            const baseLocals = context.localVariables;
 
             for (const elem of arrayVal) {
-                context.local_variables = {
-                    ...context.local_variables,
-                    [accName]: acc,
-                    [curName]: elem,
-                };
                 acc = evl(
                     expression.func,
-                    context,
+                    {
+                        ...context,
+                        localVariables: {
+                            ...baseLocals,
+                            [accName]: acc,
+                            [curName]: elem,
+                        },
+                    },
                 );
             }
             return acc;
