@@ -18,7 +18,7 @@ def make_likert_trial(
         )
 
     question_card = nk.cards.TextCard(
-        region=dict(
+        region=nk.Region(
             x=0,
             y=0.25,
             w=1,
@@ -36,7 +36,7 @@ def make_likert_trial(
         initial_bin_index=initial_index,
         orientation="horizontal",
         show_bin_markers=True,
-        region=dict(
+        region=nk.Region(
             x=0,
             y=-0.1,
             w=0.75,
@@ -54,7 +54,7 @@ def make_likert_trial(
 
     for i, description in enumerate(ordinal_choice_descriptions):
         cards[f"likert-description-{i}"] = nk.cards.TextCard(
-            region=dict(
+            region=nk.Region(
                 x=slider_left + (i) * annotation_box_width,
                 y=sensor.region.y + sensor.region.h / 2 + 0.05,
                 w=annotation_box_width,

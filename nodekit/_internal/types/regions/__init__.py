@@ -1,4 +1,5 @@
 import pydantic
+from typing import TypedDict
 
 from nodekit._internal.types.value import (
     SpatialPoint,
@@ -6,7 +7,7 @@ from nodekit._internal.types.value import (
     Mask
 )
 
-
+# %%
 class Region(pydantic.BaseModel):
     x: SpatialPoint
     y: SpatialPoint
@@ -14,3 +15,4 @@ class Region(pydantic.BaseModel):
     h: SpatialSize
     z_index: int | None = None
     mask: Mask = 'rectangle'
+
