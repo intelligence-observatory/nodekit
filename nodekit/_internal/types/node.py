@@ -9,6 +9,7 @@ from nodekit._internal.types.events.events import Event
 from nodekit._internal.types.sensors.sensors import Sensor
 from nodekit._internal.types.expressions.expressions import Value, Expression
 
+
 # %%
 class Node(pydantic.BaseModel):
     stimulus: Card
@@ -28,9 +29,12 @@ class Transition(pydantic.BaseModel):
     to: NodeId
     register_updates: Dict[RegisterId, Expression]
 
+
 # %%
 class Graph(pydantic.BaseModel):
-    nodekit_version: Literal["0.1.0"] = pydantic.Field(default=VERSION, validate_default=True)
+    nodekit_version: Literal["0.1.0"] = pydantic.Field(
+        default=VERSION, validate_default=True
+    )
     nodes: Dict[NodeId, Node]
     transitions: Dict[NodeId, list[Transition]] = pydantic.Field(
         description="A mapping from (NodeId, SensorId) to the next Node that will be transitioned if the Sensor is triggered in that Node."
@@ -40,7 +44,7 @@ class Graph(pydantic.BaseModel):
 
     @pydantic.model_validator(mode="after")
     def check_graph_is_valid(
-            self,
+        self,
     ) -> Self:
         if self.start not in self.nodes:
             raise ValueError(f"Graph start node {self.start} not in nodes.")
@@ -61,11 +65,13 @@ class Graph(pydantic.BaseModel):
 
         return self
 
+
 # %%
 class Trace(pydantic.BaseModel):
-    nodekit_version: Literal["0.1.0"] = pydantic.Field(default=VERSION, validate_default=True)
+    nodekit_version: Literal["0.1.0"] = pydantic.Field(
+        default=VERSION, validate_default=True
+    )
     events: list[Event]
-
 
     @pydantic.field_validator("events")
     def order_events(cls, events: list[Event]) -> list[Event]:

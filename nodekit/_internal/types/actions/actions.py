@@ -63,14 +63,14 @@ class MultiSelectAction(BaseAction):
 # %%
 class ProductAction(BaseAction):
     action_type: Literal["ProductAction"] = "ProductAction"
-    child_actions: Dict[str, 'Action']
+    child_actions: Dict[str, "Action"]
 
 
 # %%
 class SumAction(BaseAction):
     action_type: Literal["SumAction"] = "SumAction"
     child_id: str
-    child_action: 'Action'
+    child_action: "Action"
 
 
 # %%

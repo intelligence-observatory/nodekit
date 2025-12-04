@@ -3,9 +3,13 @@ from __future__ import annotations
 from typing import Dict
 
 from nodekit._internal.types.actions.actions import Action
-from nodekit._internal.types.expressions.expressions import Expression, LocalVariableName
+from nodekit._internal.types.expressions.expressions import (
+    Expression,
+    LocalVariableName,
+)
 from nodekit._internal.types.value import List, RegisterId, Value
 import pydantic
+
 
 class EvalContext(pydantic.BaseModel):
     graph_registers: Dict[RegisterId, Value]
@@ -18,11 +22,7 @@ def _is_number(x: Value) -> bool:
     return isinstance(x, (int, float)) and not isinstance(x, bool)
 
 
-def evl(
-        expression: Expression,
-        context: EvalContext
-) -> Value:
-
+def evl(expression: Expression, context: EvalContext) -> Value:
     op = expression.op
 
     # =====================
@@ -70,7 +70,9 @@ def evl(
     if op == "if":
         cond_val = evl(expression.cond, context)
         if not isinstance(cond_val, bool):
-            raise TypeError(f"if: condition must be bool, got '{type(cond_val).__name__}'")
+            raise TypeError(
+                f"if: condition must be bool, got '{type(cond_val).__name__}'"
+            )
         branch = expression.then if cond_val else expression.otherwise
         return evl(branch, context)
 
@@ -118,7 +120,9 @@ def evl(
                 f"{op}: lhs and rhs must have same type, got '{type(lhs).__name__}' and '{type(rhs).__name__}'"
             )
         if not (_is_number(lhs) or isinstance(lhs, str)):
-            raise TypeError(f"{op}: only number or string comparison supported, got '{type(lhs).__name__}'")
+            raise TypeError(
+                f"{op}: only number or string comparison supported, got '{type(lhs).__name__}'"
+            )
 
         if op == "gt":
             return lhs > rhs  # type: ignore[operator]
@@ -161,34 +165,46 @@ def evl(
     if op == "append":
         array_val = evl(expression.array, context)
         if not isinstance(array_val, list):
-            raise TypeError(f"append: array must be list, got '{type(array_val).__name__}'")
+            raise TypeError(
+                f"append: array must be list, got '{type(array_val).__name__}'"
+            )
         value_val = evl(expression.value, context)
         return [*array_val, value_val]
 
     if op == "concat":
         array_val = evl(expression.array, context)
         if not isinstance(array_val, list):
-            raise TypeError(f"concat: array must be list, got '{type(array_val).__name__}'")
+            raise TypeError(
+                f"concat: array must be list, got '{type(array_val).__name__}'"
+            )
         value_val = evl(expression.value, context)
         if not isinstance(value_val, list):
-            raise TypeError(f"concat: value must be list, got '{type(value_val).__name__}'")
+            raise TypeError(
+                f"concat: value must be list, got '{type(value_val).__name__}'"
+            )
         return [*array_val, *value_val]
 
     if op == "slice":
         array_val = evl(expression.array, context)
         if not isinstance(array_val, list):
-            raise TypeError(f"slice: array must be list, got '{type(array_val).__name__}'")
+            raise TypeError(
+                f"slice: array must be list, got '{type(array_val).__name__}'"
+            )
 
         start_val = evl(expression.start, context)
         if not isinstance(start_val, int):
-            raise TypeError(f"slice: start must be int, got '{type(start_val).__name__}'")
+            raise TypeError(
+                f"slice: start must be int, got '{type(start_val).__name__}'"
+            )
 
         if expression.end is None:
             end_index = None
         else:
             end_val = evl(expression.end, context)
             if not isinstance(end_val, int):
-                raise TypeError(f"slice: end must be int, got '{type(end_val).__name__}'")
+                raise TypeError(
+                    f"slice: end must be int, got '{type(end_val).__name__}'"
+                )
             end_index = end_val
 
         return array_val[start_val:end_index]
@@ -196,7 +212,9 @@ def evl(
     if op == "map":
         array_val = evl(expression.array, context)
         if not isinstance(array_val, list):
-            raise TypeError(f"map: array must be list, got '{type(array_val).__name__}'")
+            raise TypeError(
+                f"map: array must be list, got '{type(array_val).__name__}'"
+            )
 
         cur_name = expression.cur
         base_locals = context.local_variables
@@ -216,7 +234,9 @@ def evl(
     if op == "filter":
         array_val = evl(expression.array, context)
         if not isinstance(array_val, list):
-            raise TypeError(f"filter: array must be list, got '{type(array_val).__name__}'")
+            raise TypeError(
+                f"filter: array must be list, got '{type(array_val).__name__}'"
+            )
 
         cur_name = expression.cur
         base_locals = context.local_variables
@@ -232,7 +252,9 @@ def evl(
                 ),
             )
             if not isinstance(keep, bool):
-                raise TypeError(f"filter: predicate must be bool, got '{type(keep).__name__}'")
+                raise TypeError(
+                    f"filter: predicate must be bool, got '{type(keep).__name__}'"
+                )
             if keep:
                 result.append(elem)
         return result
@@ -240,7 +262,9 @@ def evl(
     if op == "fold":
         array_val = evl(expression.array, context)
         if not isinstance(array_val, list):
-            raise TypeError(f"fold: array must be list, got '{type(array_val).__name__}'")
+            raise TypeError(
+                f"fold: array must be list, got '{type(array_val).__name__}'"
+            )
 
         acc = evl(expression.init, context)
         acc_name = expression.acc

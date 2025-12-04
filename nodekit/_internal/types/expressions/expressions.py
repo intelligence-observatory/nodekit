@@ -3,13 +3,11 @@ from typing import Annotated, Literal, Optional
 
 import pydantic
 
-from nodekit._internal.types.value import (
-    Value,
-    RegisterId
-)
+from nodekit._internal.types.value import Value, RegisterId
 
 # %% Expression
 type LocalVariableName = str
+
 
 class BaseExpression(pydantic.BaseModel, ABC):
     op: str
@@ -19,14 +17,17 @@ class Reg(BaseExpression):
     op: Literal["reg"] = "reg"
     id: RegisterId
 
+
 class Local(BaseExpression):
     op: Literal["local"] = "local"
     name: LocalVariableName
+
 
 class LastAction(BaseExpression):
     """
     Evaluates to the last completed Node's Action.
     """
+
     op: Literal["la"] = "la"
 
 
@@ -35,23 +36,28 @@ class GetListItem(BaseExpression):
     Get an element from a container (Array or Struct).
     `container` must evaluate to an array- or struct-valued result.
     """
+
     op: Literal["gli"] = "gli"
-    list: 'Expression'
-    index: 'Expression'
+    list: "Expression"
+    index: "Expression"
+
 
 class GetDictValue(BaseExpression):
     """
     Get a value from a dictionary by key.
     `dict` must evaluate to a dict-valued result.
     """
+
     op: Literal["gdv"] = "gdv"
-    dict: 'Expression'
-    key: 'Expression'
+    dict: "Expression"
+    key: "Expression"
+
 
 class Lit(BaseExpression):
     """
     Literal value.
     """
+
     op: Literal["lit"] = "lit"
     value: Value
 
@@ -80,7 +86,6 @@ class And(BaseExpression):
     op: Literal["and"] = "and"
     # variadic
     args: list["Expression"]
-
 
 
 # %% Binary comparators
@@ -113,7 +118,6 @@ class Le(BaseCmp):
     op: Literal["le"] = "le"
 
 
-
 # %% Arithmetic
 class BaseArithmeticOperation(BaseExpression, ABC):
     lhs: "Expression"
@@ -134,7 +138,6 @@ class Mul(BaseArithmeticOperation):
 
 class Div(BaseArithmeticOperation):
     op: Literal["div"] = "div"
-
 
 
 # %% Array operations
@@ -211,29 +214,29 @@ Expression = Annotated[
 
 # Ensure forward refs are resolved (Pydantic v2)
 for _model in (
-        Reg,
-        Local,
-        LastAction,
-        GetListItem,
-        GetDictValue,
-        Lit,
-        If,
-        Not,
-        Or,
-        And,
-        Eq,
-        Ne,
-        Gt,
-        Ge,
-        Lt,
-        Le,
-        Add,
-        Sub,
-        Mul,
-        Div,
-        Slice,
-        Map,
-        Filter,
-        Fold,
+    Reg,
+    Local,
+    LastAction,
+    GetListItem,
+    GetDictValue,
+    Lit,
+    If,
+    Not,
+    Or,
+    And,
+    Eq,
+    Ne,
+    Gt,
+    Ge,
+    Lt,
+    Le,
+    Add,
+    Sub,
+    Mul,
+    Div,
+    Slice,
+    Map,
+    Filter,
+    Fold,
 ):
     _model.model_rebuild()

@@ -62,23 +62,26 @@ class MultiSelectSensor(BaseSensor):
 
     min_selections: int = pydantic.Field(
         ge=0,
-        description='The minimum number of Cards before the Sensor fires.',
+        description="The minimum number of Cards before the Sensor fires.",
     )
 
     max_selections: int | None = pydantic.Field(
         default=None,
         validate_default=True,
         ge=0,
-        description='If None, the selection can contain up to the number of available Cards.'
+        description="If None, the selection can contain up to the number of available Cards.",
     )
 
     confirm_button: Card
 
-    @pydantic.model_validator(mode='after')
+    @pydantic.model_validator(mode="after")
     def validate_selections_vals(self) -> Self:
-        if self.max_selections is not None and self.max_selections < self.min_selections:
+        if (
+            self.max_selections is not None
+            and self.max_selections < self.min_selections
+        ):
             raise pydantic.ValidationError(
-                f'max_selections ({self.max_selections}) must be greater than min_selections ({self.min_selections})',
+                f"max_selections ({self.max_selections}) must be greater than min_selections ({self.min_selections})",
             )
         return self
 
@@ -126,13 +129,13 @@ class FreeTextEntrySensor(BaseSensor):
 # %%
 class ProductSensor(BaseSensor):
     sensor_type: Literal["ProductSensor"] = "ProductSensor"
-    children: Dict[str, 'Sensor']
+    children: Dict[str, "Sensor"]
 
 
 # %%
 class SumSensor(BaseSensor):
     sensor_type: Literal["SumSensor"] = "SumSensor"
-    children: Dict[str, 'Sensor']
+    children: Dict[str, "Sensor"]
 
 
 # %%

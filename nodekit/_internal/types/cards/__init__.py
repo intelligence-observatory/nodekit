@@ -9,9 +9,7 @@ from nodekit._internal.types.value import (
     MarkdownString,
     SpatialSize,
 )
-from nodekit._internal.types.regions import (
-    Region
-)
+from nodekit._internal.types.regions import Region
 
 
 # %%
@@ -36,14 +34,19 @@ class ImageCard(BaseCard):
 class VideoCard(BaseCard):
     card_type: Literal["VideoCard"] = "VideoCard"
     video: Video
-    loop: bool = pydantic.Field(description="Whether to loop the video when it ends.", default=False)
+    loop: bool = pydantic.Field(
+        description="Whether to loop the video when it ends.", default=False
+    )
     region: Region
+
 
 # %%
 class TextCard(BaseCard):
     card_type: Literal["TextCard"] = "TextCard"
     text: MarkdownString
-    font_size: SpatialSize = pydantic.Field(default=0.02, description="The height of the em-box, in Board units.")
+    font_size: SpatialSize = pydantic.Field(
+        default=0.02, description="The height of the em-box, in Board units."
+    )
     justification_horizontal: Literal["left", "center", "right"] = "center"
     justification_vertical: Literal["top", "center", "bottom"] = "center"
     text_color: ColorHexString = pydantic.Field(
@@ -55,18 +58,15 @@ class TextCard(BaseCard):
     )
     region: Region
 
+
 # %%
 class CompositeCard(BaseCard):
     card_type: Literal["CompositeCard"] = "CompositeCard"
-    children: Dict[str, 'Card']
+    children: Dict[str, "Card"]
+
 
 # %%
 Card = Annotated[
-    Union[
-        ImageCard,
-        VideoCard,
-        TextCard,
-        CompositeCard
-    ],
+    Union[ImageCard, VideoCard, TextCard, CompositeCard],
     pydantic.Field(discriminator="card_type"),
 ]

@@ -50,10 +50,12 @@ type TimeDurationMsec = Annotated[
         strict=True,
         ge=0,
         description="A duration of time in milliseconds, relative to the start of the Trace.",
-    )
+    ),
 ]
 # %% Text
-type MarkdownString = Annotated[str, pydantic.Field(strict=True, description='Markdown-formatted string')]
+type MarkdownString = Annotated[
+    str, pydantic.Field(strict=True, description="Markdown-formatted string")
+]
 
 
 def _normalize_hex_code(value: str) -> str:
@@ -135,8 +137,5 @@ type NodeId = Annotated[
 ]
 
 type RegisterId = Annotated[
-    String,
-    pydantic.Field(
-        description='An identifier for a Graph register.'
-    )
+    String, pydantic.Field(description="An identifier for a Graph register.")
 ]
