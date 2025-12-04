@@ -1,4 +1,4 @@
-from nodekit._internal.types.common import NodeId
+from nodekit._internal.types.value import NodeId
 from typing import List, Tuple
 from collections import defaultdict, deque
 from nodekit import Graph

@@ -9,7 +9,7 @@ import pydantic
 from nodekit._internal.utils.hashing import (
     hash_file,
 )
-from nodekit._internal.types.common import (
+from nodekit._internal.types.value import (
     SHA256,
     MediaType,
     ImageMediaType,

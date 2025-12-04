@@ -5,7 +5,7 @@ import pydantic
 
 import nodekit.kernel.expressions as expr
 from nodekit import VERSION
-from nodekit._internal.types.common import NodeId, CardId, SensorId, ColorHexString
+from nodekit._internal.types.value import NodeId, CardId, SensorId, ColorHexString
 from nodekit.kernel.expressions import Value, Expression
 
 # %%

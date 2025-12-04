@@ -6,20 +6,6 @@ from abc import ABC
 
 # %% Value
 
-# Base
-type BaseValue = str | int | float | bool
-
-# Struct
-type StructKey = str
-type Struct = Dict[StructKey, "Value"]
-
-# Array
-type ArrayIndex = int
-type Array = list["Value"]
-
-# Full Value
-type Value = BaseValue | Array | Struct
-
 
 # %% Expression
 type VariableName = str

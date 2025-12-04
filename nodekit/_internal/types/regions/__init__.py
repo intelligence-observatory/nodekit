@@ -1,6 +1,6 @@
 import pydantic
 
-from nodekit._internal.types.common import (
+from nodekit._internal.types.value import (
     SpatialPoint,
     SpatialSize,
 )

@@ -3,7 +3,7 @@ from functools import lru_cache
 
 import pydantic
 from nodekit._internal.utils.hashing import hash_string
-from nodekit._internal.types.common import SHA256
+from nodekit._internal.types.value import SHA256
 
 
 # %%

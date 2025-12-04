@@ -4,7 +4,7 @@ from typing import Literal, Annotated, Union, Self, Dict
 import pydantic
 
 from nodekit._internal.types.cards import Card
-from nodekit._internal.types.common import (
+from nodekit._internal.types.value import (
     PressableKey,
     SpatialSize,
     TimeDurationMsec,

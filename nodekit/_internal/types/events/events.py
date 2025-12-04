@@ -4,7 +4,7 @@ from typing import Literal, Annotated, Union
 
 import pydantic
 
-from nodekit._internal.types.common import (
+from nodekit._internal.types.value import (
     TimeElapsedMsec,
     NodeId,
     SpatialPoint,

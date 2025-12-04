@@ -2,9 +2,22 @@ from typing import Literal, Annotated
 
 import pydantic
 
+# %% Base Values
+type Boolean = bool
+type Integer = int
+type Float = float
+type String = str
+
+# Containers
+type List = list["Value"]
+type Dict = dict[str, "Value"]
+# Full Value
+type Value = Boolean | Integer | Float | String | List | Dict
+
+
 # %% Spatial
 type SpatialSize = Annotated[
-    float,
+    Float,
     pydantic.Field(
         strict=True,
         ge=0,
@@ -13,7 +26,7 @@ type SpatialSize = Annotated[
     ),
 ]
 
-type SpatialPoint = Annotated[float, pydantic.Field(strict=True, ge=-0.5, le=0.5)]
+type SpatialPoint = Annotated[Float, pydantic.Field(strict=True, ge=-0.5, le=0.5)]
 
 Mask = Annotated[
     Literal["ellipse", "rectangle"],
@@ -24,7 +37,7 @@ Mask = Annotated[
 
 # %% Time
 type TimeElapsedMsec = Annotated[
-    int,
+    Integer,
     pydantic.Field(
         strict=True,
         description="A time point, relative to some origin.",
@@ -32,7 +45,7 @@ type TimeElapsedMsec = Annotated[
 ]
 
 type TimeDurationMsec = Annotated[
-    int,
+    Integer,
     pydantic.Field(
         strict=True,
         ge=0,
@@ -51,7 +64,7 @@ def _normalize_hex_code(value: str) -> str:
 
 
 type ColorHexString = Annotated[
-    str,
+    String,
     pydantic.BeforeValidator(_normalize_hex_code),
     pydantic.Field(
         pattern=r"^#[0-9a-f]{8}$",  # "#RRGGBBAA"
@@ -107,7 +120,7 @@ PressableKey = Literal[
 ]
 
 # %% Assets
-SHA256 = Annotated[str, pydantic.Field(pattern=r"^[a-f0-9]{64}$")]
+SHA256 = Annotated[String, pydantic.Field(pattern=r"^[a-f0-9]{64}$")]
 type ImageMediaType = Literal["image/png", "image/svg+xml"]
 type VideoMediaType = Literal["video/mp4"]
 type MediaType = ImageMediaType | VideoMediaType
@@ -115,14 +128,14 @@ type MediaType = ImageMediaType | VideoMediaType
 
 # %% Identifiers
 type NodeId = Annotated[
-    str,
+    String,
     pydantic.Field(
         description="An identifier for a Node which is unique within a Graph.",
     ),
 ]
 
 type RegisterId = Annotated[
-    str,
+    String,
     pydantic.Field(
         description='An identifier for a Graph register.'
     )

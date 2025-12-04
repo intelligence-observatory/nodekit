@@ -2,7 +2,7 @@ from typing import List, Union, Dict
 
 from nodekit._internal.types.graph import Graph
 from nodekit._internal.types.node import Node
-from nodekit._internal.types.common import (
+from nodekit._internal.types.value import (
     NodeId,
     SensorId,
 )
