@@ -151,7 +151,7 @@ export async function play(
                 transition.when,
                 {
                     graphRegisters: graph.registers,
-                    local_variables: {},
+                    localVariables: {},
                     lastAction: result.action
                 }
             )
@@ -166,7 +166,7 @@ export async function play(
                         updateExpression,
                         {
                             graphRegisters: graph.registers,
-                            local_variables: {},
+                            localVariables: {},
                             lastAction: result.action
                         }
                     );
