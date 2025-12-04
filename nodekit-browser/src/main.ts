@@ -150,9 +150,9 @@ export async function play(
             const value = evl(
                 transition.when,
                 {
-                    graph_registers: graph.registers,
+                    graphRegisters: graph.registers,
                     local_variables: {},
-                    last_action: result.action
+                    lastAction: result.action
                 }
             )
             console.log('transition value', value)
@@ -165,9 +165,9 @@ export async function play(
                     const updateValue = evl(
                         updateExpression,
                         {
-                            graph_registers: graph.registers,
+                            graphRegisters: graph.registers,
                             local_variables: {},
-                            last_action: result.action
+                            lastAction: result.action
                         }
                     );
                     console.log(registerId, updateValue)

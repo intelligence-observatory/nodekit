@@ -21,7 +21,7 @@ export interface Local extends BaseExpression {
     /**
      * Evaluates to the value of the specified Local Variable.
      */
-    op: "loc";
+    op: "local";
     name: LocalVariableName;
 }
 

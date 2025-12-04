@@ -3,11 +3,10 @@ import type {Action} from "../actions";
 import type {Expression, LocalVariableName} from "./expressions.ts";
 
 export interface EvlContext {
-    graph_registers: Record<RegisterId, Value>,
-    local_variables: Record<LocalVariableName, Value>,
-    last_action: Action
+    graphRegisters: Record<RegisterId, Value>,
+    lastAction: Action
+    localVariables: Record<LocalVariableName, Value>
 }
-
 
 export function evl(
     expression: Expression,
@@ -18,19 +17,19 @@ export function evl(
         // Root
         // =====================
         case "reg": {
-            if (!(expression.id in context.graph_registers)) {
-                throw new Error(`Graph register '${expression.id}' not found`);
+            if (!(expression.id in context.graphRegisters)) {
+                throw new Error(`Graph Register '${expression.id}' not found`);
             }
-            return context.graph_registers[expression.id]
+            return context.graphRegisters[expression.id]
         }
-        case "loc": {
-            if (!(expression.name in context.local_variables)) {
+        case "local": {
+            if (!(expression.name in context.localVariables)) {
                 throw new Error(`Local variable '${expression.name}' not found`);
             }
-            return context.local_variables[expression.name];
+            return context.localVariables[expression.name];
         }
         case "la": {
-            return context.last_action;
+            return context.lastAction;
         }
         case "gli": {
             const listVal = evl(
@@ -52,7 +51,6 @@ export function evl(
             if (indexVal < 0 || indexVal >= listVal.length) {
                 throw new Error(`gli: index out of bounds, got index ${indexVal} for list of length ${listVal.length}`);
             }
-
             return listVal[indexVal];
         }
         case "gdv" :{
@@ -101,7 +99,6 @@ export function evl(
                 );
             }
         }
-
         // =====================
         // Boolean logic
         // =====================
@@ -112,7 +109,6 @@ export function evl(
             );
             return !v;
         }
-
         case "and": {
             // short-circuit
             for (const arg of expression.args) {
@@ -125,7 +121,6 @@ export function evl(
             }
             return true;
         }
-
         case "or": {
             // short-circuit
             for (const arg of expression.args) {
@@ -137,7 +132,6 @@ export function evl(
             }
             return false;
         }
-
         // =====================
         // Comparators
         // =====================
@@ -201,11 +195,9 @@ export function evl(
                     throw new Error(`Unsupported comparator op: ${(_exhaustive as any).op}`);
             }
         }
-
         // =====================
         // Arithmetic
         // =====================
-
         case "add":
         case "sub":
         case "mul":
@@ -242,7 +234,6 @@ export function evl(
                     throw new Error(`Unsupported arithmetic op: ${(_exhaustive as any).op}`);
             }
         }
-
         // =====================
         // Array ops
         // =====================
@@ -328,13 +319,13 @@ export function evl(
             const curName = expression.cur;
 
             return arrayVal.map((elem) => {
-                context.local_variables = {
-                    ...context.local_variables,
+                let contextCur = {
+                    ...context,
                     [curName]: elem,
                 };
                 return evl(
                     expression.func,
-                    context,
+                    contextCur,
                 );
             }) as List;
         }
@@ -403,6 +394,31 @@ export function evl(
         default: {
             const _exhaustive: never = expression;
             throw new Error(`Unsupported expression op: ${(_exhaustive as any).op}`);
+        }
+    }
+}
+
+function withLocal<T>(
+    context: EvlContext,
+    name: LocalVariableName,
+    value: Value,
+    f: () => T,
+): T {
+    const prev = Object.prototype.hasOwnProperty.call(context.localVariables, name)
+        ? context.localVariables[name]
+        : undefined;
+
+    // Set / shadow
+    context.localVariables[name] = value;
+
+    try {
+        return f();
+    } finally {
+        // Restore
+        if (prev === undefined) {
+            delete context.local_variables[name];
+        } else {
+            context.local_variables[name] = prev;
         }
     }
 }
