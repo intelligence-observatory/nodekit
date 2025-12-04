@@ -1,7 +1,8 @@
 from typing import Dict, Iterable, List, Union
 
 from nodekit._internal.types.expressions.expressions import Expression, Lit
-from nodekit._internal.types.graph import Graph, Transition
+from nodekit._internal.types.graph import Graph
+from nodekit._internal.types.transition import Transition
 from nodekit._internal.types.node import Node
 from nodekit._internal.types.value import NodeId, RegisterId, Value
 

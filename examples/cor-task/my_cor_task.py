@@ -2,6 +2,12 @@ import nodekit as nk
 import math
 
 
+# %%
+
+def RGB_to_hex(RGB: tuple[int, int, int]):
+    return "#%02x%02x%02x" % RGB
+
+
 def make_mts_trial(
     stimulus: nk.assets.Image,
     choices: list[nk.assets.Image],
@@ -13,41 +19,46 @@ def make_mts_trial(
 
     # Fixation node
     fixation_cross = nk.cards.ImageCard(
-        image=nk.assets.Image.from_path("fixation-cross.svg"), x=0, y=0, w=0.05, h=0.05
-    )
-    fixation_node = nk.Node(
-        cards={
-            "fixation-cross": fixation_cross,
-        },
-        sensors={
-            "clicked-fixation": nk.sensors.ClickSensor(
-                x=fixation_cross.x,
-                y=fixation_cross.y,
-                w=fixation_cross.w,
-                h=fixation_cross.h,
-                mask="ellipse",
-            )
-        },
+        image=nk.assets.Image.from_path("fixation-cross.svg"),
+        region=nk.Region(x=0, y=0, w=0.05, h=0.05)
     )
 
-    # Main node
+    fixation_node = nk.Node(
+        stimulus=fixation_cross,
+        sensor=nk.sensors.ClickSensor(
+            region=fixation_cross.region,
+        ),
+    )
+
+    # Stimulus node
     stimulus_size = 0.375
     viewing_time_msec = 100
     post_stim_delay = 100
     choice_size = 0.2
-    stimulus_card = nk.cards.ImageCard(
-        image=stimulus,
-        x=0,
-        y=0,
-        w=stimulus_size,
-        h=stimulus_size,
-        start_msec=0,
-        end_msec=viewing_time_msec,
-    )
-    choice_cards = {}
-    choice_sensors = {}
-    main_transitions = {}  # sensor_id: 'punish' | 'reward'
 
+    stimulus_node = nk.Node(
+        stimulus=nk.cards.ImageCard(
+            image=stimulus,
+            region=nk.Region(
+                x=0,
+                y=0,
+                w=stimulus_size,
+                h=stimulus_size,
+            )
+        ),
+        sensor=nk.sensors.WaitSensor(duration_msec=viewing_time_msec),
+        hide_pointer=True,
+    )
+
+    # ISI node
+    isi_node = nk.Node(
+        stimulus=nk.cards.TextCard(text='todo add blank card', region=nk.Region(x=0, y=0, w=0.05, h=0.05)),
+        sensor=nk.sensors.WaitSensor(duration_msec=post_stim_delay),
+        hide_pointer=True,
+    )
+
+    # Choice node
+    choice_cards = {}
     def get_xy(i: int):
         # Around a circle of radius. Starts at 12
         theta_cur = 2 * math.pi * (i / 8)
@@ -60,86 +71,62 @@ def make_mts_trial(
         xcur, ycur = get_xy(i)
         card = nk.cards.ImageCard(
             image=choices[i],
-            start_msec=viewing_time_msec + post_stim_delay,
-            w=choice_size,
-            h=choice_size,
-            x=xcur,
-            y=ycur,
+            region=nk.Region(
+                w=choice_size,
+                h=choice_size,
+                x=xcur,
+                y=ycur,
+            ),
         )
         choice_cards[f"choice{i}"] = card
-        sensor_id = f"selected-choice{i}"
-        choice_sensors[sensor_id] = nk.sensors.ClickSensor(
-            x=card.x,
-            y=card.y,
-            w=choice_size,
-            h=choice_size,
-            mask="ellipse",
-            start_msec=card.start_msec,
+
+    choice_node = nk.Node(
+        stimulus=nk.cards.TextCard(text='todo add blank card', region=nk.Region(x=0, y=0, w=0.05, h=0.05)),
+        sensor=nk.sensors.SelectSensor(
+            choices=choice_cards
         )
-
-        main_transitions[sensor_id] = "punish" if i_correct_choice != i else "reward"
-
-    main_node = nk.Node(
-        cards={
-            "stimulus": stimulus_card,
-        }
-        | choice_cards,
-        sensors=choice_sensors,
-        effects=[
-            nk.effects.HidePointerEffect(
-                start_msec=0, end_msec=viewing_time_msec + post_stim_delay
-            ),
-        ],
     )
 
     # Punish node
     punish_color = (200, 0, 0)
-
-    def RGB_to_hex(RGB):
-        return "#%02x%02x%02x" % RGB
-
     punish_node = nk.Node(
-        cards={
-            "feedback": nk.cards.TextCard(
-                text="Incorrect.",
-                text_color=RGB_to_hex(punish_color),
+        stimulus=nk.cards.TextCard(
+            text="Incorrect.",
+            text_color=RGB_to_hex(punish_color),
+            region=nk.Region(
                 x=0,
                 y=0,
                 w=0.5,
                 h=0.5,
-                font_size=0.08,
-            )
-        },
-        sensors={"wait": nk.sensors.WaitSensor(duration_msec=1000)},
+            ),
+            font_size=0.08,
+        ),
+        sensor=nk.sensors.WaitSensor(duration_msec=1000),
     )
 
     reward_color = (50, 50, 200)
     reward_node = nk.Node(
-        cards={
-            "feedback": nk.cards.TextCard(
-                text="Correct!",
-                text_color=RGB_to_hex(reward_color),
+        stimulus=nk.cards.TextCard(
+            text="Correct!",
+            text_color=RGB_to_hex(reward_color),
+            region=nk.Region(
                 x=0,
                 y=0,
                 w=0.5,
                 h=0.5,
-                font_size=0.08,
-            )
-        },
-        sensors={"wait": nk.sensors.WaitSensor(duration_msec=300)},
+            ),
+            font_size=0.08,
+        ),
+        sensor=nk.sensors.WaitSensor(duration_msec=3000),
     )
 
-    transitions = {
-        "fixation": {
-            "clicked-fixation": "main",
-        },
-    }
-    if show_feedback:
-        transitions["main"] = main_transitions
+    nk.Transition
     trial = nk.Graph(
         nodes={
             "fixation": fixation_node,
-            "main": main_node,
+            "stimulus": stimulus_node,
+            "isi": isi_node,
+            "choice": choice_node,
             "punish": punish_node,
             "reward": reward_node,
         },

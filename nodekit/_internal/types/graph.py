@@ -3,16 +3,10 @@ from typing import Dict, Literal, Self
 import pydantic
 
 from nodekit import VERSION, Node
-from nodekit._internal.types.expressions.expressions import Expression
+from nodekit._internal.types.transition import Transition
 from nodekit._internal.types.value import NodeId, RegisterId, Value
 
 # %%
-class Transition(pydantic.BaseModel):
-    when: Expression
-    to: NodeId
-    register_updates: Dict[RegisterId, Expression]
-
-
 class Graph(pydantic.BaseModel):
     nodekit_version: Literal["0.1.0"] = pydantic.Field(
         default=VERSION, validate_default=True
