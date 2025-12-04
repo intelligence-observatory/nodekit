@@ -1,26 +1,27 @@
-from __future__ import annotations
+from abc import ABC
+from typing import Annotated, Literal, Optional
 
 import pydantic
-from typing import Annotated, Dict, Literal, Optional
-from abc import ABC
 
-# %% Value
-
+from nodekit._internal.types.value import (
+    Value,
+    RegisterId
+)
 
 # %% Expression
-type VariableName = str
+type LocalVariableName = str
 
 class BaseExpression(pydantic.BaseModel, ABC):
     op: str
 
-class Var(BaseExpression):
-    op: Literal["var"] = "var"
-    name: VariableName
-    scope: Literal["l", "g"] = pydantic.Field(
-        default="g",
-        description="Whether to read from locals (l) or the global variable file (g).",
-    )
 
+class Reg(BaseExpression):
+    op: Literal["reg"] = "reg"
+    id: RegisterId
+
+class Local(BaseExpression):
+    op: Literal["local"] = "local"
+    name: LocalVariableName
 
 class LastAction(BaseExpression):
     """
@@ -29,16 +30,23 @@ class LastAction(BaseExpression):
     op: Literal["la"] = "la"
 
 
-class Get(BaseExpression):
+class GetListItem(BaseExpression):
     """
     Get an element from a container (Array or Struct).
     `container` must evaluate to an array- or struct-valued result.
     """
-    op: Literal["get"] = "get"
-    container: "Expression"
-    # ArrayIndex or StructKey
-    key: StructKey | ArrayIndex
+    op: Literal["gli"] = "gli"
+    list: 'Expression'
+    index: 'Expression'
 
+class GetDictValue(BaseExpression):
+    """
+    Get a value from a dictionary by key.
+    `dict` must evaluate to a dict-valued result.
+    """
+    op: Literal["gdv"] = "gdv"
+    dict: 'Expression'
+    key: 'Expression'
 
 class Lit(BaseExpression):
     """
@@ -130,41 +138,41 @@ class Div(BaseArithmeticOperation):
 
 
 # %% Array operations
-class ArrayOp(BaseExpression, ABC):
+class ListOp(BaseExpression, ABC):
     # Expression must be array-valued at runtime
     array: "Expression"
 
 
-class Slice(ArrayOp):
+class Slice(ListOp):
     op: Literal["slice"] = "slice"
     start: "Expression"
     end: Optional["Expression"] = None
 
 
-class Map(ArrayOp):
+class Map(ListOp):
     op: Literal["map"] = "map"
     # The variable name of the current array element.
-    cur: VariableName
+    cur: LocalVariableName
     # Expression that will be applied to each element of the array.
     func: "Expression"
 
 
-class Filter(ArrayOp):
+class Filter(ListOp):
     op: Literal["filter"] = "filter"
     # The variable name of the current array element.
-    cur: VariableName
+    cur: LocalVariableName
     # Expression that will be applied to each element of the array
     # and interpreted as a predicate.
     predicate: "Expression"
 
 
-class Fold(ArrayOp):
+class Fold(ListOp):
     op: Literal["fold"] = "fold"
     init: "Expression"
     # The ID of the current cumulant.
-    acc: VariableName
+    acc: LocalVariableName
     # The variable name of the current array element.
-    cur: VariableName
+    cur: LocalVariableName
     func: "Expression"
 
 
@@ -173,9 +181,11 @@ class Fold(ArrayOp):
 # =====================
 
 Expression = Annotated[
-    Var
+    Reg
+    | Local
     | LastAction
-    | Get
+    | GetListItem
+    | GetDictValue
     | Lit
     | If
     | Not
@@ -201,9 +211,11 @@ Expression = Annotated[
 
 # Ensure forward refs are resolved (Pydantic v2)
 for _model in (
-        Var,
+        Reg,
+        Local,
         LastAction,
-        Get,
+        GetListItem,
+        GetDictValue,
         Lit,
         If,
         Not,
