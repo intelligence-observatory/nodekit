@@ -18,6 +18,7 @@
 - Ruff is the formatting/linting authority; keep `make check` clean before PRs.
 - Do not hand-edit `_static` outputs—modify `nodekit-browser/` and rebuild.
 - Schema guards: coordinate/size fields are bounded (-0.5–0.5 points, 0–1 sizes), hex colors normalized to `#rrggbbaa`, assets require valid MIME and SHA-256, multi-select `max_selections >= min_selections`, waits > 0, sliders `num_bins > 1`. Expression evaluator enforces operand types, container types, bounds, and division-by-zero checks.
+- In Python, use # %% delimeters to block out sections of modules. 
 
 ## Testing Guidelines
 - Tests reside in `tests/` and follow `test_*.py`. Mirror module structure and add regression coverage for each bug fix.

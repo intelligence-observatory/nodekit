@@ -1,10 +1,84 @@
-from typing import List, Union, Dict, Iterable
+from typing import Dict, Iterable, List, Union
 
-from nodekit._internal.types.expressions.expressions import Lit
+from nodekit._internal.types.expressions.expressions import Expression, Lit
 from nodekit._internal.types.graph import Graph, Transition
 from nodekit._internal.types.node import Node
 from nodekit._internal.types.value import NodeId, RegisterId, Value
 
+
+# Namespace register references inside an expression tree.
+def _namespace_registers(expr: Expression, namespace: str) -> Expression:
+    op = expr.op
+
+    if op == "reg":
+        return expr.model_copy(update={"id": f"{namespace}/{expr.id}"})
+
+    if op == "gli":
+        return expr.model_copy(
+            update={
+                "list": _namespace_registers(expr.list, namespace),
+                "index": _namespace_registers(expr.index, namespace),
+            }
+        )
+    if op == "gdv":
+        return expr.model_copy(
+            update={
+                "dict": _namespace_registers(expr.dict, namespace),
+                "key": _namespace_registers(expr.key, namespace),
+            }
+        )
+    if op == "if":
+        return expr.model_copy(
+            update={
+                "cond": _namespace_registers(expr.cond, namespace),
+                "then": _namespace_registers(expr.then, namespace),
+                "otherwise": _namespace_registers(expr.otherwise, namespace),
+            }
+        )
+    if op == "not":
+        return expr.model_copy(update={"operand": _namespace_registers(expr.operand, namespace)})
+    if op in {"or", "and"}:
+        return expr.model_copy(update={"args": [_namespace_registers(arg, namespace) for arg in expr.args]})
+    if op in {"eq", "ne", "gt", "ge", "lt", "le", "add", "sub", "mul", "div"}:
+        return expr.model_copy(
+            update={
+                "lhs": _namespace_registers(expr.lhs, namespace),
+                "rhs": _namespace_registers(expr.rhs, namespace),
+            }
+        )
+    if op == "slice":
+        return expr.model_copy(
+            update={
+                "array": _namespace_registers(expr.array, namespace),
+                "start": _namespace_registers(expr.start, namespace),
+                "end": _namespace_registers(expr.end, namespace) if expr.end is not None else None,
+            }
+        )
+    if op == "map":
+        return expr.model_copy(
+            update={
+                "array": _namespace_registers(expr.array, namespace),
+                "func": _namespace_registers(expr.func, namespace),
+            }
+        )
+    if op == "filter":
+        return expr.model_copy(
+            update={
+                "array": _namespace_registers(expr.array, namespace),
+                "predicate": _namespace_registers(expr.predicate, namespace),
+            }
+        )
+    if op == "fold":
+        return expr.model_copy(
+            update={
+                "array": _namespace_registers(expr.array, namespace),
+                "init": _namespace_registers(expr.init, namespace),
+                "func": _namespace_registers(expr.func, namespace),
+            }
+        )
+
+    # lit, local, la etc. do not reference registers
+    return expr
 
 
 # %%
@@ -34,6 +108,7 @@ def concat(
     registers: Dict[RegisterId, Value] = {}
 
     prev_terminal_node_ids: List[NodeId] = []
+    start_node_id: NodeId | None = None
 
     for i_child, child in enumerate(sequence):
         if isinstance(child, Node):
@@ -57,16 +132,18 @@ def concat(
                 nodes[new_id] = node
 
             # Add transitions that describe the internal structure of this sub-graph:
-            for from_id, sensor_map in child.transitions.items():
+            for from_id, transition_list in child.transitions.items():
                 new_from_id = f"{current_node_namespace}/{from_id}"
                 transitions.setdefault(new_from_id, [])
-                for tr in sensor_map:
+                for tr in transition_list:
                     transitions[new_from_id].append(
                         Transition(
-                            when=tr.when,
+                            when=_namespace_registers(tr.when, current_node_namespace),
                             to=f"{current_node_namespace}/{tr.to}",
                             register_updates={
-                                f"{current_node_namespace}/{reg_id}": expr
+                                f"{current_node_namespace}/{reg_id}": _namespace_registers(
+                                    expr, current_node_namespace
+                                )
                                 for reg_id, expr in tr.register_updates.items()
                             },
                         )
@@ -116,5 +193,3 @@ def concat(
         transitions=transitions,
         registers=registers,
     )
-
-
