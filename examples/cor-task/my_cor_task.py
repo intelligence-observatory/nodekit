@@ -136,14 +136,17 @@ def make_mts_trial(
             "choice": nk.transitions.Branch(
                 cases=[
                     nk.transitions.Case(
-                        when=...,
+                        when=nk.expressions.Eq(
+                            lhs=nk.expressions.GetDictValue(
+                                dict=nk.expressions.LastAction(),
+                                key='selection',
+                            ),
+                            rhs=nk.expressions.Lit(value=f'choice{i_correct_choice}')
+                        ),
                         then=nk.transitions.Go(to="reward")
-                    ),
-                    nk.transitions.Case(
-                        when=...,
-                        then=nk.transitions.Go(to="punish")
                     )
-                ]
+                ],
+                otherwise=nk.transitions.Go(to="punish")
             ),
             "punish": nk.transitions.End(),
             "reward": nk.transitions.End(),
@@ -196,6 +199,7 @@ if __name__ == "__main__":
             i_correct_choice=i_correct_choice,
             show_feedback=True,
         )
+        raise Exception
         trials.append(trial)
 
     graph = nk.concat(trials)

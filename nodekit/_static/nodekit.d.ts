@@ -64,7 +64,19 @@ declare interface BaseSensor<T extends string> {
     sensor_type: T;
 }
 
+declare interface BaseTransition<T extends string> {
+    transition_type: T;
+}
+
 declare type Boolean_2 = Readonly<boolean>;
+
+declare interface Branch extends BaseTransition<'Branch'> {
+    cases: Array<{
+        when: Expression;
+        then: LeafTransition;
+    }>;
+    otherwise: LeafTransition;
+}
 
 declare interface BrowserContextSampledEvent extends BaseEvent<'BrowserContextSampledEvent'> {
     user_agent: string;
@@ -104,6 +116,9 @@ declare interface Dict {
 
 declare interface Div extends BaseArithmeticOperation {
     op: "div";
+}
+
+declare interface End extends BaseTransition<'End'> {
 }
 
 declare interface Eq extends BaseCmp {
@@ -181,10 +196,15 @@ declare interface GetListItem extends BaseExpression {
     index: Expression;
 }
 
+declare interface Go extends BaseTransition<'Go'> {
+    to: NodeId;
+    register_updates: Record<RegisterId, Expression>;
+}
+
 declare interface Graph {
     nodekit_version: string;
     nodes: Record<NodeId, Node_2>;
-    transitions: Record<NodeId, Transition[]>;
+    transitions: Record<NodeId, Transition>;
     start: NodeId;
     registers: Record<RegisterId, Value>;
 }
@@ -235,6 +255,8 @@ declare interface Le extends BaseCmp {
 }
 
 declare type LeafCard = ImageCard | VideoCard | TextCard;
+
+declare type LeafTransition = Go | End;
 
 declare type List = Value[];
 
@@ -377,9 +399,9 @@ declare interface Reg extends BaseExpression {
 declare interface Region {
     x: SpatialPoint;
     y: SpatialPoint;
-    z_index: number | null;
     w: SpatialSize;
     h: SpatialSize;
+    z_index: number | null;
     mask: Mask;
 }
 
@@ -484,11 +506,7 @@ declare interface TraceEndedEvent extends BaseEvent<'TraceEndedEvent'> {
 declare interface TraceStartedEvent extends BaseEvent<'TraceStartedEvent'> {
 }
 
-declare interface Transition {
-    when: Expression;
-    to: NodeId;
-    register_updates: Record<RegisterId, Expression>;
-}
+declare type Transition = Go | Branch | End;
 
 declare interface URL_2 extends BaseLocator<"URL"> {
     url: string;
