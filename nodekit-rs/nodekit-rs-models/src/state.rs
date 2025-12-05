@@ -40,6 +40,13 @@ impl State {
             id: Uuid::new_v4(),
         }
     }
+
+    /// Set the coordinates of the pointer.
+    /// The coordinates must be between -0.5 and 0.5
+    pub fn set_pointer(&mut self, x: f64, y: f64) {
+        self.pointer.x = x;
+        self.pointer.y = y;
+    }
 }
 
 impl State {

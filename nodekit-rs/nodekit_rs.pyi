@@ -105,6 +105,11 @@ class State:
         r"""
         `board_color` must be a valid RGBA hex string e.g. "#808080ff"
         """
+    def set_pointer(self, x: builtins.float, y: builtins.float) -> None:
+        r"""
+        Set the coordinates of the pointer.
+        The coordinates must be between -0.5 and 0.5
+        """
 
 @typing.final
 class Text:
