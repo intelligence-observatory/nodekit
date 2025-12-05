@@ -4,6 +4,7 @@ from typing import List, Tuple
 from nodekit import Graph
 from nodekit._internal.types.value import NodeId
 
+
 # %%
 def topological_sort(
     graph: Graph,

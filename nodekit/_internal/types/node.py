@@ -16,4 +16,3 @@ class Node(pydantic.BaseModel):
         validate_default=True,
     )
     hide_pointer: bool = False
-

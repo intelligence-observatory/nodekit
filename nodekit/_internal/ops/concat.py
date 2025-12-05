@@ -37,9 +37,13 @@ def _namespace_registers(expr: Expression, namespace: str) -> Expression:
             }
         )
     if op == "not":
-        return expr.model_copy(update={"operand": _namespace_registers(expr.operand, namespace)})
+        return expr.model_copy(
+            update={"operand": _namespace_registers(expr.operand, namespace)}
+        )
     if op in {"or", "and"}:
-        return expr.model_copy(update={"args": [_namespace_registers(arg, namespace) for arg in expr.args]})
+        return expr.model_copy(
+            update={"args": [_namespace_registers(arg, namespace) for arg in expr.args]}
+        )
     if op in {"eq", "ne", "gt", "ge", "lt", "le", "add", "sub", "mul", "div"}:
         return expr.model_copy(
             update={
@@ -52,7 +56,9 @@ def _namespace_registers(expr: Expression, namespace: str) -> Expression:
             update={
                 "array": _namespace_registers(expr.array, namespace),
                 "start": _namespace_registers(expr.start, namespace),
-                "end": _namespace_registers(expr.end, namespace) if expr.end is not None else None,
+                "end": _namespace_registers(expr.end, namespace)
+                if expr.end is not None
+                else None,
             }
         )
     if op == "append":
@@ -196,7 +202,9 @@ def concat(
             namespaced_node_ids = [
                 f"{current_node_namespace}/{node_id}" for node_id in child.nodes.keys()
             ]
-            terminal_node_ids = [nid for nid in namespaced_node_ids if len(transitions.get(nid, [])) == 0]
+            terminal_node_ids = [
+                nid for nid in namespaced_node_ids if len(transitions.get(nid, [])) == 0
+            ]
         else:
             raise ValueError(f"Invalid item in sequence: {child}")
 

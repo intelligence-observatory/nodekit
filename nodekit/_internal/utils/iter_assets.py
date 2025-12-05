@@ -22,6 +22,7 @@ def iter_assets(graph: Graph) -> Iterator[Image | Video]:
         # Some sensors carry cards (select/multiselect choices, products/sums).
         yield from _iter_sensor_cards(node.sensor)
 
+
 def _iter_card_assets(card: Card) -> Iterable[Image | Video]:
     if isinstance(card, ImageCard):
         yield card.image

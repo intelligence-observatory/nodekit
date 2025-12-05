@@ -49,7 +49,7 @@ class GetDictValue(BaseExpression):
     """
 
     op: Literal["gdv"] = "gdv"
-    d: "Expression" = pydantic.Field(description='Evaluates to a Dict.')
+    d: "Expression" = pydantic.Field(description="Evaluates to a Dict.")
     key: "Expression"
 
 

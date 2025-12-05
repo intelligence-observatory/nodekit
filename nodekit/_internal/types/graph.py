@@ -6,6 +6,7 @@ from nodekit import VERSION, Node
 from nodekit._internal.types.transition import Transition
 from nodekit._internal.types.value import NodeId, RegisterId, Value
 
+
 # %%
 class Graph(pydantic.BaseModel):
     nodekit_version: Literal["0.1.0"] = pydantic.Field(

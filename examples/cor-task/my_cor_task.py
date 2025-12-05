@@ -4,6 +4,7 @@ import math
 
 # %%
 
+
 def RGB_to_hex(RGB: tuple[int, int, int]):
     return "#%02x%02x%02x" % RGB
 
@@ -20,7 +21,7 @@ def make_mts_trial(
     # Fixation node
     fixation_cross = nk.cards.ImageCard(
         image=nk.assets.Image.from_path("fixation-cross.svg"),
-        region=nk.Region(x=0, y=0, w=0.05, h=0.05)
+        region=nk.Region(x=0, y=0, w=0.05, h=0.05),
     )
 
     fixation_node = nk.Node(
@@ -44,7 +45,7 @@ def make_mts_trial(
                 y=0,
                 w=stimulus_size,
                 h=stimulus_size,
-            )
+            ),
         ),
         sensor=nk.sensors.WaitSensor(duration_msec=viewing_time_msec),
         hide_pointer=True,
@@ -52,13 +53,16 @@ def make_mts_trial(
 
     # ISI node
     isi_node = nk.Node(
-        stimulus=nk.cards.TextCard(text='todo add blank card', region=nk.Region(x=0, y=0, w=0.05, h=0.05)),
+        stimulus=nk.cards.TextCard(
+            text="todo add blank card", region=nk.Region(x=0, y=0, w=0.05, h=0.05)
+        ),
         sensor=nk.sensors.WaitSensor(duration_msec=post_stim_delay),
         hide_pointer=True,
     )
 
     # Choice node
     choice_cards = {}
+
     def get_xy(i: int):
         # Around a circle of radius. Starts at 12
         theta_cur = 2 * math.pi * (i / 8)
@@ -81,10 +85,10 @@ def make_mts_trial(
         choice_cards[f"choice{i}"] = card
 
     choice_node = nk.Node(
-        stimulus=nk.cards.TextCard(text='todo add blank card', region=nk.Region(x=0, y=0, w=0.05, h=0.05)),
-        sensor=nk.sensors.SelectSensor(
-            choices=choice_cards
-        )
+        stimulus=nk.cards.TextCard(
+            text="todo add blank card", region=nk.Region(x=0, y=0, w=0.05, h=0.05)
+        ),
+        sensor=nk.sensors.SelectSensor(choices=choice_cards),
     )
 
     # Punish node
@@ -130,23 +134,23 @@ def make_mts_trial(
             "reward": reward_node,
         },
         transitions={
-            "fixation": nk.transitions.Go(to='stimulus'),
-            "stimulus": nk.transitions.Go(to='isi'),
-            "isi": nk.transitions.Go(to='choice'),
+            "fixation": nk.transitions.Go(to="stimulus"),
+            "stimulus": nk.transitions.Go(to="isi"),
+            "isi": nk.transitions.Go(to="choice"),
             "choice": nk.transitions.Branch(
                 cases=[
                     nk.transitions.Case(
                         when=nk.expressions.Eq(
                             lhs=nk.expressions.GetDictValue(
                                 d=nk.expressions.LastAction(),
-                                key=nk.expressions.Lit(value='selection'),
+                                key=nk.expressions.Lit(value="selection"),
                             ),
-                            rhs=nk.expressions.Lit(value=f'choice{i_correct_choice}')
+                            rhs=nk.expressions.Lit(value=f"choice{i_correct_choice}"),
                         ),
-                        then=nk.transitions.Go(to="reward")
+                        then=nk.transitions.Go(to="reward"),
                     )
                 ],
-                otherwise=nk.transitions.Go(to="punish")
+                otherwise=nk.transitions.Go(to="punish"),
             ),
             "punish": nk.transitions.End(),
             "reward": nk.transitions.End(),
