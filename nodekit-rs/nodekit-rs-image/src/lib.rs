@@ -40,11 +40,31 @@ pub fn load(image: &Image, rect: Rect) -> Result<Option<VisualBuffer>, Error> {
                 .map_err(Error::Visual)?
                 .map(VisualBuffer::Rgb),
         ),
-        ColorType::Rgba => Ok(
-            RgbaBuffer::new_resized(&mut buffer, info.width, info.height, rect)
-                .map_err(Error::Visual)?
-                .map(VisualBuffer::Rgba),
-        ),
+        ColorType::Rgba => {
+            // There are often RGBA images in which the A channel is always 255...
+            let opaque = cast_slice::<u8, [u8; 4]>(&buffer)
+                .iter()
+                .all(|pixel| pixel[3] == 255);
+            // ...in which case, convert to RGB.
+            if opaque {
+                Ok(
+                    RgbBuffer::new_resized(
+                        &mut rgba_to_rgb(&buffer),
+                        info.width,
+                        info.height,
+                        rect,
+                    )
+                    .map_err(Error::Visual)?
+                    .map(VisualBuffer::Rgb),
+                )
+            } else {
+                Ok(
+                    RgbaBuffer::new_resized(&mut buffer, info.width, info.height, rect)
+                        .map_err(Error::Visual)?
+                        .map(VisualBuffer::Rgba),
+                )
+            }
+        }
         ColorType::Indexed => Err(Error::Indexed(image.path.clone())),
         ColorType::Grayscale => Ok(RgbBuffer::new_resized(
             &mut grayscale_to_rgb(&buffer),
@@ -90,6 +110,20 @@ fn grayscale_alpha_to_rgba(buffer: &[u8]) -> Vec<u8> {
         dst[1] = src[0];
         dst[2] = src[0];
         dst[3] = src[1];
+    }
+    dst
+}
+
+fn rgba_to_rgb(buffer: &[u8]) -> Vec<u8> {
+    let src = cast_slice::<u8, [u8; 4]>(buffer);
+    let mut dst = vec![0; src.len() * 3];
+    for (src, dst) in src
+        .iter()
+        .zip(cast_slice_mut::<u8, [u8; 3]>(&mut dst).iter_mut())
+    {
+        dst[0] = src[1];
+        dst[1] = src[2];
+        dst[2] = src[3];
     }
     dst
 }
