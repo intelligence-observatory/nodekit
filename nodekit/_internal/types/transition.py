@@ -5,6 +5,9 @@ import pydantic
 from nodekit._internal.types.expressions.expressions import Expression, Lit
 from nodekit._internal.types.value import NodeId, RegisterId
 
+# %%
+class TransitionFunction(pydantic.BaseModel):
+    ...
 
 class Transition(pydantic.BaseModel):
     when: Expression = pydantic.Field(

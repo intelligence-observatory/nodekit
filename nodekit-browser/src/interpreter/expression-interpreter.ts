@@ -1,12 +1,13 @@
-import type {List, RegisterId, Value} from "../value.ts";
-import type {Action} from "../actions";
-import type {Expression, LocalVariableName} from "./expressions.ts";
+import type {List, RegisterId, Value} from "../types/value.ts";
+import type {Action} from "../types/actions";
+import type {Expression, LocalVariableName} from "../types/expressions/expressions.ts";
 
 export interface EvlContext {
     graphRegisters: Record<RegisterId, Value>,
     lastAction: Action
     localVariables: Record<LocalVariableName, Value>
 }
+
 
 export function evl(
     expression: Expression,

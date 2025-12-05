@@ -13,7 +13,7 @@ import {version as NODEKIT_VERSION} from '../package.json'
 import {gt, major} from 'semver';
 import {EventArray} from "./event-array.ts";
 
-import {evl} from "./types/expressions/interpreter.ts";
+import {evalTransition} from "./interpreter/eval-transitions.ts";
 
 /**
  * Plays a Graph, returning a Trace of Events.
@@ -145,43 +145,27 @@ export async function play(
         }
 
         let nextNodeId = null;
-        let transitions = graph.transitions[currentNodeId];
-        for (const transition of transitions){
-            const value = evl(
-                transition.when,
-                {
-                    graphRegisters: graph.registers,
-                    localVariables: {},
-                    lastAction: result.action
-                }
-            )
-            console.log('transition value', value)
-            if (value === true){
-                // Valid transition found:
-                nextNodeId = transition.to;
-
-                // Update Graph registers:
-                for (const [registerId, updateExpression] of Object.entries(transition.register_updates)){
-                    const updateValue = evl(
-                        updateExpression,
-                        {
-                            graphRegisters: graph.registers,
-                            localVariables: {},
-                            lastAction: result.action
-                        }
-                    );
-                    console.log(registerId, updateValue)
-                    graph.registers[registerId as RegisterId] = updateValue
-                }
-                console.warn('registers updated', graph.registers)
+        const transition = graph.transitions[currentNodeId];
+        const res = evalTransition(
+            {
+                transition: transition,
+                registers: graph.registers,
+                lastAction: result.action
             }
-        }
+        )
 
+        // Set next Node:
+        nextNodeId = res.nextNodeId;
         if (nextNodeId === null){
             break
         }
-
         currentNodeId = nextNodeId;
+
+        // Update Graph registers
+        for (const [registerId, updateValue] of Object.entries(res.registerUpdates)){
+            graph.registers[registerId as RegisterId] = updateValue
+        }
+        console.warn('registers updated', graph.registers)
     }
 
     // Generate the EndEvent:
