@@ -2,7 +2,7 @@ from typing import Dict, Literal
 
 import pydantic
 
-from nodekit._internal.types.expressions.expressions import Expression, Lit
+from nodekit._internal.types.expressions.expressions import Expression
 from nodekit._internal.types.value import NodeId, RegisterId
 
 # %%

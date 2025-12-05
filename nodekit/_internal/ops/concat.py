@@ -1,4 +1,4 @@
-from typing import Dict, Iterable, List, Union
+from typing import Dict, List, Union
 
 from nodekit._internal.types.expressions.expressions import Expression
 from nodekit._internal.types.graph import Graph
