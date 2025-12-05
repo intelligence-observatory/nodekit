@@ -38,6 +38,8 @@ pub fn bitmap_rgb(width: usize, height: usize, color: [u8; STRIDE]) -> Vec<u8> {
 pub struct Board {
     board8_without_cursor: Vec<u8>,
     board8_final: Vec<u8>,
+    /// An empty board used to clear the bitmap.
+    board8_clear: Vec<u8>,
     board32: Vec<Vec4>,
     board32_zeros: Vec<Vec4>,
     dirty: bool,
@@ -52,6 +54,7 @@ impl Board {
         let board32_zeros = vec![Vec4::default(); board32.len()];
         Self {
             board8_without_cursor: board8.clone(),
+            board8_clear: board8.clone(),
             board8_final: board8,
             board32,
             board32_zeros,
@@ -62,11 +65,13 @@ impl Board {
 
     pub fn fill(&mut self, color: [u8; STRIDE]) {
         self.color = color;
+        fill(&mut self.board8_clear, color);
         self.clear();
     }
 
     pub fn clear(&mut self) {
-        fill(&mut self.board8_without_cursor, self.color);
+        self.board8_without_cursor
+            .copy_from_slice(&self.board8_clear);
     }
 
     pub fn blit(&mut self, buffer: &VisualBuffer) {

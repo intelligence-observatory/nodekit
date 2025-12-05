@@ -51,8 +51,7 @@ impl Renderer {
         if self.is_new_state(state) {
             // New state.
             self.start(state)?;
-        }
-        else {
+        } else {
             // Clear the board of all cards.
             self.board.clear();
         }
