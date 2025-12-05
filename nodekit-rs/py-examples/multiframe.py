@@ -25,9 +25,9 @@ draw = ImageDraw.Draw(image)
 # Define the header positions.
 header_positions = [
     (font_padding, font_padding),
-    (font_padding + board_dimension, font_padding),
+    (font_padding * 2 + board_dimension, font_padding),
     (font_padding, font_padding + title_height + board_dimension),
-    (font_padding + board_dimension, font_padding + title_height + board_dimension),
+    (font_padding * 2 + board_dimension, font_padding + title_height + board_dimension),
 ]
 
 

@@ -48,9 +48,13 @@ impl Renderer {
 
 impl Renderer {
     fn blit(&mut self, state: &State) -> Result<&[u8], Error> {
-        // New state.
         if self.is_new_state(state) {
+            // New state.
             self.start(state)?;
+        }
+        else {
+            // Clear the board of all cards.
+            self.board.clear();
         }
 
         // Show.
