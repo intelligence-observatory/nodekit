@@ -27,7 +27,8 @@ pub struct State {
 impl State {
     /// `board_color` must be a valid RGBA hex string e.g. "#808080ff"
     #[new]
-    pub fn new(board_color: String, cards: Vec<Card>) -> Self {
+    pub fn new(board_color: String, mut cards: Vec<Card>) -> Self {
+        cards.sort_by(|a, b| a.z_index.cmp(&b.z_index));
         let mut cards_map = SlotMap::default();
         for card in cards {
             cards_map.insert(card);
@@ -46,18 +47,5 @@ impl State {
     pub fn set_pointer(&mut self, x: f64, y: f64) {
         self.pointer.x = x;
         self.pointer.y = y;
-    }
-}
-
-impl State {
-    /// Returns the visible cards in their render order.
-    pub fn get_visible_cards(&self) -> Vec<(CardKey, &Card)> {
-        let mut cards = self
-            .cards
-            .iter()
-            .filter(|(_, card)| card.is_visible(self.t_msec))
-            .collect::<Vec<(CardKey, &Card)>>();
-        cards.sort_by(|a, b| a.1.z_index.cmp(&b.1.z_index));
-        cards
     }
 }
