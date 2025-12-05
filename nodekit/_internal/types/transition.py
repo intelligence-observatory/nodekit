@@ -21,13 +21,13 @@ class End(BaseTransition):
 
 type LeafTransition = Go | End
 
-class BranchCase(pydantic.BaseModel):
+class Case(pydantic.BaseModel):
     when: Expression
     then: LeafTransition
 
 class Branch(BaseTransition):
     transition_type: Literal["Branch"] = "Branch"
-    cases: list[BranchCase]
+    cases: list[Case]
     otherwise: LeafTransition = pydantic.Field(
         default_factory=End,
         description="The transition to take if no case matches.",

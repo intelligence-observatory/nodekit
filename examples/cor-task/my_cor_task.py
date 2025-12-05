@@ -120,7 +120,6 @@ def make_mts_trial(
         sensor=nk.sensors.WaitSensor(duration_msec=3000),
     )
 
-    nk.Transition
     trial = nk.Graph(
         nodes={
             "fixation": fixation_node,
@@ -130,7 +129,25 @@ def make_mts_trial(
             "punish": punish_node,
             "reward": reward_node,
         },
-        transitions=transitions,
+        transitions={
+            "fixation": nk.transitions.Go(to='stimulus'),
+            "stimulus": nk.transitions.Go(to='isi'),
+            "isi": nk.transitions.Go(to='choice'),
+            "choice": nk.transitions.Branch(
+                cases=[
+                    nk.transitions.Case(
+                        when=...,
+                        then=nk.transitions.Go(to="reward")
+                    ),
+                    nk.transitions.Case(
+                        when=...,
+                        then=nk.transitions.Go(to="punish")
+                    )
+                ]
+            ),
+            "punish": nk.transitions.End(),
+            "reward": nk.transitions.End(),
+        },
         start="fixation",
     )
     return trial

@@ -12,6 +12,7 @@ __all__ = [
     "sensors",
     "actions",
     "events",
+    "transitions",
     # Ops:
     "play",
     "concat",
@@ -38,6 +39,7 @@ import nodekit.assets as assets
 import nodekit.sensors as sensors
 import nodekit.actions as actions
 import nodekit.events as events
+import nodekit.transitions as transitions
 
 # Ops:
 from nodekit._internal.ops.play import play

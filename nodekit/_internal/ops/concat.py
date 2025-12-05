@@ -1,8 +1,8 @@
 from typing import Dict, Iterable, List, Union
 
-from nodekit._internal.types.expressions.expressions import Expression, Lit
+from nodekit._internal.types.expressions.expressions import Expression
 from nodekit._internal.types.graph import Graph
-from nodekit._internal.types.transition import Transition
+from nodekit._internal.types.transition import Branch, Case, End, Go, Transition
 from nodekit._internal.types.node import Node
 from nodekit._internal.types.value import NodeId, RegisterId, Value
 
@@ -55,6 +55,20 @@ def _namespace_registers(expr: Expression, namespace: str) -> Expression:
                 "end": _namespace_registers(expr.end, namespace) if expr.end is not None else None,
             }
         )
+    if op == "append":
+        return expr.model_copy(
+            update={
+                "array": _namespace_registers(expr.array, namespace),
+                "value": _namespace_registers(expr.value, namespace),
+            }
+        )
+    if op == "concat":
+        return expr.model_copy(
+            update={
+                "array": _namespace_registers(expr.array, namespace),
+                "value": _namespace_registers(expr.value, namespace),
+            }
+        )
     if op == "map":
         return expr.model_copy(
             update={
@@ -80,6 +94,35 @@ def _namespace_registers(expr: Expression, namespace: str) -> Expression:
 
     # lit, local, la etc. do not reference registers
     return expr
+
+
+def _namespace_transition(tr: Transition, namespace: str) -> Transition:
+    if isinstance(tr, Go):
+        return tr.model_copy(
+            update={
+                "to": f"{namespace}/{tr.to}",
+                "register_updates": {
+                    f"{namespace}/{reg_id}": _namespace_registers(expr, namespace)
+                    for reg_id, expr in tr.register_updates.items()
+                },
+            }
+        )
+    if isinstance(tr, End):
+        return tr
+    if isinstance(tr, Branch):
+        return tr.model_copy(
+            update={
+                "cases": [
+                    Case(
+                        when=_namespace_registers(case.when, namespace),
+                        then=_namespace_transition(case.then, namespace),  # type: ignore[arg-type]
+                    )
+                    for case in tr.cases
+                ],
+                "otherwise": _namespace_transition(tr.otherwise, namespace),  # type: ignore[arg-type]
+            }
+        )
+    raise TypeError(f"Unsupported transition type: {tr}")
 
 
 # %%
@@ -138,16 +181,7 @@ def concat(
                 transitions.setdefault(new_from_id, [])
                 for tr in transition_list:
                     transitions[new_from_id].append(
-                        Transition(
-                            when=_namespace_registers(tr.when, current_node_namespace),
-                            to=f"{current_node_namespace}/{tr.to}",
-                            register_updates={
-                                f"{current_node_namespace}/{reg_id}": _namespace_registers(
-                                    expr, current_node_namespace
-                                )
-                                for reg_id, expr in tr.register_updates.items()
-                            },
-                        )
+                        _namespace_transition(tr, current_node_namespace)
                     )
 
             # Get pointer to the entry port for this sub-graph:
@@ -171,8 +205,7 @@ def concat(
             for terminal_id in prev_terminal_node_ids:
                 transitions.setdefault(terminal_id, [])
                 transitions[terminal_id].append(
-                    Transition(
-                        when=Lit(value=True),
+                    Go(
                         to=start_node_id,
                         register_updates={},
                     )
