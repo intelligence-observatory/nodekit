@@ -138,8 +138,8 @@ def make_mts_trial(
                     nk.transitions.Case(
                         when=nk.expressions.Eq(
                             lhs=nk.expressions.GetDictValue(
-                                dict=nk.expressions.LastAction(),
-                                key='selection',
+                                d=nk.expressions.LastAction(),
+                                key=nk.expressions.Lit(value='selection'),
                             ),
                             rhs=nk.expressions.Lit(value=f'choice{i_correct_choice}')
                         ),
@@ -199,6 +199,7 @@ if __name__ == "__main__":
             i_correct_choice=i_correct_choice,
             show_feedback=True,
         )
+        nk.play(trial)
         raise Exception
         trials.append(trial)
 

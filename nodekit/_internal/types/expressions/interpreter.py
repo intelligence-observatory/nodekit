@@ -52,7 +52,7 @@ def evl(expression: Expression, context: EvalContext) -> Value:
             raise IndexError(f"gli: index '{index_val}' out of bounds")
         return list_val[index_val]
     if op == "gdv":
-        dict_val = evl(expression.dict, context)
+        dict_val = evl(expression.d, context)
         if not isinstance(dict_val, dict):
             raise TypeError(f"gdv: dict must be dict, got '{type(dict_val).__name__}'")
         key_val = evl(expression.key, context)

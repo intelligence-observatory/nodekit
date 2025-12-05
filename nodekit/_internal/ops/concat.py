@@ -24,7 +24,7 @@ def _namespace_registers(expr: Expression, namespace: str) -> Expression:
     if op == "gdv":
         return expr.model_copy(
             update={
-                "dict": _namespace_registers(expr.dict, namespace),
+                "dict": _namespace_registers(expr.d, namespace),
                 "key": _namespace_registers(expr.key, namespace),
             }
         )

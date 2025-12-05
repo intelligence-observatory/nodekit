@@ -7062,7 +7062,7 @@ function se(r, e) {
     }
     case "gdv": {
       const t = se(
-        r.dict,
+        r.d,
         e
       );
       if (typeof t != "object" || t === null || Array.isArray(t))

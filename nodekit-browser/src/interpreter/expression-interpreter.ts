@@ -56,7 +56,7 @@ export function evl(
         }
         case "gdv" :{
             const dictVal = evl(
-                expression.dict,
+                expression.d,
                 context,
             );
             if (typeof dictVal !== "object" || dictVal === null || Array.isArray(dictVal)) {

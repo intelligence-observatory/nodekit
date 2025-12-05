@@ -183,7 +183,7 @@ declare interface GetDictValue extends BaseExpression {
      * Get a value from a Dict.
      */
     op: "gdv";
-    dict: Expression;
+    d: Expression;
     key: Expression;
 }
 
