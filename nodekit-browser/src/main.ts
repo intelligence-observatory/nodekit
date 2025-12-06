@@ -98,6 +98,11 @@ export async function play(
     while (true) {
         const node = nodes[currentNodeId];
 
+        // If a Graph, recurse.
+        if (node.type === 'Graph'){
+            throw new Error('Nested Graphs not yet supported');
+        }
+
         // Create and prepare the NodePlay:
         const nodePlay = new NodePlay(
             node,

@@ -3,8 +3,6 @@ import math
 
 
 # %%
-
-
 def RGB_to_hex(RGB: tuple[int, int, int]):
     return "#%02x%02x%02x" % RGB
 
