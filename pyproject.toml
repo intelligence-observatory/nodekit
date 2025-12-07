@@ -27,7 +27,9 @@ dependencies = [
 repository = "https://github.com/intelligence-observatory/nodekit"
 
 [tool.ty.src]
-exclude =["tests", "examples"]
+exclude =[
+    "tests",
+]
 
 [tool.setuptools.packages.find]
 where = ["."]
