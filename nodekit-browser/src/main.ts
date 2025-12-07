@@ -211,7 +211,7 @@ async function playGraph(
             context.boardViewsContainerDiv.removeChild(context.boardViewsContainerDiv.firstChild);
         }
 
-        // Get the next Node; if no Transitions for this Node are given, fall through to 'END':
+        // Get the next Node; if no explicit Transitions for this Node are given, just End.
         if (!(currentNodeId in graph.transitions)) {
             console.log('No transitions found; Graph finished')
             break

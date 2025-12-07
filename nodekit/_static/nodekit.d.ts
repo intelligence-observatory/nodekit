@@ -18,6 +18,12 @@ declare interface Append extends ListOp {
     value: Expression;
 }
 
+declare class AssetManager {
+    private resolveAssetUrl;
+    getImageElement(image: Image_2): Promise<HTMLImageElement>;
+    getVideoElement(video: Video): Promise<HTMLVideoElement>;
+}
+
 declare interface BaseAction<T extends string> extends Dict {
     action_type: T;
     t: TimeElapsedMsec;
@@ -68,6 +74,8 @@ declare interface BaseTransition<T extends string> {
     transition_type: T;
 }
 
+declare type BoardViewsContainerDiv = HTMLDivElement;
+
 declare type Boolean_2 = Readonly<boolean>;
 
 declare interface Branch extends BaseTransition<'Branch'> {
@@ -95,6 +103,13 @@ declare interface ClickAction extends BaseAction<"ClickAction"> {
 
 declare interface ClickSensor extends BaseSensor<'ClickSensor'> {
     region: Region;
+}
+
+declare class Clock {
+    private startTime;
+    start(): void;
+    now(): TimeElapsedMsec;
+    checkClockStarted(): boolean;
 }
 
 declare type ColorHexString = String_2 & {
@@ -126,6 +141,13 @@ declare interface Eq extends BaseCmp {
 }
 
 declare type Event_2 = BrowserContextSampledEvent | PageSuspendedEvent | PageResumedEvent | KeySampledEvent | PointerSampledEvent | NodeStartedEvent | ActionTakenEvent | NodeEndedEvent | TraceStartedEvent | TraceEndedEvent;
+
+declare class EventArray {
+    events: Event_2[];
+    private onEventCallback;
+    constructor(onEventCallback: ((event: Event_2) => void));
+    push(event: Event_2): void;
+}
 
 declare type Expression = Reg | Local | LastAction | GetListItem | GetDictValue | Lit | If | Not | Or | And | Eq | Ne | Gt | Ge | Lt | Le | Add | Sub | Mul | Div | Append | Concat | Slice | Map_2 | Filter | Fold;
 
@@ -202,8 +224,9 @@ declare interface Go extends BaseTransition<'Go'> {
 }
 
 declare interface Graph {
+    type: 'Graph';
     nodekit_version: string;
-    nodes: Record<NodeId, Node_2>;
+    nodes: Record<NodeId, Node_2 | Graph>;
     transitions: Record<NodeId, Transition>;
     start: NodeId;
     registers: Record<RegisterId, Value>;
@@ -328,6 +351,7 @@ declare interface Ne extends BaseCmp {
 }
 
 declare interface Node_2 {
+    type: 'Node';
     stimulus: Card;
     sensor: Sensor;
     board_color: ColorHexString;
@@ -371,6 +395,13 @@ declare type PixelSize = Integer & {
  * @param debugMode
  */
 export declare function play(graph: Graph, onEventCallback?: ((event: Event_2) => void), debugMode?: boolean): Promise<Trace>;
+
+export declare interface PlayGraphContext {
+    eventArray: EventArray;
+    boardViewsContainerDiv: BoardViewsContainerDiv;
+    assetManager: AssetManager;
+    clock: Clock;
+}
 
 declare interface PointerSampledEvent extends BaseEvent<'PointerSampledEvent'> {
     x: SpatialPoint;

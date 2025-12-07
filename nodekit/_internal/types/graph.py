@@ -9,6 +9,7 @@ from nodekit._internal.types.value import NodeId, RegisterId, Value
 
 # %%
 class Graph(pydantic.BaseModel):
+    type: Literal["Graph"] = "Graph"
     nodekit_version: Literal["0.1.0"] = pydantic.Field(
         default=VERSION, validate_default=True
     )
