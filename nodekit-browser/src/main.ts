@@ -147,6 +147,10 @@ async function playGraph(
 
     const nodes = graph.nodes;
 
+    const getNamespacedNodeId = (nodeId: NodeId): NodeId => {
+        return (namespace + nodeId) as NodeId;
+    }
+
     // Assemble transition map:
     let currentNodeId: NodeId = graph.start;
     let lastAction = null;
@@ -158,7 +162,7 @@ async function playGraph(
         if (node.type === 'Graph'){
             lastAction = await playGraph(
                 node,
-                currentNodeId, // New namespace
+                currentNodeId+'/', // New namespace
                 context
             )
         }
@@ -185,12 +189,12 @@ async function playGraph(
             const eStart: NodeStartedEvent = {
                 event_type: 'NodeStartedEvent',
                 t: result.tStart,
-                node_id: namespace +'/'+ currentNodeId as NodeId,
+                node_id: getNamespacedNodeId(currentNodeId),
             }
             context.eventArray.push(eStart)
             const e: ActionTakenEvent = {
                 event_type: 'ActionTakenEvent',
-                node_id: namespace +'/'+ currentNodeId as NodeId,
+                node_id: getNamespacedNodeId(currentNodeId),
                 action: result.action,
                 t: result.action.t
             }
@@ -198,7 +202,7 @@ async function playGraph(
             const eEnd: NodeEndedEvent = {
                 event_type: 'NodeEndedEvent',
                 t: result.tEnd,
-                node_id: namespace +'/'+ currentNodeId as NodeId,
+                node_id: getNamespacedNodeId(currentNodeId),
             }
             context.eventArray.push(eEnd)
         }
