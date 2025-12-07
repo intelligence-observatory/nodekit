@@ -66,27 +66,23 @@ class MarsItem(BaseModel):
 def make_mars_trial(
     grid_image: nk.assets.Image,
     choices: Tuple[nk.assets.Image, nk.assets.Image, nk.assets.Image, nk.assets.Image],
-) -> nk.Node:
+) -> nk.Graph:
     # Start with a fixation cross that disappears on its own
     fixation_duration = 1000
 
-    grid_card = nk.cards.ImageCard(
-        image=grid_image,
-        x=0,
-        y=0.15,
-        w=0.5,
-        h=0.5,
-        start_msec=fixation_duration,
-    )
-    fixation_card = nk.cards.TextCard(
-        text=r"\+",
-        font_size=0.05,
-        x=grid_card.x,
-        y=grid_card.y,
-        w=0.07,
-        h=0.07,
-        start_msec=0,
-        end_msec=fixation_duration,
+    fixation_node= nk.Node(
+        stimulus=nk.cards.TextCard(
+            text=r"\+",
+            font_size=0.05,
+            region=nk.Region(
+                x=0,
+                y=0.15,
+                w=0.07,
+                h=0.07,
+            ),
+        ),
+        sensor=nk.sensors.WaitSensor(duration_msec=fixation_duration),
+        board_color="#ffffff",
     )
 
     # Choice cards
@@ -94,62 +90,51 @@ def make_mars_trial(
     choice_y = -0.35
 
     choice_cards = []
-    text_overlays = []
     for i in range(len(choices)):
         choice_x_cur = -0.375 + 0.25 * i
         choice_card = nk.cards.ImageCard(
             image=choices[i],
-            x=choice_x_cur,
-            y=choice_y,
-            w=choice_size,
-            h=choice_size,
-            z_index=1,
-            start_msec=fixation_duration,
+            region=nk.Region(
+                x=choice_x_cur,
+                y=choice_y,
+                w=choice_size,
+                h=choice_size,
+                z_index=1,
+            ),
         )
         choice_cards.append(choice_card)
 
-        text_overlays.append(
-            nk.cards.TextCard(
-                text=" ",
-                selectable=True,
-                x=choice_card.x,
-                y=choice_card.y,
-                w=choice_card.w * 1.1,
-                h=choice_card.h * 1.1,
-                z_index=0,
-                start_msec=choice_card.start_msec,
-                end_msec=choice_card.end_msec,
-            )
-        )
-
-        # Temporary hack: add some text cards for the hover effect
-
-    return nk.Node(
-        cards={
-            "fixation": fixation_card,
-            "grid": grid_card,
-            "choice0": choice_cards[0],
-            "choice1": choice_cards[1],
-            "choice2": choice_cards[2],
-            "choice3": choice_cards[3],
-            "overlay0": text_overlays[0],
-            "overlay1": text_overlays[1],
-            "overlay2": text_overlays[2],
-            "overlay3": text_overlays[3],
-        },
-        sensors={
-            f"chose{i}": nk.sensors.ClickSensor(
-                x=choice_cards[i].x,
-                y=choice_cards[i].y,
-                w=choice_cards[i].w,
-                h=choice_cards[i].h,
-                start_msec=choice_cards[i].start_msec,
-            )
-            for i in range(len(choice_cards))
-        },
+    matrix_node= nk.Node(
+        stimulus=nk.cards.ImageCard(
+            image=grid_image,
+            region=nk.Region(
+                x=0,
+                y=0.15,
+                w=0.5,
+                h=0.5,
+            ),
+        ),
+        sensor=nk.sensors.SelectSensor(
+            choices={
+                f"chose{i}": choice_cards[i] for i in range(len(choice_cards))
+            }
+        ),
         board_color="#ffffff",
     )
 
+    graph = nk.Graph(
+        nodes={
+            "fixation": fixation_node,
+            "matrix": matrix_node,
+        },
+        transitions={
+            "fixation": nk.transitions.Go(to='matrix'),
+            'matrix': nk.transitions.End(),
+        },
+        start="fixation",
+    )
+
+    return graph
 
 # %%
 
