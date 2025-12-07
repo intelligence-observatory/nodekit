@@ -178,7 +178,7 @@ if __name__ == "__main__":
     import random
 
     random.seed(0)
-    num_trials = 100
+    num_trials = 10
     classes = sorted(class_to_token.keys())
     trials = []
     for i in range(num_trials):
@@ -204,4 +204,5 @@ if __name__ == "__main__":
         trials.append(trial)
 
     graph = nk.concat(trials)
+    Path('graph.json').write_text(graph.model_dump_json())
     nk.play(graph)

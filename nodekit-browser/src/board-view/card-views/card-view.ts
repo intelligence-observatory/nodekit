@@ -127,7 +127,6 @@ export class CompositeCardView extends BaseCardView<CompositeCard>{
             cardView.onStart()
         }
     }
-
     onDestroy(): void {
         for (let cardView of Object.values(this.childViews)){
             cardView.onDestroy()

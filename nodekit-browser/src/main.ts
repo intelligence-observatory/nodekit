@@ -24,8 +24,9 @@ import type {Action} from "./types/actions";
  */
 export async function play(
     graph: Graph,
-    onEventCallback: ((event: Event) => void) = (_event: Event) => {},
-    debugMode: boolean=false,
+    onEventCallback: ((event: Event) => void) = (_event: Event) => {
+    },
+    debugMode: boolean = false,
 ): Promise<Trace> {
 
     const clock = new Clock();
@@ -46,7 +47,7 @@ export async function play(
     }
 
     // Device gate:
-    if (!userDeviceIsValid()){
+    if (!userDeviceIsValid()) {
         const error = new Error('Unsupported device for NodeKit. Please use a desktop browser.');
         shellUI.showErrorOverlay(error);
         throw error;
@@ -58,7 +59,7 @@ export async function play(
     shellUI.hideSessionConnectingOverlay()
 
     // Start screen:
-    if(!debugMode){
+    if (!debugMode) {
         await shellUI.playStartScreen()
     }
 
@@ -86,6 +87,7 @@ export async function play(
             eventArray.push(returnEvent);
         }
     }
+
     document.addEventListener("visibilitychange", onVisibilityChange)
 
     // Emit the BrowserContextEvent:
@@ -139,6 +141,7 @@ export interface PlayGraphContext {
     assetManager: AssetManager,
     clock: Clock,
 }
+
 async function playGraph(
     graph: Graph,
     namespace: string,
@@ -159,15 +162,15 @@ async function playGraph(
         const node = nodes[currentNodeId];
 
         // If a Graph, recurse.
-        if (node.type === 'Graph'){
+        if (node.type === 'Graph') {
             lastAction = await playGraph(
                 node,
-                currentNodeId+'/', // New namespace
+                currentNodeId + '/', // New namespace
                 context
             )
         }
         // Otherwise, play the leaf Node
-        else if (node.type === 'Node'){
+        else if (node.type === 'Node') {
             // Create and prepare the NodePlay:
             const nodePlay = new NodePlay(
                 node,
@@ -205,8 +208,7 @@ async function playGraph(
                 node_id: getNamespacedNodeId(currentNodeId),
             }
             context.eventArray.push(eEnd)
-        }
-        else{
+        } else {
             throw new Error(`Unknown node type: ${(node as any).type}`)
         }
 
@@ -232,13 +234,13 @@ async function playGraph(
         )
         // Set next Node:
         nextNodeId = res.nextNodeId;
-        if (nextNodeId === null){
+        if (nextNodeId === null) {
             break
         }
         currentNodeId = nextNodeId;
 
         // Update Graph registers
-        for (const [registerId, updateValue] of Object.entries(res.registerUpdates)){
+        for (const [registerId, updateValue] of Object.entries(res.registerUpdates)) {
             graph.registers[registerId as RegisterId] = updateValue
         }
         console.warn('Graph registers updated', graph.registers)
