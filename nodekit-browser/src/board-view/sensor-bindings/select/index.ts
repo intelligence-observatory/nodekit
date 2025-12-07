@@ -9,6 +9,8 @@ import {createCardView} from "../../card-views/create.ts";
  *
  */
 export class SelectSensorBinding extends SensorBinding<SelectSensor> {
+    private choiceCardViews: CardView[] = [];
+
     async prepare() {
 
         // Prepare choices views
@@ -18,6 +20,7 @@ export class SelectSensorBinding extends SensorBinding<SelectSensor> {
         for (const [choiceId, choiceCard] of Object.entries(this.params.sensor.choices)){
             cardViewMap[choiceId] = await createCardView(choiceCard, this.params.boardView, this.params.assetManager);
             choiceIds.push(choiceId);
+            this.choiceCardViews.push(cardViewMap[choiceId]);
         }
         choiceIds.sort()
 
@@ -78,5 +81,11 @@ export class SelectSensorBinding extends SensorBinding<SelectSensor> {
         this.params.boardView.pointerStream.subscribe(pointerCallback);
 
 
+    }
+
+    start() {
+        for (const cardView of this.choiceCardViews) {
+            cardView.onStart();
+        }
     }
 }

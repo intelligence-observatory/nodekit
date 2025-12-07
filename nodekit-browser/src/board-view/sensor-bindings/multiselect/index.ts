@@ -9,6 +9,9 @@ import type {CardView} from "../../card-views/card-view.ts";
  *
  */
 export class MultiSelectSensorBinding extends SensorBinding<MultiSelectSensor> {
+    private choiceCardViews: CardView[] = [];
+    private confirmCardView: CardView | null = null;
+
     async prepare() {
         const minSelections = this.params.sensor.min_selections;
         const maxSelections = this.params.sensor.max_selections ?? Object.keys(this.params.sensor.choices).length;
@@ -25,6 +28,7 @@ export class MultiSelectSensorBinding extends SensorBinding<MultiSelectSensor> {
                 this.params.assetManager,
             )
             choiceIds.push(choiceId)
+            this.choiceCardViews.push(cardViewMap[choiceId]);
         }
         choiceIds.sort()
 
@@ -34,6 +38,7 @@ export class MultiSelectSensorBinding extends SensorBinding<MultiSelectSensor> {
             this.params.boardView,
             this.params.assetManager,
         )
+        this.confirmCardView = confirmCardView;
         confirmCardView.setOpacity(0.1)
         let canConfirm = false;
         let confirmed = false;
@@ -136,5 +141,12 @@ export class MultiSelectSensorBinding extends SensorBinding<MultiSelectSensor> {
         };
 
         this.params.boardView.pointerStream.subscribe(pointerCallback);
+    }
+
+    start(){
+        for (const cardView of this.choiceCardViews) {
+            cardView.onStart();
+        }
+        this.confirmCardView?.onStart();
     }
 }
