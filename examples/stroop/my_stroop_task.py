@@ -32,37 +32,38 @@ def make_stroop_instructions() -> nk.Node:
     markdown_instructions = Path("my_stroop_instructions.md").read_text()
 
     instructions_card = nk.cards.TextCard(
-        x=0,
-        y=0,
-        w=1,
-        h=0.8,
         text=str(markdown_instructions),
         justification_horizontal="left",
+        region=nk.Region(
+            x=0,
+            y=0,
+            w=1,
+            h=0.8,
+        ),
     )
     press_spacebar_card = nk.cards.TextCard(
-        x=0,
-        y=-0.4,
-        w=0.5,
-        h=0.1,
+        region=nk.Region(
+            x=0,
+            y=-0.4,
+            w=0.5,
+            h=0.1,
+        ),
         text="Press the **spacebar** to begin.",
         font_size=0.02,
         background_color="#e8e8e8",
         justification_horizontal="center",
         justification_vertical="center",
-        start_msec=4000,
-    )
-    next_sensor = nk.sensors.KeySensor(
-        key=" ",
-        start_msec=press_spacebar_card.start_msec,
     )
     return nk.Node(
-        cards={
-            "instructions": instructions_card,
-            "press-spacebar": press_spacebar_card,
-        },
-        sensors={
-            "done-reading-instructions": next_sensor,
-        },
+        stimulus=nk.cards.CompositeCard(
+            children={
+                "instructions": instructions_card,
+                "press-spacebar": press_spacebar_card,
+            }
+        ),
+        sensor=nk.sensors.KeySensor(
+            keys=[" "],
+        ),
         board_color="#FFFFFF",  # White background
     )
 
@@ -77,134 +78,114 @@ def make_stroop_trial(
     """
 
     # Make the main node
-    stimulus_card = nk.cards.TextCard(
-        x=0,
-        y=0,
-        w=0.5,
-        h=0.2,
-        text=stimulus_word.value.upper(),
-        font_size=0.1,
-        text_color=to_hex(stimulus_color),
-        justification_horizontal="center",
-        justification_vertical="center",
-        start_msec=0,
-    )
-    key_reminder_card = nk.cards.TextCard(
-        x=0,
-        y=-0.2,
-        w=1,
-        h=0.1,
-        text="Is the ink color (r)ed, (g)reen, (b)lue, or (y)ellow?",
-    )
-
-    sensors = {
-        "red": nk.sensors.KeySensor(
-            key="r",
-        ),
-        "green": nk.sensors.KeySensor(
-            key="g",
-        ),
-        "blue": nk.sensors.KeySensor(
-            key="b",
-        ),
-        "yellow": nk.sensors.KeySensor(
-            key="y",
-        ),
-        "timeout": nk.sensors.WaitSensor(
-            duration_msec=max_response_time_msec,
-        ),
-    }
-
     main_node = nk.Node(
-        cards={"stroop-stimulus": stimulus_card, "key-reminder": key_reminder_card},
-        sensors=sensors,
+        stimulus=nk.cards.CompositeCard(
+            children={
+                "stroop-stimulus": nk.cards.TextCard(
+                    region=nk.Region(
+                        x=0,
+                        y=0,
+                        w=0.5,
+                        h=0.2,
+                    ),
+                    text=stimulus_word.value.upper(),
+                    font_size=0.1,
+                    text_color=to_hex(stimulus_color),
+                    justification_horizontal="center",
+                    justification_vertical="center",
+                ),
+                "key-reminder":  nk.cards.TextCard(
+                    region=nk.Region(
+                        x=0,
+                        y=-0.2,
+                        w=1,
+                        h=0.1,
+                    ),
+                    text="Is the ink color (r)ed, (g)reen, (b)lue, or (y)ellow?",
+                )
+            }
+        ),
+        sensor=nk.sensors.SumSensor(
+             children={
+                 "rgby": nk.sensors.KeySensor(
+                     keys=['r', 'g', 'b', 'y',],
+                 ),
+                 "timeout": nk.sensors.WaitSensor(
+                     duration_msec=max_response_time_msec,
+                 ),
+             }
+        ),
         board_color="#FFFFFF",  # White background
     )
 
     # Make the reinforcer nodes
     correct_node = nk.Node(
-        cards={
-            "feedback-message": nk.cards.TextCard(
+        stimulus=nk.cards.TextCard(
+            region=nk.Region(
                 x=0,
                 y=0,
                 w=0.5,
                 h=0.2,
-                text="Correct!",
-                font_size=0.1,
-                justification_horizontal="center",
-                justification_vertical="center",
-            )
-        },
-        sensors={
-            "wait": nk.sensors.WaitSensor(
-                duration_msec=500,
-            )
-        },
+            ),
+            text="Correct!",
+            font_size=0.1,
+            justification_horizontal="center",
+            justification_vertical="center",
+        ),
+        sensor=nk.sensors.WaitSensor(duration_msec=500),
         board_color="#FFFFFF",  # White background
     )
     incorrect_node = nk.Node(
-        cards={
-            "feedback-message": nk.cards.TextCard(
+        stimulus=nk.cards.TextCard(
+            region=nk.Region(
                 x=0,
                 y=0,
                 w=0.5,
                 h=0.2,
-                text="Incorrect.",
-                font_size=0.1,
-                justification_horizontal="center",
-                justification_vertical="center",
-            )
-        },
-        sensors={
-            "wait": nk.sensors.WaitSensor(
-                duration_msec=2000,
-            )
-        },
+            ),
+            text="Incorrect!",
+            font_size=0.1,
+            justification_horizontal="center",
+            justification_vertical="center",
+        ),
+        sensor=nk.sensors.WaitSensor(duration_msec=2000),
         board_color="#FFFFFF",  # White background
     )
 
     too_slow_node = nk.Node(
-        cards={
-            "feedback-message": nk.cards.TextCard(
+        stimulus=nk.cards.TextCard(
+            region=nk.Region(
                 x=0,
                 y=0,
                 w=0.5,
                 h=0.2,
-                text="Too slow!",
-                font_size=0.1,
-                justification_horizontal="center",
-                justification_vertical="center",
-            )
-        },
-        sensors={
-            "wait": nk.sensors.WaitSensor(
-                duration_msec=2000,
-            )
-        },
+            ),
+            text="Too slow!",
+            font_size=0.1,
+            justification_horizontal="center",
+            justification_vertical="center",
+        ),
+        sensor=nk.sensors.WaitSensor(duration_msec=2000),
         board_color="#FFFFFF",  # White background
     )
 
     # Make the fixation node; need to press spacebar to continue
-    fixation_card = nk.cards.TextCard(
-        x=0,
-        y=0,
-        w=0.2,
-        h=0.2,
-        text="\+",
-        font_size=0.1,
-        justification_horizontal="center",
-        justification_vertical="center",
-    )
-    fixation_sensor = nk.sensors.KeySensor(
-        key=" ",
-    )
     fixation_node = nk.Node(
-        cards={
-            "fixation-cross": fixation_card,
-        },
-        sensors={
-            "fixated": fixation_sensor,
-        },
+        stimulus=nk.cards.TextCard(
+            region=nk.Region(
+                x=0,
+                y=0,
+                w=0.2,
+                h=0.2,
+            ),
+            text="\+",
+            font_size=0.1,
+            justification_horizontal="center",
+            justification_vertical="center",
+        ),
+        sensor=nk.sensors.KeySensor(
+            keys=[" "],
+        ),
         board_color="#FFFFFF",  # White background
     )
 
@@ -218,22 +199,54 @@ def make_stroop_trial(
             "too_slow": too_slow_node,
         },
         transitions={
-            "fixation": {
-                "fixated": "main",
-            },
-            "main": {
-                "red": "correct" if stimulus_color == StroopColor.RED else "incorrect",
-                "green": "correct"
-                if stimulus_color == StroopColor.GREEN
-                else "incorrect",
-                "blue": "correct"
-                if stimulus_color == StroopColor.BLUE
-                else "incorrect",
-                "yellow": "correct"
-                if stimulus_color == StroopColor.YELLOW
-                else "incorrect",
-                "timeout": "too_slow",
-            },
+            "fixation": nk.transitions.Go(to="main"),
+            "main": nk.transitions.Branch(
+                cases=[
+                    nk.transitions.Case(  # Correct response
+                        when=nk.expressions.And(
+                            args=[
+                                nk.expressions.Eq(
+                                    lhs=nk.expressions.GetDictValue(
+                                        d=nk.expressions.LastAction(),
+                                        key=nk.expressions.Lit(value="child_id"),
+                                    ),
+                                    rhs=nk.expressions.Lit(value="rgby"),
+                                ),
+                                nk.expressions.Eq(
+                                    lhs=nk.expressions.GetDictValue(
+                                        d=nk.expressions.LastAction(),
+                                        key=nk.expressions.Lit(value="key"),
+                                    ),
+                                    rhs=nk.expressions.Lit(value=stimulus_color.value[0]),
+                                ),
+                            ]
+                        ),
+                        then=nk.transitions.Go(to="correct"),
+                    ),
+                    nk.transitions.Case(  # Incorrect response
+                        when=nk.expressions.And(
+                            args=[
+                                nk.expressions.Eq(
+                                    lhs=nk.expressions.GetDictValue(
+                                        d=nk.expressions.LastAction(),
+                                        key=nk.expressions.Lit(value="child_id"),
+                                    ),
+                                    rhs=nk.expressions.Lit(value="rgby"),
+                                ),
+                                nk.expressions.Ne(
+                                    lhs=nk.expressions.GetDictValue(
+                                        d=nk.expressions.LastAction(),
+                                        key=nk.expressions.Lit(value="key"),
+                                    ),
+                                    rhs=nk.expressions.Lit(value=stimulus_color.value[0]),
+                                ),
+                            ]
+                        ),
+                        then=nk.transitions.Go(to="incorrect"),
+                    ),
+                ],
+                otherwise=nk.transitions.Go(to="too_slow"),
+            ),
         },
         start="fixation",
     )
