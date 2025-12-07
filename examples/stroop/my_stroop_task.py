@@ -69,8 +69,8 @@ def make_stroop_instructions() -> nk.Node:
 
 
 def make_stroop_trial(
-    stimulus_color: StroopColor,
-    stimulus_word: StroopColor,
+        stimulus_color: StroopColor,
+        stimulus_word: StroopColor,
 ) -> nk.Graph:
     """
     The correct response is always the color of the text, not the word itself.
@@ -93,7 +93,7 @@ def make_stroop_trial(
                     justification_horizontal="center",
                     justification_vertical="center",
                 ),
-                "key-reminder":  nk.cards.TextCard(
+                "key-reminder": nk.cards.TextCard(
                     region=nk.Region(
                         x=0,
                         y=-0.2,
@@ -104,7 +104,7 @@ def make_stroop_trial(
                 )
             }
         ),
-        sensor=nk.sensors.KeySensor(keys=['r', 'g', 'b', 'y',]),
+        sensor=nk.sensors.KeySensor(keys=['r', 'g', 'b', 'y', ]),
         board_color="#FFFFFF",  # White background
     )
 
@@ -201,28 +201,15 @@ class StroopTrialResult(pydantic.BaseModel):
 
 
 # %%
-# %%
 if __name__ == "__main__":
-    # Make a simple Stroop task with a few trials
     random.seed(42)
-    trials = []
-    # trials.append(make_stroop_instructions())
-    trials.extend(
+    stroop_task = nk.concat(
         [
             make_stroop_trial(
                 stimulus_color=random.choice(list(StroopColor)),
                 stimulus_word=random.choice(list(StroopColor)),
             )
             for _ in range(50)
-        ]
+        ],
     )
-
-    stroop_task = nk.concat(
-        trials,
-    )
-
-    nk.save_graph(stroop_task, "my-stroop.nkg")
-
     trace = nk.play(stroop_task)
-
-    # Project a tidy DataFrame from the Trace
