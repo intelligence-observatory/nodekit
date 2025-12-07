@@ -28,7 +28,9 @@ def concat(
     if len(set(ids)) != len(ids):
         counts = collections.Counter(ids)
         duplicates = [id_ for id_, count in counts.items() if count > 1]
-        raise ValueError(f"If ids are given, they must be unique. Duplicates:\n{'\n'.join(duplicates)}")
+        raise ValueError(
+            f"If ids are given, they must be unique. Duplicates:\n{'\n'.join(duplicates)}"
+        )
 
     # Assemble:
     nodes: Dict[NodeId, Node | Graph] = {}

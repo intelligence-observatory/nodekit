@@ -81,20 +81,21 @@ def make_likert_trial(
 # %%
 if __name__ == "__main__":
     # %% Assemble my Graph
-    graph = nk.concat([
-        make_likert_trial(
-            question_markdown="How likely are you to go to the **grocery store** tomorrow?",
-            ordinal_choice_descriptions=[
-                "Very unlikely",
-                "Unlikely",
-                "Neutral",
-                "Likely",
-                "Very likely",
-            ],
-            initial_index=3,
-        )
-    ])
-
+    graph = nk.concat(
+        [
+            make_likert_trial(
+                question_markdown="How likely are you to go to the **grocery store** tomorrow?",
+                ordinal_choice_descriptions=[
+                    "Very unlikely",
+                    "Unlikely",
+                    "Neutral",
+                    "Likely",
+                    "Very likely",
+                ],
+                initial_index=3,
+            )
+        ]
+    )
 
     # %%
     trace = nk.play(graph)
