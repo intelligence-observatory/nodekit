@@ -5,7 +5,6 @@ import glob
 def make_numerosity_trial(
     image: nk.assets.Image,
 ) -> nk.Graph:
-    # Make fixation node
     # Make fixation Node
     fixation_card = nk.cards.ImageCard(
         image=nk.assets.Image.from_path("fixation-cross.svg"),
@@ -68,12 +67,6 @@ def make_numerosity_trial(
         text="**Submit**",
         background_color="#c8c8c8",  # white,
         selectable=True,
-    )
-
-    submit_sensor = nk.sensors.SubmitSensor(
-        start_msec=stimulus_duration + delay,
-        submitter_id="submit-button",
-        source_ids=["count-text"],
     )
 
     main_node = nk.Node(

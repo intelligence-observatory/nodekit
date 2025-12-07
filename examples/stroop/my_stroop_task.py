@@ -71,7 +71,6 @@ def make_stroop_instructions() -> nk.Node:
 def make_stroop_trial(
     stimulus_color: StroopColor,
     stimulus_word: StroopColor,
-    max_response_time_msec: int = 5000,
 ) -> nk.Graph:
     """
     The correct response is always the color of the text, not the word itself.
@@ -105,16 +104,7 @@ def make_stroop_trial(
                 )
             }
         ),
-        sensor=nk.sensors.SumSensor(
-             children={
-                 "rgby": nk.sensors.KeySensor(
-                     keys=['r', 'g', 'b', 'y',],
-                 ),
-                 "timeout": nk.sensors.WaitSensor(
-                     duration_msec=max_response_time_msec,
-                 ),
-             }
-        ),
+        sensor=nk.sensors.KeySensor(keys=['r', 'g', 'b', 'y',]),
         board_color="#FFFFFF",  # White background
     )
 
@@ -152,23 +142,6 @@ def make_stroop_trial(
         board_color="#FFFFFF",  # White background
     )
 
-    too_slow_node = nk.Node(
-        stimulus=nk.cards.TextCard(
-            region=nk.Region(
-                x=0,
-                y=0,
-                w=0.5,
-                h=0.2,
-            ),
-            text="Too slow!",
-            font_size=0.1,
-            justification_horizontal="center",
-            justification_vertical="center",
-        ),
-        sensor=nk.sensors.WaitSensor(duration_msec=2000),
-        board_color="#FFFFFF",  # White background
-    )
-
     # Make the fixation node; need to press spacebar to continue
     fixation_node = nk.Node(
         stimulus=nk.cards.TextCard(
@@ -196,56 +169,23 @@ def make_stroop_trial(
             "main": main_node,
             "correct": correct_node,
             "incorrect": incorrect_node,
-            "too_slow": too_slow_node,
         },
         transitions={
             "fixation": nk.transitions.Go(to="main"),
             "main": nk.transitions.Branch(
                 cases=[
                     nk.transitions.Case(  # Correct response
-                        when=nk.expressions.And(
-                            args=[
-                                nk.expressions.Eq(
-                                    lhs=nk.expressions.GetDictValue(
-                                        d=nk.expressions.LastAction(),
-                                        key=nk.expressions.Lit(value="child_id"),
-                                    ),
-                                    rhs=nk.expressions.Lit(value="rgby"),
-                                ),
-                                nk.expressions.Eq(
-                                    lhs=nk.expressions.GetDictValue(
-                                        d=nk.expressions.LastAction(),
-                                        key=nk.expressions.Lit(value="key"),
-                                    ),
-                                    rhs=nk.expressions.Lit(value=stimulus_color.value[0]),
-                                ),
-                            ]
+                        when=nk.expressions.Eq(
+                            lhs=nk.expressions.Lit(value=stimulus_color.value[0]),
+                            rhs=nk.expressions.GetDictValue(
+                                d=nk.expressions.LastAction(),
+                                key=nk.expressions.Lit(value="key"),
+                            )
                         ),
                         then=nk.transitions.Go(to="correct"),
                     ),
-                    nk.transitions.Case(  # Incorrect response
-                        when=nk.expressions.And(
-                            args=[
-                                nk.expressions.Eq(
-                                    lhs=nk.expressions.GetDictValue(
-                                        d=nk.expressions.LastAction(),
-                                        key=nk.expressions.Lit(value="child_id"),
-                                    ),
-                                    rhs=nk.expressions.Lit(value="rgby"),
-                                ),
-                                nk.expressions.Ne(
-                                    lhs=nk.expressions.GetDictValue(
-                                        d=nk.expressions.LastAction(),
-                                        key=nk.expressions.Lit(value="key"),
-                                    ),
-                                    rhs=nk.expressions.Lit(value=stimulus_color.value[0]),
-                                ),
-                            ]
-                        ),
-                        then=nk.transitions.Go(to="incorrect"),
-                    ),
                 ],
-                otherwise=nk.transitions.Go(to="too_slow"),
+                otherwise=nk.transitions.Go(to="incorrect"),
             ),
         },
         start="fixation",
