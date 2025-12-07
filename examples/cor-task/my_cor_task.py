@@ -204,5 +204,5 @@ if __name__ == "__main__":
         trials.append(trial)
 
     graph = nk.concat(trials)
-    Path('graph.json').write_text(graph.model_dump_json())
+    Path("graph.json").write_text(graph.model_dump_json())
     nk.play(graph)

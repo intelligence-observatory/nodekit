@@ -70,7 +70,7 @@ def make_mars_trial(
     # Start with a fixation cross that disappears on its own
     fixation_duration = 1000
 
-    fixation_node= nk.Node(
+    fixation_node = nk.Node(
         stimulus=nk.cards.TextCard(
             text=r"\+",
             font_size=0.05,
@@ -104,7 +104,7 @@ def make_mars_trial(
         )
         choice_cards.append(choice_card)
 
-    matrix_node= nk.Node(
+    matrix_node = nk.Node(
         stimulus=nk.cards.ImageCard(
             image=grid_image,
             region=nk.Region(
@@ -115,9 +115,7 @@ def make_mars_trial(
             ),
         ),
         sensor=nk.sensors.SelectSensor(
-            choices={
-                f"chose{i}": choice_cards[i] for i in range(len(choice_cards))
-            }
+            choices={f"chose{i}": choice_cards[i] for i in range(len(choice_cards))}
         ),
         board_color="#ffffff",
     )
@@ -128,13 +126,14 @@ def make_mars_trial(
             "matrix": matrix_node,
         },
         transitions={
-            "fixation": nk.transitions.Go(to='matrix'),
-            'matrix': nk.transitions.End(),
+            "fixation": nk.transitions.Go(to="matrix"),
+            "matrix": nk.transitions.End(),
         },
         start="fixation",
     )
 
     return graph
+
 
 # %%
 

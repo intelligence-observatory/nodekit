@@ -40,23 +40,24 @@ def make_fitts_trial(
         stimulus=None,
         sensor=nk.sensors.SumSensor(
             children={
-                'time-out': nk.sensors.WaitSensor(
+                "time-out": nk.sensors.WaitSensor(
                     duration_msec=int(maximum_time_msec),
                 ),
-                'clicked':nk.sensors.SelectSensor(
+                "clicked": nk.sensors.SelectSensor(
                     choices={
                         "clicked-target": nk.cards.TextCard(
-                        region=nk.Region(
-                            x=target_position[0],
-                            y=target_position[1],
-                            w=target_size,
-                            h=target_size,
-                        ),
-                        text="",
-                        background_color=target_color,
-                    )
-                }
-            )}
+                            region=nk.Region(
+                                x=target_position[0],
+                                y=target_position[1],
+                                w=target_size,
+                                h=target_size,
+                            ),
+                            text="",
+                            background_color=target_color,
+                        )
+                    }
+                ),
+            }
         ),
     )
 
@@ -89,7 +90,7 @@ def make_fitts_trial(
             text_color="#eb345b",
             font_size=0.05,
         ),
-        sensor=nk.sensors.WaitSensor(duration_msec=3000)
+        sensor=nk.sensors.WaitSensor(duration_msec=3000),
     )
 
     return nk.Graph(

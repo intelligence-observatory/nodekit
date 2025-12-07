@@ -13,7 +13,6 @@ def make_mcq_node(
     The user clicks on a choice card to select it.
     """
 
-
     card_height = (1 / 2) / len(choices_markdown) - 0.01
     choices = {}
     for i_choice, choice_markdown in enumerate(choices_markdown):
@@ -44,9 +43,7 @@ def make_mcq_node(
             justification_vertical="center",
             font_size=0.04,
         ),
-        sensor=nk.sensors.SelectSensor(
-            choices=choices
-        ),
+        sensor=nk.sensors.SelectSensor(choices=choices),
         board_color="#ffffff",
     )
 

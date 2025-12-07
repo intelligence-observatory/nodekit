@@ -73,9 +73,7 @@ def make_big5_node(
             background_color="#E6E6E600",  # Transparent
         )
 
-    stimulus = nk.cards.CompositeCard(
-        children=cards
-    )
+    stimulus = nk.cards.CompositeCard(children=cards)
 
     # Assemble Node
     node = nk.Node(

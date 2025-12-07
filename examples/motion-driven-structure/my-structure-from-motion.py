@@ -1,6 +1,5 @@
 import nodekit as nk
 from typing import Literal
-from pathlib import Path
 
 """
 This example is inspired by an experiment designed by by T. O'Connell and Y. Bai at MIT BCS. They 
@@ -17,17 +16,17 @@ Main:
 """
 
 
+# %%
 def make_trial(
     stimulus: nk.assets.Video,
     left: nk.assets.Video,
     right: nk.assets.Video,
     correct_choice: Literal["left", "right"],
 ) -> nk.Graph:
-
     # Fixation node
     fixation_cross = nk.cards.ImageCard(
         image=nk.assets.Image.from_path("fixation-cross.svg"),
-        region=nk.Region(x=0, y=0, w=0.05, h=0.05, mask='ellipse')
+        region=nk.Region(x=0, y=0, w=0.05, h=0.05, mask="ellipse"),
     )
     fixation_node = nk.Node(
         stimulus=fixation_cross,
@@ -46,23 +45,22 @@ def make_trial(
                 w=video_size,
                 h=video_size,
             ),
-
             video=stimulus,
         ),
         sensor=nk.sensors.WaitSensor(duration_msec=400),
-        hide_pointer=True
+        hide_pointer=True,
     )
 
     # ISI node
     isi_node = nk.Node(
         stimulus=None,
         sensor=nk.sensors.WaitSensor(duration_msec=100),
-        hide_pointer=True
+        hide_pointer=True,
     )
 
     # Choice node
-    choices={
-        'left':nk.cards.VideoCard(
+    choices = {
+        "left": nk.cards.VideoCard(
             region=nk.Region(
                 x=-0.3,
                 y=0,
@@ -72,7 +70,7 @@ def make_trial(
             video=left,
             loop=True,
         ),
-        'right':nk.cards.VideoCard(
+        "right": nk.cards.VideoCard(
             region=nk.Region(
                 x=0.3,
                 y=0,
@@ -81,23 +79,23 @@ def make_trial(
             ),
             video=right,
             loop=True,
-        )
+        ),
     }
 
     prompt = nk.cards.TextCard(
         text="Which object did you see previously?",
-        region=nk.Region(x=0,
-                         y=0.35,
-                         w=0.35,
-                         h=0.1,),
+        region=nk.Region(
+            x=0,
+            y=0.35,
+            w=0.35,
+            h=0.1,
+        ),
         background_color="#c8c8c8",
     )
 
     choice_node = nk.Node(
         stimulus=prompt,
-        sensor=nk.sensors.SelectSensor(
-            choices=choices
-        ),
+        sensor=nk.sensors.SelectSensor(choices=choices),
     )
 
     # Make feedback nodes
@@ -116,7 +114,9 @@ def make_trial(
             justification_horizontal="center",
             background_color="#c8c8c8",
         ),
-        sensor=nk.sensors.KeySensor(keys=[" "],),
+        sensor=nk.sensors.KeySensor(
+            keys=[" "],
+        ),
     )
     incorrect_node = nk.Node(
         stimulus=nk.cards.TextCard(
@@ -130,7 +130,9 @@ def make_trial(
             justification_horizontal="center",
             background_color="#c8c8c8",
         ),
-        sensor=nk.sensors.KeySensor(keys=[" "],),
+        sensor=nk.sensors.KeySensor(
+            keys=[" "],
+        ),
     )
 
     graph = nk.Graph(
@@ -144,31 +146,30 @@ def make_trial(
             "incorrect": incorrect_node,
         },
         transitions={
-            'fixation': nk.transitions.Go(to="stimulus"),
-            'stimulus': nk.transitions.Go(to="isi"),
-            'isi': nk.transitions.Go(to="choice"),
-            'choice': nk.transitions.Branch(
+            "fixation": nk.transitions.Go(to="stimulus"),
+            "stimulus": nk.transitions.Go(to="isi"),
+            "isi": nk.transitions.Go(to="choice"),
+            "choice": nk.transitions.Branch(
                 cases=[
-                    nk.transitions.Case( # Correct response
+                    nk.transitions.Case(  # Correct response
                         when=nk.expressions.Eq(
                             lhs=nk.expressions.GetDictValue(
                                 d=nk.expressions.LastAction(),
                                 key=nk.expressions.Lit(value="selection"),
                             ),
-                            rhs=nk.expressions.Lit(value=correct_choice)
+                            rhs=nk.expressions.Lit(value=correct_choice),
                         ),
                         then=nk.transitions.Go(to="correct"),
                     )
                 ],
                 otherwise=nk.transitions.Go(to="incorrect"),
             ),
-            'correct': nk.transitions.End(),
-            'incorrect': nk.transitions.End(),
+            "correct": nk.transitions.End(),
+            "incorrect": nk.transitions.End(),
         },
     )
 
     return graph
-
 
 
 # %%

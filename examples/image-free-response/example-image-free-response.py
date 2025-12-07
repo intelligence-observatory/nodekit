@@ -14,9 +14,7 @@ def make_free_survey(image: nk.assets.Image, prompt: str) -> nk.Node:
 
     prompt_card = nk.cards.TextCard(
         text=prompt,
-        region=nk.Region(
-            x=0, y=-0.15, h=0.1, w=0.6
-        ),
+        region=nk.Region(x=0, y=-0.15, h=0.1, w=0.6),
     )
 
     return nk.Node(

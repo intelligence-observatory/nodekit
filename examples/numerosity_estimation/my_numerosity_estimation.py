@@ -5,7 +5,6 @@ import glob
 def make_numerosity_trial(
     image: nk.assets.Image,
 ) -> nk.Graph:
-
     # Fixation Node:
     fixation_card = nk.cards.ImageCard(
         image=nk.assets.Image.from_path("fixation-cross.svg"),
@@ -17,9 +16,7 @@ def make_numerosity_trial(
         ),
     )
 
-    click_sensor = nk.sensors.ClickSensor(
-        region=fixation_card.region
-    )
+    click_sensor = nk.sensors.ClickSensor(region=fixation_card.region)
 
     fixation_node = nk.Node(
         stimulus=fixation_card,
@@ -70,7 +67,7 @@ def make_numerosity_trial(
             prompt="",
             font_size=0.05,
             max_length=100,
-        )
+        ),
     )
 
     return nk.concat(
@@ -80,7 +77,7 @@ def make_numerosity_trial(
             isi_node,
             choice_node,
         ],
-        ["fixation", "stimulus", 'isi', 'choice'],
+        ["fixation", "stimulus", "isi", "choice"],
     )
 
 

@@ -32,39 +32,39 @@ def make_same_different_node(
     comparison_node = nk.Node(
         stimulus=nk.cards.CompositeCard(
             children={
-            "left-color": nk.cards.TextCard(  # Hack; I should add the ShapeCard back in...
-                background_color=to_hex(*color_left),
-                text=" ",
-                region=nk.Region(
-                    x=-0.25,
-                    y=0,
-                    w=stim_size,
-                    h=stim_size,
-                )
-            ),
-            "right-color": nk.cards.TextCard(
-                background_color=to_hex(*color_right),
-                text=" ",
-                region=nk.Region(
-                    x=0.25,
-                    y=0,
-                    w=stim_size,
-                    h=stim_size,
-                )
-            ),
-            "key-reminder": nk.cards.TextCard(
-                background_color=to_hex(200, 200, 200),
-                text="Same (f) or Different (j)?",
-                region=nk.Region(
-                    x=0,
-                    y=-0.35,
-                    w=0.35,
-                    h=0.07,
-                )
-            ),
+                "left-color": nk.cards.TextCard(  # Hack; I should add the ShapeCard back in...
+                    background_color=to_hex(*color_left),
+                    text=" ",
+                    region=nk.Region(
+                        x=-0.25,
+                        y=0,
+                        w=stim_size,
+                        h=stim_size,
+                    ),
+                ),
+                "right-color": nk.cards.TextCard(
+                    background_color=to_hex(*color_right),
+                    text=" ",
+                    region=nk.Region(
+                        x=0.25,
+                        y=0,
+                        w=stim_size,
+                        h=stim_size,
+                    ),
+                ),
+                "key-reminder": nk.cards.TextCard(
+                    background_color=to_hex(200, 200, 200),
+                    text="Same (f) or Different (j)?",
+                    region=nk.Region(
+                        x=0,
+                        y=-0.35,
+                        w=0.35,
+                        h=0.07,
+                    ),
+                ),
             }
         ),
-        sensor=nk.sensors.KeySensor(keys=["f", "j"])
+        sensor=nk.sensors.KeySensor(keys=["f", "j"]),
     )
 
     punish_node = nk.Node(
@@ -145,10 +145,10 @@ def make_same_different_node(
                             ),
                             rhs=nk.expressions.Lit(value=True),
                         ),
-                        then=nk.transitions.Go(to="reward")
+                        then=nk.transitions.Go(to="reward"),
                     )
                 ],
-                otherwise=nk.transitions.Go(to='punish')
+                otherwise=nk.transitions.Go(to="punish"),
             ),
             "punish": nk.transitions.End(),
             "reward": nk.transitions.End(),

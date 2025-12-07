@@ -69,8 +69,8 @@ def make_stroop_instructions() -> nk.Node:
 
 
 def make_stroop_trial(
-        stimulus_color: StroopColor,
-        stimulus_word: StroopColor,
+    stimulus_color: StroopColor,
+    stimulus_word: StroopColor,
 ) -> nk.Graph:
     """
     The correct response is always the color of the text, not the word itself.
@@ -101,10 +101,17 @@ def make_stroop_trial(
                         h=0.1,
                     ),
                     text="Is the ink color (r)ed, (g)reen, (b)lue, or (y)ellow?",
-                )
+                ),
             }
         ),
-        sensor=nk.sensors.KeySensor(keys=['r', 'g', 'b', 'y', ]),
+        sensor=nk.sensors.KeySensor(
+            keys=[
+                "r",
+                "g",
+                "b",
+                "y",
+            ]
+        ),
         board_color="#FFFFFF",  # White background
     )
 
@@ -180,7 +187,7 @@ def make_stroop_trial(
                             rhs=nk.expressions.GetDictValue(
                                 d=nk.expressions.LastAction(),
                                 key=nk.expressions.Lit(value="key"),
-                            )
+                            ),
                         ),
                         then=nk.transitions.Go(to="correct"),
                     ),
