@@ -13,7 +13,7 @@ class Graph(pydantic.BaseModel):
     nodekit_version: Literal["0.1.0"] = pydantic.Field(
         default=VERSION, validate_default=True
     )
-    nodes: Dict[NodeId, Union[Node , 'Graph']]
+    nodes: Dict[NodeId, Union[Node, "Graph"]]
     transitions: Dict[NodeId, Transition]
     start: NodeId
     registers: Dict[RegisterId, Value] = pydantic.Field(default_factory=dict)

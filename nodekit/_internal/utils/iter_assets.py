@@ -29,6 +29,7 @@ def iter_assets(graph: Graph) -> Iterator[Image | Video]:
         else:
             raise TypeError(f"Unexpected graph node type: {type(node)}")
 
+
 def _iter_card_assets(card: Card) -> Iterable[Image | Video]:
     if isinstance(card, ImageCard):
         yield card.image

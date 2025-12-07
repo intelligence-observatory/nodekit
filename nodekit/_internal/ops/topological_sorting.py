@@ -2,6 +2,7 @@ from collections import defaultdict, deque
 from typing import List, Tuple
 
 from nodekit import Graph
+from nodekit._internal.types.transition import Branch, End, Go, Transition
 from nodekit._internal.types.value import NodeId
 
 
@@ -12,11 +13,9 @@ def topological_sort(
     """
     Perform a topological sort over a directed graph of nodes and transitions.
 
-    Each Node object is a window with cards, and transitions define directed edges
-    between nodes, keyed by SensorId identifiers. Nodes are first ranked according
-    to their topological order, then ties within the same rank are deterministically
-    broken lexicologically using incoming SensorIds. Nodes without incoming sensors (roots)
-    are prioritized first.
+    Each Transition defines zero or more outgoing edges from a node. Nodes are ranked
+    according to topological order; ties within the same rank are deterministically
+    broken lexicographically. Nested Graphs (if present in nodes) are treated as leaves.
 
     Args:
         graph: The nk.Graph object containing nodes and transitions.
@@ -26,44 +25,29 @@ def topological_sort(
 
     nodes, transitions = graph.nodes, graph.transitions
 
-    edges = []
-    incoming_sensors = {key: [] for key in nodes}
+    edges: list[tuple[NodeId, NodeId]] = []
     for in_node, transition in transitions.items():
-        # Check if input Node from the transitions exists:
         if in_node not in nodes:
             raise KeyError(f"Transition refers to non-existent node '{in_node}'")
 
-        for sensor, out_node in transition.items():
-            # Check if Sensor from the transition exists:
-            if sensor not in nodes[in_node].sensors:
-                raise KeyError(f"Sensor '{sensor}' not found in node '{in_node}'")
-
-            # Check if output Node from the transition exists:
+        for out_node in _outgoing_targets(transition):
             if out_node not in nodes:
                 raise KeyError(
                     f"Transition from '{in_node}' points to unknown node '{out_node}'"
                 )
-
             edges.append((in_node, out_node))
-            incoming_sensors[out_node].append(sensor)
 
-    rank_order = _topo_sort_core(list(incoming_sensors.keys()), edges)
+    rank_order = _topo_sort_core(list(nodes.keys()), edges)
 
-    # Group by rank and apply tie-breaker:
+    # Group by rank and apply lexical tie-breaker:
     rank_groups = defaultdict(list)
-    for key, rank in zip(incoming_sensors.keys(), rank_order):
+    for key, rank in zip(nodes.keys(), rank_order):
         rank_groups[rank].append(key)
 
-    ordered = []
+    ordered: list[NodeId] = []
     for rank in sorted(rank_groups.keys()):
         group = rank_groups[rank]
-        # Tie-break sorts nodes alphabetically but puts nodes with no incoming sensors (root nodes) first
-        group.sort(
-            key=lambda node: (
-                incoming_sensors.get(node) is None,
-                incoming_sensors.get(node),
-            )
-        )
+        group.sort()
         ordered.extend(group)
 
     return ordered
@@ -113,3 +97,19 @@ def _topo_sort_core(
 
     # Return ranks in the same order as node_keys:
     return [rank_map[key] for key in node_keys]
+
+
+def _outgoing_targets(tr: Transition) -> list[NodeId]:
+    if isinstance(tr, Go):
+        return [tr.to]
+    if isinstance(tr, End):
+        return []
+    if isinstance(tr, Branch):
+        targets = []
+        for case in tr.cases:
+            if isinstance(case.then, Go):
+                targets.append(case.then.to)
+        if isinstance(tr.otherwise, Go):
+            targets.append(tr.otherwise.to)
+        return targets
+    raise TypeError(f"Unsupported transition type: {tr}")
