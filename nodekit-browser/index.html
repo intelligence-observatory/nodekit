@@ -305,17 +305,49 @@
         }
     }
 
-    let graph = {
+    let graph2 = {
+        'type': 'Graph',
+
         "start": "my-node",
         "nodes": {
             "my-node": {
-                "stimulus": compositeCard,
-                "sensor": productSensor,
+                "type": 'Node',
+                "stimulus": compositeCard2,
+                "sensor": multiSelectSensor,
                 "board_color": "white",
                 "show_pointer": true,
             },
         },
         "transitions": {},
+        "nodekit_version": "0.1.0",
+        'registers': {},
+    }
+
+    let graph = {
+        'type': 'Graph',
+        "start": "graph-node",
+        "nodes": {
+            "my-node": {
+                "type": 'Node',
+                "stimulus": compositeCard,
+                "sensor": productSensor,
+                "board_color": "white",
+                "show_pointer": true,
+            },
+            'graph-node': graph2
+        },
+        "transitions": {
+            'my-node': {
+                'transition_type': 'Go',
+                'to': 'graph-node',
+                'register_updates': {}
+            },
+            'graph-node': {
+                'transition_type': 'Go',
+                'to': 'my-node',
+                'register_updates': {}
+            },
+        },
         "nodekit_version": "0.1.0",
         'registers': {},
     }

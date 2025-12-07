@@ -226,7 +226,6 @@ async function playGraph(
                 lastAction: lastAction
             }
         )
-
         // Set next Node:
         nextNodeId = res.nextNodeId;
         if (nextNodeId === null){
@@ -240,6 +239,5 @@ async function playGraph(
         }
         console.warn('Graph registers updated', graph.registers)
     }
-
     return lastAction
 }

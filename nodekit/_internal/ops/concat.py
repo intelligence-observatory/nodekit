@@ -8,7 +8,6 @@ from nodekit._internal.types.value import NodeId, RegisterId, Value
 
 import collections
 
-
 # %%
 def concat(
     sequence: list[Graph | Node],

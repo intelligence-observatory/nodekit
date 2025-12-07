@@ -5,7 +5,7 @@ import type {Event} from "./events";
 import type {Transition} from "./transition.ts";
 
 export interface Node {
-    type: 'Node'
+    type: 'Node';
     stimulus: Card;
     sensor: Sensor;
     board_color: ColorHexString;
@@ -13,7 +13,7 @@ export interface Node {
 }
 
 export interface Graph {
-    type: 'Graph'
+    type: 'Graph';
     nodekit_version: string;
     nodes: Record<NodeId, Node | Graph>;
     transitions: Record<NodeId, Transition>;
