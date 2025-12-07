@@ -5,94 +5,82 @@ import glob
 def make_numerosity_trial(
     image: nk.assets.Image,
 ) -> nk.Graph:
-    # Make fixation Node
+
+    # Fixation Node:
     fixation_card = nk.cards.ImageCard(
         image=nk.assets.Image.from_path("fixation-cross.svg"),
-        x=0,
-        y=0,
-        w=0.05,
-        h=0.05,
+        region=nk.Region(
+            x=0,
+            y=0,
+            w=0.05,
+            h=0.05,
+        ),
     )
+
     click_sensor = nk.sensors.ClickSensor(
-        x=fixation_card.x,
-        y=fixation_card.y,
-        w=fixation_card.w,
-        h=fixation_card.h,
+        region=fixation_card.region
     )
 
     fixation_node = nk.Node(
-        cards={"fixation": fixation_card},
-        sensors={"fixated": click_sensor},
+        stimulus=fixation_card,
+        sensor=click_sensor,
     )
 
-    # Make numerosity node
-    stimulus_duration = 500
-    delay = 200
-
-    stimulus_card_card = nk.cards.ImageCard(
-        x=0,
-        y=0,
-        w=0.5,
-        h=0.5,
-        image=image,
-        start_msec=0,
-        end_msec=stimulus_duration,
-    )
-    prompt_card = nk.cards.TextCard(
-        text="How many circles were there?",
-        background_color="#ffffff",  # white,
-        w=0.4,
-        x=0,
-        y=-0.22,
-        h=0.05,
-        start_msec=stimulus_duration + delay,
-    )
-    free_text_card = nk.cards.FreeTextEntryCard(
-        x=0,
-        y=-0.3,
-        w=0.15,
-        h=0.06,
-        start_msec=stimulus_duration + delay,
-        prompt="",
-        font_size=0.05,
-        max_length=100,
-        text_color="#2d2dbd",
-    )
-    submit_card = nk.cards.TextCard(
-        x=0,
-        y=-0.4,
-        w=0.15,
-        h=0.04,
-        start_msec=stimulus_duration + delay,
-        text="**Submit**",
-        background_color="#c8c8c8",  # white,
-        selectable=True,
+    # Stimulus Node:
+    stimulus_node = nk.Node(
+        stimulus=nk.cards.ImageCard(
+            image=image,
+            region=nk.Region(
+                x=0,
+                y=0,
+                w=0.5,
+                h=0.5,
+            ),
+        ),
+        sensor=nk.sensors.WaitSensor(duration_msec=500),
+        hide_pointer=True,
     )
 
-    main_node = nk.Node(
-        cards={
-            "stimulus": stimulus_card_card,
-            "prompt": prompt_card,
-            "count-text": free_text_card,
-            "submit-button": submit_card,
-        },
-        sensors={
-            "submitted-count": submit_sensor,
-        },
-        effects=[
-            nk.effects.HidePointerEffect(
-                start_msec=0,
-                end_msec=free_text_card.start_msec,
-            )
-        ],
+    # ISI Node:
+    isi_node = nk.Node(
+        stimulus=None,
+        sensor=nk.sensors.WaitSensor(duration_msec=200),
+        hide_pointer=True,
+    )
+
+    # Choice Node:
+    choice_node = nk.Node(
+        stimulus=nk.cards.TextCard(
+            text="How many circles were there?",
+            background_color="#ffffff",  # white,
+            region=nk.Region(
+                w=0.4,
+                x=0,
+                y=-0.22,
+                h=0.05,
+            ),
+        ),
+        sensor=nk.sensors.FreeTextEntrySensor(
+            region=nk.Region(
+                x=0,
+                y=-0.35,
+                w=0.15,
+                h=0.15,
+            ),
+            prompt="",
+            font_size=0.05,
+            max_length=100,
+        )
     )
 
     return nk.concat(
         [
             fixation_node,
-            main_node,
+            stimulus_node,
+            isi_node,
+            choice_node,
         ],
-        ["fixation", "main"],
+        ["fixation", "stimulus", 'isi', 'choice'],
     )
 
 
