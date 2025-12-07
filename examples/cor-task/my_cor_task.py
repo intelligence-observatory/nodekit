@@ -119,7 +119,7 @@ def make_mts_trial(
             ),
             font_size=0.08,
         ),
-        sensor=nk.sensors.WaitSensor(duration_msec=3000),
+        sensor=nk.sensors.WaitSensor(duration_msec=300),
     )
 
     trial = nk.Graph(
@@ -201,8 +201,6 @@ if __name__ == "__main__":
             i_correct_choice=i_correct_choice,
             show_feedback=True,
         )
-        nk.play(trial)
-        raise Exception
         trials.append(trial)
 
     graph = nk.concat(trials)
