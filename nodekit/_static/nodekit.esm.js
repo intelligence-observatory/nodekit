@@ -5704,11 +5704,14 @@ class yc extends wt {
   }
 }
 class kc extends wt {
+  constructor() {
+    super(...arguments), this.choiceCardViews = [];
+  }
   async prepare() {
     const e = {};
     let t = [];
     for (const [o, s] of Object.entries(this.params.sensor.choices))
-      e[o] = await Nn(s, this.params.boardView, this.params.assetManager), t.push(o);
+      e[o] = await Nn(s, this.params.boardView, this.params.assetManager), t.push(o), this.choiceCardViews.push(e[o]);
     t.sort();
     let n = null;
     const i = (o) => {
@@ -5741,8 +5744,15 @@ class kc extends wt {
     };
     this.params.boardView.pointerStream.subscribe(i);
   }
+  start() {
+    for (const e of this.choiceCardViews)
+      e.onStart();
+  }
 }
 class Sc extends wt {
+  constructor() {
+    super(...arguments), this.choiceCardViews = [], this.confirmCardView = null;
+  }
   async prepare() {
     const e = this.params.sensor.min_selections, t = this.params.sensor.max_selections ?? Object.keys(this.params.sensor.choices).length, n = /* @__PURE__ */ new Set(), i = {};
     let o = [];
@@ -5751,14 +5761,14 @@ class Sc extends wt {
         E,
         this.params.boardView,
         this.params.assetManager
-      ), o.push(f);
+      ), o.push(f), this.choiceCardViews.push(i[f]);
     o.sort();
     const s = await Nn(
       this.params.sensor.confirm_button,
       this.params.boardView,
       this.params.assetManager
     );
-    s.setOpacity(0.1);
+    this.confirmCardView = s, s.setOpacity(0.1);
     let a = !1, l = !1;
     const c = () => {
       const f = n.size >= t;
@@ -5796,6 +5806,11 @@ class Sc extends wt {
       ) ? (s.setHoverState(!0), f.sampleType === "down" && (u(), l = !0, s.setOpacity(0.5), s.setSelectedState(!0))) : s.setHoverState(!1)) : s.setOpacity(0.1);
     };
     this.params.boardView.pointerStream.subscribe(p);
+  }
+  start() {
+    for (const e of this.choiceCardViews)
+      e.onStart();
+    this.confirmCardView?.onStart();
   }
 }
 class _c extends wt {

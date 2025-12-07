@@ -70,6 +70,7 @@ def make_trial(
                 h=video_size,
             ),
             video=left,
+            loop=True,
         ),
         'right':nk.cards.VideoCard(
             region=nk.Region(
@@ -79,6 +80,7 @@ def make_trial(
                 h=video_size,
             ),
             video=right,
+            loop=True,
         )
     }
 
@@ -151,7 +153,7 @@ def make_trial(
                         when=nk.expressions.Eq(
                             lhs=nk.expressions.GetDictValue(
                                 d=nk.expressions.LastAction(),
-                                key=nk.expressions.Lit(value="choice"),
+                                key=nk.expressions.Lit(value="selection"),
                             ),
                             rhs=nk.expressions.Lit(value=correct_choice)
                         ),
