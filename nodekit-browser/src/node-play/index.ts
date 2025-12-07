@@ -39,24 +39,28 @@ export class NodePlay {
     }
 
     async prepare() {
-        const cardView = await createCardView(
-            this.node.stimulus,
-            this.boardView,
-            this.assetManager,
-        )
 
-        this.scheduler.scheduleEvent(
-            {
-                triggerTimeMsec: 0,
-                triggerFunc: () => {
-                    cardView.onStart()
-                },
-            }
-        )
+        if (this.node.stimulus){
+            const cardView = await createCardView(
+                this.node.stimulus,
+                this.boardView,
+                this.assetManager,
+            )
 
-        this.scheduler.scheduleOnStop(
-            () => {cardView.onDestroy()}
-        )
+            this.scheduler.scheduleEvent(
+                {
+                    triggerTimeMsec: 0,
+                    triggerFunc: () => {
+                        cardView.onStart()
+                    },
+                }
+            )
+
+            this.scheduler.scheduleOnStop(
+                () => {cardView.onDestroy()}
+            )
+        }
+
 
         // Create SensorBinding:
         const sensorBinding = await createSensorBinding(

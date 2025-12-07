@@ -5948,37 +5948,39 @@ class xc {
     this.prepared = !1, this.started = !1, this.deferredAction = new fc(), this.boardView = new rl(e.board_color, n), this.root = this.boardView.root, this.node = e, this.scheduler = new il(), this.assetManager = t;
   }
   async prepare() {
-    const e = await Nn(
-      this.node.stimulus,
-      this.boardView,
-      this.assetManager
-    );
-    this.scheduler.scheduleEvent(
-      {
-        triggerTimeMsec: 0,
-        triggerFunc: () => {
-          e.onStart();
+    if (this.node.stimulus) {
+      const t = await Nn(
+        this.node.stimulus,
+        this.boardView,
+        this.assetManager
+      );
+      this.scheduler.scheduleEvent(
+        {
+          triggerTimeMsec: 0,
+          triggerFunc: () => {
+            t.onStart();
+          }
         }
-      }
-    ), this.scheduler.scheduleOnStop(
-      () => {
-        e.onDestroy();
-      }
-    );
-    const t = await os(
+      ), this.scheduler.scheduleOnStop(
+        () => {
+          t.onDestroy();
+        }
+      );
+    }
+    const e = await os(
       this.node.sensor,
       this.boardView,
       this.assetManager
     );
-    t.subscribe(
-      (n) => {
-        this.deferredAction.resolve(n);
+    e.subscribe(
+      (t) => {
+        this.deferredAction.resolve(t);
       }
     ), this.scheduler.scheduleEvent(
       {
         triggerTimeMsec: 0,
         triggerFunc: () => {
-          t.start();
+          e.start();
         }
       }
     ), this.node.hide_pointer && (this.boardView.root.style.cursor = "none"), this.prepared = !0;

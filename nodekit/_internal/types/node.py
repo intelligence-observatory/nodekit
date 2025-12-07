@@ -10,7 +10,7 @@ from nodekit._internal.types.value import ColorHexString
 # %%
 class Node(pydantic.BaseModel):
     type: Literal["Node"] = "Node"
-    stimulus: Card
+    stimulus: Card | None
     sensor: Sensor
 
     board_color: ColorHexString = pydantic.Field(

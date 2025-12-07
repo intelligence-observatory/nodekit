@@ -352,7 +352,7 @@ declare interface Ne extends BaseCmp {
 
 declare interface Node_2 {
     type: 'Node';
-    stimulus: Card;
+    stimulus: Card | null;
     sensor: Sensor;
     board_color: ColorHexString;
     hide_pointer: boolean;
