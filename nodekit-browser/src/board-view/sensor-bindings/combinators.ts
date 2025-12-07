@@ -63,9 +63,9 @@ export class SumSensorBinding extends SensorBinding<SumSensor>{
 
     async prepare() {
         let childActions: Record<string, Action | null> = {}
+        let emitted = false;
         for (const [childId, childSensor] of Object.entries(this.params.sensor.children)){
             childActions[childId] = null;
-
             this.childBindings[childId] = await createSensorBinding(
                 childSensor,
                 this.params.boardView,
@@ -80,7 +80,10 @@ export class SumSensorBinding extends SensorBinding<SumSensor>{
                         child_action: action,
                         t: this.params.boardView.clock.now()
                     }
-                    this.emit(sumAction)
+                    if (!emitted){
+                        emitted = true;
+                        this.emit(sumAction)
+                    }
                 }
             )
         }
