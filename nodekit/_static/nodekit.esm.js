@@ -5649,7 +5649,9 @@ class bc {
 }
 class Ec extends wt {
   async prepare() {
-    const e = this.params.sensor.keys, t = (n) => {
+    const e = new Set(this.params.sensor.keys);
+    console.log("keys", e);
+    const t = (n) => {
       if (n.sampleType !== "down" || !e.has(n.key))
         return;
       const i = {
