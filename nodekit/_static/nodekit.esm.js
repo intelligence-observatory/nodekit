@@ -5856,20 +5856,21 @@ class Tc extends wt {
     super(...arguments), this.childBindings = {};
   }
   async prepare() {
-    for (const [e, t] of Object.entries(this.params.sensor.children))
-      this.childBindings[e] = await os(
-        t,
+    let e = !1;
+    for (const [t, n] of Object.entries(this.params.sensor.children))
+      this.childBindings[t] = await os(
+        n,
         this.params.boardView,
         this.params.assetManager
-      ), this.childBindings[e].subscribe(
-        (n) => {
-          const i = {
+      ), this.childBindings[t].subscribe(
+        (i) => {
+          const o = {
             action_type: "SumAction",
-            child_id: e,
-            child_action: n,
+            child_id: t,
+            child_action: i,
             t: this.params.boardView.clock.now()
           };
-          this.emit(i);
+          e || (e = !0, this.emit(o));
         }
       );
   }
