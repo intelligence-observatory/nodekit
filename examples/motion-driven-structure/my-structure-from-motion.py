@@ -203,6 +203,4 @@ if __name__ == "__main__":
         ]
     )
 
-    nk.save_graph(graph, "sfm.nkg")
-    # %%
     nk.play(graph)
