@@ -13,7 +13,6 @@ export interface NodePlayRunResult {
     tStart: TimeElapsedMsec,
     action: Action;
     tEnd: TimeElapsedMsec,
-
 }
 
 export class NodePlay {

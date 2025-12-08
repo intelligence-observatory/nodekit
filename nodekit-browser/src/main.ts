@@ -13,7 +13,7 @@ import {version as NODEKIT_VERSION} from '../package.json'
 import {gt, major} from 'semver';
 import {EventArray} from "./event-array.ts";
 
-import {evalTransition} from "./interpreter/eval-transitions.ts";
+import {evalTransition} from "./node-play/eval-transition.ts";
 import type {Action} from "./types/actions";
 
 /**
@@ -24,8 +24,7 @@ import type {Action} from "./types/actions";
  */
 export async function play(
     graph: Graph,
-    onEventCallback: ((event: Event) => void) = (_event: Event) => {
-    },
+    onEventCallback: ((event: Event) => void) = (_event: Event) => {},
     debugMode: boolean = false,
 ): Promise<Trace> {
 
