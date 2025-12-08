@@ -1,4 +1,4 @@
-declare type Action = ClickAction | KeyAction | SliderAction | FreeTextEntryAction | WaitAction | SelectAction | MultiSelectAction | ProductAction | SumAction;
+declare type Action = ClickAction | KeyAction | SliderAction | TextEntryAction | WaitAction | SelectAction | MultiSelectAction | ProductAction | SumAction;
 
 declare interface ActionTakenEvent extends BaseNodeEvent<'ActionTakenEvent'> {
     action: Action;
@@ -182,18 +182,6 @@ declare interface Fold extends ListOp {
      */
     cur: LocalVariableName;
     func: Expression;
-}
-
-declare interface FreeTextEntryAction extends BaseAction<"FreeTextEntryAction"> {
-    text: string;
-}
-
-declare interface FreeTextEntrySensor extends BaseSensor<'FreeTextEntrySensor'> {
-    prompt: string;
-    font_size: SpatialSize;
-    min_length: number;
-    max_length: number | null;
-    region: Region;
 }
 
 declare interface Ge extends BaseCmp {
@@ -457,7 +445,7 @@ declare interface SelectSensor extends BaseSensor<'SelectSensor'> {
     choices: Record<string, Card>;
 }
 
-declare type Sensor = ClickSensor | KeySensor | SliderSensor | FreeTextEntrySensor | WaitSensor | SelectSensor | MultiSelectSensor | ProductSensor | SumSensor;
+declare type Sensor = ClickSensor | KeySensor | SliderSensor | TextEntrySensor | WaitSensor | SelectSensor | MultiSelectSensor | ProductSensor | SumSensor;
 
 declare type SHA256 = String_2 & {
     __brand: 'SHA256';
@@ -515,6 +503,18 @@ declare interface TextCard extends BaseCard<'TextCard'> {
     justification_vertical: 'top' | 'center' | 'bottom';
     text_color: ColorHexString;
     background_color: ColorHexString;
+    region: Region;
+}
+
+declare interface TextEntryAction extends BaseAction<"TextEntryAction"> {
+    text: string;
+}
+
+declare interface TextEntrySensor extends BaseSensor<'TextEntrySensor'> {
+    prompt: string;
+    font_size: SpatialSize;
+    min_length: number;
+    max_length: number | null;
     region: Region;
 }
 
