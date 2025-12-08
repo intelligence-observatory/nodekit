@@ -44,14 +44,14 @@ if __name__ == "__main__":
         ),
         sensor=nk.sensors.ProductSensor(
             children={
-                "free-text-test": nk.sensors.FreeTextEntrySensor(
+                "free-text-test": nk.sensors.TextEntrySensor(
                     region=nk.Region(
                         x=0,
                         y=0.4,
                         h=0.2,
                         w=0.6,
                     ),
-                    prompt="I am a FreeTextEntryCard. Try typing into me.",
+                    prompt="I am a TextEntrySensor. Try typing into me.",
                 ),
                 "slider-vertical": nk.sensors.SliderSensor(
                     region=nk.Region(

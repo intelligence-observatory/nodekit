@@ -2,7 +2,7 @@ import type {Sensor} from "../../types/sensors";
 import type {BoardView} from "../board-view.ts";
 import {SensorBinding} from "./index.ts";
 import {SliderSensorBinding} from "./slider";
-import {FreeTextEntrySensorBinding} from "./free-text-entry/free-text-entry.ts";
+import {TextEntrySensorBinding} from "./text-entry/text-entry.ts";
 import {KeySensorBinding} from "./key";
 import {ClickSensorBinding} from "./click";
 import {WaitSensorBinding} from "./wait";
@@ -53,8 +53,8 @@ export async function createSensorBinding(
             );
             break;
         }
-        case "FreeTextEntrySensor": {
-            sensorBinding = new FreeTextEntrySensorBinding(
+        case "TextEntrySensor": {
+            sensorBinding = new TextEntrySensorBinding(
                 sensor,
                 boardView,
                 assetManager,

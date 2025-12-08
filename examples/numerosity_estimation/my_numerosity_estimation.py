@@ -57,7 +57,7 @@ def make_numerosity_trial(
                 h=0.05,
             ),
         ),
-        sensor=nk.sensors.FreeTextEntrySensor(
+        sensor=nk.sensors.TextEntrySensor(
             region=nk.Region(
                 x=0,
                 y=-0.35,

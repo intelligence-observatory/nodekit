@@ -38,8 +38,8 @@ class SliderAction(pydantic.BaseModel):
 
 
 # %%
-class FreeTextEntryAction(pydantic.BaseModel):
-    action_type: Literal["FreeTextEntryAction"] = "FreeTextEntryAction"
+class TextEntryAction(pydantic.BaseModel):
+    action_type: Literal["TextEntryAction"] = "TextEntryAction"
     text: str
 
 
@@ -79,7 +79,7 @@ Action = Annotated[
         ClickAction,
         KeyAction,
         SliderAction,
-        FreeTextEntryAction,
+        TextEntryAction,
         WaitAction,
         SelectAction,
         MultiSelectAction,

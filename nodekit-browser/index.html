@@ -233,9 +233,9 @@
         }
     }
 
-    const freeTextEntrySensor = {
-        "sensor_type": "FreeTextEntrySensor",
-        "prompt": "I am a FreeTextEntrySensor.",
+    const textEntrySensor = {
+        "sensor_type": "TextEntrySensor",
+        "prompt": "I am a TextEntrySensor.",
         "font_size": 0.02,
         "min_length": 1,
         "max_length": null,
@@ -279,7 +279,7 @@
     const productSensor = {
         "sensor_type": "ProductSensor",
         "children": {
-            'child-sensor1': freeTextEntrySensor,
+            'child-sensor1': textEntrySensor,
             //'child-sensor2': selectSensor,
             'select3': multiSelectSensor,
             'slider': sliderSensorH,

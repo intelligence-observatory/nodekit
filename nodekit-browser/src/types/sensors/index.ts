@@ -40,7 +40,7 @@ export interface SliderSensor extends BaseSensor<'SliderSensor'>{
     region: Region
 }
 
-export interface FreeTextEntrySensor extends BaseSensor<'FreeTextEntrySensor'>{
+export interface TextEntrySensor extends BaseSensor<'TextEntrySensor'>{
     prompt: string;
     font_size: SpatialSize;
     min_length: number;
@@ -63,7 +63,7 @@ export type Sensor =
     | ClickSensor
     | KeySensor
     | SliderSensor
-    | FreeTextEntrySensor
+    | TextEntrySensor
     | WaitSensor
     | SelectSensor
     | MultiSelectSensor

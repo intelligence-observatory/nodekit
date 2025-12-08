@@ -18,7 +18,7 @@ export interface KeyAction extends BaseAction<"KeyAction"> {
 export interface SliderAction extends BaseAction<"SliderAction"> {
     bin_index: SliderBinIndex
 }
-export interface FreeTextEntryAction extends BaseAction<"FreeTextEntryAction"> {
+export interface TextEntryAction extends BaseAction<"TextEntryAction"> {
     text: string
 }
 
@@ -46,7 +46,7 @@ export type Action =
     | ClickAction
     | KeyAction
     | SliderAction
-    | FreeTextEntryAction
+    | TextEntryAction
     | WaitAction
     | SelectAction
     | MultiSelectAction

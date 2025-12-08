@@ -1,5 +1,5 @@
 /* Wrapper fills the entire region */
-.free-text-entry {
+.text-entry {
     position: absolute;
     inset: 0;
     display: flex;
@@ -10,7 +10,7 @@
 }
 
 /* Text field grows to fill space */
-.free-text-entry__input {
+.text-entry__input {
     flex: 1;
     width: 100%;
     padding: 8px;
@@ -28,7 +28,7 @@
 }
 
 /* Bottom gutter holds button; fixed height */
-.free-text-entry__gutter {
+.text-entry__gutter {
     height: 30px;
     display: flex;
     justify-content: flex-end;
@@ -37,7 +37,7 @@
 }
 
 /* Submit button styling */
-.free-text-entry__submit {
+.text-entry__submit {
     font-family: var(--font-family-sans), sans-serif;
     color: gray;
     font-size: 14px;
@@ -49,14 +49,14 @@
     border-radius: 0 0 8px 8px;
 }
 
-.free-text-entry__submit.submittable{
+.text-entry__submit.submittable{
     background-color: rgba(235,235,235, 1);
 }
 
-.free-text-entry__submit.submittable:hover{
+.text-entry__submit.submittable:hover{
     background-color: rgba(200,200,200, 1);
 }
 
-.free-text-entry__submit.submittable:active{
+.text-entry__submit.submittable:active{
     background-color: rgba(180,180,180, 1);
 }

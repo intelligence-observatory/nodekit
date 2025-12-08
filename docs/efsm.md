@@ -57,7 +57,7 @@ Sensors are state machines which hold a Sensor state. They "fire" once with an A
 * `SelectSensor` — fires on the first choice selection.
 * `MultiSelectSensor` — fires when the `confirm_button` is pressed after meeting `min_selections`/`max_selections` constraints.
 * `SliderSensor` — fires when the first slider value is set (`num_bins`, `initial_bin_index`, optional `show_bin_markers`, `orientation`).
-* `FreeTextEntrySensor` — fires on Done after a valid text entry (`prompt`, `font_size`, `min_length`, optional `max_length`).
+* `TextEntrySensor` — fires on Done after a valid text entry (`prompt`, `font_size`, `min_length`, optional `max_length`).
 
 Composite Sensors:
 * `ProductSensor` — product of child action sets.

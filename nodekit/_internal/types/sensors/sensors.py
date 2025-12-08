@@ -97,8 +97,8 @@ class SliderSensor(BaseSensor):
 
 
 # %%
-class FreeTextEntrySensor(BaseSensor):
-    sensor_type: Literal["FreeTextEntrySensor"] = "FreeTextEntrySensor"
+class TextEntrySensor(BaseSensor):
+    sensor_type: Literal["TextEntrySensor"] = "TextEntrySensor"
 
     prompt: str = pydantic.Field(
         description="The initial placeholder text shown in the free text response box. It disappears when the user selects the element.",
@@ -148,7 +148,7 @@ Sensor = Annotated[
         SelectSensor,
         MultiSelectSensor,
         SliderSensor,
-        FreeTextEntrySensor,
+        TextEntrySensor,
         ProductSensor,
         SumSensor,
     ],

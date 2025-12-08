@@ -24,7 +24,7 @@ def make_free_survey(image: nk.assets.Image, prompt: str) -> nk.Node:
                 "prompt": prompt_card,
             }
         ),
-        sensor=nk.sensors.FreeTextEntrySensor(
+        sensor=nk.sensors.TextEntrySensor(
             prompt="Enter your answer here",
             region=nk.Region(
                 x=0,
