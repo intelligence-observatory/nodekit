@@ -13,105 +13,145 @@ def make_same_different_node(
         return hex_str
 
     # Make fixation Node
-    fixation_card = nk.cards.ImageCard(
-        image=nk.assets.Image.from_path("fixation-cross.svg"),
-        x=0,
-        y=0,
-        w=0.05,
-        h=0.05,
-    )
 
     fixation_node = nk.Node(
-        cards={"fixation": fixation_card},
-        sensors={"fixated": nk.sensors.KeySensor(key=" ")},
+        stimulus=nk.cards.ImageCard(
+            image=nk.assets.Image.from_path("fixation-cross.svg"),
+            region=nk.Region(
+                x=0,
+                y=0,
+                w=0.05,
+                h=0.05,
+            ),
+        ),
+        sensor=nk.sensors.KeySensor(keys=[" "]),
     )
 
-    left_card = nk.cards.TextCard(  # Hack; I should add the ShapeCard back in...
-        background_color=to_hex(*color_left),
-        text=" ",
-        x=-0.25,
-        y=0,
-        w=0.4,
-        h=0.4,
-    )
-    right_card = nk.cards.TextCard(
-        background_color=to_hex(*color_right),
-        w=left_card.w,
-        h=left_card.h,
-        text=left_card.text,
-        x=0.25,
-        y=0,
-    )
+    stim_size = 0.4
 
-    key_reminder = nk.cards.TextCard(
-        background_color=to_hex(200, 200, 200),
-        text="Same (f) or Different (j)?",
-        x=0,
-        y=-0.35,
-        w=0.35,
-        h=0.07,
-    )
-
-    stimulus_node = nk.Node(
-        cards={
-            "left-color": left_card,
-            "right-color": right_card,
-            "key-reminder": key_reminder,
-        },
-        sensors={
-            "same": nk.sensors.KeySensor(key="f"),
-            "different": nk.sensors.KeySensor(key="j"),
-        },
+    comparison_node = nk.Node(
+        stimulus=nk.cards.CompositeCard(
+            children={
+                "left-color": nk.cards.TextCard(  # Hack; I should add the ShapeCard back in...
+                    background_color=to_hex(*color_left),
+                    text=" ",
+                    region=nk.Region(
+                        x=-0.25,
+                        y=0,
+                        w=stim_size,
+                        h=stim_size,
+                    ),
+                ),
+                "right-color": nk.cards.TextCard(
+                    background_color=to_hex(*color_right),
+                    text=" ",
+                    region=nk.Region(
+                        x=0.25,
+                        y=0,
+                        w=stim_size,
+                        h=stim_size,
+                    ),
+                ),
+                "key-reminder": nk.cards.TextCard(
+                    background_color=to_hex(200, 200, 200),
+                    text="Same (f) or Different (j)?",
+                    region=nk.Region(
+                        x=0,
+                        y=-0.35,
+                        w=0.35,
+                        h=0.07,
+                    ),
+                ),
+            }
+        ),
+        sensor=nk.sensors.KeySensor(keys=["f", "j"]),
     )
 
     punish_node = nk.Node(
-        cards={
-            "punish-feedback": nk.cards.TextCard(
-                text="WRONG",
-                font_size=0.1,
+        stimulus=nk.cards.TextCard(
+            text="WRONG",
+            font_size=0.1,
+            region=nk.Region(
                 x=0,
                 y=0,
                 w=0.5,
                 h=0.1,
-                text_color=to_hex(50, 50, 50),
-            )
-        },
-        sensors={
-            "wait": nk.sensors.TimeoutSensor(
-                timeout_msec=1000,
-            )
-        },
+            ),
+            text_color=to_hex(50, 50, 50),
+        ),
+        sensor=nk.sensors.WaitSensor(duration_msec=1000),
     )
 
     reward_node = nk.Node(
-        cards={
-            "punish-feedback": nk.cards.TextCard(
-                text="CORRECT",
-                font_size=0.1,
+        stimulus=nk.cards.TextCard(
+            text="CORRECT",
+            font_size=0.1,
+            region=nk.Region(
                 x=0,
                 y=0,
                 w=0.5,
                 h=0.1,
-                text_color=to_hex(50, 50, 50),
-            )
-        },
-        sensors={"wait": nk.sensors.TimeoutSensor(timeout_msec=200)},
+            ),
+            text_color=to_hex(50, 50, 50),
+        ),
+        sensor=nk.sensors.WaitSensor(duration_msec=200),
     )
     same = color_left == color_right
 
     graph = nk.Graph(
         nodes={
             "fixation": fixation_node,
-            "main": stimulus_node,
+            "main": comparison_node,
             "punish": punish_node,
             "reward": reward_node,
         },
         transitions={
-            "fixation": {"fixated": "main"},
-            "main": {
-                "same": "punish" if not same else "reward",
-                "different": "punish" if same else "reward",
-            },
+            "fixation": nk.transitions.Go(to="main"),
+            "main": nk.transitions.Branch(
+                cases=[
+                    nk.transitions.Case(
+                        when=nk.expressions.Eq(
+                            lhs=nk.expressions.Or(
+                                # Same and pressed "f"
+                                args=[
+                                    nk.expressions.And(
+                                        args=[
+                                            nk.expressions.Lit(value=same),
+                                            nk.expressions.Eq(
+                                                lhs=nk.expressions.GetDictValue(
+                                                    d=nk.expressions.LastAction(),
+                                                    key=nk.expressions.Lit(value="key"),
+                                                ),
+                                                rhs=nk.expressions.Lit(value="f"),
+                                            ),
+                                        ]
+                                    ),
+                                    # Different and pressed "j"
+                                    nk.expressions.And(
+                                        args=[
+                                            nk.expressions.Not(
+                                                operand=nk.expressions.Lit(value=same)
+                                            ),
+                                            nk.expressions.Eq(
+                                                lhs=nk.expressions.GetDictValue(
+                                                    d=nk.expressions.LastAction(),
+                                                    key=nk.expressions.Lit(value="key"),
+                                                ),
+                                                rhs=nk.expressions.Lit(value="j"),
+                                            ),
+                                        ]
+                                    ),
+                                ],
+                            ),
+                            rhs=nk.expressions.Lit(value=True),
+                        ),
+                        then=nk.transitions.Go(to="reward"),
+                    )
+                ],
+                otherwise=nk.transitions.Go(to="punish"),
+            ),
+            "punish": nk.transitions.End(),
+            "reward": nk.transitions.End(),
         },
         start="fixation",
     )

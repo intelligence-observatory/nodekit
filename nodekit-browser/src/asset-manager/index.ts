@@ -3,18 +3,22 @@ import type {Asset, Image, Video} from "../types/assets";
 export class AssetManager {
 
     private resolveAssetUrl(asset: Asset): string {
-        // Throw an error if the Asset.locator is not a URL
         if (asset.locator.locator_type == "URL") {
             return asset.locator.url;
         }
         else if (asset.locator.locator_type == "RelativePath") {
             // Resolve relative to the current document location.
             let baseUrl = document.baseURI;
+
             const rawPath = asset.locator.relative_path.replace(/\\/g, "/"); // just in case
-            const safePath = rawPath
-                .split("/")
-                .map(seg => encodeURIComponent(seg))
-                .join("/");
+            // S3/CDN often require '+' to be percent-encoded; local dev generally does not.
+            const shouldEncodeSegments = baseUrl.includes("amazonaws.com");
+            const safePath = shouldEncodeSegments
+                ? rawPath
+                    .split("/")
+                    .map(seg => encodeURIComponent(seg))
+                    .join("/")
+                : rawPath;
 
             return new URL(safePath, baseUrl).toString();
         }
@@ -32,7 +36,7 @@ export class AssetManager {
         return new Promise(
             (resolve, reject) => {
                 element.onload = () => resolve(element);
-                element.onerror = (error) => reject(error);
+                element.onerror = (error) => reject(new Error(`Failed to load image ${imageUrl}: ${error}`));
             }
         )
     }

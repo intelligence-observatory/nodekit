@@ -1,80 +1,166 @@
-import './card-view.css';
+import './card-view.css'
 
-import type {Card} from "../../types/cards";
-import type {BoardCoordinateSystem} from "../board-view.ts";
+import type {Card, CompositeCard, LeafCard} from "../../types/cards";
+import {type BoardCoordinateSystem, createRegionDiv} from "../board-view.ts";
 import type {AssetManager} from "../../asset-manager";
+import type {SpatialPoint} from "../../types/value.ts";
 
-export abstract class CardView<C extends Card = Card> {
+export abstract class BaseCardView<C extends Card = Card>{
+    card: C
     root: HTMLElement;
-    public card: C
-    boardCoords: BoardCoordinateSystem;
+    hoverable: boolean = false;
 
+    protected constructor(
+        card: C,
+        root: HTMLElement,
+    ){
+        this.card = card;
+        this.root = root;
+    }
+    abstract prepare(_assetManager:AssetManager): Promise<void>;
+    onStart(): void {}
+    onDestroy(): void {}
+
+    setHoverable(isHoverable: boolean):void{
+        this.hoverable = isHoverable;
+        if (isHoverable) {
+            this.root.classList.add('card--hoverable');
+        } else {
+            this.root.classList.remove('card--hoverable');
+        }
+    }
+
+    abstract setSelectedState(selected:boolean):void
+    abstract setOpacity(opacity:number):void
+
+    abstract checkPointInCard(
+        x: SpatialPoint,
+        y: SpatialPoint,
+    ): boolean
+}
+
+
+export abstract class LeafCardView<C extends LeafCard = LeafCard> extends BaseCardView<C>{
+    boardCoords: BoardCoordinateSystem
     constructor(
         card: C,
         boardCoords: BoardCoordinateSystem,
     ) {
-        this.card = card;
+
+        // If a leaf Card, instantiate the root as a region div:
+        const root = createRegionDiv(card.region, boardCoords);
+        super(card, root)
         this.boardCoords = boardCoords;
-
-        // Create the Card's root element
-        this.root = document.createElement('div');
-        this.root.classList.add('card');
-
-        // Configure Card position and size:
-        const {leftPx, topPx} = boardCoords.getBoardLocationPx(
-            this.card.x,
-            this.card.y,
-            this.card.w,
-            this.card.h
-        )
-
-        const {widthPx, heightPx} = boardCoords.getBoardRectanglePx(
-            this.card.w,
-            this.card.h
-        );
-
-        this.root.style.left = `${leftPx}px`;
-        this.root.style.top = `${topPx}px`;
-        this.root.style.width = `${widthPx}px`;
-        this.root.style.height = `${heightPx}px`;
-
-        // By default, the Card is not visible and not interactive
-        this.setVisibility(false);
-        this.setInteractivity(false);
     }
 
-    async prepare(_assetManager:AssetManager){
-        // Any Card-specific loading logic should go here
-    }
-
-    setVisibility(
-        visible: boolean
-    ) {
-        if (visible) {
-            this.root.classList.remove('card--hidden');
-        } else {
-            this.root.classList.add('card--hidden');
+    setSelectedState(
+        selected:boolean,
+    ){
+        if (selected){
+            this.root.classList.add('card--selected')
+        }
+        else{
+            this.root.classList.remove('card--selected')
         }
     }
 
-    setInteractivity(
-        interactivity: boolean
-    ) {
-        // Toggles any UI interactivity
-        if (interactivity) {
-            this.root.classList.remove('card--noninteractive');
-        } else {
-            this.root.classList.add('card--noninteractive');
-        }
+    setOpacity(opacity:number){
+        // Between 0 and 1
+        this.root.style.opacity = `${Math.min(1, Math.max(0, opacity))*100}%`
     }
 
-    onStart() {
-        // Called when the Card is started
-    }
-    onStop() {
-        // Called when the Card is stopped
-    }
-    onDestroy() {
-        // Called when the Card is destroyed
+    checkPointInCard(
+        x: SpatialPoint,
+        y: SpatialPoint,
+    ): boolean{
+        const region = this.card.region;
+        switch (region.mask) {
+            case 'rectangle':
+                const left = region.x - region.w / 2;
+                const right = region.x + region.w / 2;
+                const top = region.y + region.h / 2;
+                const bottom = region.y - region.h / 2;
+                return (x >= left) &&
+                    (x <= right) &&
+                    (y >= bottom) &&
+                    (y <= top);
+            case 'ellipse':
+                const radius_x = region.w / 2;
+                const radius_y = region.h / 2;
+                const delta_x = x - region.x;
+                const delta_y = y - region.y;
+
+                return (
+                    (delta_x * delta_x) / (radius_x * radius_x) +
+                    (delta_y * delta_y) / (radius_y * radius_y) <=
+                    1
+                );
+            default:
+                throw new Error(`Unknown mask: ${region.mask}`);
+        }
     }
 }
+
+export class CompositeCardView extends BaseCardView<CompositeCard>{
+    private childViews:Record<string, CardView>
+
+    constructor(
+        card: CompositeCard,
+        childViews: Record<string, CardView>
+    ){
+        const root = document.createElement('div')
+        super(card, root)
+        this.childViews = childViews
+
+        // Mount all childViews to root
+        for (let [_, cardView] of Object.entries(this.childViews)){
+            this.root.appendChild(cardView.root);
+        }
+    }
+
+    async prepare(_assetManager:AssetManager) {}
+
+    onStart(): void {
+        for (let cardView of Object.values(this.childViews)){
+            cardView.onStart()
+        }
+    }
+    onDestroy(): void {
+        for (let cardView of Object.values(this.childViews)){
+            cardView.onDestroy()
+        }
+        super.onDestroy();
+    }
+    setHoverable(isHoverable: boolean): void {
+        for (const cardView of Object.values(this.childViews)) {
+            cardView.setHoverable(isHoverable);
+        }
+    }
+
+    setSelectedState(selected:boolean):void{
+        for (const cardView of Object.values(this.childViews)) {
+            cardView.setSelectedState(selected);
+        }
+
+    }
+    setOpacity(opacity:number):void{
+        for (const cardView of Object.values(this.childViews)) {
+            cardView.setOpacity(opacity);
+        }
+    }
+
+    checkPointInCard(
+        x: SpatialPoint,
+        y: SpatialPoint
+    ): boolean {
+        for (const cardView of Object.values(this.childViews)){
+            let inside = cardView.checkPointInCard(x, y)
+            if (inside){
+                return true
+            }
+        }
+        return false
+    }
+}
+
+export type CardView = CompositeCardView | LeafCardView

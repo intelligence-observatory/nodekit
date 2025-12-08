@@ -3,5 +3,20 @@
     box-sizing: border-box;
     width: 100%;
     height: 100%;
+    outline: none;
 }
 
+.board-region {
+    position: absolute;
+    overflow: hidden; /* Prevents content overflow */
+}
+
+.board-region::after {
+    content: "";
+    position: absolute;
+    inset: 0;               /* top/right/bottom/left: 0 */
+    background: transparent;
+    border-radius: inherit;
+    pointer-events: none;   /* clicks go through */
+    z-index: 2;             /* sit on top of children */
+}

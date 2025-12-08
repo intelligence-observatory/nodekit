@@ -10,876 +10,349 @@
 <div id="app"></div>
 <script type="module" src="src/main.ts"></script>
 <script type="module">
+    // Dev-only safety net for rejected promises
+    window.addEventListener('unhandledrejection', (ev) => {
+        ev.preventDefault();
+        console.error('Unhandled rejection in dev harness:', ev.reason);
+        if (ev.reason?.stack) {
+            console.error(ev.reason.stack);
+        }
+    });
 
-    let graph={
-        "start": "0",
-        "nodes": {
-            "0": {
-                "cards": {
-                    "video": {
-                        "card_type": "VideoCard",
-                        "x": 0.0,
-                        "y": 0.0,
-                        "w": 0.3,
-                        "h": 0.3,
-                        "start_msec": 0,
-                        "end_msec": null,
-                        "video": {
-                            "sha256": "3f224a8b6a7917ae1364cf2cc9daf7a5f7073bfe0fb5d9b638d8a6efc1c867f7",
-                            "media_type": "video/mp4",
-                            "locator": {
-                                "locator_type": "RelativePath",
-                                "relative_path": "assets/video/mp4/3f224a8b6a7917ae1364cf2cc9daf7a5f7073bfe0fb5d9b638d8a6efc1c867f7.mp4"
-                            }
-                        },
-                        "muted": true,
-                        "loop": false
-                    },
-                    "hello-text": {
-                        "card_type": "TextCard",
-                        "x": -0.4,
-                        "y": -0.4,
-                        "w": 0.2,
-                        "h": 0.1,
-                        "start_msec": 0,
-                        "end_msec": null,
-                        "text": "I am a TextCard.",
-                        "font_size": 0.03,
-                        "justification_horizontal": "center",
-                        "justification_vertical": "center",
-                        "text_color": "#000000ff",
-                        "background_color": "#e6e6e6ff"
+    const choiceCardsTmp = {
+        "hello-image": {
+            "card_type": "ImageCard",
+            "region": {
+                "x": -0.1,
+                "y": 0,
+                "w": 0.4,
+                "h": 0.2,
+                "mask": 'rectangle',
+            },
+            "image": {
+                "sha256": 'yo',
+                "media_type": "image/png",
+                "locator": {
+                    "locator_type": 'RelativePath',
+                    "relative_path": "./assets/image/png/f66018c63e5de97a4a022f8d0da2083d44a842abcc27195b6cca13980a77dc7b.png"
+                }
+            },
+            "font_size": 0.03,
+            "justification_horizontal": "center",
+            "justification_vertical": "center",
+            "text_color": "#000000ff",
+            "background_color": "#e6e6e6ff"
+        },
+        "hello-text": {
+            "card_type": "TextCard",
+            "region": {
+                "x": -0.4,
+                "y": -0.4,
+                "w": 0.2,
+                "h": 0.1,
+                "mask": 'rectangle',
+            },
+            "text": "I am a TextCard.",
+            "font_size": 0.03,
+            "justification_horizontal": "center",
+            "justification_vertical": "center",
+            "text_color": "#000000ff",
+            "background_color": "#e6e6e6ff"
+        },
+        "text2": {
+            "card_type": "TextCard",
+            "region": {
+                "x": 0.35,
+                "y": -0.4,
+                "w": 0.2,
+                "h": 0.1,
+                "mask": 'rectangle',
+            },
+            "text": "I am a TextCard2.",
+            "font_size": 0.03,
+            "justification_horizontal": "center",
+            "justification_vertical": "center",
+            "text_color": "#000000ff",
+            "background_color": "#e6e6e6ff"
+        },
+        "submit-button": {
+            "card_type": "TextCard",
+            "region": {
+                "x": 0.,
+                "y": -0.4,
+                "w": 0.2,
+                "h": 0.05,
+                "mask": 'rectangle',
+            },
+            "text": "Done",
+            "font_size": 0.03,
+            "justification_horizontal": "center",
+            "justification_vertical": "center",
+            "text_color": "#ffffffff",
+            "background_color": "green"
+        },
+    }
 
-                    },
-                    "free-text-test": {
-                        "card_type": "FreeTextEntryCard",
-                        "x": 0.0,
-                        "y": 0.4,
-                        "w": 0.6,
-                        "h": 0.2,
-                        "start_msec": 0,
-                        "end_msec": null,
-                        "prompt": "I am a FreeTextEntryCard. Type into me...",
-                        "font_size": 0.02,
-                        "text_color": "#ce3a3a",
-                        "background_color": "#ffffff",
-                        "max_length": null
-                    },
-                    "slider-test": {
-                        "card_type": "SliderCard",
-                        "x": 0.0,
-                        "y": -0.25,
-                        "w": 1,
-                        "h": 0.05,
-                        "start_msec": 0,
-                        "end_msec": null,
-                        "num_bins": 7,
-                        "initial_bin_index": 5,
-                        "orientation": "horizontal",
-                        "show_bin_markers": true,
-                    },
-                    "slider-test2": {
-                        "card_type": "SliderCard",
-                        "x": 0.0,
-                        "y": -0.3,
-                        "w": 1,
-                        "h": 0.05,
-                        "start_msec": 0,
-                        "end_msec": null,
-                        "num_bins": 100,
-                        "initial_bin_index": 25,
-                        "orientation": "horizontal",
-                        "show_bin_markers": true,
-                    },
+    const compositeCard2 = {
+        "card_type": "CompositeCard",
+        "children": {
+            'child-card-11':{
+                "card_type": "TextCard",
+                "region": {
+                    "x": -0.4,
+                    "y": -0.25,
+                    "w": 0.2,
+                    "h": 0.1,
+                    "mask": 'rectangle',
+                },
+                "text": "I am a child of a CompositeCard.",
+                "font_size": 0.01,
+                "justification_horizontal": "center",
+                "justification_vertical": "center",
+                "text_color": "#000000ff",
+                "background_color": "#e6e6e6ff"
+            },
+            'child-card-12':{
+                "card_type": "TextCard",
+                "region": {
+                    "x": 0.4,
+                    "y": -0.25,
+                    "w": 0.2,
+                    "h": 0.1,
+                    "mask": 'rectangle',
+                },
+                "text": "I am another child of a CompositeCard.",
+                "font_size": 0.01,
+                "justification_horizontal": "center",
+                "justification_vertical": "center",
+                "text_color": "#000000ff",
+                "background_color": "#e6e6e6ff"
+            },
+        }
+    }
 
-                    "slider-vertical": {
-                        "card_type": "SliderCard",
-                        "x": -0.25,
-                        "y": 0,
-                        "w": 0.1,
-                        "h": 0.3,
-                        "start_msec": 0,
-                        "end_msec": null,
-                        "num_bins": 100,
-                        "show_bin_markers": true,
-                        "initial_bin_index": 80,
-                        "orientation": "vertical"
-                    },
-                    "slider-vertical2": {
-                        "card_type": "SliderCard",
-                        "x": -0.4,
-                        "y": 0,
-                        "w": 0.1,
-                        "h": 0.3,
-                        "start_msec": 0,
-                        "end_msec": null,
-                        "num_bins": 7,
-                        "initial_bin_index": 2,
-                        "show_bin_markers": true,
-                        "orientation": "vertical"
-                    },
-                    "submit-button": {
-                        "card_type": "TextCard",
-                        "x": 0.4,
-                        "y": -0.4,
-                        "w": 0.2,
-                        "h": 0.05,
-                        "start_msec": 0,
-                        "end_msec": null,
-                        "text": "**Submit**",
-                        "font_size": 0.03,
-                        "justification_horizontal": "center",
-                        "justification_vertical": "center",
-                        "text_color": "#000000ff",
-                        "background_color": "#e6e6e6ff",
-                        "selectable": true,
-                    },
+    const multiSelectSensor = {
+        sensor_type: "MultiSelectSensor",
+        choices: {
+            "hello-image": {
+                "card_type": "ImageCard",
+                "region": {
+                    "x": -0.1,
+                    "y": 0,
+                    "w": 0.4,
+                    "h": 0.2,
+                    "mask": 'rectangle',
                 },
-                "sensors": {
-                    "press": {
-                        "sensor_type": "ClickSensor",
-                        "start_msec": 0,
-                        "end_msec": null,
-                        "x": 0.0,
-                        "y": 0.0,
-                        "w": 0.0375,
-                        "h": 0.0375,
-                        "mask": "ellipse"
-                    },
-                    "submit": {
-                        "sensor_type": "SubmitSensor",
-                        "start_msec": 0,
-                        "end_msec": null,
-                        "submitter_id": "submit-button",
-                        "source_ids": [
-                            "free-text-test",
-                            "slider-test",
-                            "slider-test2",
-                            "slider-vertical",
-                            "slider-vertical2"
-                        ]
+                "image": {
+                    "sha256": 'yo',
+                    "media_type": "image/png",
+                    "locator": {
+                        "locator_type": 'RelativePath',
+                        "relative_path": "./assets/image/png/f66018c63e5de97a4a022f8d0da2083d44a842abcc27195b6cca13980a77dc7b.png"
+                    }
+                },
+                "font_size": 0.03,
+                "justification_horizontal": "center",
+                "justification_vertical": "center",
+                "text_color": "#000000ff",
+                "background_color": "#e6e6e6ff"
+            },
+            "hello-text": {
+                "card_type": "TextCard",
+                "region": {
+                    "x": -0.4,
+                    "y": -0.4,
+                    "w": 0.2,
+                    "h": 0.1,
+                    "mask": 'rectangle',
+                },
+                "text": "I am a TextCard.",
+                "font_size": 0.03,
+                "justification_horizontal": "center",
+                "justification_vertical": "center",
+                "text_color": "#000000ff",
+                "background_color": "#e6e6e6ff"
+            },
+            "text2": {
+                "card_type": "TextCard",
+                "region": {
+                    "x": 0.35,
+                    "y": -0.4,
+                    "w": 0.2,
+                    "h": 0.1,
+                    "mask": 'rectangle',
+                },
+                "text": "I am a TextCard2.",
+                "font_size": 0.03,
+                "justification_horizontal": "center",
+                "justification_vertical": "center",
+                "text_color": "#000000ff",
+                "background_color": "#e6e6e6ff"
+            },
+            "choice3": compositeCard2,
+        },
+        min_selections: 2,
+        max_selections: null,
+        confirm_button: {
+            "card_type": "TextCard",
+            "region": {
+                "x": 0.,
+                "y": -0.4,
+                "w": 0.2,
+                "h": 0.05,
+                "mask": 'rectangle',
+            },
+            "text": "Done",
+            "font_size": 0.03,
+            "justification_horizontal": "center",
+            "justification_vertical": "center",
+            "text_color": "#ffffffff",
+            "background_color": "green"
+        }
+    }
 
-                    }
+    const selectSensor = {
+        sensor_type: "SelectSensor",
+        choices: {
+            'my-first-choice': {
+                "card_type": "TextCard",
+                "region": {
+                    "x": -0.4,
+                    "y": -0.4,
+                    "w": 0.2,
+                    "h": 0.1,
+                    "mask": 'rectangle',
                 },
-                "effects": [],
-                "board_color": "gray"
-            },
-            "1/fixation": {
-                "cards": {
-                    "fixation": {
-                        "card_type": "TextCard",
-                        "x": 0.0,
-                        "y": 0.0,
-                        "w": 0.0375,
-                        "h": 0.0375,
-                        "start_msec": 0,
-                        "end_msec": null,
-                        "text": "\\+",
-                        "font_size": 0.02,
-                        "justification_horizontal": "center",
-                        "justification_vertical": "center",
-                        "text_color": "#000000ff",
-                        "background_color": "#E6E6E600"
-                    }
-                },
-                "sensors": {
-                    "fixation-acquired": {
-                        "sensor_type": "ClickSensor",
-                        "start_msec": 0,
-                        "end_msec": null,
-                        "x": 0.0,
-                        "y": 0.0,
-                        "w": 0.0375,
-                        "h": 0.0375,
-                        "mask": "ellipse"
-                    }
-                },
-                "effects": [],
-                "board_color": "#808080ff"
-            },
-            "1/main": {
-                "cards": {
-                    "stimulus": {
-                        "card_type": "ImageCard",
-                        "x": 0.0,
-                        "y": 0.0,
-                        "w": 0.5,
-                        "h": 0.5,
-                        "start_msec": 0,
-                        "end_msec": 200,
-                        "image": {
-                            "sha256": "b87d9ff074668df4e7698280bf6ac0a11c307389eaabec400dd00023462cb416",
-                            "media_type": "image/png",
-                            "locator": {
-                                "locator_type": "RelativePath",
-                                "relative_path": "assets/image/png/b87d9ff074668df4e7698280bf6ac0a11c307389eaabec400dd00023462cb416.png"
-                            }
-                        }
-                    },
-                    "choice_left": {
-                        "card_type": "ImageCard",
-                        "x": -0.25,
-                        "y": -0.3,
-                        "w": 0.2,
-                        "h": 0.2,
-                        "start_msec": 200,
-                        "end_msec": null,
-                        "image": {
-                            "sha256": "f66018c63e5de97a4a022f8d0da2083d44a842abcc27195b6cca13980a77dc7b",
-                            "media_type": "image/png",
-                            "locator": {
-                                "locator_type": "RelativePath",
-                                "relative_path": "assets/image/png/f66018c63e5de97a4a022f8d0da2083d44a842abcc27195b6cca13980a77dc7b.png"
-                            }
-                        }
-                    },
-                    "choice_right": {
-                        "card_type": "ImageCard",
-                        "x": 0.25,
-                        "y": -0.3,
-                        "w": 0.2,
-                        "h": 0.2,
-                        "start_msec": 200,
-                        "end_msec": null,
-                        "image": {
-                            "sha256": "6ffb27faa004ef9ec945f1369437369b2b1720b292582c547eaa082d65061bd6",
-                            "media_type": "image/png",
-                            "locator": {
-                                "locator_type": "RelativePath",
-                                "relative_path": "assets/image/png/6ffb27faa004ef9ec945f1369437369b2b1720b292582c547eaa082d65061bd6.png"
-                            }
-                        }
-                    }
-                },
-                "sensors": {
-                    "L": {
-                        "sensor_type": "ClickSensor",
-                        "start_msec": 200,
-                        "end_msec": null,
-                        "x": -0.25,
-                        "y": -0.3,
-                        "w": 0.2,
-                        "h": 0.2,
-                        "mask": "rectangle"
-                    },
-                    "R": {
-                        "sensor_type": "ClickSensor",
-                        "start_msec": 200,
-                        "end_msec": null,
-                        "x": 0.25,
-                        "y": -0.3,
-                        "w": 0.2,
-                        "h": 0.2,
-                        "mask": "rectangle"
-                    },
-                    "TO": {
-                        "sensor_type": "TimeoutSensor",
-                        "timeout_msec": 2000
-                    }
-                },
-                "effects": [
-                    {
-                        "effect_type": "HidePointerEffect",
-                        "start_msec": 0,
-                        "end_msec": 200
-                    }
-                ],
-                "board_color": "#808080ff"
-            },
-            "1/positive": {
-                "cards": {
-                    "feedback_message": {
-                        "card_type": "TextCard",
-                        "x": 0.0,
-                        "y": 0.0,
-                        "w": 0.5,
-                        "h": 0.5,
-                        "start_msec": 0,
-                        "end_msec": null,
-                        "text": "Correct!",
-                        "font_size": 0.05,
-                        "justification_horizontal": "center",
-                        "justification_vertical": "center",
-                        "text_color": "#ffffffff",
-                        "background_color": "#32a852ff"
-                    }
-                },
-                "sensors": {
-                    "wait": {
-                        "sensor_type": "TimeoutSensor",
-                        "timeout_msec": 500
-                    }
-                },
-                "effects": [],
-                "board_color": "#808080ff"
-            },
-            "1/negative": {
-                "cards": {
-                    "feedback_message": {
-                        "card_type": "TextCard",
-                        "x": 0.0,
-                        "y": 0.0,
-                        "w": 0.5,
-                        "h": 0.5,
-                        "start_msec": 0,
-                        "end_msec": null,
-                        "text": "Incorrect.",
-                        "font_size": 0.05,
-                        "justification_horizontal": "center",
-                        "justification_vertical": "center",
-                        "text_color": "#ffffffff",
-                        "background_color": "#a83232ff"
-                    }
-                },
-                "sensors": {
-                    "wait": {
-                        "sensor_type": "TimeoutSensor",
-                        "timeout_msec": 1000
-                    }
-                },
-                "effects": [],
-                "board_color": "#808080ff"
-            },
-            "2/fixation": {
-                "cards": {
-                    "fixation": {
-                        "card_type": "TextCard",
-                        "x": 0.0,
-                        "y": 0.0,
-                        "w": 0.0375,
-                        "h": 0.0375,
-                        "start_msec": 0,
-                        "end_msec": null,
-                        "text": "\\+",
-                        "font_size": 0.02,
-                        "justification_horizontal": "center",
-                        "justification_vertical": "center",
-                        "text_color": "#000000ff",
-                        "background_color": "#E6E6E600"
-                    }
-                },
-                "sensors": {
-                    "fixation-acquired": {
-                        "sensor_type": "ClickSensor",
-                        "start_msec": 0,
-                        "end_msec": null,
-                        "x": 0.0,
-                        "y": 0.0,
-                        "w": 0.0375,
-                        "h": 0.0375,
-                        "mask": "ellipse"
-                    }
-                },
-                "effects": [],
-                "board_color": "#808080ff"
-            },
-            "2/main": {
-                "cards": {
-                    "stimulus": {
-                        "card_type": "ImageCard",
-                        "x": 0.0,
-                        "y": 0.0,
-                        "w": 0.5,
-                        "h": 0.5,
-                        "start_msec": 0,
-                        "end_msec": 200,
-                        "image": {
-                            "sha256": "b87d9ff074668df4e7698280bf6ac0a11c307389eaabec400dd00023462cb416",
-                            "media_type": "image/png",
-                            "locator": {
-                                "locator_type": "RelativePath",
-                                "relative_path": "assets/image/png/b87d9ff074668df4e7698280bf6ac0a11c307389eaabec400dd00023462cb416.png"
-                            }
-                        }
-                    },
-                    "choice_left": {
-                        "card_type": "ImageCard",
-                        "x": -0.25,
-                        "y": -0.3,
-                        "w": 0.2,
-                        "h": 0.2,
-                        "start_msec": 200,
-                        "end_msec": null,
-                        "image": {
-                            "sha256": "f66018c63e5de97a4a022f8d0da2083d44a842abcc27195b6cca13980a77dc7b",
-                            "media_type": "image/png",
-                            "locator": {
-                                "locator_type": "RelativePath",
-                                "relative_path": "assets/image/png/f66018c63e5de97a4a022f8d0da2083d44a842abcc27195b6cca13980a77dc7b.png"
-                            }
-                        }
-                    },
-                    "choice_right": {
-                        "card_type": "ImageCard",
-                        "x": 0.25,
-                        "y": -0.3,
-                        "w": 0.2,
-                        "h": 0.2,
-                        "start_msec": 200,
-                        "end_msec": null,
-                        "image": {
-                            "sha256": "6ffb27faa004ef9ec945f1369437369b2b1720b292582c547eaa082d65061bd6",
-                            "media_type": "image/png",
-                            "locator": {
-                                "locator_type": "RelativePath",
-                                "relative_path": "assets/image/png/6ffb27faa004ef9ec945f1369437369b2b1720b292582c547eaa082d65061bd6.png"
-                            }
-                        }
-                    }
-                },
-                "sensors": {
-                    "L": {
-                        "sensor_type": "ClickSensor",
-                        "start_msec": 200,
-                        "end_msec": null,
-                        "x": -0.25,
-                        "y": -0.3,
-                        "w": 0.2,
-                        "h": 0.2,
-                        "mask": "rectangle"
-                    },
-                    "R": {
-                        "sensor_type": "ClickSensor",
-                        "start_msec": 200,
-                        "end_msec": null,
-                        "x": 0.25,
-                        "y": -0.3,
-                        "w": 0.2,
-                        "h": 0.2,
-                        "mask": "rectangle"
-                    },
-                    "TO": {
-                        "sensor_type": "TimeoutSensor",
-                        "timeout_msec": 2000
-                    }
-                },
-                "effects": [
-                    {
-                        "effect_type": "HidePointerEffect",
-                        "start_msec": 0,
-                        "end_msec": 200
-                    }
-                ],
-                "board_color": "#808080ff"
-            },
-            "2/positive": {
-                "cards": {
-                    "feedback_message": {
-                        "card_type": "TextCard",
-                        "x": 0.0,
-                        "y": 0.0,
-                        "w": 0.5,
-                        "h": 0.5,
-                        "start_msec": 0,
-                        "end_msec": null,
-                        "text": "Correct!",
-                        "font_size": 0.05,
-                        "justification_horizontal": "center",
-                        "justification_vertical": "center",
-                        "text_color": "#ffffffff",
-                        "background_color": "#32a852ff"
-                    }
-                },
-                "sensors": {
-                    "wait": {
-                        "sensor_type": "TimeoutSensor",
-                        "timeout_msec": 500
-                    }
-                },
-                "effects": [],
-                "board_color": "#808080ff"
-            },
-            "2/negative": {
-                "cards": {
-                    "feedback_message": {
-                        "card_type": "TextCard",
-                        "x": 0.0,
-                        "y": 0.0,
-                        "w": 0.5,
-                        "h": 0.5,
-                        "start_msec": 0,
-                        "end_msec": null,
-                        "text": "Incorrect.",
-                        "font_size": 0.05,
-                        "justification_horizontal": "center",
-                        "justification_vertical": "center",
-                        "text_color": "#ffffffff",
-                        "background_color": "#a83232ff"
-                    }
-                },
-                "sensors": {
-                    "wait": {
-                        "sensor_type": "TimeoutSensor",
-                        "timeout_msec": 1000
-                    }
-                },
-                "effects": [],
-                "board_color": "#808080ff"
-            },
-            "3/fixation": {
-                "cards": {
-                    "fixation": {
-                        "card_type": "TextCard",
-                        "x": 0.0,
-                        "y": 0.0,
-                        "w": 0.0375,
-                        "h": 0.0375,
-                        "start_msec": 0,
-                        "end_msec": null,
-                        "text": "\\+",
-                        "font_size": 0.02,
-                        "justification_horizontal": "center",
-                        "justification_vertical": "center",
-                        "text_color": "#000000ff",
-                        "background_color": "#E6E6E600"
-                    }
-                },
-                "sensors": {
-                    "fixation-acquired": {
-                        "sensor_type": "ClickSensor",
-                        "start_msec": 0,
-                        "end_msec": null,
-                        "x": 0.0,
-                        "y": 0.0,
-                        "w": 0.0375,
-                        "h": 0.0375,
-                        "mask": "ellipse"
-                    }
-                },
-                "effects": [],
-                "board_color": "#808080ff"
-            },
-            "3/main": {
-                "cards": {
-                    "stimulus": {
-                        "card_type": "ImageCard",
-                        "x": 0.0,
-                        "y": 0.0,
-                        "w": 0.5,
-                        "h": 0.5,
-                        "start_msec": 0,
-                        "end_msec": 200,
-                        "image": {
-                            "sha256": "d29444b8bb250b30c4d45a4200804c8ae1f85a4c4748a9b27523c4ac7d4527e8",
-                            "media_type": "image/png",
-                            "locator": {
-                                "locator_type": "RelativePath",
-                                "relative_path": "assets/image/png/d29444b8bb250b30c4d45a4200804c8ae1f85a4c4748a9b27523c4ac7d4527e8.png"
-                            }
-                        }
-                    },
-                    "left": {
-                        "card_type": "TextCard",
-                        "x": -0.25,
-                        "y": -0.3,
-                        "w": 0.2,
-                        "h": 0.2,
-                        "start_msec": 200,
-                        "end_msec": null,
-                        "text": "F",
-                        "font_size": 0.02,
-                        "justification_horizontal": "center",
-                        "justification_vertical": "center",
-                        "text_color": "#000000ff",
-                        "background_color": "#e6e6e6ff"
-                    },
-                    "right": {
-                        "card_type": "TextCard",
-                        "x": 0.25,
-                        "y": -0.3,
-                        "w": 0.2,
-                        "h": 0.2,
-                        "start_msec": 200,
-                        "end_msec": null,
-                        "text": "J",
-                        "font_size": 0.02,
-                        "justification_horizontal": "center",
-                        "justification_vertical": "center",
-                        "text_color": "#000000ff",
-                        "background_color": "#e6e6e6ff"
-                    }
-                },
-                "sensors": {
-                    "f": {
-                        "sensor_type": "KeySensor",
-                        "start_msec": 200,
-                        "end_msec": null,
-                        "key": "f"
-                    },
-                    "j": {
-                        "sensor_type": "KeySensor",
-                        "start_msec": 200,
-                        "end_msec": null,
-                        "key": "j"
-                    }
-                },
-                "effects": [],
-                "board_color": "#808080ff"
-            },
-            "3/positive": {
-                "cards": {
-                    "feedback_message": {
-                        "card_type": "TextCard",
-                        "x": 0.0,
-                        "y": 0.0,
-                        "w": 0.5,
-                        "h": 0.5,
-                        "start_msec": 0,
-                        "end_msec": null,
-                        "text": "Correct!",
-                        "font_size": 0.05,
-                        "justification_horizontal": "center",
-                        "justification_vertical": "center",
-                        "text_color": "#ffffffff",
-                        "background_color": "#32a852ff"
-                    }
-                },
-                "sensors": {
-                    "wait": {
-                        "sensor_type": "TimeoutSensor",
-                        "timeout_msec": 500
-                    }
-                },
-                "effects": [],
-                "board_color": "#808080ff"
-            },
-            "3/negative": {
-                "cards": {
-                    "feedback_message": {
-                        "card_type": "TextCard",
-                        "x": 0.0,
-                        "y": 0.0,
-                        "w": 0.5,
-                        "h": 0.5,
-                        "start_msec": 0,
-                        "end_msec": null,
-                        "text": "Incorrect.",
-                        "font_size": 0.05,
-                        "justification_horizontal": "center",
-                        "justification_vertical": "center",
-                        "text_color": "#ffffffff",
-                        "background_color": "#a83232ff"
-                    }
-                },
-                "sensors": {
-                    "wait": {
-                        "sensor_type": "TimeoutSensor",
-                        "timeout_msec": 1000
-                    }
-                },
-                "effects": [],
-                "board_color": "#808080ff"
-            },
-            "4/fixation": {
-                "cards": {
-                    "fixation": {
-                        "card_type": "TextCard",
-                        "x": 0.0,
-                        "y": 0.0,
-                        "w": 0.0375,
-                        "h": 0.0375,
-                        "start_msec": 0,
-                        "end_msec": null,
-                        "text": "\\+",
-                        "font_size": 0.02,
-                        "justification_horizontal": "center",
-                        "justification_vertical": "center",
-                        "text_color": "#000000ff",
-                        "background_color": "#E6E6E600"
-                    }
-                },
-                "sensors": {
-                    "fixation-acquired": {
-                        "sensor_type": "ClickSensor",
-                        "start_msec": 0,
-                        "end_msec": null,
-                        "x": 0.0,
-                        "y": 0.0,
-                        "w": 0.0375,
-                        "h": 0.0375,
-                        "mask": "ellipse"
-                    }
-                },
-                "effects": [],
-                "board_color": "#808080ff"
-            },
-            "4/main": {
-                "cards": {
-                    "stimulus": {
-                        "card_type": "ImageCard",
-                        "x": 0.0,
-                        "y": 0.0,
-                        "w": 0.5,
-                        "h": 0.5,
-                        "start_msec": 0,
-                        "end_msec": 200,
-                        "image": {
-                            "sha256": "4d333259c12c1d7ec81a89871d4977b5e711e60eb70fc65605e327779bd10b7b",
-                            "media_type": "image/png",
-                            "locator": {
-                                "locator_type": "RelativePath",
-                                "relative_path": "assets/image/png/4d333259c12c1d7ec81a89871d4977b5e711e60eb70fc65605e327779bd10b7b.png"
-                            }
-                        }
-                    },
-                    "left": {
-                        "card_type": "TextCard",
-                        "x": -0.25,
-                        "y": -0.3,
-                        "w": 0.2,
-                        "h": 0.2,
-                        "start_msec": 200,
-                        "end_msec": null,
-                        "text": "F",
-                        "font_size": 0.02,
-                        "justification_horizontal": "center",
-                        "justification_vertical": "center",
-                        "text_color": "#000000ff",
-                        "background_color": "#e6e6e6ff"
-                    },
-                    "right": {
-                        "card_type": "TextCard",
-                        "x": 0.25,
-                        "y": -0.3,
-                        "w": 0.2,
-                        "h": 0.2,
-                        "start_msec": 200,
-                        "end_msec": null,
-                        "text": "J",
-                        "font_size": 0.02,
-                        "justification_horizontal": "center",
-                        "justification_vertical": "center",
-                        "text_color": "#000000ff",
-                        "background_color": "#e6e6e6ff"
-                    }
-                },
-                "sensors": {
-                    "f": {
-                        "sensor_type": "KeySensor",
-                        "start_msec": 200,
-                        "end_msec": null,
-                        "key": "f"
-                    },
-                    "j": {
-                        "sensor_type": "KeySensor",
-                        "start_msec": 200,
-                        "end_msec": null,
-                        "key": "j"
-                    }
-                },
-                "effects": [],
-                "board_color": "#808080ff"
-            },
-            "4/positive": {
-                "cards": {
-                    "feedback_message": {
-                        "card_type": "TextCard",
-                        "x": 0.0,
-                        "y": 0.0,
-                        "w": 0.5,
-                        "h": 0.5,
-                        "start_msec": 0,
-                        "end_msec": null,
-                        "text": "Correct!",
-                        "font_size": 0.05,
-                        "justification_horizontal": "center",
-                        "justification_vertical": "center",
-                        "text_color": "#ffffffff",
-                        "background_color": "#32a852ff"
-                    }
-                },
-                "sensors": {
-                    "wait": {
-                        "sensor_type": "TimeoutSensor",
-                        "timeout_msec": 500
-                    }
-                },
-                "effects": [],
-                "board_color": "#808080ff"
-            },
-            "4/negative": {
-                "cards": {
-                    "feedback_message": {
-                        "card_type": "TextCard",
-                        "x": 0.0,
-                        "y": 0.0,
-                        "w": 0.5,
-                        "h": 0.5,
-                        "start_msec": 0,
-                        "end_msec": null,
-                        "text": "Incorrect.",
-                        "font_size": 0.05,
-                        "justification_horizontal": "center",
-                        "justification_vertical": "center",
-                        "text_color": "#ffffffff",
-                        "background_color": "#a83232ff"
-                    }
-                },
-                "sensors": {
-                    "wait": {
-                        "sensor_type": "TimeoutSensor",
-                        "timeout_msec": 1000
-                    }
-                },
-                "effects": [],
-                "board_color": "#808080ff"
+                "text": "I am a TextCard.",
+                "font_size": 0.03,
+                "justification_horizontal": "center",
+                "justification_vertical": "center",
+                "text_color": "#000000ff",
+                "background_color": "#e6e6e6ff"
             }
+        }
+    }
+
+    const textEntrySensor = {
+        "sensor_type": "TextEntrySensor",
+        "prompt": "I am a TextEntrySensor.",
+        "font_size": 0.02,
+        "min_length": 1,
+        "max_length": null,
+        "region": {
+            'x': 0,
+            'y': 0.25,
+            'w': 0.75,
+            'h': 0.25,
+            'mask':'rectangle',
+        },
+    }
+
+    const sliderSensorH = {
+        "sensor_type": 'SliderSensor',
+        "num_bins":5,
+        "show_bin_markers":true,
+        "initial_bin_index":2,
+        "orientation": 'horizontal',
+        'region':{
+            'x': 0.25,
+            'y': 0.25,
+            'w': 0.3,
+            'h': 0.1,
+            'mask':'rectangle',
+        }
+    }
+    const sliderSensorV = {
+        "sensor_type": 'SliderSensor',
+        "num_bins":100,
+        "show_bin_markers":false,
+        "initial_bin_index":2,
+        "orientation": 'vertical',
+        'region':{
+            'x': -0.45,
+            'y': 0.25,
+            'w': 0.05,
+            'h': 0.5,
+            'mask':'rectangle',
+        }
+    }
+    const productSensor = {
+        "sensor_type": "ProductSensor",
+        "children": {
+            'child-sensor1': textEntrySensor,
+            //'child-sensor2': selectSensor,
+            'select3': multiSelectSensor,
+            'slider': sliderSensorH,
+            'sliderV': sliderSensorV,
+        }
+    }
+
+    const videoCard = {
+        "card_type": "VideoCard",
+        "region": {
+            "x": 0.25,
+            "y": 0.,
+            "w": 0.2,
+            "h": 0.2,
+            "mask": 'ellipse',
+        },
+        "video": {
+            "sha256": "3f224a8b6a7917ae1364cf2cc9daf7a5f7073bfe0fb5d9b638d8a6efc1c867f7",
+            "media_type": "video/mp4",
+            "locator": {
+                "locator_type": "RelativePath",
+                "relative_path": "assets/video/mp4/3f224a8b6a7917ae1364cf2cc9daf7a5f7073bfe0fb5d9b638d8a6efc1c867f7.mp4"
+            }
+        },
+        "loop": false
+    }
+    const compositeCard = {
+        "card_type": "CompositeCard",
+        "children": {
+            'child-card-1':videoCard
+        }
+    }
+
+    let graph2 = {
+        'type': 'Graph',
+
+        "start": "my-node",
+        "nodes": {
+            "my-node": {
+                "type": 'Node',
+                "stimulus": compositeCard2,
+                "sensor": multiSelectSensor,
+                "board_color": "white",
+                "show_pointer": true,
+            },
+        },
+        "transitions": {},
+        "nodekit_version": "0.1.0",
+        'registers': {},
+    }
+
+    let devGraph = {
+        'type': 'Graph',
+        "start": "graph-node",
+        "nodes": {
+            "my-node": {
+                "type": 'Node',
+                "stimulus": compositeCard,
+                "sensor": productSensor,
+                "board_color": "white",
+                "show_pointer": true,
+            },
+            'graph-node': graph2
         },
         "transitions": {
-            "1/fixation": {
-                "fixation-acquired": "1/main"
+            'graph-node': {
+                'transition_type': 'Go',
+                'to': 'my-node',
+                'register_updates': {}
             },
-            "1/main": {
-                "R": "1/negative",
-                "L": "1/positive",
-                "TO": "1/negative"
-            },
-            "0": {
-                "wait": "1/fixation",
-                "press": "1/fixation"
-            },
-            "2/fixation": {
-                "fixation-acquired": "2/main"
-            },
-            "2/main": {
-                "R": "2/negative",
-                "L": "2/positive",
-                "TO": "2/negative"
-            },
-            "1/positive": {
-                "wait": "2/fixation"
-            },
-            "1/negative": {
-                "wait": "2/fixation"
-            },
-            "3/fixation": {
-                "fixation-acquired": "3/main"
-            },
-            "3/main": {
-                "f": "3/positive",
-                "j": "3/negative"
-            },
-            "2/positive": {
-                "wait": "3/fixation"
-            },
-            "2/negative": {
-                "wait": "3/fixation"
-            },
-            "4/fixation": {
-                "fixation-acquired": "4/main"
-            },
-            "4/main": {
-                "f": "4/negative",
-                "j": "4/positive"
-            },
-            "3/positive": {
-                "wait": "4/fixation"
-            },
-            "3/negative": {
-                "wait": "4/fixation"
-            }
         },
-        "nodekit_version": "0.1.0"
+        "nodekit_version": "0.1.0",
+        'registers': {},
     }
 
     import {play} from '/src/main.ts';
@@ -887,17 +360,28 @@
     window.focus();
 
     window.onload = async () => {
-        // Add focus
-        let trace = await play(
-            graph,
-            (event) => {
-                if ("PointerSampledEvent" === event.event_type) {
-                    return; // too much noise in the log
-                }
-                console.log(event);
+        try {
+            async function loadGraph(path) {
+                let graphModule = await import(path);
+                return graphModule.default;
             }
-        )
-        console.log(trace)
+            let mtsGraph = await loadGraph("./test-graphs/mts-graph.json");
+            console.log(mtsGraph)
+            let trace = await play(
+                devGraph,
+                (event) => {
+                    // Avoid noise in the log
+                    if ("PointerSampledEvent" === event.event_type) {
+                        return;
+                    }
+                    console.log(event);
+                },
+                true,
+            );
+            console.log('Trace', trace);
+        } catch (err) {
+            console.error('Dev harness failed to play graph', err);
+        }
     };
 </script>
 

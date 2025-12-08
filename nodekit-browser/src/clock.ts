@@ -1,4 +1,4 @@
-import type {TimeElapsedMsec} from "./types/common.ts";
+import type {TimeElapsedMsec} from "./types/value.ts";
 
 export class Clock {
     private startTime: DOMHighResTimeStamp | null = null;

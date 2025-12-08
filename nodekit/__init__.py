@@ -4,13 +4,16 @@ __all__ = [
     "Node",
     "Graph",
     "Trace",
+    # One-off top-level types:
+    "Region",
     # Namespaced types:
     "assets",
     "cards",
     "sensors",
-    "effects",
     "actions",
     "events",
+    "transitions",
+    "expressions",
     # Ops:
     "play",
     "concat",
@@ -25,15 +28,20 @@ from nodekit._internal.version import VERSION
 
 # Incoming models:
 from nodekit._internal.types.node import Node
-from nodekit._internal.types.graph import Graph
 from nodekit._internal.types.trace import Trace
+from nodekit._internal.types.graph import Graph
 
+# Random
+from nodekit._internal.types.regions import Region
+
+# Namespaced types:
 import nodekit.cards as cards
 import nodekit.assets as assets
-import nodekit.effects as effects
 import nodekit.sensors as sensors
 import nodekit.actions as actions
 import nodekit.events as events
+import nodekit.transitions as transitions
+import nodekit.expressions as expressions
 
 # Ops:
 from nodekit._internal.ops.play import play

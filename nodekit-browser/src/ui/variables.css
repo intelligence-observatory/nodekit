@@ -8,15 +8,8 @@
     --top-strip-height: 10px;
     --overlay-console-width: 80%;
 
-    /* System Surfaces */
-    --system-overlay-background-color: rgba(0, 0, 0, 0.5);
-
     /* System Borders */
-    --system-border-faint: 1px solid rgba(255, 255, 255, 0.1);
     --system-border-radius: 12px;
-
-    /* System Buttons */
-    --system-button-border: 0px solid rgba(100, 100, 100, 1);
 
     /* System Scrollbars */
     --system-scroll-color: rgba(128,128,128, 0.1);
@@ -45,8 +38,6 @@
     --cognition-standard-color-alpha-medium: hsla(207, 100%, 82%, 0.4);
     --cognition-standard-color-alpha-low: hsla(207, 100%, 82%, 0.1);
 
-    /* Monetary Reinforcement */
-    --monetary-gain-color: hsla(48, 90%, 60%, 1.0);
 }
 html, body {
     margin: 0;
@@ -54,11 +45,6 @@ html, body {
 }
 
 .nodekit-container {
-    height: 100vh;
-    width: 100vw;
-    top: 0;
-    left:0;
-    position: fixed;
     overflow: hidden;
 }
 
@@ -86,9 +72,10 @@ html, body {
 .nodekit-container .nodekit-content {
 
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    top: 0;
+    left: 0;
+    right:0;
+    bottom: 0;
 
     height: 100%;
     width: 100%;

@@ -1,7 +1,7 @@
-import type {SpatialSize,} from "../../../types/common.ts";
+import type {SpatialSize,} from "../../../types/value.ts";
 
 import './text-card-view.css'
-import {CardView} from "../card-view.ts";
+import {LeafCardView} from "../card-view.ts";
 import type {TextCard} from "../../../types/cards";
 import {renderTextContent, type TextContentParameters} from "../../../utils.ts";
 
@@ -10,20 +10,16 @@ import {renderTextContent, type TextContentParameters} from "../../../utils.ts";
  * Offers a scrollbar if the content is too long.
  */
 
-type CardSelectedSubscriber = (selected: boolean) => void;
 
-export class TextCardView extends CardView<TextCard> {
-    textContainer: HTMLDivElement | undefined;
-
-    private selected: boolean = false;
-    private subscribers: Set<CardSelectedSubscriber> = new Set()
+export class TextCardView extends LeafCardView<TextCard> {
+    textContainer!: HTMLDivElement;
 
     async prepare(
     ) {
         this.textContainer = document.createElement('div');
         this.textContainer.classList.add('text-card');
+        this.root.style.borderRadius='8px'
         this.root.appendChild(this.textContainer);
-
 
         // Set styles based on card parameters:
         this.textContainer.style.backgroundColor = this.card.background_color;
@@ -45,46 +41,5 @@ export class TextCardView extends CardView<TextCard> {
             }
         )
         this.textContainer.appendChild(textContentDiv);
-
-        // Add event listener for hover effect
-        if (this.card.selectable) {
-            this.textContainer.addEventListener('mouseenter', () => {
-                this.textContainer!.style.background = 'var(--cognition-faint-color)'; // Just hardcode; CSS class switches weren't working. Todo: fix
-            });
-
-            this.textContainer.addEventListener('mouseleave', () => {
-                this.textContainer!.style.background = this.card.background_color;
-            });
-        }
-
-        // Add event listener for selection
-        if (this.card.selectable) {
-            this.textContainer.addEventListener('click', () => {
-                this.selected = !this.selected;
-                if (this.selected) {
-                    this.textContainer!.classList.add('text-card--selected');
-                }
-                else {
-                    this.textContainer!.classList.remove('text-card--selected');
-                }
-
-                this.emitSelectionState()
-            }
-            );
-        }
-    }
-    onStart() {
-        super.onStart();
-        this.setInteractivity(true)
-    }
-
-    private emitSelectionState(){
-        this.subscribers.forEach((callback) => {
-            callback(this.selected);
-        });
-    }
-
-    public subscribeToSelectionChanges(callback: CardSelectedSubscriber){
-        this.subscribers.add(callback);
     }
 }

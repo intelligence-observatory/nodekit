@@ -3,12 +3,13 @@ from typing import Literal, Union, Annotated, Dict
 
 import pydantic
 
-from nodekit._internal.types.common import PressableKey, SpatialPoint, CardId
+from nodekit._internal.types.value import PressableKey, SpatialPoint, TimeElapsedMsec
 
 
 # %%
 class BaseAction(pydantic.BaseModel, ABC):
     action_type: str
+    t: TimeElapsedMsec
 
 
 # %%
@@ -23,35 +24,53 @@ class ClickAction(BaseAction):
 
 
 # %%
-class TimeoutAction(BaseAction):
-    action_type: Literal["TimeoutAction"] = "TimeoutAction"
-
-
-# %%
 class KeyAction(BaseAction):
     action_type: Literal["KeyAction"] = "KeyAction"
     key: PressableKey = pydantic.Field(description="The key that was pressed.")
 
 
 # %%
-class SliderState(pydantic.BaseModel):
-    slider_normalized_position: float = pydantic.Field(
-        description="The value of the slider, in normalized units.", ge=0, le=1
-    )
-    slider_bin_index: int = pydantic.Field(
+class SliderAction(pydantic.BaseModel):
+    action_type: Literal["SliderAction"] = "SliderAction"
+    bin_index: int = pydantic.Field(
         description="The index of the bin that was selected.", ge=0
     )
 
 
-class FreeTextEntryState(pydantic.BaseModel):
-    text: str = pydantic.Field(description="The text that was entered.")
+# %%
+class TextEntryAction(pydantic.BaseModel):
+    action_type: Literal["TextEntryAction"] = "TextEntryAction"
+    text: str
 
 
-class SubmitAction(BaseAction):
-    action_type: Literal["SubmitAction"] = "SubmitAction"
-    submitted_values: Dict[CardId, SliderState | FreeTextEntryState] = pydantic.Field(
-        description="A mapping from CardId to the corresponding Action (SliderAction or FreeTextEntryAction) that was submitted."
-    )
+# %%
+class WaitAction(BaseAction):
+    action_type: Literal["WaitAction"] = "WaitAction"
+
+
+# %%
+class SelectAction(BaseAction):
+    action_type: Literal["SelectAction"] = "SelectAction"
+    selection: str
+
+
+# %%
+class MultiSelectAction(BaseAction):
+    action_type: Literal["MultiSelectAction"] = "MultiSelectAction"
+    selections: list[str]
+
+
+# %%
+class ProductAction(BaseAction):
+    action_type: Literal["ProductAction"] = "ProductAction"
+    child_actions: Dict[str, "Action"]
+
+
+# %%
+class SumAction(BaseAction):
+    action_type: Literal["SumAction"] = "SumAction"
+    child_id: str
+    child_action: "Action"
 
 
 # %%
@@ -59,8 +78,13 @@ Action = Annotated[
     Union[
         ClickAction,
         KeyAction,
-        TimeoutAction,
-        SubmitAction,
+        SliderAction,
+        TextEntryAction,
+        WaitAction,
+        SelectAction,
+        MultiSelectAction,
+        ProductAction,
+        SumAction,
     ],
     pydantic.Field(discriminator="action_type"),
 ]

@@ -5,11 +5,10 @@ export class EventArray {
     private onEventCallback: (event: Event) => void;
 
     constructor(
-        initialEvents: Event[],
         onEventCallback: ((event: Event) => void),
     ) {
         this.onEventCallback = onEventCallback;
-        this.events = initialEvents;
+        this.events = [];
     }
 
     push(event: Event) {

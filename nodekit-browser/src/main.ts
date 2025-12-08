@@ -1,39 +1,38 @@
-import type {BrowserContextSampledEvent, Event, PageResumedEvent, PageSuspendedEvent, TraceEndedEvent, TraceStartedEvent} from "./types/events";
+import type {ActionTakenEvent, Event, NodeEndedEvent, NodeStartedEvent, PageResumedEvent, PageSuspendedEvent, TraceEndedEvent, TraceStartedEvent} from "./types/events";
 import {Clock} from "./clock.ts";
 import type {Graph, Trace} from "./types/node.ts";
-import {getBrowserContext} from "./user-gates/browser-context.ts";
-import {checkDeviceIsValid} from "./user-gates/device-gate.ts";
-import type {NodeId, TimeElapsedMsec} from "./types/common.ts";
+import {sampleBrowserContext} from "./user-gates/browser-context.ts";
+import {userDeviceIsValid} from "./user-gates/device-gate.ts";
+import type {NodeId, RegisterId, TimeElapsedMsec} from "./types/value.ts";
 import {createNodeKitRootDiv} from "./ui/ui-builder.ts";
 import {AssetManager} from "./asset-manager";
 import {ShellUI} from "./ui/shell-ui/shell-ui.ts";
-import {getBoardViewsContainerDiv} from "./ui/board-views-ui/board-views-ui.ts";
-import {NodePlay} from "./node-player/node-play.ts";
+import {type BoardViewsContainerDiv, getBoardViewsContainerDiv} from "./ui/board-views-ui/board-views-ui.ts";
+import {NodePlay} from "./node-play";
 import {version as NODEKIT_VERSION} from '../package.json'
 import {gt, major} from 'semver';
 import {EventArray} from "./event-array.ts";
-import {KeyStream} from "./input-streams/key-stream.ts";
-import {PointerStream} from "./input-streams/pointer-stream.ts";
+
+import {evalTransition} from "./interpreter/eval-transitions.ts";
+import type {Action} from "./types/actions";
 
 /**
  * Plays a Graph, returning a Trace of Events.
  * @param graph
  * @param onEventCallback
- * @param previousEvents
+ * @param debugMode
  */
 export async function play(
     graph: Graph,
-    onEventCallback: ((event: Event) => void) | null = null,
-    previousEvents: Event[] = [],
+    onEventCallback: ((event: Event) => void) = (_event: Event) => {
+    },
+    debugMode: boolean = false,
 ): Promise<Trace> {
 
-    // If no onEventCallback is provided, use a no-op function:
-    if (!onEventCallback) {
-        onEventCallback = (_event: Event) => {};
-    }
+    const clock = new Clock();
+    clock.start()
 
-    // Todo: the previousEvents can be processed to obtain the current state of the task. Otherwise, we always start from scratch.
-    const eventArray = new EventArray(previousEvents, onEventCallback);
+    const eventArray = new EventArray(onEventCallback);
 
     // Initialize divs:
     const nodeKitDiv = createNodeKitRootDiv();
@@ -48,7 +47,7 @@ export async function play(
     }
 
     // Device gate:
-    if (!checkDeviceIsValid()){
+    if (!userDeviceIsValid()) {
         const error = new Error('Unsupported device for NodeKit. Please use a desktop browser.');
         shellUI.showErrorOverlay(error);
         throw error;
@@ -56,47 +55,14 @@ export async function play(
 
     shellUI.showSessionConnectingOverlay()
     const assetManager = new AssetManager();
-    const clock = new Clock();
-
-    // Initialize KeyStream:
-    const keyStream = new KeyStream(clock);
-    keyStream.subscribe(
-        // Subscribe to the key stream:
-        (keySample) => {
-            eventArray.push(
-                {
-                    event_type: "KeySampledEvent",
-                    t: keySample.t,
-                    kind: keySample.sampleType,
-                    key: keySample.key,
-                }
-            )
-        }
-    )
-
-    // Initialize PointerStream:
-    const pointerStream = new PointerStream(boardViewsContainerDiv, clock)
-    pointerStream.subscribe(
-        // Subscribe to the pointer stream:
-        (pointerSample) => {
-            eventArray.push(
-                {
-                    event_type: "PointerSampledEvent",
-                    t: pointerSample.t,
-                    kind: pointerSample.sampleType,
-                    x: pointerSample.x,
-                    y: pointerSample.y,
-                }
-            )
-        }
-    )
 
     shellUI.hideSessionConnectingOverlay()
 
     // Start screen:
-    await shellUI.playStartScreen()
+    if (!debugMode) {
+        await shellUI.playStartScreen()
+    }
 
-    clock.start()
     const startEvent: TraceStartedEvent = {
         event_type: "TraceStartedEvent",
         t: 0 as TimeElapsedMsec,
@@ -121,68 +87,24 @@ export async function play(
             eventArray.push(returnEvent);
         }
     }
+
     document.addEventListener("visibilitychange", onVisibilityChange)
 
     // Emit the BrowserContextEvent:
-    const browserContext = getBrowserContext();
-    const browserContextEvent: BrowserContextSampledEvent = {
-        event_type: "BrowserContextSampledEvent",
-        t: clock.now(),
-        user_agent: browserContext.userAgent,
-        viewport_width_px: browserContext.viewportWidthPx,
-        viewport_height_px: browserContext.viewportHeightPx,
-        display_width_px: browserContext.displayWidthPx,
-        display_height_px: browserContext.displayHeightPx,
-        device_pixel_ratio: browserContext.devicePixelRatio,
-    }
+    const browserContextEvent = sampleBrowserContext(clock);
     eventArray.push(browserContextEvent);
 
-    const nodes = graph.nodes;
-
-    // Assemble transition map:
-    let currentNodeId: NodeId = graph.start;
-
-    while (true) {
-        // Prepare the Node:
-        const node = nodes[currentNodeId];
-        const nodePlay = new NodePlay(
-            currentNodeId,
-            node,
-        )
-
-        // Mount the Node to the Board:
-        boardViewsContainerDiv.appendChild(nodePlay.boardView.root);
-        await nodePlay.prepare(
-            assetManager,
-            keyStream,
-            pointerStream,
-            clock,
-            eventArray,
-        )
-
-        // Play the Node:
-        let result = await nodePlay.run(clock, eventArray);
-
-        // Clear the rootBoardContainerDiv of all children:
-        while (boardViewsContainerDiv.firstChild) {
-            boardViewsContainerDiv.removeChild(boardViewsContainerDiv.firstChild);
+    // Core play loop:
+    await playGraph(
+        graph,
+        '', // Root namespace
+        {
+            eventArray: eventArray,
+            boardViewsContainerDiv: boardViewsContainerDiv,
+            assetManager: assetManager,
+            clock: clock,
         }
-
-        // Get the next Node; if no transition specified, fall through to 'END':
-        if (!(currentNodeId in graph.transitions)) {
-            break
-        }
-
-        if (!(result.sensorId in graph.transitions[currentNodeId])) {
-            break
-        }
-        currentNodeId = graph.transitions[currentNodeId][result.sensorId];
-    }
-
-    // End screen:
-    await shellUI.playEndScreen()
-    keyStream.destroy()
-    pointerStream.destroy()
+    )
 
     // Generate the EndEvent:
     const endEvent: TraceEndedEvent = {
@@ -195,10 +117,13 @@ export async function play(
     document.removeEventListener("visibilitychange", onVisibilityChange);
 
     // Assemble trace:
-    const trace = {
+    const trace: Trace = {
         nodekit_version: NODEKIT_VERSION,
         events: eventArray.events,
     }
+
+    // End screen:
+    await shellUI.playEndScreen()
 
     // Show the Trace in the console:
     shellUI.showConsoleMessageOverlay(
@@ -209,3 +134,117 @@ export async function play(
     return trace
 }
 
+
+export interface PlayGraphContext {
+    eventArray: EventArray,
+    boardViewsContainerDiv: BoardViewsContainerDiv,
+    assetManager: AssetManager,
+    clock: Clock,
+}
+
+async function playGraph(
+    graph: Graph,
+    namespace: string,
+    context: PlayGraphContext,
+): Promise<Action> {
+
+
+    const nodes = graph.nodes;
+
+    const getNamespacedNodeId = (nodeId: NodeId): NodeId => {
+        return (namespace + nodeId) as NodeId;
+    }
+
+    // Assemble transition map:
+    let currentNodeId: NodeId = graph.start;
+    let lastAction = null;
+
+    while (true) {
+        const node = nodes[currentNodeId];
+
+        // If a Graph, recurse.
+        if (node.type === 'Graph') {
+            lastAction = await playGraph(
+                node,
+                currentNodeId + '/', // New namespace
+                context
+            )
+        }
+        // Otherwise, play the leaf Node
+        else if (node.type === 'Node') {
+            // Create and prepare the NodePlay:
+            const nodePlay = new NodePlay(
+                node,
+                context.assetManager,
+                context.clock,
+            )
+            // Mount the NodePlay to the DOM:
+            context.boardViewsContainerDiv.appendChild(nodePlay.root);
+
+            await nodePlay.prepare()
+
+            // Play the Node:
+            let result = await nodePlay.run();
+
+            // Set lastAction
+            lastAction = result.action;
+
+            // Wrap result into Events:
+            const eStart: NodeStartedEvent = {
+                event_type: 'NodeStartedEvent',
+                t: result.tStart,
+                node_id: getNamespacedNodeId(currentNodeId),
+            }
+            context.eventArray.push(eStart)
+            const e: ActionTakenEvent = {
+                event_type: 'ActionTakenEvent',
+                node_id: getNamespacedNodeId(currentNodeId),
+                action: result.action,
+                t: result.action.t
+            }
+            context.eventArray.push(e)
+            const eEnd: NodeEndedEvent = {
+                event_type: 'NodeEndedEvent',
+                t: result.tEnd,
+                node_id: getNamespacedNodeId(currentNodeId),
+            }
+            context.eventArray.push(eEnd)
+        } else {
+            throw new Error(`Unknown node type: ${(node as any).type}`)
+        }
+
+        // Clear the rootBoardContainerDiv of all children:
+        while (context.boardViewsContainerDiv.firstChild) {
+            context.boardViewsContainerDiv.removeChild(context.boardViewsContainerDiv.firstChild);
+        }
+
+        // Get the next Node; if no explicit Transitions for this Node are given, just End.
+        if (!(currentNodeId in graph.transitions)) {
+            console.log('No transitions found; Graph finished')
+            break
+        }
+
+        let nextNodeId = null;
+        const transition = graph.transitions[currentNodeId];
+        const res = evalTransition(
+            {
+                transition: transition,
+                registers: graph.registers,
+                lastAction: lastAction
+            }
+        )
+        // Set next Node:
+        nextNodeId = res.nextNodeId;
+        if (nextNodeId === null) {
+            break
+        }
+        currentNodeId = nextNodeId;
+
+        // Update Graph registers
+        for (const [registerId, updateValue] of Object.entries(res.registerUpdates)) {
+            graph.registers[registerId as RegisterId] = updateValue
+        }
+        console.warn('Graph registers updated', graph.registers)
+    }
+    return lastAction
+}

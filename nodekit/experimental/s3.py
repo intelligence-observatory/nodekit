@@ -7,7 +7,7 @@ from typing import BinaryIO
 import hashlib
 import mimetypes
 
-from nodekit._internal.types.common import SHA256, MediaType
+from nodekit._internal.types.value import SHA256, MediaType
 import os
 from pathlib import Path
 
