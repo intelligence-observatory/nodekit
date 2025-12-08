@@ -224,9 +224,7 @@ def test_invalid_sensor_reference():
 
 
 def test_invalid_transition_node():
-    nodes = {
-        "A": nk.Node(stimulus=None, sensor=nk.sensors.WaitSensor(duration_msec=1))
-    }
+    nodes = {"A": nk.Node(stimulus=None, sensor=nk.sensors.WaitSensor(duration_msec=1))}
 
     # Add transitions with non-existent Node
     transitions = {"A": nk.transitions.Go(to="B")}
