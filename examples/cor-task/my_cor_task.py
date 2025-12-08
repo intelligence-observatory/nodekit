@@ -192,7 +192,6 @@ if __name__ == "__main__":
             i_correct_choice=i_correct_choice,
         )
 
-
         trials.append(trial)
 
     graph = nk.concat(trials)

@@ -13,7 +13,7 @@ type List = list["Value"]
 type Dict = dict[str, "Value"]
 # Full Value
 type LeafValue = Boolean | Integer | Float | String
-type Value = LeafValue| List | Dict
+type Value = LeafValue | List | Dict
 
 
 # %% Spatial

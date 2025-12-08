@@ -25,13 +25,14 @@ class End(BaseTransition):
 
 type LeafTransition = Go | End
 
+
 # %%
 class IfThenElse(BaseTransition):
     model_config = pydantic.ConfigDict(
         serialize_by_alias=True,
         validate_by_alias=False,
         populate_by_name=True,
-    ) # See https://docs.pydantic.dev/latest/api/config/#pydantic.config.ConfigDict.validate_by_name
+    )  # See https://docs.pydantic.dev/latest/api/config/#pydantic.config.ConfigDict.validate_by_name
 
     transition_type: Literal["IfThenElse"] = "IfThenElse"
 
@@ -39,20 +40,17 @@ class IfThenElse(BaseTransition):
     if_: Annotated[
         Expression,
         pydantic.Field(
-            serialization_alias='if',
-            validation_alias='if',
-            description="A boolean-valued Expression."
-        )
+            serialization_alias="if",
+            validation_alias="if",
+            description="A boolean-valued Expression.",
+        ),
     ]
     then: LeafTransition
     else_: Annotated[
         LeafTransition,
-        pydantic.Field(
-            default_factory=End,
-            validate_default=True,
-            alias='else'
-        )
+        pydantic.Field(default_factory=End, validate_default=True, alias="else"),
     ]
+
 
 # %%
 class Switch(BaseTransition):
