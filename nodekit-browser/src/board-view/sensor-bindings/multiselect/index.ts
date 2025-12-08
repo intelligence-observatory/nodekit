@@ -11,6 +11,8 @@ import type {CardView} from "../../card-views/card-view.ts";
 export class MultiSelectSensorBinding extends SensorBinding<MultiSelectSensor> {
     private choiceCardViews: CardView[] = [];
     private confirmCardView: CardView | null = null;
+    private choiceIds: string[] = [];
+    private cardViewMap: Record<string, CardView> = {};
 
     async prepare() {
         const minSelections = this.params.sensor.min_selections;
@@ -19,18 +21,19 @@ export class MultiSelectSensorBinding extends SensorBinding<MultiSelectSensor> {
         const currentSelections: Set<string> = new Set();
 
         // Place choice cards
-        const cardViewMap: Record<string, CardView> = {};
-        let choiceIds = [];
         for (const [choiceId, choiceCard] of Object.entries(this.params.sensor.choices)){
-            cardViewMap[choiceId] = await createCardView(
+            const cardView= await createCardView(
                 choiceCard,
                 this.params.boardView,
                 this.params.assetManager,
             )
-            choiceIds.push(choiceId)
-            this.choiceCardViews.push(cardViewMap[choiceId]);
+            cardView.setHoverable(true);
+            this.cardViewMap[choiceId] = cardView;
+
+            this.choiceIds.push(choiceId)
+            this.choiceCardViews.push(this.cardViewMap[choiceId]);
         }
-        choiceIds.sort()
+        this.choiceIds.sort()
 
         // Place confirm card
         const confirmCardView = await createCardView(
@@ -39,32 +42,44 @@ export class MultiSelectSensorBinding extends SensorBinding<MultiSelectSensor> {
             this.params.assetManager,
         )
         this.confirmCardView = confirmCardView;
+        const affirmedOpacity = 0.5;
         confirmCardView.setOpacity(0.1)
         let canConfirm = false;
         let confirmed = false;
 
-        const updateCardViews = () => {
+        const refreshChoiceViews = () => {
             const atMax = currentSelections.size >= maxSelections;
-            for (const choiceId of choiceIds) {
-                const cardView = cardViewMap[choiceId];
+            for (const choiceId of this.choiceIds) {
+                const cardView = this.cardViewMap[choiceId];
                 const isSelected = currentSelections.has(choiceId);
                 cardView.setSelectedState(isSelected);
 
                 if (atMax && !isSelected) {
                     cardView.setOpacity(0.25);
+                    cardView.setHoverable(false);
                 } else {
                     cardView.setOpacity(1);
+                    cardView.setHoverable(true);
                 }
             }
         };
 
-        const emitMultiSelectValue = () => {
+        const emitSelection = () => {
             const sensorValue: MultiSelectAction = {
                 action_type: "MultiSelectAction",
                 t: this.params.boardView.clock.now(),
                 selections: Array.from(currentSelections),
             };
             this.emit(sensorValue);
+        };
+
+        const applyConfirmedDim = () => {
+            for (const cardId of this.choiceIds) {
+                const cardView = this.cardViewMap[cardId];
+                cardView.setOpacity(affirmedOpacity);
+                cardView.setHoverable(false);
+            }
+            this.confirmCardView?.setOpacity(affirmedOpacity);
         };
 
         const pointerCallback = (pointerSample: PointerSample) => {
@@ -74,8 +89,8 @@ export class MultiSelectSensorBinding extends SensorBinding<MultiSelectSensor> {
             const atMax = currentSelections.size >= maxSelections;
             let changed = false;
 
-            for (const cardId of choiceIds) {
-                const cardView = cardViewMap[cardId];
+            for (const cardId of this.choiceIds) {
+                const cardView = this.cardViewMap[cardId];
 
                 const inside = cardView.checkPointInCard(
                     pointerSample.x,
@@ -83,7 +98,6 @@ export class MultiSelectSensorBinding extends SensorBinding<MultiSelectSensor> {
                 );
 
                 if (!inside) {
-                    cardView.setHoverState(false);
                     continue;
                 }
 
@@ -91,9 +105,9 @@ export class MultiSelectSensorBinding extends SensorBinding<MultiSelectSensor> {
 
                 // Hover logic: when at max, unselected cards are visually "disabled"
                 if (atMax && !isSelected) {
-                    cardView.setHoverState(false);
+                    cardView.setHoverable(false);
                 } else {
-                    cardView.setHoverState(true);
+                    cardView.setHoverable(true);
                 }
 
                 if (pointerSample.sampleType === "down") {
@@ -111,7 +125,7 @@ export class MultiSelectSensorBinding extends SensorBinding<MultiSelectSensor> {
             }
 
             if (changed) {
-                updateCardViews();
+                refreshChoiceViews();
                 canConfirm = currentSelections.size >= minSelections;
             }
 
@@ -123,17 +137,13 @@ export class MultiSelectSensorBinding extends SensorBinding<MultiSelectSensor> {
                 );
 
                 if (inside) {
-                    confirmCardView.setHoverState(true);
                     if (pointerSample.sampleType === "down") {
-                        emitMultiSelectValue()
+                        emitSelection()
                         confirmed = true;
-                        confirmCardView.setOpacity(0.5)
-                        confirmCardView.setSelectedState(true)
+                        confirmCardView.setOpacity(affirmedOpacity)
+                        applyConfirmedDim();
                     }
-                } else {
-                    confirmCardView.setHoverState(false);
                 }
-
             }
             else{
                 confirmCardView.setOpacity(0.1)

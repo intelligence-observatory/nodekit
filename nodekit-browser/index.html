@@ -368,7 +368,7 @@
             let mtsGraph = await loadGraph("./test-graphs/mts-graph.json");
             console.log(mtsGraph)
             let trace = await play(
-                mtsGraph,
+                devGraph,
                 (event) => {
                     // Avoid noise in the log
                     if ("PointerSampledEvent" === event.event_type) {
@@ -376,7 +376,7 @@
                     }
                     console.log(event);
                 },
-                false,
+                true,
             );
             console.log('Trace', trace);
         } catch (err) {
