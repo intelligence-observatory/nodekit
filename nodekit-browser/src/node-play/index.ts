@@ -7,14 +7,10 @@ import {createCardView} from "../board-view/card-views/create.ts";
 import {createSensorBinding} from "../board-view/sensor-bindings/create-sensor-binding.ts";
 import type {Clock} from "../clock.ts";
 import {Deferred} from "../utils.ts";
-import type {TimeElapsedMsec} from "../types/value.ts";
+import type {NodeId} from "../types/value.ts";
+import type {EventArray} from "../event-array.ts";
+import type {ActionTakenEvent, KeySampledEvent, NodeEndedEvent, NodeStartedEvent, PointerSampledEvent} from "../types/events";
 
-export interface NodePlayRunResult {
-    tStart: TimeElapsedMsec,
-    action: Action;
-    tEnd: TimeElapsedMsec,
-
-}
 
 export class NodePlay {
     public root: HTMLDivElement
@@ -25,21 +21,62 @@ export class NodePlay {
     private scheduler: EventScheduler
     private deferredAction: Deferred<Action> = new Deferred<Action>()
     private assetManager: AssetManager;
+    private eventArray: EventArray;
+    private nodeId: NodeId;
 
     constructor(
+        nodeId: NodeId,
         node: Node,
         assetManager: AssetManager,
         clock: Clock,
+        eventArray: EventArray,
     ) {
+        this.eventArray = eventArray;
         this.boardView = new BoardView(node.board_color, clock);
         this.root = this.boardView.root;
+        this.nodeId = nodeId;
         this.node = node;
         this.scheduler = new EventScheduler();
         this.assetManager=assetManager;
+
     }
 
     async prepare() {
 
+
+        // Have the input streams push to the event stream: todo despaghetti
+        const unsubscribePointer = this.boardView.pointerStream.subscribe(
+            (pointerSample) => {
+                const e: PointerSampledEvent = {
+                    event_type: 'PointerSampledEvent',
+                    t: pointerSample.t,
+                    x: pointerSample.x,
+                    y: pointerSample.y,
+                    kind: pointerSample.sampleType,
+                }
+                this.eventArray.push(e)
+            }
+        )
+        const unsubscribeKey = this.boardView.keyStream.subscribe(
+            (keySample) => {
+                const e: KeySampledEvent = {
+                    event_type: 'KeySampledEvent',
+                    t: keySample.t,
+                    key: keySample.key,
+                    kind: keySample.sampleType,
+                }
+                this.eventArray.push(e)
+            }
+        )
+
+        this.scheduler.scheduleOnStop(
+            () => {
+                unsubscribePointer()
+                unsubscribeKey()
+            }
+        )
+
+        // Create Stimulus CardView:
         if (this.node.stimulus){
             const cardView = await createCardView(
                 this.node.stimulus,
@@ -89,7 +126,7 @@ export class NodePlay {
         this.prepared = true;
     }
 
-    async run(): Promise<NodePlayRunResult> {
+    async run(): Promise<Action> {
         // Run the NodePlay, returning a Promise which resolves when a Sensor fires and the corresponding Reinforcer has completed.
         if (!this.prepared) {
             // Prepare the NodePlay
@@ -102,7 +139,15 @@ export class NodePlay {
         }
 
         this.boardView.setBoardState(true, true);
-        const tStart = this.boardView.clock.now()
+
+        // Emit start event:
+        const eStart: NodeStartedEvent = {
+            event_type: 'NodeStartedEvent',
+            t: this.boardView.clock.now(),
+            node_id: this.nodeId,
+        }
+        this.eventArray.push(eStart)
+
         this.started = true;
 
         // Kick off scheduler:
@@ -111,15 +156,28 @@ export class NodePlay {
         // Wait for Action:
         const action = await this.deferredAction.promise;
 
+        // Emit action event:
+        const eAction: ActionTakenEvent = {
+            event_type: 'ActionTakenEvent',
+            node_id: this.nodeId,
+            action: action,
+            t: action.t
+        }
+        this.eventArray.push(eAction)
+
         // Clean up NodePlay:
         this.scheduler.stop();
         const tEnd = this.boardView.clock.now()
 
-        return {
-            tStart:tStart,
-            tEnd:tEnd,
-            action: action,
+        // Emit end event:
+        const eEnd: NodeEndedEvent = {
+            event_type: 'NodeEndedEvent',
+            t: tEnd,
+            node_id: this.nodeId,
         }
+        this.eventArray.push(eEnd)
+
+        return action
     }
 }
 

@@ -1,4 +1,4 @@
-import type {ActionTakenEvent, Event, NodeEndedEvent, NodeStartedEvent, PageResumedEvent, PageSuspendedEvent, TraceEndedEvent, TraceStartedEvent} from "./types/events";
+import type {Event, PageResumedEvent, PageSuspendedEvent, TraceEndedEvent, TraceStartedEvent} from "./types/events";
 import {Clock} from "./clock.ts";
 import type {Graph, Trace} from "./types/node.ts";
 import {sampleBrowserContext} from "./user-gates/browser-context.ts";
@@ -13,7 +13,7 @@ import {version as NODEKIT_VERSION} from '../package.json'
 import {gt, major} from 'semver';
 import {EventArray} from "./event-array.ts";
 
-import {evalTransition} from "./interpreter/eval-transitions.ts";
+import {evalTransition} from "./node-play/eval-transition.ts";
 import type {Action} from "./types/actions";
 
 /**
@@ -24,8 +24,7 @@ import type {Action} from "./types/actions";
  */
 export async function play(
     graph: Graph,
-    onEventCallback: ((event: Event) => void) = (_event: Event) => {
-    },
+    onEventCallback: ((event: Event) => void) = (_event: Event) => {},
     debugMode: boolean = false,
 ): Promise<Trace> {
 
@@ -174,9 +173,11 @@ async function playGraph(
         else if (node.type === 'Node') {
             // Create and prepare the NodePlay:
             const nodePlay = new NodePlay(
+                getNamespacedNodeId(currentNodeId),
                 node,
                 context.assetManager,
                 context.clock,
+                context.eventArray,
             )
             // Mount the NodePlay to the DOM:
             context.boardViewsContainerDiv.appendChild(nodePlay.root);
@@ -184,31 +185,8 @@ async function playGraph(
             await nodePlay.prepare()
 
             // Play the Node:
-            let result = await nodePlay.run();
+            lastAction = await nodePlay.run();
 
-            // Set lastAction
-            lastAction = result.action;
-
-            // Wrap result into Events:
-            const eStart: NodeStartedEvent = {
-                event_type: 'NodeStartedEvent',
-                t: result.tStart,
-                node_id: getNamespacedNodeId(currentNodeId),
-            }
-            context.eventArray.push(eStart)
-            const e: ActionTakenEvent = {
-                event_type: 'ActionTakenEvent',
-                node_id: getNamespacedNodeId(currentNodeId),
-                action: result.action,
-                t: result.action.t
-            }
-            context.eventArray.push(e)
-            const eEnd: NodeEndedEvent = {
-                event_type: 'NodeEndedEvent',
-                t: result.tEnd,
-                node_id: getNamespacedNodeId(currentNodeId),
-            }
-            context.eventArray.push(eEnd)
         } else {
             throw new Error(`Unknown node type: ${(node as any).type}`)
         }
@@ -220,7 +198,6 @@ async function playGraph(
 
         // Get the next Node; if no explicit Transitions for this Node are given, just End.
         if (!(currentNodeId in graph.transitions)) {
-            console.log('No transitions found; Graph finished')
             break
         }
 
@@ -244,7 +221,6 @@ async function playGraph(
         for (const [registerId, updateValue] of Object.entries(res.registerUpdates)) {
             graph.registers[registerId as RegisterId] = updateValue
         }
-        console.warn('Graph registers updated', graph.registers)
     }
     return lastAction
 }
