@@ -13,11 +13,12 @@
 A Graph describes a behavioral task as an [extended finite state machine](https://en.wikipedia.org/wiki/Extended_finite-state_machine). The Graph consists of Nodes, the Transitions between them, and a Register file.
   - `.start: NodeId`. The starting Node of the task.
   - `.nodes: Dict[NodeId, Node]`. Nodes are the vertices of the Graph. A `Node` is a description of an atomic unit of an experiment. It is described in further detail below.
-  - `.transitions: Dict[NodeId, Transition]`. A Transition describes the outgoing edge(s) from each Node. `Transition` is a sum type: `Go | End | Branch`.
+  - `.transitions: Dict[NodeId, Transition]`. A Transition describes the outgoing edge(s) from each Node. `Transition` is a sum type: `Go | End | IfThenElse | Switch`.
     - `Go { to: NodeId, register_updates?: Dict[RegisterId, Expression] }`
     - `End {}` (terminates the Graph)
-    - `Branch { cases: list[{ when: Expression<bool>, then: Go | End }], otherwise?: Go | End }`. Cases are evaluated in order; the first matching case fires its `then`. If none match, `otherwise` is taken (defaults to `End`).
-    - `register_updates` live only on `Go` (including those nested inside `Branch` cases). All Expressions are evaluated before any are committed.
+    - `IfThenElse { if: Expression<bool>, then: Go | End, else: Go | End }` (binary guard; `else_` defaults to `End`)
+    - `Switch { on: Expression<LeafValue>, cases: Dict[LeafValue, Go | End], default?: Go | End }` (value-based dispatch; no fallthrough, `default` defaults to `End`)
+    - `register_updates` live only on `Go` (including those nested inside `IfThenElse`/`Switch` branches). All Expressions are evaluated before any are committed.
   - `.registers: Dict[RegisterId, Value]`. The initial register file of the EFSM.
 
 ## Trace
