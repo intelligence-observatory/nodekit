@@ -179,20 +179,16 @@ def make_stroop_trial(
         },
         transitions={
             "fixation": nk.transitions.Go(to="main"),
-            "main": nk.transitions.Switch(
-                cases=[
-                    nk.transitions.Case(  # Correct response
-                        when=nk.expressions.Eq(
-                            lhs=nk.expressions.Lit(value=stimulus_color.value[0]),
-                            rhs=nk.expressions.GetDictValue(
-                                d=nk.expressions.LastAction(),
-                                key=nk.expressions.Lit(value="key"),
-                            ),
-                        ),
-                        then=nk.transitions.Go(to="correct"),
+            "main": nk.transitions.IfThenElse(
+                if_=nk.expressions.Eq(
+                    lhs=nk.expressions.Lit(value=stimulus_color.value[0]),
+                    rhs=nk.expressions.GetDictValue(
+                        d=nk.expressions.LastAction(),
+                        key=nk.expressions.Lit(value="key"),
                     ),
-                ],
-                default=nk.transitions.Go(to="incorrect"),
+                ),
+                then=nk.transitions.Go(to="correct"),
+                else_=nk.transitions.Go(to="incorrect"),
             ),
         },
         start="fixation",
