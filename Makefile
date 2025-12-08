@@ -3,7 +3,7 @@
 build-browser:
 	cd nodekit-browser && \
 	npm run build && \
-	cp -r dist/ ../nodekit/_static
+	cp dist/nodekit.js dist/nodekit.css ../nodekit/_static
 
 build: build-browser
 	rm -rf dist && \
