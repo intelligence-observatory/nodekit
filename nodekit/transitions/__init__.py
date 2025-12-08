@@ -3,6 +3,7 @@ __all__ = [
     "End",
     "Case",
     "Branch",
+    "Transition",
 ]
 
 from nodekit._internal.types.transition import (
@@ -10,4 +11,5 @@ from nodekit._internal.types.transition import (
     End,
     Case,
     Branch,
+    Transition,
 )
