@@ -44,7 +44,6 @@ export class ProductSensorBinding extends SensorBinding<ProductSensor>{
         return {
             action_type: 'ProductAction',
             child_actions: childActionsFinal,
-            t: this.params.boardView.clock.now()
         }
     }
 
@@ -78,7 +77,6 @@ export class SumSensorBinding extends SensorBinding<SumSensor>{
                         action_type: 'SumAction',
                         child_id: childId,
                         child_action: action,
-                        t: this.params.boardView.clock.now()
                     }
                     if (!emitted){
                         emitted = true;

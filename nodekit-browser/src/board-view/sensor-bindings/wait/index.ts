@@ -9,7 +9,6 @@ export class WaitSensorBinding extends SensorBinding<WaitSensor>{
             () => {
                 const waitAction: WaitAction = {
                     action_type: "WaitAction",
-                    t: this.params.boardView.clock.now()
                 }
                 this.emit(waitAction)
             },

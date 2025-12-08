@@ -1,9 +1,8 @@
-import type {Dict, PressableKey, SpatialPoint, TimeElapsedMsec} from "../value.ts";
+import type {Dict, PressableKey, SpatialPoint} from "../value.ts";
 import type {SliderBinIndex} from "../../board-view/sensor-bindings/slider";
 
 export interface BaseAction<T extends string> extends Dict {
     action_type: T
-    t: TimeElapsedMsec,
 }
 
 export interface ClickAction extends BaseAction<"ClickAction"> {

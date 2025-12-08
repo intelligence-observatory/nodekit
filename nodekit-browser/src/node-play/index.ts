@@ -161,7 +161,7 @@ export class NodePlay {
             event_type: 'ActionTakenEvent',
             node_id: this.nodeId,
             action: action,
-            t: action.t
+            t: this.boardView.clock.now(),
         }
         this.eventArray.push(eAction)
 

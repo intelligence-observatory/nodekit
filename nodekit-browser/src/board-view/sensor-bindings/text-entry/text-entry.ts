@@ -20,7 +20,6 @@ export class TextEntrySensorBinding extends SensorBinding<TextEntrySensor> {
             const sensorValue: TextEntryAction = {
                 action_type: 'TextEntryAction',
                 text: sample,
-                t: this.params.boardView.clock.now(),
             }
             this.emit(sensorValue)
         }

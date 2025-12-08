@@ -3,13 +3,12 @@ from typing import Literal, Union, Annotated, Dict
 
 import pydantic
 
-from nodekit._internal.types.value import PressableKey, SpatialPoint, TimeElapsedMsec
+from nodekit._internal.types.value import PressableKey, SpatialPoint
 
 
 # %%
 class BaseAction(pydantic.BaseModel, ABC):
     action_type: str
-    t: TimeElapsedMsec
 
 
 # %%
@@ -30,7 +29,7 @@ class KeyAction(BaseAction):
 
 
 # %%
-class SliderAction(pydantic.BaseModel):
+class SliderAction(BaseAction):
     action_type: Literal["SliderAction"] = "SliderAction"
     bin_index: int = pydantic.Field(
         description="The index of the bin that was selected.", ge=0
@@ -38,7 +37,7 @@ class SliderAction(pydantic.BaseModel):
 
 
 # %%
-class TextEntryAction(pydantic.BaseModel):
+class TextEntryAction(BaseAction):
     action_type: Literal["TextEntryAction"] = "TextEntryAction"
     text: str
 
