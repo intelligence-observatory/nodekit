@@ -5,11 +5,10 @@ import {type BoardCoordinateSystem, createRegionDiv} from "../board-view.ts";
 import type {AssetManager} from "../../asset-manager";
 import type {SpatialPoint} from "../../types/value.ts";
 
-
-
 export abstract class BaseCardView<C extends Card = Card>{
     card: C
     root: HTMLElement;
+    hoverable: boolean = false;
     protected constructor(
         card: C,
         root: HTMLElement,
@@ -20,6 +19,13 @@ export abstract class BaseCardView<C extends Card = Card>{
     abstract prepare(_assetManager:AssetManager): Promise<void>;
     onStart(): void {}
     onDestroy(): void {}
+
+    setHoverable(isHoverable: boolean):void{
+        this.hoverable = isHoverable;
+    }
+
+
+
     abstract setHoverState(hovered:boolean):void
     abstract setSelectedState(selected:boolean):void
     abstract setOpacity(opacity:number):void
@@ -44,6 +50,9 @@ export abstract class LeafCardView<C extends LeafCard = LeafCard> extends BaseCa
         this.boardCoords = boardCoords;
     }
 
+    setHoverable(isHoverable:boolean){
+
+    }
     setHoverState(
         hovered:boolean,
     ){
