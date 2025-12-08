@@ -38,6 +38,35 @@ export function evalTransition(
                 registerUpdates: registerUpdateValues,
             };
         }
+        case "End":
+            return {
+                nextNodeId: null,
+                registerUpdates: {},
+            };
+        case "IfThenElse": {
+            // Evaluate condition
+            const cond = evl(
+                transition.if,
+                {
+                    graphRegisters: registers,
+                    localVariables: {},
+                    lastAction,
+                },
+            );
+            if (cond) {
+                return evalTransition({
+                    transition: transition.then,
+                    registers,
+                    lastAction,
+                });
+            } else {
+                return evalTransition({
+                    transition: transition.else,
+                    registers,
+                    lastAction,
+                });
+            }
+        }
         case "Branch": {
             // Evaluate guarded cases in order; recurse into the matching branch
             for (const { when, then } of transition.cases) {
@@ -63,11 +92,6 @@ export function evalTransition(
                 lastAction,
             });
         }
-        case "End":
-            return {
-                nextNodeId: null,
-                registerUpdates: {},
-            };
         default:
             const _exhaustiveCheck: never = transition;
             throw new Error(`Unhandled transition: ${JSON.stringify(_exhaustiveCheck)}`);

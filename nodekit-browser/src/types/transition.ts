@@ -17,6 +17,12 @@ export interface Go extends BaseTransition<'Go'> {
 
 type LeafTransition = Go | End;
 
+export interface IfThenElse extends BaseTransition<'IfThenElse'> {
+    if: Expression
+    then: LeafTransition
+    else: LeafTransition
+}
+
 export interface Branch extends BaseTransition<'Branch'> {
     /*
     N-way structured switch. No fallthrough; first matching case is taken.
@@ -32,4 +38,5 @@ export interface Branch extends BaseTransition<'Branch'> {
 export type Transition =
     | Go
     | Branch
+    | IfThenElse
     | End;

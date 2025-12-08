@@ -1,6 +1,7 @@
 __all__ = [
     "Go",
     "End",
+    "IfThenElse",
     "Case",
     "Branch",
     "Transition",
@@ -9,6 +10,7 @@ __all__ = [
 from nodekit._internal.types.transition import (
     Go,
     End,
+    IfThenElse,
     Case,
     Branch,
     Transition,
