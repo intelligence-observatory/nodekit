@@ -1,31 +1,28 @@
 # NodeKit Types
 
 ## Values and Expressions
-- `Value`. A Value is a sum type of `str`, `bool`, `int`, and `Container`. Container is a recursive type, in that it contains other `Values` as children. 
-- `Expression<V>`. An `Expression` denotes a computation which the interpreter may _evaluate_ to a Value of type `V`. 
-    - There are all the usual arithmetic and logical Expressions one would expect (`Add`, `Sub`, `Lit`, `Not`, ...)
-    - `Var {register_id: RegisterId}`. Evaluates to the `Value` stored in a Graph register.
-    - `Get {container: Expression<Container>, key: ContainerKey}`. Evaluate an item in a Container. 
-    - `ActionField {key: ContainerKey}`. Evaluates a field of the last Action in the _last_ completed Node.
+- `Value`. Sum type of `bool`, `int`, `float`, `str`, `list[Value]`, `dict[str, Value]`.
+- `Expression<V>`. A computation the interpreter may _evaluate_ to a Value of type `V`, discriminated by `op`. Notable forms:
+    - Data access: `reg`, `local`, `la` (last action), `gli` (get list item), `gdv` (get dict value), `lit`.
+    - Conditionals and logic: `if`, `not`, variadic `or`/`and`.
+    - Comparators: `eq`, `ne`, `gt`, `ge`, `lt`, `le`.
+    - Arithmetic: `add`, `sub`, `mul`, `div`.
+    - Array ops: `slice`, `map`, `filter`, `fold` (with local bindings for `cur`/`acc` where relevant).
 
 ## Graph
-A Graph describes a behavioral task as an [extended finite state machine](https://en.wikipedia.org/wiki/Extended_finite-state_machine). The Graph consists of nodes, the transitions between them, and a register file.
+A Graph describes a behavioral task as an [extended finite state machine](https://en.wikipedia.org/wiki/Extended_finite-state_machine). The Graph consists of Nodes, the Transitions between them, and a Register file.
   - `.start: NodeId`. The starting Node of the task.
   - `.nodes: Dict[NodeId, Node]`. Nodes are the vertices of the Graph. A `Node` is a description of an atomic unit of an experiment. It is described in further detail below.
-  - `.transitions: Dict[NodeId, List[Transition]]`. The list of edges emanating from each Node. Evaluated left-to-right. Each `Transition` has: 
-    - `.when: Expression<bool>`. Note in practice, this tends to be an Expression involving `ActionField`. For certain sophisticated flows (e.g. psychophysical staircases), Graph registers are also used.
-    - `.to: NodeId`. Which Node to transition to, assuming `.when` is True.
-    - `.register_updates: Dict[RegisterId, Expression]`. Performed only if this Transition is taken. All Expressions are evaluated first, then all are committed. In practice, this tends to be used rarely.
+  - `.transitions: Dict[NodeId, Transition]`. A Transition describes the outgoing edge(s) from each Node. `Transition` is a sum type: `Go | End | Branch`.
+    - `Go { to: NodeId, register_updates?: Dict[RegisterId, Expression] }`
+    - `End {}` (terminates the Graph)
+    - `Branch { cases: list[{ when: Expression<bool>, then: Go | End }], otherwise?: Go | End }`. Cases are evaluated in order; the first matching case fires its `then`. If none match, `otherwise` is taken (defaults to `End`).
+    - `register_updates` live only on `Go` (including those nested inside `Branch` cases). All Expressions are evaluated before any are committed.
   - `.registers: Dict[RegisterId, Value]`. The initial register file of the EFSM.
 
 ## Trace
-A `Trace` is a description of a single Agent's run of a Graph. It contains:
-  -  `.events: Event[]`. Raw log of everything that happened across the run, such as all pointer and key inputs. 
-  - `.node_outcomes: NodeOutcome[]`. A `NodeOutcome` is a projection of `.events` and the `Graph`, used for analysis. 
-      -  `.node: Node`. The Node. 
-      -  `.action: Action`.
-      - `.t_start`
-      - `.t_end`
+A `Trace` is a description of a single Agent's run of a Graph.
+  - `.events: Event[]`. Raw log of everything that happened across the run (e.g. pointer, key, sensor-triggered actions). Events are stored sorted by timestamp. 
 
 ## Node
 A Node consists of a single `Stimulus` and a single `Sensor`. Conceptually: 
@@ -34,52 +31,36 @@ A Node consists of a single `Stimulus` and a single `Sensor`. Conceptually:
 
 A Node ends when the Sensor is triggered by an `Action`.
 
+Additional presentation/behavior fields:
+* `board_color`: background color for the Node (defaults to `#808080ff`).
+* `hide_pointer`: whether to hide the pointer during this Node.
+
 ### Stimulus
 
-A `Stimulus` is just an alias for `Card`. i.e. `type Stimulus = Card`.
+A `Stimulus` is described using a type called a `Card`. 
 
 ### Card
 
-Cards represent a visual element on the Board. They have a state which describes their visual appearance. There are three fundamental Card types in NodeKit: 
+Cards represent a visual element on the Board. There are four Card types in NodeKit: 
 * `ImageCard`
 * `VideoCard`
 * `TextCard`
-
-A Card can be expressed as a product of these basic types, using the `GroupCard`; e.g. `type GroupCard where { items: Record<str, Card>}`
-
-`type Card = ImageCard | VideoCard | TextCard | GroupCard`
+* `CompositeCard`, which is a container that can contain other Cards.
 
 
 ### Sensor
-Sensors are state machines which hold a Sensor state. They "fire" once with an Action, then are disabled after. There are six leaf Sensors:
+Sensors are state machines which hold a Sensor state. They "fire" once with an Action, then are disabled after. Leaf Sensors:
 
-* `WaitSensor`. Fires when the time has elapsed.
-* `SelectSensor`. Fires when the first selection is made.
-* `MultiSelectSensor`. Fires when the Done button is pressed.
-* `KeySensor`. Fires when the first valid key is pressed.
-* `TextEntrySensor`. Fires when the in-line Done button is pressed.
-* `SliderSensor`. Fires when the first slider is set, or if the optional Done button is pressed.
+* `WaitSensor` — fires after `duration_msec`.
+* `ClickSensor` — fires on a pointer click within `region`.
+* `KeySensor` — fires on the first valid key in `keys`.
+* `SelectSensor` — fires on the first choice selection.
+* `MultiSelectSensor` — fires when the `confirm_button` is pressed after meeting `min_selections`/`max_selections` constraints.
+* `SliderSensor` — fires when the first slider value is set (`num_bins`, `initial_bin_index`, optional `show_bin_markers`, `orientation`).
+* `FreeTextEntrySensor` — fires on Done after a valid text entry (`prompt`, `font_size`, `min_length`, optional `max_length`).
 
-Sensors are algebraic data types; i.e. `type Sensor = LeafSensor | Product<Sensor> | Sum<Sensor>`:
+Composite Sensors:
+* `ProductSensor` — product of child action sets.
+* `SumSensor` — disjoint union; the first child to fire wins.
 
-`type Sensor = ... | Product<Sensor> | Sum<Sensor>`
-
-* A `Sum<Sensor>` is a Sensor consisting of a disjoint union between constituent Sensors; the first one to fire .
-* A `Product<Sensor>` is a Sensor consisting of a product of all of its child Action Sets.
-
-# Future
-
-### Confirm flows
-
-Multiple child Sensors, one confirm button. 
-
-### Animations (future)
-An Animation describes how a Card changes across time. An Animation denotes a pure function `t -> Card` which describes the Card's intended visual state at time `t: NodeTimepointMsec`. Without an Animations, one can consider the Card's visual appearance to be static across the NodePlay Common animation rules:
-- `Step`
-- `Linear`
-- `Boxcar`
-- `SquareWave`
-- `Ramp` 
-
-
-When Animations are introduced, the `VideoCard` should be adjusted so playback is explicitly controlled by an Animation.
+`type Sensor = LeafSensor | Product<Sensor> | Sum<Sensor>`
