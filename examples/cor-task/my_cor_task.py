@@ -204,5 +204,5 @@ if __name__ == "__main__":
         trials.append(trial)
 
     graph = nk.concat(trials)
-    nk.save_graph(graph, 'mts-demo.nkg')
+    nk.save_graph(graph, "mts-demo.nkg")
     nk.play(graph)
