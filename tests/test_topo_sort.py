@@ -87,20 +87,15 @@ def test_example_pass():
 
     transitions: dict[str, nk.transitions.Transition] = {}
     transitions["response_1"] = nk.transitions.Switch(
-        cases=[
-            nk.transitions.Case(
-                when=nk.expressions.Lit(value=True),
-                then=nk.transitions.Go(
-                    to="positive_1" if correct[0] == "left" else "negative_1"
-                ),
+        on=nk.expressions.LastAction(),
+        cases={
+            "left": nk.transitions.Go(
+                to="positive_1" if correct[0] == "left" else "negative_1"
             ),
-            nk.transitions.Case(
-                when=nk.expressions.Lit(value=True),
-                then=nk.transitions.Go(
-                    to="positive_1" if correct[0] == "right" else "negative_1"
-                ),
+            "right": nk.transitions.Go(
+                to="positive_1" if correct[0] == "right" else "negative_1"
             ),
-        ],
+        },
         default=nk.transitions.End(),
     )
     transitions["fixation_2"] = nk.transitions.Go(to="stimulus_2")
@@ -159,20 +154,15 @@ def test_example_fail():
 
     transitions: dict[str, nk.transitions.Transition] = {}
     transitions["response_1"] = nk.transitions.Switch(
-        cases=[
-            nk.transitions.Case(
-                when=nk.expressions.Lit(value=True),
-                then=nk.transitions.Go(
-                    to="positive_1" if correct[0] == "left" else "negative_1"
-                ),
+        on=nk.expressions.LastAction(),
+        cases={
+            "left": nk.transitions.Go(
+                to="positive_1" if correct[0] == "left" else "negative_1"
             ),
-            nk.transitions.Case(
-                when=nk.expressions.Lit(value=True),
-                then=nk.transitions.Go(
-                    to="positive_1" if correct[0] == "right" else "negative_1"
-                ),
+            "right": nk.transitions.Go(
+                to="positive_1" if correct[0] == "right" else "negative_1"
             ),
-        ],
+        },
         default=nk.transitions.End(),
     )
     transitions["fixation_2"] = nk.transitions.Go(to="stimulus_2")
