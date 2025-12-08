@@ -46,7 +46,7 @@ export function renderTextContent(
     if (parsed instanceof Promise) {
         parsed.then((result) => {
             textDiv.innerHTML = DOMPurify.sanitize(result);
-        })
+        }).catch(err => console.error('markdown render failed', err))
     } else {
         textDiv.innerHTML = DOMPurify.sanitize(parsed);
     }

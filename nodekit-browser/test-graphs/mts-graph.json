@@ -1,0 +1,3908 @@
+{
+  "type": "Graph",
+  "nodekit_version": "0.1.0",
+  "nodes": {
+    "0": {
+      "type": "Graph",
+      "nodekit_version": "0.1.0",
+      "nodes": {
+        "fixation": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "ImageCard",
+            "image": {
+              "sha256": "89fcd035750bf589cdcb63b4b551a4488ca2aa6e93e19943d1578ccc096f19ea",
+              "media_type": "image/svg+xml",
+              "locator": {
+                "locator_type": "RelativePath",
+                "relative_path": "assets/image/svg+xml/89fcd035750bf589cdcb63b4b551a4488ca2aa6e93e19943d1578ccc096f19ea.svg"
+              }
+            },
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.05,
+              "h": 0.05,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "ClickSensor",
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.05,
+              "h": 0.05,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": false
+        },
+        "stimulus": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "ImageCard",
+            "image": {
+              "sha256": "2e3f8d968ccf71c4adf4152fe35021ac46fa09d424821257d30ccab2fc792423",
+              "media_type": "image/png",
+              "locator": {
+                "locator_type": "RelativePath",
+                "relative_path": "assets/image/png/2e3f8d968ccf71c4adf4152fe35021ac46fa09d424821257d30ccab2fc792423.png"
+              }
+            },
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.375,
+              "h": 0.375,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "WaitSensor",
+            "duration_msec": 100
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": true
+        },
+        "isi": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "TextCard",
+            "text": "todo add blank card",
+            "font_size": 0.02,
+            "justification_horizontal": "center",
+            "justification_vertical": "center",
+            "text_color": "#000000ff",
+            "background_color": "#E6E6E600",
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.05,
+              "h": 0.05,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "WaitSensor",
+            "duration_msec": 100
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": true
+        },
+        "choice": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "TextCard",
+            "text": "todo add blank card",
+            "font_size": 0.02,
+            "justification_horizontal": "center",
+            "justification_vertical": "center",
+            "text_color": "#000000ff",
+            "background_color": "#E6E6E600",
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.05,
+              "h": 0.05,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "SelectSensor",
+            "choices": {
+              "choice0": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "152ff0347ec724a7d439865f5a8c788c944b9b760c429e4e39507673b270ff9d",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/152ff0347ec724a7d439865f5a8c788c944b9b760c429e4e39507673b270ff9d.png"
+                  }
+                },
+                "region": {
+                  "x": 0.39375000000000004,
+                  "y": 0.0,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice1": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "f66018c63e5de97a4a022f8d0da2083d44a842abcc27195b6cca13980a77dc7b",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/f66018c63e5de97a4a022f8d0da2083d44a842abcc27195b6cca13980a77dc7b.png"
+                  }
+                },
+                "region": {
+                  "x": 0.27842329509220315,
+                  "y": 0.2784232950922031,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice2": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "2c9ba93a999712619e78e7d51a421063f49a94e89f68d7f55ff86846bedf71d6",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/2c9ba93a999712619e78e7d51a421063f49a94e89f68d7f55ff86846bedf71d6.png"
+                  }
+                },
+                "region": {
+                  "x": 2.411023385821352e-17,
+                  "y": 0.39375000000000004,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice3": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "445515325ab4b739e139152ccd536bddd2ce62598524fa174d1eed331912c682",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/445515325ab4b739e139152ccd536bddd2ce62598524fa174d1eed331912c682.png"
+                  }
+                },
+                "region": {
+                  "x": -0.2784232950922031,
+                  "y": 0.27842329509220315,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice4": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "605082b1267b01b31b3355885738a3ba378996ea29714c36024b98d459065462",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/605082b1267b01b31b3355885738a3ba378996ea29714c36024b98d459065462.png"
+                  }
+                },
+                "region": {
+                  "x": -0.39375000000000004,
+                  "y": 4.822046771642704e-17,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice5": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "d29444b8bb250b30c4d45a4200804c8ae1f85a4c4748a9b27523c4ac7d4527e8",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/d29444b8bb250b30c4d45a4200804c8ae1f85a4c4748a9b27523c4ac7d4527e8.png"
+                  }
+                },
+                "region": {
+                  "x": -0.2784232950922032,
+                  "y": -0.2784232950922031,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice6": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "deefaba31306e6619193b2f8509da78a1be7f76de06a78df3c25904b4dff57f1",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/deefaba31306e6619193b2f8509da78a1be7f76de06a78df3c25904b4dff57f1.png"
+                  }
+                },
+                "region": {
+                  "x": -7.233070157464055e-17,
+                  "y": -0.39375000000000004,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice7": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "6f65a1a52a533200271c790a712caf06c7a54fc7cedc129c5c15dbf042e128ea",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/6f65a1a52a533200271c790a712caf06c7a54fc7cedc129c5c15dbf042e128ea.png"
+                  }
+                },
+                "region": {
+                  "x": 0.27842329509220304,
+                  "y": -0.2784232950922032,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              }
+            }
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": false
+        },
+        "punish": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "TextCard",
+            "text": "Incorrect.",
+            "font_size": 0.08,
+            "justification_horizontal": "center",
+            "justification_vertical": "center",
+            "text_color": "#c80000ff",
+            "background_color": "#E6E6E600",
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.5,
+              "h": 0.5,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "WaitSensor",
+            "duration_msec": 1000
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": false
+        },
+        "reward": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "TextCard",
+            "text": "Correct!",
+            "font_size": 0.08,
+            "justification_horizontal": "center",
+            "justification_vertical": "center",
+            "text_color": "#3232c8ff",
+            "background_color": "#E6E6E600",
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.5,
+              "h": 0.5,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "WaitSensor",
+            "duration_msec": 300
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": false
+        }
+      },
+      "transitions": {
+        "fixation": {
+          "transition_type": "Go",
+          "to": "stimulus",
+          "register_updates": {}
+        },
+        "stimulus": {
+          "transition_type": "Go",
+          "to": "isi",
+          "register_updates": {}
+        },
+        "isi": {
+          "transition_type": "Go",
+          "to": "choice",
+          "register_updates": {}
+        },
+        "choice": {
+          "transition_type": "Branch",
+          "cases": [
+            {
+              "when": {
+                "op": "eq",
+                "lhs": {
+                  "op": "gdv",
+                  "d": {
+                    "op": "la"
+                  },
+                  "key": {
+                    "op": "lit",
+                    "value": "selection"
+                  }
+                },
+                "rhs": {
+                  "op": "lit",
+                  "value": "choice6"
+                }
+              },
+              "then": {
+                "transition_type": "Go",
+                "to": "reward",
+                "register_updates": {}
+              }
+            }
+          ],
+          "otherwise": {
+            "transition_type": "Go",
+            "to": "punish",
+            "register_updates": {}
+          }
+        },
+        "punish": {
+          "transition_type": "End"
+        },
+        "reward": {
+          "transition_type": "End"
+        }
+      },
+      "start": "fixation",
+      "registers": {}
+    },
+    "1": {
+      "type": "Graph",
+      "nodekit_version": "0.1.0",
+      "nodes": {
+        "fixation": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "ImageCard",
+            "image": {
+              "sha256": "89fcd035750bf589cdcb63b4b551a4488ca2aa6e93e19943d1578ccc096f19ea",
+              "media_type": "image/svg+xml",
+              "locator": {
+                "locator_type": "RelativePath",
+                "relative_path": "assets/image/svg+xml/89fcd035750bf589cdcb63b4b551a4488ca2aa6e93e19943d1578ccc096f19ea.svg"
+              }
+            },
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.05,
+              "h": 0.05,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "ClickSensor",
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.05,
+              "h": 0.05,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": false
+        },
+        "stimulus": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "ImageCard",
+            "image": {
+              "sha256": "53c83bba1dd4a33f108804c7ec1666d8e504283c5099203af8cc004f8f0bcb96",
+              "media_type": "image/png",
+              "locator": {
+                "locator_type": "RelativePath",
+                "relative_path": "assets/image/png/53c83bba1dd4a33f108804c7ec1666d8e504283c5099203af8cc004f8f0bcb96.png"
+              }
+            },
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.375,
+              "h": 0.375,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "WaitSensor",
+            "duration_msec": 100
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": true
+        },
+        "isi": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "TextCard",
+            "text": "todo add blank card",
+            "font_size": 0.02,
+            "justification_horizontal": "center",
+            "justification_vertical": "center",
+            "text_color": "#000000ff",
+            "background_color": "#E6E6E600",
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.05,
+              "h": 0.05,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "WaitSensor",
+            "duration_msec": 100
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": true
+        },
+        "choice": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "TextCard",
+            "text": "todo add blank card",
+            "font_size": 0.02,
+            "justification_horizontal": "center",
+            "justification_vertical": "center",
+            "text_color": "#000000ff",
+            "background_color": "#E6E6E600",
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.05,
+              "h": 0.05,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "SelectSensor",
+            "choices": {
+              "choice0": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "708bf9c12818e68f30595621300034bfd097fa575c7d1cad56298df12fc1830f",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/708bf9c12818e68f30595621300034bfd097fa575c7d1cad56298df12fc1830f.png"
+                  }
+                },
+                "region": {
+                  "x": 0.39375000000000004,
+                  "y": 0.0,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice1": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "445515325ab4b739e139152ccd536bddd2ce62598524fa174d1eed331912c682",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/445515325ab4b739e139152ccd536bddd2ce62598524fa174d1eed331912c682.png"
+                  }
+                },
+                "region": {
+                  "x": 0.27842329509220315,
+                  "y": 0.2784232950922031,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice2": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "299dd541a2d340352062fc002018ce3ae408963576e182e205a471bc0561feb6",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/299dd541a2d340352062fc002018ce3ae408963576e182e205a471bc0561feb6.png"
+                  }
+                },
+                "region": {
+                  "x": 2.411023385821352e-17,
+                  "y": 0.39375000000000004,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice3": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "605082b1267b01b31b3355885738a3ba378996ea29714c36024b98d459065462",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/605082b1267b01b31b3355885738a3ba378996ea29714c36024b98d459065462.png"
+                  }
+                },
+                "region": {
+                  "x": -0.2784232950922031,
+                  "y": 0.27842329509220315,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice4": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "591ffd1e3d4fbafcd4268ac73bb461d5a1b1e404fc6c5bc02a4f53d4926a353d",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/591ffd1e3d4fbafcd4268ac73bb461d5a1b1e404fc6c5bc02a4f53d4926a353d.png"
+                  }
+                },
+                "region": {
+                  "x": -0.39375000000000004,
+                  "y": 4.822046771642704e-17,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice5": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "d29444b8bb250b30c4d45a4200804c8ae1f85a4c4748a9b27523c4ac7d4527e8",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/d29444b8bb250b30c4d45a4200804c8ae1f85a4c4748a9b27523c4ac7d4527e8.png"
+                  }
+                },
+                "region": {
+                  "x": -0.2784232950922032,
+                  "y": -0.2784232950922031,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice6": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "5431bfe43f8bcd652bb8d0ce1b7980125b5588a87eb269f0be497a6d6a2bd108",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/5431bfe43f8bcd652bb8d0ce1b7980125b5588a87eb269f0be497a6d6a2bd108.png"
+                  }
+                },
+                "region": {
+                  "x": -7.233070157464055e-17,
+                  "y": -0.39375000000000004,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice7": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "c67f7d9d2116d9987262c08be0a112b08b38b2a3f8932f3c5f611caccfe8c988",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/c67f7d9d2116d9987262c08be0a112b08b38b2a3f8932f3c5f611caccfe8c988.png"
+                  }
+                },
+                "region": {
+                  "x": 0.27842329509220304,
+                  "y": -0.2784232950922032,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              }
+            }
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": false
+        },
+        "punish": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "TextCard",
+            "text": "Incorrect.",
+            "font_size": 0.08,
+            "justification_horizontal": "center",
+            "justification_vertical": "center",
+            "text_color": "#c80000ff",
+            "background_color": "#E6E6E600",
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.5,
+              "h": 0.5,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "WaitSensor",
+            "duration_msec": 1000
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": false
+        },
+        "reward": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "TextCard",
+            "text": "Correct!",
+            "font_size": 0.08,
+            "justification_horizontal": "center",
+            "justification_vertical": "center",
+            "text_color": "#3232c8ff",
+            "background_color": "#E6E6E600",
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.5,
+              "h": 0.5,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "WaitSensor",
+            "duration_msec": 300
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": false
+        }
+      },
+      "transitions": {
+        "fixation": {
+          "transition_type": "Go",
+          "to": "stimulus",
+          "register_updates": {}
+        },
+        "stimulus": {
+          "transition_type": "Go",
+          "to": "isi",
+          "register_updates": {}
+        },
+        "isi": {
+          "transition_type": "Go",
+          "to": "choice",
+          "register_updates": {}
+        },
+        "choice": {
+          "transition_type": "Branch",
+          "cases": [
+            {
+              "when": {
+                "op": "eq",
+                "lhs": {
+                  "op": "gdv",
+                  "d": {
+                    "op": "la"
+                  },
+                  "key": {
+                    "op": "lit",
+                    "value": "selection"
+                  }
+                },
+                "rhs": {
+                  "op": "lit",
+                  "value": "choice2"
+                }
+              },
+              "then": {
+                "transition_type": "Go",
+                "to": "reward",
+                "register_updates": {}
+              }
+            }
+          ],
+          "otherwise": {
+            "transition_type": "Go",
+            "to": "punish",
+            "register_updates": {}
+          }
+        },
+        "punish": {
+          "transition_type": "End"
+        },
+        "reward": {
+          "transition_type": "End"
+        }
+      },
+      "start": "fixation",
+      "registers": {}
+    },
+    "2": {
+      "type": "Graph",
+      "nodekit_version": "0.1.0",
+      "nodes": {
+        "fixation": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "ImageCard",
+            "image": {
+              "sha256": "89fcd035750bf589cdcb63b4b551a4488ca2aa6e93e19943d1578ccc096f19ea",
+              "media_type": "image/svg+xml",
+              "locator": {
+                "locator_type": "RelativePath",
+                "relative_path": "assets/image/svg+xml/89fcd035750bf589cdcb63b4b551a4488ca2aa6e93e19943d1578ccc096f19ea.svg"
+              }
+            },
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.05,
+              "h": 0.05,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "ClickSensor",
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.05,
+              "h": 0.05,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": false
+        },
+        "stimulus": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "ImageCard",
+            "image": {
+              "sha256": "4653efda8dc1afa7a843142b5e378548ffbf0d7b1d966b76bfd7d57ea13c3ce3",
+              "media_type": "image/png",
+              "locator": {
+                "locator_type": "RelativePath",
+                "relative_path": "assets/image/png/4653efda8dc1afa7a843142b5e378548ffbf0d7b1d966b76bfd7d57ea13c3ce3.png"
+              }
+            },
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.375,
+              "h": 0.375,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "WaitSensor",
+            "duration_msec": 100
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": true
+        },
+        "isi": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "TextCard",
+            "text": "todo add blank card",
+            "font_size": 0.02,
+            "justification_horizontal": "center",
+            "justification_vertical": "center",
+            "text_color": "#000000ff",
+            "background_color": "#E6E6E600",
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.05,
+              "h": 0.05,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "WaitSensor",
+            "duration_msec": 100
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": true
+        },
+        "choice": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "TextCard",
+            "text": "todo add blank card",
+            "font_size": 0.02,
+            "justification_horizontal": "center",
+            "justification_vertical": "center",
+            "text_color": "#000000ff",
+            "background_color": "#E6E6E600",
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.05,
+              "h": 0.05,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "SelectSensor",
+            "choices": {
+              "choice0": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "deefaba31306e6619193b2f8509da78a1be7f76de06a78df3c25904b4dff57f1",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/deefaba31306e6619193b2f8509da78a1be7f76de06a78df3c25904b4dff57f1.png"
+                  }
+                },
+                "region": {
+                  "x": 0.39375000000000004,
+                  "y": 0.0,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice1": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "2c9ba93a999712619e78e7d51a421063f49a94e89f68d7f55ff86846bedf71d6",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/2c9ba93a999712619e78e7d51a421063f49a94e89f68d7f55ff86846bedf71d6.png"
+                  }
+                },
+                "region": {
+                  "x": 0.27842329509220315,
+                  "y": 0.2784232950922031,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice2": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "f66018c63e5de97a4a022f8d0da2083d44a842abcc27195b6cca13980a77dc7b",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/f66018c63e5de97a4a022f8d0da2083d44a842abcc27195b6cca13980a77dc7b.png"
+                  }
+                },
+                "region": {
+                  "x": 2.411023385821352e-17,
+                  "y": 0.39375000000000004,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice3": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "284c625792ff4926374150ed1d3460070f079eb92a2e8914e325e1bdcd3fc116",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/284c625792ff4926374150ed1d3460070f079eb92a2e8914e325e1bdcd3fc116.png"
+                  }
+                },
+                "region": {
+                  "x": -0.2784232950922031,
+                  "y": 0.27842329509220315,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice4": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "e52a8c7b748e451602c566848e1b55d529705ce75e9ed6fabbe2069918820475",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/e52a8c7b748e451602c566848e1b55d529705ce75e9ed6fabbe2069918820475.png"
+                  }
+                },
+                "region": {
+                  "x": -0.39375000000000004,
+                  "y": 4.822046771642704e-17,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice5": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "aeb0f67b7959ba0548c152e7b1869f897784331e4e0cfcabee55d1b6cec4807c",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/aeb0f67b7959ba0548c152e7b1869f897784331e4e0cfcabee55d1b6cec4807c.png"
+                  }
+                },
+                "region": {
+                  "x": -0.2784232950922032,
+                  "y": -0.2784232950922031,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice6": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "c67f7d9d2116d9987262c08be0a112b08b38b2a3f8932f3c5f611caccfe8c988",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/c67f7d9d2116d9987262c08be0a112b08b38b2a3f8932f3c5f611caccfe8c988.png"
+                  }
+                },
+                "region": {
+                  "x": -7.233070157464055e-17,
+                  "y": -0.39375000000000004,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice7": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "820a15b333fd8a7c2ce0d9b74f10f141493012a108b69aa46b99dba0579857c6",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/820a15b333fd8a7c2ce0d9b74f10f141493012a108b69aa46b99dba0579857c6.png"
+                  }
+                },
+                "region": {
+                  "x": 0.27842329509220304,
+                  "y": -0.2784232950922032,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              }
+            }
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": false
+        },
+        "punish": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "TextCard",
+            "text": "Incorrect.",
+            "font_size": 0.08,
+            "justification_horizontal": "center",
+            "justification_vertical": "center",
+            "text_color": "#c80000ff",
+            "background_color": "#E6E6E600",
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.5,
+              "h": 0.5,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "WaitSensor",
+            "duration_msec": 1000
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": false
+        },
+        "reward": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "TextCard",
+            "text": "Correct!",
+            "font_size": 0.08,
+            "justification_horizontal": "center",
+            "justification_vertical": "center",
+            "text_color": "#3232c8ff",
+            "background_color": "#E6E6E600",
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.5,
+              "h": 0.5,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "WaitSensor",
+            "duration_msec": 300
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": false
+        }
+      },
+      "transitions": {
+        "fixation": {
+          "transition_type": "Go",
+          "to": "stimulus",
+          "register_updates": {}
+        },
+        "stimulus": {
+          "transition_type": "Go",
+          "to": "isi",
+          "register_updates": {}
+        },
+        "isi": {
+          "transition_type": "Go",
+          "to": "choice",
+          "register_updates": {}
+        },
+        "choice": {
+          "transition_type": "Branch",
+          "cases": [
+            {
+              "when": {
+                "op": "eq",
+                "lhs": {
+                  "op": "gdv",
+                  "d": {
+                    "op": "la"
+                  },
+                  "key": {
+                    "op": "lit",
+                    "value": "selection"
+                  }
+                },
+                "rhs": {
+                  "op": "lit",
+                  "value": "choice4"
+                }
+              },
+              "then": {
+                "transition_type": "Go",
+                "to": "reward",
+                "register_updates": {}
+              }
+            }
+          ],
+          "otherwise": {
+            "transition_type": "Go",
+            "to": "punish",
+            "register_updates": {}
+          }
+        },
+        "punish": {
+          "transition_type": "End"
+        },
+        "reward": {
+          "transition_type": "End"
+        }
+      },
+      "start": "fixation",
+      "registers": {}
+    },
+    "3": {
+      "type": "Graph",
+      "nodekit_version": "0.1.0",
+      "nodes": {
+        "fixation": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "ImageCard",
+            "image": {
+              "sha256": "89fcd035750bf589cdcb63b4b551a4488ca2aa6e93e19943d1578ccc096f19ea",
+              "media_type": "image/svg+xml",
+              "locator": {
+                "locator_type": "RelativePath",
+                "relative_path": "assets/image/svg+xml/89fcd035750bf589cdcb63b4b551a4488ca2aa6e93e19943d1578ccc096f19ea.svg"
+              }
+            },
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.05,
+              "h": 0.05,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "ClickSensor",
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.05,
+              "h": 0.05,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": false
+        },
+        "stimulus": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "ImageCard",
+            "image": {
+              "sha256": "709b718f68db155469354e8135945626ce0e840997ffc35dad05c5747093b485",
+              "media_type": "image/png",
+              "locator": {
+                "locator_type": "RelativePath",
+                "relative_path": "assets/image/png/709b718f68db155469354e8135945626ce0e840997ffc35dad05c5747093b485.png"
+              }
+            },
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.375,
+              "h": 0.375,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "WaitSensor",
+            "duration_msec": 100
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": true
+        },
+        "isi": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "TextCard",
+            "text": "todo add blank card",
+            "font_size": 0.02,
+            "justification_horizontal": "center",
+            "justification_vertical": "center",
+            "text_color": "#000000ff",
+            "background_color": "#E6E6E600",
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.05,
+              "h": 0.05,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "WaitSensor",
+            "duration_msec": 100
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": true
+        },
+        "choice": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "TextCard",
+            "text": "todo add blank card",
+            "font_size": 0.02,
+            "justification_horizontal": "center",
+            "justification_vertical": "center",
+            "text_color": "#000000ff",
+            "background_color": "#E6E6E600",
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.05,
+              "h": 0.05,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "SelectSensor",
+            "choices": {
+              "choice0": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "d29444b8bb250b30c4d45a4200804c8ae1f85a4c4748a9b27523c4ac7d4527e8",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/d29444b8bb250b30c4d45a4200804c8ae1f85a4c4748a9b27523c4ac7d4527e8.png"
+                  }
+                },
+                "region": {
+                  "x": 0.39375000000000004,
+                  "y": 0.0,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice1": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "f66018c63e5de97a4a022f8d0da2083d44a842abcc27195b6cca13980a77dc7b",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/f66018c63e5de97a4a022f8d0da2083d44a842abcc27195b6cca13980a77dc7b.png"
+                  }
+                },
+                "region": {
+                  "x": 0.27842329509220315,
+                  "y": 0.2784232950922031,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice2": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "591ffd1e3d4fbafcd4268ac73bb461d5a1b1e404fc6c5bc02a4f53d4926a353d",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/591ffd1e3d4fbafcd4268ac73bb461d5a1b1e404fc6c5bc02a4f53d4926a353d.png"
+                  }
+                },
+                "region": {
+                  "x": 2.411023385821352e-17,
+                  "y": 0.39375000000000004,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice3": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "708bf9c12818e68f30595621300034bfd097fa575c7d1cad56298df12fc1830f",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/708bf9c12818e68f30595621300034bfd097fa575c7d1cad56298df12fc1830f.png"
+                  }
+                },
+                "region": {
+                  "x": -0.2784232950922031,
+                  "y": 0.27842329509220315,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice4": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "ac6ceb68b410c8e1c87962a804a58102db8a09a5480c81ad26cc8a839668a6c9",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/ac6ceb68b410c8e1c87962a804a58102db8a09a5480c81ad26cc8a839668a6c9.png"
+                  }
+                },
+                "region": {
+                  "x": -0.39375000000000004,
+                  "y": 4.822046771642704e-17,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice5": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "7109332fead90fb3ae6defe5fe690a559e80bc9d8ab695f9825636fdd6248c90",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/7109332fead90fb3ae6defe5fe690a559e80bc9d8ab695f9825636fdd6248c90.png"
+                  }
+                },
+                "region": {
+                  "x": -0.2784232950922032,
+                  "y": -0.2784232950922031,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice6": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "5431bfe43f8bcd652bb8d0ce1b7980125b5588a87eb269f0be497a6d6a2bd108",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/5431bfe43f8bcd652bb8d0ce1b7980125b5588a87eb269f0be497a6d6a2bd108.png"
+                  }
+                },
+                "region": {
+                  "x": -7.233070157464055e-17,
+                  "y": -0.39375000000000004,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice7": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "c67f7d9d2116d9987262c08be0a112b08b38b2a3f8932f3c5f611caccfe8c988",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/c67f7d9d2116d9987262c08be0a112b08b38b2a3f8932f3c5f611caccfe8c988.png"
+                  }
+                },
+                "region": {
+                  "x": 0.27842329509220304,
+                  "y": -0.2784232950922032,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              }
+            }
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": false
+        },
+        "punish": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "TextCard",
+            "text": "Incorrect.",
+            "font_size": 0.08,
+            "justification_horizontal": "center",
+            "justification_vertical": "center",
+            "text_color": "#c80000ff",
+            "background_color": "#E6E6E600",
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.5,
+              "h": 0.5,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "WaitSensor",
+            "duration_msec": 1000
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": false
+        },
+        "reward": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "TextCard",
+            "text": "Correct!",
+            "font_size": 0.08,
+            "justification_horizontal": "center",
+            "justification_vertical": "center",
+            "text_color": "#3232c8ff",
+            "background_color": "#E6E6E600",
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.5,
+              "h": 0.5,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "WaitSensor",
+            "duration_msec": 300
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": false
+        }
+      },
+      "transitions": {
+        "fixation": {
+          "transition_type": "Go",
+          "to": "stimulus",
+          "register_updates": {}
+        },
+        "stimulus": {
+          "transition_type": "Go",
+          "to": "isi",
+          "register_updates": {}
+        },
+        "isi": {
+          "transition_type": "Go",
+          "to": "choice",
+          "register_updates": {}
+        },
+        "choice": {
+          "transition_type": "Branch",
+          "cases": [
+            {
+              "when": {
+                "op": "eq",
+                "lhs": {
+                  "op": "gdv",
+                  "d": {
+                    "op": "la"
+                  },
+                  "key": {
+                    "op": "lit",
+                    "value": "selection"
+                  }
+                },
+                "rhs": {
+                  "op": "lit",
+                  "value": "choice2"
+                }
+              },
+              "then": {
+                "transition_type": "Go",
+                "to": "reward",
+                "register_updates": {}
+              }
+            }
+          ],
+          "otherwise": {
+            "transition_type": "Go",
+            "to": "punish",
+            "register_updates": {}
+          }
+        },
+        "punish": {
+          "transition_type": "End"
+        },
+        "reward": {
+          "transition_type": "End"
+        }
+      },
+      "start": "fixation",
+      "registers": {}
+    },
+    "4": {
+      "type": "Graph",
+      "nodekit_version": "0.1.0",
+      "nodes": {
+        "fixation": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "ImageCard",
+            "image": {
+              "sha256": "89fcd035750bf589cdcb63b4b551a4488ca2aa6e93e19943d1578ccc096f19ea",
+              "media_type": "image/svg+xml",
+              "locator": {
+                "locator_type": "RelativePath",
+                "relative_path": "assets/image/svg+xml/89fcd035750bf589cdcb63b4b551a4488ca2aa6e93e19943d1578ccc096f19ea.svg"
+              }
+            },
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.05,
+              "h": 0.05,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "ClickSensor",
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.05,
+              "h": 0.05,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": false
+        },
+        "stimulus": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "ImageCard",
+            "image": {
+              "sha256": "4653efda8dc1afa7a843142b5e378548ffbf0d7b1d966b76bfd7d57ea13c3ce3",
+              "media_type": "image/png",
+              "locator": {
+                "locator_type": "RelativePath",
+                "relative_path": "assets/image/png/4653efda8dc1afa7a843142b5e378548ffbf0d7b1d966b76bfd7d57ea13c3ce3.png"
+              }
+            },
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.375,
+              "h": 0.375,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "WaitSensor",
+            "duration_msec": 100
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": true
+        },
+        "isi": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "TextCard",
+            "text": "todo add blank card",
+            "font_size": 0.02,
+            "justification_horizontal": "center",
+            "justification_vertical": "center",
+            "text_color": "#000000ff",
+            "background_color": "#E6E6E600",
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.05,
+              "h": 0.05,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "WaitSensor",
+            "duration_msec": 100
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": true
+        },
+        "choice": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "TextCard",
+            "text": "todo add blank card",
+            "font_size": 0.02,
+            "justification_horizontal": "center",
+            "justification_vertical": "center",
+            "text_color": "#000000ff",
+            "background_color": "#E6E6E600",
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.05,
+              "h": 0.05,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "SelectSensor",
+            "choices": {
+              "choice0": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "708bf9c12818e68f30595621300034bfd097fa575c7d1cad56298df12fc1830f",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/708bf9c12818e68f30595621300034bfd097fa575c7d1cad56298df12fc1830f.png"
+                  }
+                },
+                "region": {
+                  "x": 0.39375000000000004,
+                  "y": 0.0,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice1": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "445515325ab4b739e139152ccd536bddd2ce62598524fa174d1eed331912c682",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/445515325ab4b739e139152ccd536bddd2ce62598524fa174d1eed331912c682.png"
+                  }
+                },
+                "region": {
+                  "x": 0.27842329509220315,
+                  "y": 0.2784232950922031,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice2": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "605082b1267b01b31b3355885738a3ba378996ea29714c36024b98d459065462",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/605082b1267b01b31b3355885738a3ba378996ea29714c36024b98d459065462.png"
+                  }
+                },
+                "region": {
+                  "x": 2.411023385821352e-17,
+                  "y": 0.39375000000000004,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice3": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "e52a8c7b748e451602c566848e1b55d529705ce75e9ed6fabbe2069918820475",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/e52a8c7b748e451602c566848e1b55d529705ce75e9ed6fabbe2069918820475.png"
+                  }
+                },
+                "region": {
+                  "x": -0.2784232950922031,
+                  "y": 0.27842329509220315,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice4": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "deefaba31306e6619193b2f8509da78a1be7f76de06a78df3c25904b4dff57f1",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/deefaba31306e6619193b2f8509da78a1be7f76de06a78df3c25904b4dff57f1.png"
+                  }
+                },
+                "region": {
+                  "x": -0.39375000000000004,
+                  "y": 4.822046771642704e-17,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice5": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "32e0ca6a55d47c35d0e8b8d8b8ef0dadbc382e6c277820bf23a258a5b56cac9d",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/32e0ca6a55d47c35d0e8b8d8b8ef0dadbc382e6c277820bf23a258a5b56cac9d.png"
+                  }
+                },
+                "region": {
+                  "x": -0.2784232950922032,
+                  "y": -0.2784232950922031,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice6": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "299dd541a2d340352062fc002018ce3ae408963576e182e205a471bc0561feb6",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/299dd541a2d340352062fc002018ce3ae408963576e182e205a471bc0561feb6.png"
+                  }
+                },
+                "region": {
+                  "x": -7.233070157464055e-17,
+                  "y": -0.39375000000000004,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice7": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "e63e11204120b6390eeecfb1935cf6e20e118d756a265cc121f40793df474ffe",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/e63e11204120b6390eeecfb1935cf6e20e118d756a265cc121f40793df474ffe.png"
+                  }
+                },
+                "region": {
+                  "x": 0.27842329509220304,
+                  "y": -0.2784232950922032,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              }
+            }
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": false
+        },
+        "punish": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "TextCard",
+            "text": "Incorrect.",
+            "font_size": 0.08,
+            "justification_horizontal": "center",
+            "justification_vertical": "center",
+            "text_color": "#c80000ff",
+            "background_color": "#E6E6E600",
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.5,
+              "h": 0.5,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "WaitSensor",
+            "duration_msec": 1000
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": false
+        },
+        "reward": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "TextCard",
+            "text": "Correct!",
+            "font_size": 0.08,
+            "justification_horizontal": "center",
+            "justification_vertical": "center",
+            "text_color": "#3232c8ff",
+            "background_color": "#E6E6E600",
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.5,
+              "h": 0.5,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "WaitSensor",
+            "duration_msec": 300
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": false
+        }
+      },
+      "transitions": {
+        "fixation": {
+          "transition_type": "Go",
+          "to": "stimulus",
+          "register_updates": {}
+        },
+        "stimulus": {
+          "transition_type": "Go",
+          "to": "isi",
+          "register_updates": {}
+        },
+        "isi": {
+          "transition_type": "Go",
+          "to": "choice",
+          "register_updates": {}
+        },
+        "choice": {
+          "transition_type": "Branch",
+          "cases": [
+            {
+              "when": {
+                "op": "eq",
+                "lhs": {
+                  "op": "gdv",
+                  "d": {
+                    "op": "la"
+                  },
+                  "key": {
+                    "op": "lit",
+                    "value": "selection"
+                  }
+                },
+                "rhs": {
+                  "op": "lit",
+                  "value": "choice3"
+                }
+              },
+              "then": {
+                "transition_type": "Go",
+                "to": "reward",
+                "register_updates": {}
+              }
+            }
+          ],
+          "otherwise": {
+            "transition_type": "Go",
+            "to": "punish",
+            "register_updates": {}
+          }
+        },
+        "punish": {
+          "transition_type": "End"
+        },
+        "reward": {
+          "transition_type": "End"
+        }
+      },
+      "start": "fixation",
+      "registers": {}
+    },
+    "5": {
+      "type": "Graph",
+      "nodekit_version": "0.1.0",
+      "nodes": {
+        "fixation": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "ImageCard",
+            "image": {
+              "sha256": "89fcd035750bf589cdcb63b4b551a4488ca2aa6e93e19943d1578ccc096f19ea",
+              "media_type": "image/svg+xml",
+              "locator": {
+                "locator_type": "RelativePath",
+                "relative_path": "assets/image/svg+xml/89fcd035750bf589cdcb63b4b551a4488ca2aa6e93e19943d1578ccc096f19ea.svg"
+              }
+            },
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.05,
+              "h": 0.05,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "ClickSensor",
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.05,
+              "h": 0.05,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": false
+        },
+        "stimulus": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "ImageCard",
+            "image": {
+              "sha256": "6df5e550c947e0d94e1b085b7e59db51de8bee9d15de84fd9f1c9b3010841d0b",
+              "media_type": "image/png",
+              "locator": {
+                "locator_type": "RelativePath",
+                "relative_path": "assets/image/png/6df5e550c947e0d94e1b085b7e59db51de8bee9d15de84fd9f1c9b3010841d0b.png"
+              }
+            },
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.375,
+              "h": 0.375,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "WaitSensor",
+            "duration_msec": 100
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": true
+        },
+        "isi": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "TextCard",
+            "text": "todo add blank card",
+            "font_size": 0.02,
+            "justification_horizontal": "center",
+            "justification_vertical": "center",
+            "text_color": "#000000ff",
+            "background_color": "#E6E6E600",
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.05,
+              "h": 0.05,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "WaitSensor",
+            "duration_msec": 100
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": true
+        },
+        "choice": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "TextCard",
+            "text": "todo add blank card",
+            "font_size": 0.02,
+            "justification_horizontal": "center",
+            "justification_vertical": "center",
+            "text_color": "#000000ff",
+            "background_color": "#E6E6E600",
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.05,
+              "h": 0.05,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "SelectSensor",
+            "choices": {
+              "choice0": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "c67f7d9d2116d9987262c08be0a112b08b38b2a3f8932f3c5f611caccfe8c988",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/c67f7d9d2116d9987262c08be0a112b08b38b2a3f8932f3c5f611caccfe8c988.png"
+                  }
+                },
+                "region": {
+                  "x": 0.39375000000000004,
+                  "y": 0.0,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice1": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "f66018c63e5de97a4a022f8d0da2083d44a842abcc27195b6cca13980a77dc7b",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/f66018c63e5de97a4a022f8d0da2083d44a842abcc27195b6cca13980a77dc7b.png"
+                  }
+                },
+                "region": {
+                  "x": 0.27842329509220315,
+                  "y": 0.2784232950922031,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice2": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "591ffd1e3d4fbafcd4268ac73bb461d5a1b1e404fc6c5bc02a4f53d4926a353d",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/591ffd1e3d4fbafcd4268ac73bb461d5a1b1e404fc6c5bc02a4f53d4926a353d.png"
+                  }
+                },
+                "region": {
+                  "x": 2.411023385821352e-17,
+                  "y": 0.39375000000000004,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice3": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "d29444b8bb250b30c4d45a4200804c8ae1f85a4c4748a9b27523c4ac7d4527e8",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/d29444b8bb250b30c4d45a4200804c8ae1f85a4c4748a9b27523c4ac7d4527e8.png"
+                  }
+                },
+                "region": {
+                  "x": -0.2784232950922031,
+                  "y": 0.27842329509220315,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice4": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "6f65a1a52a533200271c790a712caf06c7a54fc7cedc129c5c15dbf042e128ea",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/6f65a1a52a533200271c790a712caf06c7a54fc7cedc129c5c15dbf042e128ea.png"
+                  }
+                },
+                "region": {
+                  "x": -0.39375000000000004,
+                  "y": 4.822046771642704e-17,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice5": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "2c9ba93a999712619e78e7d51a421063f49a94e89f68d7f55ff86846bedf71d6",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/2c9ba93a999712619e78e7d51a421063f49a94e89f68d7f55ff86846bedf71d6.png"
+                  }
+                },
+                "region": {
+                  "x": -0.2784232950922032,
+                  "y": -0.2784232950922031,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice6": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "deefaba31306e6619193b2f8509da78a1be7f76de06a78df3c25904b4dff57f1",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/deefaba31306e6619193b2f8509da78a1be7f76de06a78df3c25904b4dff57f1.png"
+                  }
+                },
+                "region": {
+                  "x": -7.233070157464055e-17,
+                  "y": -0.39375000000000004,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice7": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "820a15b333fd8a7c2ce0d9b74f10f141493012a108b69aa46b99dba0579857c6",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/820a15b333fd8a7c2ce0d9b74f10f141493012a108b69aa46b99dba0579857c6.png"
+                  }
+                },
+                "region": {
+                  "x": 0.27842329509220304,
+                  "y": -0.2784232950922032,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              }
+            }
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": false
+        },
+        "punish": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "TextCard",
+            "text": "Incorrect.",
+            "font_size": 0.08,
+            "justification_horizontal": "center",
+            "justification_vertical": "center",
+            "text_color": "#c80000ff",
+            "background_color": "#E6E6E600",
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.5,
+              "h": 0.5,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "WaitSensor",
+            "duration_msec": 1000
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": false
+        },
+        "reward": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "TextCard",
+            "text": "Correct!",
+            "font_size": 0.08,
+            "justification_horizontal": "center",
+            "justification_vertical": "center",
+            "text_color": "#3232c8ff",
+            "background_color": "#E6E6E600",
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.5,
+              "h": 0.5,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "WaitSensor",
+            "duration_msec": 300
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": false
+        }
+      },
+      "transitions": {
+        "fixation": {
+          "transition_type": "Go",
+          "to": "stimulus",
+          "register_updates": {}
+        },
+        "stimulus": {
+          "transition_type": "Go",
+          "to": "isi",
+          "register_updates": {}
+        },
+        "isi": {
+          "transition_type": "Go",
+          "to": "choice",
+          "register_updates": {}
+        },
+        "choice": {
+          "transition_type": "Branch",
+          "cases": [
+            {
+              "when": {
+                "op": "eq",
+                "lhs": {
+                  "op": "gdv",
+                  "d": {
+                    "op": "la"
+                  },
+                  "key": {
+                    "op": "lit",
+                    "value": "selection"
+                  }
+                },
+                "rhs": {
+                  "op": "lit",
+                  "value": "choice7"
+                }
+              },
+              "then": {
+                "transition_type": "Go",
+                "to": "reward",
+                "register_updates": {}
+              }
+            }
+          ],
+          "otherwise": {
+            "transition_type": "Go",
+            "to": "punish",
+            "register_updates": {}
+          }
+        },
+        "punish": {
+          "transition_type": "End"
+        },
+        "reward": {
+          "transition_type": "End"
+        }
+      },
+      "start": "fixation",
+      "registers": {}
+    },
+    "6": {
+      "type": "Graph",
+      "nodekit_version": "0.1.0",
+      "nodes": {
+        "fixation": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "ImageCard",
+            "image": {
+              "sha256": "89fcd035750bf589cdcb63b4b551a4488ca2aa6e93e19943d1578ccc096f19ea",
+              "media_type": "image/svg+xml",
+              "locator": {
+                "locator_type": "RelativePath",
+                "relative_path": "assets/image/svg+xml/89fcd035750bf589cdcb63b4b551a4488ca2aa6e93e19943d1578ccc096f19ea.svg"
+              }
+            },
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.05,
+              "h": 0.05,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "ClickSensor",
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.05,
+              "h": 0.05,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": false
+        },
+        "stimulus": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "ImageCard",
+            "image": {
+              "sha256": "40513c4c51039c7bae5caadf644b86559abb29f8d606c3dfc4a59248758ae8a2",
+              "media_type": "image/png",
+              "locator": {
+                "locator_type": "RelativePath",
+                "relative_path": "assets/image/png/40513c4c51039c7bae5caadf644b86559abb29f8d606c3dfc4a59248758ae8a2.png"
+              }
+            },
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.375,
+              "h": 0.375,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "WaitSensor",
+            "duration_msec": 100
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": true
+        },
+        "isi": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "TextCard",
+            "text": "todo add blank card",
+            "font_size": 0.02,
+            "justification_horizontal": "center",
+            "justification_vertical": "center",
+            "text_color": "#000000ff",
+            "background_color": "#E6E6E600",
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.05,
+              "h": 0.05,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "WaitSensor",
+            "duration_msec": 100
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": true
+        },
+        "choice": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "TextCard",
+            "text": "todo add blank card",
+            "font_size": 0.02,
+            "justification_horizontal": "center",
+            "justification_vertical": "center",
+            "text_color": "#000000ff",
+            "background_color": "#E6E6E600",
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.05,
+              "h": 0.05,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "SelectSensor",
+            "choices": {
+              "choice0": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "605082b1267b01b31b3355885738a3ba378996ea29714c36024b98d459065462",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/605082b1267b01b31b3355885738a3ba378996ea29714c36024b98d459065462.png"
+                  }
+                },
+                "region": {
+                  "x": 0.39375000000000004,
+                  "y": 0.0,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice1": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "b87d9ff074668df4e7698280bf6ac0a11c307389eaabec400dd00023462cb416",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/b87d9ff074668df4e7698280bf6ac0a11c307389eaabec400dd00023462cb416.png"
+                  }
+                },
+                "region": {
+                  "x": 0.27842329509220315,
+                  "y": 0.2784232950922031,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice2": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "f66018c63e5de97a4a022f8d0da2083d44a842abcc27195b6cca13980a77dc7b",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/f66018c63e5de97a4a022f8d0da2083d44a842abcc27195b6cca13980a77dc7b.png"
+                  }
+                },
+                "region": {
+                  "x": 2.411023385821352e-17,
+                  "y": 0.39375000000000004,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice3": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "708bf9c12818e68f30595621300034bfd097fa575c7d1cad56298df12fc1830f",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/708bf9c12818e68f30595621300034bfd097fa575c7d1cad56298df12fc1830f.png"
+                  }
+                },
+                "region": {
+                  "x": -0.2784232950922031,
+                  "y": 0.27842329509220315,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice4": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "de923ca9ecd9438c403f06535f24fb28c0c19b9a065280075f371af8612da0f0",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/de923ca9ecd9438c403f06535f24fb28c0c19b9a065280075f371af8612da0f0.png"
+                  }
+                },
+                "region": {
+                  "x": -0.39375000000000004,
+                  "y": 4.822046771642704e-17,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice5": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "5431bfe43f8bcd652bb8d0ce1b7980125b5588a87eb269f0be497a6d6a2bd108",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/5431bfe43f8bcd652bb8d0ce1b7980125b5588a87eb269f0be497a6d6a2bd108.png"
+                  }
+                },
+                "region": {
+                  "x": -0.2784232950922032,
+                  "y": -0.2784232950922031,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice6": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "6519c68260055d619be9b5922e1d63656de4c2c6539ee9539996759b68add91f",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/6519c68260055d619be9b5922e1d63656de4c2c6539ee9539996759b68add91f.png"
+                  }
+                },
+                "region": {
+                  "x": -7.233070157464055e-17,
+                  "y": -0.39375000000000004,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice7": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "c67f7d9d2116d9987262c08be0a112b08b38b2a3f8932f3c5f611caccfe8c988",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/c67f7d9d2116d9987262c08be0a112b08b38b2a3f8932f3c5f611caccfe8c988.png"
+                  }
+                },
+                "region": {
+                  "x": 0.27842329509220304,
+                  "y": -0.2784232950922032,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              }
+            }
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": false
+        },
+        "punish": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "TextCard",
+            "text": "Incorrect.",
+            "font_size": 0.08,
+            "justification_horizontal": "center",
+            "justification_vertical": "center",
+            "text_color": "#c80000ff",
+            "background_color": "#E6E6E600",
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.5,
+              "h": 0.5,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "WaitSensor",
+            "duration_msec": 1000
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": false
+        },
+        "reward": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "TextCard",
+            "text": "Correct!",
+            "font_size": 0.08,
+            "justification_horizontal": "center",
+            "justification_vertical": "center",
+            "text_color": "#3232c8ff",
+            "background_color": "#E6E6E600",
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.5,
+              "h": 0.5,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "WaitSensor",
+            "duration_msec": 300
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": false
+        }
+      },
+      "transitions": {
+        "fixation": {
+          "transition_type": "Go",
+          "to": "stimulus",
+          "register_updates": {}
+        },
+        "stimulus": {
+          "transition_type": "Go",
+          "to": "isi",
+          "register_updates": {}
+        },
+        "isi": {
+          "transition_type": "Go",
+          "to": "choice",
+          "register_updates": {}
+        },
+        "choice": {
+          "transition_type": "Branch",
+          "cases": [
+            {
+              "when": {
+                "op": "eq",
+                "lhs": {
+                  "op": "gdv",
+                  "d": {
+                    "op": "la"
+                  },
+                  "key": {
+                    "op": "lit",
+                    "value": "selection"
+                  }
+                },
+                "rhs": {
+                  "op": "lit",
+                  "value": "choice1"
+                }
+              },
+              "then": {
+                "transition_type": "Go",
+                "to": "reward",
+                "register_updates": {}
+              }
+            }
+          ],
+          "otherwise": {
+            "transition_type": "Go",
+            "to": "punish",
+            "register_updates": {}
+          }
+        },
+        "punish": {
+          "transition_type": "End"
+        },
+        "reward": {
+          "transition_type": "End"
+        }
+      },
+      "start": "fixation",
+      "registers": {}
+    },
+    "7": {
+      "type": "Graph",
+      "nodekit_version": "0.1.0",
+      "nodes": {
+        "fixation": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "ImageCard",
+            "image": {
+              "sha256": "89fcd035750bf589cdcb63b4b551a4488ca2aa6e93e19943d1578ccc096f19ea",
+              "media_type": "image/svg+xml",
+              "locator": {
+                "locator_type": "RelativePath",
+                "relative_path": "assets/image/svg+xml/89fcd035750bf589cdcb63b4b551a4488ca2aa6e93e19943d1578ccc096f19ea.svg"
+              }
+            },
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.05,
+              "h": 0.05,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "ClickSensor",
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.05,
+              "h": 0.05,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": false
+        },
+        "stimulus": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "ImageCard",
+            "image": {
+              "sha256": "aa097aa95fd78f66a42d64ca654b8f16852fabec49fca1b4721c0adc4848d2bd",
+              "media_type": "image/png",
+              "locator": {
+                "locator_type": "RelativePath",
+                "relative_path": "assets/image/png/aa097aa95fd78f66a42d64ca654b8f16852fabec49fca1b4721c0adc4848d2bd.png"
+              }
+            },
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.375,
+              "h": 0.375,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "WaitSensor",
+            "duration_msec": 100
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": true
+        },
+        "isi": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "TextCard",
+            "text": "todo add blank card",
+            "font_size": 0.02,
+            "justification_horizontal": "center",
+            "justification_vertical": "center",
+            "text_color": "#000000ff",
+            "background_color": "#E6E6E600",
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.05,
+              "h": 0.05,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "WaitSensor",
+            "duration_msec": 100
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": true
+        },
+        "choice": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "TextCard",
+            "text": "todo add blank card",
+            "font_size": 0.02,
+            "justification_horizontal": "center",
+            "justification_vertical": "center",
+            "text_color": "#000000ff",
+            "background_color": "#E6E6E600",
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.05,
+              "h": 0.05,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "SelectSensor",
+            "choices": {
+              "choice0": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "e63e11204120b6390eeecfb1935cf6e20e118d756a265cc121f40793df474ffe",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/e63e11204120b6390eeecfb1935cf6e20e118d756a265cc121f40793df474ffe.png"
+                  }
+                },
+                "region": {
+                  "x": 0.39375000000000004,
+                  "y": 0.0,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice1": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "c67f7d9d2116d9987262c08be0a112b08b38b2a3f8932f3c5f611caccfe8c988",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/c67f7d9d2116d9987262c08be0a112b08b38b2a3f8932f3c5f611caccfe8c988.png"
+                  }
+                },
+                "region": {
+                  "x": 0.27842329509220315,
+                  "y": 0.2784232950922031,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice2": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "6f65a1a52a533200271c790a712caf06c7a54fc7cedc129c5c15dbf042e128ea",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/6f65a1a52a533200271c790a712caf06c7a54fc7cedc129c5c15dbf042e128ea.png"
+                  }
+                },
+                "region": {
+                  "x": 2.411023385821352e-17,
+                  "y": 0.39375000000000004,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice3": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "e52a8c7b748e451602c566848e1b55d529705ce75e9ed6fabbe2069918820475",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/e52a8c7b748e451602c566848e1b55d529705ce75e9ed6fabbe2069918820475.png"
+                  }
+                },
+                "region": {
+                  "x": -0.2784232950922031,
+                  "y": 0.27842329509220315,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice4": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "de923ca9ecd9438c403f06535f24fb28c0c19b9a065280075f371af8612da0f0",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/de923ca9ecd9438c403f06535f24fb28c0c19b9a065280075f371af8612da0f0.png"
+                  }
+                },
+                "region": {
+                  "x": -0.39375000000000004,
+                  "y": 4.822046771642704e-17,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice5": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "591ffd1e3d4fbafcd4268ac73bb461d5a1b1e404fc6c5bc02a4f53d4926a353d",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/591ffd1e3d4fbafcd4268ac73bb461d5a1b1e404fc6c5bc02a4f53d4926a353d.png"
+                  }
+                },
+                "region": {
+                  "x": -0.2784232950922032,
+                  "y": -0.2784232950922031,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice6": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "5431bfe43f8bcd652bb8d0ce1b7980125b5588a87eb269f0be497a6d6a2bd108",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/5431bfe43f8bcd652bb8d0ce1b7980125b5588a87eb269f0be497a6d6a2bd108.png"
+                  }
+                },
+                "region": {
+                  "x": -7.233070157464055e-17,
+                  "y": -0.39375000000000004,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice7": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "2c9ba93a999712619e78e7d51a421063f49a94e89f68d7f55ff86846bedf71d6",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/2c9ba93a999712619e78e7d51a421063f49a94e89f68d7f55ff86846bedf71d6.png"
+                  }
+                },
+                "region": {
+                  "x": 0.27842329509220304,
+                  "y": -0.2784232950922032,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              }
+            }
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": false
+        },
+        "punish": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "TextCard",
+            "text": "Incorrect.",
+            "font_size": 0.08,
+            "justification_horizontal": "center",
+            "justification_vertical": "center",
+            "text_color": "#c80000ff",
+            "background_color": "#E6E6E600",
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.5,
+              "h": 0.5,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "WaitSensor",
+            "duration_msec": 1000
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": false
+        },
+        "reward": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "TextCard",
+            "text": "Correct!",
+            "font_size": 0.08,
+            "justification_horizontal": "center",
+            "justification_vertical": "center",
+            "text_color": "#3232c8ff",
+            "background_color": "#E6E6E600",
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.5,
+              "h": 0.5,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "WaitSensor",
+            "duration_msec": 300
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": false
+        }
+      },
+      "transitions": {
+        "fixation": {
+          "transition_type": "Go",
+          "to": "stimulus",
+          "register_updates": {}
+        },
+        "stimulus": {
+          "transition_type": "Go",
+          "to": "isi",
+          "register_updates": {}
+        },
+        "isi": {
+          "transition_type": "Go",
+          "to": "choice",
+          "register_updates": {}
+        },
+        "choice": {
+          "transition_type": "Branch",
+          "cases": [
+            {
+              "when": {
+                "op": "eq",
+                "lhs": {
+                  "op": "gdv",
+                  "d": {
+                    "op": "la"
+                  },
+                  "key": {
+                    "op": "lit",
+                    "value": "selection"
+                  }
+                },
+                "rhs": {
+                  "op": "lit",
+                  "value": "choice0"
+                }
+              },
+              "then": {
+                "transition_type": "Go",
+                "to": "reward",
+                "register_updates": {}
+              }
+            }
+          ],
+          "otherwise": {
+            "transition_type": "Go",
+            "to": "punish",
+            "register_updates": {}
+          }
+        },
+        "punish": {
+          "transition_type": "End"
+        },
+        "reward": {
+          "transition_type": "End"
+        }
+      },
+      "start": "fixation",
+      "registers": {}
+    },
+    "8": {
+      "type": "Graph",
+      "nodekit_version": "0.1.0",
+      "nodes": {
+        "fixation": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "ImageCard",
+            "image": {
+              "sha256": "89fcd035750bf589cdcb63b4b551a4488ca2aa6e93e19943d1578ccc096f19ea",
+              "media_type": "image/svg+xml",
+              "locator": {
+                "locator_type": "RelativePath",
+                "relative_path": "assets/image/svg+xml/89fcd035750bf589cdcb63b4b551a4488ca2aa6e93e19943d1578ccc096f19ea.svg"
+              }
+            },
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.05,
+              "h": 0.05,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "ClickSensor",
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.05,
+              "h": 0.05,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": false
+        },
+        "stimulus": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "ImageCard",
+            "image": {
+              "sha256": "e05fa42fe082b2d1781a3869dcf957fcd576f92e1495bd2a241fc196a917eca7",
+              "media_type": "image/png",
+              "locator": {
+                "locator_type": "RelativePath",
+                "relative_path": "assets/image/png/e05fa42fe082b2d1781a3869dcf957fcd576f92e1495bd2a241fc196a917eca7.png"
+              }
+            },
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.375,
+              "h": 0.375,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "WaitSensor",
+            "duration_msec": 100
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": true
+        },
+        "isi": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "TextCard",
+            "text": "todo add blank card",
+            "font_size": 0.02,
+            "justification_horizontal": "center",
+            "justification_vertical": "center",
+            "text_color": "#000000ff",
+            "background_color": "#E6E6E600",
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.05,
+              "h": 0.05,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "WaitSensor",
+            "duration_msec": 100
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": true
+        },
+        "choice": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "TextCard",
+            "text": "todo add blank card",
+            "font_size": 0.02,
+            "justification_horizontal": "center",
+            "justification_vertical": "center",
+            "text_color": "#000000ff",
+            "background_color": "#E6E6E600",
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.05,
+              "h": 0.05,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "SelectSensor",
+            "choices": {
+              "choice0": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "5431bfe43f8bcd652bb8d0ce1b7980125b5588a87eb269f0be497a6d6a2bd108",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/5431bfe43f8bcd652bb8d0ce1b7980125b5588a87eb269f0be497a6d6a2bd108.png"
+                  }
+                },
+                "region": {
+                  "x": 0.39375000000000004,
+                  "y": 0.0,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice1": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "591ffd1e3d4fbafcd4268ac73bb461d5a1b1e404fc6c5bc02a4f53d4926a353d",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/591ffd1e3d4fbafcd4268ac73bb461d5a1b1e404fc6c5bc02a4f53d4926a353d.png"
+                  }
+                },
+                "region": {
+                  "x": 0.27842329509220315,
+                  "y": 0.2784232950922031,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice2": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "820a15b333fd8a7c2ce0d9b74f10f141493012a108b69aa46b99dba0579857c6",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/820a15b333fd8a7c2ce0d9b74f10f141493012a108b69aa46b99dba0579857c6.png"
+                  }
+                },
+                "region": {
+                  "x": 2.411023385821352e-17,
+                  "y": 0.39375000000000004,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice3": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "6519c68260055d619be9b5922e1d63656de4c2c6539ee9539996759b68add91f",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/6519c68260055d619be9b5922e1d63656de4c2c6539ee9539996759b68add91f.png"
+                  }
+                },
+                "region": {
+                  "x": -0.2784232950922031,
+                  "y": 0.27842329509220315,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice4": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "32e0ca6a55d47c35d0e8b8d8b8ef0dadbc382e6c277820bf23a258a5b56cac9d",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/32e0ca6a55d47c35d0e8b8d8b8ef0dadbc382e6c277820bf23a258a5b56cac9d.png"
+                  }
+                },
+                "region": {
+                  "x": -0.39375000000000004,
+                  "y": 4.822046771642704e-17,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice5": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "aeb0f67b7959ba0548c152e7b1869f897784331e4e0cfcabee55d1b6cec4807c",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/aeb0f67b7959ba0548c152e7b1869f897784331e4e0cfcabee55d1b6cec4807c.png"
+                  }
+                },
+                "region": {
+                  "x": -0.2784232950922032,
+                  "y": -0.2784232950922031,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice6": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "f66018c63e5de97a4a022f8d0da2083d44a842abcc27195b6cca13980a77dc7b",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/f66018c63e5de97a4a022f8d0da2083d44a842abcc27195b6cca13980a77dc7b.png"
+                  }
+                },
+                "region": {
+                  "x": -7.233070157464055e-17,
+                  "y": -0.39375000000000004,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice7": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "605082b1267b01b31b3355885738a3ba378996ea29714c36024b98d459065462",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/605082b1267b01b31b3355885738a3ba378996ea29714c36024b98d459065462.png"
+                  }
+                },
+                "region": {
+                  "x": 0.27842329509220304,
+                  "y": -0.2784232950922032,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              }
+            }
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": false
+        },
+        "punish": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "TextCard",
+            "text": "Incorrect.",
+            "font_size": 0.08,
+            "justification_horizontal": "center",
+            "justification_vertical": "center",
+            "text_color": "#c80000ff",
+            "background_color": "#E6E6E600",
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.5,
+              "h": 0.5,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "WaitSensor",
+            "duration_msec": 1000
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": false
+        },
+        "reward": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "TextCard",
+            "text": "Correct!",
+            "font_size": 0.08,
+            "justification_horizontal": "center",
+            "justification_vertical": "center",
+            "text_color": "#3232c8ff",
+            "background_color": "#E6E6E600",
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.5,
+              "h": 0.5,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "WaitSensor",
+            "duration_msec": 300
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": false
+        }
+      },
+      "transitions": {
+        "fixation": {
+          "transition_type": "Go",
+          "to": "stimulus",
+          "register_updates": {}
+        },
+        "stimulus": {
+          "transition_type": "Go",
+          "to": "isi",
+          "register_updates": {}
+        },
+        "isi": {
+          "transition_type": "Go",
+          "to": "choice",
+          "register_updates": {}
+        },
+        "choice": {
+          "transition_type": "Branch",
+          "cases": [
+            {
+              "when": {
+                "op": "eq",
+                "lhs": {
+                  "op": "gdv",
+                  "d": {
+                    "op": "la"
+                  },
+                  "key": {
+                    "op": "lit",
+                    "value": "selection"
+                  }
+                },
+                "rhs": {
+                  "op": "lit",
+                  "value": "choice0"
+                }
+              },
+              "then": {
+                "transition_type": "Go",
+                "to": "reward",
+                "register_updates": {}
+              }
+            }
+          ],
+          "otherwise": {
+            "transition_type": "Go",
+            "to": "punish",
+            "register_updates": {}
+          }
+        },
+        "punish": {
+          "transition_type": "End"
+        },
+        "reward": {
+          "transition_type": "End"
+        }
+      },
+      "start": "fixation",
+      "registers": {}
+    },
+    "9": {
+      "type": "Graph",
+      "nodekit_version": "0.1.0",
+      "nodes": {
+        "fixation": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "ImageCard",
+            "image": {
+              "sha256": "89fcd035750bf589cdcb63b4b551a4488ca2aa6e93e19943d1578ccc096f19ea",
+              "media_type": "image/svg+xml",
+              "locator": {
+                "locator_type": "RelativePath",
+                "relative_path": "assets/image/svg+xml/89fcd035750bf589cdcb63b4b551a4488ca2aa6e93e19943d1578ccc096f19ea.svg"
+              }
+            },
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.05,
+              "h": 0.05,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "ClickSensor",
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.05,
+              "h": 0.05,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": false
+        },
+        "stimulus": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "ImageCard",
+            "image": {
+              "sha256": "22cf8f6ba95c4aec9e728d28f0ad2497d1e94fa346d10fda4eadc6cadbb4fc18",
+              "media_type": "image/png",
+              "locator": {
+                "locator_type": "RelativePath",
+                "relative_path": "assets/image/png/22cf8f6ba95c4aec9e728d28f0ad2497d1e94fa346d10fda4eadc6cadbb4fc18.png"
+              }
+            },
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.375,
+              "h": 0.375,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "WaitSensor",
+            "duration_msec": 100
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": true
+        },
+        "isi": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "TextCard",
+            "text": "todo add blank card",
+            "font_size": 0.02,
+            "justification_horizontal": "center",
+            "justification_vertical": "center",
+            "text_color": "#000000ff",
+            "background_color": "#E6E6E600",
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.05,
+              "h": 0.05,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "WaitSensor",
+            "duration_msec": 100
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": true
+        },
+        "choice": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "TextCard",
+            "text": "todo add blank card",
+            "font_size": 0.02,
+            "justification_horizontal": "center",
+            "justification_vertical": "center",
+            "text_color": "#000000ff",
+            "background_color": "#E6E6E600",
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.05,
+              "h": 0.05,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "SelectSensor",
+            "choices": {
+              "choice0": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "2c9ba93a999712619e78e7d51a421063f49a94e89f68d7f55ff86846bedf71d6",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/2c9ba93a999712619e78e7d51a421063f49a94e89f68d7f55ff86846bedf71d6.png"
+                  }
+                },
+                "region": {
+                  "x": 0.39375000000000004,
+                  "y": 0.0,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice1": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "c67f7d9d2116d9987262c08be0a112b08b38b2a3f8932f3c5f611caccfe8c988",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/c67f7d9d2116d9987262c08be0a112b08b38b2a3f8932f3c5f611caccfe8c988.png"
+                  }
+                },
+                "region": {
+                  "x": 0.27842329509220315,
+                  "y": 0.2784232950922031,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice2": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "deefaba31306e6619193b2f8509da78a1be7f76de06a78df3c25904b4dff57f1",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/deefaba31306e6619193b2f8509da78a1be7f76de06a78df3c25904b4dff57f1.png"
+                  }
+                },
+                "region": {
+                  "x": 2.411023385821352e-17,
+                  "y": 0.39375000000000004,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice3": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "6519c68260055d619be9b5922e1d63656de4c2c6539ee9539996759b68add91f",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/6519c68260055d619be9b5922e1d63656de4c2c6539ee9539996759b68add91f.png"
+                  }
+                },
+                "region": {
+                  "x": -0.2784232950922031,
+                  "y": 0.27842329509220315,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice4": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "708bf9c12818e68f30595621300034bfd097fa575c7d1cad56298df12fc1830f",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/708bf9c12818e68f30595621300034bfd097fa575c7d1cad56298df12fc1830f.png"
+                  }
+                },
+                "region": {
+                  "x": -0.39375000000000004,
+                  "y": 4.822046771642704e-17,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice5": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "e52a8c7b748e451602c566848e1b55d529705ce75e9ed6fabbe2069918820475",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/e52a8c7b748e451602c566848e1b55d529705ce75e9ed6fabbe2069918820475.png"
+                  }
+                },
+                "region": {
+                  "x": -0.2784232950922032,
+                  "y": -0.2784232950922031,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice6": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "5431bfe43f8bcd652bb8d0ce1b7980125b5588a87eb269f0be497a6d6a2bd108",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/5431bfe43f8bcd652bb8d0ce1b7980125b5588a87eb269f0be497a6d6a2bd108.png"
+                  }
+                },
+                "region": {
+                  "x": -7.233070157464055e-17,
+                  "y": -0.39375000000000004,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              },
+              "choice7": {
+                "card_type": "ImageCard",
+                "image": {
+                  "sha256": "820a15b333fd8a7c2ce0d9b74f10f141493012a108b69aa46b99dba0579857c6",
+                  "media_type": "image/png",
+                  "locator": {
+                    "locator_type": "RelativePath",
+                    "relative_path": "assets/image/png/820a15b333fd8a7c2ce0d9b74f10f141493012a108b69aa46b99dba0579857c6.png"
+                  }
+                },
+                "region": {
+                  "x": 0.27842329509220304,
+                  "y": -0.2784232950922032,
+                  "w": 0.2,
+                  "h": 0.2,
+                  "z_index": null,
+                  "mask": "rectangle"
+                }
+              }
+            }
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": false
+        },
+        "punish": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "TextCard",
+            "text": "Incorrect.",
+            "font_size": 0.08,
+            "justification_horizontal": "center",
+            "justification_vertical": "center",
+            "text_color": "#c80000ff",
+            "background_color": "#E6E6E600",
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.5,
+              "h": 0.5,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "WaitSensor",
+            "duration_msec": 1000
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": false
+        },
+        "reward": {
+          "type": "Node",
+          "stimulus": {
+            "card_type": "TextCard",
+            "text": "Correct!",
+            "font_size": 0.08,
+            "justification_horizontal": "center",
+            "justification_vertical": "center",
+            "text_color": "#3232c8ff",
+            "background_color": "#E6E6E600",
+            "region": {
+              "x": 0.0,
+              "y": 0.0,
+              "w": 0.5,
+              "h": 0.5,
+              "z_index": null,
+              "mask": "rectangle"
+            }
+          },
+          "sensor": {
+            "sensor_type": "WaitSensor",
+            "duration_msec": 300
+          },
+          "board_color": "#808080ff",
+          "hide_pointer": false
+        }
+      },
+      "transitions": {
+        "fixation": {
+          "transition_type": "Go",
+          "to": "stimulus",
+          "register_updates": {}
+        },
+        "stimulus": {
+          "transition_type": "Go",
+          "to": "isi",
+          "register_updates": {}
+        },
+        "isi": {
+          "transition_type": "Go",
+          "to": "choice",
+          "register_updates": {}
+        },
+        "choice": {
+          "transition_type": "Branch",
+          "cases": [
+            {
+              "when": {
+                "op": "eq",
+                "lhs": {
+                  "op": "gdv",
+                  "d": {
+                    "op": "la"
+                  },
+                  "key": {
+                    "op": "lit",
+                    "value": "selection"
+                  }
+                },
+                "rhs": {
+                  "op": "lit",
+                  "value": "choice1"
+                }
+              },
+              "then": {
+                "transition_type": "Go",
+                "to": "reward",
+                "register_updates": {}
+              }
+            }
+          ],
+          "otherwise": {
+            "transition_type": "Go",
+            "to": "punish",
+            "register_updates": {}
+          }
+        },
+        "punish": {
+          "transition_type": "End"
+        },
+        "reward": {
+          "transition_type": "End"
+        }
+      },
+      "start": "fixation",
+      "registers": {}
+    }
+  },
+  "transitions": {
+    "0": {
+      "transition_type": "Go",
+      "to": "1",
+      "register_updates": {}
+    },
+    "1": {
+      "transition_type": "Go",
+      "to": "2",
+      "register_updates": {}
+    },
+    "2": {
+      "transition_type": "Go",
+      "to": "3",
+      "register_updates": {}
+    },
+    "3": {
+      "transition_type": "Go",
+      "to": "4",
+      "register_updates": {}
+    },
+    "4": {
+      "transition_type": "Go",
+      "to": "5",
+      "register_updates": {}
+    },
+    "5": {
+      "transition_type": "Go",
+      "to": "6",
+      "register_updates": {}
+    },
+    "6": {
+      "transition_type": "Go",
+      "to": "7",
+      "register_updates": {}
+    },
+    "7": {
+      "transition_type": "Go",
+      "to": "8",
+      "register_updates": {}
+    },
+    "8": {
+      "transition_type": "Go",
+      "to": "9",
+      "register_updates": {}
+    },
+    "9": {
+      "transition_type": "End"
+    }
+  },
+  "start": "0",
+  "registers": {}
+}

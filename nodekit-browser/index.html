@@ -10,6 +10,14 @@
 <div id="app"></div>
 <script type="module" src="src/main.ts"></script>
 <script type="module">
+    // Dev-only safety net for rejected promises
+    window.addEventListener('unhandledrejection', (ev) => {
+        ev.preventDefault();
+        console.error('Unhandled rejection in dev harness:', ev.reason);
+        if (ev.reason?.stack) {
+            console.error(ev.reason.stack);
+        }
+    });
 
     const choiceCardsTmp = {
         "hello-image": {
@@ -323,7 +331,7 @@
         'registers': {},
     }
 
-    let graph = {
+    let devGraph = {
         'type': 'Graph',
         "start": "graph-node",
         "nodes": {
@@ -352,17 +360,28 @@
     window.focus();
 
     window.onload = async () => {
-        let trace = await play(
-            graph,
-            (event) => {
-                // Avoid noise in the log
-                if ("PointerSampledEvent" === event.event_type) {
-                    return;
-                }
-                console.log(event);
-            },
-            true,
-        )
+        try {
+            async function loadGraph(path) {
+                let graphModule = await import(path);
+                return graphModule.default;
+            }
+            let mtsGraph = await loadGraph("./test-graphs/mts-graph.json");
+            console.log(mtsGraph)
+            let trace = await play(
+                mtsGraph,
+                (event) => {
+                    // Avoid noise in the log
+                    if ("PointerSampledEvent" === event.event_type) {
+                        return;
+                    }
+                    console.log(event);
+                },
+                true,
+            );
+            console.log('Trace', trace);
+        } catch (err) {
+            console.error('Dev harness failed to play graph', err);
+        }
     };
 </script>
 

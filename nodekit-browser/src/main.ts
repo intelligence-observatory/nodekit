@@ -90,6 +90,7 @@ export async function play(
 
     document.addEventListener("visibilitychange", onVisibilityChange)
 
+
     // Emit the BrowserContextEvent:
     const browserContextEvent = sampleBrowserContext(clock);
     eventArray.push(browserContextEvent);
@@ -147,6 +148,7 @@ async function playGraph(
     namespace: string,
     context: PlayGraphContext,
 ): Promise<Action> {
+
 
     const nodes = graph.nodes;
 
