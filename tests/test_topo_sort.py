@@ -86,7 +86,7 @@ def test_example_pass():
     nodes["negative_1"] = get_negative_node()
 
     transitions: dict[str, nk.transitions.Transition] = {}
-    transitions["response_1"] = nk.transitions.Branch(
+    transitions["response_1"] = nk.transitions.Switch(
         cases=[
             nk.transitions.Case(
                 when=nk.expressions.Lit(value=True),
@@ -101,7 +101,7 @@ def test_example_pass():
                 ),
             ),
         ],
-        otherwise=nk.transitions.End(),
+        default=nk.transitions.End(),
     )
     transitions["fixation_2"] = nk.transitions.Go(to="stimulus_2")
     transitions["fixation_1"] = nk.transitions.Go(to="stimulus_1")
@@ -158,7 +158,7 @@ def test_example_fail():
     nodes["negative_1"] = get_negative_node()
 
     transitions: dict[str, nk.transitions.Transition] = {}
-    transitions["response_1"] = nk.transitions.Branch(
+    transitions["response_1"] = nk.transitions.Switch(
         cases=[
             nk.transitions.Case(
                 when=nk.expressions.Lit(value=True),
@@ -173,7 +173,7 @@ def test_example_fail():
                 ),
             ),
         ],
-        otherwise=nk.transitions.End(),
+        default=nk.transitions.End(),
     )
     transitions["fixation_2"] = nk.transitions.Go(to="stimulus_2")
     transitions["fixation_1"] = nk.transitions.Go(to="stimulus_1")

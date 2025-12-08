@@ -1,9 +1,9 @@
-from typing import Dict, Literal
+from typing import Dict, Literal, Annotated
 
 import pydantic
 
 from nodekit._internal.types.expressions.expressions import Expression
-from nodekit._internal.types.value import NodeId, RegisterId
+from nodekit._internal.types.value import NodeId, RegisterId, LeafValue
 
 
 # %%
@@ -26,7 +26,6 @@ class End(BaseTransition):
 type LeafTransition = Go | End
 
 # %%
-from typing import Annotated
 class IfThenElse(BaseTransition):
     model_config = pydantic.ConfigDict(
         serialize_by_alias=True,
@@ -56,15 +55,11 @@ class IfThenElse(BaseTransition):
     ]
 
 # %%
-class Case(pydantic.BaseModel):
-    when: Expression
-    then: LeafTransition
-
-
-class Branch(BaseTransition):
-    transition_type: Literal["Branch"] = "Branch"
-    cases: list[Case]
-    otherwise: LeafTransition = pydantic.Field(
+class Switch(BaseTransition):
+    transition_type: Literal["Switch"] = "Switch"
+    on: Expression
+    cases: Dict[LeafValue, LeafTransition]
+    default: LeafTransition = pydantic.Field(
         default_factory=End,
         description="The transition to take if no case matches.",
         validate_default=True,
@@ -72,4 +67,4 @@ class Branch(BaseTransition):
 
 
 # %%
-type Transition = Go | End | Branch | IfThenElse
+type Transition = Go | End | Switch | IfThenElse

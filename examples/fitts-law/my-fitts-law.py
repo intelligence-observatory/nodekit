@@ -103,7 +103,7 @@ def make_fitts_trial(
         },
         transitions={
             "home-node": nk.transitions.Go(to="target-node"),
-            "target-node": nk.transitions.Branch(
+            "target-node": nk.transitions.Switch(
                 cases=[
                     nk.transitions.Case(
                         when=nk.expressions.Eq(
@@ -120,7 +120,7 @@ def make_fitts_trial(
                         ),
                     )
                 ],
-                otherwise=nk.transitions.Go(to="negative-node"),
+                default=nk.transitions.Go(to="negative-node"),
             ),
             "positive-node": nk.transitions.End(),
             "negative-node": nk.transitions.End(),

@@ -1,13 +1,11 @@
 import type {Expression} from "./expressions/expressions.ts";
-import type {NodeId, RegisterId} from "./value.ts";
+import type {LeafValue, NodeId, RegisterId} from "./value.ts";
 
 interface BaseTransition<T extends string> {
     transition_type: T
 }
 
-export interface End extends BaseTransition<'End'> {
-    // Leaf. Exit the Graph!
-}
+export interface End extends BaseTransition<'End'> {}
 
 export interface Go extends BaseTransition<'Go'> {
     // Leaf. Constant transition.
@@ -23,20 +21,18 @@ export interface IfThenElse extends BaseTransition<'IfThenElse'> {
     else: LeafTransition
 }
 
-export interface Branch extends BaseTransition<'Branch'> {
+export interface Switch extends BaseTransition<'Switch'> {
     /*
     N-way structured switch. No fallthrough; first matching case is taken.
     If no matches, take default.
      */
-    cases: Array<{
-        when: Expression
-        then: LeafTransition
-    }>
-    otherwise: LeafTransition // Default case if no matches
+    on: Expression
+    cases: Map<LeafValue, LeafTransition>
+    default: LeafTransition // Default case if no matches
 }
 
 export type Transition =
     | Go
-    | Branch
+    | Switch
     | IfThenElse
     | End;

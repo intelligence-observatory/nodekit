@@ -179,7 +179,7 @@ def make_stroop_trial(
         },
         transitions={
             "fixation": nk.transitions.Go(to="main"),
-            "main": nk.transitions.Branch(
+            "main": nk.transitions.Switch(
                 cases=[
                     nk.transitions.Case(  # Correct response
                         when=nk.expressions.Eq(
@@ -192,7 +192,7 @@ def make_stroop_trial(
                         then=nk.transitions.Go(to="correct"),
                     ),
                 ],
-                otherwise=nk.transitions.Go(to="incorrect"),
+                default=nk.transitions.Go(to="incorrect"),
             ),
         },
         start="fixation",

@@ -107,7 +107,7 @@ def make_same_different_node(
         },
         transitions={
             "fixation": nk.transitions.Go(to="main"),
-            "main": nk.transitions.Branch(
+            "main": nk.transitions.Switch(
                 cases=[
                     nk.transitions.Case(
                         when=nk.expressions.Eq(
@@ -148,7 +148,7 @@ def make_same_different_node(
                         then=nk.transitions.Go(to="reward"),
                     )
                 ],
-                otherwise=nk.transitions.Go(to="punish"),
+                default=nk.transitions.Go(to="punish"),
             ),
             "punish": nk.transitions.End(),
             "reward": nk.transitions.End(),

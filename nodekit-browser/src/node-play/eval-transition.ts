@@ -67,18 +67,18 @@ export function evalTransition(
                 });
             }
         }
-        case "Branch": {
-            // Evaluate guarded cases in order; recurse into the matching branch
-            for (const { when, then } of transition.cases) {
-                const cond = evl(
-                    when,
-                    {
-                        graphRegisters: registers,
-                        localVariables: {},
-                        lastAction,
-                    },
-                );
-                if (cond) {
+        case "Switch": {
+            const selector = evl(
+                transition.on,
+                {
+                    graphRegisters: registers,
+                    localVariables: {},
+                    lastAction,
+                },
+            );
+
+            for (const [value, then] of transition.cases.entries()) {
+                if (selector === value) {
                     return evalTransition({
                         transition: then,
                         registers,
@@ -86,8 +86,10 @@ export function evalTransition(
                     });
                 }
             }
+
+            // Default case
             return evalTransition({
-                transition: transition.otherwise,
+                transition: transition.default,
                 registers,
                 lastAction,
             });

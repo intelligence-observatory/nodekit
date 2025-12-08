@@ -149,7 +149,7 @@ def make_trial(
             "fixation": nk.transitions.Go(to="stimulus"),
             "stimulus": nk.transitions.Go(to="isi"),
             "isi": nk.transitions.Go(to="choice"),
-            "choice": nk.transitions.Branch(
+            "choice": nk.transitions.Switch(
                 cases=[
                     nk.transitions.Case(  # Correct response
                         when=nk.expressions.Eq(
@@ -162,7 +162,7 @@ def make_trial(
                         then=nk.transitions.Go(to="correct"),
                     )
                 ],
-                otherwise=nk.transitions.Go(to="incorrect"),
+                default=nk.transitions.Go(to="incorrect"),
             ),
             "correct": nk.transitions.End(),
             "incorrect": nk.transitions.End(),

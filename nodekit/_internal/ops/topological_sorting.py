@@ -2,7 +2,7 @@ from collections import defaultdict, deque
 from typing import List, Tuple
 
 from nodekit import Graph
-from nodekit._internal.types.transition import Branch, End, Go, Transition
+from nodekit._internal.types.transition import Switch, End, Go, Transition
 from nodekit._internal.types.value import NodeId
 
 
@@ -104,12 +104,12 @@ def _outgoing_targets(tr: Transition) -> list[NodeId]:
         return [tr.to]
     if isinstance(tr, End):
         return []
-    if isinstance(tr, Branch):
+    if isinstance(tr, Switch):
         targets = []
         for case in tr.cases:
             if isinstance(case.then, Go):
                 targets.append(case.then.to)
-        if isinstance(tr.otherwise, Go):
-            targets.append(tr.otherwise.to)
+        if isinstance(tr.default, Go):
+            targets.append(tr.default.to)
         return targets
     raise TypeError(f"Unsupported transition type: {tr}")
