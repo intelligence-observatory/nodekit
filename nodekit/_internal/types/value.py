@@ -69,7 +69,7 @@ type ColorHexString = Annotated[
     String,
     pydantic.BeforeValidator(_normalize_hex_code),
     pydantic.Field(
-        pattern=r"^#[0-9a-f]{8}$",  # "#RRGGBBAA"
+        pattern=r"^#[0-9a-fA-F]{8}$",  # "#RRGGBBAA"
         min_length=9,
         max_length=9,
     ),
