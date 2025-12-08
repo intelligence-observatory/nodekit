@@ -3,6 +3,16 @@
     outline-offset: -2px; /* or tweak to taste */
 }
 
-.card--hoverable:hover::after{
+.card--hoverable::after {
+    content: "";
+    position: absolute;
+    inset: 0;
     background: rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    pointer-events: none;
+    will-change: opacity;
+}
+
+.card--hoverable:hover::after{
+    opacity: 1;
 }
