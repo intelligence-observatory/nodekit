@@ -1,5 +1,4 @@
 import {UIElementBase} from "./base.ts";
-import {StatusDot} from "./status-dot/status-dot.ts";
 
 import './shell-ui.css'
 
@@ -14,7 +13,6 @@ export class ShellUI extends UIElementBase {
 
     // Widgets:
     private progressBar: ProgressBar
-    private statusDot: StatusDot
 
     // Overlays
     private sessionConnectingOverlay: SessionConnectingOverlay;
@@ -32,9 +30,6 @@ export class ShellUI extends UIElementBase {
         this.progressBar = new ProgressBar('cognition');
         this.progressBar.mount(this.root);
 
-        // Initialize status dot
-        this.statusDot = new StatusDot();
-        this.statusDot.mount(this.root);
 
         // Initialize overlay for session connecting
         this.sessionConnectingOverlay = new SessionConnectingOverlay();
@@ -58,9 +53,6 @@ export class ShellUI extends UIElementBase {
         this.progressBar.setProgress(percent);
     }
 
-    setStatusDot(state: "positive" | "negative" | "neutral") {
-        this.statusDot.setState(state)
-    }
 
     showSessionConnectingOverlay(startDelayMsec: number = 500) {
         // Show the overlay

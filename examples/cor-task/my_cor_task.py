@@ -11,7 +11,6 @@ def make_mts_trial(
     stimulus: nk.assets.Image,
     choices: list[nk.assets.Image],
     i_correct_choice: int,
-    show_feedback: bool,
 ) -> nk.Graph:
     if not len(choices) == 8:
         raise ValueError
@@ -51,9 +50,7 @@ def make_mts_trial(
 
     # ISI node
     isi_node = nk.Node(
-        stimulus=nk.cards.TextCard(
-            text="todo add blank card", region=nk.Region(x=0, y=0, w=0.05, h=0.05)
-        ),
+        stimulus=None,
         sensor=nk.sensors.WaitSensor(duration_msec=post_stim_delay),
         hide_pointer=True,
     )
@@ -83,9 +80,7 @@ def make_mts_trial(
         choice_cards[f"choice{i}"] = card
 
     choice_node = nk.Node(
-        stimulus=nk.cards.TextCard(
-            text="todo add blank card", region=nk.Region(x=0, y=0, w=0.05, h=0.05)
-        ),
+        stimulus=None,
         sensor=nk.sensors.SelectSensor(choices=choice_cards),
     )
 
@@ -199,7 +194,6 @@ if __name__ == "__main__":
             stimulus=stim_image,
             choices=[choices[i] for i in i_shuffled],
             i_correct_choice=i_correct_choice,
-            show_feedback=True,
         )
         trials.append(trial)
 

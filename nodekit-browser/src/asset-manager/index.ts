@@ -29,7 +29,6 @@ export class AssetManager {
     async getImageElement(image: Image): Promise<HTMLImageElement> {
         // Lookup:
         let imageUrl = this.resolveAssetUrl(image);
-        console.log('yo', imageUrl)
 
         // Ensure the image is loaded, and return it as an HTMLImageElement.
         let element = new Image();

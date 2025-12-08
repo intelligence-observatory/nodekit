@@ -9,6 +9,7 @@ export abstract class BaseCardView<C extends Card = Card>{
     card: C
     root: HTMLElement;
     hoverable: boolean = false;
+
     protected constructor(
         card: C,
         root: HTMLElement,
@@ -22,11 +23,13 @@ export abstract class BaseCardView<C extends Card = Card>{
 
     setHoverable(isHoverable: boolean):void{
         this.hoverable = isHoverable;
+        if (isHoverable) {
+            this.root.classList.add('card--hoverable');
+        } else {
+            this.root.classList.remove('card--hoverable');
+        }
     }
 
-
-
-    abstract setHoverState(hovered:boolean):void
     abstract setSelectedState(selected:boolean):void
     abstract setOpacity(opacity:number):void
 
@@ -48,20 +51,6 @@ export abstract class LeafCardView<C extends LeafCard = LeafCard> extends BaseCa
         const root = createRegionDiv(card.region, boardCoords);
         super(card, root)
         this.boardCoords = boardCoords;
-    }
-
-    setHoverable(isHoverable:boolean){
-
-    }
-    setHoverState(
-        hovered:boolean,
-    ){
-        if (hovered){
-            this.root.classList.add('card--hovered')
-        }
-        else{
-            this.root.classList.remove('card--hovered')
-        }
     }
 
     setSelectedState(
@@ -140,12 +129,14 @@ export class CompositeCardView extends BaseCardView<CompositeCard>{
         for (let cardView of Object.values(this.childViews)){
             cardView.onDestroy()
         }
+        super.onDestroy();
     }
-    setHoverState(hovered:boolean):void{
+    setHoverable(isHoverable: boolean): void {
         for (const cardView of Object.values(this.childViews)) {
-            cardView.setHoverState(hovered);
+            cardView.setHoverable(isHoverable);
         }
     }
+
     setSelectedState(selected:boolean):void{
         for (const cardView of Object.values(this.childViews)) {
             cardView.setSelectedState(selected);
@@ -156,7 +147,6 @@ export class CompositeCardView extends BaseCardView<CompositeCard>{
         for (const cardView of Object.values(this.childViews)) {
             cardView.setOpacity(opacity);
         }
-
     }
 
     checkPointInCard(

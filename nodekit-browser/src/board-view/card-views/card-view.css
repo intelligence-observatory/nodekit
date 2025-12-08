@@ -3,6 +3,6 @@
     outline-offset: -2px; /* or tweak to taste */
 }
 
-.card--hovered::after{
+.card--hoverable:hover::after{
     background: rgba(0, 0, 0, 0.1);
 }

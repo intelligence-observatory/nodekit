@@ -90,7 +90,6 @@ export async function play(
 
     document.addEventListener("visibilitychange", onVisibilityChange)
 
-
     // Emit the BrowserContextEvent:
     const browserContextEvent = sampleBrowserContext(clock);
     eventArray.push(browserContextEvent);

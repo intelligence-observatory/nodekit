@@ -21,6 +21,7 @@ export class PointerStream {
         target: HTMLDivElement,
         clock: Clock,
     ) {
+
         this.target = target;
         this.clock = clock;
 
@@ -91,7 +92,7 @@ export class PointerStream {
         };
 
         // Attach to pointer events:
-        this.target.addEventListener('pointermove', handlePointerEvent);
+        //this.target.addEventListener('pointermove', handlePointerEvent);
         this.target.addEventListener('pointerdown', handlePointerEvent);
         this.target.addEventListener('pointerup', handlePointerEvent);
     }
@@ -103,6 +104,7 @@ export class PointerStream {
     subscribe(
         callback: (sample: PointerSample) => void
     ): () => void {
+
         this.subscriptions.push(callback);
         return (() => {
                 this.subscriptions = this.subscriptions.filter(cb => cb !== callback);
@@ -112,6 +114,5 @@ export class PointerStream {
 
     public destroy(){
         this.subscriptions = [];
-
     }
 }

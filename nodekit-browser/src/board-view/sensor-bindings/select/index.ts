@@ -18,7 +18,9 @@ export class SelectSensorBinding extends SensorBinding<SelectSensor> {
         let choiceIds = [];
 
         for (const [choiceId, choiceCard] of Object.entries(this.params.sensor.choices)){
-            cardViewMap[choiceId] = await createCardView(choiceCard, this.params.boardView, this.params.assetManager);
+            const cardView = await createCardView(choiceCard, this.params.boardView, this.params.assetManager);
+            cardView.setHoverable(true);
+            cardViewMap[choiceId] = cardView;
             choiceIds.push(choiceId);
             this.choiceCardViews.push(cardViewMap[choiceId]);
         }
@@ -27,9 +29,13 @@ export class SelectSensorBinding extends SensorBinding<SelectSensor> {
         let currentSelection: string | null = null;
 
         const pointerCallback = (pointerSample: PointerSample) => {
+            if (pointerSample.sampleType !== 'down') {
+                return;
+            }
+
             // Track which card should end up selected after this event
             let nextSelection: string | null = null;
-            let selectionMade= false;
+            let selectionMade = false;
 
             for (const choiceId of choiceIds) {
                 const cardView = cardViewMap[choiceId];
@@ -40,35 +46,32 @@ export class SelectSensorBinding extends SensorBinding<SelectSensor> {
                 );
 
                 if (!inside) {
-                    cardView.setHoverState(false);
                     continue;
                 }
 
-                // Pointer is inside this card
-                if (pointerSample.sampleType === 'down') {
-                    // Select this card
-                    cardView.setSelectedState(true);
-                    cardView.setHoverState(false);
-                    nextSelection = choiceId;
-
-                    currentSelection = choiceId;
-                    selectionMade = true;
-
-
-                    // Emit selection
-                    const sensorValue: SelectAction = {
-                        action_type: 'SelectAction',
-                        t: this.params.boardView.clock.now(),
-                        selection: choiceId,
-                    };
-                    this.emit(sensorValue);
+                // Pointer is inside this card on a down event
+                if (currentSelection === choiceId) {
+                    // Already selected; no-op
+                    selectionMade = false;
+                    break;
                 }
-                if (currentSelection !== choiceId){
-                    cardView.setHoverState(true);
-                }
+
+                cardView.setSelectedState(true);
+                nextSelection = choiceId;
+                currentSelection = choiceId;
+                selectionMade = true;
+
+                // Emit selection
+                const sensorValue: SelectAction = {
+                    action_type: 'SelectAction',
+                    t: this.params.boardView.clock.now(),
+                    selection: choiceId,
+                };
+                this.emit(sensorValue);
+                break;
             }
 
-            // Deselect all others (and optionally clear selection if click on empty space)
+            // Deselect all others when a new selection is made
             if (selectionMade) {
                 for (const choiceId of choiceIds) {
                     if (choiceId === nextSelection) continue;
