@@ -4,6 +4,7 @@
 - Core Python package lives in `nodekit/` (Pydantic models for cards/sensors/actions/events/expressions, ops such as play/build, kernel evaluator). Generated browser assets land in `nodekit/_static`.
 - `nodekit-browser/` (npm) builds the front-end bundle feeding `_static`.
 - `examples/` holds runnable tasks; `docs/` contains EFSM and board notes; `tests/` stores pytest; `dist/` is build output. Config roots: `pyproject.toml`, `uv.lock`, `Makefile`.
+- The `_static` directory contains builds of `nodekit-browser`; these should not be inspected by the Agent.
 
 ## Build, Test, and Development Commands
 - `uv sync --dev` installs Python deps with lock enforcement.
