@@ -149,20 +149,16 @@ def make_trial(
             "fixation": nk.transitions.Go(to="stimulus"),
             "stimulus": nk.transitions.Go(to="isi"),
             "isi": nk.transitions.Go(to="choice"),
-            "choice": nk.transitions.Branch(
-                cases=[
-                    nk.transitions.Case(  # Correct response
-                        when=nk.expressions.Eq(
-                            lhs=nk.expressions.GetDictValue(
-                                d=nk.expressions.LastAction(),
-                                key=nk.expressions.Lit(value="selection"),
-                            ),
-                            rhs=nk.expressions.Lit(value=correct_choice),
-                        ),
-                        then=nk.transitions.Go(to="correct"),
-                    )
-                ],
-                otherwise=nk.transitions.Go(to="incorrect"),
+            "choice": nk.transitions.IfThenElse(
+                if_=nk.expressions.Eq(
+                    lhs=nk.expressions.GetDictValue(
+                        d=nk.expressions.LastAction(),
+                        key=nk.expressions.Lit(value="selection"),
+                    ),
+                    rhs=nk.expressions.Lit(value=correct_choice),
+                ),
+                then=nk.transitions.Go(to="correct"),
+                else_=nk.transitions.Go(to="incorrect"),
             ),
             "correct": nk.transitions.End(),
             "incorrect": nk.transitions.End(),

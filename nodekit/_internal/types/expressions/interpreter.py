@@ -73,7 +73,7 @@ def evl(expression: Expression, context: EvalContext) -> Value:
             raise TypeError(
                 f"if: condition must be bool, got '{type(cond_val).__name__}'"
             )
-        branch = expression.then if cond_val else expression.otherwise
+        branch = expression.then if cond_val else expression.default
         return evl(branch, context)
 
     # =====================

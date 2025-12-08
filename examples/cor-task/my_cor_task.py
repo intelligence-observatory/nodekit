@@ -130,20 +130,16 @@ def make_mts_trial(
             "fixation": nk.transitions.Go(to="stimulus"),
             "stimulus": nk.transitions.Go(to="isi"),
             "isi": nk.transitions.Go(to="choice"),
-            "choice": nk.transitions.Branch(
-                cases=[
-                    nk.transitions.Case(
-                        when=nk.expressions.Eq(
-                            lhs=nk.expressions.GetDictValue(
-                                d=nk.expressions.LastAction(),
-                                key=nk.expressions.Lit(value="selection"),
-                            ),
-                            rhs=nk.expressions.Lit(value=f"choice{i_correct_choice}"),
-                        ),
-                        then=nk.transitions.Go(to="reward"),
-                    )
-                ],
-                otherwise=nk.transitions.Go(to="punish"),
+            "choice": nk.transitions.IfThenElse(
+                if_=nk.expressions.Eq(
+                    lhs=nk.expressions.GetDictValue(
+                        d=nk.expressions.LastAction(),
+                        key=nk.expressions.Lit(value="selection"),
+                    ),
+                    rhs=nk.expressions.Lit(value=f"choice{i_correct_choice}"),
+                ),
+                then=nk.transitions.Go(to="reward"),
+                else_=nk.transitions.Go(to="punish"),
             ),
             "punish": nk.transitions.End(),
             "reward": nk.transitions.End(),
@@ -195,6 +191,7 @@ if __name__ == "__main__":
             choices=[choices[i] for i in i_shuffled],
             i_correct_choice=i_correct_choice,
         )
+
         trials.append(trial)
 
     graph = nk.concat(trials)

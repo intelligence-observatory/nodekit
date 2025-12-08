@@ -9,8 +9,6 @@ import {SensorBinding} from "../index.ts";
 export class KeySensorBinding extends SensorBinding<KeySensor> {
     async prepare() {
         const keys = new Set(this.params.sensor.keys);
-        console.log('keys', keys)
-
         const keyCallback = (keySample: KeySample) => {
             if (keySample.sampleType !== 'down') {
                 return;

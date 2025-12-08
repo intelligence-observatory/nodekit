@@ -11,11 +11,14 @@ export interface Dict {
 
 export type List = Value[];
 // DU
-export type Value =
+export type LeafValue =
     | Boolean
     | Integer
     | Float
     | String
+
+export type Value =
+    | LeafValue
     | List
     | Dict;
 
