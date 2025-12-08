@@ -96,7 +96,8 @@ def make_same_different_node(
         ),
         sensor=nk.sensors.WaitSensor(duration_msec=200),
     )
-    same = color_left == color_right
+
+    expected_key = "f" if color_left == color_right else "j"
 
     graph = nk.Graph(
         nodes={
@@ -107,48 +108,16 @@ def make_same_different_node(
         },
         transitions={
             "fixation": nk.transitions.Go(to="main"),
-            "main": nk.transitions.Switch(
-                cases=[
-                    nk.transitions.Case(
-                        when=nk.expressions.Eq(
-                            lhs=nk.expressions.Or(
-                                # Same and pressed "f"
-                                args=[
-                                    nk.expressions.And(
-                                        args=[
-                                            nk.expressions.Lit(value=same),
-                                            nk.expressions.Eq(
-                                                lhs=nk.expressions.GetDictValue(
-                                                    d=nk.expressions.LastAction(),
-                                                    key=nk.expressions.Lit(value="key"),
-                                                ),
-                                                rhs=nk.expressions.Lit(value="f"),
-                                            ),
-                                        ]
-                                    ),
-                                    # Different and pressed "j"
-                                    nk.expressions.And(
-                                        args=[
-                                            nk.expressions.Not(
-                                                operand=nk.expressions.Lit(value=same)
-                                            ),
-                                            nk.expressions.Eq(
-                                                lhs=nk.expressions.GetDictValue(
-                                                    d=nk.expressions.LastAction(),
-                                                    key=nk.expressions.Lit(value="key"),
-                                                ),
-                                                rhs=nk.expressions.Lit(value="j"),
-                                            ),
-                                        ]
-                                    ),
-                                ],
-                            ),
-                            rhs=nk.expressions.Lit(value=True),
-                        ),
-                        then=nk.transitions.Go(to="reward"),
-                    )
-                ],
-                default=nk.transitions.Go(to="punish"),
+            "main": nk.transitions.IfThenElse(
+                if_=nk.expressions.Eq(
+                    lhs=nk.expressions.GetDictValue(
+                        d=nk.expressions.LastAction(),
+                        key=nk.expressions.Lit(value="key"),
+                    ),
+                    rhs=nk.expressions.Lit(value=expected_key),
+                ),
+                then=nk.transitions.Go(to="reward"),
+                else_=nk.transitions.Go(to="punish"),
             ),
             "punish": nk.transitions.End(),
             "reward": nk.transitions.End(),
