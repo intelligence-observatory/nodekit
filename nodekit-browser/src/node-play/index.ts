@@ -39,8 +39,13 @@ export class NodePlay {
         this.scheduler = new EventScheduler();
         this.assetManager=assetManager;
 
+    }
+
+    async prepare() {
+
+
         // Have the input streams push to the event stream: todo despaghetti
-        this.boardView.pointerStream.subscribe(
+        const unsubscribePointer = this.boardView.pointerStream.subscribe(
             (pointerSample) => {
                 const e: PointerSampledEvent = {
                     event_type: 'PointerSampledEvent',
@@ -52,7 +57,7 @@ export class NodePlay {
                 this.eventArray.push(e)
             }
         )
-        this.boardView.keyStream.subscribe(
+        const unsubscribeKey = this.boardView.keyStream.subscribe(
             (keySample) => {
                 const e: KeySampledEvent = {
                     event_type: 'KeySampledEvent',
@@ -64,10 +69,14 @@ export class NodePlay {
             }
         )
 
-    }
+        this.scheduler.scheduleOnStop(
+            () => {
+                unsubscribePointer()
+                unsubscribeKey()
+            }
+        )
 
-    async prepare() {
-
+        // Create Stimulus CardView:
         if (this.node.stimulus){
             const cardView = await createCardView(
                 this.node.stimulus,
