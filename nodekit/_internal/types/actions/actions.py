@@ -3,7 +3,7 @@ from typing import Literal, Union, Annotated, Dict
 
 import pydantic
 
-from nodekit._internal.types.value import PressableKey, SpatialPoint, TimeElapsedMsec
+from nodekit._internal.types.value import PressableKey, SpatialPoint
 
 
 # %%
