@@ -9,7 +9,6 @@ from nodekit._internal.types.value import PressableKey, SpatialPoint, TimeElapse
 # %%
 class BaseAction(pydantic.BaseModel, ABC):
     action_type: str
-    t: TimeElapsedMsec
 
 
 # %%
