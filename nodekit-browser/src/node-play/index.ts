@@ -9,7 +9,7 @@ import type {Clock} from "../clock.ts";
 import {Deferred} from "../utils.ts";
 import type {NodeId} from "../types/value.ts";
 import type {EventArray} from "../event-array.ts";
-import type {ActionTakenEvent, NodeEndedEvent, NodeStartedEvent} from "../types/events";
+import type {ActionTakenEvent, KeySampledEvent, NodeEndedEvent, NodeStartedEvent, PointerSampledEvent} from "../types/events";
 
 
 export class NodePlay {
@@ -38,6 +38,32 @@ export class NodePlay {
         this.node = node;
         this.scheduler = new EventScheduler();
         this.assetManager=assetManager;
+
+        // Have the input streams push to the event stream: todo despaghetti
+        this.boardView.pointerStream.subscribe(
+            (pointerSample) => {
+                const e: PointerSampledEvent = {
+                    event_type: 'PointerSampledEvent',
+                    t: pointerSample.t,
+                    x: pointerSample.x,
+                    y: pointerSample.y,
+                    kind: pointerSample.sampleType,
+                }
+                this.eventArray.push(e)
+            }
+        )
+        this.boardView.keyStream.subscribe(
+            (keySample) => {
+                const e: KeySampledEvent = {
+                    event_type: 'KeySampledEvent',
+                    t: keySample.t,
+                    key: keySample.key,
+                    kind: keySample.sampleType,
+                }
+                this.eventArray.push(e)
+            }
+        )
+
     }
 
     async prepare() {

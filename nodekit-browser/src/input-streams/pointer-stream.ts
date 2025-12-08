@@ -92,7 +92,7 @@ export class PointerStream {
         };
 
         // Attach to pointer events:
-        //this.target.addEventListener('pointermove', handlePointerEvent);
+        this.target.addEventListener('pointermove', handlePointerEvent);
         this.target.addEventListener('pointerdown', handlePointerEvent);
         this.target.addEventListener('pointerup', handlePointerEvent);
     }
