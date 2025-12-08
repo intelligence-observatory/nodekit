@@ -103,24 +103,20 @@ def make_fitts_trial(
         },
         transitions={
             "home-node": nk.transitions.Go(to="target-node"),
-            "target-node": nk.transitions.Switch(
-                cases=[
-                    nk.transitions.Case(
-                        when=nk.expressions.Eq(
-                            lhs=nk.expressions.GetDictValue(
-                                d=nk.expressions.LastAction(),
-                                key=nk.expressions.Lit(value="child_id"),
-                            ),
-                            rhs=nk.expressions.Lit(value="clicked"),
-                        ),
-                        then=(
-                            nk.transitions.Go(to="positive-node")
-                            if show_positive_feedback
-                            else nk.transitions.End()
-                        ),
-                    )
-                ],
-                default=nk.transitions.Go(to="negative-node"),
+            "target-node": nk.transitions.IfThenElse(
+                if_=nk.expressions.Eq(
+                    lhs=nk.expressions.GetDictValue(
+                        d=nk.expressions.LastAction(),
+                        key=nk.expressions.Lit(value="child_id"),
+                    ),
+                    rhs=nk.expressions.Lit(value="clicked"),
+                ),
+                then=(
+                    nk.transitions.Go(to="positive-node")
+                    if show_positive_feedback
+                    else nk.transitions.End()
+                ),
+                else_=nk.transitions.Go(to="negative-node"),
             ),
             "positive-node": nk.transitions.End(),
             "negative-node": nk.transitions.End(),
