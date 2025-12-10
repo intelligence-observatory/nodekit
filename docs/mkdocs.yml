@@ -2,18 +2,20 @@ site_name: NodeKit
 
 
 nav:
-  - Home: index.md
   - Install: installation.md
   - Getting started: 'getting-started.md'
   - API:
       - Python reference: api/python.md
 
+repo_url: https://github.com/intelligence-observatory/nodekit
 
 theme:
   name: material
   font:
     text: Inter
-
+  logo: nodekit-logo.svg
+  icon:
+    repo: fontawesome/brands/github
   language: en
   features:
     - navigation.instant        # no full page reloads
@@ -28,12 +30,7 @@ theme:
     - scheme: default         # light
       primary: grey           # primary color
       accent: amber          # accent color
-      toggle:
-        icon: material/brightness-4
-        name: Switch to Dark Mode
-    - scheme: slate           # dark
-      primary: grey
-      accent: amber
-      toggle:
-        icon: material/brightness-6
-        name: Switch to Dark Mode
+
+
+extra:
+  generator: false   # hides the "Made with Material for MkDocs" text
