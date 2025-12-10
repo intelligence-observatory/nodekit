@@ -18,13 +18,13 @@ theme:
 
   palette:
     - scheme: default         # light
-      primary: blue-grey           # primary color
+      primary: grey           # primary color
       accent: amber          # accent color
       toggle:
         icon: material/brightness-4
         name: Switch to Dark Mode
     - scheme: slate           # dark
-      primary: blue-grey
+      primary: grey
       accent: amber
       toggle:
         icon: material/brightness-6
