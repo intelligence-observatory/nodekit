@@ -9,7 +9,7 @@ def make_text_node(text: str) -> nk.Node:
         font_size=0.02,
         region=nk.Region(
             x=0,
-            y=0.25,
+            y=0,
             w=1,
             h=0.6,
         ),
