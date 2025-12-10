@@ -4,8 +4,12 @@ site_name: NodeKit
 nav:
   - Install: installation.md
   - Getting started: 'getting-started.md'
-  - API:
-      - Python reference: api/python.md
+  - API: api.md
+  - Notes:
+      - EFSM: efsm.md
+      - Markdown: markdown.md
+
+
 
 repo_url: https://github.com/intelligence-observatory/nodekit
 
