@@ -73,3 +73,7 @@ A non-exhaustive list of unsupported syntax:
 - Images
 - Links
 - Code blocks
+
+## Example usage
+
+See: `examples/markdown/markdown.py`
