@@ -3,6 +3,9 @@ site_name: NodeKit
 
 theme:
   name: material
+  font:
+    text: Inter
+
   language: en
   features:
     - navigation.instant        # no full page reloads
@@ -12,3 +15,17 @@ theme:
     - navigation.tracking       # URL updates as you scroll
     - content.code.copy         # copy button on code blocks
     - toc.integrate             # move local TOC into sidebar
+
+  palette:
+    - scheme: default         # light
+      primary: blue-grey           # primary color
+      accent: amber          # accent color
+      toggle:
+        icon: material/brightness-4
+        name: Switch to Dark Mode
+    - scheme: slate           # dark
+      primary: blue-grey
+      accent: amber
+      toggle:
+        icon: material/brightness-6
+        name: Switch to Dark Mode
