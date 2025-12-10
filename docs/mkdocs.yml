@@ -1,6 +1,14 @@
 site_name: NodeKit
 
 
+nav:
+  - Home: index.md
+  - Install: installation.md
+  - Getting started: 'getting-started.md'
+  - API:
+      - Python reference: api/python.md
+
+
 theme:
   name: material
   font:
