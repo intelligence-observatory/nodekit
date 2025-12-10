@@ -1,9 +1,18 @@
 mod asset;
 mod card_type;
 mod region;
-mod region_mask;
 
-pub use region_mask::*;
+pub use region::*;
+
+#[macro_export]
+macro_rules! test_extraction {
+    ($f:ident, $t:ty) => {
+        #[pyfunction]
+        pub fn $f(obj: &Bound<'_, PyAny>) -> PyResult<()> {
+            obj.extract::<$t>().map(|_| ())
+        }
+    };
+}
 
 pub struct Card {
     pub x: f32,

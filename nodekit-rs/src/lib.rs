@@ -14,7 +14,7 @@ pub mod nodekit_rs {
     #[pymodule]
     mod testing {
         #[pymodule_export]
-        pub use nodekit_rs_card::test_region_mask;
+        pub use nodekit_rs_card::test_region;
     }
 
     use pyo3_stub_gen::define_stub_info_gatherer;
