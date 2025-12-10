@@ -4,6 +4,7 @@ mod card_type;
 mod justification;
 mod region;
 
+pub use asset::Asset;
 pub use card_type::CardType;
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList, PyString};

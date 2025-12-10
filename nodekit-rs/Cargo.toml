@@ -5,7 +5,7 @@ members = [
     "nodekit-rs-render", "nodekit-rs-card",
     "nodekit-rs-text",
     "nodekit-rs-video",
-    "nodekit-rs-visual",
+    "nodekit-rs-visual", "nodekit-rs-asset",
 ]
 
 [package]
@@ -32,12 +32,13 @@ criterion = "0.7.0"
 fast_image_resize = { version = "5.3.0", features = ["rayon"] }
 hex_color = "3.0.0"
 markdown = "1.0.0-alpha.24"
-paste = "1.0.15"
 png = "0.18.0"
 pyo3 = { version = "0.27.1", features = ["experimental-inspect", "extension-module"] }
 pyo3-stub-gen = { version = "0.17.0", default-features = false, features = ["either", "infer_signature", "ordered-float"] }
+reqwest = { version = "0.12.25", features = ["blocking"] }
 scuffle-ffmpeg = { version = "0.3.5", default-features = false, features = ["link_vcpkg_ffmpeg"] }
 slotmap = "1.0.7"
 thiserror = "2.0.17"
 url = "2.5.7"
 uuid = { version = "1.18.1", features = ["v4"] }
+zip = "6.0.0"
