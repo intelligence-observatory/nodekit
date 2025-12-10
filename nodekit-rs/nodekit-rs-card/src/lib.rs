@@ -1,5 +1,9 @@
 mod asset;
 mod card_type;
+mod region;
+mod region_mask;
+
+pub use region_mask::*;
 
 pub struct Card {
     pub x: f32,

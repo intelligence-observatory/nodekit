@@ -18,6 +18,7 @@ name = "nodekit_rs"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
+nodekit-rs-card = { path = "nodekit-rs-card" }
 nodekit-rs-models = { path = "nodekit-rs-models" }
 nodekit-rs-render = { path = "nodekit-rs-render" }
 pyo3.workspace = true

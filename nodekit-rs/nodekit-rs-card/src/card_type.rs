@@ -29,7 +29,7 @@ impl<'py> FromPyObject<'_, 'py> for CardType {
             },
             "VideoCard" => {
                 let asset = Self::asset(obj, "video")?;
-                Ok(Self::Image())
+                todo!()
             }
             other => panic!("here")
         }
