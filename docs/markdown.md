@@ -1,79 +1,29 @@
-# Markdown in nodekit
+# Markdown in NodeKit
 
-Text cards accept as input strings with markdown syntax. The browser renders the markdown string as HTML.
+NodeKit supports a defined subset of [CommonMark](https://commonmark.org) for TextCards. Only the syntax below is accepted; unsupported constructs raise a validation error.
 
-## Text formatting
+## What’s supported
+- Paragraphs: separate with a blank line; `<br>` is not supported.
+- Headers: `#` through `######` followed by a space and text.
+- Emphasis: italic with `*text*` or `_text_`; bold with `**text**` or `__text__`; bold+italic with `***text***` (and equivalents).
+- Lists: unordered bullets using any marker (`-`, `*`, `+`, etc.); ordered lists with `1.`. Nest by indenting 4 spaces.
+- Color spans: `<span style="color:#rrggbb">text</span>` or `#rrggbbaa`. No other inline HTML or style attributes.
 
-| Syntax                                                                        | Result                |
-|-------------------------------------------------------------------------------|-----------------------|
-| `Regular `                                                                    | Regular               |
-| `*Italic*`<br>`_Italic_`                                                      | *Italic*              |
-| `**Bold**`<br>` __Bold__`                                                     | **Bold**              |
-| `**Bold**`<br>` __Bold__ `                                                    | **Bold**              |
-| `***Bold and italic***`<br>`**_Bold and italic_**`<br>`__*Bold and italic*__` | ***Bold and italic*** |
-| `` `Inline code fencing` ``                                                   | `Inline code fencing` |
+## What’s not supported (will fail validation)
+- Inline code or fenced code blocks
+- Links and images
+- Any HTML beyond the color `<span>` above
+- Additional Markdown features (tables, blockquotes, etc.)
 
-## Lists
-
-For unordered lists, bullet points can be either `*` or `_` and will be rendered the same.
-
+## Example
 ```markdown
-- Item 1
-- Item 2
-- Item 3
+# Heading
+
+This is a paragraph with **bold** and _italic_ text.
+
+- First item
+    - Nested item
+- Second item
+
+Here is <span style="color:#ff00ff">magenta text</span>.
 ```
-
-For ordered lists, use a number and a period:
-
-```markdown
-1. Item 1
-2. Item 2
-3. Item 3
-```
-
-Added four spaces to indent the list item:
-
-```markdown
-1. Item 1
-    - Sub item A
-    - Sub item B
-2. Item 2
-    1. Sub item C
-    2. Sub item D
-```
-
-## Headers
-
-Hashtag/pound sign, followed by a space, followed by text:
-
-| Syntax  | Result      |
-|---------|-------------|
-| `# h1`  | <h1>h1</h1> |
-| `## h2` | <h2>h2</h2> |
-
-This works up to six levels (`######`)
-
-## Colors
-
-To colorize text, use the HTML `<span>` tag:
-
-`<span style="color:#FF00FF">magenta text</span>`
-
-This can be used inline with other markdown text, like this:
-
-`**<span style="color:#FF00FF">bold magenta text</span>**`
-
-## Unsupported syntax
-
-Additional markdown syntax isn't explicitly prohibited but is not supported. The parser will read unsupported markdown but the rendered result might not be consistent or aesthetically acceptable.
-
-A non-exhaustive list of unsupported syntax:
-
-- Any HTML that isn't `<span style="color:color">`. This includes any other style descriptors within a `<span>` tag
-- Images
-- Links
-- Code blocks
-
-## Example usage
-
-See: `examples/markdown/markdown.py`
