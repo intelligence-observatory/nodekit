@@ -1,7 +1,7 @@
-import type {CardId, PressableKey, SpatialPoint} from "../common.ts";
-import type {SliderBinIndex, SliderNormalizedPosition} from "../../board-view/card-views/slider/slider-card-view.ts";
+import type {Dict, PressableKey, SpatialPoint} from "../value.ts";
+import type {SliderBinIndex} from "../../board-view/sensor-bindings/slider";
 
-export interface BaseAction<T extends string> {
+export interface BaseAction<T extends string> extends Dict {
     action_type: T
 }
 
@@ -14,21 +14,41 @@ export interface KeyAction extends BaseAction<"KeyAction"> {
     key: PressableKey;
 }
 
-export interface TimeoutAction extends BaseAction<"TimeoutAction"> {}
-
-// SubmitAction
-export interface SliderState {
-    slider_normalized_position: SliderNormalizedPosition // between 0 and 1
-    slider_bin_index: SliderBinIndex
+export interface SliderAction extends BaseAction<"SliderAction"> {
+    bin_index: SliderBinIndex
 }
-
-export interface FreeTextEntryState {
+export interface TextEntryAction extends BaseAction<"TextEntryAction"> {
     text: string
 }
 
-export interface SubmitAction extends BaseAction<"SubmitAction"> {
-    submitted_values: Record<CardId, FreeTextEntryState | SliderState>
+export interface WaitAction extends BaseAction<"WaitAction">{}
+
+export interface SelectAction extends BaseAction<"SelectAction">{
+    selection: string
+}
+
+export interface MultiSelectAction extends BaseAction<"MultiSelectAction">{
+    selections: string[]
+}
+
+export interface ProductAction extends BaseAction<'ProductAction'> {
+    child_actions: Record<string, Action>
+}
+
+export interface SumAction extends BaseAction<'SumAction'>{
+    child_id: string
+    child_action: Action
 }
 
 // Union
-export type Action = ClickAction | TimeoutAction | KeyAction | SubmitAction;
+export type Action =
+    | ClickAction
+    | KeyAction
+    | SliderAction
+    | TextEntryAction
+    | WaitAction
+    | SelectAction
+    | MultiSelectAction
+    | ProductAction
+    | SumAction
+

@@ -1,16 +1,15 @@
 from abc import ABC
-from typing import Literal, Annotated, Union, List
+from typing import Literal, Annotated, Union, Self, Dict
 
 import pydantic
 
-from nodekit._internal.types.common import (
+from nodekit._internal.types.cards import Card
+from nodekit._internal.types.value import (
     PressableKey,
-    NodeTimePointMsec,
-    SpatialPoint,
     SpatialSize,
-    Mask,
-    CardId,
+    TimeDurationMsec,
 )
+from nodekit._internal.types.regions import Region
 
 
 # %%
@@ -24,97 +23,134 @@ class BaseSensor(pydantic.BaseModel, ABC):
 
 
 # %%
-class TimeoutSensor(BaseSensor):
+class WaitSensor(BaseSensor):
     """
     A Sensor that triggers when the specified time has elapsed since the start of the Node.
     """
 
-    sensor_type: Literal["TimeoutSensor"] = "TimeoutSensor"
-    timeout_msec: NodeTimePointMsec = pydantic.Field(
+    sensor_type: Literal["WaitSensor"] = "WaitSensor"
+    duration_msec: TimeDurationMsec = pydantic.Field(
         description="The number of milliseconds from the start of the Node when the Sensor triggers.",
         gt=0,
     )
 
 
 # %%
-class TemporallyBoundedSensor(BaseSensor, ABC):
-    """
-    A Sensor that is only armed during a specific time window relative to the start of the Node.
-    """
-
-    start_msec: NodeTimePointMsec = pydantic.Field(
-        default=0,
-        description="The time (in milliseconds) relative to Node start when the Sensor is armed.",
-    )
-    end_msec: NodeTimePointMsec | None = pydantic.Field(
-        default=None,
-        description="The time (in milliseconds) relative to Node start when the Sensor is disarmed. If None, the Sensor remains armed until the Node ends.",
-    )
-
-
-# %%
-class ClickSensor(TemporallyBoundedSensor):
+class ClickSensor(BaseSensor):
     sensor_type: Literal["ClickSensor"] = "ClickSensor"
-    x: SpatialPoint = pydantic.Field(
-        description="The center of the bounding box of the clickable region, along the Board x-axis."
-    )
-    y: SpatialPoint = pydantic.Field(
-        description="The center of the bounding box of the clickable region, along the Board y-axis."
-    )
-    w: SpatialSize = pydantic.Field(
-        description="The width of the bounding box of the clickable region, in Board units.",
-        gt=0,
-    )
-    h: SpatialSize = pydantic.Field(
-        description="The height of the bounding box of the clickable region, in Board units.",
-        gt=0,
-    )
-    mask: Mask = pydantic.Field(
-        description='The shape of the clickable region. "rectangle" uses the box itself; "ellipse" inscribes an ellipse within the box.',
-        default="rectangle",
-        validate_default=True,
-    )
+    region: Region
 
 
 # %%
-class KeySensor(TemporallyBoundedSensor):
+class KeySensor(BaseSensor):
     sensor_type: Literal["KeySensor"] = "KeySensor"
-    key: PressableKey = pydantic.Field(
-        description="The key that triggers the Sensor when pressed down."
+    keys: list[PressableKey] = pydantic.Field(
+        description="The keys that triggers the Sensor when pressed down."
     )
 
 
 # %%
-class SubmitSensor(TemporallyBoundedSensor):
-    """
-    A Sensor that triggers when a submit button is initiated.
-    It reports the values of one or more associated SliderCards or FreeTextEntryCards.
-    """
+class SelectSensor(BaseSensor):
+    sensor_type: Literal["SelectSensor"] = "SelectSensor"
+    choices: Dict[str, Card]
 
-    sensor_type: Literal["SubmitSensor"] = "SubmitSensor"
-    submitter_id: CardId = pydantic.Field(
-        description="The ID of the TextCard that submits the Slider value. If None, the Sensor triggers immediately when the Slider value changes.",
+
+# %%
+class MultiSelectSensor(BaseSensor):
+    sensor_type: Literal["MultiSelectSensor"] = "MultiSelectSensor"
+    choices: Dict[str, Card]
+
+    min_selections: int = pydantic.Field(
+        ge=0,
+        description="The minimum number of Cards before the Sensor fires.",
     )
 
-    source_ids: List[CardId] = pydantic.Field(
-        description="The CardIds of the SliderCards or FreeTextEntryCards that this Sensor is associated with.",
-        min_length=1,
+    max_selections: int | None = pydantic.Field(
+        default=None,
+        validate_default=True,
+        ge=0,
+        description="If None, the selection can contain up to the number of available Cards.",
     )
 
-    @pydantic.field_validator("source_ids")
-    def ensure_unique_source_ids(cls, v):
-        if len(v) != len(set(v)):
-            raise ValueError("source_ids must contain unique CardIds.")
-        return v
+    confirm_button: Card
+
+    @pydantic.model_validator(mode="after")
+    def validate_selections_vals(self) -> Self:
+        if (
+            self.max_selections is not None
+            and self.max_selections < self.min_selections
+        ):
+            raise pydantic.ValidationError(
+                f"max_selections ({self.max_selections}) must be greater than min_selections ({self.min_selections})",
+            )
+        return self
+
+
+# %%
+class SliderSensor(BaseSensor):
+    sensor_type: Literal["SliderSensor"] = "SliderSensor"
+    num_bins: int = pydantic.Field(gt=1)
+    initial_bin_index: int
+    show_bin_markers: bool = True
+    orientation: Literal["horizontal", "vertical"] = "horizontal"
+    region: Region
+
+
+# %%
+class TextEntrySensor(BaseSensor):
+    sensor_type: Literal["TextEntrySensor"] = "TextEntrySensor"
+
+    prompt: str = pydantic.Field(
+        description="The initial placeholder text shown in the free text response box. It disappears when the user selects the element.",
+        default="",
+    )
+
+    font_size: SpatialSize = pydantic.Field(
+        description="The height of the em-box, in Board units.",
+        default=0.02,
+    )
+
+    min_length: int = pydantic.Field(
+        description="The minimum number of characters the user must enter before the Sensor fires. If None, no limit.",
+        default=1,
+        ge=1,
+        le=10000,
+    )
+
+    max_length: int | None = pydantic.Field(
+        description="The maximum number of characters the user can enter. If None, no limit.",
+        default=None,
+        ge=1,
+        le=10000,
+    )
+
+    region: Region
+
+
+# %%
+class ProductSensor(BaseSensor):
+    sensor_type: Literal["ProductSensor"] = "ProductSensor"
+    children: Dict[str, "Sensor"]
+
+
+# %%
+class SumSensor(BaseSensor):
+    sensor_type: Literal["SumSensor"] = "SumSensor"
+    children: Dict[str, "Sensor"]
 
 
 # %%
 Sensor = Annotated[
     Union[
-        TimeoutSensor,
+        WaitSensor,
         ClickSensor,
         KeySensor,
-        SubmitSensor,
+        SelectSensor,
+        MultiSelectSensor,
+        SliderSensor,
+        TextEntrySensor,
+        ProductSensor,
+        SumSensor,
     ],
     pydantic.Field(discriminator="sensor_type"),
 ]

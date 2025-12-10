@@ -1,8 +1,3 @@
-
-
-/*
-A fixed-sized box which displays text information.
- */
 .text-card {
     /* Sizing */
     box-sizing: border-box;
@@ -14,7 +9,6 @@ A fixed-sized box which displays text information.
     /* Overflow */
     overflow: clip; /* Text cards don't offer scrollbars. */
     /*scrollbar-gutter: stable; /* Ensures gutter space even when no scroll */
-    border-radius: 8px;
     user-select: none;     /* disables text selection */
     -webkit-user-select: none; /* Safari disable text selection */
 
@@ -24,20 +18,19 @@ A fixed-sized box which displays text information.
     justify-content: center;
 }
 
-
 .text-content {
     /* Sizing */
     box-sizing: border-box;
     width: 100%;
     height: 100%;
 
+    /* Cursor */
+    cursor: default;
+    user-select: none;
+
     /* Text formatting */
     font-size: 1rem;
     text-align: left;
     display: flex;
     flex-direction: column;
-}
-
-.text-card--selected {
-    border: 2px solid rgba(50, 50, 50, 0.9);
 }

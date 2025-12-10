@@ -14,103 +14,84 @@ def make_fitts_trial(
     show_positive_feedback: bool = False,
 ) -> nk.Graph:
     background_color = "#ffffff"
-    target_colors = "#b8b8b8"
-    home_card = nk.cards.TextCard(
-        selectable=True,
-        x=home_position[0],
-        y=home_position[1],
-        w=0.05,
-        h=0.05,
-        text="",
-        background_color=target_colors,
-    )
+    target_color = "#b8b8b8"
+
     home_node = nk.Node(
         board_color=background_color,
-        cards={"home-card": home_card},
-        sensors={
-            "clicked-home": nk.sensors.ClickSensor(
-                x=home_card.x,
-                y=home_card.y,
-                w=home_card.w,
-                h=home_card.h,
-            )
-        },
+        stimulus=None,
+        sensor=nk.sensors.SelectSensor(
+            choices={
+                "clicked-home": nk.cards.TextCard(
+                    region=nk.Region(
+                        x=home_position[0],
+                        y=home_position[1],
+                        w=0.05,
+                        h=0.05,
+                    ),
+                    text="",
+                    background_color=target_color,
+                )
+            }
+        ),
     )
 
-    target_card = nk.cards.TextCard(
-        selectable=True,
-        x=target_position[0],
-        y=target_position[1],
-        w=target_size,
-        h=target_size,
-        text="",
-        background_color=target_colors,
-    )
     target_node = nk.Node(
         board_color=background_color,
-        cards={"target-card": target_card},
-        sensors={
-            "clicked-target": nk.sensors.ClickSensor(
-                x=target_card.x,
-                y=target_card.y,
-                w=target_card.w,
-                h=target_card.h,
-            ),
-            "timed-out": nk.sensors.TimeoutSensor(
-                timeout_msec=maximum_time_msec,
-            ),
-        },
+        stimulus=None,
+        sensor=nk.sensors.SumSensor(
+            children={
+                "time-out": nk.sensors.WaitSensor(
+                    duration_msec=int(maximum_time_msec),
+                ),
+                "clicked": nk.sensors.SelectSensor(
+                    choices={
+                        "clicked-target": nk.cards.TextCard(
+                            region=nk.Region(
+                                x=target_position[0],
+                                y=target_position[1],
+                                w=target_size,
+                                h=target_size,
+                            ),
+                            text="",
+                            background_color=target_color,
+                        )
+                    }
+                ),
+            }
+        ),
     )
 
     positive_node = nk.Node(
         board_color=background_color,
-        cards={
-            "positive-text": nk.cards.TextCard(
+        stimulus=nk.cards.TextCard(
+            region=nk.Region(
                 x=0,
                 y=0,
                 w=0.5,
                 h=0.5,
-                text="Good job!",
-                text_color="#34a4eb",
-                font_size=0.05,
-            )
-        },
-        sensors={
-            "wait": nk.sensors.TimeoutSensor(
-                timeout_msec=400,
-            )
-        },
+            ),
+            text="Good job!",
+            text_color="#34a4eb",
+            font_size=0.05,
+        ),
+        sensor=nk.sensors.WaitSensor(duration_msec=400),
     )
 
     negative_node = nk.Node(
         board_color=background_color,
-        cards={
-            "negative-text": nk.cards.TextCard(
+        stimulus=nk.cards.TextCard(
+            region=nk.Region(
                 x=0,
                 y=0,
                 w=0.5,
                 h=0.5,
-                text="Too slow.",
-                text_color="#eb345b",
-                font_size=0.05,
-            )
-        },
-        sensors={
-            "wait": nk.sensors.TimeoutSensor(
-                timeout_msec=3000,
-            )
-        },
+            ),
+            text="Too slow.",
+            text_color="#eb345b",
+            font_size=0.05,
+        ),
+        sensor=nk.sensors.WaitSensor(duration_msec=3000),
     )
-
-    transitions = {
-        "home-node": {
-            "clicked-home": "target-node",
-        },
-        "target-node": {"timed-out": "negative-node"},
-    }
-
-    if show_positive_feedback:
-        transitions["target-node"]["clicked-target"] = "positive-node"
 
     return nk.Graph(
         start="home-node",
@@ -120,7 +101,26 @@ def make_fitts_trial(
             "positive-node": positive_node,
             "negative-node": negative_node,
         },
-        transitions=transitions,
+        transitions={
+            "home-node": nk.transitions.Go(to="target-node"),
+            "target-node": nk.transitions.IfThenElse(
+                if_=nk.expressions.Eq(
+                    lhs=nk.expressions.GetDictValue(
+                        d=nk.expressions.LastAction(),
+                        key=nk.expressions.Lit(value="child_id"),
+                    ),
+                    rhs=nk.expressions.Lit(value="clicked"),
+                ),
+                then=(
+                    nk.transitions.Go(to="positive-node")
+                    if show_positive_feedback
+                    else nk.transitions.End()
+                ),
+                else_=nk.transitions.Go(to="negative-node"),
+            ),
+            "positive-node": nk.transitions.End(),
+            "negative-node": nk.transitions.End(),
+        },
     )
 
 

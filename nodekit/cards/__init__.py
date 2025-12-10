@@ -2,14 +2,12 @@ __all__ = [
     "ImageCard",
     "VideoCard",
     "TextCard",
-    "SliderCard",
-    "FreeTextEntryCard",
+    "CompositeCard",
 ]
 
 from nodekit._internal.types.cards import (
     ImageCard,
     VideoCard,
     TextCard,
-    SliderCard,
-    FreeTextEntryCard,
+    CompositeCard,
 )

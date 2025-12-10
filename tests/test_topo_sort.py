@@ -7,47 +7,49 @@ import nodekit._internal.ops.topological_sorting as ts
 # %% Helper functions
 def get_fixation_node() -> nk.Node:
     click_sensor = nk.sensors.ClickSensor(
-        mask="ellipse",
-        x=0,
-        y=0,
-        w=0.05,
-        h=0.05,
+        region=nk.Region(x=0, y=0, w=0.05, h=0.05, mask="ellipse")
     )
-    return nk.Node(cards={}, sensors={"fixation": click_sensor})
+    return nk.Node(stimulus=None, sensor=click_sensor)
 
 
 def get_stimulus_node():
-    timeout_sensor = nk.sensors.TimeoutSensor(timeout_msec=2000)
+    timeout_sensor = nk.sensors.WaitSensor(duration_msec=2000)
 
-    return nk.Node(cards={}, sensors={"TO": timeout_sensor})
+    return nk.Node(stimulus=None, sensor=timeout_sensor)
 
 
 def get_response_node():
-    left_sensor = nk.sensors.ClickSensor(mask="rectangle", x=-0.5, y=0, w=0.1, h=0.1)
-    right_sensor = nk.sensors.ClickSensor(mask="rectangle", x=0.5, y=0, w=0.1, h=0.1)
-    timeout_sensor = nk.sensors.TimeoutSensor(timeout_msec=2000)
+    left_sensor = nk.sensors.ClickSensor(
+        region=nk.Region(x=-0.5, y=0, w=0.1, h=0.1, mask="rectangle")
+    )
+    right_sensor = nk.sensors.ClickSensor(
+        region=nk.Region(x=0.5, y=0, w=0.1, h=0.1, mask="rectangle")
+    )
+    timeout_sensor = nk.sensors.WaitSensor(duration_msec=2000)
 
     return nk.Node(
-        cards={},
-        sensors={
-            "left": left_sensor,
-            "right": right_sensor,
-            "TO": timeout_sensor,
-        },
+        stimulus=None,
+        sensor=nk.sensors.SumSensor(
+            children={
+                "left": left_sensor,
+                "right": right_sensor,
+                "TO": timeout_sensor,
+            }
+        ),
     )
 
 
 def get_positive_node():
     return nk.Node(
-        cards={},
-        sensors={"wait": nk.sensors.TimeoutSensor(timeout_msec=1000)},
+        stimulus=None,
+        sensor=nk.sensors.WaitSensor(duration_msec=1000),
     )
 
 
 def get_negative_node():
     return nk.Node(
-        cards={},
-        sensors={"wait": nk.sensors.TimeoutSensor(timeout_msec=5000)},
+        stimulus=None,
+        sensor=nk.sensors.WaitSensor(duration_msec=5000),
     )
 
 
@@ -83,24 +85,32 @@ def test_example_pass():
     nodes["positive_1"] = get_positive_node()
     nodes["negative_1"] = get_negative_node()
 
-    transitions = {}
-    transitions["response_1"] = {
-        "left": "positive_1" if correct[0] == "left" else "negative_1",
-        "right": "positive_1" if correct[0] == "right" else "negative_1",
-    }
-    transitions["fixation_2"] = {"fixation": "stimulus_2"}
-    transitions["fixation_1"] = {"fixation": "stimulus_1"}
-    transitions["stimulus_1"] = {"TO": "response_1"}
-    transitions["positive_1"] = {"wait": "fixation_2"}
-    transitions["negative_1"] = {"wait": "fixation_2"}
+    transitions: dict[str, nk.transitions.Transition] = {}
+    transitions["response_1"] = nk.transitions.Switch(
+        on=nk.expressions.LastAction(),
+        cases={
+            "left": nk.transitions.Go(
+                to="positive_1" if correct[0] == "left" else "negative_1"
+            ),
+            "right": nk.transitions.Go(
+                to="positive_1" if correct[0] == "right" else "negative_1"
+            ),
+        },
+        default=nk.transitions.End(),
+    )
+    transitions["fixation_2"] = nk.transitions.Go(to="stimulus_2")
+    transitions["fixation_1"] = nk.transitions.Go(to="stimulus_1")
+    transitions["stimulus_1"] = nk.transitions.Go(to="response_1")
+    transitions["positive_1"] = nk.transitions.Go(to="fixation_2")
+    transitions["negative_1"] = nk.transitions.Go(to="fixation_2")
 
     graph = nk.Graph(nodes=nodes, start="fixation_1", transitions=transitions)
 
     result = ts.topological_sort(graph)
 
     assert set(result) == set(nodes), "Output nodes do not match input nodes"
-    for src, transition_map in transitions.items():
-        for _, dst in transition_map.items():
+    for src, transition in transitions.items():
+        for dst in ts._outgoing_targets(transition):
             assert result.index(src) < result.index(dst), (
                 f"Invalid topological order: node '{src}' (index {result.index(src)}) "
                 f"appears after its dependent node '{dst}' (index {result.index(dst)})."
@@ -142,16 +152,24 @@ def test_example_fail():
     nodes["positive_1"] = get_positive_node()
     nodes["negative_1"] = get_negative_node()
 
-    transitions = {}
-    transitions["response_1"] = {
-        "left": "positive_1" if correct[0] == "left" else "negative_1",
-        "right": "positive_1" if correct[0] == "right" else "negative_1",
-    }
-    transitions["fixation_2"] = {"fixation": "stimulus_2"}
-    transitions["fixation_1"] = {"fixation": "stimulus_1"}
-    transitions["stimulus_1"] = {"TO": "response_1"}
-    transitions["positive_1"] = {"wait": "fixation_2"}
-    transitions["negative_1"] = {"wait": "fixation_1"}
+    transitions: dict[str, nk.transitions.Transition] = {}
+    transitions["response_1"] = nk.transitions.Switch(
+        on=nk.expressions.LastAction(),
+        cases={
+            "left": nk.transitions.Go(
+                to="positive_1" if correct[0] == "left" else "negative_1"
+            ),
+            "right": nk.transitions.Go(
+                to="positive_1" if correct[0] == "right" else "negative_1"
+            ),
+        },
+        default=nk.transitions.End(),
+    )
+    transitions["fixation_2"] = nk.transitions.Go(to="stimulus_2")
+    transitions["fixation_1"] = nk.transitions.Go(to="stimulus_1")
+    transitions["stimulus_1"] = nk.transitions.Go(to="response_1")
+    transitions["positive_1"] = nk.transitions.Go(to="fixation_2")
+    transitions["negative_1"] = nk.transitions.Go(to="fixation_1")
 
     graph = nk.Graph(nodes=nodes, start="fixation_1", transitions=transitions)
 
@@ -162,13 +180,13 @@ def test_example_fail():
 # %% Node, Sensor and transition checks:
 def test_multiple_roots_tie_break():
     nodes = {
-        "A": nk.Node(cards={}, sensors={"a": nk.sensors.TimeoutSensor(timeout_msec=1)}),
-        "B": nk.Node(cards={}, sensors={"b": nk.sensors.TimeoutSensor(timeout_msec=1)}),
-        "C": nk.Node(cards={}, sensors={"c": nk.sensors.TimeoutSensor(timeout_msec=1)}),
+        "A": nk.Node(stimulus=None, sensor=nk.sensors.WaitSensor(duration_msec=1)),
+        "B": nk.Node(stimulus=None, sensor=nk.sensors.WaitSensor(duration_msec=1)),
+        "C": nk.Node(stimulus=None, sensor=nk.sensors.WaitSensor(duration_msec=1)),
     }
     transitions = {
-        "A": {"a": "C"},
-        "B": {"b": "C"},
+        "A": nk.transitions.Go(to="C"),
+        "B": nk.transitions.Go(to="C"),
     }
 
     graph = nk.Graph(nodes=nodes, start="A", transitions=transitions)
@@ -182,26 +200,24 @@ def test_multiple_roots_tie_break():
 
 def test_invalid_sensor_reference():
     nodes = {
-        "A": nk.Node(cards={}, sensors={"s": nk.sensors.TimeoutSensor(timeout_msec=1)}),
-        "B": nk.Node(cards={}, sensors={"s": nk.sensors.TimeoutSensor(timeout_msec=1)}),
-        "C": nk.Node(cards={}, sensors={"s": nk.sensors.TimeoutSensor(timeout_msec=1)}),
+        "A": nk.Node(stimulus=None, sensor=nk.sensors.WaitSensor(duration_msec=1)),
+        "B": nk.Node(stimulus=None, sensor=nk.sensors.WaitSensor(duration_msec=1)),
+        "C": nk.Node(stimulus=None, sensor=nk.sensors.WaitSensor(duration_msec=1)),
     }
 
-    # Add transition from undefined sensor:
-    transitions = {"B": {"s": "C"}, "A": {"r": "B"}}
+    # Add transition from undefined node:
+    transitions = {"A": nk.transitions.Go(to="B"), "B": nk.transitions.Go(to="D")}
 
     graph = nk.Graph(nodes=nodes, start="A", transitions=transitions)
-    with pytest.raises(KeyError, match="Sensor 'r' not found"):
+    with pytest.raises(KeyError, match="unknown node 'D'"):
         ts.topological_sort(graph)
 
 
 def test_invalid_transition_node():
-    nodes = {
-        "A": nk.Node(cards={}, sensors={"s": nk.sensors.TimeoutSensor(timeout_msec=1)})
-    }
+    nodes = {"A": nk.Node(stimulus=None, sensor=nk.sensors.WaitSensor(duration_msec=1))}
 
     # Add transitions with non-existent Node
-    transitions = {"A": {"s": "B"}}
+    transitions = {"A": nk.transitions.Go(to="B")}
 
     graph = nk.Graph(nodes=nodes, start="A", transitions=transitions)
     with pytest.raises(KeyError, match="unknown node 'B'"):

@@ -1,4 +1,4 @@
-import type {SpatialPoint, TimeElapsedMsec} from "../types/common.ts";
+import type {SpatialPoint, TimeElapsedMsec} from "../types/value.ts";
 import {BoardCoordinateSystem} from "../board-view/board-view.ts";
 import type {Clock} from "../clock.ts";
 
@@ -21,6 +21,7 @@ export class PointerStream {
         target: HTMLDivElement,
         clock: Clock,
     ) {
+
         this.target = target;
         this.clock = clock;
 
@@ -40,6 +41,7 @@ export class PointerStream {
         const handlePointerEvent = (event: PointerEvent) => {
             // Short circuit if clock has not started
             if (!this.clock.checkClockStarted()) {
+                console.warn('PointerStream: clock has not started.')
                 return;
             }
 
@@ -102,6 +104,7 @@ export class PointerStream {
     subscribe(
         callback: (sample: PointerSample) => void
     ): () => void {
+
         this.subscriptions.push(callback);
         return (() => {
                 this.subscriptions = this.subscriptions.filter(cb => cb !== callback);
@@ -111,6 +114,5 @@ export class PointerStream {
 
     public destroy(){
         this.subscriptions = [];
-
     }
 }

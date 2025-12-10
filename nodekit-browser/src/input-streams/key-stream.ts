@@ -1,7 +1,7 @@
 import type {Clock} from "../clock.ts";
 
 type KeySampleType = 'down' | 'up';
-import type {PressableKey, TimeElapsedMsec} from "../types/common.ts";
+import type {PressableKey, TimeElapsedMsec} from "../types/value.ts";
 
 export interface KeySample {
     sampleType: KeySampleType
@@ -33,6 +33,7 @@ export class KeyStream {
 
         // Short circuit if clock has not started
         if (!this.clock.checkClockStarted()) {
+            console.warn('KeyStream: clock has not started.')
             return;
         }
 
@@ -55,6 +56,7 @@ export class KeyStream {
     private handleKeyUp = (event: KeyboardEvent) => {
         // Short circuit if clock has not started
         if (!this.clock.checkClockStarted()) {
+            console.warn('KeyStream: clock has not started.')
             return;
         }
         // Mark this key as no longer being held down:

@@ -1,4 +1,4 @@
-from typing import List
+from typing import Literal
 
 import pydantic
 
@@ -6,15 +6,12 @@ from nodekit import VERSION
 from nodekit._internal.types.events.events import Event
 
 
-# %%
 class Trace(pydantic.BaseModel):
-    """
-    The canonical representation of a Participant's path through a Graph.
-    """
-
-    nodekit_version: str = pydantic.Field(default=VERSION)
-    events: List[Event]
+    nodekit_version: Literal["0.2.0"] = pydantic.Field(
+        default=VERSION, validate_default=True
+    )
+    events: list[Event]
 
     @pydantic.field_validator("events")
-    def order_events(cls, events: List[Event]) -> List[Event]:
+    def order_events(cls, events: list[Event]) -> list[Event]:
         return sorted(events, key=lambda e: e.t)

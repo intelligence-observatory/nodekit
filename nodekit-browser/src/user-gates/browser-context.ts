@@ -1,25 +1,21 @@
-export interface BrowserContext {
-    userAgent: string,
+import type {Clock} from "../clock.ts";
+import type {PixelSize} from "../types/value.ts";
+import type {BrowserContextSampledEvent} from "../types/events";
 
-    viewportWidthPx: number,
-    viewportHeightPx: number,
-
-    displayWidthPx: number,
-    displayHeightPx: number,
-
-    devicePixelRatio: number,
-}
-
-export function getBrowserContext(): BrowserContext {
+export function sampleBrowserContext(clock: Clock): BrowserContextSampledEvent {
     return {
-        userAgent: navigator.userAgent,
-
-        viewportWidthPx: window.innerWidth,
-        viewportHeightPx: window.innerHeight,
-
-        displayWidthPx: screen.width,
-        displayHeightPx: screen.height,
-
-        devicePixelRatio: window.devicePixelRatio,
+        event_type: 'BrowserContextSampledEvent',
+        t: clock.now(),
+        user_agent: navigator.userAgent,
+        timestamp_client: new Date().toISOString(),
+        device_pixel_ratio: window.devicePixelRatio,
+        display: {
+            width_px: screen.width as PixelSize,
+            height_px: screen.height as PixelSize,
+        },
+        viewport: {
+            width_px: window.innerWidth as PixelSize,
+            height_px: window.innerHeight as PixelSize,
+        },
     }
 }
