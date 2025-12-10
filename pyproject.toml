@@ -41,6 +41,7 @@ nodekit = [
 
 [dependency-groups]
 dev = [
+    "mkdocs>=1.6.1",
     "pytest>=8.3",
     "ruff>=0.14.0",
     "ty>=0.0.1a22",
