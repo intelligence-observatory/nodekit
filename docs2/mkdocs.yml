@@ -1,0 +1,11 @@
+site_name: My Docs
+
+theme:
+  name: material
+  language: en
+  features:
+    - navigation.instant        # no full page reloads
+    - navigation.sections       # grouped sections in sidebar
+    - navigation.tracking       # URL updates as you scroll
+    - content.code.copy         # copy button on code blocks
+    - toc.integrate             # move local TOC into sidebar
