@@ -1813,7 +1813,8 @@ version = "0.1.0"
 dependencies = [
  "bytemuck",
  "criterion",
- "nodekit-rs-models",
+ "nodekit-rs-asset",
+ "nodekit-rs-card",
  "nodekit-rs-visual",
  "png",
  "thiserror",
@@ -1890,7 +1891,7 @@ dependencies = [
  "criterion",
  "fast_image_resize",
  "hex_color",
- "nodekit-rs-models",
+ "nodekit-rs-card",
  "nodekit-rs-png",
  "thiserror",
 ]

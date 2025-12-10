@@ -3,7 +3,6 @@ use blittle::overlay::*;
 use blittle::stride::RGBA;
 use blittle::{ClippedRect, PositionI, Size};
 use bytemuck::cast_slice;
-use nodekit_rs_models::Position;
 
 const CURSOR_SIZE: Size = Size { w: 34, h: 44 };
 
@@ -11,10 +10,10 @@ const CURSOR_SIZE: Size = Size { w: 34, h: 44 };
 pub struct Cursor(pub Vec<Vec4>);
 
 impl Cursor {
-    pub const fn rect(position: Position) -> Option<ClippedRect> {
+    pub const fn rect(region: &Region) -> Option<ClippedRect> {
         let position = PositionI {
-            x: spatial_coordinate(position.x),
-            y: spatial_coordinate(position.y),
+            x: spatial_coordinate(region.x),
+            y: spatial_coordinate(region.y),
         };
         let size = CURSOR_SIZE;
         ClippedRect::new(position, BOARD_SIZE, size)

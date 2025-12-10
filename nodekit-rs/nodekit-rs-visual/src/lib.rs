@@ -17,13 +17,14 @@ pub use cursor::Cursor;
 pub use error::Error;
 use fast_image_resize::{FilterType, PixelType, ResizeAlg, ResizeOptions, Resizer, SrcCropping};
 use hex_color::HexColor;
+use nodekit_rs_card::Region;
 pub use resized_rect::ResizedRect;
 pub use visual_buffer::*;
 
-pub const fn to_blittle_size(size: &nodekit_rs_models::Size) -> Size {
+pub const fn to_blittle_size(region: &Region) -> Size {
     Size {
-        w: size_coordinate(size.w),
-        h: size_coordinate(size.h),
+        w: size_coordinate(region.w),
+        h: size_coordinate(region.h),
     }
 }
 
@@ -50,7 +51,7 @@ fn resize(
     buffer: &mut [u8],
     src_width: u32,
     src_height: u32,
-    dst: &nodekit_rs_models::Rect,
+    dst: &Region,
     pixel_type: PixelType,
 ) -> Result<(Vec<u8>, ResizedRect), Error> {
     // Resize to fit within `dst_size`.

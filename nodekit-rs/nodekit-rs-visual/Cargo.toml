@@ -8,7 +8,7 @@ blittle.workspace = true
 bytemuck.workspace = true
 fast_image_resize.workspace = true
 hex_color.workspace = true
-nodekit-rs-models = { path = "../nodekit-rs-models" }
+nodekit-rs-card = { path = "../nodekit-rs-card" }
 thiserror.workspace = true
 
 [dev-dependencies]

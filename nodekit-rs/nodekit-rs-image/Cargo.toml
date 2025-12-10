@@ -5,7 +5,8 @@ edition = "2024"
 
 [dependencies]
 bytemuck.workspace = true
-nodekit-rs-models = { path = "../nodekit-rs-models" }
+nodekit-rs-asset = { path = "../nodekit-rs-asset" }
+nodekit-rs-card = { path = "../nodekit-rs-card" }
 nodekit-rs-visual = { path = "../nodekit-rs-visual" }
 png.workspace = true
 thiserror.workspace = true

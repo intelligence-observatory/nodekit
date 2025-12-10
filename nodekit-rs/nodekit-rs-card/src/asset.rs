@@ -1,3 +1,4 @@
+use std::fmt::{Display, Formatter};
 use pyo3::exceptions::{PyTypeError, PyValueError};
 use pyo3::prelude::*;
 use pyo3::types::PyString;
@@ -6,8 +7,7 @@ use url::Url;
 
 /// The URI of a source file.
 pub enum Asset {
-    FileSystemPath(PathBuf),
-    RelativePath(PathBuf),
+    Path(PathBuf),
     ZipArchiveInnerPath {
         zip_archive_path: PathBuf,
         inner_path: PathBuf,
@@ -23,6 +23,16 @@ impl Asset {
     }
 }
 
+impl Display for Asset {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Path(path) => write!(f, "File path {:?}", path),
+            Self::ZipArchiveInnerPath { zip_archive_path, inner_path: _} => write!(f, "Zip file path {:?}", zip_archive_path),
+            Self::Url(url) => write!(f, "Url {url}")
+        }
+    }
+}
+
 impl<'py> FromPyObject<'_, 'py> for Asset {
     type Error = PyErr;
 
@@ -30,8 +40,7 @@ impl<'py> FromPyObject<'_, 'py> for Asset {
         let locator = obj.getattr("locator")?;
         let locator_type = locator.getattr("locator_type")?;
         match locator_type.cast::<PyString>()?.to_str()? {
-            "FileSystemPath" => Ok(Self::FileSystemPath(Self::path(&locator, "path")?)),
-            "RelativePath" => Ok(Self::RelativePath(Self::path(&locator, "path")?)),
+            "FileSystemPath" | "RelativePath" => Ok(Self::Path(Self::path(&locator, "path")?)),
             "ZipArchiveInnerPath" => {
                 let zip_archive_path = Self::path(&locator, "zip_archive_path")?;
                 let inner_path = Self::path(&locator, "inner_path")?;

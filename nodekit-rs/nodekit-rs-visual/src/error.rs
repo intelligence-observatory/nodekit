@@ -1,4 +1,3 @@
-use nodekit_rs_models::Rect;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -9,6 +8,4 @@ pub enum Error {
     ImageResize(fast_image_resize::ResizeError),
     #[error("Failed to parse {0}: {1}")]
     HexColor(String, hex_color::ParseHexColorError),
-    #[error("Failed to create RgbaRects from: {0}")]
-    InvalidRgbaRects(Rect),
 }

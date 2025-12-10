@@ -5,6 +5,7 @@ use blittle::overlay::{
 };
 use blittle::stride::RGBA;
 use fast_image_resize::PixelType;
+use nodekit_rs_card::Region;
 
 pub struct RgbaBuffer {
     pub(crate) buffer: Vec<Vec4>,
@@ -23,7 +24,7 @@ impl RgbaBuffer {
         buffer: &mut [u8],
         src_width: u32,
         src_height: u32,
-        dst: nodekit_rs_models::Rect,
+        dst: &Region,
     ) -> Result<Option<Self>, Error> {
         let (buffer, rect) = resize(buffer, src_width, src_height, &dst, PixelType::U8x4)?;
         let buffer = rgba8_to_rgba32(&buffer);

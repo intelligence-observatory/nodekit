@@ -1,6 +1,6 @@
 use crate::{size_coordinate, spatial_coordinate};
 use blittle::{PositionI, Size};
-use nodekit_rs_models::Rect;
+use nodekit_rs_card::Region;
 
 pub struct ResizedRect {
     pub position: PositionI,
@@ -8,14 +8,14 @@ pub struct ResizedRect {
 }
 
 impl ResizedRect {
-    pub const fn new(rect: &Rect, src_width: u32, src_height: u32) -> Self {
+    pub const fn new(region: &Region, src_width: u32, src_height: u32) -> Self {
         let dst_size = Size {
-            w: size_coordinate(rect.size.w),
-            h: size_coordinate(rect.size.h),
+            w: size_coordinate(region.w),
+            h: size_coordinate(region.h),
         };
         let mut position = PositionI {
-            x: spatial_coordinate(rect.position.x),
-            y: spatial_coordinate(rect.position.y),
+            x: spatial_coordinate(region.x),
+            y: spatial_coordinate(region.y),
         };
         let src_size = Self::get_resized(
             &Size {

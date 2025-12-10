@@ -1,11 +1,24 @@
 use pyo3::prelude::*;
 
+#[derive(Clone, Debug)]
 pub struct Region {
     pub x: f64,
     pub y: f64,
     pub w: f64,
     pub h: f64,
     pub z_index: Option<i64>,
+}
+
+impl Default for Region {
+    fn default() -> Self {
+        Self {
+            x: -0.5,
+            y: -0.5,
+            w: 1.,
+            h: 1.,
+            z_index: None
+        }
+    }
 }
 
 impl<'py> FromPyObject<'_, 'py> for Region {

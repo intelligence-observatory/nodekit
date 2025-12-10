@@ -5,9 +5,7 @@ use url::Url;
 #[derive(Debug, Error)]
 pub enum Error {
     #[error("Failed to read file system path {0}: {1}")]
-    ReadFileSystemPath(PathBuf, std::io::Error),
-    #[error("Failed to convert {0} to an absolute file path: {1}")]
-    RelativeToAbsolute(PathBuf, std::io::Error),
+    ReadPath(PathBuf, std::io::Error),
     #[error("Failed to read relative file system path {0}: {1}")]
     ReadRelativePath(PathBuf, std::io::Error),
     #[error("Failed to download {0}: {1}")]

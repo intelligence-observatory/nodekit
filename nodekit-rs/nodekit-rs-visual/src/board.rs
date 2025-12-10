@@ -154,9 +154,9 @@ impl Default for Board {
 
 #[cfg(test)]
 mod tests {
+    use nodekit_rs_card::Region;
     use super::*;
     use crate::Cursor;
-    use nodekit_rs_models::Position;
 
     #[test]
     fn test_board_constants() {
@@ -182,7 +182,7 @@ mod tests {
         let cursor = Cursor::default();
         nodekit_rs_png::board_to_png(
             "cursor.png",
-            &board.blit_cursor(&cursor.0, &Cursor::rect(Position::default())),
+            &board.blit_cursor(&cursor.0, &Cursor::rect(&Region::default())),
         );
     }
 }

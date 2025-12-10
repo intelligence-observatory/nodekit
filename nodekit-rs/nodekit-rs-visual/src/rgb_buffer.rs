@@ -1,6 +1,7 @@
 use crate::{BOARD_SIZE, Error, resize};
 use blittle::ClippedRect;
 use fast_image_resize::PixelType;
+use nodekit_rs_card::Region;
 
 /// A raw RGB24 bitmap and its pixel size.
 pub struct RgbBuffer {
@@ -19,7 +20,7 @@ impl RgbBuffer {
         buffer: &mut [u8],
         src_width: u32,
         src_height: u32,
-        dst: nodekit_rs_models::Rect,
+        dst: &Region,
     ) -> Result<Option<Self>, Error> {
         let (buffer, rect) = resize(buffer, src_width, src_height, &dst, PixelType::U8x3)?;
         Ok(
@@ -38,7 +39,6 @@ mod tests {
     use super::*;
     use crate::board::*;
     use blittle::PositionI;
-    use nodekit_rs_models::{Position, Size};
 
     #[test]
     fn test_rgb_buffer() {
@@ -65,10 +65,13 @@ mod tests {
             &mut buffer,
             300,
             600,
-            nodekit_rs_models::Rect {
-                position: Position { x: -0.5, y: -0.5 },
-                size: Size { w: 1., h: 1. },
-            },
+            &Region {
+                x: -0.5,
+                y: -0.5,
+                w: 1.,
+                h: 1.,
+                z_index: None
+            }
         )
         .unwrap()
         .unwrap();
