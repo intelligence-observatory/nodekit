@@ -20,4 +20,6 @@ check:
 	uv run ruff check && \
 	uv run ruff format --check
 
-
+view-docs: build-docs
+	cd docs && \
+	uv run mkdocs serve --livereload

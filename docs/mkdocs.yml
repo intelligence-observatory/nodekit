@@ -1,10 +1,13 @@
 site_name: NodeKit
 
+
 theme:
   name: material
   language: en
   features:
     - navigation.instant        # no full page reloads
+    - navigation.tabs
+    - navigation.tabs.sticky
     - navigation.sections       # grouped sections in sidebar
     - navigation.tracking       # URL updates as you scroll
     - content.code.copy         # copy button on code blocks
