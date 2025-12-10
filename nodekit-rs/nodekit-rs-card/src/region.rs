@@ -1,5 +1,4 @@
 use pyo3::prelude::*;
-use crate::test_extraction;
 
 pub struct Region {
     pub x: f64,
@@ -22,5 +21,3 @@ impl<'py> FromPyObject<'_, 'py> for Region {
         })
     }
 }
-
-test_extraction!(test_region, Region);

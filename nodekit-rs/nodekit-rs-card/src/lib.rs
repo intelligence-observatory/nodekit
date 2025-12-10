@@ -1,25 +1,46 @@
 mod asset;
+mod card;
 mod card_type;
+mod justification;
 mod region;
 
+use crate::card::Card;
+pub use card_type::CardType;
+use pyo3::prelude::*;
+use pyo3::types::{PyDict, PyList, PyString};
 pub use region::*;
 
-#[macro_export]
-macro_rules! test_extraction {
-    ($f:ident, $t:ty) => {
-        #[pyfunction]
-        pub fn $f(obj: &Bound<'_, PyAny>) -> PyResult<()> {
-            obj.extract::<$t>().map(|_| ())
-        }
-    };
+pub enum CardExtractor {
+    Card(Card),
+    CompositeCard(Vec<Card>),
 }
 
-pub struct Card {
-    pub x: f32,
-    pub y: f32,
-    pub z_index: Option<i32>,
-    pub w: f32,
-    pub h: f32,
-    pub start_msec: u32,
-    pub end_msec: u32,
+impl CardExtractor {
+    pub fn extract_all(obj: &Bound<'_, PyList>) -> PyResult<Vec<Card>> {
+        let mut cards = Vec::default();
+        for cs in obj.iter().map(|item| Self::extract_item(item)) {
+            cards.append(&mut cs?);
+        }
+        Ok(cards)
+    }
+
+    fn extract_item(item: Bound<'_, PyAny>) -> PyResult<Vec<Card>> {
+        let mut cards = Vec::default();
+        // Extract a composite card's children.
+        if item.getattr("card_type")?.cast::<PyString>()? == "CompositeCard" {
+            // Recurse until we get single cards.
+            for item in item
+                .getattr("children")?
+                .cast::<PyDict>()?
+                .iter()
+                .map(|(_, v)| Self::extract_item(v))
+            {
+                cards.append(&mut item?);
+            }
+        } else {
+            // Extract a single card.
+            cards.push(Card::extract(item.as_borrowed())?);
+        }
+        Ok(cards)
+    }
 }

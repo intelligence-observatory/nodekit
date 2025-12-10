@@ -1,9 +1,10 @@
-use pyo3::exceptions::PyTypeError;
+use pyo3::exceptions::{PyTypeError, PyValueError};
 use pyo3::prelude::*;
 use pyo3::types::PyString;
 use std::path::PathBuf;
 use url::Url;
 
+/// The URI of a source file.
 pub enum Asset {
     FileSystemPath(PathBuf),
     RelativePath(PathBuf),
@@ -27,8 +28,7 @@ impl<'py> FromPyObject<'_, 'py> for Asset {
 
     fn extract(obj: Borrowed<'_, 'py, PyAny>) -> Result<Self, Self::Error> {
         let locator = obj.getattr("locator")?;
-        let locator_type = locator
-            .getattr("locator_type")?;
+        let locator_type = locator.getattr("locator_type")?;
         match locator_type.cast::<PyString>()?.to_str()? {
             "FileSystemPath" => Ok(Self::FileSystemPath(Self::path(&locator, "path")?)),
             "RelativePath" => Ok(Self::RelativePath(Self::path(&locator, "path")?)),
@@ -47,7 +47,9 @@ impl<'py> FromPyObject<'_, 'py> for Asset {
                 })?;
                 Ok(Self::Url(url))
             }
-            other => panic!("{other}"),
+            other => Err(PyValueError::new_err(format!(
+                "Invalid locator type: {other}"
+            ))),
         }
     }
 }
