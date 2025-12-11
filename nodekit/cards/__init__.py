@@ -3,6 +3,7 @@ __all__ = [
     "VideoCard",
     "TextCard",
     "CompositeCard",
+    "Card",
 ]
 
 from nodekit._internal.types.cards import (
@@ -10,4 +11,5 @@ from nodekit._internal.types.cards import (
     VideoCard,
     TextCard,
     CompositeCard,
+    Card,
 )

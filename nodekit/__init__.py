@@ -14,6 +14,7 @@ __all__ = [
     "events",
     "transitions",
     "expressions",
+    "values",
     # Ops:
     "play",
     "concat",
@@ -42,6 +43,7 @@ import nodekit.actions as actions
 import nodekit.events as events
 import nodekit.transitions as transitions
 import nodekit.expressions as expressions
+import nodekit.values as values
 
 # Ops:
 from nodekit._internal.ops.play import play

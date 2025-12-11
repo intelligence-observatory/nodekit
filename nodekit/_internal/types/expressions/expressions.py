@@ -183,7 +183,7 @@ class Fold(ListOp):
 # Discriminated union
 # =====================
 
-Expression = Annotated[
+type Expression = Annotated[
     Reg
     | Local
     | LastAction

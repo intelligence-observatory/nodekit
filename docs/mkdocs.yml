@@ -10,12 +10,16 @@ nav:
       - Mechanical Turk: 'deployment/mechanical-turk.md'
   - API:  # Reference
       - Node: api/node.md
-      - Cards: api/cards.md
-      - Sensors: api/sensors.md
       - Graph: api/graph.md
       - Trace: api/trace.md
+      - Cards: api/cards.md
+      - Sensors: api/sensors.md
       - Ops: api/ops.md
+      - Transitions: api/transitions.md
+      - Events: api/events.md
       - Expressions: api/expressions.md
+      - Values: api/values.md
+
 
 
 repo_url: https://github.com/intelligence-observatory/nodekit
@@ -47,9 +51,10 @@ plugins:
   - search
   - mkdocstrings:
       handlers:
-        python:
+        python: # https://mkdocstrings.github.io/python/usage/#recommended-settings
           paths: [".."]                     # allow imports from repo root
           options:
+            modernize_annotations: true
             docstring_style: google        # or "numpy" / "sphinx"
             docstring_section_style: list
             parameter_headings: false
@@ -59,11 +64,13 @@ plugins:
             show_source: false             # hide "view source" links (optional)
             show_root_heading: true
             show_root_full_path: true
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
             heading_level: 3
             show_bases: false
             extensions:
               - griffe_pydantic:
-                  schema: false # Reactivate
+                  schema: flse # Reactivate
 watch:
   - ../nodekit
 extra:

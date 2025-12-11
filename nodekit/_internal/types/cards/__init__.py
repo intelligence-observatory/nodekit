@@ -74,7 +74,7 @@ class CompositeCard(BaseCard):
 
 
 # %%
-Card = Annotated[
+type Card = Annotated[
     Union[ImageCard, VideoCard, TextCard, CompositeCard],
     pydantic.Field(discriminator="card_type"),
 ]

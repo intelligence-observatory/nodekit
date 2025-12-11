@@ -1,8 +1,7 @@
 /* Subtle separators between mkdocstrings class blocks */
 
 .md-typeset .doc.doc-class + .doc.doc-class {
-    margin-top: 2.4rem;          /* extra vertical space */
-    padding-top: 1.2rem;         /* breathing room above heading */
+    padding-bottom: 1rem;          /* extra vertical space */
     border-top: 1px solid var(--md-default-fg-color--lightest); /* very light divider that works in light/dark */
 }
 

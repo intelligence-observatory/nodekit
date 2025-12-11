@@ -140,7 +140,7 @@ class SumSensor(BaseSensor):
 
 
 # %%
-Sensor = Annotated[
+type Sensor = Annotated[
     Union[
         WaitSensor,
         ClickSensor,
