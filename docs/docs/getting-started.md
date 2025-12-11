@@ -2,4 +2,6 @@
 
 ## Play your task locally
 
-## Deploy your task to Mechanical Turk
+## Deploy to humans
+
+## Deploy to models
