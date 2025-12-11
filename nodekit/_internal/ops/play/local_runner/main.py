@@ -206,8 +206,13 @@ def play(
     graph: Graph,
 ) -> Trace:
     """
-    Runs the Graph at http://localhost:{port}.
-    Blocks until the Trace is complete.
+    Play the given Graph locally, returning the Trace of Events observed.
+    Args:
+        graph:
+
+    Returns:
+        The Trace of Events observed during execution.
+
     """
     runner = LocalRunner()
     runner.ensure_running()

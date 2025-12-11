@@ -42,6 +42,8 @@ plugins:
           paths: [".."]                     # allow imports from repo root
           options:
             docstring_style: google        # or "numpy" / "sphinx"
+            separate_signature: true
+            show_signature_annotations: true
             merge_init_into_class: true    # __init__ params appear on the class
             show_source: true             # hide "view source" links (optional)
 watch:
