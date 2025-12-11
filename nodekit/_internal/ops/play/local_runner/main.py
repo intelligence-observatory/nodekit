@@ -206,9 +206,10 @@ def play(
     graph: Graph,
 ) -> Trace:
     """
-    Play the given Graph locally, returning the Trace of Events observed.
+    Play the given Graph locally, then return the Trace.
+
     Args:
-        graph:
+        graph: x
 
     Returns:
         The Trace of Events observed during execution.
