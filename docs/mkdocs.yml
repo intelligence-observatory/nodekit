@@ -3,9 +3,7 @@ site_name: NodeKit
 nav:
   - Home: index.md
   - Tutorial: 'getting-started.md' # Tutorial
-  - Concepts: #  Explanation
-      - EFSM: efsm.md
-      - Markdown: markdown.md
+  - Concepts: concepts/index.md #  Explanation
   - How-to guides: # Recipes
       - Mechanical Turk: 'deployment/mechanical-turk.md'
   - API:  # Reference
