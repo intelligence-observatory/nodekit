@@ -1,0 +1,10 @@
+/* Subtle separators between mkdocstrings class blocks */
+
+.md-typeset .doc.doc-class + .doc.doc-class {
+    padding-bottom: 1rem;          /* extra vertical space */
+    border-top: 1px solid var(--md-default-fg-color--lightest); /* very light divider that works in light/dark */
+}
+
+.md-footer {
+    display: none;
+}

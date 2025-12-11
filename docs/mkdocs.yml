@@ -1,0 +1,79 @@
+site_name: NodeKit
+
+nav:
+  - Home: index.md
+  - Tutorial: 'getting-started.md' # Tutorial
+  - Concepts: concepts/index.md #  Explanation
+  - How-to guides: # Recipes
+      - Mechanical Turk: 'deployment/mechanical-turk.md'
+  - API:  # Reference
+      - Node: api/node.md
+      - Graph: api/graph.md
+      - Trace: api/trace.md
+      - Cards: api/cards.md
+      - Sensors: api/sensors.md
+      - Ops: api/ops.md
+      - Transitions: api/transitions.md
+      - Events: api/events.md
+      - Expressions: api/expressions.md
+      - Assets: api/assets.md
+      - Values: api/values.md
+
+
+
+repo_url: https://github.com/intelligence-observatory/nodekit
+
+theme:
+  name: material
+  font:
+    text: Inter
+  logo: nodekit-logo.svg
+  icon:
+    repo: fontawesome/brands/github
+  language: en
+  features:
+    - navigation.instant        # no full page reloads
+    - navigation.tracking       # URL updates as you scroll
+    - content.code.copy         # copy button on code blocks
+    - toc.integrate             # move local TOC into sidebar
+
+  palette:
+    - scheme: default         # light
+      primary: grey           # primary color
+      accent: blue grey          # accent color
+
+markdown_extensions:
+  - toc:
+      permalink: true
+      toc_depth: "2-3"
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python: # https://mkdocstrings.github.io/python/usage/#recommended-settings
+          paths: [".."]                     # allow imports from repo root
+          options:
+            modernize_annotations: true
+            docstring_style: google        # or "numpy" / "sphinx"
+            docstring_section_style: list
+            parameter_headings: false
+            separate_signature: true
+            show_signature_annotations: true
+            merge_init_into_class: true    # __init__ params appear on the class
+            show_source: false             # hide "view source" links (optional)
+            show_root_heading: true
+            show_root_full_path: true
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+            heading_level: 3
+            show_bases: false
+            extensions:
+              - griffe_pydantic:
+                  schema: false # Reactivate
+watch:
+  - ../nodekit
+extra:
+  generator: false   # hides the "Made with Material for MkDocs" text
+
+extra_css:
+  - styles/mkdocstrings.css

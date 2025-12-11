@@ -1,0 +1,29 @@
+::: nodekit.expressions.Expression
+    options:
+        show_root_heading: false
+        show_root_full_path: false
+
+::: nodekit.expressions.Reg
+::: nodekit.expressions.Local
+::: nodekit.expressions.LastAction
+::: nodekit.expressions.GetListItem
+::: nodekit.expressions.GetDictValue
+::: nodekit.expressions.Lit
+::: nodekit.expressions.If
+::: nodekit.expressions.Not
+::: nodekit.expressions.Or
+::: nodekit.expressions.And
+::: nodekit.expressions.Eq
+::: nodekit.expressions.Ne
+::: nodekit.expressions.Gt
+::: nodekit.expressions.Ge
+::: nodekit.expressions.Lt
+::: nodekit.expressions.Le
+::: nodekit.expressions.Add
+::: nodekit.expressions.Sub
+::: nodekit.expressions.Mul
+::: nodekit.expressions.Div
+::: nodekit.expressions.Slice
+::: nodekit.expressions.Map
+::: nodekit.expressions.Filter
+::: nodekit.expressions.Fold
