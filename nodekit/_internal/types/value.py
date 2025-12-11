@@ -77,7 +77,7 @@ type ColorHexString = Annotated[
 ]
 
 # %% Keyboard
-PressableKey = Literal[
+type PressableKey = Literal[
     "Enter",
     " ",
     "ArrowDown",
