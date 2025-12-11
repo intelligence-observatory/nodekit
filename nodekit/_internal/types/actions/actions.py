@@ -21,7 +21,6 @@ class ClickAction(BaseAction):
         description="The y-coordinate of the click, in Board units."
     )
 
-
 # %%
 class KeyAction(BaseAction):
     action_type: Literal["KeyAction"] = "KeyAction"

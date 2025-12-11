@@ -36,6 +36,4 @@ NodeKit uses the [uv](https://docs.astral.sh/uv/) Python package and project man
 
 ## Play your task locally
 
-## Deploy to humans
-
-## Deploy to models
+## Deploy to Mechanical Turk

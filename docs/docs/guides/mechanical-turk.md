@@ -49,7 +49,7 @@ entrypoint_url = "https://your-bucket.s3.amazonaws.com/task/graphs/<hash>/index.
 question_xml = f"""
 <ExternalQuestion xmlns="http://mechanicalturk.amazonaws.com/AWSMechanicalTurkDataSchemas/2006-07-14/ExternalQuestion.xsd">
   <ExternalURL>{escape(entrypoint_url)}</ExternalURL>
-  <FrameHeight>800</FrameHeight>
+  <FrameHeight>0</FrameHeight>
 </ExternalQuestion>
 """.strip()
 

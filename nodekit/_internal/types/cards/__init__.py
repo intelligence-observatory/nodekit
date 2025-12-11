@@ -22,16 +22,21 @@ class BaseCard(pydantic.BaseModel, ABC):
     # Identifiers
     card_type: str
 
+# %%
+class BaseLeafCard(BaseCard):
+    region: Region = pydantic.Field(
+        description="The Board region where the card is rendered.",
+        default=Region(x=0, y=0, w = 0.5, h=0.5)
+    )
 
 # %%
-class ImageCard(BaseCard):
+class ImageCard(BaseLeafCard):
     card_type: Literal["ImageCard"] = "ImageCard"
     image: Image
-    region: Region
 
 
 # %%
-class VideoCard(BaseCard):
+class VideoCard(BaseLeafCard):
     """Video stimulus placed on the Board.
 
     Attributes:
@@ -45,11 +50,10 @@ class VideoCard(BaseCard):
     loop: bool = pydantic.Field(
         description="Whether to loop the video when it ends.", default=False
     )
-    region: Region
 
 
 # %%
-class TextCard(BaseCard):
+class TextCard(BaseLeafCard):
     card_type: Literal["TextCard"] = "TextCard"
     text: MarkdownString
     font_size: SpatialSize = pydantic.Field(
@@ -64,7 +68,6 @@ class TextCard(BaseCard):
         default="#E6E6E600",  # Transparent by default
         description="The background color of the TextCard in hexadecimal format.",
     )
-    region: Region
 
 
 # %%
