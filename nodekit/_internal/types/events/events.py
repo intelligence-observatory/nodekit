@@ -39,9 +39,6 @@ class BaseEvent(pydantic.BaseModel):
 
 # %% System events
 class TraceStartedEvent(BaseEvent):
-    """
-    2
-    """
     event_type: Literal[EventTypeEnum.TraceStartedEvent] = (
         EventTypeEnum.TraceStartedEvent
     )
@@ -78,12 +75,18 @@ class BrowserContextSampledEvent(BaseEvent):
     event_type: Literal[EventTypeEnum.BrowserContextSampledEvent] = (
         EventTypeEnum.BrowserContextSampledEvent
     )
-    user_agent: str
-    timestamp_client: str
+    user_agent: str = pydantic.Field(
+        description="The user agent string of the browser."
+    )
+    timestamp_client: str = pydantic.Field(
+        description="The ISO8601-formatted timestamp that the Participant\'s browser disclosed at the time of this event."
+    )
     device_pixel_ratio: float = pydantic.Field(
         description="The ratio between physical pixels and logical CSS pixels on the device."
     )
-    display: RegionSizePx
+    display: RegionSizePx = pydantic.Field(
+        description="The size of the Participant's display in physical pixels."
+    )
     viewport: RegionSizePx
 
 

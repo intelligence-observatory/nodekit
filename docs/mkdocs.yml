@@ -10,6 +10,8 @@ nav:
       - Mechanical Turk: 'deployment/mechanical-turk.md'
   - API:  # Reference
       - Node: api/node.md
+      - Cards: api/cards.md
+      - Sensors: api/sensors.md
       - Graph: api/graph.md
       - Trace: api/trace.md
       - Ops: api/ops.md
@@ -37,7 +39,10 @@ theme:
       primary: grey           # primary color
       accent: blue grey          # accent color
 
-
+markdown_extensions:
+  - toc:
+      permalink: true
+      toc_depth: "2-3"
 plugins:
   - search
   - mkdocstrings:
@@ -46,16 +51,19 @@ plugins:
           paths: [".."]                     # allow imports from repo root
           options:
             docstring_style: google        # or "numpy" / "sphinx"
+            docstring_section_style: list
+            parameter_headings: false
             separate_signature: true
             show_signature_annotations: true
             merge_init_into_class: true    # __init__ params appear on the class
-            show_source: true             # hide "view source" links (optional)
+            show_source: false             # hide "view source" links (optional)
             show_root_heading: true
             show_root_full_path: true
             heading_level: 3
+            show_bases: false
             extensions:
               - griffe_pydantic:
-                  schema: true
+                  schema: false # Reactivate
 watch:
   - ../nodekit
 extra:
