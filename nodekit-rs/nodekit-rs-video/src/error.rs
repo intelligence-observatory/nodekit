@@ -4,8 +4,10 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum Error {
-    #[error("File not found: {0} {1}")]
-    FileNotFound(PathBuf, std::io::Error),
+    #[error("Asset is not a video")]
+    NotVideo,
+    #[error("Asset error: {0}")]
+    Asset(nodekit_rs_asset::Error),
     #[error("ffmpeg error: {0}")]
     Ffmpeg(FfmpegError),
     #[error("Failed to find a video track")]

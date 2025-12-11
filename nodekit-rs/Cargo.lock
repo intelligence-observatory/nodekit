@@ -1875,7 +1875,8 @@ version = "0.1.0"
 dependencies = [
  "blittle",
  "criterion",
- "nodekit-rs-models",
+ "nodekit-rs-asset",
+ "nodekit-rs-card",
  "nodekit-rs-png",
  "nodekit-rs-visual",
  "scuffle-ffmpeg",

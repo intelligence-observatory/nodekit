@@ -40,7 +40,8 @@ impl<'py> FromPyObject<'_, 'py> for Asset {
         let locator = obj.getattr("locator")?;
         let locator_type = locator.getattr("locator_type")?;
         match locator_type.cast::<PyString>()?.to_str()? {
-            "FileSystemPath" | "RelativePath" => Ok(Self::Path(Self::path(&locator, "path")?)),
+            "FileSystemPath" => Ok(Self::Path(Self::path(&locator, "path")?)),
+            "RelativePath" => Ok(Self::Path(Self::path(&locator, "relative_path")?)),
             "ZipArchiveInnerPath" => {
                 let zip_archive_path = Self::path(&locator, "zip_archive_path")?;
                 let inner_path = Self::path(&locator, "inner_path")?;

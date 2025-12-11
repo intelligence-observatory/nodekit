@@ -2,7 +2,6 @@ mod error;
 
 use blittle::ClippedRect;
 pub use error::Error;
-use nodekit_rs_models::Card;
 use nodekit_rs_visual::*;
 use scuffle_ffmpeg::decoder::DecoderOptions;
 use scuffle_ffmpeg::{
@@ -10,6 +9,8 @@ use scuffle_ffmpeg::{
 };
 use std::fs::read;
 use std::io::Cursor;
+use nodekit_rs_asset::load_asset;
+use nodekit_rs_card::{Card, CardType};
 
 pub struct Video {
     pub buffer: Vec<u8>,
@@ -19,25 +20,30 @@ pub struct Video {
 }
 
 impl Video {
-    pub fn new(card: &Card, video: &nodekit_rs_models::Video) -> Result<Option<Self>, Error> {
-        // Load the video.
-        let buffer = read(&video.path).map_err(|e| Error::FileNotFound(video.path.clone(), e))?;
-        // Get the actual size of the video.
-        let (width, height) = Self::get_size(&buffer)?;
-        // Get the rect, resized to fit within the card.
-        let rect = ResizedRect::new(&card.rect, width as u32, height as u32);
-        // Store the resized dimensions.
-        let width = rect.size.w;
-        let height = rect.size.h;
-        // Get the clipping rect.
-        Ok(
-            ClippedRect::new(rect.position, BOARD_SIZE, rect.size).map(|rect| Self {
-                buffer,
-                rect,
-                width,
-                height,
-            }),
-        )
+    pub fn new(card: &Card) -> Result<Option<Self>, Error> {
+        match &card.card_type {
+            CardType::Video { asset, looped: _} => {
+                // Load the video.
+                let buffer = load_asset(asset).map_err(Error::Asset)?;
+                // Get the actual size of the video.
+                let (width, height) = Self::get_size(&buffer)?;
+                // Get the rect, resized to fit within the card.
+                let rect = ResizedRect::new(&card.region, width as u32, height as u32);
+                // Store the resized dimensions.
+                let width = rect.size.w;
+                let height = rect.size.h;
+                // Get the clipping rect.
+                Ok(
+                    ClippedRect::new(rect.position, BOARD_SIZE, rect.size).map(|rect| Self {
+                        buffer,
+                        rect,
+                        width,
+                        height,
+                    }),
+                )
+            }
+            _ => Err(Error::NotVideo)
+        }
     }
 
     fn get_size(buffer: &[u8]) -> Result<(usize, usize), Error> {
