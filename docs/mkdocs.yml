@@ -1,15 +1,13 @@
 site_name: NodeKit
 
-
 nav:
+  - Home: index.md
   - Install: installation.md
   - Getting started: 'getting-started.md'
-  - API: api.md
+  - API: api/index.md
   - Notes:
       - EFSM: efsm.md
       - Markdown: markdown.md
-
-
 
 repo_url: https://github.com/intelligence-observatory/nodekit
 
@@ -33,8 +31,20 @@ theme:
   palette:
     - scheme: default         # light
       primary: grey           # primary color
-      accent: amber          # accent color
+      accent: blue grey          # accent color
 
 
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [".."]                     # allow imports from repo root
+          options:
+            docstring_style: google        # or "numpy" / "sphinx"
+            merge_init_into_class: true    # __init__ params appear on the class
+            show_source: true             # hide "view source" links (optional)
+watch:
+  - ../nodekit
 extra:
   generator: false   # hides the "Made with Material for MkDocs" text

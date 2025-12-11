@@ -39,6 +39,9 @@ class BaseEvent(pydantic.BaseModel):
 
 # %% System events
 class TraceStartedEvent(BaseEvent):
+    """
+    2
+    """
     event_type: Literal[EventTypeEnum.TraceStartedEvent] = (
         EventTypeEnum.TraceStartedEvent
     )
