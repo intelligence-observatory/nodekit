@@ -1,12 +1,13 @@
-import nodekit as nk
-from typing import Tuple
 import random
+from typing import Tuple, cast
+
+import nodekit as nk
 
 
 # %%
 def make_same_different_node(
-    color_left: Tuple[int, int, int],
-    color_right: Tuple[int, int, int],
+    color_left: tuple[int, int, int],
+    color_right: tuple[int, int, int],
 ):
     def to_hex(R, G, B):
         hex_str = f"#{R:02x}{G:02x}{B:02x}"
@@ -136,7 +137,7 @@ if __name__ == "__main__":
     random.seed(0)
     trials = []
     for _ in range(50):
-        color1 = (
+        color1: Tuple[int, int, int] = (
             random.randint(0, 255),
             random.randint(0, 255),
             random.randint(0, 255),
@@ -146,7 +147,10 @@ if __name__ == "__main__":
             color2 = color1
         else:
             # Just vary overall i guess
-            color2 = tuple(max(0, min(255, int(c + get_delta()))) for c in color1)
+            color2 = cast(
+                Tuple[int, int, int],
+                tuple(max(0, min(255, int(c + get_delta()))) for c in color1),
+            )
 
         trial = make_same_different_node(
             color_left=color1,

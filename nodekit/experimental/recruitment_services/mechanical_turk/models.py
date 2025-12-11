@@ -1,6 +1,6 @@
 import datetime
 from decimal import Decimal
-from typing import List, Optional, Literal
+from typing import List, Optional, Literal, Dict, Any
 
 import pydantic
 
@@ -93,13 +93,13 @@ class QualificationRequirement(pydantic.BaseModel):
         "NotIn",
     ]
     ActionsGuarded: Literal["Accept", "PreviewAndAccept", "DiscoverPreviewAndAccept"]
-    IntegerValues: Optional[List[int]] = pydantic.Field(default=None)
-    LocaleValues: Optional[List["LocaleValue"]] = pydantic.Field(default=None)
+    IntegerValues: List[int] | None = pydantic.Field(default=None)
+    LocaleValues: List["LocaleValue"] | None = pydantic.Field(default=None)
 
     @pydantic.model_serializer()
     def ensure_exclude_none(self):
         # boto3 expects IntegerValues and LocaleValues to not be present as fields if they are None:
-        base = dict(
+        base: Dict[str, Any] = dict(
             QualificationTypeId=self.QualificationTypeId,
             Comparator=self.Comparator,
             ActionsGuarded=self.ActionsGuarded,

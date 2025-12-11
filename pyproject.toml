@@ -17,10 +17,8 @@ dependencies = [
     "pydantic>=2.9.2",
     "Jinja2>=3.1.4",
     "fastapi[standard]>=0.116.1",
-    "pandas>=2.3.3",
-    "matplotlib>=3.10.7",
     "boto3>=1.40.55",
-    "requests>=2.32.5",
+    "matplotlib>=3.10.8",
 ]
 
 [project.urls]
@@ -31,6 +29,7 @@ exclude = []
 
 [tool.setuptools.packages.find]
 where = ["."]
+exclude = ["tests*"]
 namespaces = false
 
 [tool.setuptools.package-data]
