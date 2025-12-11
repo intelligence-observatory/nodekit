@@ -8,7 +8,12 @@ nav:
       - Markdown: markdown.md
   - How-to guides: # Recipes
       - Mechanical Turk: 'deployment/mechanical-turk.md'
-  - API: api/index.md # Reference
+  - API:  # Reference
+      - Node: api/node.md
+      - Graph: api/graph.md
+      - Events: api/events.md
+      - Ops: api/ops.md
+
 
 repo_url: https://github.com/intelligence-observatory/nodekit
 
