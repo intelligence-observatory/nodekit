@@ -8,7 +8,7 @@ __all__ = [
     "TextEntrySensor",
     "ProductSensor",
     "SumSensor",
-    "Sensor"
+    "Sensor",
 ]
 
 from nodekit._internal.types.sensors.sensors import (

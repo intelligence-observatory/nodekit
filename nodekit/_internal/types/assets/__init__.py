@@ -138,6 +138,7 @@ class Image(BaseAsset):
         description="The IANA media (MIME) type of the image file."
     )
 
+
 class Video(BaseAsset):
     media_type: VideoMediaType = pydantic.Field(
         description="The IANA media (MIME) type of the video file."

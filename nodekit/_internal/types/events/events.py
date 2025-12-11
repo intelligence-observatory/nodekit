@@ -79,7 +79,7 @@ class BrowserContextSampledEvent(BaseEvent):
         description="The user agent string of the browser."
     )
     timestamp_client: str = pydantic.Field(
-        description="The ISO8601-formatted timestamp that the Participant\'s browser disclosed at the time of this event."
+        description="The ISO8601-formatted timestamp that the Participant's browser disclosed at the time of this event."
     )
     device_pixel_ratio: float = pydantic.Field(
         description="The ratio between physical pixels and logical CSS pixels on the device."
