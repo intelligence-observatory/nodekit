@@ -12,6 +12,7 @@ nav:
       - Trace: api/trace.md
       - Cards: api/cards.md
       - Sensors: api/sensors.md
+      - Actions: api/actions.md
       - Transitions: api/transitions.md
       - Events: api/events.md
       - Expressions: api/expressions.md
