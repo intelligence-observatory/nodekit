@@ -5,3 +5,7 @@
     padding-top: 1.2rem;         /* breathing room above heading */
     border-top: 1px solid var(--md-default-fg-color--lightest); /* very light divider that works in light/dark */
 }
+
+.md-footer {
+    display: none;
+}
