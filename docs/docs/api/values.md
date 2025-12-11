@@ -24,3 +24,5 @@
 ::: nodekit.values.MediaType
 ::: nodekit.values.NodeId
 ::: nodekit.values.RegisterId
+
+::: nodekit.Region
