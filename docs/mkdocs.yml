@@ -5,6 +5,8 @@ nav:
   - Install: installation.md
   - Getting started: 'getting-started.md'
   - API: api/index.md
+  - Deployment:
+      - Mechanical Turk: 'deployment/mechanical-turk.md'
   - Notes:
       - EFSM: efsm.md
       - Markdown: markdown.md
@@ -21,9 +23,6 @@ theme:
   language: en
   features:
     - navigation.instant        # no full page reloads
-    - navigation.tabs
-    - navigation.tabs.sticky
-    - navigation.sections       # grouped sections in sidebar
     - navigation.tracking       # URL updates as you scroll
     - content.code.copy         # copy button on code blocks
     - toc.integrate             # move local TOC into sidebar
