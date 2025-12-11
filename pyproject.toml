@@ -18,6 +18,7 @@ dependencies = [
     "Jinja2>=3.1.4",
     "fastapi[standard]>=0.116.1",
     "boto3>=1.40.55",
+    "matplotlib>=3.10.8",
 ]
 
 [project.urls]
