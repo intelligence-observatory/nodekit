@@ -5,7 +5,7 @@ build-browser:
 
 build-docs:
 	cd docs && \
-	uv run mkdocs build
+	uv run mkdocs build --strict
 
 build: build-browser build-docs
 	rm -rf dist && \
