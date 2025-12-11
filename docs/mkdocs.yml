@@ -2,8 +2,7 @@ site_name: NodeKit
 
 nav:
   - Home: index.md
-  - Install: installation.md
-  - Getting started: 'getting-started.md'
+  - Quickstart: 'getting-started.md'
   - API: api/index.md
   - Deployment:
       - Mechanical Turk: 'deployment/mechanical-turk.md'
