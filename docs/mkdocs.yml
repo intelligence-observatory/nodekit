@@ -2,22 +2,22 @@ site_name: NodeKit
 
 nav:
   - Home: index.md
-  - Tutorial: 'tutorial/getting-started.md' # Tutorial
-  - Concepts: concepts/index.md #  Explanation
-  - Guides: # Recipes
-      - Mechanical Turk: 'deployment/mechanical-turk.md'
+  - Tutorial: 'tutorial/getting-started.md'
+  - Concepts: concepts/index.md
+  - Guides:
+      - Deploying to Mechanical Turk: 'guides/mechanical-turk.md'
   - Reference:
       - Node: api/node.md
       - Graph: api/graph.md
       - Trace: api/trace.md
       - Cards: api/cards.md
       - Sensors: api/sensors.md
-      - Ops: api/ops.md
       - Transitions: api/transitions.md
       - Events: api/events.md
       - Expressions: api/expressions.md
       - Assets: api/assets.md
       - Values: api/values.md
+      - Ops: api/ops.md
 
 
 

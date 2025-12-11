@@ -16,7 +16,7 @@ build-docs:
 	cd docs && \
 	uv run mkdocs build --strict
 
-build: check build-browser build-docs
+build: lint check build-browser build-docs
 	rm -rf dist && \
 	uv build
 
