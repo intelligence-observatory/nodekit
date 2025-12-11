@@ -53,6 +53,9 @@ plugins:
             show_root_heading: true
             show_root_full_path: true
             heading_level: 3
+            extensions:
+              - griffe_pydantic:
+                  schema: true
 watch:
   - ../nodekit
 extra:

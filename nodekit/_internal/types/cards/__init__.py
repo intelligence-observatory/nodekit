@@ -32,6 +32,14 @@ class ImageCard(BaseCard):
 
 # %%
 class VideoCard(BaseCard):
+    """Video stimulus placed on the Board.
+
+    Attributes:
+        video: The video asset to render.
+        loop: Whether to loop the video when it ends.
+        region: The Board region where the video is rendered.
+    """
+
     card_type: Literal["VideoCard"] = "VideoCard"
     video: Video
     loop: bool = pydantic.Field(
