@@ -11,8 +11,9 @@ nav:
   - API:  # Reference
       - Node: api/node.md
       - Graph: api/graph.md
-      - Events: api/events.md
+      - Trace: api/trace.md
       - Ops: api/ops.md
+      - Expressions: api/expressions.md
 
 
 repo_url: https://github.com/intelligence-observatory/nodekit
@@ -49,6 +50,9 @@ plugins:
             show_signature_annotations: true
             merge_init_into_class: true    # __init__ params appear on the class
             show_source: true             # hide "view source" links (optional)
+            show_root_heading: true
+            show_root_full_path: true
+            heading_level: 3
 watch:
   - ../nodekit
 extra:
