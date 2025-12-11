@@ -1,8 +1,3 @@
-::: nodekit.values.Value
-    options:
-        show_root_heading: false
-        show_root_full_path: false
-
 ::: nodekit.values.Boolean
 ::: nodekit.values.Integer
 ::: nodekit.values.Float
@@ -10,6 +5,7 @@
 ::: nodekit.values.List
 ::: nodekit.values.Dict
 ::: nodekit.values.LeafValue
+::: nodekit.values.Value
 ::: nodekit.values.SpatialSize
 ::: nodekit.values.SpatialPoint
 ::: nodekit.values.Mask

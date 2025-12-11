@@ -18,6 +18,7 @@ nav:
       - Transitions: api/transitions.md
       - Events: api/events.md
       - Expressions: api/expressions.md
+      - Assets: api/assets.md
       - Values: api/values.md
 
 
