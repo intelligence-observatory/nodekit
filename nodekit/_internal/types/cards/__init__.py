@@ -22,12 +22,14 @@ class BaseCard(pydantic.BaseModel, ABC):
     # Identifiers
     card_type: str
 
+
 # %%
 class BaseLeafCard(BaseCard):
     region: Region = pydantic.Field(
         description="The Board region where the card is rendered.",
-        default=Region(x=0, y=0, w = 0.5, h=0.5)
+        default=Region(x=0, y=0, w=0.5, h=0.5),
     )
+
 
 # %%
 class ImageCard(BaseLeafCard):
