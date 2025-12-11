@@ -73,7 +73,7 @@ class SumAction(BaseAction):
 
 
 # %%
-Action = Annotated[
+type Action = Annotated[
     Union[
         ClickAction,
         KeyAction,
