@@ -10,9 +10,7 @@ from nodekit._internal.types.value import NodeId, RegisterId, Value
 # %%
 class Graph(pydantic.BaseModel):
     type: Literal["Graph"] = "Graph"
-    nodekit_version: Literal["0.2.0"] = pydantic.Field(
-        default=VERSION, validate_default=True
-    )
+    nodekit_version: Literal["0.2.0"] = pydantic.Field(default=VERSION, validate_default=True)
     nodes: Dict[NodeId, Union[Node, "Graph"]]
     transitions: Dict[NodeId, Transition]
     start: NodeId
@@ -33,10 +31,10 @@ class Graph(pydantic.BaseModel):
         if self.start not in self.nodes:
             raise ValueError(f"Start Node {self.start} does not exist in nodes.")
 
-        # Todo: Each Node except the start Node must be reachable from the start Node (i.e., no disconnected components)
+        # Todo: Each Node must be reachable from the start Node (i.e., no disconnected components)
 
-        # Todo: topologically sort nodes (make a new dict with topo-sorted insertion order)
+        # Todo: Each Go transition must point to an existing Node
 
-        # Todo: check all Nodes have a path to a leaf Sensor
+        # Todo: check each Nodes has a path to an End transition
 
         return self
