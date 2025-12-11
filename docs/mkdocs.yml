@@ -70,7 +70,7 @@ plugins:
             show_bases: false
             extensions:
               - griffe_pydantic:
-                  schema: flse # Reactivate
+                  schema: false # Reactivate
 watch:
   - ../nodekit
 extra:
