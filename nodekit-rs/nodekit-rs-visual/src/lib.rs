@@ -8,8 +8,8 @@ mod rgba_buffer;
 mod unclipped_rect;
 mod visual_buffer;
 
-pub use crate::rgb_buffer::RgbBuffer;
-pub use crate::rgba_buffer::RgbaBuffer;
+pub use rgb_buffer::RgbBuffer;
+pub use rgba_buffer::RgbaBuffer;
 use blittle::Size;
 use blittle::stride::RGBA;
 pub use board::*;
