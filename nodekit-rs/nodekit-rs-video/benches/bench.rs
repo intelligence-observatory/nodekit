@@ -1,7 +1,7 @@
 use blittle::{ClippedRect, PositionI};
 use criterion::{Criterion, criterion_group, criterion_main};
 use nodekit_rs_video::*;
-use nodekit_rs_visual::BOARD_SIZE;
+use nodekit_rs_visual::{BOARD_SIZE, RgbBuffer};
 
 pub fn criterion_benchmark(c: &mut Criterion) {
     let rect = ClippedRect::new(
@@ -10,9 +10,9 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         blittle::Size { w: 400, h: 300 },
     )
     .unwrap();
-    let video = Video {
+    let mut video = Video {
         buffer: include_bytes!("../test-video.mp4").to_vec(),
-        rect,
+        rgb_buffer: RgbBuffer::from(rect),
     };
 
     c.bench_function("video frame extraction", |b| {

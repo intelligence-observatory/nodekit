@@ -1,4 +1,5 @@
 use crate::{BOARD_SIZE, Error, resize};
+use blittle::stride::RGB;
 use blittle::{ClippedRect, Size};
 use fast_image_resize::PixelType;
 use nodekit_rs_card::Region;
@@ -34,6 +35,12 @@ impl RgbBuffer {
 
     pub fn buffer_mut(&mut self) -> &mut [u8] {
         &mut self.buffer
+    }
+}
+
+impl From<ClippedRect> for RgbBuffer {
+    fn from(value: ClippedRect) -> Self {
+        Self::new(vec![0; value.src_size.w * value.src_size.h * RGB], value)
     }
 }
 

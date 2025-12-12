@@ -1,6 +1,6 @@
 mod error;
 
-use blittle::{ClippedRect, Size};
+use blittle::Size;
 pub use error::Error;
 use nodekit_rs_asset::load_asset;
 use nodekit_rs_card::{Asset, Region};
@@ -13,7 +13,7 @@ use std::io::Cursor;
 
 pub struct Video {
     pub buffer: Vec<u8>,
-    pub rect: ClippedRect,
+    pub rgb_buffer: RgbBuffer,
 }
 
 impl Video {
@@ -28,9 +28,10 @@ impl Video {
         rect.size = video_size;
         rect.resize(&card_size);
         // Get the clipping rect.
-        Ok(rect
-            .into_clipped_rect(BOARD_SIZE)
-            .map(|rect| Self { buffer, rect }))
+        Ok(rect.into_clipped_rect(BOARD_SIZE).map(|rect| Self {
+            buffer,
+            rgb_buffer: RgbBuffer::from(rect),
+        }))
     }
 
     fn get_size(buffer: &[u8]) -> Result<Size, Error> {
@@ -51,7 +52,7 @@ impl Video {
         })
     }
 
-    pub fn get_frame(&self, t_msec: u64) -> Result<RgbBuffer, Error> {
+    pub fn get_frame(&mut self, t_msec: u64) -> Result<(), Error> {
         // Open the buffer.
         let cursor = Cursor::new(&self.buffer);
         let mut input = Input::seekable(cursor).map_err(Error::Ffmpeg)?;
@@ -99,21 +100,20 @@ impl Video {
             frame.width() as i32,
             frame.height() as i32,
             AVPixelFormat::Yuv420p,
-            self.rect.src_size.w.cast_signed() as i32,
-            self.rect.src_size.h.cast_signed() as i32,
+            self.rgb_buffer.rect.src_size.w.cast_signed() as i32,
+            self.rgb_buffer.rect.src_size.h.cast_signed() as i32,
             AVPixelFormat::Rgb24,
         )
         .map_err(Error::Ffmpeg)?;
         let frame = scaler.process(&frame).map_err(Error::Ffmpeg)?;
         let data = frame.data(0).ok_or(Error::NoData)?;
         let width_3 = frame.width() * STRIDE;
-        let mut out = vec![0; width_3 * frame.height()];
-        for y in 0..self.rect.src_size.h {
+        for y in 0..self.rgb_buffer.rect.src_size.h {
             let row = data.get_row(y).ok_or(Error::NotEnoughRows(y))?;
             let index = y * width_3;
-            out[index..index + width_3].copy_from_slice(&row[0..width_3]);
+            self.rgb_buffer.buffer_mut()[index..index + width_3].copy_from_slice(&row[0..width_3]);
         }
-        Ok(RgbBuffer::new(out, self.rect))
+        Ok(())
     }
 }
 
@@ -132,22 +132,22 @@ mod tests {
             h: 0.6,
             z_index: None,
         };
-        let video = Video::new(&Asset::Path(PathBuf::from("test-video.mp4")), &region)
+        let mut video = Video::new(&Asset::Path(PathBuf::from("test-video.mp4")), &region)
             .unwrap()
             .unwrap();
 
-        let frame = video.get_frame(300).unwrap();
+        video.get_frame(300).unwrap();
 
         // Write the frame.
         nodekit_rs_png::rgb_to_png(
             "frame.png",
-            frame.buffer_ref(),
-            video.rect.src_size.w as u32,
-            video.rect.src_size.h as u32,
+            video.rgb_buffer.buffer_ref(),
+            video.rgb_buffer.rect.src_size.w as u32,
+            video.rgb_buffer.rect.src_size.h as u32,
         );
 
         let mut board = Board::new([255, 255, 255]);
-        board.blit_rgb(&frame);
+        board.blit_rgb(&video.rgb_buffer);
         nodekit_rs_png::board_to_png("board.png", board.get_board_without_cursor());
     }
 }

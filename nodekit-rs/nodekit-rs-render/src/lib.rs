@@ -67,8 +67,8 @@ impl Renderer {
                     text.blit(&mut self.board);
                 }
                 Asset::Video(video) => {
-                    self.board
-                        .blit_rgb(&video.get_frame(state.t_msec).map_err(Error::Video)?);
+                    video.get_frame(state.t_msec).map_err(Error::Video)?;
+                    self.board.blit_rgb(&video.rgb_buffer);
                 }
             }
         }
