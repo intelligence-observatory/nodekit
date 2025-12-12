@@ -15,8 +15,8 @@ data = nk.play(task)
 
 
 
-
 ## Why NodeKit?
 
 - Write Python, not HTML/JavaScript/CSS.
 - Share your tasks as a single JSON document
+- Simulate your tasks before running them on human participants
