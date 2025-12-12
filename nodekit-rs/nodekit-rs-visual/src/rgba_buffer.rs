@@ -1,19 +1,19 @@
 use crate::{BOARD_SIZE, Error, STRIDE, resize};
-use blittle::{ClippedRect, Size};
 use blittle::overlay::{
     Vec4, overlay_pixel, rgba8_to_rgba32, rgba8_to_rgba32_color, rgba32_to_rgb8,
 };
 use blittle::stride::RGBA;
+use blittle::{ClippedRect, Size};
 use fast_image_resize::PixelType;
 use nodekit_rs_card::Region;
 
 pub struct RgbaBuffer {
-    pub(crate) buffer: Vec<Vec4>,
+    pub buffer: Vec<Vec4>,
     pub rect: ClippedRect,
 }
 
 impl RgbaBuffer {
-    pub fn new_rgba(rect: ClippedRect, color: [u8; RGBA]) -> Self {
+    pub fn new(rect: ClippedRect, color: [u8; RGBA]) -> Self {
         let color = rgba8_to_rgba32_color(&color);
         let buffer = vec![color; rect.src_size.w * rect.src_size.h];
         Self { buffer, rect }
@@ -39,7 +39,7 @@ impl RgbaBuffer {
         }
     }
 
-    pub fn get_buffer(&self) -> Vec<u8> {
+    pub fn get_rgba8_buffer(&self) -> Vec<u8> {
         rgba32_to_rgb8(&self.buffer)
     }
 

@@ -31,6 +31,10 @@ impl RgbBuffer {
     pub fn buffer_ref(&self) -> &[u8] {
         &self.buffer
     }
+
+    pub fn buffer_mut(&mut self) -> &mut [u8] {
+        &mut self.buffer
+    }
 }
 
 #[cfg(test)]
@@ -62,10 +66,7 @@ mod tests {
         let mut buffer = include_bytes!("../test_files/rgb.raw").to_vec();
         let resized = RgbBuffer::new_resized(
             &mut buffer,
-            Size {
-                w: 300,
-                h: 600,
-            },
+            Size { w: 300, h: 600 },
             &Region {
                 x: -0.5,
                 y: -0.5,
@@ -92,12 +93,8 @@ mod tests {
     fn get_rgb_buffer() -> RgbBuffer {
         RgbBuffer {
             buffer: include_bytes!("../test_files/rgb.raw").to_vec(),
-            rect: ClippedRect::new(
-                PositionI::default(),
-                BOARD_SIZE,
-                Size { w: 300, h: 600 },
-            )
-            .unwrap(),
+            rect: ClippedRect::new(PositionI::default(), BOARD_SIZE, Size { w: 300, h: 600 })
+                .unwrap(),
         }
     }
 }

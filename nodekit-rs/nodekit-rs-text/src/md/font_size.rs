@@ -14,7 +14,10 @@ macro_rules! metrics {
 #[derive(Copy, Clone, Debug)]
 pub struct FontSize {
     pub font_size: f32,
+    pub font_usize: usize,
+    pub font_isize: isize,
     pub line_height: f32,
+    pub line_height_usize: usize,
     h1: f32,
     h2: f32,
     h3: f32,
@@ -26,15 +29,19 @@ pub struct FontSize {
 impl FontSize {
     pub fn new(font_size: u16) -> Self {
         let font_size = font_size as f32;
+        let line_height = font_size * LINE_HEIGHT_FACTOR;
         Self {
             font_size,
-            line_height: font_size * LINE_HEIGHT_FACTOR,
+            line_height,
             h1: font_size * 2.,
             h2: font_size * 1.5,
             h3: font_size * 1.17,
             h4: font_size,
             h5: font_size,
             h6: font_size * 0.67,
+            font_usize: font_size as usize,
+            font_isize: font_size as isize,
+            line_height_usize: line_height as usize,
         }
     }
 }

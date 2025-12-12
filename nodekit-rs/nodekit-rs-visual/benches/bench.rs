@@ -14,12 +14,7 @@ fn get_rgba_buffer() -> Vec<u8> {
 fn criterion_benchmark(c: &mut Criterion) {
     let mut board = Board::new([255, 0, 255]);
 
-    let rect = ClippedRect::new(
-        PositionI::default(),
-        BOARD_SIZE,
-        Size { w: 300, h: 600 },
-    )
-    .unwrap();
+    let rect = ClippedRect::new(PositionI::default(), BOARD_SIZE, Size { w: 300, h: 600 }).unwrap();
 
     let rgb = RgbBuffer::new(get_rgb_buffer(), rect.clone());
 
@@ -28,22 +23,16 @@ fn criterion_benchmark(c: &mut Criterion) {
     let mut rgb = get_rgb_buffer();
     let region = Region::default();
     c.bench_function("resize rgb buffer", |b| {
-        b.iter(|| RgbBuffer::new_resized(&mut rgb, Size {
-            w: 300,
-            h: 600
-        }, &region))
+        b.iter(|| RgbBuffer::new_resized(&mut rgb, Size { w: 300, h: 600 }, &region))
     });
 
-    let rgba = RgbaBuffer::new_rgba(rect, [255, 0, 255, 255]);
+    let rgba = RgbaBuffer::new(rect, [255, 0, 255, 255]);
 
     c.bench_function("blit rgba buffer", |b| b.iter(|| board.overlay_rgba(&rgba)));
 
     let mut rgba = get_rgba_buffer();
     c.bench_function("resize rgba buffer", |b| {
-        b.iter(|| RgbaBuffer::new_resized(&mut rgba, Size {
-            w: 300,
-            h: 600
-        }, &region))
+        b.iter(|| RgbaBuffer::new_resized(&mut rgba, Size { w: 300, h: 600 }, &region))
     });
 }
 

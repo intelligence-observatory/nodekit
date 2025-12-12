@@ -59,12 +59,15 @@ fn resize(
     // No need to resize.
     if rect.size.w == bitmap_size.w && rect.size.h == bitmap_size.h {
         Ok((buffer.to_vec(), rect))
-    }
-    else {
+    } else {
         // Create an image view.
-        let src =
-            fast_image_resize::images::Image::from_slice_u8(bitmap_size.w as u32, bitmap_size.h as u32, buffer, pixel_type)
-                .map_err(Error::ImageResizeBuffer)?;
+        let src = fast_image_resize::images::Image::from_slice_u8(
+            bitmap_size.w as u32,
+            bitmap_size.h as u32,
+            buffer,
+            pixel_type,
+        )
+        .map_err(Error::ImageResizeBuffer)?;
 
         let card_size = rect.size;
         rect.size = bitmap_size;

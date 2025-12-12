@@ -1,14 +1,15 @@
 mod asset;
 mod card;
 mod card_type;
-mod justification;
 mod region;
+mod text;
 
 pub use asset::Asset;
 pub use card_type::CardType;
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList, PyString};
 pub use region::*;
+pub use text::*;
 
 pub struct Card {
     pub region: Region,

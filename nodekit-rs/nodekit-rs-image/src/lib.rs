@@ -36,14 +36,12 @@ pub fn load(asset: &Asset, region: &Region) -> Result<Option<VisualBuffer>, Erro
         .map_err(|e| Error::Decode(e, asset.to_string()))?;
     let bitmap_size = Size {
         w: info.width as usize,
-        h: info.height as usize
+        h: info.height as usize,
     };
     match info.color_type {
-        ColorType::Rgb => Ok(
-            RgbBuffer::new_resized(&mut buffer, bitmap_size, region)
-                .map_err(Error::Visual)?
-                .map(VisualBuffer::Rgb),
-        ),
+        ColorType::Rgb => Ok(RgbBuffer::new_resized(&mut buffer, bitmap_size, region)
+            .map_err(Error::Visual)?
+            .map(VisualBuffer::Rgb)),
         ColorType::Rgba => {
             // There are often RGBA images in which the A channel is always 255...
             let opaque = cast_slice::<u8, [u8; 4]>(&buffer)
@@ -51,36 +49,32 @@ pub fn load(asset: &Asset, region: &Region) -> Result<Option<VisualBuffer>, Erro
                 .all(|pixel| pixel[3] == 255);
             // ...in which case, convert to RGB.
             if opaque {
-                Ok(RgbBuffer::new_resized(
-                    &mut rgba_to_rgb(&buffer),
-                    bitmap_size,
-                    region,
-                )
-                .map_err(Error::Visual)?
-                .map(VisualBuffer::Rgb))
-            } else {
                 Ok(
-                    RgbaBuffer::new_resized(&mut buffer, bitmap_size, region)
+                    RgbBuffer::new_resized(&mut rgba_to_rgb(&buffer), bitmap_size, region)
                         .map_err(Error::Visual)?
-                        .map(VisualBuffer::Rgba),
+                        .map(VisualBuffer::Rgb),
                 )
+            } else {
+                Ok(RgbaBuffer::new_resized(&mut buffer, bitmap_size, region)
+                    .map_err(Error::Visual)?
+                    .map(VisualBuffer::Rgba))
             }
         }
         ColorType::Indexed => Err(Error::Indexed(asset.to_string())),
-        ColorType::Grayscale => Ok(RgbBuffer::new_resized(
-            &mut grayscale_to_rgb(&buffer),
-            bitmap_size,
-            region,
-        )
-        .map_err(Error::Visual)?
-        .map(VisualBuffer::Rgb)),
-        ColorType::GrayscaleAlpha => Ok(RgbaBuffer::new_resized(
-            &mut grayscale_alpha_to_rgba(&buffer),
-            bitmap_size,
-            region,
-        )
-        .map_err(Error::Visual)?
-        .map(VisualBuffer::Rgba)),
+        ColorType::Grayscale => {
+            Ok(
+                RgbBuffer::new_resized(&mut grayscale_to_rgb(&buffer), bitmap_size, region)
+                    .map_err(Error::Visual)?
+                    .map(VisualBuffer::Rgb),
+            )
+        }
+        ColorType::GrayscaleAlpha => {
+            Ok(
+                RgbaBuffer::new_resized(&mut grayscale_alpha_to_rgba(&buffer), bitmap_size, region)
+                    .map_err(Error::Visual)?
+                    .map(VisualBuffer::Rgba),
+            )
+        }
     }
 }
 

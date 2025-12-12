@@ -35,14 +35,12 @@ impl Video {
                 let height = rect.size.h;
                 rect.resize(&card_size);
                 // Get the clipping rect.
-                Ok(
-                    rect.into_clipped_rect(BOARD_SIZE).map(|rect| Self {
-                        buffer,
-                        rect,
-                        width,
-                        height,
-                    })
-                )
+                Ok(rect.into_clipped_rect(BOARD_SIZE).map(|rect| Self {
+                    buffer,
+                    rect,
+                    width,
+                    height,
+                }))
             }
             _ => Err(Error::NotVideo),
         }
@@ -135,8 +133,8 @@ impl Video {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::path::PathBuf;
     use nodekit_rs_card::{Asset, Region};
+    use std::path::PathBuf;
 
     #[test]
     fn test_video() {
@@ -146,12 +144,12 @@ mod tests {
                 y: 0.1,
                 w: 0.4,
                 h: 0.6,
-                z_index: None
+                z_index: None,
             },
             card_type: CardType::Video {
                 asset: Asset::Path(PathBuf::from("test-video.mp4")),
-                looped: false
-            }
+                looped: false,
+            },
         };
         let video = Video::new(&card).unwrap().unwrap();
 

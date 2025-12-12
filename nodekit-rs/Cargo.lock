@@ -1863,7 +1863,7 @@ dependencies = [
  "cosmic-text",
  "criterion",
  "markdown",
- "nodekit-rs-models",
+ "nodekit-rs-card",
  "nodekit-rs-png",
  "nodekit-rs-visual",
  "pyo3",
