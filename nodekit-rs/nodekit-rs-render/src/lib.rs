@@ -7,7 +7,6 @@ use nodekit_rs_card::CardType;
 use nodekit_rs_image::*;
 use nodekit_rs_state::*;
 use nodekit_rs_visual::*;
-use numpy::ndarray::Array3;
 use numpy::{PyArray3, PyArrayMethods};
 use pyo3::exceptions::PyRuntimeError;
 use pyo3::prelude::*;
@@ -73,10 +72,6 @@ impl Renderer {
         let board = self
             .blit(state)
             .map_err(|e| PyRuntimeError::new_err(e.to_string()))?;
-        let mut arr = Array3::<u8>::zeros((BOARD_D, BOARD_D, STRIDE));
-        if let Some(arr) = arr.as_slice_mut() {
-            arr.copy_from_slice(board);
-        }
         let arr = PyArray3::zeros(py, (BOARD_D, BOARD_D, STRIDE), false);
         unsafe {
             arr.as_slice_mut()?.copy_from_slice(board);
