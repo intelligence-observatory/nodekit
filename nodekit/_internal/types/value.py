@@ -127,7 +127,7 @@ type SHA256 = Annotated[String, pydantic.Field(pattern=r"^[a-f0-9]{64}$")]
 """A hex string representing a SHA-256 hash.
 """
 
-type ImageMediaType = Literal["image/png", "image/svg+xml"]
+type ImageMediaType = Literal["image/png", "image/svg+xml", "image/jpeg"]
 type VideoMediaType = Literal["video/mp4"]
 type MediaType = ImageMediaType | VideoMediaType
 
