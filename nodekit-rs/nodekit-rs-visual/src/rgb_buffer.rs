@@ -21,7 +21,7 @@ impl RgbBuffer {
         bitmap_size: Size,
         region: &Region,
     ) -> Result<Option<Self>, Error> {
-        let (buffer, rect) = resize(buffer, bitmap_size, &region, PixelType::U8x3)?;
+        let (buffer, rect) = resize(buffer, bitmap_size, region, PixelType::U8x3)?;
         Ok(
             ClippedRect::new(rect.position, BOARD_SIZE, rect.size)
                 .map(|rect| Self { buffer, rect }),

@@ -25,7 +25,7 @@ impl Video {
         // Get the actual size of the video.
         let video_size = Self::get_size(&buffer)?;
         // Get the rect, resized to fit within the card.
-        let mut rect = UnclippedRect::new(&region);
+        let mut rect = UnclippedRect::new(region);
         let card_size = rect.size;
         rect.size = video_size;
         // Store the resized dimensions.
@@ -140,7 +140,9 @@ mod tests {
             h: 0.6,
             z_index: None,
         };
-        let video = Video::new(&Asset::Path(PathBuf::from("test-video.mp4")), &region).unwrap().unwrap();
+        let video = Video::new(&Asset::Path(PathBuf::from("test-video.mp4")), &region)
+            .unwrap()
+            .unwrap();
 
         let frame = video.get_frame(300).unwrap();
 

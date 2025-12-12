@@ -1,5 +1,4 @@
 use scuffle_ffmpeg::error::FfmpegError;
-use std::path::PathBuf;
 use thiserror::Error;
 
 #[derive(Debug, Error)]

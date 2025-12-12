@@ -3,7 +3,9 @@ mod error;
 
 use crate::asset::Asset;
 pub use error::Error;
+use nodekit_rs_card::CardType;
 use nodekit_rs_image::*;
+use nodekit_rs_state::*;
 use nodekit_rs_visual::*;
 use pyo3::exceptions::PyRuntimeError;
 use pyo3::prelude::*;
@@ -11,8 +13,6 @@ use pyo3::types::PyBytes;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use slotmap::SecondaryMap;
 use uuid::Uuid;
-use nodekit_rs_card::CardType;
-use nodekit_rs_state::*;
 
 /// Render a `State` while storing an internal cache of loaded data (fonts, video buffers, etc.)
 #[pyclass]
@@ -58,10 +58,7 @@ impl Renderer {
         }
 
         // Show.
-        for k in state
-            .cards
-            .keys()
-        {
+        for k in state.cards.keys() {
             match self.assets.get_mut(k).unwrap() {
                 Asset::Bitmap(image) => {
                     self.board.blit(image);
@@ -74,9 +71,10 @@ impl Renderer {
         }
 
         // Copy to the final blit.
-        Ok(self
-            .board
-            .blit_cursor(&self.cursor.0, &Cursor::rect(state.pointer.x, state.pointer.y)))
+        Ok(self.board.blit_cursor(
+            &self.cursor.0,
+            &Cursor::rect(state.pointer.x, state.pointer.y),
+        ))
     }
 
     fn is_new_state(&self, state: &State) -> bool {
@@ -123,18 +121,15 @@ impl Renderer {
                     }
                 }
                 CardType::Text(text_card) => {
-                    if let Some(buffer) = self.text_engine
+                    if let Some(buffer) = self
+                        .text_engine
                         .render(text_card, &card.region)
-                        .map_err(Error::Text)? {
-                        self.assets.insert(
-                            key,
-                            Asset::Bitmap(
-                                 buffer
-                            ),
-                        );
+                        .map_err(Error::Text)?
+                    {
+                        self.assets.insert(key, Asset::Bitmap(buffer));
                     }
                 }
-                CardType::Video { asset, looped: _} => {
+                CardType::Video { asset, looped: _ } => {
                     if let Some(video) =
                         nodekit_rs_video::Video::new(asset, &card.region).map_err(Error::Video)?
                     {
@@ -151,8 +146,8 @@ impl Renderer {
 mod tests {
     use crate::Renderer;
     use nodekit_rs_card::*;
-    use std::path::PathBuf;
     use nodekit_rs_state::State;
+    use std::path::PathBuf;
 
     #[test]
     fn test_render() {
@@ -160,48 +155,48 @@ mod tests {
         assert!(image_path.exists());
         let video_path = PathBuf::from("../nodekit-rs-video/test-video.mp4");
         assert!(video_path.exists());
-        
+
         let cards = vec![
-          Card {
-              region: Region {
-                  x: -0.4,
-                  y: -0.4,
-                  w: 0.3,
-                  h: 0.3,
-                  z_index: Some(0)
-              },
-              card_type: CardType::Image(Asset::Path(image_path))
-          },
-          Card {
-              region: Region {
-                  x: 0.,
-                  y: 0.1,
-                  w: 0.4,
-                  h: 0.6,
-                  z_index: Some(1)
-              },
-              card_type: CardType::Video {
-                  asset: Asset::Path(video_path),
-                  looped: false
-              }
-          },
-          Card {
-              region: Region {
-                  x: -0.5,
-                  y: -0.5,
-                  w: 1.,
-                  h: 1.,
-                  z_index: Some(2)
-              },
-              card_type: CardType::Text(TextCard {
-                  text: include_str!("../../nodekit-rs-text/lorem.txt").to_string(),
-                  font_size: 0.02,
-                  justification_horizontal: JustificationHorizontal::Left,
-                  justification_vertical: JustificationVertical::Center,
-                  text_color: "#003300FF".to_string(),
-                  background_color: "#EEEEEE11".to_string(),
-              })
-          }
+            Card {
+                region: Region {
+                    x: -0.4,
+                    y: -0.4,
+                    w: 0.3,
+                    h: 0.3,
+                    z_index: Some(0),
+                },
+                card_type: CardType::Image(Asset::Path(image_path)),
+            },
+            Card {
+                region: Region {
+                    x: 0.,
+                    y: 0.1,
+                    w: 0.4,
+                    h: 0.6,
+                    z_index: Some(1),
+                },
+                card_type: CardType::Video {
+                    asset: Asset::Path(video_path),
+                    looped: false,
+                },
+            },
+            Card {
+                region: Region {
+                    x: -0.5,
+                    y: -0.5,
+                    w: 1.,
+                    h: 1.,
+                    z_index: Some(2),
+                },
+                card_type: CardType::Text(TextCard {
+                    text: include_str!("../../nodekit-rs-text/lorem.txt").to_string(),
+                    font_size: 0.02,
+                    justification_horizontal: JustificationHorizontal::Left,
+                    justification_vertical: JustificationVertical::Center,
+                    text_color: "#003300FF".to_string(),
+                    background_color: "#EEEEEE11".to_string(),
+                }),
+            },
         ];
 
         let mut state = State::from_cards("#AAAAAAFF".to_string(), cards);

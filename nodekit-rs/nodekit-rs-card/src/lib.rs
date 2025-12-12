@@ -1,5 +1,4 @@
 mod asset;
-mod card;
 mod card_type;
 mod region;
 mod text;

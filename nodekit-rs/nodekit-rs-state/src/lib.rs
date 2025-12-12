@@ -1,12 +1,12 @@
 mod pointer;
 
+use nodekit_rs_card::Card;
+use pointer::Pointer;
 use pyo3::prelude::*;
 use pyo3::types::PyList;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
-use slotmap::{new_key_type, SlotMap};
+use slotmap::{SlotMap, new_key_type};
 use uuid::Uuid;
-use nodekit_rs_card::Card;
-use pointer::Pointer;
 
 new_key_type! { pub struct CardKey; }
 
