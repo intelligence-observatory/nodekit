@@ -4,6 +4,7 @@
         show_root_full_path: false
 
 ::: nodekit.expressions.Reg
+::: nodekit.expressions.ChildReg
 ::: nodekit.expressions.Local
 ::: nodekit.expressions.LastAction
 ::: nodekit.expressions.GetListItem
