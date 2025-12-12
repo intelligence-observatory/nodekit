@@ -19,6 +19,7 @@
 ::: nodekit.values.VideoMediaType
 ::: nodekit.values.MediaType
 ::: nodekit.values.NodeId
+::: nodekit.values.NodeAddress
 ::: nodekit.values.RegisterId
 
 ::: nodekit.Region

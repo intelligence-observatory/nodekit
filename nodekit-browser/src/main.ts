@@ -3,7 +3,7 @@ import {Clock} from "./clock.ts";
 import type {Graph, Trace} from "./types/node.ts";
 import {sampleBrowserContext} from "./user-gates/browser-context.ts";
 import {userDeviceIsValid} from "./user-gates/device-gate.ts";
-import type {NodeId, RegisterId, TimeElapsedMsec} from "./types/value.ts";
+import type {NodeAddress, NodeId, RegisterId, TimeElapsedMsec} from "./types/value.ts";
 import {createNodeKitRootDiv} from "./ui/ui-builder.ts";
 import {AssetManager} from "./asset-manager";
 import {ShellUI} from "./ui/shell-ui/shell-ui.ts";
@@ -95,7 +95,7 @@ export async function play(
     // Core play loop:
     await playGraph(
         graph,
-        '', // Root namespace
+        [], // Root namespace
         {
             eventArray: eventArray,
             boardViewsContainerDiv: boardViewsContainerDiv,
@@ -143,15 +143,12 @@ export interface PlayGraphContext {
 type RegisterFile = Readonly<Record<RegisterId, any>>;
 async function playGraph(
     graph: Graph,
-    namespace: string,
+    parentAddress: NodeAddress,
     context: PlayGraphContext,
 ): Promise<RegisterFile> {
 
     const nodes = graph.nodes;
     const registers = { ...graph.registers };
-    const getNamespacedNodeId = (nodeId: NodeId): NodeId => {
-        return (namespace + nodeId) as NodeId;
-    }
 
     // Assemble transition map:
     let currentNodeId: NodeId = graph.start;
@@ -160,12 +157,13 @@ async function playGraph(
 
     while (true) {
         const node = nodes[currentNodeId];
+        const currentNodeAddress: NodeAddress = [...parentAddress, currentNodeId];
 
         // If a Graph, recurse.
         if (node.type === 'Graph') {
             lastSubgraphRegisters = await playGraph(
                 node,
-                currentNodeId + '/', // New namespace
+                currentNodeAddress,
                 context
             )
         }
@@ -173,7 +171,7 @@ async function playGraph(
         else if (node.type === 'Node') {
             // Create and prepare the NodePlay:
             const nodePlay = new NodePlay(
-                getNamespacedNodeId(currentNodeId),
+                currentNodeAddress,
                 node,
                 context.assetManager,
                 context.clock,
