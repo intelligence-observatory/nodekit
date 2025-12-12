@@ -1,5 +1,18 @@
-# Welcome to NodeKit
+# NodeKit: psychological tasks as JSON 
 
-NodeKit is a Python library for writing behavioral tasks. 
+
+### 1. Author tasks using type hinted Python 
+
+```python
+import nodekit as nk
+```
+
+### 2. Get behavior
+
+```python
+data = nk.play(task)
+```
+
+
 
 
