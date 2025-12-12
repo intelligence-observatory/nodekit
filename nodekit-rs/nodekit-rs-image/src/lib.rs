@@ -152,6 +152,6 @@ mod tests {
         )
         .unwrap()
         .unwrap();
-        assert!(matches!(image, VisualBuffer::Rgba(_)));
+        assert!(matches!(image, VisualBuffer::Rgb(_)));
     }
 }

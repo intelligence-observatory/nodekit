@@ -4,22 +4,17 @@ use nodekit_rs_video::*;
 use nodekit_rs_visual::BOARD_SIZE;
 
 pub fn criterion_benchmark(c: &mut Criterion) {
-    let width = 400;
-    let height = 300;
-
     let rect = ClippedRect::new(
         PositionI::default(),
         BOARD_SIZE,
         blittle::Size {
-            w: width,
-            h: height,
+            w: 400,
+            h: 300,
         },
     )
     .unwrap();
     let video = Video {
         buffer: include_bytes!("../test-video.mp4").to_vec(),
-        width,
-        height,
         rect,
     };
 

@@ -13,8 +13,6 @@ use std::io::Cursor;
 
 pub struct Video {
     pub buffer: Vec<u8>,
-    pub width: usize,
-    pub height: usize,
     pub rect: ClippedRect,
 }
 
@@ -28,16 +26,11 @@ impl Video {
         let mut rect = UnclippedRect::new(region);
         let card_size = rect.size;
         rect.size = video_size;
-        // Store the resized dimensions.
-        let width = rect.size.w;
-        let height = rect.size.h;
         rect.resize(&card_size);
         // Get the clipping rect.
         Ok(rect.into_clipped_rect(BOARD_SIZE).map(|rect| Self {
             buffer,
             rect,
-            width,
-            height,
         }))
     }
 
@@ -107,8 +100,8 @@ impl Video {
             frame.width() as i32,
             frame.height() as i32,
             AVPixelFormat::Yuv420p,
-            self.width.cast_signed() as i32,
-            self.height.cast_signed() as i32,
+            self.rect.src_size.w.cast_signed() as i32,
+            self.rect.src_size.h.cast_signed() as i32,
             AVPixelFormat::Rgb24,
         )
         .map_err(Error::Ffmpeg)?;
@@ -116,7 +109,7 @@ impl Video {
         let data = frame.data(0).ok_or(Error::NoData)?;
         let width_3 = frame.width() * STRIDE;
         let mut out = vec![0; width_3 * frame.height()];
-        for y in 0..self.height {
+        for y in 0..self.rect.src_size.h {
             let row = data.get_row(y).ok_or(Error::NotEnoughRows(y))?;
             let index = y * width_3;
             out[index..index + width_3].copy_from_slice(&row[0..width_3]);
@@ -150,8 +143,8 @@ mod tests {
         nodekit_rs_png::rgb_to_png(
             "frame.png",
             frame.buffer_ref(),
-            video.width as u32,
-            video.height as u32,
+            video.rect.src_size.w as u32,
+            video.rect.src_size.h as u32,
         );
 
         let mut board = Board::new([255, 255, 255]);
