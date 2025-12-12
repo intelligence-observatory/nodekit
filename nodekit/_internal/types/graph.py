@@ -10,7 +10,9 @@ from nodekit._internal.types.value import NodeId, RegisterId, Value
 # %%
 class Graph(pydantic.BaseModel):
     type: Literal["Graph"] = "Graph"
-    nodekit_version: Literal["0.2.0"] = pydantic.Field(default=VERSION, validate_default=True)
+    nodekit_version: Literal["0.2.0"] = pydantic.Field(
+        default=VERSION, validate_default=True
+    )
     nodes: Dict[NodeId, Union[Node, "Graph"]] = pydantic.Field(
         description="The collection of Nodes in the Graph, keyed by their NodeId. Note that a Graph can contain other Graphs as Nodes.",
     )
@@ -20,7 +22,7 @@ class Graph(pydantic.BaseModel):
     )
     registers: Dict[RegisterId, Value] = pydantic.Field(
         default_factory=dict,
-        description="The values the Graph registers are set to when the Graph starts execution. "
+        description="The values the Graph registers are set to when the Graph starts execution. ",
     )
 
     @pydantic.model_validator(mode="after")

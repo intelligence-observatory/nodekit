@@ -29,6 +29,7 @@ __all__ = [
     # Identifiers
     "NodeId",
     "RegisterId",
+    "NodeAddress",
 ]
 
 from nodekit._internal.types.value import (
@@ -60,4 +61,5 @@ from nodekit._internal.types.value import (
     # Identifiers
     NodeId,
     RegisterId,
+    NodeAddress,
 )
