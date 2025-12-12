@@ -21,7 +21,9 @@ export function evalTransition(
 ): EvalTransitionResult {
     const { transition, registers, lastAction, lastSubgraphRegisters } = params;
     switch (transition.transition_type) {
-        case "Go": {
+
+        case "Go":
+        case "End": {
             // Evaluate register updates for a direct jump
             const registerUpdateValues: Record<RegisterId, Value> = {};
             for (const [registerId, updateExpression] of Object.entries(transition.register_updates)) {
@@ -35,16 +37,23 @@ export function evalTransition(
                     },
                 );
             }
-            return {
-                nextNodeId: transition.to,
-                registerUpdates: registerUpdateValues,
-            };
+            if (transition.transition_type === "Go") {
+                return {
+                    nextNodeId: transition.to,
+                    registerUpdates: registerUpdateValues,
+                };
+            }
+            else if (transition.transition_type === "End") {
+                return {
+                    nextNodeId: null,
+                    registerUpdates: registerUpdateValues,
+                };
+            }
+            else{
+                const _exhaustiveCheck: never = transition;
+                throw new Error(`Unhandled transition: ${JSON.stringify(_exhaustiveCheck)}`);
+            }
         }
-        case "End":
-            return {
-                nextNodeId: null,
-                registerUpdates: {},
-            };
         case "IfThenElse": {
             // Evaluate condition
             const cond = evl(

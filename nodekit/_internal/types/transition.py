@@ -11,6 +11,7 @@ class BaseTransition(pydantic.BaseModel):
     transition_type: str
 
 
+
 class Go(BaseTransition):
     transition_type: Literal["Go"] = "Go"
     to: NodeId
@@ -21,7 +22,9 @@ class Go(BaseTransition):
 
 class End(BaseTransition):
     transition_type: Literal["End"] = "End"
-
+    register_updates: Dict[RegisterId, Expression] = pydantic.Field(
+        default_factory=dict,
+    )
 
 type LeafTransition = Go | End
 

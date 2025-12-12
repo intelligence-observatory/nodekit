@@ -5,7 +5,9 @@ interface BaseTransition<T extends string> {
     transition_type: T
 }
 
-export interface End extends BaseTransition<'End'> {}
+export interface End extends BaseTransition<'End'> {
+    register_updates: Record<RegisterId, Expression>
+}
 
 export interface Go extends BaseTransition<'Go'> {
     // Leaf. Constant transition.
