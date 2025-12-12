@@ -22,4 +22,4 @@ build: lint check build-browser build-docs
 
 view-docs: build-docs
 	cd docs && \
-	uv run mkdocs serve --livereload
+	uv run mike serve --livereload
