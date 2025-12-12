@@ -208,9 +208,10 @@ def play(
 ) -> Trace:
     """
     Play the given Graph locally, then return the Trace.
+    If a Node is given, it will be wrapped into a Graph with a single Node.
 
     Args:
-        graph: x
+        graph: The Graph or Node to play.
 
     Returns:
         The Trace of Events observed during execution.
