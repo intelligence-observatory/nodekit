@@ -24,8 +24,8 @@ pub struct TextEngine {
 impl TextEngine {
     pub fn render(
         &mut self,
-        region: &Region,
         text_card: &TextCard,
+        region: &Region,
     ) -> Result<Option<VisualBuffer>, Error> {
         // Get the rect.
         match UnclippedRect::new(region).into_clipped_rect(BOARD_SIZE) {
@@ -248,7 +248,7 @@ mod tests {
         // Render the text.
         let mut text = TextEngine::default();
         let mut board = Board::new([200, 200, 200]);
-        let text_buffer = text.render(&region, &card).unwrap().unwrap();
+        let text_buffer = text.render(&card, &region).unwrap().unwrap();
         board.blit(&text_buffer);
         // Write the result as a .png file.
         nodekit_rs_png::board_to_png("out.png", board.get_board_without_cursor());

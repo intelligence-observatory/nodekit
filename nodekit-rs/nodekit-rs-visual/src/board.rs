@@ -156,7 +156,6 @@ impl Default for Board {
 mod tests {
     use super::*;
     use crate::Cursor;
-    use nodekit_rs_card::Region;
 
     #[test]
     fn test_board_constants() {
@@ -182,7 +181,7 @@ mod tests {
         let cursor = Cursor::default();
         nodekit_rs_png::board_to_png(
             "cursor.png",
-            &board.blit_cursor(&cursor.0, &Cursor::rect(&Region::default())),
+            &board.blit_cursor(&cursor.0, &Cursor::rect(0., 0.)),
         );
     }
 }

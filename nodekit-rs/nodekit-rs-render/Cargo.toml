@@ -4,8 +4,9 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+nodekit-rs-card = { path = "../nodekit-rs-card" }
 nodekit-rs-image = { path = "../nodekit-rs-image" }
-nodekit-rs-models = { path = "../nodekit-rs-models" }
+nodekit-rs-state = { path = "../nodekit-rs-state" }
 nodekit-rs-text = { path = "../nodekit-rs-text" }
 nodekit-rs-video = { path = "../nodekit-rs-video" }
 nodekit-rs-visual = { path = "../nodekit-rs-visual" }

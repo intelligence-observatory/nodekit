@@ -4,8 +4,6 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum Error {
-    #[error("Asset is not a video")]
-    NotVideo,
     #[error("Asset error: {0}")]
     Asset(nodekit_rs_asset::Error),
     #[error("ffmpeg error: {0}")]

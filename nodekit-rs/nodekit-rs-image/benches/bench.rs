@@ -1,6 +1,6 @@
 use criterion::{Criterion, criterion_group, criterion_main};
 use nodekit_rs_card::{Asset, Region};
-use nodekit_rs_image::load;
+use nodekit_rs_image::load_image;
 use std::path::PathBuf;
 
 fn criterion_benchmark(c: &mut Criterion) {
@@ -8,7 +8,7 @@ fn criterion_benchmark(c: &mut Criterion) {
     let region = Region::default();
     c.bench_function("load image", |b| {
         b.iter(|| {
-            load(&asset, &region).unwrap();
+            load_image(&asset, &region).unwrap();
         })
     });
 }

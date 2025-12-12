@@ -18,7 +18,7 @@ use png::{ColorType, Decoder};
 
 /// Load an image into memory.
 /// Resize the image as needed.
-pub fn load(asset: &Asset, region: &Region) -> Result<Option<VisualBuffer>, Error> {
+pub fn load_image(asset: &Asset, region: &Region) -> Result<Option<VisualBuffer>, Error> {
     let decoder = Decoder::new(std::io::Cursor::new(
         load_asset(asset).map_err(Error::Asset)?,
     ));
@@ -146,7 +146,7 @@ mod tests {
 
     #[test]
     fn test_load_png() {
-        let image = load(
+        let image = load_image(
             &Asset::Path(PathBuf::from("test_image.png")),
             &Region::default(),
         )

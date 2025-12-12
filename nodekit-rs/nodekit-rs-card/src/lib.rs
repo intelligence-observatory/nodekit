@@ -34,6 +34,7 @@ impl Card {
         for cs in obj.iter().map(|item| Self::extract_item(item)) {
             cards.append(&mut cs?);
         }
+        cards.sort_by(|a, b| a.region.z_index.cmp(&b.region.z_index));
         Ok(cards)
     }
 

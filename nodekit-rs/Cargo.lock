@@ -1781,9 +1781,8 @@ checksum = "650eef8c711430f1a879fdd01d4745a7deea475becfb90269c06775983bbf086"
 name = "nodekit-rs"
 version = "0.1.0"
 dependencies = [
- "nodekit-rs-card",
- "nodekit-rs-models",
  "nodekit-rs-render",
+ "nodekit-rs-state",
  "pyo3",
  "pyo3-stub-gen",
 ]
@@ -1822,16 +1821,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "nodekit-rs-models"
-version = "0.1.0"
-dependencies = [
- "pyo3",
- "pyo3-stub-gen",
- "slotmap",
- "uuid",
-]
-
-[[package]]
 name = "nodekit-rs-png"
 version = "0.1.0"
 dependencies = [
@@ -1842,9 +1831,10 @@ dependencies = [
 name = "nodekit-rs-render"
 version = "0.1.0"
 dependencies = [
+ "nodekit-rs-card",
  "nodekit-rs-image",
- "nodekit-rs-models",
  "nodekit-rs-png",
+ "nodekit-rs-state",
  "nodekit-rs-text",
  "nodekit-rs-video",
  "nodekit-rs-visual",
@@ -1852,6 +1842,17 @@ dependencies = [
  "pyo3-stub-gen",
  "slotmap",
  "thiserror",
+ "uuid",
+]
+
+[[package]]
+name = "nodekit-rs-state"
+version = "0.1.0"
+dependencies = [
+ "nodekit-rs-card",
+ "pyo3",
+ "pyo3-stub-gen",
+ "slotmap",
  "uuid",
 ]
 
