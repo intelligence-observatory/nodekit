@@ -23,7 +23,6 @@ class ChildReg(BaseExpression):
     id: RegisterId
 
 
-
 class Local(BaseExpression):
     op: Literal["local"] = "local"
     name: LocalVariableName
