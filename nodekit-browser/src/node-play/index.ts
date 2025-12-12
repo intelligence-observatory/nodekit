@@ -145,6 +145,7 @@ export class NodePlay {
             event_type: 'NodeStartedEvent',
             t: this.boardView.clock.now(),
             node_id: this.nodeId,
+            node: this.node,
         }
         this.eventArray.push(eStart)
 

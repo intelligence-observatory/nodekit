@@ -11,6 +11,7 @@ from nodekit._internal.types.value import (
 )
 from nodekit._internal.types.actions.actions import Action
 
+from nodekit._internal.types.node import Node
 
 # %%
 class EventTypeEnum(str, enum.Enum):
@@ -113,6 +114,7 @@ class BaseNodeEvent(BaseEvent):
 
 class NodeStartedEvent(BaseNodeEvent):
     event_type: Literal[EventTypeEnum.NodeStartedEvent] = EventTypeEnum.NodeStartedEvent
+    node: Node
 
 
 class ActionTakenEvent(BaseNodeEvent):
