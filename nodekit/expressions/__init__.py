@@ -1,5 +1,6 @@
 __all__ = [
     "Reg",
+    "ChildReg",
     "Local",
     "LastAction",
     "GetListItem",
@@ -28,6 +29,7 @@ __all__ = [
 
 from nodekit._internal.types.expressions.expressions import (
     Reg,
+    ChildReg,
     Local,
     LastAction,
     GetListItem,
