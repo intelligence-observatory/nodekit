@@ -11,7 +11,8 @@ import fastapi.templating
 import pydantic
 import uvicorn
 
-from nodekit import Graph
+from nodekit import Graph, Node
+from nodekit._internal.types.transition import End
 from nodekit._internal.utils.get_browser_bundle import get_browser_bundle
 from nodekit._internal.utils.iter_assets import iter_assets
 from nodekit._internal.types.assets import URL, Asset
@@ -24,9 +25,9 @@ from nodekit._internal.ops.open_asset_save_asset import open_asset
 # %%
 class LocalRunner:
     def __init__(
-        self,
-        port: int = 7651,
-        host: str = "127.0.0.1",
+            self,
+            port: int = 7651,
+            host: str = "127.0.0.1",
     ):
         self._lock = threading.RLock()
         self._thread: threading.Thread | None = None
@@ -151,7 +152,7 @@ class LocalRunner:
 
         @app.get("/")
         def site(
-            request: fastapi.Request,
+                request: fastapi.Request,
         ) -> fastapi.responses.HTMLResponse:
             if self._graph is None:
                 raise fastapi.HTTPException(
@@ -180,7 +181,7 @@ class LocalRunner:
 
         @app.post("/submit")
         def submit_event(
-            event: dict,
+                event: dict,
         ) -> fastapi.Response:
             # Event is a type alias which is a Union of multiple concrete event types.
             # Need a TypeAdapter for this.
@@ -203,7 +204,7 @@ class LocalRunner:
 
 # %%
 def play(
-    graph: Graph,
+        graph: Graph | Node,
 ) -> Trace:
     """
     Play the given Graph locally, then return the Trace.
@@ -215,6 +216,15 @@ def play(
         The Trace of Events observed during execution.
 
     """
+    if isinstance(graph, Node):
+        # Wrap single Node into a Graph:
+        graph = Graph(
+            nodes={
+                '': graph,
+            },
+            start='',
+            transitions={'': End()}
+        )
     runner = LocalRunner()
     runner.ensure_running()
     runner.set_graph(graph)
