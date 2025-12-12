@@ -1,7 +1,7 @@
-use std::path::PathBuf;
 use criterion::{Criterion, criterion_group, criterion_main};
 use nodekit_rs_card::{Asset, Region};
 use nodekit_rs_video::*;
+use std::path::PathBuf;
 
 pub fn criterion_benchmark(c: &mut Criterion) {
     let region = Region {
@@ -11,7 +11,9 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         h: 0.6,
         z_index: None,
     };
-    let mut video = Video::new(&Asset::Path(PathBuf::from("test-video.mp4")), &region).unwrap().unwrap();
+    let mut video = Video::new(&Asset::Path(PathBuf::from("test-video.mp4")), &region)
+        .unwrap()
+        .unwrap();
 
     c.bench_function("video frame extraction", |b| {
         b.iter(|| {

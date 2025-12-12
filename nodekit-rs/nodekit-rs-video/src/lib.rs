@@ -50,7 +50,7 @@ impl Video {
         Ok(rect.into_clipped_rect(BOARD_SIZE).map(|rect| Self {
             buffer,
             rgb_buffer: RgbBuffer::from(rect),
-            framerate
+            framerate,
         }))
     }
 
