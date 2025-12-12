@@ -140,6 +140,13 @@ type NodeId = Annotated[
     ),
 ]
 
+type NodeAddress = Annotated[
+    list[NodeId],
+    pydantic.Field(
+        description="The address of a Node within a Graph.",
+    ),
+]
+
 type RegisterId = Annotated[
     String, pydantic.Field(description="An identifier for a Graph register.")
 ]

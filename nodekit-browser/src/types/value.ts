@@ -45,4 +45,5 @@ export type SHA256 = String & { __brand: 'SHA256' };
 
 // Identifiers
 export type NodeId = String & { __brand: 'NodeId' };
+export type NodeAddress = NodeId[]
 export type RegisterId = String & { __brand: 'RegisterId' };

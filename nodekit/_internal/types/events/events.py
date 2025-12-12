@@ -4,14 +4,13 @@ from typing import Literal, Annotated, Union
 
 import pydantic
 
+from nodekit._internal.types.actions.actions import Action
+from nodekit._internal.types.node import Node
 from nodekit._internal.types.value import (
     TimeElapsedMsec,
-    NodeId,
     SpatialPoint,
+    NodeAddress,
 )
-from nodekit._internal.types.actions.actions import Action
-
-from nodekit._internal.types.node import Node
 
 
 # %%
@@ -110,7 +109,7 @@ class KeySampledEvent(BaseEvent):
 
 # %%
 class BaseNodeEvent(BaseEvent):
-    node_id: NodeId
+    node_address: NodeAddress
 
 
 class NodeStartedEvent(BaseNodeEvent):
