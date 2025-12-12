@@ -82,8 +82,6 @@ watch:
   - ../nodekit
 extra:
   generator: false   # hides the "Made with Material for MkDocs" text
-  version:
-    provider: mike
 
 extra_css:
   - styles/mkdocstrings.css
