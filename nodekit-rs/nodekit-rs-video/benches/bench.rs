@@ -7,10 +7,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     let rect = ClippedRect::new(
         PositionI::default(),
         BOARD_SIZE,
-        blittle::Size {
-            w: 400,
-            h: 300,
-        },
+        blittle::Size { w: 400, h: 300 },
     )
     .unwrap();
     let video = Video {

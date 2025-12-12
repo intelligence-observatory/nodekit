@@ -28,10 +28,9 @@ impl Video {
         rect.size = video_size;
         rect.resize(&card_size);
         // Get the clipping rect.
-        Ok(rect.into_clipped_rect(BOARD_SIZE).map(|rect| Self {
-            buffer,
-            rect,
-        }))
+        Ok(rect
+            .into_clipped_rect(BOARD_SIZE)
+            .map(|rect| Self { buffer, rect }))
     }
 
     fn get_size(buffer: &[u8]) -> Result<Size, Error> {

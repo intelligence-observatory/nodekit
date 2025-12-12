@@ -1,7 +1,7 @@
 mod error;
 mod md;
+mod text_buffers;
 
-use blittle::overlay::{overlay_rgba32, rgb8_to_rgba32, rgba32_to_rgb8_in_place};
 use blittle::{ClippedRect, PositionI, Size};
 use cosmic_text::fontdb::Source;
 use cosmic_text::{Align, Attrs, Buffer, Color, Family, FontSystem, Metrics, Shaping, SwashCache};
@@ -14,6 +14,7 @@ use nodekit_rs_visual::{
 };
 use pyo3::pyclass;
 use std::sync::Arc;
+pub use text_buffers::TextBuffers;
 
 #[pyclass]
 pub struct TextEngine {
@@ -26,13 +27,13 @@ impl TextEngine {
         &mut self,
         text_card: &TextCard,
         region: &Region,
-    ) -> Result<Option<VisualBuffer>, Error> {
+    ) -> Result<Option<TextBuffers>, Error> {
         // Get the rect.
         match UnclippedRect::new(region).into_clipped_rect(BOARD_SIZE) {
             None => Ok(None),
             Some(background_rect) => {
                 // Get the background buffer.
-                let mut background = Self::get_background(background_rect, text_card)?;
+                let background = Self::get_background(background_rect, text_card)?;
                 // Get the font sizes.
                 let font_size = FontSize::new((text_card.font_size * BOARD_D_F64).ceil() as u16);
 
@@ -42,24 +43,31 @@ impl TextEngine {
                 text_size.w -= font_size.font_usize * 2;
                 text_size.h -= font_size.font_usize * 2;
 
+                let mut text_buffers = TextBuffers {
+                    background,
+                    foreground: None,
+                };
+
                 // Get the text rect. Draw text.
-                if let Some(rect) = ClippedRect::new(PositionI::default(), BOARD_SIZE, text_size)
-                    && let Some(text_surface) =
-                        self.get_text(text_card, font_size, rect, background_rect.src_size)?
-                {
-                    // Blit text.
-                    Self::blit_text(text_surface, &mut background);
+                if let Some(rect) = ClippedRect::new(PositionI::default(), BOARD_SIZE, text_size) {
+                    text_buffers.foreground =
+                        self.get_text(text_card, font_size, rect, background_rect.src_size)?;
                 }
-                Ok(Some(background))
+                Ok(Some(text_buffers))
             }
         }
     }
 
-    fn get_background(rect: ClippedRect, text_card: &TextCard) -> Result<VisualBuffer, Error> {
+    fn get_background(
+        rect: ClippedRect,
+        text_card: &TextCard,
+    ) -> Result<Option<VisualBuffer>, Error> {
         let background_color =
             parse_color_rgba(&text_card.background_color).map_err(Error::BackgroundColor)?;
-        Ok(if background_color[3] == 255 {
-            VisualBuffer::Rgb(RgbBuffer::new(
+        Ok(if background_color[3] == 0 {
+            None
+        } else if background_color[3] == 255 {
+            Some(VisualBuffer::Rgb(RgbBuffer::new(
                 bitmap_rgb(
                     rect.src_size.w,
                     rect.src_size.h,
@@ -70,9 +78,9 @@ impl TextEngine {
                     ],
                 ),
                 rect,
-            ))
+            )))
         } else {
-            VisualBuffer::Rgba(RgbaBuffer::new(rect, background_color))
+            Some(VisualBuffer::Rgba(RgbaBuffer::new(rect, background_color)))
         })
     }
 
@@ -192,19 +200,6 @@ impl TextEngine {
             JustificationHorizontal::Right => Align::Right,
         }
     }
-
-    fn blit_text(text: RgbaBuffer, background: &mut VisualBuffer) {
-        match background {
-            VisualBuffer::Rgb(background) => {
-                let mut rgba32 = rgb8_to_rgba32(background.buffer_ref());
-                overlay_rgba32(&text.buffer, &mut rgba32, &text.rect);
-                rgba32_to_rgb8_in_place(&rgba32, background.buffer_mut())
-            }
-            VisualBuffer::Rgba(background) => {
-                overlay_rgba32(&text.buffer, &mut background.buffer, &text.rect);
-            }
-        }
-    }
 }
 
 impl Default for TextEngine {
@@ -249,7 +244,7 @@ mod tests {
         let mut text = TextEngine::default();
         let mut board = Board::new([200, 200, 200]);
         let text_buffer = text.render(&card, &region).unwrap().unwrap();
-        board.blit(&text_buffer);
+        text_buffer.blit(&mut board);
         // Write the result as a .png file.
         nodekit_rs_png::board_to_png("out.png", board.get_board_without_cursor());
     }

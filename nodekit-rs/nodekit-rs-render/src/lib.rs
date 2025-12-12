@@ -60,8 +60,11 @@ impl Renderer {
         // Show.
         for k in state.cards.keys() {
             match self.assets.get_mut(k).unwrap() {
-                Asset::Bitmap(image) => {
+                Asset::Image(image) => {
                     self.board.blit(image);
+                }
+                Asset::Text(text) => {
+                    text.blit(&mut self.board);
                 }
                 Asset::Video(video) => {
                     self.board
@@ -117,16 +120,16 @@ impl Renderer {
             match &card.card_type {
                 CardType::Image(image) => {
                     if let Some(image) = load_image(image, &card.region).map_err(Error::Image)? {
-                        self.assets.insert(key, Asset::Bitmap(image));
+                        self.assets.insert(key, Asset::Image(image));
                     }
                 }
                 CardType::Text(text_card) => {
-                    if let Some(buffer) = self
+                    if let Some(buffers) = self
                         .text_engine
                         .render(text_card, &card.region)
                         .map_err(Error::Text)?
                     {
-                        self.assets.insert(key, Asset::Bitmap(buffer));
+                        self.assets.insert(key, Asset::Text(buffers));
                     }
                 }
                 CardType::Video { asset, looped: _ } => {
