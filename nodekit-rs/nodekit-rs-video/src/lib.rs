@@ -85,9 +85,9 @@ impl Video {
             if packet.stream_index() == video_index {
                 video_decoder.send_packet(&packet).map_err(Error::Ffmpeg)?;
                 while let Ok(Some(f)) = video_decoder.receive_frame() {
-                    frame = Some(f);
                     frame_index += 1;
                     if frame_index >= target_frame_index {
+                        frame = Some(f);
                         got_frame = true;
                         break;
                     }
