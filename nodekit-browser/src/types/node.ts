@@ -10,6 +10,7 @@ export interface Node {
     sensor: Sensor;
     board_color: ColorHexString;
     hide_pointer: boolean
+    annotation: string
 }
 
 export interface Graph {
