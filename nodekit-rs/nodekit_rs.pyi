@@ -2,61 +2,9 @@
 # ruff: noqa: E501, F401
 
 import builtins
-import enum
-import os
-import pathlib
+import numpy
+import numpy.typing
 import typing
-
-@typing.final
-class Card:
-    r"""
-    A card that can be placed on the board, plus a stateful timer.
-    """
-    @staticmethod
-    def image_card(rect: Rect, timer: Timer, path: builtins.str | os.PathLike | pathlib.Path, z_index: typing.Optional[builtins.int]) -> Card: ...
-    @staticmethod
-    def video_card(rect: Rect, timer: Timer, path: builtins.str | os.PathLike | pathlib.Path, looped: builtins.bool, z_index: typing.Optional[builtins.int]) -> Card: ...
-    @staticmethod
-    def text_card(rect: Rect, timer: Timer, text: builtins.str, font_size: builtins.float, justification_horizontal: JustificationHorizontal, justification_vertical: JustificationVertical, text_color: builtins.str, background_color: builtins.str, z_index: typing.Optional[builtins.int]) -> Card: ...
-
-@typing.final
-class Image:
-    r"""
-    A .png file.
-    """
-    @property
-    def path(self) -> pathlib.Path:
-        r"""
-        The path of the source file.
-        """
-
-@typing.final
-class Position:
-    r"""
-    The position of a card.
-    """
-    @property
-    def x(self) -> builtins.float:
-        r"""
-        The x coordinate of the position. -0.5 to 0.5, with 0.0 being the center of the board.
-        """
-    @property
-    def y(self) -> builtins.float:
-        r"""
-        The y coordinate of the position. -0.5 to 0.5, with 0.0 being the center of the board.
-        """
-    def __new__(cls, x: builtins.float, y: builtins.float) -> Position: ...
-
-@typing.final
-class Rect:
-    r"""
-    The position and size of a card.
-    """
-    @property
-    def position(self) -> Position: ...
-    @property
-    def size(self) -> Size: ...
-    def __new__(cls, x: builtins.float, y: builtins.float, w: builtins.float, h: builtins.float) -> Rect: ...
 
 @typing.final
 class Renderer:
@@ -64,26 +12,27 @@ class Renderer:
     Render a `State` while storing an internal cache of loaded data (fonts, video buffers, etc.)
     """
     def new(self) -> Renderer: ...
-    def render(self, state: State) -> bytes:
+    @staticmethod
+    def empty_board() -> numpy.typing.NDArray[numpy.uint8]:
+        r"""
+        Returns an empty numpy array that can be used by `self.render_to(state, board)`.
+        The shape of the returned array is: `(768, 768, 3)`.
+        """
+    def render_to(self, state: State, board: numpy.typing.NDArray[numpy.uint8]) -> None:
+        r"""
+        Render `state` and copy the rendered bitmap into `board`.
+        
+        This is faster than `self.render(state) because it doesn't allocate a new array.
+        
+        `board`'s data type MUST be `numpy.unit8` and its shape MUST be `(768, 768, 3)`.
+        See: `Renderer.empty_board()`.
+        """
+    def render(self, state: State) -> numpy.typing.NDArray[numpy.uint8]:
         r"""
         Render `state`.
-        Returns a raw byte array with shape: (768, 768, 3)
-        """
-
-@typing.final
-class Size:
-    r"""
-    The size of a card.
-    """
-    @property
-    def w(self) -> builtins.float:
-        r"""
-        The width of the card. 0.0 to 1.0, with 1.0 being the width of the board.
-        """
-    @property
-    def h(self) -> builtins.float:
-        r"""
-        The height of the card. 0.0 to 1.0, with 1.0 being the height of the board.
+        Returns a numpy array with shape: `(768, 768, 3)`.
+        
+        This is slower than `self.render_to(state, board)` because it needs to allocate a new array.
         """
 
 @typing.final
@@ -101,67 +50,14 @@ class State:
         r"""
         The time elapsed from the start of the node.
         """
-    def __new__(cls, board_color: builtins.str, cards: typing.Sequence[Card]) -> State:
+    def __new__(cls, board_color: builtins.str, cards: list) -> State:
         r"""
         `board_color` must be a valid RGBA hex string e.g. "#808080ff"
+        `cards` must be of type `List[nodekit.Card]`
         """
     def set_pointer(self, x: builtins.float, y: builtins.float) -> None:
         r"""
         Set the coordinates of the pointer.
         The coordinates must be between -0.5 and 0.5
         """
-
-@typing.final
-class Text:
-    def __new__(cls, text: builtins.str, font_size: builtins.float, justification_horizontal: JustificationHorizontal, justification_vertical: JustificationVertical, text_color: builtins.str, background_color: builtins.str) -> Text: ...
-
-@typing.final
-class Timer:
-    r"""
-    The start and end time of a card.
-    """
-    def __new__(cls, start_msec: builtins.int, end_msec: typing.Optional[builtins.int] = None, /) -> Timer: ...
-
-@typing.final
-class Video:
-    r"""
-    A .mp4 file.
-    """
-    @property
-    def path(self) -> pathlib.Path:
-        r"""
-        The path of the source file.
-        """
-    @property
-    def looped(self) -> builtins.bool:
-        r"""
-        If true, the video will play in a loop.
-        """
-    @property
-    def t_msec(self) -> builtins.int:
-        r"""
-        The time elapsed in the video.
-        """
-    def __new__(cls, path: builtins.str | os.PathLike | pathlib.Path, looped: builtins.bool) -> Video: ...
-
-@typing.final
-class CardType(enum.Enum):
-    r"""
-    Defines what the card renders.
-    """
-    Image = ...
-    Text = ...
-    Video = ...
-
-@typing.final
-class JustificationHorizontal(enum.Enum):
-    Left = ...
-    Center = ...
-    Right = ...
-
-@typing.final
-class JustificationVertical(enum.Enum):
-    Top = ...
-    Center = ...
-    Bottom = ...
 

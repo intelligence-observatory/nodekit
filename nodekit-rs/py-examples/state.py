@@ -1,42 +1,31 @@
 from pathlib import Path
-from nodekit_rs import (
-    Card,
-    Rect,
-    Timer,
-    JustificationHorizontal,
-    JustificationVertical,
-    State,
-)
+import nodekit.assets
+import nodekit.cards
+from nodekit import Region
+from nodekit_rs import State
 
 
 def get_state() -> State:
     d = Path(__file__).parent.parent
-    return State(
-        "#AAAAAAFF",
-        [
-            Card.image_card(
-                rect=Rect(-0.25, -0.25, 0.25, 0.5),
-                timer=Timer(0, None),
-                path=d.joinpath("nodekit-rs-image/test_image.png").resolve(),
-                z_index=0,
+    cards = [
+        nodekit.cards.ImageCard(
+            region=Region(x=-0.25, y=-0.25, w=0.25, h=0.5, z_index=0),
+            image=nodekit.assets.Image.from_path(
+                d.joinpath("nodekit-rs-image/test_image.png").resolve()
             ),
-            Card.video_card(
-                rect=Rect(0, 0, 0.33, 0.25),
-                timer=Timer(0, None),
-                path=d.joinpath("nodekit-rs-video/test-video.mp4").resolve(),
-                z_index=1,
-                looped=False,
+        ),
+        nodekit.cards.VideoCard(
+            region=Region(x=0, y=0, w=0.33, h=0.25, z_index=1),
+            video=nodekit.assets.Video.from_path(
+                d.joinpath("nodekit-rs-video/test-video.mp4").resolve()
             ),
-            Card.text_card(
-                rect=Rect(-0.5, -0.5, 1, 0.1),
-                timer=Timer(0, None),
-                justification_horizontal=JustificationHorizontal.Left,
-                justification_vertical=JustificationVertical.Top,
-                background_color="#E6E6E600",
-                font_size=0.02,
-                text="Click the **test image**",
-                text_color="#000000FF",
-                z_index=2,
-            ),
-        ],
-    )
+        ),
+        nodekit.cards.TextCard(
+            region=Region(x=-0.5, y=-0.5, w=1, h=0.1, z_index=2),
+            text="# Click the **test image**",
+            justification_horizontal="left",
+            text_color="#000000FF",
+            background_color="#E6E6E600",
+        ),
+    ]
+    return State(board_color="#AAAAAAFF", cards=cards)

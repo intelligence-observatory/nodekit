@@ -1,14 +1,9 @@
 from pathlib import Path
+
+import numpy as np
 from PIL import Image, ImageFont, ImageDraw
-from nodekit_rs import (
-    Card,
-    Rect,
-    Timer,
-    JustificationHorizontal,
-    JustificationVertical,
-    Renderer,
-    State,
-)
+from state import get_state
+from nodekit_rs import Renderer
 
 # Use this image for the final render.
 font_size = 20
@@ -31,8 +26,8 @@ header_positions = [
 ]
 
 
-def paste_bitmap(bitmap: bytes, index: int) -> None:
-    im = Image.frombytes("RGB", (board_dimension, board_dimension), bitmap)
+def paste(arr: np.ndarray, index: int) -> None:
+    im = Image.fromarray(arr)
     header_position = header_positions[index]
     # Paste.
     image.paste(im, (header_position[0], header_position[1] + title_height))
@@ -40,61 +35,27 @@ def paste_bitmap(bitmap: bytes, index: int) -> None:
     draw.text(header_position, f"t={state.t_msec}", font=font)
 
 
-d = Path(__file__).parent.parent
-# Define the state using provisional card models.
-state = State(
-    board_color="#AAAAAAFF",
-    cards=[
-        Card.image_card(
-            rect=Rect(-0.25, -0.25, 0.25, 0.5),
-            timer=Timer(0, None),
-            path=d.joinpath("nodekit-rs-image/test_image.png").resolve(),
-            z_index=0,
-        ),
-        Card.video_card(
-            rect=Rect(0, 0, 0.33, 0.25),
-            timer=Timer(100, 500),
-            path=d.joinpath("nodekit-rs-video/test-video.mp4").resolve(),
-            z_index=1,
-            looped=False,
-        ),
-        Card.text_card(
-            rect=Rect(-0.5, -0.5, 1, 0.1),
-            timer=Timer(200, None),
-            justification_horizontal=JustificationHorizontal.Left,
-            justification_vertical=JustificationVertical.Top,
-            background_color="#E6E6E600",
-            font_size=0.02,
-            text="Click the **test image**",
-            text_color="#000000FF",
-            z_index=2,
-        ),
-    ],
-)
-
+state = get_state()
 # Create the renderer.
 renderer = Renderer()
 # t=0
 board = renderer.render(state)
-paste_bitmap(board, 0)
+paste(board, 0)
 
-# At t=100, the video card appears.
 state.t_msec = 150
 state.set_pointer(x=0.2, y=-0.345)
 board = renderer.render(state)
-paste_bitmap(board, 1)
+paste(board, 1)
 
-# At t=200, the text card appears.
 state.t_msec = 220
 state.set_pointer(x=-0.3, y=0.4)
 board = renderer.render(state)
-paste_bitmap(board, 2)
+paste(board, 2)
 
-# At t=500, the video card disappears.
 state.t_msec = 600
 state.set_pointer(x=0.1, y=-0.2)
 board = renderer.render(state)
-paste_bitmap(board, 3)
+paste(board, 3)
 
 # Save the image.
 image.save(Path(__file__).parent.joinpath("multiframe.png").resolve().as_posix())

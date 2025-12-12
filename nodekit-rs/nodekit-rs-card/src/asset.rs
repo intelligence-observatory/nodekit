@@ -17,9 +17,7 @@ pub enum Asset {
 
 impl Asset {
     fn path(locator: &Bound<PyAny>, path: &str) -> PyResult<PathBuf> {
-        Ok(PathBuf::from(
-            locator.getattr(path)?.cast::<PyString>()?.to_str()?,
-        ))
+        locator.getattr(path)?.extract::<PathBuf>()
     }
 }
 

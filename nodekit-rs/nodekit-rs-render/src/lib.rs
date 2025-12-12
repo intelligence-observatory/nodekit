@@ -7,9 +7,10 @@ use nodekit_rs_card::CardType;
 use nodekit_rs_image::*;
 use nodekit_rs_state::*;
 use nodekit_rs_visual::*;
+use numpy::ndarray::Array3;
+use numpy::{PyArray3, PyArrayMethods};
 use pyo3::exceptions::PyRuntimeError;
 use pyo3::prelude::*;
-use pyo3::types::PyBytes;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use slotmap::SecondaryMap;
 use uuid::Uuid;
@@ -37,13 +38,50 @@ impl Renderer {
         Self::default()
     }
 
+    /// Returns an empty numpy array that can be used by `self.render_to(state, board)`.
+    /// The shape of the returned array is: `(768, 768, 3)`.
+    #[staticmethod]
+    pub fn empty_board<'py>(py: Python<'py>) -> Bound<'py, PyArray3<u8>> {
+        PyArray3::zeros(py, (BOARD_D, BOARD_D, STRIDE), false)
+    }
+
+    /// Render `state` and copy the rendered bitmap into `board`.
+    ///
+    /// This is faster than `self.render(state) because it doesn't allocate a new array.
+    ///
+    /// `board`'s data type MUST be `numpy.unit8` and its shape MUST be `(768, 768, 3)`.
+    /// See: `Renderer.empty_board()`.
+    pub fn render_to(&mut self, state: &State, board: Bound<'_, PyArray3<u8>>) -> PyResult<()> {
+        let bitmap = self
+            .blit(state)
+            .map_err(|e| PyRuntimeError::new_err(e.to_string()))?;
+        unsafe {
+            board.as_slice_mut()?.copy_from_slice(bitmap);
+        }
+        Ok(())
+    }
+
     /// Render `state`.
-    /// Returns a raw byte array with shape: (768, 768, 3)
-    pub fn render<'py>(&mut self, py: Python<'py>, state: &State) -> PyResult<Bound<'py, PyBytes>> {
+    /// Returns a numpy array with shape: `(768, 768, 3)`.
+    ///
+    /// This is slower than `self.render_to(state, board)` because it needs to allocate a new array.
+    pub fn render<'py>(
+        &mut self,
+        py: Python<'py>,
+        state: &State,
+    ) -> PyResult<Bound<'py, PyArray3<u8>>> {
         let board = self
             .blit(state)
             .map_err(|e| PyRuntimeError::new_err(e.to_string()))?;
-        Ok(PyBytes::new(py, board))
+        let mut arr = Array3::<u8>::zeros((BOARD_D, BOARD_D, STRIDE));
+        if let Some(arr) = arr.as_slice_mut() {
+            arr.copy_from_slice(board);
+        }
+        let arr = PyArray3::zeros(py, (BOARD_D, BOARD_D, STRIDE), false);
+        unsafe {
+            arr.as_slice_mut()?.copy_from_slice(board);
+        }
+        Ok(arr)
     }
 }
 
