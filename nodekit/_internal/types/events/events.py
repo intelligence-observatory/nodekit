@@ -13,6 +13,7 @@ from nodekit._internal.types.actions.actions import Action
 
 from nodekit._internal.types.node import Node
 
+
 # %%
 class EventTypeEnum(str, enum.Enum):
     TraceStartedEvent = "TraceStartedEvent"
