@@ -8,8 +8,6 @@ mod rgba_buffer;
 mod unclipped_rect;
 mod visual_buffer;
 
-pub use rgb_buffer::RgbBuffer;
-pub use rgba_buffer::RgbaBuffer;
 use blittle::Size;
 use blittle::stride::RGBA;
 pub use board::*;
@@ -18,6 +16,8 @@ pub use error::Error;
 use fast_image_resize::{FilterType, PixelType, ResizeAlg, ResizeOptions, Resizer, SrcCropping};
 use hex_color::HexColor;
 use nodekit_rs_card::Region;
+pub use rgb_buffer::RgbBuffer;
+pub use rgba_buffer::RgbaBuffer;
 pub use unclipped_rect::UnclippedRect;
 pub use visual_buffer::*;
 
@@ -61,7 +61,7 @@ fn resize(
         Ok((buffer.to_vec(), rect))
     } else {
         // Create an image view.
-        let src = fast_image_resize::images::Image::from_slice_u8(
+        let src = fast_image_resize::images::ImageRef::new(
             bitmap_size.w as u32,
             bitmap_size.h as u32,
             buffer,
