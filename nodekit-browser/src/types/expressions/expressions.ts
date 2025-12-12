@@ -17,6 +17,14 @@ export interface Reg extends BaseExpression {
     id: RegisterId;
 }
 
+export interface ChildReg extends BaseExpression {
+    /**
+     * Evaluates to the value stored in the last completed subGraph's Register.
+     */
+    op: "creg";
+    id: RegisterId;
+}
+
 export interface Local extends BaseExpression {
     /**
      * Evaluates to the value of the specified Local Variable.
@@ -211,6 +219,7 @@ export interface Fold extends ListOp {
 export type Expression =
     // Root
     | Reg
+    | ChildReg
     | Local
     | LastAction
     | GetListItem
