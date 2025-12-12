@@ -222,6 +222,10 @@ async function playGraph(
         for (const [registerId, updateValue] of Object.entries(res.registerUpdates)) {
             registers[registerId as RegisterId] = updateValue
         }
+
+        // Reset last:
+        lastSubgraphRegisters = null;
+        lastAction = null;
     }
 
     return registers;
