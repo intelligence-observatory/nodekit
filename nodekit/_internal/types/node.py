@@ -19,3 +19,8 @@ class Node(pydantic.BaseModel):
         validate_default=True,
     )
     hide_pointer: bool = False
+
+    annotation: str = pydantic.Field(
+        description="An optional, user-defined annotation for the Node that may be useful for debugging or analysis purposes.",
+        default="",
+    )

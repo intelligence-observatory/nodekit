@@ -1,5 +1,6 @@
 import type {NodeId, PixelSize, PressableKey, SpatialPoint, TimeElapsedMsec} from "../value.ts";
 import type {Action} from "../actions";
+import type {Node} from "../node.ts";
 
 export interface BaseEvent<T extends string> {
     event_type: T,
@@ -34,7 +35,9 @@ interface BaseNodeEvent<T extends string> extends BaseEvent<T>{
     node_id: NodeId
 }
 
-export interface NodeStartedEvent extends BaseNodeEvent<'NodeStartedEvent'>{}
+export interface NodeStartedEvent extends BaseNodeEvent<'NodeStartedEvent'>{
+    node: Node
+}
 
 export interface ActionTakenEvent extends BaseNodeEvent<'ActionTakenEvent'>{
     action: Action
