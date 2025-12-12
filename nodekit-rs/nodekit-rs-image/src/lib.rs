@@ -8,18 +8,19 @@
 
 mod error;
 
+use blittle::Size;
 use bytemuck::{cast_slice, cast_slice_mut};
 pub use error::Error;
-use nodekit_rs_visual::*;
-use png::{ColorType, Decoder};
 use nodekit_rs_asset::load_asset;
 use nodekit_rs_card::{Asset, Region};
+use nodekit_rs_visual::*;
+use png::{ColorType, Decoder};
 
 /// Load an image into memory.
 /// Resize the image as needed.
 pub fn load(asset: &Asset, region: &Region) -> Result<Option<VisualBuffer>, Error> {
     let decoder = Decoder::new(std::io::Cursor::new(
-        load_asset(asset).map_err(Error::Asset)?
+        load_asset(asset).map_err(Error::Asset)?,
     ));
     let mut reader = decoder
         .read_info()
@@ -33,9 +34,13 @@ pub fn load(asset: &Asset, region: &Region) -> Result<Option<VisualBuffer>, Erro
     let info = reader
         .next_frame(&mut buffer)
         .map_err(|e| Error::Decode(e, asset.to_string()))?;
+    let bitmap_size = Size {
+        w: info.width as usize,
+        h: info.height as usize
+    };
     match info.color_type {
         ColorType::Rgb => Ok(
-            RgbBuffer::new_resized(&mut buffer, info.width, info.height, region)
+            RgbBuffer::new_resized(&mut buffer, bitmap_size, region)
                 .map_err(Error::Visual)?
                 .map(VisualBuffer::Rgb),
         ),
@@ -46,19 +51,16 @@ pub fn load(asset: &Asset, region: &Region) -> Result<Option<VisualBuffer>, Erro
                 .all(|pixel| pixel[3] == 255);
             // ...in which case, convert to RGB.
             if opaque {
-                Ok(
-                    RgbBuffer::new_resized(
-                        &mut rgba_to_rgb(&buffer),
-                        info.width,
-                        info.height,
-                        region,
-                    )
-                    .map_err(Error::Visual)?
-                    .map(VisualBuffer::Rgb),
+                Ok(RgbBuffer::new_resized(
+                    &mut rgba_to_rgb(&buffer),
+                    bitmap_size,
+                    region,
                 )
+                .map_err(Error::Visual)?
+                .map(VisualBuffer::Rgb))
             } else {
                 Ok(
-                    RgbaBuffer::new_resized(&mut buffer, info.width, info.height, region)
+                    RgbaBuffer::new_resized(&mut buffer, bitmap_size, region)
                         .map_err(Error::Visual)?
                         .map(VisualBuffer::Rgba),
                 )
@@ -67,16 +69,14 @@ pub fn load(asset: &Asset, region: &Region) -> Result<Option<VisualBuffer>, Erro
         ColorType::Indexed => Err(Error::Indexed(asset.to_string())),
         ColorType::Grayscale => Ok(RgbBuffer::new_resized(
             &mut grayscale_to_rgb(&buffer),
-            info.width,
-            info.height,
+            bitmap_size,
             region,
         )
         .map_err(Error::Visual)?
         .map(VisualBuffer::Rgb)),
         ColorType::GrayscaleAlpha => Ok(RgbaBuffer::new_resized(
             &mut grayscale_alpha_to_rgba(&buffer),
-            info.width,
-            info.height,
+            bitmap_size,
             region,
         )
         .map_err(Error::Visual)?
@@ -153,7 +153,8 @@ mod tests {
     #[test]
     fn test_load_png() {
         let image = load(
-            &Asset::Path(PathBuf::from("test_image.png")), &Region::default(),
+            &Asset::Path(PathBuf::from("test_image.png")),
+            &Region::default(),
         )
         .unwrap()
         .unwrap();

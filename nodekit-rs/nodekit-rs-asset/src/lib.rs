@@ -10,9 +10,7 @@ use zip::ZipArchive;
 /// Load raw byte data from `asset`.
 pub fn load_asset(asset: &Asset) -> Result<Vec<u8>, Error> {
     match asset {
-        Asset::Path(path)  => {
-            read(path).map_err(|e| Error::ReadPath(path.clone(), e))
-        }
+        Asset::Path(path) => read(path).map_err(|e| Error::ReadPath(path.clone(), e)),
         Asset::Url(url) => Ok(blocking::get(url.clone())
             .map_err(|e| Error::HttpGet(url.clone(), e))?
             .error_for_status()

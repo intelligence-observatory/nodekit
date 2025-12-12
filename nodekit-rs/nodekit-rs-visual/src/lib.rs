@@ -3,9 +3,9 @@
 mod board;
 mod cursor;
 mod error;
-mod resized_rect;
 mod rgb_buffer;
 mod rgba_buffer;
+mod unclipped_rect;
 mod visual_buffer;
 
 pub use crate::rgb_buffer::RgbBuffer;
@@ -18,7 +18,7 @@ pub use error::Error;
 use fast_image_resize::{FilterType, PixelType, ResizeAlg, ResizeOptions, Resizer, SrcCropping};
 use hex_color::HexColor;
 use nodekit_rs_card::Region;
-pub use resized_rect::ResizedRect;
+pub use unclipped_rect::UnclippedRect;
 pub use visual_buffer::*;
 
 pub const fn to_blittle_size(region: &Region) -> Size {
@@ -49,36 +49,40 @@ pub fn parse_color_rgba(color: &str) -> Result<[u8; RGBA], Error> {
 
 fn resize(
     buffer: &mut [u8],
-    src_width: u32,
-    src_height: u32,
-    dst: &Region,
+    bitmap_size: Size,
+    region: &Region,
     pixel_type: PixelType,
-) -> Result<(Vec<u8>, ResizedRect), Error> {
+) -> Result<(Vec<u8>, UnclippedRect), Error> {
     // Resize to fit within `dst_size`.
-    let rect = ResizedRect::new(dst, src_width, src_height);
+    let mut rect = UnclippedRect::new(region);
 
     // No need to resize.
-    if rect.size.w == src_width as usize && rect.size.h == src_height as usize {
-        return Ok((buffer.to_vec(), rect));
+    if rect.size.w == bitmap_size.w && rect.size.h == bitmap_size.h {
+        Ok((buffer.to_vec(), rect))
     }
+    else {
+        // Create an image view.
+        let src =
+            fast_image_resize::images::Image::from_slice_u8(bitmap_size.w as u32, bitmap_size.h as u32, buffer, pixel_type)
+                .map_err(Error::ImageResizeBuffer)?;
 
-    // Create an image view.
-    let src =
-        fast_image_resize::images::Image::from_slice_u8(src_width, src_height, buffer, pixel_type)
-            .map_err(Error::ImageResizeBuffer)?;
+        let card_size = rect.size;
+        rect.size = bitmap_size;
+        rect.resize(&card_size);
 
-    // Resize the image.
-    let width = rect.size.w as u32;
-    let height = rect.size.h as u32;
-    let mut dst = fast_image_resize::images::Image::new(width, height, pixel_type);
-    let options = ResizeOptions {
-        algorithm: ResizeAlg::Convolution(FilterType::Bilinear),
-        cropping: SrcCropping::None,
-        mul_div_alpha: false,
-    };
-    let mut resizer = Resizer::new();
-    resizer
-        .resize(&src, &mut dst, Some(&options))
-        .map_err(Error::ImageResize)?;
-    Ok((dst.buffer().to_vec(), rect))
+        // Resize the image.
+        let width = rect.size.w as u32;
+        let height = rect.size.h as u32;
+        let mut dst = fast_image_resize::images::Image::new(width, height, pixel_type);
+        let options = ResizeOptions {
+            algorithm: ResizeAlg::Convolution(FilterType::Bilinear),
+            cropping: SrcCropping::None,
+            mul_div_alpha: false,
+        };
+        let mut resizer = Resizer::new();
+        resizer
+            .resize(&src, &mut dst, Some(&options))
+            .map_err(Error::ImageResize)?;
+        Ok((dst.buffer().to_vec(), rect))
+    }
 }

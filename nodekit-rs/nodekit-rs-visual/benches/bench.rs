@@ -1,4 +1,4 @@
-use blittle::{ClippedRect, PositionI};
+use blittle::{ClippedRect, PositionI, Size};
 use criterion::{Criterion, criterion_group, criterion_main};
 use nodekit_rs_card::Region;
 use nodekit_rs_visual::*;
@@ -17,7 +17,7 @@ fn criterion_benchmark(c: &mut Criterion) {
     let rect = ClippedRect::new(
         PositionI::default(),
         BOARD_SIZE,
-        blittle::Size { w: 300, h: 600 },
+        Size { w: 300, h: 600 },
     )
     .unwrap();
 
@@ -28,7 +28,10 @@ fn criterion_benchmark(c: &mut Criterion) {
     let mut rgb = get_rgb_buffer();
     let region = Region::default();
     c.bench_function("resize rgb buffer", |b| {
-        b.iter(|| RgbBuffer::new_resized(&mut rgb, 300, 600, &region))
+        b.iter(|| RgbBuffer::new_resized(&mut rgb, Size {
+            w: 300,
+            h: 600
+        }, &region))
     });
 
     let rgba = RgbaBuffer::new_rgba(rect, [255, 0, 255, 255]);
@@ -37,7 +40,10 @@ fn criterion_benchmark(c: &mut Criterion) {
 
     let mut rgba = get_rgba_buffer();
     c.bench_function("resize rgba buffer", |b| {
-        b.iter(|| RgbaBuffer::new_resized(&mut rgba, 300, 600, &region))
+        b.iter(|| RgbaBuffer::new_resized(&mut rgba, Size {
+            w: 300,
+            h: 600
+        }, &region))
     });
 }
 

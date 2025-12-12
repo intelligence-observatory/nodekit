@@ -1,16 +1,15 @@
 mod error;
 
-use blittle::ClippedRect;
+use blittle::{ClippedRect, Size};
 pub use error::Error;
+use nodekit_rs_asset::load_asset;
+use nodekit_rs_card::{Card, CardType};
 use nodekit_rs_visual::*;
 use scuffle_ffmpeg::decoder::DecoderOptions;
 use scuffle_ffmpeg::{
     AVMediaType, AVPixelFormat, decoder::Decoder, frame::VideoFrame, io::Input, scaler::VideoScaler,
 };
-use std::fs::read;
 use std::io::Cursor;
-use nodekit_rs_asset::load_asset;
-use nodekit_rs_card::{Card, CardType};
 
 pub struct Video {
     pub buffer: Vec<u8>,
@@ -22,31 +21,34 @@ pub struct Video {
 impl Video {
     pub fn new(card: &Card) -> Result<Option<Self>, Error> {
         match &card.card_type {
-            CardType::Video { asset, looped: _} => {
+            CardType::Video { asset, looped: _ } => {
                 // Load the video.
                 let buffer = load_asset(asset).map_err(Error::Asset)?;
                 // Get the actual size of the video.
-                let (width, height) = Self::get_size(&buffer)?;
+                let video_size = Self::get_size(&buffer)?;
                 // Get the rect, resized to fit within the card.
-                let rect = ResizedRect::new(&card.region, width as u32, height as u32);
+                let mut rect = UnclippedRect::new(&card.region);
+                let card_size = rect.size;
+                rect.size = video_size;
                 // Store the resized dimensions.
                 let width = rect.size.w;
                 let height = rect.size.h;
+                rect.resize(&card_size);
                 // Get the clipping rect.
                 Ok(
-                    ClippedRect::new(rect.position, BOARD_SIZE, rect.size).map(|rect| Self {
+                    rect.into_clipped_rect(BOARD_SIZE).map(|rect| Self {
                         buffer,
                         rect,
                         width,
                         height,
-                    }),
+                    })
                 )
             }
-            _ => Err(Error::NotVideo)
+            _ => Err(Error::NotVideo),
         }
     }
 
-    fn get_size(buffer: &[u8]) -> Result<(usize, usize), Error> {
+    fn get_size(buffer: &[u8]) -> Result<Size, Error> {
         let cursor = Cursor::new(buffer);
         let input = Input::seekable(cursor).map_err(Error::Ffmpeg)?;
         // Get the streams.
@@ -58,10 +60,10 @@ impl Video {
             .map_err(Error::Ffmpeg)?
             .video()
             .map_err(|_| Error::NotVideoDecoder)?;
-        Ok((
-            video_decoder.width().cast_unsigned() as usize,
-            video_decoder.height().cast_unsigned() as usize,
-        ))
+        Ok(Size {
+            w: video_decoder.width().cast_unsigned() as usize,
+            h: video_decoder.height().cast_unsigned() as usize,
+        })
     }
 
     pub fn get_frame(&self, t_msec: u64) -> Result<RgbBuffer, Error> {
@@ -133,27 +135,25 @@ impl Video {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use nodekit_rs_models::{CardType, Position, Size, Timer};
     use std::path::PathBuf;
+    use nodekit_rs_card::{Asset, Region};
 
     #[test]
     fn test_video() {
-        let card = Card::video_card(
-            nodekit_rs_models::Rect {
-                position: Position { x: 0., y: 0.1 },
-                size: Size { w: 0.4, h: 0.6 },
+        let card = Card {
+            region: Region {
+                x: 0.,
+                y: 0.1,
+                w: 0.4,
+                h: 0.6,
+                z_index: None
             },
-            Timer::new(0, None),
-            PathBuf::from("test-video.mp4"),
-            false,
-            None,
-        );
-        let video = if let CardType::Video(video) = &card.card_type {
-            video
-        } else {
-            panic!("oh no")
+            card_type: CardType::Video {
+                asset: Asset::Path(PathBuf::from("test-video.mp4")),
+                looped: false
+            }
         };
-        let video = Video::new(&card, video).unwrap().unwrap();
+        let video = Video::new(&card).unwrap().unwrap();
 
         let frame = video.get_frame(300).unwrap();
 

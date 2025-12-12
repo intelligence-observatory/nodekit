@@ -16,7 +16,7 @@ impl Default for Region {
             y: -0.5,
             w: 1.,
             h: 1.,
-            z_index: None
+            z_index: None,
         }
     }
 }

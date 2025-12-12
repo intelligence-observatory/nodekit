@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+blittle.workspace = true
 bytemuck.workspace = true
 nodekit-rs-asset = { path = "../nodekit-rs-asset" }
 nodekit-rs-card = { path = "../nodekit-rs-card" }

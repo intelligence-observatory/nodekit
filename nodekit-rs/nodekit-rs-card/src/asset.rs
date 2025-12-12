@@ -1,7 +1,7 @@
-use std::fmt::{Display, Formatter};
 use pyo3::exceptions::{PyTypeError, PyValueError};
 use pyo3::prelude::*;
 use pyo3::types::PyString;
+use std::fmt::{Display, Formatter};
 use std::path::PathBuf;
 use url::Url;
 
@@ -27,8 +27,11 @@ impl Display for Asset {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Path(path) => write!(f, "File path {:?}", path),
-            Self::ZipArchiveInnerPath { zip_archive_path, inner_path: _} => write!(f, "Zip file path {:?}", zip_archive_path),
-            Self::Url(url) => write!(f, "Url {url}")
+            Self::ZipArchiveInnerPath {
+                zip_archive_path,
+                inner_path: _,
+            } => write!(f, "Zip file path {:?}", zip_archive_path),
+            Self::Url(url) => write!(f, "Url {url}"),
         }
     }
 }

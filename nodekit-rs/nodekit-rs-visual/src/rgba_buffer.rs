@@ -1,5 +1,5 @@
 use crate::{BOARD_SIZE, Error, STRIDE, resize};
-use blittle::ClippedRect;
+use blittle::{ClippedRect, Size};
 use blittle::overlay::{
     Vec4, overlay_pixel, rgba8_to_rgba32, rgba8_to_rgba32_color, rgba32_to_rgb8,
 };
@@ -22,11 +22,10 @@ impl RgbaBuffer {
     /// Resize to fit within the bounds of `dst`.
     pub fn new_resized(
         buffer: &mut [u8],
-        src_width: u32,
-        src_height: u32,
-        dst: &Region,
+        bitmap_size: Size,
+        region: &Region,
     ) -> Result<Option<Self>, Error> {
-        let (buffer, rect) = resize(buffer, src_width, src_height, &dst, PixelType::U8x4)?;
+        let (buffer, rect) = resize(buffer, bitmap_size, region, PixelType::U8x4)?;
         let buffer = rgba8_to_rgba32(&buffer);
         Ok(
             ClippedRect::new(rect.position, BOARD_SIZE, rect.size)

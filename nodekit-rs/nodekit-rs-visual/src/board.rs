@@ -154,9 +154,9 @@ impl Default for Board {
 
 #[cfg(test)]
 mod tests {
-    use nodekit_rs_card::Region;
     use super::*;
     use crate::Cursor;
+    use nodekit_rs_card::Region;
 
     #[test]
     fn test_board_constants() {

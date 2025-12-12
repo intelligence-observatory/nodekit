@@ -1,5 +1,5 @@
 use crate::{BOARD_SIZE, Error, resize};
-use blittle::ClippedRect;
+use blittle::{ClippedRect, Size};
 use fast_image_resize::PixelType;
 use nodekit_rs_card::Region;
 
@@ -18,11 +18,10 @@ impl RgbBuffer {
     /// Resize to fit within the bounds of `dst`.
     pub fn new_resized(
         buffer: &mut [u8],
-        src_width: u32,
-        src_height: u32,
-        dst: &Region,
+        bitmap_size: Size,
+        region: &Region,
     ) -> Result<Option<Self>, Error> {
-        let (buffer, rect) = resize(buffer, src_width, src_height, &dst, PixelType::U8x3)?;
+        let (buffer, rect) = resize(buffer, bitmap_size, &region, PixelType::U8x3)?;
         Ok(
             ClippedRect::new(rect.position, BOARD_SIZE, rect.size)
                 .map(|rect| Self { buffer, rect }),
@@ -63,15 +62,17 @@ mod tests {
         let mut buffer = include_bytes!("../test_files/rgb.raw").to_vec();
         let resized = RgbBuffer::new_resized(
             &mut buffer,
-            300,
-            600,
+            Size {
+                w: 300,
+                h: 600,
+            },
             &Region {
                 x: -0.5,
                 y: -0.5,
                 w: 1.,
                 h: 1.,
-                z_index: None
-            }
+                z_index: None,
+            },
         )
         .unwrap()
         .unwrap();
@@ -94,7 +95,7 @@ mod tests {
             rect: ClippedRect::new(
                 PositionI::default(),
                 BOARD_SIZE,
-                blittle::Size { w: 300, h: 600 },
+                Size { w: 300, h: 600 },
             )
             .unwrap(),
         }
