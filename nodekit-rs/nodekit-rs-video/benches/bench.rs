@@ -1,19 +1,17 @@
-use blittle::{ClippedRect, PositionI};
+use std::path::PathBuf;
 use criterion::{Criterion, criterion_group, criterion_main};
+use nodekit_rs_card::{Asset, Region};
 use nodekit_rs_video::*;
-use nodekit_rs_visual::{BOARD_SIZE, RgbBuffer};
 
 pub fn criterion_benchmark(c: &mut Criterion) {
-    let rect = ClippedRect::new(
-        PositionI::default(),
-        BOARD_SIZE,
-        blittle::Size { w: 400, h: 300 },
-    )
-    .unwrap();
-    let mut video = Video {
-        buffer: include_bytes!("../test-video.mp4").to_vec(),
-        rgb_buffer: RgbBuffer::from(rect),
+    let region = Region {
+        x: 0.,
+        y: 0.1,
+        w: 0.4,
+        h: 0.6,
+        z_index: None,
     };
+    let mut video = Video::new(&Asset::Path(PathBuf::from("test-video.mp4")), &region).unwrap().unwrap();
 
     c.bench_function("video frame extraction", |b| {
         b.iter(|| {

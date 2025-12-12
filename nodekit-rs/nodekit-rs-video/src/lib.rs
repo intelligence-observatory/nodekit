@@ -14,14 +14,33 @@ use std::io::Cursor;
 pub struct Video {
     pub buffer: Vec<u8>,
     pub rgb_buffer: RgbBuffer,
+    framerate: f64,
 }
 
 impl Video {
     pub fn new(asset: &Asset, region: &Region) -> Result<Option<Self>, Error> {
         // Load the video.
         let buffer = load_asset(asset).map_err(Error::Asset)?;
-        // Get the actual size of the video.
-        let video_size = Self::get_size(&buffer)?;
+
+        // Get metadata.
+        let cursor = Cursor::new(&buffer);
+        let input = Input::seekable(cursor).map_err(Error::Ffmpeg)?;
+        // Get the streams.
+        let streams = input.streams();
+        let video = streams
+            .best(AVMediaType::Video)
+            .ok_or(Error::NoVideoTrack)?;
+        let framerate = video.r_frame_rate().as_f64();
+        let video_decoder = Decoder::new(&video)
+            .map_err(Error::Ffmpeg)?
+            .video()
+            .map_err(|_| Error::NotVideoDecoder)?;
+        let video_size = Size {
+            w: video_decoder.width().cast_unsigned() as usize,
+            h: video_decoder.height().cast_unsigned() as usize,
+        };
+        drop(input);
+
         // Get the rect, resized to fit within the card.
         let mut rect = UnclippedRect::new(region);
         let card_size = rect.size;
@@ -31,25 +50,8 @@ impl Video {
         Ok(rect.into_clipped_rect(BOARD_SIZE).map(|rect| Self {
             buffer,
             rgb_buffer: RgbBuffer::from(rect),
+            framerate
         }))
-    }
-
-    fn get_size(buffer: &[u8]) -> Result<Size, Error> {
-        let cursor = Cursor::new(buffer);
-        let input = Input::seekable(cursor).map_err(Error::Ffmpeg)?;
-        // Get the streams.
-        let streams = input.streams();
-        let video = streams
-            .best(AVMediaType::Video)
-            .ok_or(Error::NoVideoTrack)?;
-        let video_decoder = Decoder::new(&video)
-            .map_err(Error::Ffmpeg)?
-            .video()
-            .map_err(|_| Error::NotVideoDecoder)?;
-        Ok(Size {
-            w: video_decoder.width().cast_unsigned() as usize,
-            h: video_decoder.height().cast_unsigned() as usize,
-        })
     }
 
     pub fn get_frame(&mut self, t_msec: u64) -> Result<(), Error> {
@@ -75,7 +77,7 @@ impl Video {
         .video()
         .map_err(|_| Error::NotVideoDecoder)?;
         let mut frame_index = 0;
-        let target_frame_index = (t_msec as f64 / 1000. * video.r_frame_rate().as_f64()) as usize;
+        let target_frame_index = (t_msec as f64 / 1000. * self.framerate) as usize;
         let mut frame: Option<VideoFrame> = None;
         let mut got_frame = false;
         for packet in input.packets() {
