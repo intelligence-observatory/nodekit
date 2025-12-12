@@ -14,7 +14,6 @@ import {gt, major} from 'semver';
 import {EventArray} from "./event-array.ts";
 
 import {evalTransition} from "./node-play/eval-transition.ts";
-import type {Action} from "./types/actions";
 
 /**
  * Plays a Graph, returning a Trace of Events.
@@ -141,15 +140,15 @@ export interface PlayGraphContext {
     clock: Clock,
 }
 
+type RegisterFile = Readonly<Record<RegisterId, any>>;
 async function playGraph(
     graph: Graph,
     namespace: string,
     context: PlayGraphContext,
-): Promise<Action> {
-
+): Promise<RegisterFile> {
 
     const nodes = graph.nodes;
-
+    const registers = { ...graph.registers };
     const getNamespacedNodeId = (nodeId: NodeId): NodeId => {
         return (namespace + nodeId) as NodeId;
     }
@@ -157,13 +156,14 @@ async function playGraph(
     // Assemble transition map:
     let currentNodeId: NodeId = graph.start;
     let lastAction = null;
+    let lastSubgraphRegisters: Record<RegisterId, any> | null = null;
 
     while (true) {
         const node = nodes[currentNodeId];
 
         // If a Graph, recurse.
         if (node.type === 'Graph') {
-            lastAction = await playGraph(
+            lastSubgraphRegisters = await playGraph(
                 node,
                 currentNodeId + '/', // New namespace
                 context
@@ -206,8 +206,9 @@ async function playGraph(
         const res = evalTransition(
             {
                 transition: transition,
-                registers: graph.registers,
-                lastAction: lastAction
+                registers: registers,
+                lastAction: lastAction,
+                lastSubgraphRegisters: lastSubgraphRegisters,
             }
         )
         // Set next Node:
@@ -219,8 +220,9 @@ async function playGraph(
 
         // Update Graph registers
         for (const [registerId, updateValue] of Object.entries(res.registerUpdates)) {
-            graph.registers[registerId as RegisterId] = updateValue
+            registers[registerId as RegisterId] = updateValue
         }
     }
-    return lastAction
+
+    return registers;
 }

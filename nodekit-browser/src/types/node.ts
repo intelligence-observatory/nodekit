@@ -14,11 +14,11 @@ export interface Node {
 
 export interface Graph {
     type: 'Graph';
-    nodekit_version: string;
-    nodes: Record<NodeId, Node | Graph>;
-    transitions: Record<NodeId, Transition>;
+    nodekit_version: Readonly<string>;
+    nodes: Readonly<Record<NodeId, Node | Graph>>;
+    transitions: Readonly<Record<NodeId, Transition>>;
     start: NodeId;
-    registers: Record<RegisterId, Value>
+    registers: Readonly<Record<RegisterId, Value>>
 }
 
 export interface Trace {

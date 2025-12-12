@@ -18,6 +18,12 @@ class Reg(BaseExpression):
     id: RegisterId
 
 
+class ChildReg(BaseExpression):
+    op: Literal["creg"] = "creg"
+    id: RegisterId
+
+
+
 class Local(BaseExpression):
     op: Literal["local"] = "local"
     name: LocalVariableName
@@ -185,6 +191,7 @@ class Fold(ListOp):
 
 type Expression = Annotated[
     Reg
+    | ChildReg
     | Local
     | LastAction
     | GetListItem
@@ -215,6 +222,7 @@ type Expression = Annotated[
 # Ensure forward refs are resolved (Pydantic v2)
 for _model in (
     Reg,
+    ChildReg,
     Local,
     LastAction,
     GetListItem,

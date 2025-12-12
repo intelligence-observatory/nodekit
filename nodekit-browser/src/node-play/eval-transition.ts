@@ -7,7 +7,8 @@ import {evl} from "../interpreter/expression-interpreter.ts";
 export interface EvalTransitionParams {
     transition: Readonly<Transition>,
     registers: Readonly<Record<RegisterId, Value>>,
-    lastAction: Readonly<Action>
+    lastSubgraphRegisters: Readonly<Record<RegisterId, Value>> | null,
+    lastAction: Readonly<Action> | null
 }
 
 export interface EvalTransitionResult {
@@ -18,7 +19,7 @@ export interface EvalTransitionResult {
 export function evalTransition(
     params: EvalTransitionParams
 ): EvalTransitionResult {
-    const { transition, registers, lastAction } = params;
+    const { transition, registers, lastAction, lastSubgraphRegisters } = params;
     switch (transition.transition_type) {
         case "Go": {
             // Evaluate register updates for a direct jump
@@ -29,7 +30,8 @@ export function evalTransition(
                     {
                         graphRegisters: registers,
                         localVariables: {},
-                        lastAction,
+                        lastAction:lastAction,
+                        lastSubgraphRegisters: lastSubgraphRegisters,
                     },
                 );
             }
@@ -50,20 +52,26 @@ export function evalTransition(
                 {
                     graphRegisters: registers,
                     localVariables: {},
-                    lastAction,
+                    lastAction:lastAction,
+                    lastSubgraphRegisters: lastSubgraphRegisters,
+
                 },
             );
             if (cond) {
                 return evalTransition({
                     transition: transition.then,
                     registers,
-                    lastAction,
+                    lastAction:lastAction,
+                    lastSubgraphRegisters: lastSubgraphRegisters,
+
                 });
             } else {
                 return evalTransition({
                     transition: transition.else,
                     registers,
-                    lastAction,
+                    lastAction:lastAction,
+                    lastSubgraphRegisters: lastSubgraphRegisters,
+
                 });
             }
         }
@@ -73,7 +81,9 @@ export function evalTransition(
                 {
                     graphRegisters: registers,
                     localVariables: {},
-                    lastAction,
+                    lastAction:lastAction,
+                    lastSubgraphRegisters: lastSubgraphRegisters,
+
                 },
             );
 
@@ -82,7 +92,9 @@ export function evalTransition(
                     return evalTransition({
                         transition: then,
                         registers,
-                        lastAction,
+                        lastAction:lastAction,
+                        lastSubgraphRegisters: lastSubgraphRegisters,
+
                     });
                 }
             }
@@ -91,7 +103,8 @@ export function evalTransition(
             return evalTransition({
                 transition: transition.default,
                 registers,
-                lastAction,
+                lastAction:lastAction,
+                lastSubgraphRegisters: lastSubgraphRegisters,
             });
         }
         default:
