@@ -110,7 +110,7 @@ class KeySampledEvent(BaseEvent):
 
 # %%
 class BaseNodeEvent(BaseEvent):
-    node_id: NodeId
+    node_path: tuple[NodeId, ...] = pydantic.Field(description='The Node\'s path within the Graph.')
 
 
 class NodeStartedEvent(BaseNodeEvent):
