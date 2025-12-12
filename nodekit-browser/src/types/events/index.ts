@@ -32,7 +32,7 @@ export interface BrowserContextSampledEvent extends BaseEvent<'BrowserContextSam
 
 // Node events:
 interface BaseNodeEvent<T extends string> extends BaseEvent<T>{
-    node_path: NodeId[]
+    node_address: NodeId[]
 }
 
 export interface NodeStartedEvent extends BaseNodeEvent<'NodeStartedEvent'>{
