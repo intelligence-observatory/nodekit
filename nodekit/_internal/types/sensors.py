@@ -9,7 +9,7 @@ from nodekit._internal.types.values import (
     SpatialSize,
     TimeDurationMsec,
 )
-from nodekit._internal.types.regions import Region
+from nodekit import Region
 
 
 # %%

@@ -24,6 +24,7 @@ __all__ = [
     "build_site",
 ]
 
+from nodekit._internal.types.values import Region
 # Version
 from nodekit._internal.version import VERSION
 
@@ -33,7 +34,7 @@ from nodekit._internal.types.trace import Trace
 from nodekit._internal.types.graph import Graph
 
 # Random
-from nodekit._internal.types.regions import Region
+from nodekit._internal.types.values import Region
 
 # Namespaced types:
 import nodekit.cards as cards

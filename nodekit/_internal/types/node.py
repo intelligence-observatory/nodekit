@@ -3,7 +3,7 @@ from typing import Literal
 import pydantic
 
 from nodekit._internal.types.cards import Card
-from nodekit._internal.types.sensors.sensors import Sensor
+from nodekit._internal.types.sensors import Sensor
 from nodekit._internal.types.values import ColorHexString
 
 

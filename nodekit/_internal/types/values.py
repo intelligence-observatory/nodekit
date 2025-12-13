@@ -150,3 +150,12 @@ type NodeAddress = Annotated[
 type RegisterId = Annotated[
     String, pydantic.Field(description="An identifier for a Graph register.")
 ]
+
+
+class Region(pydantic.BaseModel):
+    x: SpatialPoint
+    y: SpatialPoint
+    w: SpatialSize
+    h: SpatialSize
+    z_index: int | None = None
+    mask: Mask = "rectangle"
