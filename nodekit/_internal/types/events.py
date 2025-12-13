@@ -4,7 +4,7 @@ from typing import Literal, Annotated, Union
 
 import pydantic
 
-from nodekit._internal.types.actions.actions import Action
+from nodekit._internal.types.actions import Action
 from nodekit._internal.types.node import Node
 from nodekit._internal.types.values import (
     TimeElapsedMsec,

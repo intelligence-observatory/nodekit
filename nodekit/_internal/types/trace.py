@@ -3,7 +3,7 @@ from typing import Literal
 import pydantic
 
 from nodekit import VERSION
-from nodekit._internal.types.events.events import Event
+from nodekit._internal.types.events import Event
 
 
 class Trace(pydantic.BaseModel):
