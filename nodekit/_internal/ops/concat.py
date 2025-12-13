@@ -4,7 +4,7 @@ from typing import Dict
 from nodekit._internal.types.graph import Graph
 from nodekit._internal.types.node import Node
 from nodekit._internal.types.transition import End, Go, Transition
-from nodekit._internal.types.value import NodeId
+from nodekit._internal.types.values import NodeId
 
 
 # %%

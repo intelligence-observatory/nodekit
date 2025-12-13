@@ -33,7 +33,7 @@ Traditional psych tasks are implemented as bespoke spaghetti code: ad-hoc state 
 - `uv run pytest`: run tests in `tests/`; add `-k <pattern>` to scope.
 
 ## Coding Style, Schemas & Naming
-- Python 3.12, PEP 8 (4-space indent, snake_case identifiers, PascalCase classes). Modules stay lower_snake.
+- Python >=3.12, PEP 8 (4-space indent, snake_case identifiers, PascalCase classes). Modules stay lower_snake.
 - Ruff is the formatting/linting authority; keep `make check` clean before PRs.
 - Do not hand-edit `_static` outputs—modify `nodekit-browser/` and rebuild.
 - Schema guards: coordinate/size fields are bounded (-0.5–0.5 points, 0–1 sizes), hex colors normalized to `#rrggbbaa`, assets require valid MIME and SHA-256, multi-select `max_selections >= min_selections`, waits > 0, sliders `num_bins > 1`. Expression evaluator enforces operand types, container types, bounds, and division-by-zero checks.

@@ -3,8 +3,8 @@ from typing import Dict, Literal, Self, Union
 import pydantic
 
 from nodekit import VERSION, Node
-from nodekit._internal.types.transition import Transition
-from nodekit._internal.types.value import NodeId, RegisterId, Value
+from nodekit._internal.types.transition import Transition, Go, IfThenElse, Switch
+from nodekit._internal.types.values import NodeId, RegisterId, Value
 
 
 # %%
@@ -30,19 +30,46 @@ class Graph(pydantic.BaseModel):
         self,
     ) -> Self:
         if self.start not in self.nodes:
-            raise ValueError(f"Graph start node {self.start} not in nodes.")
-
+            raise ValueError(f"Start Node {self.start} does not exist in nodes.")
         num_nodes = len(self.nodes)
         if num_nodes == 0:
             raise ValueError("Graph must have at least one node.")
 
-        # Check the start Node exists:
-        if self.start not in self.nodes:
-            raise ValueError(f"Start Node {self.start} does not exist in nodes.")
+        # Check each Node has a corresponding Transition
+        for node_id in self.nodes:
+            if node_id not in self.transitions:
+                raise ValueError(
+                    f"Node {node_id} exists but has no corresponding Transition."
+                )
 
         # Todo: Each Node must be reachable from the start Node (i.e., no disconnected components)
 
-        # Todo: Each Go transition must point to an existing Node
+        # Each Go transition must point to an existing Node
+        def go_targets(transition: Transition) -> list[NodeId]:
+            if isinstance(transition, Go):
+                return [transition.to]
+            if isinstance(transition, IfThenElse):
+                return go_targets(transition.then) + go_targets(transition.else_)
+            if isinstance(transition, Switch):
+                targets: list[NodeId] = []
+                for case_transition in transition.cases.values():
+                    targets += go_targets(case_transition)
+                targets += go_targets(transition.default)
+                return targets
+            return []
+
+        for node_id in self.transitions:
+            if node_id not in self.nodes:
+                raise ValueError(
+                    f"Transition for Node {node_id} but Node does not exist."
+                )
+
+        for node_id, transition in self.transitions.items():
+            for to_node_id in go_targets(transition):
+                if to_node_id not in self.nodes:
+                    raise ValueError(
+                        f"Go transition from Node {node_id} points to non-existent Node {to_node_id}."
+                    )
 
         # Todo: check each Nodes has a path to an End transition
 

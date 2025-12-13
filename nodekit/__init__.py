@@ -32,8 +32,8 @@ from nodekit._internal.types.node import Node
 from nodekit._internal.types.trace import Trace
 from nodekit._internal.types.graph import Graph
 
-# Random
-from nodekit._internal.types.regions import Region
+# One-off top-level types:
+from nodekit._internal.types.values import Region
 
 # Namespaced types:
 import nodekit.cards as cards

@@ -11,7 +11,7 @@ __all__ = [
     "SumAction",
 ]
 
-from nodekit._internal.types.actions.actions import (
+from nodekit._internal.types.actions import (
     Action,
     ClickAction,
     KeyAction,

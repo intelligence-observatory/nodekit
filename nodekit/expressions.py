@@ -27,7 +27,7 @@ __all__ = [
     "Expression",
 ]
 
-from nodekit._internal.types.expressions.expressions import (
+from nodekit._internal.types.expressions import (
     Reg,
     ChildReg,
     Local,

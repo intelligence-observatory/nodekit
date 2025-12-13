@@ -6,14 +6,14 @@ from typing import Literal, Annotated, Union, Self, cast
 
 import pydantic
 
-from nodekit._internal.utils.hashing import (
-    hash_file,
-)
-from nodekit._internal.types.value import (
+from nodekit._internal.types.values import (
     SHA256,
     MediaType,
     ImageMediaType,
     VideoMediaType,
+)
+from nodekit._internal.utils.hashing import (
+    hash_file,
 )
 
 

@@ -11,7 +11,7 @@ __all__ = [
     "Sensor",
 ]
 
-from nodekit._internal.types.sensors.sensors import (
+from nodekit._internal.types.sensors import (
     WaitSensor,
     ClickSensor,
     KeySensor,

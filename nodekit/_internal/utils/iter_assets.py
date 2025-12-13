@@ -4,7 +4,7 @@ from nodekit._internal.types.assets import Image, Video
 from nodekit._internal.types.cards import Card, ImageCard, VideoCard, CompositeCard
 from nodekit._internal.types.graph import Graph
 from nodekit._internal.types.node import Node
-from nodekit._internal.types.sensors.sensors import (
+from nodekit._internal.types.sensors import (
     SelectSensor,
     MultiSelectSensor,
     ProductSensor,

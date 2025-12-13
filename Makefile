@@ -7,6 +7,9 @@ check:
 	uv run ruff check && \
 	uv run ruff format --check
 
+test:
+	uv run pytest tests
+
 build-browser:
 	cd nodekit-browser && \
 	npm run build && \

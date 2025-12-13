@@ -1,9 +1,12 @@
+import datetime
+import re
 from decimal import Decimal
 from typing import List, Iterable
+from uuid import uuid4
 
 from boto3.session import Session
 
-
+import nodekit.experimental.recruitment_services.mechanical_turk.models as boto3_models
 from nodekit.experimental.recruitment_services.base import (
     RecruiterServiceClient,
     CreateHitRequest,
@@ -12,11 +15,6 @@ from nodekit.experimental.recruitment_services.base import (
     ListAssignmentsItem,
     RecruiterCredentialsError,
 )
-import nodekit.experimental.recruitment_services.mechanical_turk.models as boto3_models
-from uuid import uuid4
-
-import datetime
-import re
 
 
 def extract_trace(xml: str) -> str:
@@ -213,22 +211,23 @@ class MturkClient(RecruiterServiceClient):
 
         # See if this HIT has any QualificationRequirements
         qual_reqs = hit.QualificationRequirements
-        for qual_req in qual_reqs:
-            # Get workers associated with this qualification:
-            worker_ids = self.list_workers_with_qualification_type(
-                qual_type_id=qual_req.QualificationTypeId
-            )
-            # Dissociate any qualifications from workers that were previously granted
-            for worker_id in worker_ids:
-                self.boto3_client.disassociate_qualification_from_worker(
-                    WorkerId=worker_id,
-                    QualificationTypeId=qual_req.QualificationTypeId,
+        if qual_reqs is not None:
+            for qual_req in qual_reqs:
+                # Get workers associated with this qualification:
+                worker_ids = self.list_workers_with_qualification_type(
+                    qual_type_id=qual_req.QualificationTypeId
                 )
+                # Dissociate any qualifications from workers that were previously granted
+                for worker_id in worker_ids:
+                    self.boto3_client.disassociate_qualification_from_worker(
+                        WorkerId=worker_id,
+                        QualificationTypeId=qual_req.QualificationTypeId,
+                    )
 
-            # Delete the qualification type
-            self.delete_qualification_type(
-                qualification_type_id=qual_req.QualificationTypeId
-            )
+                # Delete the qualification type
+                self.delete_qualification_type(
+                    qualification_type_id=qual_req.QualificationTypeId
+                )
 
         # Update the expiration for the HIT to *now*
         self.boto3_client.update_expiration_for_hit(

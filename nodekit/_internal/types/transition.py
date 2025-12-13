@@ -2,8 +2,8 @@ from typing import Dict, Literal, Annotated
 
 import pydantic
 
-from nodekit._internal.types.expressions.expressions import Expression
-from nodekit._internal.types.value import NodeId, RegisterId, LeafValue
+from nodekit._internal.types.expressions import Expression
+from nodekit._internal.types.values import NodeId, RegisterId, LeafValue
 
 
 # %%

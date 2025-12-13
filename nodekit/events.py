@@ -14,7 +14,7 @@ __all__ = [
     "PointerSampledEvent",
 ]
 
-from nodekit._internal.types.events.events import (
+from nodekit._internal.types.events import (
     Event,
     EventTypeEnum,
     TraceStartedEvent,

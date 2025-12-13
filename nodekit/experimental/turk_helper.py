@@ -1,9 +1,10 @@
+import glob
 import os
 import uuid
 from decimal import Decimal
 from pathlib import Path
 from typing import Iterable
-import glob
+
 import pydantic
 
 import nodekit as nk
