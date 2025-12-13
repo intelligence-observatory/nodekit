@@ -3,7 +3,7 @@ from typing import Dict, Literal, Self, Union
 import pydantic
 
 from nodekit import VERSION, Node
-from nodekit._internal.types.transition import (Transition, Go, IfThenElse, Switch)
+from nodekit._internal.types.transition import Transition, Go, IfThenElse, Switch
 from nodekit._internal.types.value import NodeId, RegisterId, Value
 
 
@@ -29,7 +29,6 @@ class Graph(pydantic.BaseModel):
     def check_graph_is_valid(
         self,
     ) -> Self:
-
         if self.start not in self.nodes:
             raise ValueError(f"Start Node {self.start} does not exist in nodes.")
         num_nodes = len(self.nodes)
@@ -75,4 +74,3 @@ class Graph(pydantic.BaseModel):
         # Todo: check each Nodes has a path to an End transition
 
         return self
-
