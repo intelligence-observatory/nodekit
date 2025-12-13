@@ -1,4 +1,4 @@
-from nodekit._internal.types.value import SHA256
+from nodekit._internal.types.values import SHA256
 import pydantic
 from pathlib import Path
 from typing import BinaryIO

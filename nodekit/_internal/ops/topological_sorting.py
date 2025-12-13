@@ -3,7 +3,7 @@ from typing import List, Tuple
 
 from nodekit import Graph
 from nodekit._internal.types.transition import IfThenElse, Switch, End, Go, Transition
-from nodekit._internal.types.value import NodeId
+from nodekit._internal.types.values import NodeId
 
 
 # %%

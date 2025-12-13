@@ -4,7 +4,7 @@ import pydantic
 
 from nodekit import VERSION, Node
 from nodekit._internal.types.transition import Transition, Go, IfThenElse, Switch
-from nodekit._internal.types.value import NodeId, RegisterId, Value
+from nodekit._internal.types.values import NodeId, RegisterId, Value
 
 
 # %%

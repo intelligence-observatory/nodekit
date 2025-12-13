@@ -1,6 +1,6 @@
 import pydantic
 
-from nodekit._internal.types.value import SpatialPoint, SpatialSize, Mask
+from nodekit._internal.types.values import SpatialPoint, SpatialSize, Mask
 
 
 # %%

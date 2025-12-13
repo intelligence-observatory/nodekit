@@ -3,7 +3,7 @@ from typing import Annotated, Literal, Optional
 
 import pydantic
 
-from nodekit._internal.types.value import Value, RegisterId
+from nodekit._internal.types.values import Value, RegisterId
 
 # %% Expression
 type LocalVariableName = str

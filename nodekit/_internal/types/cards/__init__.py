@@ -4,7 +4,7 @@ from typing import Literal, Annotated, Union, Dict
 import pydantic
 
 from nodekit._internal.types.assets import Image, Video
-from nodekit._internal.types.value import (
+from nodekit._internal.types.values import (
     ColorHexString,
     MarkdownString,
     SpatialSize,

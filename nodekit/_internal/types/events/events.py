@@ -6,7 +6,7 @@ import pydantic
 
 from nodekit._internal.types.actions.actions import Action
 from nodekit._internal.types.node import Node
-from nodekit._internal.types.value import (
+from nodekit._internal.types.values import (
     TimeElapsedMsec,
     SpatialPoint,
     NodeAddress,

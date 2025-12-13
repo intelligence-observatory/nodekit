@@ -32,7 +32,7 @@ __all__ = [
     "NodeAddress",
 ]
 
-from nodekit._internal.types.value import (
+from nodekit._internal.types.values import (
     Value,
     Boolean,
     Integer,

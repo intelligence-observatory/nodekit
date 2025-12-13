@@ -14,7 +14,7 @@ from nodekit._internal.types.assets import (
     RelativePath,
     Asset,
 )
-from nodekit._internal.types.value import MediaType, SHA256
+from nodekit._internal.types.values import MediaType, SHA256
 from nodekit._internal.types.graph import Graph
 
 

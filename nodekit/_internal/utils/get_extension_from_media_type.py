@@ -1,4 +1,4 @@
-from nodekit._internal.types.value import MediaType
+from nodekit._internal.types.values import MediaType
 
 
 def get_extension_from_media_type(media_type: MediaType) -> str:
