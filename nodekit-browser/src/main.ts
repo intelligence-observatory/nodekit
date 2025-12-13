@@ -216,6 +216,7 @@ async function playGraph(
         }
         currentNodeId = nextNodeId;
 
+
         // Update Graph registers
         for (const [registerId, updateValue] of Object.entries(res.registerUpdates)) {
             registers[registerId as RegisterId] = updateValue
