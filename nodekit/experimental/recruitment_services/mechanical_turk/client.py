@@ -1,9 +1,12 @@
+import datetime
+import re
 from decimal import Decimal
 from typing import List, Iterable
+from uuid import uuid4
 
 from boto3.session import Session
 
-
+import nodekit.experimental.recruitment_services.mechanical_turk.models as boto3_models
 from nodekit.experimental.recruitment_services.base import (
     RecruiterServiceClient,
     CreateHitRequest,
@@ -12,11 +15,6 @@ from nodekit.experimental.recruitment_services.base import (
     ListAssignmentsItem,
     RecruiterCredentialsError,
 )
-import nodekit.experimental.recruitment_services.mechanical_turk.models as boto3_models
-from uuid import uuid4
-
-import datetime
-import re
 
 
 def extract_trace(xml: str) -> str:

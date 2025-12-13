@@ -3,13 +3,13 @@ from typing import Literal, Annotated, Union, Self, Dict
 
 import pydantic
 
+from nodekit import Region
 from nodekit._internal.types.cards import Card
 from nodekit._internal.types.values import (
     PressableKey,
     SpatialSize,
     TimeDurationMsec,
 )
-from nodekit import Region
 
 
 # %%
