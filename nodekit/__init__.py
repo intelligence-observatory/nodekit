@@ -24,7 +24,6 @@ __all__ = [
     "build_site",
 ]
 
-from nodekit._internal.types.values import Region
 # Version
 from nodekit._internal.version import VERSION
 
@@ -33,7 +32,7 @@ from nodekit._internal.types.node import Node
 from nodekit._internal.types.trace import Trace
 from nodekit._internal.types.graph import Graph
 
-# Random
+# One-off top-level types:
 from nodekit._internal.types.values import Region
 
 # Namespaced types:

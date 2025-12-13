@@ -7,7 +7,8 @@ from nodekit._internal.types.assets import Image, Video
 from nodekit._internal.types.values import (
     ColorHexString,
     MarkdownString,
-    SpatialSize, Region,
+    SpatialSize,
+    Region,
 )
 
 

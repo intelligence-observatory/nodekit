@@ -8,7 +8,9 @@ import nodekit._internal.types.values
 # %% Helper functions
 def get_fixation_node() -> nk.Node:
     click_sensor = nk.sensors.ClickSensor(
-        region=nodekit._internal.types.values.Region(x=0, y=0, w=0.05, h=0.05, mask="ellipse")
+        region=nodekit._internal.types.values.Region(
+            x=0, y=0, w=0.05, h=0.05, mask="ellipse"
+        )
     )
     return nk.Node(stimulus=None, sensor=click_sensor)
 
@@ -21,10 +23,14 @@ def get_stimulus_node():
 
 def get_response_node():
     left_sensor = nk.sensors.ClickSensor(
-        region=nodekit._internal.types.values.Region(x=-0.5, y=0, w=0.1, h=0.1, mask="rectangle")
+        region=nodekit._internal.types.values.Region(
+            x=-0.5, y=0, w=0.1, h=0.1, mask="rectangle"
+        )
     )
     right_sensor = nk.sensors.ClickSensor(
-        region=nodekit._internal.types.values.Region(x=0.5, y=0, w=0.1, h=0.1, mask="rectangle")
+        region=nodekit._internal.types.values.Region(
+            x=0.5, y=0, w=0.1, h=0.1, mask="rectangle"
+        )
     )
     timeout_sensor = nk.sensors.WaitSensor(duration_msec=2000)
 
