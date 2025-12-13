@@ -14,16 +14,10 @@ import nodekit as nk
 class MarsItem(BaseModel):
     form: int = Field(..., description="Test/form family (tfN)")
     item: int = Field(..., description="Item ID within form")
-    tile_type: Literal["M", "T"] = Field(
-        ..., description="'M' for missing tile or 'T' for test option"
-    )
-    tile_index: Optional[int] = Field(
-        None, description="Tile index (1–4) if applicable"
-    )
+    tile_type: Literal["M", "T"] = Field(description="'M' for missing tile or 'T' for test option")
+    tile_index: Optional[int] = Field(description="Tile index (1–4) if applicable")
     shape_set: int = Field(..., description="Shape set index (ss1–ss3)")
-    variant: Optional[Literal["pd", "md"]] = Field(
-        None, description="Presentation variant"
-    )
+    variant: Literal["pd", "md"] | None = Field(default=None, description="Presentation variant")
     ext: str = Field(..., description="File extension (e.g. jpeg)")
 
     @classmethod
@@ -48,16 +42,14 @@ class MarsItem(BaseModel):
 
         gd = match.groupdict()
         tile = gd["tile"]
-        tile_type = "M" if tile == "M" else "T"
-        tile_index = None if tile == "M" else int(tile[1])
 
         return cls(
             form=int(gd["form"]),
             item=int(gd["item"]),
-            tile_type=tile_type,
-            tile_index=tile_index,
+            tile_type="M" if tile == "M" else "T", # to type as Literal
+            tile_index=None if tile == "M" else int(tile[1]),
             shape_set=int(gd["shape_set"]),
-            variant=gd["variant"],
+            variant='pd' if gd['variant'] == 'pd' else ('md' if gd['variant'] == 'md' else None), # type as Literal or None
             ext=gd["ext"],
         )
 
@@ -65,7 +57,7 @@ class MarsItem(BaseModel):
 # %%
 def make_mars_trial(
     grid_image: nk.assets.Image,
-    choices: Tuple[nk.assets.Image, nk.assets.Image, nk.assets.Image, nk.assets.Image],
+    choices: Tuple[nk.assets.Image, ...],
 ) -> nk.Graph:
     # Start with a fixation cross that disappears on its own
     fixation_duration = 1000
@@ -168,7 +160,8 @@ if __name__ == "__main__":
         ]
         random.shuffle(choices)
         trial = make_mars_trial(
-            grid_image=nk.assets.Image.from_path(stim_path), choices=tuple(choices)
+            grid_image=nk.assets.Image.from_path(stim_path),
+            choices=tuple(choices)
         )
         trials.append(trial)
 
