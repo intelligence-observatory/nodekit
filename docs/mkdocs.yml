@@ -35,6 +35,7 @@ theme:
   features:
     - navigation.instant        # no full page reloads
     - navigation.tracking       # URL updates as you scroll
+    - navigation.footer
     - content.code.copy         # copy button on code blocks
     - content.tabs             # tabbed content
 
