@@ -102,9 +102,9 @@ graph = nk.Graph(
 )
 ```
 
-### Concatenation
+### Sequencing Nodes and Graphs
 
-The Graph we have written expresses a single trial. One can combine multiple Graphs into a single "mega Graph" which executes them, one in a row. While this could be done manually, NodeKit offers a `nk.concat` operation to avoid having to wire Nodes together: 
+The Graph we have written expresses a single trial. One can combine multiple Graphs into a single "mega Graph" which executes them sequentially. While this could be done manually, NodeKit offers a `nk.concat` operation to avoid having to wire Nodes together: 
 
 ```python
 import nodekit as nk
@@ -112,9 +112,9 @@ my_task = nk.concat([trial1, trial2, trial3])
 ```
 
 
-## Play your Graph locally
+## Play your task locally
 
-Once a Graph is written, one can play it locally by calling the `nk.play` function. This will launch the task on your `localhost`, at `http://127.0.0.1:7651`. 
+Once a Graph is written, one can play it locally by calling the `nk.play` function. This will launch the task on your `localhost`, at [http://127.0.0.1:7651](http://127.0.0.1:7651). 
 
 ```python hl_lines="14-16" linenums="1"
 import nodekit as nk 
@@ -125,7 +125,7 @@ Navigate to the page, and you can play the Graph. Once the Graph completes, the 
 
 ## What's next?
 
-This tutorial showcased the core concepts of NodeKit: the **Node** and the **Graph**. Most of the code one writes when using NodeKit concerns the creation of Nodes and Graphs. 
+This tutorial showcased the core concepts of NodeKit: the **Node** and the **Graph**. Most of the code one will write when using NodeKit concerns the creation of Nodes and Graphs. 
 We wrote a fairly simple Graph in this tutorial, but more is possible: 
 
 - Stimuli involving **images or video**, or **combinations thereof**
