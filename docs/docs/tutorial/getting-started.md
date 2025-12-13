@@ -59,6 +59,11 @@ By "wiring" such Nodes together, one can express a variety of tasks from psychol
 Perhaps one can imagine "dropping" an agent onto the start Node, then seeing the agent move around different Nodes as it performs Actions. 
 Of course, this cannot (should not) go on forever – a Graph is completed when the Agent reaches a special  **End** Transition. 
 
+### What is a **Run**?
+
+An Agent 
+
+
 ## Write your first task
 
 In NodeKit, writing a task means writing a Graph. This tutorial will walk through how to write the simplest possible Graph, which is a Graph consisting of a single Node.  

@@ -37,7 +37,6 @@ theme:
     - navigation.tracking       # URL updates as you scroll
     - content.code.copy         # copy button on code blocks
     - content.tabs             # tabbed content
-    - toc.integrate             # move local TOC into sidebar
 
   palette:
     - scheme: default         # light
