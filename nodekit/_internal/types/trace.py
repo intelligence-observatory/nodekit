@@ -10,6 +10,7 @@ class Trace(pydantic.BaseModel):
     nodekit_version: Literal["0.2.1"] = pydantic.Field(
         default=VERSION, validate_default=True
     )
+
     events: list[Event]
 
     @pydantic.field_validator("events")
