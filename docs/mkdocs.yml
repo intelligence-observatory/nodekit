@@ -4,7 +4,7 @@ nav:
   - Home: index.md
   - Tutorial:
       - 1. Install NodeKit: 'tutorial/1-installation.md'
-      - 2. Write your first Graph: 'tutorial/2-first-graph.md'
+      - 2. Write your first task: 'tutorial/2-first-graph.md'
       - 3. Deploy to agents: 'tutorial/3-deploy-graph.md'
       - What's next?: 'tutorial/whats-next.md'
   - Concepts:

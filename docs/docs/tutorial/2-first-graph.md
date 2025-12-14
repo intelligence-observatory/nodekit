@@ -1,33 +1,31 @@
 
 ## A brief primer on NodeKit
 
-NodeKit describes tasks as a **Graph** of **Nodes**. Here's an example **Graph** which describes a task consisting of one match-to-sample trial: 
+NodeKit describes tasks as a **Graph** consisting of **Nodes** and arrows which connect them. For example, here's a task consisting of a few AFC ("alternative forced choice") trials, expressed as a Graph:
 
 ![An example NodeKit Graph](example-graph.png)
-
+ 
+ 
 
 ### What is a **Node**?
- A Node can be understood as the combination of two things:
+ 
+Nodes are the central object in NodeKit, and can be understood as a sort of minimal "task atom". A Node has two parts:
 
-1. A __Stimulus__ that the agent views, which might be an image, some text, a video, or a combination of such things. 
+1. A __Stimulus__ that the agent views, such as an image, a video, text, or a combination of such things. 
 2. An __ActionSet__, such as a set of legal keypresses, a set of slider values, or even the set of all text strings under length `n`. 
 
 A Node is completed when the agent makes a selection from the ActionSet – that is, a _Node ends when the Agent performs an Action_ from the Node's Action Set.
 
 ### What is a **Graph**?
 
-By "wiring" such Nodes together, one can express a variety of tasks from psychology and beyond. In short, a Graph is: 
+A Graph is a set of Nodes, and the "arrows" that connect them together. Specifically, a Graph has: 
 
-1. A set of **Nodes**. 
-2. A set of **Transitions** between those Nodes – i.e. "arrows" that connect different Nodes to each other. 
+1. A set of Nodes. 
+2. A set of **Transitions** ("arrows") between those Nodes
 3. A designated **start** Node.
 
-Perhaps one can imagine "dropping" an agent onto the start Node, then seeing the agent move around different Nodes as it performs Actions. 
-Of course, this cannot (should not) go on forever – a Graph is completed when the Agent reaches a special  **End** Transition. 
-
-### What is a **Run**?
-
-An Agent 
+Perhaps one can imagine "dropping" an agent onto the start Node, then seeing the agent move around different Nodes as it performs Actions and follows Transition arrows. 
+Of course, this cannot (should not) go on forever – a Graph is completed when the Agent reaches a special  **End** Transition.
 
 
 ## Write your first task
@@ -83,9 +81,16 @@ import nodekit as nk
 trace = nk.play(graph)
 ```
 
-Navigate to the page, and you can play the Graph. Once the Graph completes, the `nk.play` call will return, and return a **Trace** containing your behavioral data.
+Navigate to the page, and you can play the Graph. Once the Graph completes, the `nk.play` call will return, and return a **Trace** containing your behavioral data. Let's view the data:
 
-### Analyze a Run
+```json
+{
+  "yo": 'yo'
+}
+```
+
+
+
 
 ## Convenience methods
 ### Sequencing via `nk.concat`
