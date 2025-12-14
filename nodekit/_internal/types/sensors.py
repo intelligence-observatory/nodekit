@@ -35,7 +35,6 @@ class WaitSensor(BaseSensor):
     )
 
 
-
 # %%
 class KeySensor(BaseSensor):
     sensor_type: Literal["KeySensor"] = "KeySensor"

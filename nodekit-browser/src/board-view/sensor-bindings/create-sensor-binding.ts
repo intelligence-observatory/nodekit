@@ -52,7 +52,6 @@ export async function createSensorBinding(
             );
             break
         }
-
         case "SelectSensor": {
             sensorBinding = new SelectSensorBinding(
                 sensor,

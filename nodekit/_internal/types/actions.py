@@ -43,9 +43,7 @@ class WaitAction(BaseAction):
 # %%
 class SelectAction(BaseAction):
     action_type: Literal["SelectAction"] = "SelectAction"
-    action_value: str = pydantic.Field(
-        description="The selection made by the agent."
-    )
+    action_value: str = pydantic.Field(description="The selection made by the agent.")
 
 
 # %%
@@ -62,6 +60,7 @@ class ProductAction(BaseAction):
     action_value: Dict[str, "Action"] = pydantic.Field(
         description="A dictionary mapping child IDs to their corresponding Actions."
     )
+
 
 # %%
 class SumAction(BaseAction):
