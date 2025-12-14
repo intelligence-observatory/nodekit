@@ -4,23 +4,13 @@ from typing import Literal, Union, Annotated, Dict, Any
 import pydantic
 
 from nodekit._internal.types.values import PressableKey, SpatialPoint, Value
-
+from typing import TypedDict
 
 # %%
 class BaseAction(pydantic.BaseModel, ABC):
     action_type: str
     action_value: Any
 
-
-# %%
-class ClickAction(BaseAction):
-    action_type: Literal["ClickAction"] = "ClickAction"
-    x: SpatialPoint = pydantic.Field(
-        description="The x-coordinate of the click, in Board units."
-    )
-    y: SpatialPoint = pydantic.Field(
-        description="The y-coordinate of the click, in Board units."
-    )
 
 
 # %%
@@ -76,7 +66,6 @@ class SumAction(BaseAction):
 # %%
 type Action = Annotated[
     Union[
-        ClickAction,
         KeyAction,
         SliderAction,
         TextEntryAction,

@@ -1,6 +1,5 @@
 __all__ = [
     "Action",
-    "ClickAction",
     "KeyAction",
     "SliderAction",
     "TextEntryAction",
@@ -13,7 +12,6 @@ __all__ = [
 
 from nodekit._internal.types.actions import (
     Action,
-    ClickAction,
     KeyAction,
     SliderAction,
     TextEntryAction,
