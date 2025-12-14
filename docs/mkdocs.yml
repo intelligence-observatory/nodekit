@@ -18,6 +18,7 @@ nav:
   - Guides:
       - Deploying to Mechanical Turk: 'guides/mechanical-turk.md'
       - Styling TextCards with Markdown: 'guides/styling-text.md'
+      - Adding min and max time limits to Nodes: 'guides/adding-time-limits.md'
   - Reference:
       - Node: api/node.md
       - Graph: api/graph.md
