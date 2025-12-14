@@ -8,22 +8,32 @@ from nodekit._internal.types.values import Value, RegisterId
 # %% Expression
 type LocalVariableName = str
 
-
 class BaseExpression(pydantic.BaseModel, ABC):
     op: str
 
 
 class Reg(BaseExpression):
+    """
+    Evaluates to the value of the current Graph's register.
+    """
     op: Literal["reg"] = "reg"
     id: RegisterId
 
 
 class ChildReg(BaseExpression):
+    """
+    Evaluates to the value of the last completed subGraph's ("child" Graph) register.
+    """
     op: Literal["creg"] = "creg"
     id: RegisterId
 
 
 class Local(BaseExpression):
+    """
+    Evaluates to the value of a local variable.
+    Used to reference variables defined in Map, Filter, Fold expressions.
+    To be distinguished from Graph registers (Reg).
+    """
     op: Literal["local"] = "local"
     name: LocalVariableName
 
@@ -184,10 +194,7 @@ class Fold(ListOp):
     func: "Expression"
 
 
-# =====================
-# Discriminated union
-# =====================
-
+# %%
 type Expression = Annotated[
     Reg
     | ChildReg
@@ -216,7 +223,6 @@ type Expression = Annotated[
     | Fold,
     pydantic.Field(discriminator="op"),
 ]
-
 
 # Ensure forward refs are resolved (Pydantic v2)
 for _model in (
