@@ -90,7 +90,8 @@ if __name__ == "__main__":
         x, y = sample_target_parameters(w)
         fitts_trials.append(
             make_fitts_trial(
-                target_position=(x, y), target_size=w,
+                target_position=(x, y),
+                target_size=w,
             )
         )
 
