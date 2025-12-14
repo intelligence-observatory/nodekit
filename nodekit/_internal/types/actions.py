@@ -1,14 +1,15 @@
 from abc import ABC
-from typing import Literal, Union, Annotated, Dict
+from typing import Literal, Union, Annotated, Dict, Any
 
 import pydantic
 
-from nodekit._internal.types.values import PressableKey, SpatialPoint
+from nodekit._internal.types.values import PressableKey, SpatialPoint, Value
 
 
 # %%
 class BaseAction(pydantic.BaseModel, ABC):
     action_type: str
+    action_value: Any
 
 
 # %%
