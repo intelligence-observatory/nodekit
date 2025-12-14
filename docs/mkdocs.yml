@@ -20,18 +20,18 @@ nav:
       - Styling TextCards with Markdown: 'guides/styling-text.md'
       - Adding min and max time limits to Nodes: 'guides/adding-time-limits.md'
   - Reference:
-      - Node: api/node.md
-      - Graph: api/graph.md
-      - Trace: api/trace.md
-      - Cards: api/cards.md
-      - Sensors: api/sensors.md
-      - Actions: api/actions.md
-      - Transitions: api/transitions.md
-      - Events: api/events.md
-      - Expressions: api/expressions.md
-      - Assets: api/assets.md
-      - Values: api/values.md
-      - Ops: api/ops.md
+      - Node: reference/node.md
+      - Graph: reference/graph.md
+      - Trace: reference/trace.md
+      - Cards: reference/cards.md
+      - Sensors: reference/sensors.md
+      - Actions: reference/actions.md
+      - Transitions: reference/transitions.md
+      - Events: reference/events.md
+      - Expressions: reference/expressions.md
+      - Assets: reference/assets.md
+      - Values: reference/values.md
+      - Ops: reference/ops.md
 
 
 

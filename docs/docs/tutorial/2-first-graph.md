@@ -73,15 +73,6 @@ graph = nk.Graph(
 )
 ```
 
-### Sequencing Nodes and Graphs
-
-The Graph we have written expresses a single trial. One can combine multiple Graphs into a single "mega Graph" which executes them sequentially. While this could be done manually, NodeKit offers a `nk.concat` operation to avoid having to wire Nodes together: 
-
-```python
-import nodekit as nk
-my_task = nk.concat([trial1, trial2, trial3])
-```
-
 
 ## Play your task locally
 
@@ -93,3 +84,21 @@ trace = nk.play(graph)
 ```
 
 Navigate to the page, and you can play the Graph. Once the Graph completes, the `nk.play` call will return, and return a **Trace** containing your behavioral data.
+
+### Analyze a Run
+
+## Convenience methods
+### Sequencing via `nk.concat`
+
+The Graph we have written expresses a single trial. One can combine multiple Graphs into a single "mega Graph" which executes them sequentially. While this could be done manually, NodeKit offers a `nk.concat` operation to avoid having to wire Nodes together:
+
+```python
+import nodekit as nk
+my_task = nk.concat([trial1, trial2, trial3])
+```
+
+### Branching
+
+Up to this point, all the Graphs have involved _linear sequencing_ of Nodes, where Nodes are administered to the agent one after the other. 
+
+But many tasks involve branching. (todo)
