@@ -7,7 +7,7 @@ NodeKit describes tasks as a **Graph** of **Nodes**. Here's an example **Graph**
 
 
 ### What is a **Node**?
- A Node is conceptually simple. It can be understood as the combination of two things:
+ A Node can be understood as the combination of two things:
 
 1. A __Stimulus__ that the agent views, which might be an image, some text, a video, or a combination of such things. 
 2. An __ActionSet__, such as a set of legal keypresses, a set of slider values, or even the set of all text strings under length `n`. 
