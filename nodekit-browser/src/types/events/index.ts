@@ -1,5 +1,5 @@
 import type {NodeId, PixelSize, PressableKey, SpatialPoint, TimeElapsedMsec} from "../value.ts";
-import type {Action} from "../actions";
+import type {Action} from "../actions.ts";
 import type {Node} from "../node.ts";
 
 export interface BaseEvent<T extends string> {

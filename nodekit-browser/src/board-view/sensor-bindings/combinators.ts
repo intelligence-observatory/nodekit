@@ -1,6 +1,6 @@
 import {SensorBinding} from "./index.ts";
 import type {ProductSensor, Sensor, SumSensor} from "../../types/sensors";
-import type {Action, ProductAction, SumAction} from "../../types/actions";
+import type {Action, ProductAction, SumAction} from "../../types/actions.ts";
 import {createSensorBinding} from "./create-sensor-binding.ts";
 
 
@@ -43,7 +43,7 @@ export class ProductSensorBinding extends SensorBinding<ProductSensor>{
         }
         return {
             action_type: 'ProductAction',
-            child_actions: childActionsFinal,
+            action_value: childActionsFinal,
         }
     }
 
@@ -75,8 +75,7 @@ export class SumSensorBinding extends SensorBinding<SumSensor>{
                     // Emit immediately
                     const sumAction: SumAction = {
                         action_type: 'SumAction',
-                        child_id: childId,
-                        child_action: action,
+                        action_value: [childId, action]
                     }
                     if (!emitted){
                         emitted = true;

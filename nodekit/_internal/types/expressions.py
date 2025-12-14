@@ -30,7 +30,7 @@ class Local(BaseExpression):
 
 class LastAction(BaseExpression):
     """
-    Evaluates to the last completed Node's Action.
+    Evaluates to the last completed Node's Action.action_value.
     """
 
     op: Literal["la"] = "la"

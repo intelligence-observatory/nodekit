@@ -1,8 +1,9 @@
-import type {Dict, PressableKey, SpatialPoint} from "../value.ts";
-import type {SliderBinIndex} from "../../board-view/sensor-bindings/slider";
+import type {Dict, PressableKey, SpatialPoint} from "./value.ts";
+import type {SliderBinIndex} from "../board-view/sensor-bindings/slider";
 
 export interface BaseAction<T extends string> extends Dict {
     action_type: T
+    action_value: any
 }
 
 export interface ClickAction extends BaseAction<"ClickAction"> {
@@ -11,33 +12,32 @@ export interface ClickAction extends BaseAction<"ClickAction"> {
 }
 
 export interface KeyAction extends BaseAction<"KeyAction"> {
-    key: PressableKey;
+    action_value: PressableKey;
 }
 
 export interface SliderAction extends BaseAction<"SliderAction"> {
-    bin_index: SliderBinIndex
+    action_value: SliderBinIndex
 }
 export interface TextEntryAction extends BaseAction<"TextEntryAction"> {
-    text: string
+    action_value: string
 }
 
 export interface WaitAction extends BaseAction<"WaitAction">{}
 
 export interface SelectAction extends BaseAction<"SelectAction">{
-    selection: string
+    action_value: string
 }
 
 export interface MultiSelectAction extends BaseAction<"MultiSelectAction">{
-    selections: string[]
+    action_value: string[]
 }
 
 export interface ProductAction extends BaseAction<'ProductAction'> {
-    child_actions: Record<string, Action>
+    action_value: Record<string, Action>
 }
 
 export interface SumAction extends BaseAction<'SumAction'>{
-    child_id: string
-    child_action: Action
+    action_value: [string, Action]
 }
 
 // Union

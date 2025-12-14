@@ -1,6 +1,6 @@
 import type {Transition} from "../types/transition.ts";
 import type {NodeId, RegisterId, Value} from "../types/value.ts";
-import type {Action} from "../types/actions";
+import type {Action} from "../types/actions.ts";
 import {evl} from "../interpreter/expression-interpreter.ts";
 
 

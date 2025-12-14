@@ -1,6 +1,6 @@
 import type {ClickSensor} from "../../../types/sensors";
 import type {PointerSample} from "../../../input-streams/pointer-stream.ts";
-import type {ClickAction} from "../../../types/actions";
+import type {ClickAction} from "../../../types/actions.ts";
 import {SensorBinding} from "../index.ts";
 import {checkPointInRegion} from "../../../utils.ts";
 

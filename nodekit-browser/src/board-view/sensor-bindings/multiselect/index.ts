@@ -1,6 +1,6 @@
 import type {MultiSelectSensor} from "../../../types/sensors";
 import {SensorBinding} from "../index.ts";
-import type {MultiSelectAction} from "../../../types/actions";
+import type {MultiSelectAction} from "../../../types/actions.ts";
 import type {PointerSample} from "../../../input-streams/pointer-stream.ts";
 import {createCardView} from "../../card-views/create.ts";
 import type {CardView} from "../../card-views/card-view.ts";
@@ -67,7 +67,7 @@ export class MultiSelectSensorBinding extends SensorBinding<MultiSelectSensor> {
         const emitSelection = () => {
             const sensorValue: MultiSelectAction = {
                 action_type: "MultiSelectAction",
-                selections: Array.from(currentSelections),
+                action_value: Array.from(currentSelections),
             };
             this.emit(sensorValue);
         };
