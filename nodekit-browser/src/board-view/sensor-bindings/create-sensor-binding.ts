@@ -4,7 +4,6 @@ import {SensorBinding} from "./index.ts";
 import {SliderSensorBinding} from "./slider";
 import {TextEntrySensorBinding} from "./text-entry/text-entry.ts";
 import {KeySensorBinding} from "./key";
-import {ClickSensorBinding} from "./click";
 import {WaitSensorBinding} from "./wait";
 import {SelectSensorBinding} from "./select";
 import {MultiSelectSensorBinding} from "./multiselect";
@@ -31,14 +30,6 @@ export async function createSensorBinding(
         }
         case "KeySensor": {
             sensorBinding = new KeySensorBinding(
-                sensor,
-                boardView,
-                assetManager,
-            );
-            break
-        }
-        case "ClickSensor": {
-            sensorBinding = new ClickSensorBinding(
                 sensor,
                 boardView,
                 assetManager,

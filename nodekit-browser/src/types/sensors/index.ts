@@ -11,9 +11,7 @@ interface BaseSensor<T extends string> {
 export interface WaitSensor extends BaseSensor<"WaitSensor">{
     duration_msec: TimeDurationMsec
 }
-export interface ClickSensor extends BaseSensor<'ClickSensor'>{
-    region: Region
-}
+
 
 export interface KeySensor extends BaseSensor<'KeySensor'>{
     keys: Set<PressableKey>
@@ -60,7 +58,6 @@ export interface SumSensor extends BaseSensor<'SumSensor'> {
 
 
 export type Sensor =
-    | ClickSensor
     | KeySensor
     | SliderSensor
     | TextEntrySensor

@@ -3,6 +3,7 @@ export type Boolean = Readonly<boolean>
 export type Integer = Readonly<number>
 export type Float = Readonly<number>
 export type String = Readonly<string>
+export type Null = null
 
 // Containers
 export interface Dict {
@@ -16,6 +17,7 @@ export type LeafValue =
     | Integer
     | Float
     | String
+    | Null;
 
 export type Value =
     | LeafValue

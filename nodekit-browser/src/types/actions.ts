@@ -1,14 +1,9 @@
-import type {Dict, PressableKey, SpatialPoint} from "./value.ts";
+import type {Dict, PressableKey} from "./value.ts";
 import type {SliderBinIndex} from "../board-view/sensor-bindings/slider";
 
 export interface BaseAction<T extends string> extends Dict {
     action_type: T
     action_value: any
-}
-
-export interface ClickAction extends BaseAction<"ClickAction"> {
-    x: SpatialPoint;
-    y: SpatialPoint;
 }
 
 export interface KeyAction extends BaseAction<"KeyAction"> {
@@ -22,7 +17,9 @@ export interface TextEntryAction extends BaseAction<"TextEntryAction"> {
     action_value: string
 }
 
-export interface WaitAction extends BaseAction<"WaitAction">{}
+export interface WaitAction extends BaseAction<"WaitAction">{
+    action_value: null;
+}
 
 export interface SelectAction extends BaseAction<"SelectAction">{
     action_value: string
@@ -42,7 +39,6 @@ export interface SumAction extends BaseAction<'SumAction'>{
 
 // Union
 export type Action =
-    | ClickAction
     | KeyAction
     | SliderAction
     | TextEntryAction

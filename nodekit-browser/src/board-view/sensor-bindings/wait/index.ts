@@ -9,6 +9,7 @@ export class WaitSensorBinding extends SensorBinding<WaitSensor>{
             () => {
                 const waitAction: WaitAction = {
                     action_type: "WaitAction",
+                    action_value: null,
                 }
                 this.emit(waitAction)
             },

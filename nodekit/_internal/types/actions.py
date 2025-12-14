@@ -3,23 +3,13 @@ from typing import Literal, Union, Annotated, Dict, Any
 
 import pydantic
 
-from nodekit._internal.types.values import PressableKey, SpatialPoint
+from nodekit._internal.types.values import PressableKey
 
 
 # %%
 class BaseAction(pydantic.BaseModel, ABC):
     action_type: str
     action_value: Any
-
-# %%
-
-class ClickActionValue(pydantic.BaseModel):
-    x: SpatialPoint
-    y: SpatialPoint
-
-class ClickAction(BaseAction):
-    action_type: Literal["KeyAction"] = "ClickAction"
-    action_value: ClickActionValue = pydantic.Field(description="The location of the pointer click.")
 
 
 # %%

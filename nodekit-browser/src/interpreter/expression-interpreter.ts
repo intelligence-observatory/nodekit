@@ -43,7 +43,7 @@ export function evl(
             if (context.lastAction === null) {
                 throw new Error(`No last action available for 'la'`);
             }
-            return context.lastAction;
+            return context.lastAction.action_value;
         }
         case "gli": {
             const listVal = evl(

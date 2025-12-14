@@ -35,11 +35,6 @@ class WaitSensor(BaseSensor):
     )
 
 
-# %%
-class ClickSensor(BaseSensor):
-    sensor_type: Literal["ClickSensor"] = "ClickSensor"
-    region: Region
-
 
 # %%
 class KeySensor(BaseSensor):
@@ -143,7 +138,6 @@ class SumSensor(BaseSensor):
 type Sensor = Annotated[
     Union[
         WaitSensor,
-        ClickSensor,
         KeySensor,
         SelectSensor,
         MultiSelectSensor,
