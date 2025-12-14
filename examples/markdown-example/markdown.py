@@ -14,14 +14,7 @@ def make_text_node(text: str) -> nk.Node:
             h=0.6,
         ),
     )
-    sensor = nk.sensors.ClickSensor(
-        region=nk.Region(
-            x=0,
-            y=0,
-            w=1,
-            h=1,
-        )
-    )
+    sensor = nk.sensors.KeySensor(keys=[" "])
     return nk.Node(
         stimulus=stimulus,
         sensor=sensor,

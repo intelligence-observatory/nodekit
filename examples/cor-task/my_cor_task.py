@@ -22,10 +22,7 @@ def make_mts_trial(
     )
 
     fixation_node = nk.Node(
-        stimulus=fixation_cross,
-        sensor=nk.sensors.ClickSensor(
-            region=fixation_cross.region,
-        ),
+        sensor=nk.sensors.SelectSensor(choices={"fixation": fixation_cross}),
     )
 
     # Stimulus node
@@ -132,10 +129,7 @@ def make_mts_trial(
             "isi": nk.transitions.Go(to="choice"),
             "choice": nk.transitions.IfThenElse(
                 if_=nk.expressions.Eq(
-                    lhs=nk.expressions.GetDictValue(
-                        d=nk.expressions.LastAction(),
-                        key=nk.expressions.Lit(value="selection"),
-                    ),
+                    lhs=nk.expressions.LastAction(),
                     rhs=nk.expressions.Lit(value=f"choice{i_correct_choice}"),
                 ),
                 then=nk.transitions.Go(to="reward"),

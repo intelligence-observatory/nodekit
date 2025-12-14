@@ -29,10 +29,7 @@ def make_trial(
         region=nk.Region(x=0, y=0, w=0.05, h=0.05, mask="ellipse"),
     )
     fixation_node = nk.Node(
-        stimulus=fixation_cross,
-        sensor=nk.sensors.ClickSensor(
-            region=fixation_cross.region,
-        ),
+        sensor=nk.sensors.SelectSensor(choices={"fixation": fixation_cross}),
     )
 
     # Stimulus node
