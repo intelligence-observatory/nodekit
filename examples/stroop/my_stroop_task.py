@@ -182,10 +182,7 @@ def make_stroop_trial(
             "main": nk.transitions.IfThenElse(
                 if_=nk.expressions.Eq(
                     lhs=nk.expressions.Lit(value=stimulus_color.value[0]),
-                    rhs=nk.expressions.GetDictValue(
-                        d=nk.expressions.LastAction(),
-                        key=nk.expressions.Lit(value="key"),
-                    ),
+                    rhs=nk.expressions.LastAction(),
                 ),
                 then=nk.transitions.Go(to="correct"),
                 else_=nk.transitions.Go(to="incorrect"),

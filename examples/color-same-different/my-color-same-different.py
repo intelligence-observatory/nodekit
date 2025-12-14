@@ -111,10 +111,7 @@ def make_same_different_node(
             "fixation": nk.transitions.Go(to="main"),
             "main": nk.transitions.IfThenElse(
                 if_=nk.expressions.Eq(
-                    lhs=nk.expressions.GetDictValue(
-                        d=nk.expressions.LastAction(),
-                        key=nk.expressions.Lit(value="key"),
-                    ),
+                    lhs=nk.expressions.LastAction(),
                     rhs=nk.expressions.Lit(value=expected_key),
                 ),
                 then=nk.transitions.Go(to="reward"),

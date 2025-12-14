@@ -148,10 +148,7 @@ def make_trial(
             "isi": nk.transitions.Go(to="choice"),
             "choice": nk.transitions.IfThenElse(
                 if_=nk.expressions.Eq(
-                    lhs=nk.expressions.GetDictValue(
-                        d=nk.expressions.LastAction(),
-                        key=nk.expressions.Lit(value="selection"),
-                    ),
+                    lhs=nk.expressions.LastAction(),
                     rhs=nk.expressions.Lit(value=correct_choice),
                 ),
                 then=nk.transitions.Go(to="correct"),
