@@ -35,7 +35,7 @@ export interface Local extends BaseExpression {
 
 export interface LastAction extends BaseExpression {
     /**
-     * Evaluates to the last completed Node's Action.
+     * Evaluates to the last completed Node's Action.action_value.
      */
     op: "la";
 }
