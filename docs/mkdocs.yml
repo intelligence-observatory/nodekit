@@ -2,10 +2,22 @@ site_name: NodeKit
 
 nav:
   - Home: index.md
-  - Tutorial: 'tutorial/getting-started.md'
-  - Concepts: concepts/index.md
+  - Tutorial:
+      - 1. Install NodeKit: 'tutorial/1-installation.md'
+      - 2. Write your first Graph: 'tutorial/2-first-graph.md'
+      - 3. Deploy to agents: 'tutorial/3-deploy-graph.md'
+      - What's next?: 'tutorial/whats-next.md'
+  - Concepts:
+      - Node: concepts/nodes.md
+      - Cards: concepts/cards.md
+      - Sensors & Actions: concepts/sensors-actions.md
+      - Graph: concepts/index.md
+      - Transitions: concepts/control-flow.md
+      - Expressions & Values: concepts/control-flow.md
+      - Reproducibility: concepts/nkg-files.md
   - Guides:
       - Deploying to Mechanical Turk: 'guides/mechanical-turk.md'
+      - Styling TextCards with Markdown: 'guides/styling-text.md'
   - Reference:
       - Node: api/node.md
       - Graph: api/graph.md
@@ -67,7 +79,7 @@ plugins:
           inventories:
             - https://docs.python.org/3/objects.inv
             - https://docs.pydantic.dev/latest/objects.inv
-          paths: [".."]                     # allow imports from repo root
+          paths: [ ".." ]                     # allow imports from repo root
           options:
             modernize_annotations: true
             docstring_style: google        # or "numpy" / "sphinx"

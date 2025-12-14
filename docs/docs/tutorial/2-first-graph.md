@@ -1,37 +1,3 @@
-## Install NodeKit
-
-NodeKit uses the [uv](https://docs.astral.sh/uv/) Python package and project manager. 
-
-=== "macOS and Linux"
-
-    Install uv (if you don’t have it yet):
-
-    ```bash
-    curl -LsSf https://astral.sh/uv/install.sh | sh
-    ```
-
-    Install NodeKit in your project:
-
-    ```bash
-    uv init  # optional: creates pyproject.toml and a virtualenv
-    uv add nodekit
-    ```
-
-=== "Windows"
-
-    Install uv (if you don't have it yet):
-
-    ```powershell
-    irm https://astral.sh/uv/install.ps1 | iex
-    ```
-
-    Install NodeKit in your project:
-
-    ```powershell
-    uv init  # optional: creates pyproject.toml and a virtualenv
-    uv add nodekit
-
-    ```
 
 ## A brief primer on NodeKit
 
@@ -127,13 +93,3 @@ trace = nk.play(graph)
 ```
 
 Navigate to the page, and you can play the Graph. Once the Graph completes, the `nk.play` call will return, and return a **Trace** containing your behavioral data.
-
-## What's next?
-
-This tutorial showcased the core concepts of NodeKit: the **Node** and the **Graph**. Most of the code one will write when using NodeKit concerns the creation of Nodes and Graphs. 
-We wrote a fairly simple Graph in this tutorial, but more is possible: 
-
-- Stimuli involving **images or video**, or **combinations thereof**
-- More ActionSets, like the **WaitSensor**, **SliderSensor**, **SelectSensor**, and **TextEntrySensor**. 
-- Describing logic like **performance-gated blocks** using Graph Registers
-- Building a **website you can deploy to Mechanical Turk** from a Graph
