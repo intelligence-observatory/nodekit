@@ -30,6 +30,7 @@ class Agent(Protocol):
         ...
 
 
+# %%
 def simulate(
     graph: Graph,
     agent: Agent,
@@ -38,10 +39,27 @@ def simulate(
 
     time_elapsed_msec = 0
 
-    events = [e.TraceStartedEvent(t=time_elapsed_msec)]
+    events: list[e.Event] = [e.TraceStartedEvent(t=time_elapsed_msec)]
+
+    events.extend(
+        _simulate_core(
+            graph=graph,
+            agent=agent,
+            address=[]
+        )
+    )
 
     events.append(e.TraceEndedEvent(t=time_elapsed_msec))
 
     return Trace(
-        events=[],
+        events=events,
     )
+
+# %%
+def _simulate_core(
+    graph: Graph,
+    agent: Agent,
+    address: list[str],
+) -> list[e.Event]:
+    warnings.warn(message="Not implemented.")
+    return []
