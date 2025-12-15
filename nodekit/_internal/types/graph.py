@@ -22,9 +22,7 @@ class Graph(pydantic.BaseModel):
         description="The set of Transitions in the Graph, by NodeId.",
     )
 
-    start: NodeId = pydantic.Field(
-        description="The start Node of the Graph."
-    )
+    start: NodeId = pydantic.Field(description="The start Node of the Graph.")
 
     registers: Dict[RegisterId, Value] = pydantic.Field(
         default_factory=dict,
@@ -35,7 +33,6 @@ class Graph(pydantic.BaseModel):
     def check_graph_is_valid(
         self,
     ) -> Self:
-
         # Check the Graph has at least one Node:
         num_nodes = len(self.nodes)
         if num_nodes == 0:
@@ -48,21 +45,22 @@ class Graph(pydantic.BaseModel):
         # Check each Node has a Transition:
         for node_id in self.nodes:
             if node_id not in self.transitions:
-                raise ValueError(
-                    f"Node {node_id} has no corresponding Transition."
-                )
+                raise ValueError(f"Node {node_id} has no corresponding Transition.")
 
         # Check Transitions:
         for node_id, transition in self.transitions.items():
-
             # Check Transition corresponds to an existing Node:
             if node_id not in self.nodes:
-                raise ValueError(f"Transition found for Node {node_id} but Node does not exist.")
+                raise ValueError(
+                    f"Transition found for Node {node_id} but Node does not exist."
+                )
 
             # Check each Go transition points to an existing Node:
             for go_target_node_id in _gather_go_targets(transition):
                 if go_target_node_id not in self.nodes:
-                    raise ValueError(f"Go Transition from Node {node_id} points to non-existent Node {go_target_node_id}.")
+                    raise ValueError(
+                        f"Go Transition from Node {node_id} points to non-existent Node {go_target_node_id}."
+                    )
 
             # Todo: Check IfThenElse Transition clauses are Boolean-valued, and any Reg ops reference existing registers
             # Todo: Check Switch Transition 'on' expression type matches case keys, and any Reg ops reference existing registers
@@ -75,7 +73,9 @@ class Graph(pydantic.BaseModel):
         )
         orphan_nodes = set(self.nodes.keys()) - reachable_nodes
         if len(orphan_nodes) > 0:
-            raise ValueError(f"Found Nodes that are not reachable from the start Node {self.start}: {'\n'.join(list(orphan_nodes))}")
+            raise ValueError(
+                f"Found Nodes that are not reachable from the start Node {self.start}: {'\n'.join(list(orphan_nodes))}"
+            )
 
         # Check each Node has a path to an End transition (no loops without a possibility of exit)
         node_ids_with_path_to_end = _get_node_ids_with_path_to_end(
@@ -83,16 +83,20 @@ class Graph(pydantic.BaseModel):
         )
 
         if len(node_ids_with_path_to_end) < len(self.nodes):
-            nodes_without_path_to_end = set(self.nodes.keys()) - node_ids_with_path_to_end
-            raise ValueError(f"Found Nodes that do not have a path to an End transition: {'\n'.join(list(nodes_without_path_to_end))}")
+            nodes_without_path_to_end = (
+                set(self.nodes.keys()) - node_ids_with_path_to_end
+            )
+            raise ValueError(
+                f"Found Nodes that do not have a path to an End transition: {'\n'.join(list(nodes_without_path_to_end))}"
+            )
 
         return self
 
 
 # %%
 def _get_reachable_node_ids(
-        start: NodeId,
-        transitions: Dict[NodeId, Transition],
+    start: NodeId,
+    transitions: Dict[NodeId, Transition],
 ) -> set[NodeId]:
     """
     Returns the set of NodeIds reachable from the start NodeId, given these transitions.
@@ -112,7 +116,7 @@ def _get_reachable_node_ids(
         if current_node_id not in reachable_node_ids:
             reachable_node_ids.add(current_node_id)
 
-            if not current_node_id in transitions:
+            if current_node_id not in transitions:
                 raise ValueError(f"NodeId {current_node_id} not found in transitions.")
 
             current_transition = transitions[current_node_id]
@@ -124,7 +128,7 @@ def _get_reachable_node_ids(
 
 
 def _get_node_ids_with_path_to_end(
-        transitions: dict[NodeId, Transition]
+    transitions: dict[NodeId, Transition],
 ) -> set[NodeId]:
     """
     Returns the set of NodeIds that have a path to an End transition, given these transitions.
@@ -141,7 +145,9 @@ def _get_node_ids_with_path_to_end(
         if isinstance(transition, IfThenElse):
             return _contains_end(transition.then) or _contains_end(transition.else_)
         if isinstance(transition, Switch):
-            return any(_contains_end(t) for t in transition.cases.values()) or _contains_end(transition.default)
+            return any(
+                _contains_end(t) for t in transition.cases.values()
+            ) or _contains_end(transition.default)
         return False
 
     # Build reverse edges (target -> set of sources).
@@ -181,7 +187,9 @@ def _gather_go_targets(transition: Transition) -> list[NodeId]:
     if isinstance(transition, Go):
         return [transition.to]
     if isinstance(transition, IfThenElse):
-        return _gather_go_targets(transition.then) + _gather_go_targets(transition.else_)
+        return _gather_go_targets(transition.then) + _gather_go_targets(
+            transition.else_
+        )
     if isinstance(transition, Switch):
         targets: list[NodeId] = []
         for case_transition in transition.cases.values():

@@ -17,7 +17,9 @@ def test_requires_at_least_one_node():
 
 
 def test_start_node_exists():
-    with pytest.raises(pydantic.ValidationError, match="Start Node missing does not exist"):
+    with pytest.raises(
+        pydantic.ValidationError, match="Start Node missing does not exist"
+    ):
         nk.Graph(
             nodes={"start": wait_node()},
             transitions={"start": nk.transitions.End()},
@@ -26,7 +28,9 @@ def test_start_node_exists():
 
 
 def test_each_node_has_transition():
-    with pytest.raises(pydantic.ValidationError, match="has no corresponding Transition"):
+    with pytest.raises(
+        pydantic.ValidationError, match="has no corresponding Transition"
+    ):
         nk.Graph(
             nodes={
                 "start": wait_node(),
@@ -40,7 +44,10 @@ def test_each_node_has_transition():
 
 
 def test_transition_for_existing_node():
-    with pytest.raises(pydantic.ValidationError, match="Transition found for Node ghost but Node does not exist"):
+    with pytest.raises(
+        pydantic.ValidationError,
+        match="Transition found for Node ghost but Node does not exist",
+    ):
         nk.Graph(
             nodes={"start": wait_node()},
             transitions={
@@ -52,7 +59,9 @@ def test_transition_for_existing_node():
 
 
 def test_go_targets_exist():
-    with pytest.raises(pydantic.ValidationError, match="points to non-existent Node missing"):
+    with pytest.raises(
+        pydantic.ValidationError, match="points to non-existent Node missing"
+    ):
         nk.Graph(
             nodes={"start": wait_node()},
             transitions={"start": nk.transitions.Go(to="missing")},
@@ -61,7 +70,9 @@ def test_go_targets_exist():
 
 
 def test_ifthenelse_targets_exist():
-    with pytest.raises(pydantic.ValidationError, match="points to non-existent Node missing"):
+    with pytest.raises(
+        pydantic.ValidationError, match="points to non-existent Node missing"
+    ):
         nk.Graph(
             nodes={"start": wait_node()},
             transitions={
@@ -76,7 +87,9 @@ def test_ifthenelse_targets_exist():
 
 
 def test_switch_targets_exist():
-    with pytest.raises(pydantic.ValidationError, match="points to non-existent Node missing"):
+    with pytest.raises(
+        pydantic.ValidationError, match="points to non-existent Node missing"
+    ):
         nk.Graph(
             nodes={"start": wait_node()},
             transitions={
