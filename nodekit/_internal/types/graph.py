@@ -91,6 +91,12 @@ class Graph(pydantic.BaseModel):
                     f"Unhandled Transition type during register reference check: {type(transition)}"
                 )
 
+            undefined_regs = reg_refs - set(self.registers.keys())
+            if len(undefined_regs) > 0:
+                raise ValueError(
+                    f"Transition for Node {node_id} references undefined registers: {', '.join(undefined_regs)}"
+                )
+
         # Check each Node is reachable from the start Node (no orphan Nodes)
         reachable_nodes = _get_reachable_node_ids(
             start=self.start,
