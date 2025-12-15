@@ -17,8 +17,8 @@ nav:
       - Reproducibility: concepts/index.md
   - Guides:
       - Deploying to Mechanical Turk: 'guides/mechanical-turk.md'
-      - Markdown in TextCards: 'guides/styling-text.md'
-      - Adding min and max time limits to Nodes: 'guides/adding-time-limits.md'
+      - Using Markdown in TextCards: 'guides/styling-text.md'
+      - Adding time limits to Nodes: 'guides/adding-time-limits.md'
   - Reference:
       - Node: reference/node.md
       - Graph: reference/graph.md
