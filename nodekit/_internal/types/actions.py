@@ -13,9 +13,26 @@ class BaseAction(pydantic.BaseModel, ABC):
 
 
 # %%
+class WaitAction(BaseAction):
+    action_type: Literal["WaitAction"] = "WaitAction"
+    action_value: None = None
+
+
+# %%
 class KeyAction(BaseAction):
     action_type: Literal["KeyAction"] = "KeyAction"
     action_value: PressableKey = pydantic.Field(description="The key that was pressed.")
+
+
+# %%
+class SelectAction(BaseAction):
+    action_type: Literal["SelectAction"] = "SelectAction"
+    action_value: str = pydantic.Field(description="The selection made by the agent.")
+
+# %%
+class MultiSelectAction(BaseAction):
+    action_type: Literal["MultiSelectAction"] = "MultiSelectAction"
+    action_value: list[str] = pydantic.Field(description="The selections made by the agent.")
 
 
 # %%
@@ -29,23 +46,6 @@ class TextEntryAction(BaseAction):
     action_type: Literal["TextEntryAction"] = "TextEntryAction"
     action_value: str = pydantic.Field(description="The text that was entered by the agent.")
 
-
-# %%
-class WaitAction(BaseAction):
-    action_type: Literal["WaitAction"] = "WaitAction"
-    action_value: None = None
-
-
-# %%
-class SelectAction(BaseAction):
-    action_type: Literal["SelectAction"] = "SelectAction"
-    action_value: str = pydantic.Field(description="The selection made by the agent.")
-
-
-# %%
-class MultiSelectAction(BaseAction):
-    action_type: Literal["MultiSelectAction"] = "MultiSelectAction"
-    action_value: list[str] = pydantic.Field(description="The selections made by the agent.")
 
 
 # %%

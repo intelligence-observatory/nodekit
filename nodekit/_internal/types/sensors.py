@@ -59,9 +59,9 @@ class MultiSelectSensor(BaseSensor):
         description="The minimum number of Cards before the Sensor fires.",
     )
 
-    max_selections: int | None = pydantic.Field(
+    max_selections: int = pydantic.Field(
         default=None,
-        validate_default=True,
+        validate_default=False,
         ge=0,
         description="If None, the selection can contain up to the number of available Cards.",
     )
@@ -70,10 +70,17 @@ class MultiSelectSensor(BaseSensor):
 
     @pydantic.model_validator(mode="after")
     def validate_selections_vals(self) -> Self:
-        if self.max_selections is not None and self.max_selections < self.min_selections:
+        if self.max_selections is None:
+            self.max_selections = len(self.choices)
+        if self.max_selections < self.min_selections:
             raise pydantic.ValidationError(
                 f"max_selections ({self.max_selections}) must be greater than min_selections ({self.min_selections})",
             )
+        if self.max_selections > len(self.choices):
+            raise pydantic.ValidationError(
+                f"max_selections ({self.max_selections}) cannot be greater than the number of available choices ({len(self.choices)})",
+            )
+
         return self
 
 
