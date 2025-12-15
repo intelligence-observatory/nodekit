@@ -144,6 +144,20 @@ impl Board {
             self.dirty = false;
         }
     }
+
+    pub fn erase(&mut self, rect: &ClippedRect) {
+        let src_w = rect.src_size_clipped.w * STRIDE;
+        let src = &self.board8_clear[0..src_w];
+        (0..rect.src_size_clipped.h).for_each(|src_y| {
+            let dst_index = get_index(
+                rect.dst_position_clipped.x,
+                rect.dst_position_clipped.y + src_y,
+                rect.dst_size.w,
+                STRIDE,
+            );
+            self.board8_without_cursor[dst_index..dst_index + src_w].copy_from_slice(src);
+        });
+    }
 }
 
 impl Default for Board {
