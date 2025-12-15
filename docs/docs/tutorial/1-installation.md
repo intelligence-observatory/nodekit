@@ -1,6 +1,6 @@
 ## Install NodeKit
 
-NodeKit uses the [uv](https://docs.astral.sh/uv/) Python package and project manager. 
+NodeKit uses the [uv](https://docs.astral.sh/uv/) Python package and project manager.
 
 === "macOS and Linux"
 
@@ -30,10 +30,5 @@ NodeKit uses the [uv](https://docs.astral.sh/uv/) Python package and project man
     ```powershell
     uv init  # optional: creates pyproject.toml and a virtualenv
     uv add nodekit
+
     ```
-
-## Write your first task
-
-## Play your task locally
-
-## Deploy to Mechanical Turk

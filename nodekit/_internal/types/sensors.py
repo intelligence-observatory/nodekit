@@ -3,7 +3,7 @@ from typing import Literal, Annotated, Union, Self, Dict
 
 import pydantic
 
-from nodekit import Region
+from nodekit._internal.types.values import Region
 from nodekit._internal.types.cards import Card
 from nodekit._internal.types.values import (
     PressableKey,
@@ -33,12 +33,6 @@ class WaitSensor(BaseSensor):
         description="The number of milliseconds from the start of the Node when the Sensor triggers.",
         gt=0,
     )
-
-
-# %%
-class ClickSensor(BaseSensor):
-    sensor_type: Literal["ClickSensor"] = "ClickSensor"
-    region: Region
 
 
 # %%
@@ -143,7 +137,6 @@ class SumSensor(BaseSensor):
 type Sensor = Annotated[
     Union[
         WaitSensor,
-        ClickSensor,
         KeySensor,
         SelectSensor,
         MultiSelectSensor,

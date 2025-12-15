@@ -1,37 +1,27 @@
 from abc import ABC
-from typing import Literal, Union, Annotated, Dict
+from typing import Literal, Union, Annotated, Dict, Any
 
 import pydantic
 
-from nodekit._internal.types.values import PressableKey, SpatialPoint
+from nodekit._internal.types.values import PressableKey
 
 
 # %%
 class BaseAction(pydantic.BaseModel, ABC):
     action_type: str
-
-
-# %%
-class ClickAction(BaseAction):
-    action_type: Literal["ClickAction"] = "ClickAction"
-    x: SpatialPoint = pydantic.Field(
-        description="The x-coordinate of the click, in Board units."
-    )
-    y: SpatialPoint = pydantic.Field(
-        description="The y-coordinate of the click, in Board units."
-    )
+    action_value: Any
 
 
 # %%
 class KeyAction(BaseAction):
     action_type: Literal["KeyAction"] = "KeyAction"
-    key: PressableKey = pydantic.Field(description="The key that was pressed.")
+    action_value: PressableKey = pydantic.Field(description="The key that was pressed.")
 
 
 # %%
 class SliderAction(BaseAction):
     action_type: Literal["SliderAction"] = "SliderAction"
-    bin_index: int = pydantic.Field(
+    action_value: int = pydantic.Field(
         description="The index of the bin that was selected.", ge=0
     )
 
@@ -39,43 +29,50 @@ class SliderAction(BaseAction):
 # %%
 class TextEntryAction(BaseAction):
     action_type: Literal["TextEntryAction"] = "TextEntryAction"
-    text: str
+    action_value: str = pydantic.Field(
+        description="The text that was entered by the agent."
+    )
 
 
 # %%
 class WaitAction(BaseAction):
     action_type: Literal["WaitAction"] = "WaitAction"
+    action_value: None = None
 
 
 # %%
 class SelectAction(BaseAction):
     action_type: Literal["SelectAction"] = "SelectAction"
-    selection: str
+    action_value: str = pydantic.Field(description="The selection made by the agent.")
 
 
 # %%
 class MultiSelectAction(BaseAction):
     action_type: Literal["MultiSelectAction"] = "MultiSelectAction"
-    selections: list[str]
+    action_value: list[str] = pydantic.Field(
+        description="The selections made by the agent."
+    )
 
 
 # %%
 class ProductAction(BaseAction):
     action_type: Literal["ProductAction"] = "ProductAction"
-    child_actions: Dict[str, "Action"]
+    action_value: Dict[str, "Action"] = pydantic.Field(
+        description="A dictionary mapping child IDs to their corresponding Actions."
+    )
 
 
 # %%
 class SumAction(BaseAction):
     action_type: Literal["SumAction"] = "SumAction"
-    child_id: str
-    child_action: "Action"
+    action_value: tuple[str, "Action"] = pydantic.Field(
+        description="A tuple of (winner_id, Action) taken by the child node."
+    )
 
 
 # %%
 type Action = Annotated[
     Union[
-        ClickAction,
         KeyAction,
         SliderAction,
         TextEntryAction,

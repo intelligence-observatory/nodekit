@@ -1,4 +1,4 @@
-from typing import Dict, Literal, Annotated
+from typing import Dict, Literal, Annotated, Union
 
 import pydantic
 
@@ -68,4 +68,12 @@ class Switch(BaseTransition):
 
 
 # %%
-type Transition = Go | End | Switch | IfThenElse
+type Transition = Annotated[
+    Union[
+        Go,
+        End,
+        IfThenElse,
+        Switch,
+    ],
+    pydantic.Field(discriminator="transition_type"),
+]

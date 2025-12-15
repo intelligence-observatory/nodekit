@@ -7,12 +7,13 @@ type Boolean = bool
 type Integer = int
 type Float = float
 type String = str
+type Null = None
 
 # Containers
 type List = list["Value"]
 type Dict = dict[str, "Value"]
 # Full Value
-type LeafValue = Boolean | Integer | Float | String
+type LeafValue = Boolean | Integer | Float | String | Null
 type Value = LeafValue | List | Dict
 
 

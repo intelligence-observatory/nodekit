@@ -1,4 +1,4 @@
-import type {Action} from "../../types/actions";
+import type {Action} from "../../types/actions.ts";
 import type {Sensor} from "../../types/sensors";
 import {type BoardView} from "../board-view.ts";
 import type {AssetManager} from "../../asset-manager";

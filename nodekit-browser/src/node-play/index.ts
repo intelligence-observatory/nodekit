@@ -1,5 +1,5 @@
 import type {Node} from "../types/node.ts";
-import type {Action} from "../types/actions/";
+import type {Action} from "../types/actions.ts";
 import {BoardView} from "../board-view/board-view.ts";
 import {EventScheduler} from "./event-scheduler.ts";
 import type {AssetManager} from "../asset-manager";

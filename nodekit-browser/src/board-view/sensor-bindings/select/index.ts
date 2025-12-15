@@ -1,6 +1,6 @@
 import type {SelectSensor} from "../../../types/sensors";
 import {SensorBinding} from "../index.ts";
-import type {SelectAction} from "../../../types/actions";
+import type {SelectAction} from "../../../types/actions.ts";
 import type {PointerSample} from "../../../input-streams/pointer-stream.ts";
 import type {CardView} from "../../card-views/card-view.ts";
 import {createCardView} from "../../card-views/create.ts";
@@ -64,7 +64,7 @@ export class SelectSensorBinding extends SensorBinding<SelectSensor> {
                 // Emit selection
                 const sensorValue: SelectAction = {
                     action_type: 'SelectAction',
-                    selection: choiceId,
+                    action_value: choiceId,
                 };
                 this.emit(sensorValue);
                 break;

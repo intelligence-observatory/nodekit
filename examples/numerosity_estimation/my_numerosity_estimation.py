@@ -16,11 +16,8 @@ def make_numerosity_trial(
         ),
     )
 
-    click_sensor = nk.sensors.ClickSensor(region=fixation_card.region)
-
     fixation_node = nk.Node(
-        stimulus=fixation_card,
-        sensor=click_sensor,
+        sensor=nk.sensors.SelectSensor(choices={"fixation": fixation_card}),
     )
 
     # Stimulus Node:

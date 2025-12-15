@@ -29,10 +29,7 @@ def make_trial(
         region=nk.Region(x=0, y=0, w=0.05, h=0.05, mask="ellipse"),
     )
     fixation_node = nk.Node(
-        stimulus=fixation_cross,
-        sensor=nk.sensors.ClickSensor(
-            region=fixation_cross.region,
-        ),
+        sensor=nk.sensors.SelectSensor(choices={"fixation": fixation_cross}),
     )
 
     # Stimulus node
@@ -151,10 +148,7 @@ def make_trial(
             "isi": nk.transitions.Go(to="choice"),
             "choice": nk.transitions.IfThenElse(
                 if_=nk.expressions.Eq(
-                    lhs=nk.expressions.GetDictValue(
-                        d=nk.expressions.LastAction(),
-                        key=nk.expressions.Lit(value="selection"),
-                    ),
+                    lhs=nk.expressions.LastAction(),
                     rhs=nk.expressions.Lit(value=correct_choice),
                 ),
                 then=nk.transitions.Go(to="correct"),

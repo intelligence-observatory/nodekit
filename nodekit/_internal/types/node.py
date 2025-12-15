@@ -11,6 +11,7 @@ from nodekit._internal.types.values import ColorHexString
 class Node(pydantic.BaseModel):
     type: Literal["Node"] = "Node"
     stimulus: Card | None = pydantic.Field(
+        default=None,
         description="The visual context presented to the Participant during this Node. If None, the Board will be blank (except for the background color).",
     )
     sensor: Sensor = pydantic.Field(
