@@ -219,6 +219,8 @@ dependencies = [
 [[package]]
 name = "blittle"
 version = "0.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fab6d8d423c001ae90f5eab433c49e4ea252454b4b4acf28a68ad00fd134ee34"
 dependencies = [
  "bytemuck",
  "glam",
