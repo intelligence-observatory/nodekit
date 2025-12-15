@@ -1,4 +1,3 @@
-use blittle::ClippedRect;
 use nodekit_rs_visual::{Board, RgbaBuffer, VisualBuffer};
 
 pub struct TextBuffers {

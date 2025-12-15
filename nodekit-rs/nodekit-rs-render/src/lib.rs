@@ -251,51 +251,7 @@ mod tests {
 
     #[test]
     fn test_render() {
-        let video_path = PathBuf::from("../nodekit-rs-video/test-video.mp4");
-        assert!(video_path.exists());
-
-        let cards = vec![
-            Card {
-                region: Region {
-                    x: -0.4,
-                    y: -0.4,
-                    w: 0.3,
-                    h: 0.3,
-                    z_index: Some(0),
-                },
-                card_type: CardType::Image(Asset::Path(image_path)),
-            },
-            Card {
-                region: Region {
-                    x: 0.,
-                    y: 0.1,
-                    w: 0.4,
-                    h: 0.6,
-                    z_index: Some(1),
-                },
-                card_type: CardType::Video {
-                    asset: Asset::Path(video_path),
-                    looped: false,
-                },
-            },
-            Card {
-                region: Region {
-                    x: -0.5,
-                    y: -0.5,
-                    w: 1.,
-                    h: 1.,
-                    z_index: Some(2),
-                },
-                card_type: CardType::Text(TextCard {
-                    text: include_str!("../../nodekit-rs-text/lorem.txt").to_string(),
-                    font_size: 0.02,
-                    justification_horizontal: JustificationHorizontal::Left,
-                    justification_vertical: JustificationVertical::Center,
-                    text_color: "#003300FF".to_string(),
-                    background_color: "#EEEEEE11".to_string(),
-                }),
-            },
-        ];
+        let cards = vec![image_card(), video_card(), text_card()];
 
         let mut state = State::from_cards("#AAAAAAFF".to_string(), cards);
         let mut renderer = Renderer::default();
@@ -337,7 +293,25 @@ mod tests {
         }
     }
 
-
+    fn text_card() -> Card {
+        Card {
+            region: Region {
+                x: -0.5,
+                y: -0.5,
+                w: 1.,
+                h: 1.,
+                z_index: Some(2),
+            },
+            card_type: CardType::Text(TextCard {
+                text: include_str!("../../nodekit-rs-text/lorem.txt").to_string(),
+                font_size: 0.02,
+                justification_horizontal: JustificationHorizontal::Left,
+                justification_vertical: JustificationVertical::Center,
+                text_color: "#003300FF".to_string(),
+                background_color: "#EEEEEE11".to_string(),
+            }),
+        }
+    }
 
     fn render_image(renderer: &mut Renderer, state: &mut State, t_msec: u64, filename: &str) {
         state.t_msec = t_msec;
@@ -347,6 +321,40 @@ mod tests {
 
     #[test]
     fn test_dirty_rects() {
+        let mut renderer = Renderer::new();
+        let mut state = State::from_cards("#AAAAAAFF".to_string(), vec![image_card()]);
+        renderer.start(&state).unwrap();
+        // No need to re-blit.
+        assert!(renderer.dirty_rects.is_empty());
+        state.cards = vec![text_card()];
+        renderer.start(&state).unwrap();
+        // No need to re-blit.
+        assert!(renderer.dirty_rects.is_empty());
 
+        state = State::from_cards("#AAAAAAFF".to_string(), vec![image_card(), text_card()]);
+        renderer.start(&state).unwrap();
+        // No need to re-blit.
+        assert!(renderer.dirty_rects.is_empty());
+
+        state = State::from_cards("#AAAAAAFF".to_string(), vec![video_card()]);
+        renderer.start(&state).unwrap();
+        // Always re-blit a video.
+        assert_eq!(renderer.dirty_rects.len(), 1);
+
+        state = State::from_cards(
+            "#AAAAAAFF".to_string(),
+            vec![image_card(), video_card(), text_card()],
+        );
+        renderer.start(&state).unwrap();
+        // Always re-blit a video.
+        assert_eq!(renderer.dirty_rects.len(), 3);
+
+        state = State::from_cards(
+            "#AAAAAAFF".to_string(),
+            vec![image_card(), text_card(), video_card()],
+        );
+        renderer.start(&state).unwrap();
+        // Always re-blit a video.
+        assert_eq!(renderer.dirty_rects.len(), 3);
     }
 }

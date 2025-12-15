@@ -13,10 +13,7 @@ impl DirtyRect {
     pub fn from_text_buffers(value: &TextBuffers) -> Option<Self> {
         match &value.background {
             Some(buffer) => Some(Self::from(buffer)),
-            None => match &value.foreground {
-                Some(foreground) => Some(Self::from(foreground)),
-                None => None,
-            },
+            None => value.foreground.as_ref().map(Self::from),
         }
     }
 }
