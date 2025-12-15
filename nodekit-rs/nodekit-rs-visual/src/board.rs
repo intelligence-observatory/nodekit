@@ -108,23 +108,29 @@ impl Board {
     pub fn blit_cursor(&mut self, buffer: &[Vec4], rect: &Option<ClippedRect>) -> &[u8] {
         // Apply remaining overlays.
         self.apply_overlays();
-        // Convert RGB8 data into RGBA32 data.
-        rgb8_to_rgba32_in_place(&self.board8_without_cursor, &mut self.board32);
 
         // Overlay cursor.
         if let Some(rect) = rect {
-            overlay_rgba32(buffer, &mut self.board32, rect);
+            // Copy to the final board.
+            self.board8_final
+                .copy_from_slice(&self.board8_without_cursor);
+            // Overlay the cursor.
+            let dst = cast_slice_mut::<u8, [u8; STRIDE]>(&mut self.board8_final);
+            (0..rect.src_size_clipped.h).for_each(|src_y| {
+                let src_index = Self::get_index32(0, src_y, rect.src_size.w);
+                let dst_index = Self::get_index32(
+                    rect.dst_position_clipped.x,
+                    rect.dst_position_clipped.y + src_y,
+                    rect.dst_size.w,
+                );
+                buffer[src_index..src_index + rect.src_size_clipped.w]
+                    .iter()
+                    .zip(dst[dst_index..dst_index + rect.src_size_clipped.w].iter_mut())
+                    .for_each(|(src, dst)| {
+                        Self::overlay_pixel_rgb(src, dst);
+                    });
+            });
         }
-
-        // Copy to the final board.
-        self.board8_final
-            .copy_from_slice(&self.board8_without_cursor);
-        // Apply the overlaid cursor.
-        rgba32_to_rgb8_in_place(&self.board32, &mut self.board8_final);
-        // Clear overlays.
-        self.board32.copy_from_slice(&self.board32_zeros);
-        // Clean.
-        self.dirty = false;
         &self.board8_final
     }
 
@@ -143,6 +149,33 @@ impl Board {
             // Clean.
             self.dirty = false;
         }
+    }
+
+    /// Overlay a `src` pixel onto a `dst` pixel.
+    fn overlay_pixel_rgb(src: &Vec4, dst: &mut [u8; STRIDE]) {
+        // https://github.com/aiueo13/image-overlay/blob/master/src/blend/fns.rs
+        let one_minus_src_a = 1. - src.w;
+        let alpha_final = src.w + one_minus_src_a;
+        if alpha_final > 0. {
+            dst[0] = Self::overlay_c(src.x, dst[0], src.w, one_minus_src_a, alpha_final);
+            dst[1] = Self::overlay_c(src.y, dst[1], src.w, one_minus_src_a, alpha_final);
+            dst[2] = Self::overlay_c(src.z, dst[2], src.w, one_minus_src_a, alpha_final);
+        }
+    }
+
+    /// Source: https://www.reddit.com/r/rust/comments/mvbn2g/compositing_colors
+    const fn overlay_c(
+        src: f32,
+        dst: u8,
+        src_alpha: f32,
+        one_minus_src_a: f32,
+        alpha_final: f32,
+    ) -> u8 {
+        (((src * src_alpha + (dst as f32 / 255.) * one_minus_src_a) / alpha_final) * 255.) as u8
+    }
+
+    const fn get_index32(x: usize, y: usize, w: usize) -> usize {
+        x + y * w
     }
 }
 
