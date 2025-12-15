@@ -43,7 +43,7 @@ pub struct Renderer {
     /// Cached assets.
     assets: SlotMap<AssetKey, Asset>,
     /// These assets need to be cleared and re-filled per frame.
-    dirty_rects: Vec<AssetKey>,
+    dynamic_assets: Vec<AssetKey>,
     /// The known state ID.
     id: Option<Uuid>,
     cursor: Cursor,
@@ -107,7 +107,7 @@ impl Renderer {
             self.start(state)?;
         } else {
             // Re-render dirty assets.
-            for key in self.dirty_rects.iter() {
+            for key in self.dynamic_assets.iter() {
                 // Blit.
                 render_asset!(self, &mut self.assets[*key], state);
             }
@@ -154,7 +154,7 @@ impl Renderer {
     fn fill_and_cache(&mut self, state: &State) -> Result<(), Error> {
         // Clear the asset caches.
         self.assets.clear();
-        self.dirty_rects.clear();
+        self.dynamic_assets.clear();
         // Cache assets.
         self.cache(state)?;
         // Find dirty rects.
@@ -204,7 +204,7 @@ impl Renderer {
             })
             .collect::<SecondaryMap<AssetKey, ClippedRect>>();
         self.get_dirty_rects_inner(&mut dirty_rects);
-        self.dirty_rects = dirty_rects.keys().collect();
+        self.dynamic_assets = dirty_rects.keys().collect();
     }
 
     fn get_dirty_rects_inner(&mut self, dirty_rects: &mut SecondaryMap<AssetKey, ClippedRect>) {
@@ -317,21 +317,21 @@ mod tests {
         let mut state = State::from_cards("#AAAAAAFF".to_string(), vec![image_card()]);
         renderer.start(&state).unwrap();
         // No need to re-blit.
-        assert!(renderer.dirty_rects.is_empty());
+        assert!(renderer.dynamic_assets.is_empty());
         state.cards = vec![text_card()];
         renderer.start(&state).unwrap();
         // No need to re-blit.
-        assert!(renderer.dirty_rects.is_empty());
+        assert!(renderer.dynamic_assets.is_empty());
 
         state = State::from_cards("#AAAAAAFF".to_string(), vec![image_card(), text_card()]);
         renderer.start(&state).unwrap();
         // No need to re-blit.
-        assert!(renderer.dirty_rects.is_empty());
+        assert!(renderer.dynamic_assets.is_empty());
 
         state = State::from_cards("#AAAAAAFF".to_string(), vec![video_card()]);
         renderer.start(&state).unwrap();
         // Always re-blit a video.
-        assert_eq!(renderer.dirty_rects.len(), 1);
+        assert_eq!(renderer.dynamic_assets.len(), 1);
 
         state = State::from_cards(
             "#AAAAAAFF".to_string(),
@@ -339,7 +339,7 @@ mod tests {
         );
         renderer.start(&state).unwrap();
         // Always re-blit a video.
-        assert_eq!(renderer.dirty_rects.len(), 3);
+        assert_eq!(renderer.dynamic_assets.len(), 3);
 
         state = State::from_cards(
             "#AAAAAAFF".to_string(),
@@ -347,6 +347,6 @@ mod tests {
         );
         renderer.start(&state).unwrap();
         // Always re-blit a video.
-        assert_eq!(renderer.dirty_rects.len(), 3);
+        assert_eq!(renderer.dynamic_assets.len(), 3);
     }
 }
