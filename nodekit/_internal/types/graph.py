@@ -84,7 +84,7 @@ def _validate_transition(
         registers: Dict[RegisterId, Value],
 ) -> None:
     """
-    This function validates that the given transition is valid for the given graph child and and graph registers.
+    This function validates that the given transition is valid for the given graph child and graph registers.
     For example, if the Transition references a RegisterId, it checks that the RegisterId exists in the registers dict.
 
     Args:
