@@ -70,10 +70,7 @@ class MultiSelectSensor(BaseSensor):
 
     @pydantic.model_validator(mode="after")
     def validate_selections_vals(self) -> Self:
-        if (
-            self.max_selections is not None
-            and self.max_selections < self.min_selections
-        ):
+        if self.max_selections is not None and self.max_selections < self.min_selections:
             raise pydantic.ValidationError(
                 f"max_selections ({self.max_selections}) must be greater than min_selections ({self.min_selections})",
             )

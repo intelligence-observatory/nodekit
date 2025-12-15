@@ -14,14 +14,10 @@ import nodekit as nk
 class MarsItem(BaseModel):
     form: int = Field(..., description="Test/form family (tfN)")
     item: int = Field(..., description="Item ID within form")
-    tile_type: Literal["M", "T"] = Field(
-        description="'M' for missing tile or 'T' for test option"
-    )
+    tile_type: Literal["M", "T"] = Field(description="'M' for missing tile or 'T' for test option")
     tile_index: Optional[int] = Field(description="Tile index (1–4) if applicable")
     shape_set: int = Field(..., description="Shape set index (ss1–ss3)")
-    variant: Literal["pd", "md"] | None = Field(
-        default=None, description="Presentation variant"
-    )
+    variant: Literal["pd", "md"] | None = Field(default=None, description="Presentation variant")
     ext: str = Field(..., description="File extension (e.g. jpeg)")
 
     @classmethod
@@ -151,9 +147,7 @@ if __name__ == "__main__":
     for i in range(10):
         item = i + 1
         stim_path = glob.glob(f"./items-png/tf1/{item}/tf1_{item}_M_ss*.png")[0]
-        correct_choice = glob.glob(f"./items-png/tf1/{item}/tf1_{item}_T1_ss*_md.png")[
-            0
-        ]
+        correct_choice = glob.glob(f"./items-png/tf1/{item}/tf1_{item}_T1_ss*_md.png")[0]
         distractor1 = glob.glob(f"./items-png/tf1/{item}/tf1_{item}_T2_ss*_md.png")[0]
         distractor2 = glob.glob(f"./items-png/tf1/{item}/tf1_{item}_T3_ss*_md.png")[0]
         distractor3 = glob.glob(f"./items-png/tf1/{item}/tf1_{item}_T4_ss*_md.png")[0]

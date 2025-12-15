@@ -63,9 +63,7 @@ class TextCard(BaseLeafCard):
     )
     justification_horizontal: Literal["left", "center", "right"] = "center"
     justification_vertical: Literal["top", "center", "bottom"] = "center"
-    text_color: ColorHexString = pydantic.Field(
-        default="#000000", validate_default=True
-    )
+    text_color: ColorHexString = pydantic.Field(default="#000000", validate_default=True)
     background_color: ColorHexString = pydantic.Field(
         default="#E6E6E600",  # Transparent by default
         description="The background color of the TextCard in hexadecimal format.",

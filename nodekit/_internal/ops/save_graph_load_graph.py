@@ -79,9 +79,7 @@ def save_graph(
             for asset_key, asset_locator in supplied_assets.items():
                 with open_asset(asset_locator) as src_file:
                     media_type, sha256 = asset_key
-                    archive_relative_path = _get_archive_relative_path(
-                        media_type, sha256
-                    )
+                    archive_relative_path = _get_archive_relative_path(media_type, sha256)
                     with myzip.open(str(archive_relative_path), "w") as dst_file:
                         shutil.copyfileobj(src_file, dst_file)
 

@@ -7,9 +7,8 @@ from nodekit._internal.types.actions import Action
 from nodekit._internal.types.expressions import Expression, LocalVariableName
 from nodekit._internal.types.values import RegisterId, Value
 
+
 # %% Context
-
-
 @dataclass(frozen=True)
 class EvalContext:
     graph_registers: Mapping[RegisterId, Value]
@@ -19,7 +18,6 @@ class EvalContext:
 
 
 # %% Helpers
-
 def _js_type(value: Value) -> str:
     if isinstance(value, bool):
         return "boolean"
@@ -54,8 +52,6 @@ def _strict_equal(lhs: Value, rhs: Value) -> bool:
 
 
 # %% Core evaluator
-
-
 def evaluate_expression(
     expression: Expression,
     context: EvalContext,
@@ -165,9 +161,7 @@ def evaluate_expression(
             )
 
         if not (_is_number(lhs) or isinstance(lhs, str)):
-            raise ValueError(
-                f"{op}: only number or string comparison supported, got '{lhs_type}'"
-            )
+            raise ValueError(f"{op}: only number or string comparison supported, got '{lhs_type}'")
 
         if op == "gt":
             return lhs > rhs  # type: ignore[operator]
@@ -199,9 +193,7 @@ def evaluate_expression(
     if op == "append":
         array_val = evaluate_expression(expression.array, context)
         if not isinstance(array_val, list):
-            raise ValueError(
-                f"append: array must be array, got '{_js_type(array_val)}'"
-            )
+            raise ValueError(f"append: array must be array, got '{_js_type(array_val)}'")
 
         value_val = evaluate_expression(expression.value, context)
         return [*array_val, value_val]
@@ -209,15 +201,11 @@ def evaluate_expression(
     if op == "concat":
         array_val = evaluate_expression(expression.array, context)
         if not isinstance(array_val, list):
-            raise ValueError(
-                f"concat: array must be array, got '{_js_type(array_val)}'"
-            )
+            raise ValueError(f"concat: array must be array, got '{_js_type(array_val)}'")
 
         value_val = evaluate_expression(expression.value, context)
         if not isinstance(value_val, list):
-            raise ValueError(
-                f"concat: value must be array, got '{_js_type(value_val)}'"
-            )
+            raise ValueError(f"concat: value must be array, got '{_js_type(value_val)}'")
 
         return [*array_val, *value_val]
 
@@ -228,9 +216,7 @@ def evaluate_expression(
 
         start_val = evaluate_expression(expression.start, context)
         if not _is_number(start_val):
-            raise ValueError(
-                f"slice: start must be number, got '{_js_type(start_val)}'"
-            )
+            raise ValueError(f"slice: start must be number, got '{_js_type(start_val)}'")
 
         end_val: int | None = None
         if expression.end is not None:
@@ -259,9 +245,7 @@ def evaluate_expression(
     if op == "filter":
         array_val = evaluate_expression(expression.array, context)
         if not isinstance(array_val, list):
-            raise ValueError(
-                f"filter: array must be array, got '{_js_type(array_val)}'"
-            )
+            raise ValueError(f"filter: array must be array, got '{_js_type(array_val)}'")
 
         cur_name = expression.cur
 
@@ -272,9 +256,7 @@ def evaluate_expression(
                 _with_locals(context, **{cur_name: elem}),
             )
             if not isinstance(keep, bool):
-                raise ValueError(
-                    f"filter: predicate must be boolean, got '{_js_type(keep)}'"
-                )
+                raise ValueError(f"filter: predicate must be boolean, got '{_js_type(keep)}'")
             if keep:
                 result.append(elem)
         return result

@@ -40,9 +40,7 @@ class BaseEvent(pydantic.BaseModel):
 
 # %% System events
 class TraceStartedEvent(BaseEvent):
-    event_type: Literal[EventTypeEnum.TraceStartedEvent] = (
-        EventTypeEnum.TraceStartedEvent
-    )
+    event_type: Literal[EventTypeEnum.TraceStartedEvent] = EventTypeEnum.TraceStartedEvent
 
 
 class TraceEndedEvent(BaseEvent):
@@ -54,9 +52,7 @@ class PageSuspendedEvent(BaseEvent):
     Emitted when a Participant suspends the page (e.g., closes the tab or navigates away).
     """
 
-    event_type: Literal[EventTypeEnum.PageSuspendedEvent] = (
-        EventTypeEnum.PageSuspendedEvent
-    )
+    event_type: Literal[EventTypeEnum.PageSuspendedEvent] = EventTypeEnum.PageSuspendedEvent
 
 
 class PageResumedEvent(BaseEvent):
@@ -76,9 +72,7 @@ class BrowserContextSampledEvent(BaseEvent):
     event_type: Literal[EventTypeEnum.BrowserContextSampledEvent] = (
         EventTypeEnum.BrowserContextSampledEvent
     )
-    user_agent: str = pydantic.Field(
-        description="The user agent string of the browser."
-    )
+    user_agent: str = pydantic.Field(description="The user agent string of the browser.")
     timestamp_client: str = pydantic.Field(
         description="The ISO8601-formatted timestamp that the Participant's browser disclosed at the time of this event."
     )
@@ -93,9 +87,7 @@ class BrowserContextSampledEvent(BaseEvent):
 
 # %%
 class PointerSampledEvent(BaseEvent):
-    event_type: Literal[EventTypeEnum.PointerSampledEvent] = (
-        EventTypeEnum.PointerSampledEvent
-    )
+    event_type: Literal[EventTypeEnum.PointerSampledEvent] = EventTypeEnum.PointerSampledEvent
     x: SpatialPoint
     y: SpatialPoint
     kind: Literal["move", "down", "up"]

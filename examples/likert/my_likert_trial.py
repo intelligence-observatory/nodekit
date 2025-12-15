@@ -13,9 +13,7 @@ def make_likert_trial(
     The bottom 1/2 of the Board is used to show the Likert scale and submit button.
     """
     if initial_index < 0 or initial_index >= len(ordinal_choice_descriptions):
-        raise ValueError(
-            "initial_index must be between 0 and len(ordinal_choice_descriptions) - 1"
-        )
+        raise ValueError("initial_index must be between 0 and len(ordinal_choice_descriptions) - 1")
 
     question_card = nk.cards.TextCard(
         region=nk.Region(

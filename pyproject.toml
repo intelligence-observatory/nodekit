@@ -21,16 +21,6 @@ dependencies = [
     "matplotlib>=3.10.8",
 ]
 
-[project.urls]
-repository = "https://github.com/intelligence-observatory/nodekit"
-
-[tool.uv.build-backend]
-module-name = "nodekit"
-module-root = ""
-
-[tool.ty.src]
-exclude = []
-
 [dependency-groups]
 dev = [
     "griffe-pydantic>=1.1.8",
@@ -41,6 +31,20 @@ dev = [
     "ruff>=0.14.0",
     "ty>=0.0.1a22",
 ]
+
+[project.urls]
+repository = "https://github.com/intelligence-observatory/nodekit"
+
+[tool.uv.build-backend]
+module-name = "nodekit"
+module-root = ""
+
+[tool.ty.src]
+exclude = []
+
+[tool.ruff]
+line-length = 100
+
 
 [tool.pytest.ini_options]
 pythonpath = ["."]

@@ -121,9 +121,7 @@ class LocalRunner:
         def get_nodekit_css(css_hash: str) -> fastapi.responses.PlainTextResponse:
             if not css_hash == NODEKIT_CSS_HASH:
                 raise fastapi.HTTPException(status_code=404, detail="CSS not found")
-            return fastapi.responses.PlainTextResponse(
-                bundle.css, media_type="text/css"
-            )
+            return fastapi.responses.PlainTextResponse(bundle.css, media_type="text/css")
 
         @app.get("/health")
         def health():

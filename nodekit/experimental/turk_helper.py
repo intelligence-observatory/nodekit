@@ -113,9 +113,7 @@ class Helper:
                 savepath.parent.mkdir(parents=True)
             savepath.write_text(hit_request.model_dump_json(indent=2))
         except Exception as e:
-            raise Exception(
-                f"Could not save Graph for HIT ({hit_id}) to local cache."
-            ) from e
+            raise Exception(f"Could not save Graph for HIT ({hit_id}) to local cache.") from e
 
         return hit_id
 

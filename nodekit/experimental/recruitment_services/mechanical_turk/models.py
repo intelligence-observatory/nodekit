@@ -16,9 +16,7 @@ class HIT(pydantic.BaseModel):
     Description: str
     Question: str
     Keywords: str
-    HITStatus: Literal[
-        "Assignable", "Unassignable", "Reviewable", "Reviewing", "Disposed"
-    ]
+    HITStatus: Literal["Assignable", "Unassignable", "Reviewable", "Reviewing", "Disposed"]
     MaxAssignments: int
     Reward: Decimal = pydantic.Field(decimal_places=2)
     AutoApprovalDelayInSeconds: int

@@ -144,16 +144,19 @@ def test_higher_order_array_ops(ctx: EvalContext) -> None:
         ctx,
     ) == [2, 3]
 
-    assert evaluate_expression(
-        nk.expressions.Fold(
-            array=nk.expressions.Lit(value=[1, 2, 3]),
-            init=nk.expressions.Lit(value=0),
-            acc="acc",
-            cur="cur",
-            func=nk.expressions.Add(
-                lhs=nk.expressions.Local(name="acc"),
-                rhs=nk.expressions.Local(name="cur"),
+    assert (
+        evaluate_expression(
+            nk.expressions.Fold(
+                array=nk.expressions.Lit(value=[1, 2, 3]),
+                init=nk.expressions.Lit(value=0),
+                acc="acc",
+                cur="cur",
+                func=nk.expressions.Add(
+                    lhs=nk.expressions.Local(name="acc"),
+                    rhs=nk.expressions.Local(name="cur"),
+                ),
             ),
-        ),
-        ctx,
-    ) == 6
+            ctx,
+        )
+        == 6
+    )

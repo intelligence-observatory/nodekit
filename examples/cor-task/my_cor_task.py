@@ -149,14 +149,11 @@ if __name__ == "__main__":
     from pathlib import Path
 
     token_imagepaths = glob.glob("./token-images/*.png")
-    class_to_token = {
-        Path(path).stem: nk.assets.Image.from_path(path) for path in token_imagepaths
-    }
+    class_to_token = {Path(path).stem: nk.assets.Image.from_path(path) for path in token_imagepaths}
     class_to_stims = {}
     for c in class_to_token.keys():
         class_to_stims[c] = [
-            nk.assets.Image.from_path(p)
-            for p in glob.glob(f"./stimulus-images/{c}/*.png")
+            nk.assets.Image.from_path(p) for p in glob.glob(f"./stimulus-images/{c}/*.png")
         ]
 
     # Make trials
