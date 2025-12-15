@@ -29,7 +29,6 @@ class Graph(pydantic.BaseModel):
     def check_graph_is_valid(
         self,
     ) -> Self:
-
         if self.start not in self.nodes:
             raise ValueError(f"Start Node {self.start} does not exist in nodes.")
 
@@ -77,11 +76,12 @@ class Graph(pydantic.BaseModel):
 
         return self
 
+
 # %%
 def _validate_transition(
-        transition: Transition,
-        graph_element: Node | Graph,
-        registers: Dict[RegisterId, Value],
+    transition: Transition,
+    graph_element: Node | Graph,
+    registers: Dict[RegisterId, Value],
 ) -> None:
     """
     This function validates that the given transition is valid for the given graph child and graph registers.
@@ -97,10 +97,4 @@ def _validate_transition(
 
     """
 
-    match transition.transition_type:
-        case "Go" | "End":
-            register_updates = transition.register_updates
-
-
     # Todo:
-

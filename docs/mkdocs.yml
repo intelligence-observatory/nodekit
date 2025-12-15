@@ -8,16 +8,16 @@ nav:
       - 3. Get behavioral data: 'tutorial/3-deploy-graph.md'
       - What's next?: 'tutorial/whats-next.md'
   - Concepts:
-      - Node: concepts/nodes.md
-      - Cards: concepts/cards.md
-      - Sensors & Actions: concepts/sensors-actions.md
+      - Node: concepts/index.md
+      - Cards: concepts/index.md
+      - Sensors & Actions: concepts/index.md
       - Graph: concepts/index.md
-      - Transitions: concepts/control-flow.md
-      - Expressions & Values: concepts/control-flow.md
-      - Reproducibility: concepts/nkg-files.md
+      - Transitions: concepts/index.md
+      - Expressions & Values: concepts/index.md
+      - Reproducibility: concepts/index.md
   - Guides:
       - Deploying to Mechanical Turk: 'guides/mechanical-turk.md'
-      - Styling TextCards with Markdown: 'guides/styling-text.md'
+      - Markdown in TextCards: 'guides/styling-text.md'
       - Adding min and max time limits to Nodes: 'guides/adding-time-limits.md'
   - Reference:
       - Node: reference/node.md
