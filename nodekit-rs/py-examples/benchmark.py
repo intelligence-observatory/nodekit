@@ -62,7 +62,7 @@ def rgba() -> State:
 renderer = Renderer()
 
 
-def benchmark(state: State, message: str) -> None:
+def benchmark(state: State, message: str) -> str:
     print(message)
     its = 1000
     # Ignore the first frame because that's when assets are cached.
@@ -70,23 +70,28 @@ def benchmark(state: State, message: str) -> None:
     t0 = time()
     for i in range(its):
         renderer.render(state)
-    print(1 / ((time() - t0) / its), "FPS")
+    fps = f'{1 / ((time() - t0) / its)} FPS'
+    print(fps)
+    return f'{message} {fps}'
 
 
-def benchmark_to(state: State, message: str) -> None:
+def benchmark_to(state: State, message: str) -> str:
     board = Renderer.empty_board()
     print(message)
     its = 1000
     t0 = time()
     for i in range(its):
         renderer.render_to(state, board)
-    print(1 / ((time() - t0) / its), "FPS")
+    fps = f'{1 / ((time() - t0) / its)} FPS'
+    print(fps)
+    return f'{message} {fps}'
 
 
 if __name__ == "__main__":
-    benchmark(rgb(), "RGB:")
-    benchmark_to(rgb(), "RGB (in place):")
-    benchmark(rgba(), "RGBA:")
-    benchmark_to(rgba(), "RGBA (in place):")
-    benchmark(get_state(), "RGBA + Video:")
-    benchmark_to(get_state(), "RGBA + Video (in place):")
+    b0 = benchmark(rgb(), "RGB:")
+    b1 = benchmark_to(rgb(), "RGB (in place):")
+    b2 = benchmark(rgba(), "RGBA:")
+    b3 = benchmark_to(rgba(), "RGBA (in place):")
+    b4 = benchmark(get_state(), "RGBA + Video:")
+    b5 = benchmark_to(get_state(), "RGBA + Video (in place):")
+    Path(__file__).parent.joinpath('benchmark.txt').write_text('\n\n'.join([b0, b1, b2, b3, b4, b5]))
