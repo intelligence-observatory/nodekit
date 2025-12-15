@@ -5,6 +5,7 @@ import pydantic
 from nodekit import VERSION, Node
 from nodekit._internal.types.transition import Transition, Go, IfThenElse, Switch, End
 from nodekit._internal.types.values import NodeId, RegisterId, Value
+from nodekit._internal.types import expressions as expressions
 
 
 # %%
@@ -62,9 +63,33 @@ class Graph(pydantic.BaseModel):
                         f"Go Transition from Node {node_id} points to non-existent Node {go_target_node_id}."
                     )
 
-            # Todo: Check IfThenElse Transition clauses are Boolean-valued, and any Reg ops reference existing registers
-            # Todo: Check Switch Transition 'on' expression type matches case keys, and any Reg ops reference existing registers
-            # Todo: Check that any Go / End Transitions' register update RHS reference existing registers only
+            # Check that the Transition only reference existing registers:
+            reg_refs = set()
+            if isinstance(transition, Go) or isinstance(transition, End):
+                for register_id, expr in transition.register_updates.items():
+                    reg_refs |= _get_reg_references(expr)
+                    reg_refs.add(register_id)
+            elif isinstance(transition, IfThenElse):
+                reg_refs |= _get_reg_references(transition.if_)
+                for register_id, expr in transition.then.register_updates.items():
+                    reg_refs |= _get_reg_references(expr)
+                    reg_refs.add(register_id)
+                for register_id, expr in transition.else_.register_updates.items():
+                    reg_refs |= _get_reg_references(expr)
+                    reg_refs.add(register_id)
+            elif isinstance(transition, Switch):
+                reg_refs |= _get_reg_references(transition.on)
+                for case_transition in transition.cases.values():
+                    for register_id, expr in case_transition.register_updates.items():
+                        reg_refs |= _get_reg_references(expr)
+                        reg_refs.add(register_id)
+                for register_id, expr in transition.default.register_updates.items():
+                    reg_refs |= _get_reg_references(expr)
+                    reg_refs.add(register_id)
+            else:
+                raise TypeError(
+                    f"Unhandled Transition type during register reference check: {type(transition)}"
+                )
 
         # Check each Node is reachable from the start Node (no orphan Nodes)
         reachable_nodes = _get_reachable_node_ids(
@@ -94,6 +119,63 @@ class Graph(pydantic.BaseModel):
 
 
 # %%
+
+def _get_reg_references(expression: expressions.Expression) -> set[RegisterId]:
+    """
+    Returns the set of RegisterIds referenced in this Expression.
+    """
+    if isinstance(expression, (expressions.Reg, expressions.ChildReg)):
+        return {expression.id}
+
+    if isinstance(expression, (expressions.Local, expressions.LastAction, expressions.Lit)):
+        return set()
+
+    if isinstance(expression, expressions.Not):
+        return _get_reg_references(expression.operand)
+
+    if isinstance(expression, (expressions.BaseCmp, expressions.BaseArithmeticOperation)):
+        return _get_reg_references(expression.lhs) | _get_reg_references(expression.rhs)
+
+    if isinstance(expression, expressions.If):
+        return (
+            _get_reg_references(expression.cond)
+            | _get_reg_references(expression.then)
+            | _get_reg_references(expression.otherwise)
+        )
+
+    if isinstance(expression, expressions.Or) or isinstance(expression, expressions.And):
+        refs: set[RegisterId] = set()
+        for arg in expression.args:
+            refs |= _get_reg_references(arg)
+        return refs
+
+    if isinstance(expression, expressions.GetListItem):
+        return _get_reg_references(expression.list) | _get_reg_references(expression.index)
+
+    if isinstance(expression, expressions.GetDictValue):
+        return _get_reg_references(expression.d) | _get_reg_references(expression.key)
+
+    if isinstance(expression, expressions.Slice):
+        refs = _get_reg_references(expression.array) | _get_reg_references(expression.start)
+        if expression.end is not None:
+            refs |= _get_reg_references(expression.end)
+        return refs
+
+    if isinstance(expression, expressions.Map):
+        return _get_reg_references(expression.array) | _get_reg_references(expression.func)
+
+    if isinstance(expression, expressions.Filter):
+        return _get_reg_references(expression.array) | _get_reg_references(expression.predicate)
+
+    if isinstance(expression, expressions.Fold):
+        return (
+            _get_reg_references(expression.array)
+            | _get_reg_references(expression.init)
+            | _get_reg_references(expression.func)
+        )
+
+    raise TypeError(f"Unhandled expression type: {type(expression)}")
+
 def _get_reachable_node_ids(
     start: NodeId,
     transitions: Dict[NodeId, Transition],
