@@ -1,6 +1,7 @@
 mod asset;
 mod error;
 
+use blittle::ClippedRect;
 use crate::asset::Asset;
 pub use error::Error;
 use nodekit_rs_card::CardType;
@@ -175,6 +176,44 @@ impl Renderer {
             }
         }
         Ok(())
+    }
+
+    fn get_dirty_rects(&self) -> SecondaryMap<CardKey, ClippedRect> {
+        // Get video rects.
+        let mut dirty_rects = self.assets.iter().filter_map(|(key, asset)| {
+            match asset {
+                Asset::Video(video) => Some((key, video.rgb_buffer.rect)),
+                _ => None
+            }
+        }).collect::<SecondaryMap<CardKey, ClippedRect>>();
+        self.get_dirty_rects_inner(&mut dirty_rects);
+        dirty_rects
+    }
+
+    fn get_dirty_rects_inner(&self, dirty_rects: &mut SecondaryMap<CardKey, ClippedRect>) {
+        let mut any_overlaps = false;
+        let clean_rects = self.assets.iter().filter(|(key, _)| !dirty_rects.contains_key(*key)).collect::<Vec<(CardKey, &Asset)>>();
+        for (card_key, asset) in clean_rects {
+            let rect = match asset {
+                // Already got videos.
+                Asset::Video(_) => None,
+                Asset::Image(buffer) => match buffer {
+                    VisualBuffer::Rgb(buffer) => Some(buffer.rect),
+                    VisualBuffer::Rgba(buffer) => Some(buffer.rect),
+                }
+                Asset::Text(buffers) => buffers.background.as_ref().map(|buffer| match buffer {
+                    VisualBuffer::Rgb(buffer) => buffer.rect,
+                    VisualBuffer::Rgba(buffer) => buffer.rect,
+                })
+            };
+            if let Some(rect) = rect && dirty_rects.values().any(|r| r.overlaps(&rect)) {
+                dirty_rects.insert(card_key, rect);
+                any_overlaps = true;
+            }
+        }
+        if any_overlaps {
+            self.get_dirty_rects_inner(dirty_rects)
+        }
     }
 }
 

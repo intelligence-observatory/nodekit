@@ -1754,6 +1754,7 @@ dependencies = [
 name = "nodekit-rs-render"
 version = "0.1.0"
 dependencies = [
+ "blittle",
  "nodekit-rs-card",
  "nodekit-rs-image",
  "nodekit-rs-png",
