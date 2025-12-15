@@ -61,7 +61,7 @@ def rgba() -> State:
 
 renderer = Renderer()
 
-+
+
 def benchmark(state: State, message: str) -> None:
     print(message)
     its = 1000
