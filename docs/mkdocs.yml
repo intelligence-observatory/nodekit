@@ -5,7 +5,7 @@ nav:
   - Tutorial:
       - 1. Install NodeKit: 'tutorial/1-installation.md'
       - 2. Write your first task: 'tutorial/2-first-graph.md'
-      - 3. Deploy to agents: 'tutorial/3-deploy-graph.md'
+      - 3. Get behavioral data: 'tutorial/3-deploy-graph.md'
       - What's next?: 'tutorial/whats-next.md'
   - Concepts:
       - Node: concepts/nodes.md
