@@ -15,14 +15,4 @@ impl TextBuffers {
             board.overlay_rgba(foreground);
         }
     }
-    
-    pub const fn rect(&self) -> Option<ClippedRect> {
-        match &self.background {
-            Some(buffer) => Some(buffer.rect()),
-            None => match &self.foreground {
-                Some(foreground) => Some(foreground.rect),
-                None => None
-            }
-        }
-    }
 }

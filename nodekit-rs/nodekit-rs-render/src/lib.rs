@@ -1,8 +1,9 @@
 mod asset;
+mod dirty_rect;
 mod error;
 
-use blittle::ClippedRect;
-use crate::asset::Asset;
+use crate::asset::{Asset, AssetKey};
+use crate::dirty_rect::DirtyRect;
 pub use error::Error;
 use nodekit_rs_card::CardType;
 use nodekit_rs_image::*;
@@ -12,8 +13,25 @@ use numpy::{PyArray3, PyArrayMethods};
 use pyo3::exceptions::PyRuntimeError;
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
-use slotmap::SecondaryMap;
+use slotmap::{SecondaryMap, SlotMap};
 use uuid::Uuid;
+
+macro_rules! render_asset {
+    ($self:ident, $asset:expr, $state:ident) => {{
+        match $asset {
+            Asset::Image(image) => {
+                $self.board.blit(image);
+            }
+            Asset::Text(text) => {
+                text.blit(&mut $self.board);
+            }
+            Asset::Video(video) => {
+                video.get_frame($state.t_msec).map_err(Error::Video)?;
+                $self.board.blit_rgb(&video.rgb_buffer);
+            }
+        }
+    }};
+}
 
 /// Render a `State` while storing an internal cache of loaded data (fonts, video buffers, etc.)
 #[pyclass]
@@ -24,9 +42,9 @@ pub struct Renderer {
     /// Cached text engine.
     text_engine: nodekit_rs_text::TextEngine,
     /// Cached assets.
-    assets: SecondaryMap<CardKey, Asset>,
+    assets: SlotMap<AssetKey, Asset>,
     /// These assets need to be cleared and re-filled per frame.
-    dirty_rects: SecondaryMap<CardKey, ClippedRect>,
+    dirty_rects: SecondaryMap<AssetKey, DirtyRect>,
     /// The known state ID.
     id: Option<Uuid>,
     cursor: Cursor,
@@ -92,9 +110,12 @@ impl Renderer {
             // Re-render dirty assets.
             for (key, rect) in self.dirty_rects.iter() {
                 // Erase the rect.
-                self.board.erase(rect);
+                // Don't erase RGB bitmaps because we can just replace them.
+                if !rect.rgb {
+                    self.board.erase(&rect.rect);
+                }
                 // Blit.
-                self.blit_asset(key, state.t_msec)?
+                render_asset!(self, &mut self.assets[key], state);
             }
         }
 
@@ -129,26 +150,10 @@ impl Renderer {
         }
 
         // Initial blit.
-        for k in state.cards.keys() {
-            self.blit_asset(k, state.t_msec)?;
+        for asset in self.assets.values_mut() {
+            render_asset!(self, asset, state);
         }
 
-        Ok(())
-    }
-
-    fn blit_asset(&mut self, card_key: CardKey, t_msec: u64) -> Result<(), Error> {
-        match self.assets.get_mut(card_key).unwrap() {
-            Asset::Image(image) => {
-                self.board.blit(image);
-            }
-            Asset::Text(text) => {
-                text.blit(&mut self.board);
-            }
-            Asset::Video(video) => {
-                video.get_frame(t_msec).map_err(Error::Video)?;
-                self.board.blit_rgb(&video.rgb_buffer);
-            }
-        }
         Ok(())
     }
 
@@ -166,11 +171,11 @@ impl Renderer {
     }
 
     fn cache(&mut self, state: &State) -> Result<(), Error> {
-        for (key, card) in state.cards.iter() {
+        for card in state.cards.iter() {
             match &card.card_type {
                 CardType::Image(image) => {
                     if let Some(image) = load_image(image, &card.region).map_err(Error::Image)? {
-                        self.assets.insert(key, Asset::Image(image));
+                        self.assets.insert(Asset::Image(image));
                     }
                 }
                 CardType::Text(text_card) => {
@@ -179,14 +184,14 @@ impl Renderer {
                         .render(text_card, &card.region)
                         .map_err(Error::Text)?
                     {
-                        self.assets.insert(key, Asset::Text(buffers));
+                        self.assets.insert(Asset::Text(buffers));
                     }
                 }
                 CardType::Video { asset, looped: _ } => {
                     if let Some(video) =
                         nodekit_rs_video::Video::new(asset, &card.region).map_err(Error::Video)?
                     {
-                        self.assets.insert(key, Asset::Video(video));
+                        self.assets.insert(Asset::Video(video));
                     }
                 }
             }
@@ -196,27 +201,38 @@ impl Renderer {
 
     fn set_dirty_rects(&mut self) {
         // Get video rects.
-        self.dirty_rects = self.assets.iter().filter_map(|(key, asset)| {
-            match asset {
-                Asset::Video(video) => Some((key, video.rgb_buffer.rect)),
-                _ => None
-            }
-        }).collect::<SecondaryMap<CardKey, ClippedRect>>();
+        self.dirty_rects = self
+            .assets
+            .iter()
+            .filter_map(|(key, asset)| match asset {
+                Asset::Video(video) => Some((key, DirtyRect::from(video))),
+                _ => None,
+            })
+            .collect::<SecondaryMap<AssetKey, DirtyRect>>();
         self.get_dirty_rects_inner();
     }
 
     fn get_dirty_rects_inner(&mut self) {
         let mut any_overlaps = false;
-        let clean_rects = self.assets.iter().filter(|(key, _)| !self.dirty_rects.contains_key(*key)).collect::<Vec<(CardKey, &Asset)>>();
-        for (card_key, asset) in clean_rects {
+        let clean_rects = self
+            .assets
+            .iter()
+            .filter(|(key, _)| !self.dirty_rects.contains_key(*key))
+            .collect::<Vec<(AssetKey, &Asset)>>();
+        for (key, asset) in clean_rects {
             let rect = match asset {
                 // Already got videos.
                 Asset::Video(_) => None,
-                Asset::Image(buffer) => Some(buffer.rect()),
-                Asset::Text(buffers) => buffers.rect()
+                Asset::Image(buffer) => Some(DirtyRect::from(buffer)),
+                Asset::Text(buffers) => DirtyRect::from_text_buffers(buffers),
             };
-            if let Some(rect) = rect && self.dirty_rects.values().any(|r| r.overlaps(&rect)) {
-                self.dirty_rects.insert(card_key, rect);
+            if let Some(rect) = rect
+                && self
+                    .dirty_rects
+                    .values()
+                    .any(|r| r.rect.overlaps(&rect.rect))
+            {
+                self.dirty_rects.insert(key, rect);
                 any_overlaps = true;
             }
         }
@@ -235,8 +251,6 @@ mod tests {
 
     #[test]
     fn test_render() {
-        let image_path = PathBuf::from("../nodekit-rs-image/test_image.png");
-        assert!(image_path.exists());
         let video_path = PathBuf::from("../nodekit-rs-video/test-video.mp4");
         assert!(video_path.exists());
 
@@ -291,9 +305,48 @@ mod tests {
         render_image(&mut renderer, &mut state, 600, "600.png");
     }
 
+    fn image_card() -> Card {
+        let image_path = PathBuf::from("../nodekit-rs-image/test_image.png");
+        assert!(image_path.exists());
+        Card {
+            region: Region {
+                x: -0.4,
+                y: -0.4,
+                w: 0.3,
+                h: 0.3,
+                z_index: Some(0),
+            },
+            card_type: CardType::Image(Asset::Path(image_path)),
+        }
+    }
+
+    fn video_card() -> Card {
+        let video_path = PathBuf::from("../nodekit-rs-video/test-video.mp4");
+        Card {
+            region: Region {
+                x: 0.,
+                y: 0.1,
+                w: 0.4,
+                h: 0.6,
+                z_index: Some(1),
+            },
+            card_type: CardType::Video {
+                asset: Asset::Path(video_path),
+                looped: false,
+            },
+        }
+    }
+
+
+
     fn render_image(renderer: &mut Renderer, state: &mut State, t_msec: u64, filename: &str) {
         state.t_msec = t_msec;
         renderer.start(&state).unwrap();
         nodekit_rs_png::board_to_png(filename, renderer.blit(state).unwrap());
+    }
+
+    #[test]
+    fn test_dirty_rects() {
+
     }
 }

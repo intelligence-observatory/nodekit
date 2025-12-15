@@ -5,17 +5,14 @@ use pointer::Pointer;
 use pyo3::prelude::*;
 use pyo3::types::PyList;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
-use slotmap::{SlotMap, new_key_type};
 use uuid::Uuid;
-
-new_key_type! { pub struct CardKey; }
 
 /// Describes the state of the simulator.
 #[gen_stub_pyclass]
 #[pyclass]
 pub struct State {
     /// The node's cards.
-    pub cards: SlotMap<CardKey, Card>,
+    pub cards: Vec<Card>,
     /// The time elapsed from the start of the node.
     #[pyo3(get, set)]
     pub t_msec: u64,
@@ -29,13 +26,8 @@ pub struct State {
 
 impl State {
     pub fn from_cards(board_color: String, cards: Vec<Card>) -> Self {
-        // Convert to a map.
-        let mut cards_map = SlotMap::default();
-        for card in cards {
-            cards_map.insert(card);
-        }
         Self {
-            cards: cards_map,
+            cards,
             t_msec: 0,
             board_color,
             pointer: Pointer::default(),
