@@ -126,6 +126,7 @@ class Graph(pydantic.BaseModel):
 
 # %%
 
+
 def _get_reg_references(expression: expressions.Expression) -> set[RegisterId]:
     """
     Returns the set of RegisterIds referenced in this Expression.
@@ -133,13 +134,17 @@ def _get_reg_references(expression: expressions.Expression) -> set[RegisterId]:
     if isinstance(expression, (expressions.Reg, expressions.ChildReg)):
         return {expression.id}
 
-    if isinstance(expression, (expressions.Local, expressions.LastAction, expressions.Lit)):
+    if isinstance(
+        expression, (expressions.Local, expressions.LastAction, expressions.Lit)
+    ):
         return set()
 
     if isinstance(expression, expressions.Not):
         return _get_reg_references(expression.operand)
 
-    if isinstance(expression, (expressions.BaseCmp, expressions.BaseArithmeticOperation)):
+    if isinstance(
+        expression, (expressions.BaseCmp, expressions.BaseArithmeticOperation)
+    ):
         return _get_reg_references(expression.lhs) | _get_reg_references(expression.rhs)
 
     if isinstance(expression, expressions.If):
@@ -149,29 +154,39 @@ def _get_reg_references(expression: expressions.Expression) -> set[RegisterId]:
             | _get_reg_references(expression.otherwise)
         )
 
-    if isinstance(expression, expressions.Or) or isinstance(expression, expressions.And):
+    if isinstance(expression, expressions.Or) or isinstance(
+        expression, expressions.And
+    ):
         refs: set[RegisterId] = set()
         for arg in expression.args:
             refs |= _get_reg_references(arg)
         return refs
 
     if isinstance(expression, expressions.GetListItem):
-        return _get_reg_references(expression.list) | _get_reg_references(expression.index)
+        return _get_reg_references(expression.list) | _get_reg_references(
+            expression.index
+        )
 
     if isinstance(expression, expressions.GetDictValue):
         return _get_reg_references(expression.d) | _get_reg_references(expression.key)
 
     if isinstance(expression, expressions.Slice):
-        refs = _get_reg_references(expression.array) | _get_reg_references(expression.start)
+        refs = _get_reg_references(expression.array) | _get_reg_references(
+            expression.start
+        )
         if expression.end is not None:
             refs |= _get_reg_references(expression.end)
         return refs
 
     if isinstance(expression, expressions.Map):
-        return _get_reg_references(expression.array) | _get_reg_references(expression.func)
+        return _get_reg_references(expression.array) | _get_reg_references(
+            expression.func
+        )
 
     if isinstance(expression, expressions.Filter):
-        return _get_reg_references(expression.array) | _get_reg_references(expression.predicate)
+        return _get_reg_references(expression.array) | _get_reg_references(
+            expression.predicate
+        )
 
     if isinstance(expression, expressions.Fold):
         return (
@@ -181,6 +196,7 @@ def _get_reg_references(expression: expressions.Expression) -> set[RegisterId]:
         )
 
     raise TypeError(f"Unhandled expression type: {type(expression)}")
+
 
 def _get_reachable_node_ids(
     start: NodeId,

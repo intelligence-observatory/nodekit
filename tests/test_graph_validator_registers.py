@@ -143,6 +143,68 @@ def test_switch_default_updates_checked():
         )
 
 
+def test_container_and_list_expression_refs_in_updates():
+    with pytest.raises(pydantic.ValidationError, match="undefined registers"):
+        nk.Graph(
+            nodes={"start": wait_node()},
+            transitions={
+                "start": nk.transitions.Go(
+                    to="start",
+                    register_updates={
+                        "r1": nk.expressions.GetListItem(
+                            list=nk.expressions.Reg(id="missing"),
+                            index=nk.expressions.Lit(value=0),
+                        ),
+                        "r2": nk.expressions.GetDictValue(
+                            d=nk.expressions.ChildReg(id="missing2"),
+                            key=nk.expressions.Lit(value="k"),
+                        ),
+                    },
+                )
+            },
+            start="start",
+            registers={"r1": 0, "r2": 0},
+        )
+
+
+def test_slice_map_filter_fold_expression_refs_in_updates():
+    with pytest.raises(pydantic.ValidationError, match="undefined registers"):
+        nk.Graph(
+            nodes={"start": wait_node()},
+            transitions={
+                "start": nk.transitions.Go(
+                    to="start",
+                    register_updates={
+                        "r1": nk.expressions.Slice(
+                            array=nk.expressions.Reg(id="missing"),
+                            start=nk.expressions.Reg(id="also_missing"),
+                            end=None,
+                        ),
+                        "r2": nk.expressions.Map(
+                            array=nk.expressions.Lit(value=[]),
+                            cur="cur",
+                            func=nk.expressions.ChildReg(id="missing2"),
+                        ),
+                        "r3": nk.expressions.Filter(
+                            array=nk.expressions.Lit(value=[]),
+                            cur="cur",
+                            predicate=nk.expressions.Reg(id="missing3"),
+                        ),
+                        "r4": nk.expressions.Fold(
+                            array=nk.expressions.Reg(id="missing4"),
+                            init=nk.expressions.ChildReg(id="missing5"),
+                            acc="acc",
+                            cur="cur",
+                            func=nk.expressions.Reg(id="missing6"),
+                        ),
+                    },
+                )
+            },
+            start="start",
+            registers={"r1": 0, "r2": 0, "r3": 0, "r4": 0},
+        )
+
+
 def test_valid_register_updates_pass():
     graph = nk.Graph(
         nodes={
@@ -167,11 +229,14 @@ def test_valid_register_updates_pass():
                 ),
             ),
             "end": nk.transitions.End(
-                register_updates={"r2": nk.expressions.Reg(id="r2")}
+                register_updates={
+                    "r2": nk.expressions.Reg(id="r2"),
+                    "r3": nk.expressions.Reg(id="r1"),
+                }
             ),
         },
         start="start",
-        registers={"r1": 0, "r2": 0},
+        registers={"r1": 0, "r2": 0, "r3": 0},
     )
 
     assert graph.registers["r1"] == 0
