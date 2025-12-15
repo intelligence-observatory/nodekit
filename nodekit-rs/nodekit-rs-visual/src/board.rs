@@ -145,6 +145,7 @@ impl Board {
         }
     }
 
+    /// Fill an area of the board defined by `rect` with the board's background color.
     pub fn erase(&mut self, rect: &ClippedRect) {
         let src_w = rect.src_size_clipped.w * STRIDE;
         let src = &self.board8_clear[0..src_w];
