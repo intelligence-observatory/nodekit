@@ -1,9 +1,8 @@
 mod asset;
-mod dirty_rect;
 mod error;
 
 use crate::asset::{Asset, AssetKey};
-use crate::dirty_rect::DirtyRect;
+use blittle::ClippedRect;
 pub use error::Error;
 use nodekit_rs_card::CardType;
 use nodekit_rs_image::*;
@@ -44,7 +43,7 @@ pub struct Renderer {
     /// Cached assets.
     assets: SlotMap<AssetKey, Asset>,
     /// These assets need to be cleared and re-filled per frame.
-    dirty_rects: SecondaryMap<AssetKey, DirtyRect>,
+    dirty_rects: Vec<AssetKey>,
     /// The known state ID.
     id: Option<Uuid>,
     cursor: Cursor,
@@ -108,14 +107,9 @@ impl Renderer {
             self.start(state)?;
         } else {
             // Re-render dirty assets.
-            for (key, rect) in self.dirty_rects.iter() {
-                // Erase the rect.
-                // Don't erase RGB bitmaps because we can just replace them.
-                if !rect.rgb {
-                    self.board.erase(&rect.rect);
-                }
+            for key in self.dirty_rects.iter() {
                 // Blit.
-                render_asset!(self, &mut self.assets[key], state);
+                render_asset!(self, &mut self.assets[*key], state);
             }
         }
 
@@ -201,43 +195,41 @@ impl Renderer {
 
     fn set_dirty_rects(&mut self) {
         // Get video rects.
-        self.dirty_rects = self
+        let mut dirty_rects = self
             .assets
             .iter()
             .filter_map(|(key, asset)| match asset {
-                Asset::Video(video) => Some((key, DirtyRect::from(video))),
+                Asset::Video(video) => Some((key, video.rgb_buffer.rect)),
                 _ => None,
             })
-            .collect::<SecondaryMap<AssetKey, DirtyRect>>();
-        self.get_dirty_rects_inner();
+            .collect::<SecondaryMap<AssetKey, ClippedRect>>();
+        self.get_dirty_rects_inner(&mut dirty_rects);
+        self.dirty_rects = dirty_rects.keys().collect();
     }
 
-    fn get_dirty_rects_inner(&mut self) {
+    fn get_dirty_rects_inner(&mut self, dirty_rects: &mut SecondaryMap<AssetKey, ClippedRect>) {
         let mut any_overlaps = false;
         let clean_rects = self
             .assets
             .iter()
-            .filter(|(key, _)| !self.dirty_rects.contains_key(*key))
+            .filter(|(key, _)| !dirty_rects.contains_key(*key))
             .collect::<Vec<(AssetKey, &Asset)>>();
         for (key, asset) in clean_rects {
             let rect = match asset {
                 // Already got videos.
                 Asset::Video(_) => None,
-                Asset::Image(buffer) => Some(DirtyRect::from(buffer)),
-                Asset::Text(buffers) => DirtyRect::from_text_buffers(buffers),
+                Asset::Image(buffer) => Some(buffer.rect()),
+                Asset::Text(buffers) => buffers.rect(),
             };
             if let Some(rect) = rect
-                && self
-                    .dirty_rects
-                    .values()
-                    .any(|r| r.rect.overlaps(&rect.rect))
+                && dirty_rects.values().any(|r| r.overlaps(&rect))
             {
-                self.dirty_rects.insert(key, rect);
+                dirty_rects.insert(key, rect);
                 any_overlaps = true;
             }
         }
         if any_overlaps {
-            self.get_dirty_rects_inner()
+            self.get_dirty_rects_inner(dirty_rects)
         }
     }
 }
@@ -308,7 +300,7 @@ mod tests {
                 justification_horizontal: JustificationHorizontal::Left,
                 justification_vertical: JustificationVertical::Center,
                 text_color: "#003300FF".to_string(),
-                background_color: "#EEEEEE11".to_string(),
+                background_color: "#EE00EE11".to_string(),
             }),
         }
     }

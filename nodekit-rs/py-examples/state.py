@@ -25,7 +25,7 @@ def get_state() -> State:
             text="# Click the **test image**",
             justification_horizontal="left",
             text_color="#000000FF",
-            background_color="#E6E6E600",
+            background_color="#E6E6E611",
         ),
     ]
     return State(board_color="#AAAAAAFF", cards=cards)
