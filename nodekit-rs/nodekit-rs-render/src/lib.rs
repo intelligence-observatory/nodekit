@@ -25,6 +25,8 @@ pub struct Renderer {
     text_engine: nodekit_rs_text::TextEngine,
     /// Cached assets.
     assets: SecondaryMap<CardKey, Asset>,
+    /// These assets need to be cleared and re-filled per frame.
+    dirty_rects: SecondaryMap<CardKey, ClippedRect>,
     /// The known state ID.
     id: Option<Uuid>,
     cursor: Cursor,
@@ -87,23 +89,12 @@ impl Renderer {
             // New state.
             self.start(state)?;
         } else {
-            // Clear the board of all cards.
-            self.board.clear();
-        }
-
-        // Show.
-        for k in state.cards.keys() {
-            match self.assets.get_mut(k).unwrap() {
-                Asset::Image(image) => {
-                    self.board.blit(image);
-                }
-                Asset::Text(text) => {
-                    text.blit(&mut self.board);
-                }
-                Asset::Video(video) => {
-                    video.get_frame(state.t_msec).map_err(Error::Video)?;
-                    self.board.blit_rgb(&video.rgb_buffer);
-                }
+            // Re-render dirty assets.
+            for (key, rect) in self.dirty_rects.iter() {
+                // Erase the rect.
+                self.board.erase(rect);
+                // Blit.
+                self.blit_asset(key, state.t_msec)?
             }
         }
 
@@ -124,26 +115,51 @@ impl Renderer {
                 if *id == state.id {
                     // Clear the board. Keep cached assets.
                     self.board.clear();
-                    Ok(())
                 } else {
                     // Clear the board and re-cache.
                     *id = state.id;
-                    self.fill_and_cache(state)
+                    self.fill_and_cache(state)?;
                 }
             }
             None => {
                 // Start the first run and cache.
                 self.id = Some(state.id);
-                self.fill_and_cache(state)
+                self.fill_and_cache(state)?;
             }
         }
+
+        // Initial blit.
+        for k in state.cards.keys() {
+            self.blit_asset(k, state.t_msec)?;
+        }
+
+        Ok(())
+    }
+
+    fn blit_asset(&mut self, card_key: CardKey, t_msec: u64) -> Result<(), Error> {
+        match self.assets.get_mut(card_key).unwrap() {
+            Asset::Image(image) => {
+                self.board.blit(image);
+            }
+            Asset::Text(text) => {
+                text.blit(&mut self.board);
+            }
+            Asset::Video(video) => {
+                video.get_frame(t_msec).map_err(Error::Video)?;
+                self.board.blit_rgb(&video.rgb_buffer);
+            }
+        }
+        Ok(())
     }
 
     fn fill_and_cache(&mut self, state: &State) -> Result<(), Error> {
         // Clear the asset caches.
         self.assets.clear();
+        self.dirty_rects.clear();
         // Cache assets.
         self.cache(state)?;
+        // Find dirty rects.
+        self.set_dirty_rects();
         self.board
             .fill(parse_color_rgb(&state.board_color).map_err(Error::ParseColor)?);
         Ok(())
@@ -178,41 +194,34 @@ impl Renderer {
         Ok(())
     }
 
-    fn get_dirty_rects(&self) -> SecondaryMap<CardKey, ClippedRect> {
+    fn set_dirty_rects(&mut self) {
         // Get video rects.
-        let mut dirty_rects = self.assets.iter().filter_map(|(key, asset)| {
+        self.dirty_rects = self.assets.iter().filter_map(|(key, asset)| {
             match asset {
                 Asset::Video(video) => Some((key, video.rgb_buffer.rect)),
                 _ => None
             }
         }).collect::<SecondaryMap<CardKey, ClippedRect>>();
-        self.get_dirty_rects_inner(&mut dirty_rects);
-        dirty_rects
+        self.get_dirty_rects_inner();
     }
 
-    fn get_dirty_rects_inner(&self, dirty_rects: &mut SecondaryMap<CardKey, ClippedRect>) {
+    fn get_dirty_rects_inner(&mut self) {
         let mut any_overlaps = false;
-        let clean_rects = self.assets.iter().filter(|(key, _)| !dirty_rects.contains_key(*key)).collect::<Vec<(CardKey, &Asset)>>();
+        let clean_rects = self.assets.iter().filter(|(key, _)| !self.dirty_rects.contains_key(*key)).collect::<Vec<(CardKey, &Asset)>>();
         for (card_key, asset) in clean_rects {
             let rect = match asset {
                 // Already got videos.
                 Asset::Video(_) => None,
-                Asset::Image(buffer) => match buffer {
-                    VisualBuffer::Rgb(buffer) => Some(buffer.rect),
-                    VisualBuffer::Rgba(buffer) => Some(buffer.rect),
-                }
-                Asset::Text(buffers) => buffers.background.as_ref().map(|buffer| match buffer {
-                    VisualBuffer::Rgb(buffer) => buffer.rect,
-                    VisualBuffer::Rgba(buffer) => buffer.rect,
-                })
+                Asset::Image(buffer) => Some(buffer.rect()),
+                Asset::Text(buffers) => buffers.rect()
             };
-            if let Some(rect) = rect && dirty_rects.values().any(|r| r.overlaps(&rect)) {
-                dirty_rects.insert(card_key, rect);
+            if let Some(rect) = rect && self.dirty_rects.values().any(|r| r.overlaps(&rect)) {
+                self.dirty_rects.insert(card_key, rect);
                 any_overlaps = true;
             }
         }
         if any_overlaps {
-            self.get_dirty_rects_inner(dirty_rects)
+            self.get_dirty_rects_inner()
         }
     }
 }

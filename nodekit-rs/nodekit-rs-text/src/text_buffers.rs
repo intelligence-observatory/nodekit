@@ -1,3 +1,4 @@
+use blittle::ClippedRect;
 use nodekit_rs_visual::{Board, RgbaBuffer, VisualBuffer};
 
 pub struct TextBuffers {
@@ -12,6 +13,16 @@ impl TextBuffers {
         }
         if let Some(foreground) = &self.foreground {
             board.overlay_rgba(foreground);
+        }
+    }
+    
+    pub const fn rect(&self) -> Option<ClippedRect> {
+        match &self.background {
+            Some(buffer) => Some(buffer.rect()),
+            None => match &self.foreground {
+                Some(foreground) => Some(foreground.rect),
+                None => None
+            }
         }
     }
 }
