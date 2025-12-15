@@ -8,16 +8,38 @@ from nodekit._internal.types.node import Node
 from nodekit._internal.types.actions import Action
 
 # %%
+
+class AgentOutput:
+    """
+    A key or pointer event
+    """
+    ...
+
+class BoardGraphic:
+    """
+    Represents the rasterized graphic of a board at a given time
+    """
+    ...
+
+class BoardState:
+    """
+    Represents the state of a board at any given time
+    """
+    ...
+
+
 class Agent(Protocol):
 
     def __call__(
             self,
-            node: Node,
-    ) -> tuple[Self, Action | None]:
+            board_state: BoardState,
+            dt_msec: int,
+    ) -> list[AgentOutput]:
         """
 
         Args:
-            node: the current Node to make a decision in.
+            board_state: the current Node to make a decision in.
+            dt_msec: the amount of time the agent should simulate.
 
         Returns: a tuple of (updated Agent, selected Action | None).
         If None, the Agent indicates it will not ever make an Action in this Node.
@@ -33,3 +55,6 @@ def simulate(
     return Trace(
         events=[],
     )
+
+def _simulate_core() -> Trace:
+    ...

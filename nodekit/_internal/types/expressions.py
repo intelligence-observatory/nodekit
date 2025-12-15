@@ -165,6 +165,16 @@ class ListOp(BaseExpression, ABC):
     array: "Expression"
 
 
+class Append(ListOp):
+    op: Literal["append"] = "append"
+    value: "Expression"
+
+
+class Concat(ListOp):
+    op: Literal["concat"] = "concat"
+    value: "Expression"
+
+
 class Slice(ListOp):
     op: Literal["slice"] = "slice"
     start: "Expression"
@@ -221,6 +231,8 @@ type Expression = Annotated[
     | Sub
     | Mul
     | Div
+    | Append
+    | Concat
     | Slice
     | Map
     | Filter
@@ -251,6 +263,8 @@ for _model in (
     Sub,
     Mul,
     Div,
+    Append,
+    Concat,
     Slice,
     Map,
     Filter,

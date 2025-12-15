@@ -170,6 +170,11 @@ def _get_reg_references(expression: expressions.Expression) -> set[RegisterId]:
     if isinstance(expression, expressions.GetDictValue):
         return _get_reg_references(expression.d) | _get_reg_references(expression.key)
 
+    if isinstance(expression, (expressions.Append, expressions.Concat)):
+        return _get_reg_references(expression.array) | _get_reg_references(
+            expression.value
+        )
+
     if isinstance(expression, expressions.Slice):
         refs = _get_reg_references(expression.array) | _get_reg_references(
             expression.start
