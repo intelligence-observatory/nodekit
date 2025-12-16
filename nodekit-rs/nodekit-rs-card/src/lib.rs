@@ -1,3 +1,5 @@
+//! Extract nodekit Card models into nodekit-rs structs.
+
 mod asset;
 mod card_type;
 mod region;
@@ -10,8 +12,13 @@ use pyo3::types::{PyDict, PyList, PyString};
 pub use region::*;
 pub use text::*;
 
+const CARD_TYPE: &str = "card_type";
+
+/// A representation of a nodekit card.
 pub struct Card {
+    /// The spatial region.
     pub region: Region,
+    /// ImageCard, TextCard, etc.
     pub card_type: CardType,
 }
 
@@ -33,6 +40,7 @@ impl Card {
         for cs in obj.iter().map(|item| Self::extract_item(item)) {
             cards.append(&mut cs?);
         }
+        // Set the rendering order.
         cards.sort_by(|a, b| a.region.z_index.cmp(&b.region.z_index));
         Ok(cards)
     }
@@ -42,7 +50,7 @@ impl Card {
     fn extract_item(item: Bound<'_, PyAny>) -> PyResult<Vec<Self>> {
         let mut cards = Vec::default();
         // Extract a composite card's children.
-        if item.getattr("card_type")?.cast::<PyString>()? == "CompositeCard" {
+        if item.getattr(CARD_TYPE)?.cast::<PyString>()? == "CompositeCard" {
             // Recurse until we get single cards.
             for item in item
                 .getattr("children")?

@@ -1,5 +1,6 @@
 use pyo3::prelude::*;
 
+/// A card's spatial region.
 #[derive(Clone, Debug)]
 pub struct Region {
     pub x: f64,

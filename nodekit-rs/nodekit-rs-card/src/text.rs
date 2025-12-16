@@ -2,9 +2,8 @@ use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::types::PyString;
 
-#[derive(Copy, Clone, Debug, Default)]
+#[derive(Copy, Clone, Debug)]
 pub enum JustificationHorizontal {
-    #[default]
     Left,
     Center,
     Right,
@@ -26,9 +25,8 @@ impl<'py> FromPyObject<'_, 'py> for JustificationHorizontal {
     }
 }
 
-#[derive(Copy, Clone, Debug, Default)]
+#[derive(Copy, Clone, Debug)]
 pub enum JustificationVertical {
-    #[default]
     Top,
     Center,
     Bottom,
@@ -50,6 +48,7 @@ impl<'py> FromPyObject<'_, 'py> for JustificationVertical {
     }
 }
 
+/// Parameters for a text card.
 pub struct TextCard {
     pub text: String,
     pub font_size: f64,

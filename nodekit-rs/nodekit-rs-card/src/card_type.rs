@@ -1,9 +1,11 @@
+use crate::CARD_TYPE;
 use crate::asset::Asset;
 use crate::text::TextCard;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::types::PyString;
 
+/// ImageCard, TextCard, etc.
 pub enum CardType {
     Image(Asset),
     Text(TextCard),
@@ -20,7 +22,7 @@ impl<'py> FromPyObject<'_, 'py> for CardType {
     type Error = PyErr;
 
     fn extract(obj: Borrowed<'_, 'py, PyAny>) -> Result<Self, Self::Error> {
-        let card_type = obj.getattr("card_type")?;
+        let card_type = obj.getattr(CARD_TYPE)?;
         match card_type.cast::<PyString>()?.to_str()? {
             "ImageCard" => Ok(Self::Image(Self::asset(obj, "image")?)),
             "TextCard" => Ok(Self::Text(obj.extract::<TextCard>()?)),

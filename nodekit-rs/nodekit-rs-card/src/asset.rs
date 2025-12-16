@@ -5,13 +5,16 @@ use std::fmt::{Display, Formatter};
 use std::path::PathBuf;
 use url::Url;
 
-/// The URI of a source file.
+/// The location of a source file.
 pub enum Asset {
+    /// Absolute or relative path.
     Path(PathBuf),
+    /// A file in a zip archive.
     ZipArchiveInnerPath {
         zip_archive_path: PathBuf,
         inner_path: PathBuf,
     },
+    /// A remote file.
     Url(Url),
 }
 
