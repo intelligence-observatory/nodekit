@@ -21,14 +21,14 @@ def make_same_different_node(
             region=nk.Region(
                 x=0,
                 y=0,
-                w=0.05,
-                h=0.05,
+                w=50,
+                h=50,
             ),
         ),
         sensor=nk.sensors.KeySensor(keys=[" "]),
     )
 
-    stim_size = 0.4
+    stim_size = 400
 
     comparison_node = nk.Node(
         stimulus=nk.cards.CompositeCard(
@@ -37,7 +37,7 @@ def make_same_different_node(
                     background_color=to_hex(*color_left),
                     text=" ",
                     region=nk.Region(
-                        x=-0.25,
+                        x=-250,
                         y=0,
                         w=stim_size,
                         h=stim_size,
@@ -47,7 +47,7 @@ def make_same_different_node(
                     background_color=to_hex(*color_right),
                     text=" ",
                     region=nk.Region(
-                        x=0.25,
+                        x=250,
                         y=0,
                         w=stim_size,
                         h=stim_size,
@@ -58,9 +58,9 @@ def make_same_different_node(
                     text="Same (f) or Different (j)?",
                     region=nk.Region(
                         x=0,
-                        y=-0.35,
-                        w=0.35,
-                        h=0.07,
+                        y=-350,
+                        w=350,
+                        h=70,
                     ),
                 ),
             }
@@ -71,12 +71,12 @@ def make_same_different_node(
     punish_node = nk.Node(
         stimulus=nk.cards.TextCard(
             text="WRONG",
-            font_size=0.1,
+            font_size=100,
             region=nk.Region(
                 x=0,
                 y=0,
-                w=0.5,
-                h=0.1,
+                w=500,
+                h=100,
             ),
             text_color=to_hex(50, 50, 50),
         ),
@@ -86,12 +86,12 @@ def make_same_different_node(
     reward_node = nk.Node(
         stimulus=nk.cards.TextCard(
             text="CORRECT",
-            font_size=0.1,
+            font_size=100,
             region=nk.Region(
                 x=0,
                 y=0,
-                w=0.5,
-                h=0.1,
+                w=500,
+                h=100,
             ),
             text_color=to_hex(50, 50, 50),
         ),
