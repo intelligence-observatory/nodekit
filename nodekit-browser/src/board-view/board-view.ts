@@ -68,8 +68,8 @@ export class BoardCoordinateSystem {
         y: PixelPoint,
     } {
         // Converts a MouseEvent's (clientX, clientY) to Board coordinates (x, y)
-        let clickX = (e.clientX - this.boardLeftPx) / this.boardWidthPx - 0.5;
-        let clickY = -((e.clientY - this.boardTopPx) / this.boardHeightPx - 0.5);
+        let clickX = (e.clientX - this.boardLeftPx) - this.boardWidthPx/2;
+        let clickY = -((e.clientY - this.boardTopPx) - this.boardHeightPx/2);
 
         // Standardize to integers:
         clickX = Math.round(clickX);
