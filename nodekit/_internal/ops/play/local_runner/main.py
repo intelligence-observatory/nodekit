@@ -229,7 +229,7 @@ class LocalRunner:
 # %%
 def play(
     graph: Graph | Node,
-    port: int = None,
+    port: int | None = None,
 ) -> Trace:
     """
     Play the given Graph locally, then return the Trace.
