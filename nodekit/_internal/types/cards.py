@@ -27,7 +27,7 @@ class BaseCard(pydantic.BaseModel, ABC):
 class BaseLeafCard(BaseCard):
     region: Region = pydantic.Field(
         description="The Board region where the card is rendered.",
-        default=Region(x=0, y=0, w=0.5, h=0.5),
+        default=Region(x=0, y=0, w=512, h=512),
     )
 
 
@@ -43,7 +43,7 @@ class VideoCard(BaseLeafCard):
 
     Attributes:
         video: The video asset to render.
-        loop: Whether to loop the video when it ends.
+        loop: Whether  to loop the video when it ends.
         region: The Board region where the video is rendered.
     """
 
