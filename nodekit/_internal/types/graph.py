@@ -5,7 +5,7 @@ import pydantic
 from nodekit import VERSION, Node
 from nodekit._internal.types import expressions as expressions
 from nodekit._internal.types.transitions import Transition, Go, IfThenElse, Switch, End
-from nodekit._internal.types.values import NodeId, RegisterId, Value, LeafValue
+from nodekit._internal.types.values import NodeId, RegisterId, LeafValue
 
 
 # %%

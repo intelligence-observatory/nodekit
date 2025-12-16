@@ -38,11 +38,10 @@ class KeySensor(BaseSensor):
         min_length=1,
     )
 
-    @pydantic.field_validator("keys", mode='after')
+    @pydantic.field_validator("keys", mode="after")
     def canonicalize_keys(cls, keys: list[PressableKey]) -> list[PressableKey]:
         unique_keys: set[PressableKey] = set(keys)
         return sorted(unique_keys)
-
 
 
 # %%
