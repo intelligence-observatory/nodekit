@@ -7,7 +7,7 @@ from nodekit._internal.types.assets import Image, Video
 from nodekit._internal.types.values import (
     ColorHexString,
     MarkdownString,
-    SpatialSize,
+    PixelSize,
     Region,
 )
 
@@ -58,7 +58,7 @@ class VideoCard(BaseLeafCard):
 class TextCard(BaseLeafCard):
     card_type: Literal["TextCard"] = "TextCard"
     text: MarkdownString
-    font_size: SpatialSize = pydantic.Field(
+    font_size: PixelSize = pydantic.Field(
         default=0.02, description="The height of the em-box, in Board units."
     )
     justification_horizontal: Literal["left", "center", "right"] = "center"

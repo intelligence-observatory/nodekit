@@ -8,7 +8,7 @@ from nodekit._internal.types.actions import Action
 from nodekit._internal.types.node import Node
 from nodekit._internal.types.values import (
     TimeElapsedMsec,
-    SpatialPoint,
+    PixelPoint,
     NodeAddress,
 )
 
@@ -88,8 +88,8 @@ class BrowserContextSampledEvent(BaseEvent):
 # %%
 class PointerSampledEvent(BaseEvent):
     event_type: Literal[EventTypeEnum.PointerSampledEvent] = EventTypeEnum.PointerSampledEvent
-    x: SpatialPoint
-    y: SpatialPoint
+    x: PixelPoint
+    y: PixelPoint
     kind: Literal["move", "down", "up"]
 
 

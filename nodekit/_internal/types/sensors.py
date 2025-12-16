@@ -4,7 +4,7 @@ from typing import Literal, Annotated, Union, Self
 import pydantic
 
 from nodekit._internal.types.cards import Card
-from nodekit._internal.types.values import Region, PressableKey, SpatialSize, TimeDurationMsec
+from nodekit._internal.types.values import Region, PressableKey, PixelSize, TimeDurationMsec
 
 
 # %%
@@ -94,7 +94,7 @@ class TextEntrySensor(BaseSensor):
         default="",
     )
 
-    font_size: SpatialSize = pydantic.Field(
+    font_size: PixelSize = pydantic.Field(
         description="The height of the em-box, in Board units.",
         default=0.02,
     )

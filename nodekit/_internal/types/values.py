@@ -11,17 +11,22 @@ type Value = LeafValue | List | Dict | None
 
 
 # %% Spatial
-type SpatialSize = Annotated[
+type PixelSize = Annotated[
     float,
     pydantic.Field(
         strict=True,
         ge=0,
         le=1,
-        description="A spatial size relative to the smaller extent of the board (width or height, whichever is smaller). For example, a value of 0.5 corresponds to half the smaller extent of the board.",
+        description=(
+            "A spatial size relative to the smaller extent of the board (width or height, whichever is smaller). "
+            "For example, a value of 0.5 corresponds to half the smaller extent of the board."),
     ),
 ]
 
-type SpatialPoint = Annotated[float, pydantic.Field(strict=True, ge=-0.5, le=0.5)]
+type PixelPoint = Annotated[
+    float,
+    pydantic.Field(strict=True, ge=-0.5, le=0.5)
+]
 
 
 # %% Time
@@ -139,10 +144,10 @@ type RegisterId = Annotated[str, pydantic.Field(description="An identifier for a
 
 
 class Region(pydantic.BaseModel):
-    x: SpatialPoint
-    y: SpatialPoint
-    w: SpatialSize
-    h: SpatialSize
+    x: PixelPoint
+    y: PixelPoint
+    w: PixelSize
+    h: PixelSize
     z_index: int | None = None
     mask: Annotated[
         Literal["ellipse", "rectangle"],
