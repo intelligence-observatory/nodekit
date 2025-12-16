@@ -13,7 +13,7 @@
     "dev": "node_modules/.bin/vite",
     "build": "node_modules/.bin/tsc && vite build",
     "preview": "node_modules/.bin/vite preview",
-    "test": "./tests/test.sh"
+    "test": "npm run build && npx playwright test"
   },
   "dependencies": {
     "@fontsource-variable/inconsolata": "^5.2.8",

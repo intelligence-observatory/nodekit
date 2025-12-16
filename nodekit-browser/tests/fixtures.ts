@@ -1,5 +1,10 @@
 import {test, expect} from '@playwright/test';
 import type {Page} from "@playwright/test";
+import {fileURLToPath, pathToFileURL} from "url";
+import path from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 abstract class TestPage {
     public readonly page: Page;
@@ -44,21 +49,23 @@ export class NodeGraphPage extends TestPage {
     }
 
     async goto(filename: string) {
-        // Throttle the network.
+        // Throttle the network for HTTP(S) requests.
         await this.page.context().route("**", async (route) => {
-            // Add delay before continuing the request
-            await new Promise(resolve => setTimeout(resolve, this.latency));
+            if (route.request().url().startsWith("http")) {
+                await new Promise(resolve => setTimeout(resolve, this.latency));
+            }
             await route.continue();
-        })
-        // Go to a local file page:
+        });
+
+        const fileUrl = pathToFileURL(path.join(__dirname, filename)).href;
         try {
-            await this.page.goto('./tests/' + filename);
-            await this.page.setViewportSize({width: 800, height: 800});
+            await this.page.goto(fileUrl);
+            await this.page.setViewportSize({width: 1024, height: 768});
             // Load everything:
             await this.page.waitForLoadState('load');
-            expect(this.errors).toHaveLength(0);
+            await expect(this.errors).toHaveLength(0);
             // Click the start button:
-            await this.page.locator('.start-button').first().click();
+            await this.page.getByRole('button', {name: /press to start/i}).click();
         }
         catch (e) {
             this.errors.push(e as Error);
@@ -67,12 +74,9 @@ export class NodeGraphPage extends TestPage {
 
     // Expect the submit button to be visible:
     async expectNodeGraphEnded()  {
-        try {
-            expect(this.page.locator('.submit-button').first().isVisible()).toBeTruthy();
-        }
-        catch (e) {
-            this.errors.push(e as Error);
-        }
+        const submitButton = this.page.locator('.submit-button').first();
+        await expect(submitButton).toBeVisible();
+        await submitButton.click();
     }
 
     // Click the center of the screen:
@@ -86,6 +90,15 @@ export class NodeGraphPage extends TestPage {
           // Click in the center of the screen:
           await this.page.mouse.click(size.width / 2, size.height / 2);
       }
+    }
+
+    async getTrace() {
+        await this.page.waitForFunction(() => (window as any).__trace !== null || (window as any).__error);
+        const traceOrError = await this.page.evaluate(() => ({trace: (window as any).__trace, error: (window as any).__error}));
+        if (traceOrError.error) {
+            throw traceOrError.error;
+        }
+        return traceOrError.trace;
     }
 
     end() {

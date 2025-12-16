@@ -9,53 +9,74 @@
 <script src="../dist/nodekit.js"></script>
 <link rel="stylesheet" href="../dist/nodekit.css">
 <script>
-    let graph = {
-        nodekit_version: "0.1.0",
+    const videoAsset = {
+        sha256: "3f224a8b6a7917ae1364cf2cc9daf7a5f7073bfe0fb5d9b638d8a6efc1c867f7",
+        media_type: "video/mp4",
+        locator: {
+            locator_type: "RelativePath",
+            relative_path: "./test-video.mp4"
+        }
+    };
+
+    const videoCard = {
+        card_type: "VideoCard",
+        video: videoAsset,
+        loop: false,
+        region: {
+            x: 0,
+            y: 0,
+            w: 480,
+            h: 320,
+            z_index: null,
+            mask: "rectangle"
+        }
+    };
+
+    const graph = {
+        type: "Graph",
+        nodekit_version: "0.0.0",
         nodes: {
-            'video-node':{
-                "cards": [
-                    {
-                        "card_type": "VideoCard",
-                        "x": 0.0,
-                        "y": 0.0,
-                        "w": 0.8,
-                        "h": 0.8,
-                        "start_msec": 0,
-                        "end_msec": null,
-                        "video": {
-                            "sha256": "3f224a8b6a7917ae1364cf2cc9daf7a5f7073bfe0fb5d9b638d8a6efc1c867f7",
-                            "media_type": "video/mp4",
-                            "locator": {
-                                "locator_type": "RelativePath",
-                                "relative_path": "../assets/video/mp4/3f224a8b6a7917ae1364cf2cc9daf7a5f7073bfe0fb5d9b638d8a6efc1c867f7.mp4"
-                            }
-                        },
-                        "muted": true,
-                        "loop": false
-                    }
-                ],
-                "sensors": {
-                    "wait": {
-                        "sensor_type": "TimeoutSensor",
-                        "timeout_msec": 1000
-                    }
+            "video-node": {
+                type: "Node",
+                stimulus: videoCard,
+                sensor: {
+                    sensor_type: "SelectSensor",
+                    choices: {
+                        video: videoCard,
+                    },
                 },
-                "effects": [],
-                "board_color": "#808080ff"
-            }
+                board_color: "#808080ff",
+                hide_pointer: false,
+                annotation: "",
+            },
         },
-        start: 'video-node',
         transitions: {},
-    }
+        start: "video-node",
+        registers: {},
+    };
+
+    window.__graph = graph;
+    window.__events = [];
+    window.__trace = null;
+    window.__error = null;
 
     window.onload = async () => {
-       let trace = await NodeKit.play(
-           graph,
-           (event) => {
-                console.log(event);
-           }
-       );
-       console.log(trace)
+        // Align the graph version with the runtime to avoid semver gating issues.
+        graph.nodekit_version = NodeKit.version;
+
+        try {
+            window.__trace = await NodeKit.play(
+                graph,
+                (event) => {
+                    window.__events.push(event);
+                    console.log(event);
+                },
+                false,
+            );
+        } catch (err) {
+            window.__error = err;
+            console.error(err);
+        }
     };
 </script>
 

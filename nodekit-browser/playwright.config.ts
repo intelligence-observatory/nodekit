@@ -77,13 +77,5 @@ export default defineConfig({
   ],
 
   /* Run your local dev server before starting the tests */
-  webServer: {
-     command: 'python3 -m http.server 3000 -b localhost', // One less npm package to install...
-     stdout: "ignore",
-     stderr: "ignore",
-     cwd: './',
-     url: 'http://localhost:3000/',
-     reuseExistingServer: !process.env.CI ,
-     timeout: 12000000
-  },
+  webServer: undefined,
 });
