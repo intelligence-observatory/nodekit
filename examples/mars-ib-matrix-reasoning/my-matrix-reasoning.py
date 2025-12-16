@@ -67,12 +67,12 @@ def make_mars_trial(
     fixation_node = nk.Node(
         stimulus=nk.cards.TextCard(
             text=r"\+",
-            font_size=0.05,
+            font_size=50,
             region=nk.Region(
                 x=0,
-                y=0.15,
-                w=0.07,
-                h=0.07,
+                y=150,
+                w=70,
+                h=70,
             ),
         ),
         sensor=nk.sensors.WaitSensor(duration_msec=fixation_duration),
@@ -80,12 +80,12 @@ def make_mars_trial(
     )
 
     # Choice cards
-    choice_size = 0.16
-    choice_y = -0.35
+    choice_size = 160
+    choice_y = -350
 
     choice_cards = []
     for i in range(len(choices)):
-        choice_x_cur = -0.375 + 0.25 * i
+        choice_x_cur = int((-0.375 + 0.25 * i) * 1000)
         choice_card = nk.cards.ImageCard(
             image=choices[i],
             region=nk.Region(
@@ -103,9 +103,9 @@ def make_mars_trial(
             image=grid_image,
             region=nk.Region(
                 x=0,
-                y=0.15,
-                w=0.5,
-                h=0.5,
+                y=150,
+                w=500,
+                h=500,
             ),
         ),
         sensor=nk.sensors.SelectSensor(
