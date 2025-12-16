@@ -85,6 +85,12 @@ export class MultiSelectSensorBinding extends SensorBinding<MultiSelectSensor> {
             if (confirmed){
                 return
             }
+
+            // Return early if not pointer down
+            if (pointerSample.sampleType !== 'down'){
+                return
+            }
+
             const atMax = currentSelections.size >= maxSelections;
             let changed = false;
 
@@ -99,6 +105,7 @@ export class MultiSelectSensorBinding extends SensorBinding<MultiSelectSensor> {
                 if (!inside) {
                     continue;
                 }
+
 
                 const isSelected = currentSelections.has(cardId);
 
