@@ -35,8 +35,8 @@ class EvalContext:
 
 # %% Core evaluator
 def evaluate_expression(
-        expression: Expression,
-        context: EvalContext,
+    expression: Expression,
+    context: EvalContext,
 ) -> Value:
     if isinstance(expression, expr.Reg):
         if expression.id not in context.graph_registers:

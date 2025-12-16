@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 from matplotlib import animation
 from matplotlib.colors import to_rgba
 
+
 def make_animation(
     events: dict[str, List[PointerSampledEvent]],  # trace_id -> event stream
     savepath: os.PathLike | str,

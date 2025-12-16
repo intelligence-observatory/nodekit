@@ -157,8 +157,7 @@ type Expression = Annotated[
     | Add
     | Sub
     | Mul
-    | Div
-    ,
+    | Div,
     pydantic.Field(discriminator="op"),
 ]
 

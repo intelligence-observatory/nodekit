@@ -143,9 +143,7 @@ type NodeAddress = Annotated[
     ),
 ]
 
-type RegisterId = Annotated[
-    str, pydantic.Field(description="An identifier for a Graph register.")
-]
+type RegisterId = Annotated[str, pydantic.Field(description="An identifier for a Graph register.")]
 
 
 class Region(pydantic.BaseModel):

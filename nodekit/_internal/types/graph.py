@@ -150,7 +150,6 @@ def _get_reg_references(expression: expressions.Expression) -> set[RegisterId]:
             refs |= _get_reg_references(arg)
         return refs
 
-
     if isinstance(expression, expressions.GetDictValue):
         return _get_reg_references(expression.d) | _get_reg_references(expression.key)
 
