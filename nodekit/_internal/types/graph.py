@@ -4,8 +4,8 @@ import pydantic
 
 from nodekit import VERSION, Node
 from nodekit._internal.types import expressions as expressions
-from nodekit._internal.types.transition import Transition, Go, IfThenElse, Switch, End
-from nodekit._internal.types.values import NodeId, RegisterId, Value
+from nodekit._internal.types.transitions import Transition, Go, IfThenElse, Switch, End
+from nodekit._internal.types.values import NodeId, RegisterId, Value, LeafValue
 
 
 # %%
@@ -23,7 +23,7 @@ class Graph(pydantic.BaseModel):
 
     start: NodeId = pydantic.Field(description="The start Node of the Graph.")
 
-    registers: dict[RegisterId, Value] = pydantic.Field(
+    registers: dict[RegisterId, LeafValue] = pydantic.Field(
         default_factory=dict,
         description="The initial values register values. ",
     )

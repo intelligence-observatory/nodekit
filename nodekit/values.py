@@ -8,7 +8,6 @@ __all__ = [
     # Space
     "SpatialSize",
     "SpatialPoint",
-    "Mask",
     # Time
     "TimeElapsedMsec",
     "TimeDurationMsec",
@@ -36,7 +35,6 @@ from nodekit._internal.types.values import (
     # Space
     SpatialSize,
     SpatialPoint,
-    Mask,
     # Time
     TimeElapsedMsec,
     TimeDurationMsec,

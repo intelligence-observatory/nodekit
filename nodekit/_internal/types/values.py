@@ -4,10 +4,8 @@ import pydantic
 
 # %% Base Values
 
-# Containers
 type List = list["Value"]
 type Dict = dict[str, "Value"]
-# Full Value
 type LeafValue = bool | int | float | str
 type Value = LeafValue | List | Dict | None
 
@@ -25,12 +23,6 @@ type SpatialSize = Annotated[
 
 type SpatialPoint = Annotated[float, pydantic.Field(strict=True, ge=-0.5, le=0.5)]
 
-type Mask = Annotated[
-    Literal["ellipse", "rectangle"],
-    pydantic.Field(
-        description='Describes the shape of a region inside of a bounding box. "rectangle" uses the box itself; "ellipse" inscribes a tightly fitted ellipse within the box.'
-    ),
-]
 
 # %% Time
 type TimeElapsedMsec = Annotated[
@@ -152,4 +144,9 @@ class Region(pydantic.BaseModel):
     w: SpatialSize
     h: SpatialSize
     z_index: int | None = None
-    mask: Mask = "rectangle"
+    mask: Annotated[
+        Literal["ellipse", "rectangle"],
+        pydantic.Field(
+            description='Describes the shape of a region inside of a bounding box. "rectangle" uses the box itself; "ellipse" inscribes a tightly fitted ellipse within the box.'
+        ),
+    ] = "rectangle"
