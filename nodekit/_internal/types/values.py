@@ -16,9 +16,7 @@ type PixelSize = Annotated[
     pydantic.Field(
         strict=True,
         ge=0,
-        description=(
-            "A spatial size in units of W3C reference pixels. "
-        ),
+        description=("A spatial size in units of W3C reference pixels. "),
     ),
 ]
 
@@ -30,8 +28,8 @@ type PixelPoint = Annotated[
         le=512,
         description=(
             "A spatial location relative to some origin, in units of W3C reference pixels."
-        )
-    )
+        ),
+    ),
 ]
 
 

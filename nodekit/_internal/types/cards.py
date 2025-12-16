@@ -59,7 +59,8 @@ class TextCard(BaseLeafCard):
     card_type: Literal["TextCard"] = "TextCard"
     text: MarkdownString
     font_size: PixelSize = pydantic.Field(
-        default=0.02, description="The height of the em-box, in Board units."
+        default=20,
+        description="The height of the em-box, in Board units."
     )
     justification_horizontal: Literal["left", "center", "right"] = "center"
     justification_vertical: Literal["top", "center", "bottom"] = "center"

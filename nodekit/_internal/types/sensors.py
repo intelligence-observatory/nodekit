@@ -96,7 +96,8 @@ class TextEntrySensor(BaseSensor):
 
     font_size: PixelSize = pydantic.Field(
         description="The height of the em-box, in Board units.",
-        default=0.02,
+        default=20,
+        validate_default=True,
     )
 
     min_length: int = pydantic.Field(
