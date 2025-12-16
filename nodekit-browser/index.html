@@ -22,33 +22,33 @@
     const compositeCard2 = {
         "card_type": "CompositeCard",
         "children": {
-            'child-card-11':{
-            "card_type": "TextCard",
-            "region": {
+            'child-card-11': {
+                "card_type": "TextCard",
+                "region": {
                     "x": -400,
                     "y": -250,
                     "w": 200,
                     "h": 100,
                     "mask": 'rectangle',
                 },
-            "text": "I am a child of a CompositeCard.",
-            "font_size": 10,
+                "text": "I am a child of a CompositeCard.",
+                "font_size": 10,
                 "justification_horizontal": "center",
                 "justification_vertical": "center",
                 "text_color": "#000000ff",
                 "background_color": "#e6e6e6ff"
             },
-            'child-card-12':{
-            "card_type": "TextCard",
-            "region": {
+            'child-card-12': {
+                "card_type": "TextCard",
+                "region": {
                     "x": 400,
                     "y": -250,
                     "w": 200,
                     "h": 100,
                     "mask": 'rectangle',
                 },
-            "text": "I am another child of a CompositeCard.",
-            "font_size": 10,
+                "text": "I am another child of a CompositeCard.",
+                "font_size": 10,
                 "justification_horizontal": "center",
                 "justification_vertical": "center",
                 "text_color": "#000000ff",
@@ -61,15 +61,15 @@
         sensor_type: "MultiSelectSensor",
         choices: {
             "hello-image": {
-            "card_type": "ImageCard",
-            "region": {
+                "card_type": "ImageCard",
+                "region": {
                     "x": 0,
                     "y": 0,
-                    "w": 400,
+                    "w": 100,
                     "h": 200,
                     "mask": 'rectangle',
                 },
-            "image": {
+                "image": {
                     "sha256": 'yo',
                     "media_type": "image/png",
                     "locator": {
@@ -77,39 +77,34 @@
                         "relative_path": "./assets/image/png/f66018c63e5de97a4a022f8d0da2083d44a842abcc27195b6cca13980a77dc7b.png"
                     }
                 },
+            },
+            "hello-text": {
+                "card_type": "TextCard",
+                "region": {
+                    "x": -300,
+                    "y": -300,
+                    "w": 200,
+                    "h": 100,
+                    "mask": 'rectangle',
+                },
+                "text": "I am a TextCard.",
                 "font_size": 30,
                 "justification_horizontal": "center",
                 "justification_vertical": "center",
                 "text_color": "#000000ff",
                 "background_color": "#e6e6e6ff"
             },
-            "hello-text": {
-            "card_type": "TextCard",
-            "region": {
-                    "x": -400,
-                    "y": -400,
-                    "w": 200,
-                    "h": 100,
-                    "mask": 'rectangle',
-                },
-            "text": "I am a TextCard.",
-            "font_size": 30,
-                "justification_horizontal": "center",
-                "justification_vertical": "center",
-                "text_color": "#000000ff",
-                "background_color": "#e6e6e6ff"
-            },
             "text2": {
-            "card_type": "TextCard",
-            "region": {
-                    "x": 350,
-                    "y": -400,
-                    "w": 200,
+                "card_type": "TextCard",
+                "region": {
+                    "x": 300,
+                    "y": -300,
+                    "w": 100,
                     "h": 100,
                     "mask": 'rectangle',
                 },
-            "text": "I am a TextCard2.",
-            "font_size": 30,
+                "text": "I am a TextCard2.",
+                "font_size": 10,
                 "justification_horizontal": "center",
                 "justification_vertical": "center",
                 "text_color": "#000000ff",
@@ -123,7 +118,7 @@
             "card_type": "TextCard",
             "region": {
                 "x": 0,
-                "y": -400,
+                "y": -200,
                 "w": 200,
                 "h": 50,
                 "mask": 'rectangle',
@@ -134,28 +129,6 @@
             "justification_vertical": "center",
             "text_color": "#ffffffff",
             "background_color": "green"
-        }
-    }
-
-    const selectSensor = {
-        sensor_type: "SelectSensor",
-        choices: {
-            'my-first-choice': {
-                "card_type": "TextCard",
-                "region": {
-                    "x": -400,
-                    "y": -400,
-                    "w": 200,
-                    "h": 100,
-                    "mask": 'rectangle',
-                },
-                "text": "I am a TextCard.",
-                "font_size": 30,
-                "justification_horizontal": "center",
-                "justification_vertical": "center",
-                "text_color": "#000000ff",
-                "background_color": "#e6e6e6ff"
-            }
         }
     }
 
@@ -170,36 +143,36 @@
             'y': 250,
             'w': 750,
             'h': 250,
-            'mask':'rectangle',
+            'mask': 'rectangle',
         },
     }
 
     const sliderSensorH = {
         "sensor_type": 'SliderSensor',
-        "num_bins":5,
-        "show_bin_markers":true,
-        "initial_bin_index":2,
+        "num_bins": 5,
+        "show_bin_markers": true,
+        "initial_bin_index": 2,
         "orientation": 'horizontal',
-        'region':{
+        'region': {
             'x': 250,
             'y': 250,
             'w': 300,
             'h': 100,
-            'mask':'rectangle',
+            'mask': 'rectangle',
         }
     }
     const sliderSensorV = {
         "sensor_type": 'SliderSensor',
-        "num_bins":100,
-        "show_bin_markers":false,
-        "initial_bin_index":2,
+        "num_bins": 100,
+        "show_bin_markers": false,
+        "initial_bin_index": 2,
         "orientation": 'vertical',
-        'region':{
+        'region': {
             'x': -450,
             'y': 250,
             'w': 50,
             'h': 500,
-            'mask':'rectangle',
+            'mask': 'rectangle',
         }
     }
     const productSensor = {
@@ -234,7 +207,7 @@
     const compositeCard = {
         "card_type": "CompositeCard",
         "children": {
-            'child-card-1':videoCard
+            'child-card-1': videoCard
         }
     }
 

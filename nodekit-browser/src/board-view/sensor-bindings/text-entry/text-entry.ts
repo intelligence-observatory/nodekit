@@ -1,5 +1,5 @@
 import './text-entry.css'
-import type {TextEntrySensor} from "../../../types/sensors";
+import type {TextEntrySensor} from "../../../types/sensors.ts";
 import {BoardCoordinateSystem, createRegionDiv} from "../../board-view.ts";
 import type {TextEntryAction} from "../../../types/actions.ts";
 import {SensorBinding} from "../index.ts";

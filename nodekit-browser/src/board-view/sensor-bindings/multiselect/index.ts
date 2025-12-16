@@ -1,4 +1,4 @@
-import type {MultiSelectSensor} from "../../../types/sensors";
+import type {MultiSelectSensor} from "../../../types/sensors.ts";
 import {SensorBinding} from "../index.ts";
 import type {MultiSelectAction} from "../../../types/actions.ts";
 import type {PointerSample} from "../../../input-streams/pointer-stream.ts";

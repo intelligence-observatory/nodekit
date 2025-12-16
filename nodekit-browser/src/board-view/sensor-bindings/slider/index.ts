@@ -1,5 +1,5 @@
 import './slider.css'
-import type {SliderSensor} from "../../../types/sensors";
+import type {SliderSensor} from "../../../types/sensors.ts";
 import {BoardCoordinateSystem, createRegionDiv} from "../../board-view.ts";
 import type {SliderAction} from "../../../types/actions.ts";
 import {SensorBinding} from "../index.ts";

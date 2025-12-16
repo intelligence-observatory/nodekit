@@ -1,4 +1,4 @@
-import type {SelectSensor} from "../../../types/sensors";
+import type {SelectSensor} from "../../../types/sensors.ts";
 import {SensorBinding} from "../index.ts";
 import type {SelectAction} from "../../../types/actions.ts";
 import type {PointerSample} from "../../../input-streams/pointer-stream.ts";

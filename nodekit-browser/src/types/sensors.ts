@@ -1,7 +1,7 @@
-import type {PressableKey, PixelSize, TimeDurationMsec} from "../values.ts";
-import type {Region} from "../region";
-import type {SliderBinIndex} from "../../board-view/sensor-bindings/slider";
-import type {Card} from "../cards";
+import type {PressableKey, PixelSize, TimeDurationMsec} from "./values.ts";
+import type {Region} from "./region";
+import type {SliderBinIndex} from "../board-view/sensor-bindings/slider";
+import type {Card} from "./cards";
 
 interface BaseSensor<T extends string> {
     sensor_type: T

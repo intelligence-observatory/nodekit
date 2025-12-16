@@ -1,5 +1,5 @@
 import {SensorBinding} from "./index.ts";
-import type {ProductSensor, Sensor, SumSensor} from "../../types/sensors";
+import type {ProductSensor, Sensor, SumSensor} from "../../types/sensors.ts";
 import type {Action, ProductAction, SumAction} from "../../types/actions.ts";
 import {createSensorBinding} from "./create-sensor-binding.ts";
 
