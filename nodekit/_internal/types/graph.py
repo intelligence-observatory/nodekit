@@ -3,9 +3,9 @@ from typing import Literal, Self, Union
 import pydantic
 
 from nodekit import VERSION, Node
+from nodekit._internal.types import expressions as expressions
 from nodekit._internal.types.transition import Transition, Go, IfThenElse, Switch, End
 from nodekit._internal.types.values import NodeId, RegisterId, Value
-from nodekit._internal.types import expressions as expressions
 
 
 # %%

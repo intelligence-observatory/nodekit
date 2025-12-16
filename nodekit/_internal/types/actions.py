@@ -1,9 +1,9 @@
 from abc import ABC
-from typing import Literal, Union, Annotated, Any
+from typing import Literal, Union, Annotated
 
 import pydantic
 
-from nodekit._internal.types.values import PressableKey, Value
+from nodekit._internal.types.values import Value
 
 
 # %%

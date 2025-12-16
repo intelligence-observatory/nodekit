@@ -1,7 +1,8 @@
-import nodekit._internal.types.sensors as s
-import nodekit._internal.types.actions as a
 from random import Random
 from typing import Never
+
+import nodekit._internal.types.actions as a
+import nodekit._internal.types.sensors as s
 
 
 def sample_action(sensor: s.Sensor, rng: Random | None = None) -> a.Action:
