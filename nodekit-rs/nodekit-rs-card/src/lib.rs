@@ -20,6 +20,8 @@ pub struct Card {
     pub region: Region,
     /// ImageCard, TextCard, etc.
     pub card_type: CardType,
+    /// True if the card needs to be rerendered.
+    pub dirty: bool
 }
 
 impl FromPyObject<'_, '_> for Card {
@@ -29,6 +31,7 @@ impl FromPyObject<'_, '_> for Card {
         Ok(Self {
             region: Region::extract(obj.getattr("region")?.as_borrowed())?,
             card_type: CardType::extract(obj)?,
+            dirty: false,
         })
     }
 }

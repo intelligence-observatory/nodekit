@@ -265,6 +265,7 @@ mod tests {
                 z_index: Some(0),
             },
             card_type: CardType::Image(Asset::Path(image_path)),
+            dirty: false,
         }
     }
 
@@ -282,6 +283,7 @@ mod tests {
                 asset: Asset::Path(video_path),
                 looped: false,
             },
+            dirty: false,
         }
     }
 
@@ -302,6 +304,7 @@ mod tests {
                 text_color: "#003300FF".to_string(),
                 background_color: "#EE00EE11".to_string(),
             }),
+            dirty: false,
         }
     }
 

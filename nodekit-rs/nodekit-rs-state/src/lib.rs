@@ -1,6 +1,6 @@
 mod pointer;
 
-use nodekit_rs_card::Card;
+use nodekit_rs_card::{Card, CardType};
 use pointer::Pointer;
 use pyo3::prelude::*;
 use pyo3::types::PyList;
@@ -14,7 +14,7 @@ pub struct State {
     /// The node's cards.
     pub cards: Vec<Card>,
     /// The time elapsed from the start of the node.
-    #[pyo3(get, set)]
+    #[pyo3(get)]
     pub t_msec: u64,
     /// The background color.
     pub board_color: String,
@@ -44,6 +44,12 @@ impl State {
     #[new]
     pub fn new(board_color: String, cards: &Bound<'_, PyList>) -> PyResult<Self> {
         Ok(Self::from_cards(board_color, Card::extract_all(cards)?))
+    }
+
+    #[setter]
+    pub fn set_t_msec(&mut self, value: u64) {
+        self.t_msec = value;
+        self.cards.iter_mut().filter(|card| matches!(&card.card_type, CardType::Video { asset: _, looped: _})).for_each(|card| card.dirty = true);
     }
 
     /// Set the coordinates of the pointer.
