@@ -71,10 +71,9 @@ export class BoardCoordinateSystem {
         let clickX = (e.clientX - this.boardLeftPx) / this.boardWidthPx - 0.5;
         let clickY = -((e.clientY - this.boardTopPx) / this.boardHeightPx - 0.5);
 
-        // Standardize decimal places
-        const precision = 10;
-        clickX = parseFloat(clickX.toFixed(precision));
-        clickY = parseFloat(clickY.toFixed(precision));
+        // Standardize to integers:
+        clickX = Math.round(clickX);
+        clickY = Math.round(clickY)
 
         return {
             x: clickX as PixelPoint,

@@ -6,7 +6,7 @@ type PointerSampleType = 'move' | 'down' | 'up';
 
 export interface PointerSample {
     sampleType: PointerSampleType
-    x: PixelPoint // In Board convention units
+    x: PixelPoint // In Board coordinate system
     y: PixelPoint
     t: TimeElapsedMsec
 }
