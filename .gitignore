@@ -5,3 +5,5 @@
 nodekit-browser/node_modules/
 nodekit-browser/dist/
 *.pyc
+
+examples/**.nkg
