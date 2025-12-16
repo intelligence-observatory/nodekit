@@ -113,19 +113,6 @@ if __name__ == "__main__":
 
     graph = nk.concat([dev_node])
 
-    # %% One can pack the Graph for later, or to share:
-    savepath = Path("my_graph.nkg")
-    if savepath.exists():
-        savepath.unlink()
-    nk.save_graph(graph, savepath)
-
-    # %% Unpacking a Graph:
-    graph_roundtrip = nk.load_graph(savepath)
-
-    # %% Build a site
-    build_result = nk.build_site(graph_roundtrip, "my-site")
-    print(build_result)
-
     # %% Play the Graph now:
     trace = nk.play(graph)
 
