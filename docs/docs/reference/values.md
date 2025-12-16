@@ -1,7 +1,3 @@
-::: nodekit.values.Boolean
-::: nodekit.values.Integer
-::: nodekit.values.Float
-::: nodekit.values.String
 ::: nodekit.values.List
 ::: nodekit.values.Dict
 ::: nodekit.values.LeafValue

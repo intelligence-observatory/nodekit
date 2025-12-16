@@ -1,15 +1,10 @@
 from abc import ABC
-from typing import Literal, Annotated, Union, Self, Dict
+from typing import Literal, Annotated, Union, Self
 
 import pydantic
 
-from nodekit._internal.types.values import Region
 from nodekit._internal.types.cards import Card
-from nodekit._internal.types.values import (
-    PressableKey,
-    SpatialSize,
-    TimeDurationMsec,
-)
+from nodekit._internal.types.values import Region, PressableKey, SpatialSize, TimeDurationMsec
 
 
 # %%
@@ -46,13 +41,13 @@ class KeySensor(BaseSensor):
 # %%
 class SelectSensor(BaseSensor):
     sensor_type: Literal["SelectSensor"] = "SelectSensor"
-    choices: Dict[str, Card]
+    choices: dict[str, Card]
 
 
 # %%
 class MultiSelectSensor(BaseSensor):
     sensor_type: Literal["MultiSelectSensor"] = "MultiSelectSensor"
-    choices: Dict[str, Card]
+    choices: dict[str, Card]
 
     min_selections: int = pydantic.Field(
         ge=0,
@@ -61,7 +56,7 @@ class MultiSelectSensor(BaseSensor):
 
     max_selections: int | None = pydantic.Field(
         default=None,
-        validate_default=True,
+        validate_default=False,
         ge=0,
         description="If None, the selection can contain up to the number of available Cards.",
     )
@@ -70,24 +65,18 @@ class MultiSelectSensor(BaseSensor):
 
     @pydantic.model_validator(mode="after")
     def validate_selections_vals(self) -> Self:
-        if (
-            self.max_selections is not None
-            and self.max_selections < self.min_selections
-        ):
+        if self.max_selections is None:
+            self.max_selections = len(self.choices)
+        if self.max_selections < self.min_selections:
             raise pydantic.ValidationError(
                 f"max_selections ({self.max_selections}) must be greater than min_selections ({self.min_selections})",
             )
+        if self.max_selections > len(self.choices):
+            raise pydantic.ValidationError(
+                f"max_selections ({self.max_selections}) cannot be greater than the number of available choices ({len(self.choices)})",
+            )
+
         return self
-
-
-# %%
-class SliderSensor(BaseSensor):
-    sensor_type: Literal["SliderSensor"] = "SliderSensor"
-    num_bins: int = pydantic.Field(gt=1)
-    initial_bin_index: int
-    show_bin_markers: bool = True
-    orientation: Literal["horizontal", "vertical"] = "horizontal"
-    region: Region
 
 
 # %%
@@ -122,15 +111,25 @@ class TextEntrySensor(BaseSensor):
 
 
 # %%
+class SliderSensor(BaseSensor):
+    sensor_type: Literal["SliderSensor"] = "SliderSensor"
+    num_bins: int = pydantic.Field(gt=1)
+    initial_bin_index: int
+    show_bin_markers: bool = True
+    orientation: Literal["horizontal", "vertical"] = "horizontal"
+    region: Region
+
+
+# %%
 class ProductSensor(BaseSensor):
     sensor_type: Literal["ProductSensor"] = "ProductSensor"
-    children: Dict[str, "Sensor"]
+    children: dict[str, "Sensor"]
 
 
 # %%
 class SumSensor(BaseSensor):
     sensor_type: Literal["SumSensor"] = "SumSensor"
-    children: Dict[str, "Sensor"]
+    children: dict[str, "Sensor"]
 
 
 # %%

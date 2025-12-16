@@ -1,31 +1,29 @@
-from typing import Dict, Literal, Self, Union
+from typing import Literal, Self, Union
 
 import pydantic
 
 from nodekit import VERSION, Node
+from nodekit._internal.types import expressions as expressions
 from nodekit._internal.types.transition import Transition, Go, IfThenElse, Switch, End
 from nodekit._internal.types.values import NodeId, RegisterId, Value
-from nodekit._internal.types import expressions as expressions
 
 
 # %%
 class Graph(pydantic.BaseModel):
     type: Literal["Graph"] = "Graph"
-    nodekit_version: Literal["0.2.1"] = pydantic.Field(
-        default=VERSION, validate_default=True
-    )
+    nodekit_version: Literal["0.2.1"] = pydantic.Field(default=VERSION, validate_default=True)
 
-    nodes: Dict[NodeId, Union[Node, "Graph"]] = pydantic.Field(
+    nodes: dict[NodeId, Union[Node, "Graph"]] = pydantic.Field(
         description="The set of Nodes in the Graph, by NodeId. Note that a Graph can contain other Graphs as Nodes.",
     )
 
-    transitions: Dict[NodeId, Transition] = pydantic.Field(
+    transitions: dict[NodeId, Transition] = pydantic.Field(
         description="The set of Transitions in the Graph, by NodeId.",
     )
 
     start: NodeId = pydantic.Field(description="The start Node of the Graph.")
 
-    registers: Dict[RegisterId, Value] = pydantic.Field(
+    registers: dict[RegisterId, Value] = pydantic.Field(
         default_factory=dict,
         description="The initial values register values. ",
     )
@@ -52,9 +50,7 @@ class Graph(pydantic.BaseModel):
         for node_id, transition in self.transitions.items():
             # Check Transition corresponds to an existing Node:
             if node_id not in self.nodes:
-                raise ValueError(
-                    f"Transition found for Node {node_id} but Node does not exist."
-                )
+                raise ValueError(f"Transition found for Node {node_id} but Node does not exist.")
 
             # Check each Go transition points to an existing Node:
             for go_target_node_id in _gather_go_targets(transition):
@@ -114,9 +110,7 @@ class Graph(pydantic.BaseModel):
         )
 
         if len(node_ids_with_path_to_end) < len(self.nodes):
-            nodes_without_path_to_end = (
-                set(self.nodes.keys()) - node_ids_with_path_to_end
-            )
+            nodes_without_path_to_end = set(self.nodes.keys()) - node_ids_with_path_to_end
             raise ValueError(
                 f"Found Nodes that do not have a path to an End transition: {'\n'.join(list(nodes_without_path_to_end))}"
             )
@@ -134,17 +128,13 @@ def _get_reg_references(expression: expressions.Expression) -> set[RegisterId]:
     if isinstance(expression, (expressions.Reg, expressions.ChildReg)):
         return {expression.id}
 
-    if isinstance(
-        expression, (expressions.Local, expressions.LastAction, expressions.Lit)
-    ):
+    if isinstance(expression, (expressions.LastAction, expressions.Lit)):
         return set()
 
     if isinstance(expression, expressions.Not):
         return _get_reg_references(expression.operand)
 
-    if isinstance(
-        expression, (expressions.BaseCmp, expressions.BaseArithmeticOperation)
-    ):
+    if isinstance(expression, (expressions.BaseCmp, expressions.BaseArithmeticOperation)):
         return _get_reg_references(expression.lhs) | _get_reg_references(expression.rhs)
 
     if isinstance(expression, expressions.If):
@@ -154,53 +144,21 @@ def _get_reg_references(expression: expressions.Expression) -> set[RegisterId]:
             | _get_reg_references(expression.otherwise)
         )
 
-    if isinstance(expression, expressions.Or) or isinstance(
-        expression, expressions.And
-    ):
+    if isinstance(expression, expressions.Or) or isinstance(expression, expressions.And):
         refs: set[RegisterId] = set()
         for arg in expression.args:
             refs |= _get_reg_references(arg)
         return refs
 
-    if isinstance(expression, expressions.GetListItem):
-        return _get_reg_references(expression.list) | _get_reg_references(
-            expression.index
-        )
-
     if isinstance(expression, expressions.GetDictValue):
         return _get_reg_references(expression.d) | _get_reg_references(expression.key)
-
-    if isinstance(expression, expressions.Slice):
-        refs = _get_reg_references(expression.array) | _get_reg_references(
-            expression.start
-        )
-        if expression.end is not None:
-            refs |= _get_reg_references(expression.end)
-        return refs
-
-    if isinstance(expression, expressions.Map):
-        return _get_reg_references(expression.array) | _get_reg_references(
-            expression.func
-        )
-
-    if isinstance(expression, expressions.Filter):
-        return _get_reg_references(expression.array) | _get_reg_references(
-            expression.predicate
-        )
-
-    if isinstance(expression, expressions.Fold):
-        return (
-            _get_reg_references(expression.array)
-            | _get_reg_references(expression.init)
-            | _get_reg_references(expression.func)
-        )
 
     raise TypeError(f"Unhandled expression type: {type(expression)}")
 
 
 def _get_reachable_node_ids(
     start: NodeId,
-    transitions: Dict[NodeId, Transition],
+    transitions: dict[NodeId, Transition],
 ) -> set[NodeId]:
     """
     Returns the set of NodeIds reachable from the start NodeId, given these transitions.
@@ -249,9 +207,9 @@ def _get_node_ids_with_path_to_end(
         if isinstance(transition, IfThenElse):
             return _contains_end(transition.then) or _contains_end(transition.else_)
         if isinstance(transition, Switch):
-            return any(
-                _contains_end(t) for t in transition.cases.values()
-            ) or _contains_end(transition.default)
+            return any(_contains_end(t) for t in transition.cases.values()) or _contains_end(
+                transition.default
+            )
         return False
 
     # Build reverse edges (target -> set of sources).
@@ -291,9 +249,7 @@ def _gather_go_targets(transition: Transition) -> list[NodeId]:
     if isinstance(transition, Go):
         return [transition.to]
     if isinstance(transition, IfThenElse):
-        return _gather_go_targets(transition.then) + _gather_go_targets(
-            transition.else_
-        )
+        return _gather_go_targets(transition.then) + _gather_go_targets(transition.else_)
     if isinstance(transition, Switch):
         targets: list[NodeId] = []
         for case_transition in transition.cases.values():

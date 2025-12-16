@@ -151,9 +151,9 @@ def test_container_and_list_expression_refs_in_updates():
                 "start": nk.transitions.Go(
                     to="start",
                     register_updates={
-                        "r1": nk.expressions.GetListItem(
-                            list=nk.expressions.Reg(id="missing"),
-                            index=nk.expressions.Lit(value=0),
+                        "r1": nk.expressions.GetDictValue(
+                            d=nk.expressions.Reg(id="missing"),
+                            key=nk.expressions.Lit(value="k"),
                         ),
                         "r2": nk.expressions.GetDictValue(
                             d=nk.expressions.ChildReg(id="missing2"),
@@ -167,7 +167,7 @@ def test_container_and_list_expression_refs_in_updates():
         )
 
 
-def test_slice_map_filter_fold_expression_refs_in_updates():
+def test_nested_expression_refs_in_updates_checked():
     with pytest.raises(pydantic.ValidationError, match="undefined registers"):
         nk.Graph(
             nodes={"start": wait_node()},
@@ -175,33 +175,25 @@ def test_slice_map_filter_fold_expression_refs_in_updates():
                 "start": nk.transitions.Go(
                     to="start",
                     register_updates={
-                        "r1": nk.expressions.Slice(
-                            array=nk.expressions.Reg(id="missing"),
-                            start=nk.expressions.Reg(id="also_missing"),
-                            end=None,
-                        ),
-                        "r2": nk.expressions.Map(
-                            array=nk.expressions.Lit(value=[]),
-                            cur="cur",
-                            func=nk.expressions.ChildReg(id="missing2"),
-                        ),
-                        "r3": nk.expressions.Filter(
-                            array=nk.expressions.Lit(value=[]),
-                            cur="cur",
-                            predicate=nk.expressions.Reg(id="missing3"),
-                        ),
-                        "r4": nk.expressions.Fold(
-                            array=nk.expressions.Reg(id="missing4"),
-                            init=nk.expressions.ChildReg(id="missing5"),
-                            acc="acc",
-                            cur="cur",
-                            func=nk.expressions.Reg(id="missing6"),
+                        "r1": nk.expressions.If(
+                            cond=nk.expressions.Gt(
+                                lhs=nk.expressions.Reg(id="missing"),
+                                rhs=nk.expressions.Reg(id="also_missing"),
+                            ),
+                            then=nk.expressions.Add(
+                                lhs=nk.expressions.ChildReg(id="missing2"),
+                                rhs=nk.expressions.Lit(value=1),
+                            ),
+                            otherwise=nk.expressions.Sub(
+                                lhs=nk.expressions.Reg(id="missing3"),
+                                rhs=nk.expressions.Reg(id="missing4"),
+                            ),
                         ),
                     },
                 )
             },
             start="start",
-            registers={"r1": 0, "r2": 0, "r3": 0, "r4": 0},
+            registers={"r1": 0},
         )
 
 

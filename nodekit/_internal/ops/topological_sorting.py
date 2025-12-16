@@ -32,9 +32,7 @@ def topological_sort(
 
         for out_node in _outgoing_targets(transition):
             if out_node not in nodes:
-                raise KeyError(
-                    f"Transition from '{in_node}' points to unknown node '{out_node}'"
-                )
+                raise KeyError(f"Transition from '{in_node}' points to unknown node '{out_node}'")
             edges.append((in_node, out_node))
 
     rank_order = _topo_sort_core(list(nodes.keys()), edges)
@@ -53,9 +51,7 @@ def topological_sort(
     return ordered
 
 
-def _topo_sort_core(
-    node_keys: List[NodeId], edges: List[Tuple[NodeId, NodeId]]
-) -> List[int]:
+def _topo_sort_core(node_keys: List[NodeId], edges: List[Tuple[NodeId, NodeId]]) -> List[int]:
     """
     Perform topological sorting and return a list of ranks for each node key.
 

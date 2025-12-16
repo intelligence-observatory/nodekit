@@ -1,5 +1,5 @@
 from abc import ABC
-from typing import Literal, Annotated, Union, Dict
+from typing import Literal, Annotated, Union
 
 import pydantic
 
@@ -63,9 +63,7 @@ class TextCard(BaseLeafCard):
     )
     justification_horizontal: Literal["left", "center", "right"] = "center"
     justification_vertical: Literal["top", "center", "bottom"] = "center"
-    text_color: ColorHexString = pydantic.Field(
-        default="#000000", validate_default=True
-    )
+    text_color: ColorHexString = pydantic.Field(default="#000000", validate_default=True)
     background_color: ColorHexString = pydantic.Field(
         default="#E6E6E600",  # Transparent by default
         description="The background color of the TextCard in hexadecimal format.",
@@ -75,7 +73,7 @@ class TextCard(BaseLeafCard):
 # %%
 class CompositeCard(BaseCard):
     card_type: Literal["CompositeCard"] = "CompositeCard"
-    children: Dict[str, "Card"]
+    children: dict[str, "Card"]
 
 
 # %%

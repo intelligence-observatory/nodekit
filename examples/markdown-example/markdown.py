@@ -26,10 +26,7 @@ if __name__ == "__main__":
     from pathlib import Path
 
     node = make_text_node(
-        text=Path(__file__)
-        .parent.joinpath("lorem.txt")
-        .resolve()
-        .read_text(encoding="utf-8")
+        text=Path(__file__).parent.joinpath("lorem.txt").resolve().read_text(encoding="utf-8")
     )
     graph = nk.concat([node])
     trace = nk.play(graph)

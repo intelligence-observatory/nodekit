@@ -1,5 +1,5 @@
 from abc import ABC
-from typing import Annotated, Literal, Optional
+from typing import Annotated, Literal
 
 import pydantic
 
@@ -31,34 +31,12 @@ class ChildReg(BaseExpression):
     id: RegisterId
 
 
-class Local(BaseExpression):
-    """
-    Evaluates to the value of a local variable.
-    Used to reference variables defined in Map, Filter, Fold expressions.
-    To be distinguished from Graph registers (Reg).
-    """
-
-    op: Literal["local"] = "local"
-    name: LocalVariableName
-
-
 class LastAction(BaseExpression):
     """
     Evaluates to the last completed Node's Action.action_value.
     """
 
     op: Literal["la"] = "la"
-
-
-class GetListItem(BaseExpression):
-    """
-    Get an element from a container (Array or Struct).
-    `container` must evaluate to an array- or struct-valued result.
-    """
-
-    op: Literal["gli"] = "gli"
-    list: "Expression"
-    index: "Expression"
 
 
 class GetDictValue(BaseExpression):
@@ -159,52 +137,11 @@ class Div(BaseArithmeticOperation):
     op: Literal["div"] = "div"
 
 
-# %% Array operations
-class ListOp(BaseExpression, ABC):
-    # Expression must be array-valued at runtime
-    array: "Expression"
-
-
-class Slice(ListOp):
-    op: Literal["slice"] = "slice"
-    start: "Expression"
-    end: Optional["Expression"] = None
-
-
-class Map(ListOp):
-    op: Literal["map"] = "map"
-    # The variable name of the current array element.
-    cur: LocalVariableName
-    # Expression that will be applied to each element of the array.
-    func: "Expression"
-
-
-class Filter(ListOp):
-    op: Literal["filter"] = "filter"
-    # The variable name of the current array element.
-    cur: LocalVariableName
-    # Expression that will be applied to each element of the array
-    # and interpreted as a predicate.
-    predicate: "Expression"
-
-
-class Fold(ListOp):
-    op: Literal["fold"] = "fold"
-    init: "Expression"
-    # The ID of the current cumulant.
-    acc: LocalVariableName
-    # The variable name of the current array element.
-    cur: LocalVariableName
-    func: "Expression"
-
-
 # %%
 type Expression = Annotated[
     Reg
     | ChildReg
-    | Local
     | LastAction
-    | GetListItem
     | GetDictValue
     | Lit
     | If
@@ -220,11 +157,7 @@ type Expression = Annotated[
     | Add
     | Sub
     | Mul
-    | Div
-    | Slice
-    | Map
-    | Filter
-    | Fold,
+    | Div,
     pydantic.Field(discriminator="op"),
 ]
 
@@ -232,9 +165,7 @@ type Expression = Annotated[
 for _model in (
     Reg,
     ChildReg,
-    Local,
     LastAction,
-    GetListItem,
     GetDictValue,
     Lit,
     If,
@@ -251,9 +182,5 @@ for _model in (
     Sub,
     Mul,
     Div,
-    Slice,
-    Map,
-    Filter,
-    Fold,
 ):
     _model.model_rebuild()

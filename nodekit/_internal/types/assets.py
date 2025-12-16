@@ -34,9 +34,7 @@ class FileSystemPath(BaseLocator):
     A locator which points to an absolute filepath on the viewer's local file system.
     """
 
-    locator_type: Literal[LocatorTypeEnum.FileSystemPath] = (
-        LocatorTypeEnum.FileSystemPath
-    )
+    locator_type: Literal[LocatorTypeEnum.FileSystemPath] = LocatorTypeEnum.FileSystemPath
     path: pydantic.FilePath = pydantic.Field(
         description="The absolute path to the asset file in the local filesystem."
     )
@@ -47,9 +45,7 @@ class FileSystemPath(BaseLocator):
 
 
 class ZipArchiveInnerPath(BaseLocator):
-    locator_type: Literal[LocatorTypeEnum.ZipArchiveInnerPath] = (
-        LocatorTypeEnum.ZipArchiveInnerPath
-    )
+    locator_type: Literal[LocatorTypeEnum.ZipArchiveInnerPath] = LocatorTypeEnum.ZipArchiveInnerPath
     zip_archive_path: pydantic.FilePath = pydantic.Field(
         description="The path to the zip archive file on the local filesystem"
     )
@@ -105,9 +101,7 @@ class BaseAsset(pydantic.BaseModel):
     sha256: SHA256 = pydantic.Field(
         description="The SHA-256 hash of the asset file, as a hex string."
     )
-    media_type: MediaType = pydantic.Field(
-        description="The IANA media (MIME) type of the asset."
-    )
+    media_type: MediaType = pydantic.Field(description="The IANA media (MIME) type of the asset.")
     locator: AssetLocator = pydantic.Field(
         description="A location which is a claimed source of valid bytes for this Asset.",
     )

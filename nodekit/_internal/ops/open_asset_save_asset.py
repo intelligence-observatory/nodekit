@@ -46,9 +46,7 @@ def open_asset(
                         )
                     yield resp  # file-like, binary
             except urllib.error.URLError as e:
-                raise RuntimeError(
-                    f"Failed to stream Asset from URL: {locator.url}"
-                ) from e
+                raise RuntimeError(f"Failed to stream Asset from URL: {locator.url}") from e
 
         return open_url_stream()
 
@@ -101,9 +99,7 @@ def save_asset(
         return
 
     # Slow path: stream
-    tmp_file_descriptor, tmp_path_str = tempfile.mkstemp(
-        prefix=path.name + ".", dir=path.parent
-    )
+    tmp_file_descriptor, tmp_path_str = tempfile.mkstemp(prefix=path.name + ".", dir=path.parent)
     tmp_path = Path(tmp_path_str)
     try:
         with os.fdopen(tmp_file_descriptor, "wb", closefd=True) as out_f:

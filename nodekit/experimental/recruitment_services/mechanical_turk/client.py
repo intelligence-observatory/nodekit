@@ -82,9 +82,7 @@ class MturkClient(RecruiterServiceClient):
         min_approval_cost = (
             completion_reward_usd * Decimal("1.2") * Decimal(num_assignments)
         )  # Turk fees are 20% of the base completion reward.
-        current_balance = Decimal(
-            self.boto3_client.get_account_balance()["AvailableBalance"]
-        )
+        current_balance = Decimal(self.boto3_client.get_account_balance()["AvailableBalance"])
         if current_balance < min_approval_cost:
             raise RuntimeError(
                 f"Insufficient balance to create HIT. Minimum required: ${min_approval_cost:.2f}, current balance: ${current_balance:.2f}"
@@ -103,9 +101,7 @@ class MturkClient(RecruiterServiceClient):
                 )
 
             # Create qualification requirement for this HIT:
-            qual_requirement = self.package_qualification_exists_requirement(
-                qual_type=qual_type
-            )
+            qual_requirement = self.package_qualification_exists_requirement(qual_type=qual_type)
             qualification_requirements.append(qual_requirement)
 
         hit_type_response = self.boto3_client.create_hit_type(
@@ -225,9 +221,7 @@ class MturkClient(RecruiterServiceClient):
                     )
 
                 # Delete the qualification type
-                self.delete_qualification_type(
-                    qualification_type_id=qual_req.QualificationTypeId
-                )
+                self.delete_qualification_type(qualification_type_id=qual_req.QualificationTypeId)
 
         # Update the expiration for the HIT to *now*
         self.boto3_client.update_expiration_for_hit(
@@ -253,9 +247,7 @@ class MturkClient(RecruiterServiceClient):
                 if "NextToken" in request_kwargs:
                     del request_kwargs["NextToken"]
 
-            call_return = self.boto3_client.list_workers_with_qualification_type(
-                **request_kwargs
-            )
+            call_return = self.boto3_client.list_workers_with_qualification_type(**request_kwargs)
             for worker_info in call_return["Qualifications"]:
                 worker_ids.append(worker_info["WorkerId"])
 
@@ -276,9 +268,7 @@ class MturkClient(RecruiterServiceClient):
             QualificationTypeStatus="Active",
         )
         # Validate response:
-        return boto3_models.QualificationType.model_validate(
-            obj=response["QualificationType"]
-        )
+        return boto3_models.QualificationType.model_validate(obj=response["QualificationType"])
 
     def package_qualification_exists_requirement(
         self,
@@ -353,6 +343,4 @@ class MturkClient(RecruiterServiceClient):
         self,
         qualification_type_id: str,
     ):
-        self.boto3_client.delete_qualification_type(
-            QualificationTypeId=qualification_type_id
-        )
+        self.boto3_client.delete_qualification_type(QualificationTypeId=qualification_type_id)

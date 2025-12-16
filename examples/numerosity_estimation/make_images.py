@@ -5,9 +5,7 @@ import html
 import math
 
 
-def circles_svg(
-    count: int, rng: random.Random, color: Tuple[int, int, int] = (0, 0, 0)
-) -> str:
+def circles_svg(count: int, rng: random.Random, color: Tuple[int, int, int] = (0, 0, 0)) -> str:
     """
     Return a square SVG (100x100) with `count` circles placed uniformly at random (seeded).
     - Circle radius is 5% of image height (r = 5).
@@ -21,9 +19,7 @@ def circles_svg(
     R, G, B = (max(0, min(255, int(c))) for c in color)
 
     # Choose centers in [r, size - r] so circles stay fully inside
-    coords = [
-        (rng.uniform(r, size - r), rng.uniform(r, size - r)) for _ in range(count)
-    ]
+    coords = [(rng.uniform(r, size - r), rng.uniform(r, size - r)) for _ in range(count)]
 
     parts = [
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{size}" height="{size}" viewBox="0 0 {size} {size}">',
