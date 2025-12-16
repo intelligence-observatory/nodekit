@@ -42,6 +42,7 @@ class Agent(ABC):
         """
         ...
 
+
 # %%
 class DummyAgent(Agent):
     """

@@ -8,9 +8,9 @@ def RGB_to_hex(RGB: tuple[int, int, int]):
 
 
 def make_mts_trial(
-        stimulus: nk.assets.Image,
-        choices: list[nk.assets.Image],
-        i_correct_choice: int,
+    stimulus: nk.assets.Image,
+    choices: list[nk.assets.Image],
+    i_correct_choice: int,
 ) -> nk.Graph:
     if not len(choices) == 8:
         raise ValueError

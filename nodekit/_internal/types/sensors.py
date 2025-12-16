@@ -59,7 +59,7 @@ class MultiSelectSensor(BaseSensor):
         description="The minimum number of Cards before the Sensor fires.",
     )
 
-    max_selections: int = pydantic.Field(
+    max_selections: int | None = pydantic.Field(
         default=None,
         validate_default=False,
         ge=0,

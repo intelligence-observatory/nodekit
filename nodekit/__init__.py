@@ -6,6 +6,7 @@ __all__ = [
     "Trace",
     # One-off top-level types:
     "Region",
+    "Agent",
     # Namespaced types:
     "assets",
     "cards",
@@ -16,8 +17,9 @@ __all__ = [
     "expressions",
     "values",
     # Ops:
-    "play",
     "concat",
+    "play",
+    "simulate",
     "save_graph",
     "load_graph",
     "open_asset",
