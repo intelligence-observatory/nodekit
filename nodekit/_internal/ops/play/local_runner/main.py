@@ -25,7 +25,7 @@ from nodekit._internal.utils.iter_assets import iter_assets
 class LocalRunner:
     def __init__(
         self,
-        port: int = 7651,
+        port: int,
         host: str = "127.0.0.1",
     ):
         self._lock = threading.RLock()
@@ -229,6 +229,7 @@ class LocalRunner:
 # %%
 def play(
     graph: Graph | Node,
+    port: int = None,
 ) -> Trace:
     """
     Play the given Graph locally, then return the Trace.
@@ -236,12 +237,29 @@ def play(
 
     Args:
         graph: The Graph or Node to play.
-
+        port: The port to connect to.
     Returns:
         The Trace of Events observed during execution.
 
     """
-    runner = LocalRunner()
+    # Candidate ports to try if the requested one is unavailable.
+    if port is None:
+        candidate_ports = [7651, 8765, 8822, 8877, 8933, 8999, 0]
+    else:
+        candidate_ports = [port]
+    runner: LocalRunner | None = None
+    last_error: BaseException | None = None
+    for candidate in candidate_ports:
+        try:
+            runner = LocalRunner(port=candidate)
+            break
+        except Exception as exc:  # noqa: BLE001 - broad by design to retry on any failure
+            last_error = exc
+            continue
+
+    if runner is None:
+        raise RuntimeError("Failed to initialize LocalRunner on any candidate port") from last_error
+
     try:
         if isinstance(graph, Node):
             # Wrap single Node into a Graph:
