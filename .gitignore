@@ -7,3 +7,4 @@ nodekit-browser/dist/
 *.pyc
 
 examples/**.nkg
+docs/site/
