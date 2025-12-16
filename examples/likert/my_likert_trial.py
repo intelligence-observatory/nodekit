@@ -18,14 +18,14 @@ def make_likert_trial(
     question_card = nk.cards.TextCard(
         region=nk.Region(
             x=0,
-            y=0.25,
-            w=1,
-            h=0.4,
+            y=250,
+            w=1000,
+            h=400,
         ),
         text=question_markdown,
         justification_horizontal="center",
         justification_vertical="center",
-        font_size=0.04,
+        font_size=40,
     )
 
     num_bins = len(ordinal_choice_descriptions)
@@ -36,9 +36,9 @@ def make_likert_trial(
         show_bin_markers=True,
         region=nk.Region(
             x=0,
-            y=-0.1,
-            w=0.75,
-            h=0.1,
+            y=-100,
+            w=750,
+            h=100,
         ),
     )
 
@@ -47,19 +47,19 @@ def make_likert_trial(
     }
 
     # Assemble annotation cards
-    annotation_box_width = sensor.region.w / (num_bins - 1)
-    slider_left = sensor.region.x - sensor.region.w / 2
+    annotation_box_width = round(sensor.region.w / (num_bins - 1))
+    slider_left = round(sensor.region.x - sensor.region.w / 2)
 
     for i, description in enumerate(ordinal_choice_descriptions):
         cards[f"likert-description-{i}"] = nk.cards.TextCard(
             region=nk.Region(
-                x=slider_left + (i) * annotation_box_width,
-                y=sensor.region.y + sensor.region.h / 2 + 0.05,
+                x=round(slider_left + (i) * annotation_box_width),
+                y=round(sensor.region.y + sensor.region.h / 2 + 50),
                 w=annotation_box_width,
-                h=0.1,
+                h=100,
             ),
             text=description,
-            font_size=0.02,
+            font_size=20,
             justification_horizontal="center",
             justification_vertical="bottom",
             background_color="#E6E6E600",  # Transparent
