@@ -32,6 +32,8 @@ class LocalRunner:
         self._thread: threading.Thread | None = None
         self._server: uvicorn.Server | None = None
         self._running = False
+        self._error: BaseException | None = None
+        self._error_event = threading.Event()
 
         self.port = port
         self.host = host
@@ -57,6 +59,9 @@ class LocalRunner:
                 port=self.port,
                 log_level="warning",
             )
+            # We run uvicorn in a background thread, so let this process own signals.
+            if hasattr(config, "install_signal_handlers"):
+                config.install_signal_handlers = False
             self._server = uvicorn.Server(config=config)
             self._thread = threading.Thread(target=self._server.run, daemon=True)
             self._thread.start()
@@ -188,6 +193,15 @@ class LocalRunner:
             self._events.append(event)
             return fastapi.Response(status_code=fastapi.status.HTTP_204_NO_CONTENT)
 
+        @app.exception_handler(Exception)
+        async def handle_exception(
+            request: fastapi.Request, exc: Exception
+        ) -> fastapi.responses.JSONResponse:
+            self._record_error(exc)
+            return fastapi.responses.JSONResponse(
+                status_code=500, content={"detail": "Internal server error"}
+            )
+
         return app
 
     @property
@@ -197,6 +211,21 @@ class LocalRunner:
     def list_events(self) -> list[Event]:
         with self._lock:
             return list(self._events)
+
+    def has_error(self) -> bool:
+        return self._error_event.is_set()
+
+    def get_error(self) -> BaseException | None:
+        with self._lock:
+            return self._error
+
+    def _record_error(self, exc: BaseException) -> None:
+        with self._lock:
+            if self._error is None:
+                self._error = exc
+                self._error_event.set()
+                if self._server is not None:
+                    self._server.should_exit = True
 
 
 # %%
@@ -214,29 +243,33 @@ def play(
         The Trace of Events observed during execution.
 
     """
-    if isinstance(graph, Node):
-        # Wrap single Node into a Graph:
-        graph = Graph(
-            nodes={
-                "": graph,
-            },
-            start="",
-            transitions={"": End()},
-        )
     runner = LocalRunner()
-    runner.ensure_running()
-    runner.set_graph(graph)
+    try:
+        if isinstance(graph, Node):
+            # Wrap single Node into a Graph:
+            graph = Graph(
+                nodes={
+                    "": graph,
+                },
+                start="",
+                transitions={"": End()},
+            )
+        runner.ensure_running()
+        runner.set_graph(graph)
 
-    print("Play the Graph at:\n", runner.url)
+        print("Play the Graph at:\n", runner.url)
 
-    # Wait until the End Event is observed:
-    while True:
-        events = runner.list_events()
-        if any([e.event_type == EventTypeEnum.TraceEndedEvent for e in events]):
-            break
-        time.sleep(1)
+        # Wait until the End Event is observed or an error is recorded:
+        while True:
+            if runner.has_error():
+                raise RuntimeError("Local runner encountered an error") from runner.get_error()
 
-    # Shut down the server:
-    runner.shutdown()
+            events = runner.list_events()
+            if any(e.event_type == EventTypeEnum.TraceEndedEvent for e in events):
+                break
+            time.sleep(0.1)
+    finally:
+        # Shut down the server no matter how we exit
+        runner.shutdown()
 
     return Trace(events=events)
