@@ -6,15 +6,15 @@ def make_free_survey(image: nk.assets.Image, prompt: str) -> nk.Node:
         image=image,
         region=nk.Region(
             x=0,
-            y=0.2,
-            h=0.6,
-            w=1,
+            y=200,
+            h=600,
+            w=1000,
         ),
     )
 
     prompt_card = nk.cards.TextCard(
         text=prompt,
-        region=nk.Region(x=0, y=-0.15, h=0.1, w=0.6),
+        region=nk.Region(x=0, y=-150, h=100, w=600),
     )
 
     return nk.Node(
@@ -28,9 +28,9 @@ def make_free_survey(image: nk.assets.Image, prompt: str) -> nk.Node:
             prompt="Enter your answer here",
             region=nk.Region(
                 x=0,
-                y=-0.3,
+                y=-300,
                 w=prompt_card.region.w,
-                h=0.2,
+                h=200,
             ),
         ),
         board_color="#ffffff",
