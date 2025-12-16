@@ -2,7 +2,6 @@ import os
 import shutil
 import zipfile
 from pathlib import Path
-from typing import Tuple, Dict
 
 from nodekit._internal.ops.open_asset_save_asset import open_asset
 from nodekit._internal.types.assets import (
@@ -52,8 +51,8 @@ def save_graph(
     graph = graph.model_copy(deep=True)
 
     # Mutate all AssetLocators in the Graph to be RelativePathAssetLocators:
-    supplied_assets: Dict[Tuple[MediaType, SHA256], Asset] = {}
-    relative_asset_locators: Dict[Tuple[MediaType, SHA256], RelativePath] = {}
+    supplied_assets: dict[tuple[MediaType, SHA256], Asset] = {}
+    relative_asset_locators: dict[tuple[MediaType, SHA256], RelativePath] = {}
     for asset in iter_assets(graph=graph):
         # Log the asset locator if we haven't seen it before:
         asset_key = (asset.media_type, asset.sha256)

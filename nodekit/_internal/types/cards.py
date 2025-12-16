@@ -1,5 +1,5 @@
 from abc import ABC
-from typing import Literal, Annotated, Union, Dict
+from typing import Literal, Annotated, Union
 
 import pydantic
 
@@ -73,7 +73,7 @@ class TextCard(BaseLeafCard):
 # %%
 class CompositeCard(BaseCard):
     card_type: Literal["CompositeCard"] = "CompositeCard"
-    children: Dict[str, "Card"]
+    children: dict[str, "Card"]
 
 
 # %%

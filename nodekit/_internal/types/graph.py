@@ -1,4 +1,4 @@
-from typing import Dict, Literal, Self, Union
+from typing import Literal, Self, Union
 
 import pydantic
 
@@ -13,17 +13,17 @@ class Graph(pydantic.BaseModel):
     type: Literal["Graph"] = "Graph"
     nodekit_version: Literal["0.2.1"] = pydantic.Field(default=VERSION, validate_default=True)
 
-    nodes: Dict[NodeId, Union[Node, "Graph"]] = pydantic.Field(
+    nodes: dict[NodeId, Union[Node, "Graph"]] = pydantic.Field(
         description="The set of Nodes in the Graph, by NodeId. Note that a Graph can contain other Graphs as Nodes.",
     )
 
-    transitions: Dict[NodeId, Transition] = pydantic.Field(
+    transitions: dict[NodeId, Transition] = pydantic.Field(
         description="The set of Transitions in the Graph, by NodeId.",
     )
 
     start: NodeId = pydantic.Field(description="The start Node of the Graph.")
 
-    registers: Dict[RegisterId, Value] = pydantic.Field(
+    registers: dict[RegisterId, Value] = pydantic.Field(
         default_factory=dict,
         description="The initial values register values. ",
     )
@@ -183,7 +183,7 @@ def _get_reg_references(expression: expressions.Expression) -> set[RegisterId]:
 
 def _get_reachable_node_ids(
     start: NodeId,
-    transitions: Dict[NodeId, Transition],
+    transitions: dict[NodeId, Transition],
 ) -> set[NodeId]:
     """
     Returns the set of NodeIds reachable from the start NodeId, given these transitions.

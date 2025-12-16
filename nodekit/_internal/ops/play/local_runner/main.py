@@ -3,7 +3,6 @@ import hashlib
 import threading
 import time
 from pathlib import Path
-from typing import List, Dict
 
 import fastapi
 import fastapi.responses
@@ -39,9 +38,9 @@ class LocalRunner:
 
         # In-memory state of the runner:
         self._graph: Graph | None = None
-        self._events: List[Event] = []
+        self._events: list[Event] = []
 
-        self.asset_id_to_asset: Dict[SHA256, Asset] = {}
+        self.asset_id_to_asset: dict[SHA256, Asset] = {}
 
         # Initialize FastAPI app
         self.app = self._build_app()
@@ -195,7 +194,7 @@ class LocalRunner:
     def url(self) -> str:
         return f"http://{self.host}:{self.port}"
 
-    def list_events(self) -> List[Event]:
+    def list_events(self) -> list[Event]:
         with self._lock:
             return list(self._events)
 

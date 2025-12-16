@@ -1,4 +1,4 @@
-from typing import Dict, Literal, Annotated, Union
+from typing import Literal, Annotated, Union
 
 import pydantic
 
@@ -14,14 +14,14 @@ class BaseTransition(pydantic.BaseModel):
 class Go(BaseTransition):
     transition_type: Literal["Go"] = "Go"
     to: NodeId
-    register_updates: Dict[RegisterId, Expression] = pydantic.Field(
+    register_updates: dict[RegisterId, Expression] = pydantic.Field(
         default_factory=dict,
     )
 
 
 class End(BaseTransition):
     transition_type: Literal["End"] = "End"
-    register_updates: Dict[RegisterId, Expression] = pydantic.Field(
+    register_updates: dict[RegisterId, Expression] = pydantic.Field(
         default_factory=dict,
     )
 
@@ -59,7 +59,7 @@ class IfThenElse(BaseTransition):
 class Switch(BaseTransition):
     transition_type: Literal["Switch"] = "Switch"
     on: Expression
-    cases: Dict[LeafValue, LeafTransition]
+    cases: dict[LeafValue, LeafTransition]
     default: LeafTransition = pydantic.Field(
         default_factory=End,
         description="The transition to take if no case matches.",

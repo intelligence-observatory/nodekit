@@ -1,5 +1,5 @@
 from abc import ABC
-from typing import Literal, Annotated, Union, Self, Dict
+from typing import Literal, Annotated, Union, Self
 
 import pydantic
 
@@ -46,13 +46,13 @@ class KeySensor(BaseSensor):
 # %%
 class SelectSensor(BaseSensor):
     sensor_type: Literal["SelectSensor"] = "SelectSensor"
-    choices: Dict[str, Card]
+    choices: dict[str, Card]
 
 
 # %%
 class MultiSelectSensor(BaseSensor):
     sensor_type: Literal["MultiSelectSensor"] = "MultiSelectSensor"
-    choices: Dict[str, Card]
+    choices: dict[str, Card]
 
     min_selections: int = pydantic.Field(
         ge=0,
@@ -128,13 +128,13 @@ class SliderSensor(BaseSensor):
 # %%
 class ProductSensor(BaseSensor):
     sensor_type: Literal["ProductSensor"] = "ProductSensor"
-    children: Dict[str, "Sensor"]
+    children: dict[str, "Sensor"]
 
 
 # %%
 class SumSensor(BaseSensor):
     sensor_type: Literal["SumSensor"] = "SumSensor"
-    children: Dict[str, "Sensor"]
+    children: dict[str, "Sensor"]
 
 
 # %%

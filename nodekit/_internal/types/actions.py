@@ -1,5 +1,5 @@
 from abc import ABC
-from typing import Literal, Union, Annotated, Dict, Any
+from typing import Literal, Union, Annotated, Any
 
 import pydantic
 
@@ -51,7 +51,7 @@ class SliderAction(BaseAction):
 # %%
 class ProductAction(BaseAction):
     action_type: Literal["ProductAction"] = "ProductAction"
-    action_value: Dict[str, "Action"] = pydantic.Field(
+    action_value: dict[str, "Action"] = pydantic.Field(
         description="A dictionary mapping child IDs to their corresponding Actions."
     )
 
