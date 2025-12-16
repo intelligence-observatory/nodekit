@@ -25,7 +25,7 @@ export class BoardCoordinateSystem {
 
     getUnitPx(): number {
         // Returns the size of one board unit in pixels
-        return Math.min(this.boardWidthPx, this.boardHeightPx);
+        return 1;
     }
 
     getBoardLocationPx(
