@@ -85,16 +85,6 @@ class MultiSelectSensor(BaseSensor):
 
 
 # %%
-class SliderSensor(BaseSensor):
-    sensor_type: Literal["SliderSensor"] = "SliderSensor"
-    num_bins: int = pydantic.Field(gt=1)
-    initial_bin_index: int
-    show_bin_markers: bool = True
-    orientation: Literal["horizontal", "vertical"] = "horizontal"
-    region: Region
-
-
-# %%
 class TextEntrySensor(BaseSensor):
     sensor_type: Literal["TextEntrySensor"] = "TextEntrySensor"
 
@@ -123,6 +113,16 @@ class TextEntrySensor(BaseSensor):
     )
 
     region: Region
+
+# %%
+class SliderSensor(BaseSensor):
+    sensor_type: Literal["SliderSensor"] = "SliderSensor"
+    num_bins: int = pydantic.Field(gt=1)
+    initial_bin_index: int
+    show_bin_markers: bool = True
+    orientation: Literal["horizontal", "vertical"] = "horizontal"
+    region: Region
+
 
 
 # %%
