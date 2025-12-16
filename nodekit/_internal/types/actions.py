@@ -29,6 +29,7 @@ class SelectAction(BaseAction):
     action_type: Literal["SelectAction"] = "SelectAction"
     action_value: str = pydantic.Field(description="The selection made by the agent.")
 
+
 # %%
 class MultiSelectAction(BaseAction):
     action_type: Literal["MultiSelectAction"] = "MultiSelectAction"
@@ -45,7 +46,6 @@ class TextEntryAction(BaseAction):
 class SliderAction(BaseAction):
     action_type: Literal["SliderAction"] = "SliderAction"
     action_value: int = pydantic.Field(description="The index of the bin that was selected.", ge=0)
-
 
 
 # %%

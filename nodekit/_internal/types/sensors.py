@@ -114,6 +114,7 @@ class TextEntrySensor(BaseSensor):
 
     region: Region
 
+
 # %%
 class SliderSensor(BaseSensor):
     sensor_type: Literal["SliderSensor"] = "SliderSensor"
@@ -122,7 +123,6 @@ class SliderSensor(BaseSensor):
     show_bin_markers: bool = True
     orientation: Literal["horizontal", "vertical"] = "horizontal"
     region: Region
-
 
 
 # %%
