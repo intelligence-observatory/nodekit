@@ -1,10 +1,14 @@
+//! Load raw byte data from a path or URL.
+
 mod error;
 
 pub use error::Error;
 use nodekit_rs_card::Asset;
 use reqwest::blocking;
-use std::fs::{File, read};
-use std::io::Read;
+use std::{
+    fs::{File, read},
+    io::Read,
+};
 use zip::ZipArchive;
 
 /// Load raw byte data from `asset`.
@@ -35,5 +39,37 @@ pub fn load_asset(asset: &Asset) -> Result<Vec<u8>, Error> {
             })?;
             Ok(buffer)
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::path::PathBuf;
+    use url::Url;
+
+    #[test]
+    fn test_assets() {
+        // Relative.
+        let path = PathBuf::from("test_files/lorem.txt");
+        assert!(path.exists());
+        load_asset(&Asset::Path(path.clone())).unwrap();
+        // Absolute.
+        let path = path.canonicalize().unwrap();
+        assert!(path.exists());
+        load_asset(&Asset::Path(path)).unwrap();
+        // Zip.
+        let zip_archive_path = PathBuf::from("test_files/lorem.zip");
+        assert!(zip_archive_path.exists());
+        load_asset(&Asset::ZipArchiveInnerPath {
+            zip_archive_path,
+            inner_path: PathBuf::from("lorem.txt"),
+        })
+        .unwrap();
+        // URL.
+        load_asset(&Asset::Url(
+            Url::parse("http://textfiles.com/hacking/UNIX/bhacking.txt").unwrap(),
+        ))
+        .unwrap();
     }
 }
