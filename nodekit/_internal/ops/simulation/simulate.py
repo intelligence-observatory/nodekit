@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import random
 import warnings
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
@@ -11,6 +12,7 @@ from nodekit._internal.ops.simulation.evaluate_expression import (
     evaluate_expression,
     _strict_equal,
 )
+from nodekit._internal.ops.simulation.sample_action import sample_action
 from nodekit._internal.types.actions import Action
 from nodekit._internal.types.graph import Graph
 from nodekit._internal.types.node import Node
@@ -40,12 +42,42 @@ class Agent(ABC):
         """
         ...
 
+# %%
+class DummyAgent(Agent):
+    """
+    An Agent that randomly selects the first available Action in a Node.
+    """
+
+    def __init__(self, seed: int | None = None):
+        self.rng = random.Random(seed)
+
+    def __call__(self, node: Node) -> Action | None:
+        return sample_action(
+            sensor=node.sensor,
+            rng=random.Random(),
+        )
+
 
 # %%
 def simulate(
     graph: Graph,
-    agent: Agent,
+    agent: Agent | None = None,
 ) -> Trace:
+    """
+    Deterministically simulates a Graph using the provided Agent.
+    Pointer and keyboard sample events are omitted; only Node start/action/end events
+    are emitted for leaf Nodes.
+
+    If no Agent is provided, a DummyAgent is used that randomly selects the first
+    available Action in each Node.
+
+    Args:
+        graph:
+        agent:
+
+    Returns:
+
+    """
     time_elapsed_msec = 0
 
     events: list[e.Event] = [e.TraceStartedEvent(t=time_elapsed_msec)]

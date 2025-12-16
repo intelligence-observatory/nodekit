@@ -34,6 +34,7 @@ from nodekit._internal.types.graph import Graph
 
 # One-off top-level types:
 from nodekit._internal.types.values import Region
+from nodekit._internal.ops.simulation.simulate import Agent
 
 # Namespaced types:
 import nodekit.cards as cards
