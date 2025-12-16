@@ -7,7 +7,7 @@ edition = "2024"
 blittle.workspace = true
 cosmic-text.workspace = true
 markdown.workspace = true
-nodekit-rs-card = { path = "../nodekit-rs-card" }
+nodekit-rs-models = { path = "../nodekit-rs-models" }
 nodekit-rs-visual = { path = "../nodekit-rs-visual" }
 pyo3.workspace = true
 thiserror.workspace = true

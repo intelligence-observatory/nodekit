@@ -1,6 +1,6 @@
 mod pointer;
 
-use nodekit_rs_card::{Card, CardType};
+use nodekit_rs_models::{Card, CardType};
 use pointer::Pointer;
 use pyo3::prelude::*;
 use pyo3::types::PyList;

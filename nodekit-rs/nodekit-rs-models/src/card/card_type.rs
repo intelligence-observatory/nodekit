@@ -1,9 +1,13 @@
-use crate::CARD_TYPE;
-use crate::asset::Asset;
-use crate::text::TextCard;
-use pyo3::exceptions::PyValueError;
-use pyo3::prelude::*;
-use pyo3::types::PyString;
+use super::{
+    CARD_TYPE,
+    asset::Asset,
+    text::TextCard
+};
+use pyo3::{
+    exceptions::PyValueError,
+    prelude::*,
+    types::PyString
+};
 
 /// ImageCard, TextCard, etc.
 pub enum CardType {

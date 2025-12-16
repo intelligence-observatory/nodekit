@@ -1,16 +1,13 @@
-//! Extract nodekit Card models into nodekit-rs structs.
-
 mod asset;
 mod card_type;
-mod region;
 mod text;
 
-pub use asset::Asset;
-pub use card_type::CardType;
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList, PyString};
-pub use region::*;
+pub use asset::Asset;
+pub use card_type::CardType;
 pub use text::*;
+use crate::Region;
 
 const CARD_TYPE: &str = "card_type";
 

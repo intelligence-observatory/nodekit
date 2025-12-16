@@ -1,7 +1,7 @@
 [workspace]
 members = [
     "nodekit-rs-asset",
-    "nodekit-rs-card",
+    "nodekit-rs-models",
     "nodekit-rs-image",
     "nodekit-rs-png",
     "nodekit-rs-render",

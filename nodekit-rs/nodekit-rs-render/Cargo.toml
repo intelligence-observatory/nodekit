@@ -6,7 +6,7 @@ edition = "2024"
 [dependencies]
 blittle.workspace = true
 itertools.workspace = true
-nodekit-rs-card = { path = "../nodekit-rs-card" }
+nodekit-rs-models = { path = "../nodekit-rs-models" }
 nodekit-rs-image = { path = "../nodekit-rs-image" }
 nodekit-rs-state = { path = "../nodekit-rs-state" }
 nodekit-rs-text = { path = "../nodekit-rs-text" }

@@ -15,7 +15,7 @@ pub use cursor::Cursor;
 pub use error::Error;
 use fast_image_resize::{FilterType, PixelType, ResizeAlg, ResizeOptions, Resizer, SrcCropping};
 use hex_color::HexColor;
-use nodekit_rs_card::Region;
+use nodekit_rs_models::Region;
 pub use rgb_buffer::RgbBuffer;
 pub use rgba_buffer::RgbaBuffer;
 pub use unclipped_rect::UnclippedRect;
