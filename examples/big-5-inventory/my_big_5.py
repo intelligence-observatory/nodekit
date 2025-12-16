@@ -25,12 +25,12 @@ def make_big5_node(
         text=prompt,
         justification_horizontal="center",
         justification_vertical="center",
-        font_size=0.04,
+        font_size=40,
         region=nk.Region(
             x=0,
-            y=0.25,
-            w=1,
-            h=0.4,
+            y=250,
+            w=1000,
+            h=60,
         ),
     )
 
@@ -42,9 +42,9 @@ def make_big5_node(
         show_bin_markers=True,
         region=nk.Region(
             x=0,
-            y=-0.1,
-            w=0.75,
-            h=0.1,
+            y=-100,
+            w=750,
+            h=100,
         ),
     )
 
@@ -53,19 +53,19 @@ def make_big5_node(
     }
 
     # Assemble annotation cards
-    annotation_box_width = slider_sensor.region.w / (num_bins - 1)
-    slider_left = slider_sensor.region.x - slider_sensor.region.w / 2
+    annotation_box_width = round(slider_sensor.region.w / (num_bins - 1))
+    slider_left = round(slider_sensor.region.x - slider_sensor.region.w / 2)
 
     for i, description in enumerate(ordinal_choice_descriptions):
         cards[f"likert-description-{i}"] = nk.cards.TextCard(
             region=nk.Region(
-                x=slider_left + (i) * annotation_box_width,
-                y=slider_sensor.region.y + slider_sensor.region.h / 2 + 0.05,
+                x=round(slider_left + (i) * annotation_box_width),
+                y=round(slider_sensor.region.y + slider_sensor.region.h / 2 + 50),
                 w=annotation_box_width,
-                h=0.1,
+                h=100,
             ),
             text=description,
-            font_size=0.02,
+            font_size=20,
             justification_horizontal="center",
             justification_vertical="bottom",
             background_color="#E6E6E600",  # Transparent
