@@ -187,4 +187,5 @@ if __name__ == "__main__":
 
     graph = nk.concat(trials)
     nk.save_graph(graph, "mts-demo.nkg")
+    sim = nk.simulate(graph)
     nk.play(graph)

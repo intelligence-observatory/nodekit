@@ -10,7 +10,6 @@ import nodekit._internal.types.events as e
 from nodekit._internal.ops.simulation.evaluate_expression import (
     EvalContext,
     evaluate_expression,
-    _strict_equal,
 )
 from nodekit._internal.ops.simulation.sample_action import sample_action
 from nodekit._internal.types.actions import Action
@@ -211,9 +210,9 @@ def _simulate_core(
 
 def _eval_transition(
     transition: Transition,
-    registers: Mapping[RegisterId, Value],
+    registers: dict[RegisterId, Value],
     last_action: Action | None,
-    last_subgraph_registers: Mapping[RegisterId, Value] | None,
+    last_subgraph_registers: dict[RegisterId, Value] | None,
 ) -> EvalTransitionResult:
     match transition:
         case Go() | End():
@@ -270,7 +269,7 @@ def _eval_transition(
             )
 
             for case_value, case_transition in transition.cases.items():
-                if _strict_equal(selector, case_value):
+                if selector == case_value:
                     return _eval_transition(
                         transition=case_transition,
                         registers=registers,
