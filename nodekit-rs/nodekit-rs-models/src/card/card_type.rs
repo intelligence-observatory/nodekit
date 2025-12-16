@@ -8,11 +8,14 @@ use pyo3::{
     prelude::*,
     types::PyString
 };
+use crate::sensor::{Slider, TextEntry};
 
 /// ImageCard, TextCard, etc.
 pub enum CardType {
     Image(Asset),
+    Slider(Slider),
     Text(TextCard),
+    TextEntry(TextEntry),
     Video { asset: Asset, looped: bool },
 }
 

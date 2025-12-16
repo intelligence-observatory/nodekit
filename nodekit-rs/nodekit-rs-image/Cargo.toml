@@ -7,7 +7,7 @@ edition = "2024"
 blittle.workspace = true
 bytemuck.workspace = true
 nodekit-rs-asset = { path = "../nodekit-rs-asset" }
-nodekit-rs-card = { path = "../nodekit-rs-card" }
+nodekit-rs-models = { path = "../nodekit-rs-models" }
 nodekit-rs-visual = { path = "../nodekit-rs-visual" }
 png.workspace = true
 thiserror.workspace = true

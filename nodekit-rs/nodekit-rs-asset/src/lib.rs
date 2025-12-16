@@ -3,7 +3,7 @@
 mod error;
 
 pub use error::Error;
-use nodekit_rs_card::Asset;
+use nodekit_rs_models::Asset;
 use reqwest::blocking;
 use std::{
     fs::{File, read},

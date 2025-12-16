@@ -1716,19 +1716,11 @@ dependencies = [
 name = "nodekit-rs-asset"
 version = "0.1.0"
 dependencies = [
- "nodekit-rs-card",
+ "nodekit-rs-models",
  "reqwest",
  "thiserror",
  "url",
  "zip",
-]
-
-[[package]]
-name = "nodekit-rs-card"
-version = "0.1.0"
-dependencies = [
- "pyo3",
- "url",
 ]
 
 [[package]]
@@ -1739,10 +1731,19 @@ dependencies = [
  "bytemuck",
  "criterion",
  "nodekit-rs-asset",
- "nodekit-rs-card",
+ "nodekit-rs-models",
  "nodekit-rs-visual",
  "png",
  "thiserror",
+]
+
+[[package]]
+name = "nodekit-rs-models"
+version = "0.1.0"
+dependencies = [
+ "pyo3",
+ "pyo3-stub-gen",
+ "url",
 ]
 
 [[package]]
@@ -1758,8 +1759,8 @@ version = "0.1.0"
 dependencies = [
  "blittle",
  "itertools 0.14.0",
- "nodekit-rs-card",
  "nodekit-rs-image",
+ "nodekit-rs-models",
  "nodekit-rs-png",
  "nodekit-rs-state",
  "nodekit-rs-text",
@@ -1777,7 +1778,7 @@ dependencies = [
 name = "nodekit-rs-state"
 version = "0.1.0"
 dependencies = [
- "nodekit-rs-card",
+ "nodekit-rs-models",
  "pyo3",
  "pyo3-stub-gen",
  "slotmap",
@@ -1792,7 +1793,7 @@ dependencies = [
  "cosmic-text",
  "criterion",
  "markdown",
- "nodekit-rs-card",
+ "nodekit-rs-models",
  "nodekit-rs-png",
  "nodekit-rs-visual",
  "pyo3",
@@ -1806,7 +1807,7 @@ dependencies = [
  "blittle",
  "criterion",
  "nodekit-rs-asset",
- "nodekit-rs-card",
+ "nodekit-rs-models",
  "nodekit-rs-png",
  "nodekit-rs-visual",
  "scuffle-ffmpeg",
@@ -1822,7 +1823,7 @@ dependencies = [
  "criterion",
  "fast_image_resize",
  "hex_color",
- "nodekit-rs-card",
+ "nodekit-rs-models",
  "nodekit-rs-png",
  "thiserror",
 ]

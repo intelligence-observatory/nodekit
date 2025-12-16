@@ -1,8 +1,9 @@
 [package]
-name = "nodekit-rs-card"
+name = "nodekit-rs-models"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
 pyo3.workspace = true
+pyo3-stub-gen.workspace = true
 url.workspace = true

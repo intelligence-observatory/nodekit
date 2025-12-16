@@ -1,6 +1,7 @@
 mod pointer;
+mod keys;
 
-use nodekit_rs_card::{Card, CardType};
+use nodekit_rs_models::{Card, CardType};
 use pointer::Pointer;
 use pyo3::prelude::*;
 use pyo3::types::PyList;
@@ -75,5 +76,10 @@ impl State {
     pub fn set_pointer(&mut self, x: f64, y: f64) {
         self.pointer.x = x;
         self.pointer.y = y;
+    }
+
+    /// Try to
+    pub fn set_text_entry(&mut self, text: &str) {
+
     }
 }

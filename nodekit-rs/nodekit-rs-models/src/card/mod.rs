@@ -37,7 +37,7 @@ impl Card {
     /// Extract `obj` into a flat vec of `Card`s.
     pub fn extract_all(obj: &Bound<'_, PyList>) -> PyResult<Vec<Self>> {
         let mut cards = Vec::default();
-        for cs in obj.iter().map(|item| Self::extract_item(item)) {
+        for cs in obj.iter().map(|item| Self::extract_card(item)) {
             cards.append(&mut cs?);
         }
         // Set the rendering order.
@@ -47,7 +47,7 @@ impl Card {
 
     /// Extract an item in a list of cards.
     /// The item might be a nested composite card.
-    fn extract_item(item: Bound<'_, PyAny>) -> PyResult<Vec<Self>> {
+    fn extract_card(item: Bound<'_, PyAny>) -> PyResult<Vec<Self>> {
         let mut cards = Vec::default();
         // Extract a composite card's children.
         if item.getattr(CARD_TYPE)?.cast::<PyString>()? == "CompositeCard" {
@@ -56,7 +56,7 @@ impl Card {
                 .getattr("children")?
                 .cast::<PyDict>()?
                 .iter()
-                .map(|(_, v)| Self::extract_item(v))
+                .map(|(_, v)| Self::extract_card(v))
             {
                 cards.append(&mut item?);
             }

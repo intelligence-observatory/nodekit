@@ -1,5 +1,5 @@
 use criterion::{Criterion, criterion_group, criterion_main};
-use nodekit_rs_card::{Asset, Region};
+use nodekit_rs_models::{Asset, Region};
 use nodekit_rs_image::load_image;
 use std::path::PathBuf;
 
