@@ -23,7 +23,7 @@ Cards represent a visual element on the Board. There are four Card types in Node
 * `ImageCard`
 * `VideoCard`
 * `TextCard`
-* `CompositeCard`, which is a container that can contain other Cards.
+* `CompositeCard`, which is a container that can contain other Cards. This should be used whenever the Stimulus cannot be expressed using a single Card, and/or when the user would like to organize Cards by group or ID.
 
 ### Sensor
 
@@ -70,23 +70,12 @@ The Board is NodeKit's name for the Agent's display. Points on the Board are des
 * (0, 0) is the center of the display 
 * Positive increases in the first coordinate (x) causes movement in the **rightward** direction.
 * Positive increases in the second coordinate (y) causes movement in the **upward** direction. 
-* Units are given in reference pixels.
+* Units are given in reference pixels. A reference pixel is a unit of _visual angle_ defined in the [W3C specification](https://www.w3.org/TR/css-values-3/#reference-pixel) as the visual angle of one pixel on a
+  device with 96 [dpi](https://en.wikipedia.org/wiki/Dots_per_inch) at an arm's length. Given an arm's length of 28 inches, a reference pixel is ~0.0213° of visual angle.
 
-For example, a Board coordinate of (100, 100) would indicate a point that is 100 pixels to the right, and 100 pixels up from the Agent's display.
+Thus, a Board coordinate of (100, 100) would indicate a point that is 100 pixels to the right, and 100 pixels up from the Agent's display.
 
-NodeKit defines the **ideal Board** as 768 x 768 _reference pixels_. A reference pixel is a unit of _visual angle_ defined in the [W3C specification](https://www.w3.org/TR/css-values-3/#reference-pixel) as the visual angle of one pixel on a
-device with 96 [dpi](https://en.wikipedia.org/wiki/Dots_per_inch) at an arm's length. Given an arm's length of 28 inches, a reference pixel is ~0.0213° of visual angle, and the Board is ~16.26° x 16.26° of the Participant's visual field
-when viewed straight on.
+NodeKit recommends that users assume a Board size of 768 x 768 _reference pixels_ at most, based on tyipcal physical display sizes. A 768 x 768 region corresponds to ~16.26° x 16.26° of the Agent's visual field, given the assumptions above, and when viewed straight on.
 
 In practice, NodeKit sets the Board to 768 x 768 _CSS pixels_, which the W3C spec _recommends_ be mapped by the browser [1:1 with reference pixels](https://www.w3.org/TR/css-values-3/#absolute-lengths). Note that this mapping is always
-approximate, in that the browser 1) does not know the Participant's viewing position, and 2) does not know the physical size of _device pixels_.
-
-## Values and Expressions
-
-- `Value`. Sum type of `bool`, `int`, `float`, `str`, `list[Value]`, `dict[str, Value]`.
-- `Expression<V>`. A computation the interpreter may _evaluate_ to a Value of type `V`, discriminated by `op`. Notable forms:
-    - Data access: `reg`, `local`, `la` (last action), `gli` (get list item), `gdv` (get dict value), `lit`.
-    - Conditionals and logic: `if`, `not`, variadic `or`/`and`.
-    - Comparators: `eq`, `ne`, `gt`, `ge`, `lt`, `le`.
-    - Arithmetic: `add`, `sub`, `mul`, `div`.
-    - Array ops: `slice`, `map`, `filter`, `fold` (with local bindings for `cur`/`acc` where relevant).
+approximate, in that the browser 1) does not know the Agent's viewing position, and 2) does not know the physical size of _device pixels_.
