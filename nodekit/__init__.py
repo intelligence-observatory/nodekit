@@ -47,6 +47,7 @@ import nodekit.values as values
 
 # Ops:
 from nodekit._internal.ops.play import play
+from nodekit._internal.ops.simulation.simulate import simulate
 from nodekit._internal.ops.concat import concat
 from nodekit._internal.ops.save_graph_load_graph import save_graph, load_graph
 from nodekit._internal.ops.open_asset_save_asset import open_asset
