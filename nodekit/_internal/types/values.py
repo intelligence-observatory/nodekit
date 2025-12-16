@@ -3,23 +3,18 @@ from typing import Literal, Annotated
 import pydantic
 
 # %% Base Values
-type Boolean = bool
-type Integer = int
-type Float = float
-type String = str
-type Null = None
 
 # Containers
 type List = list["Value"]
 type Dict = dict[str, "Value"]
 # Full Value
-type LeafValue = Boolean | Integer | Float | String | Null
-type Value = LeafValue | List | Dict
+type LeafValue = bool | int | float | str
+type Value = LeafValue | List | Dict | None
 
 
 # %% Spatial
 type SpatialSize = Annotated[
-    Float,
+    float,
     pydantic.Field(
         strict=True,
         ge=0,
@@ -28,7 +23,7 @@ type SpatialSize = Annotated[
     ),
 ]
 
-type SpatialPoint = Annotated[Float, pydantic.Field(strict=True, ge=-0.5, le=0.5)]
+type SpatialPoint = Annotated[float, pydantic.Field(strict=True, ge=-0.5, le=0.5)]
 
 type Mask = Annotated[
     Literal["ellipse", "rectangle"],
@@ -39,7 +34,7 @@ type Mask = Annotated[
 
 # %% Time
 type TimeElapsedMsec = Annotated[
-    Integer,
+    int,
     pydantic.Field(
         strict=True,
         description="A time point, relative to some origin.",
@@ -47,7 +42,7 @@ type TimeElapsedMsec = Annotated[
 ]
 
 type TimeDurationMsec = Annotated[
-    Integer,
+    int,
     pydantic.Field(
         strict=True,
         ge=0,
@@ -68,7 +63,7 @@ def _normalize_hex_code(value: str) -> str:
 
 
 type ColorHexString = Annotated[
-    String,
+    str,
     pydantic.BeforeValidator(_normalize_hex_code),
     pydantic.Field(
         pattern=r"^#[0-9a-fA-F]{8}$",  # "#RRGGBBAA"
@@ -124,7 +119,7 @@ PressableKey = Literal[
 ]
 
 # %% Assets
-type SHA256 = Annotated[String, pydantic.Field(pattern=r"^[a-f0-9]{64}$")]
+type SHA256 = Annotated[str, pydantic.Field(pattern=r"^[a-f0-9]{64}$")]
 """A hex string representing a SHA-256 hash.
 """
 
@@ -135,7 +130,7 @@ type MediaType = ImageMediaType | VideoMediaType
 
 # %% Identifiers
 type NodeId = Annotated[
-    String,
+    str,
     pydantic.Field(
         description="An identifier for a Node which is unique within a Graph.",
     ),
@@ -149,7 +144,7 @@ type NodeAddress = Annotated[
 ]
 
 type RegisterId = Annotated[
-    String, pydantic.Field(description="An identifier for a Graph register.")
+    str, pydantic.Field(description="An identifier for a Graph register.")
 ]
 
 
