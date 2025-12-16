@@ -3,7 +3,7 @@ import './card-view.css'
 import type {Card, CompositeCard, LeafCard} from "../../types/cards";
 import {type BoardCoordinateSystem, createRegionDiv} from "../board-view.ts";
 import type {AssetManager} from "../../asset-manager";
-import type {SpatialPoint} from "../../types/values.ts";
+import type {PixelPoint} from "../../types/values.ts";
 
 export abstract class BaseCardView<C extends Card = Card>{
     card: C
@@ -34,8 +34,8 @@ export abstract class BaseCardView<C extends Card = Card>{
     abstract setOpacity(opacity:number):void
 
     abstract checkPointInCard(
-        x: SpatialPoint,
-        y: SpatialPoint,
+        x: PixelPoint,
+        y: PixelPoint,
     ): boolean
 }
 
@@ -70,8 +70,8 @@ export abstract class LeafCardView<C extends LeafCard = LeafCard> extends BaseCa
     }
 
     checkPointInCard(
-        x: SpatialPoint,
-        y: SpatialPoint,
+        x: PixelPoint,
+        y: PixelPoint,
     ): boolean{
         const region = this.card.region;
         switch (region.mask) {
@@ -150,8 +150,8 @@ export class CompositeCardView extends BaseCardView<CompositeCard>{
     }
 
     checkPointInCard(
-        x: SpatialPoint,
-        y: SpatialPoint
+        x: PixelPoint,
+        y: PixelPoint
     ): boolean {
         for (const cardView of Object.values(this.childViews)){
             let inside = cardView.checkPointInCard(x, y)

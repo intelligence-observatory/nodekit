@@ -1,4 +1,4 @@
-import type {SpatialSize,} from "../../../types/values.ts";
+import type {PixelSize,} from "../../../types/values.ts";
 
 import './text-card-view.css'
 import {LeafCardView} from "../card-view.ts";
@@ -35,7 +35,7 @@ export class TextCardView extends LeafCardView<TextCard> {
 
         const textContentDiv = renderTextContent(
             textContent,
-            (fontSize:SpatialSize) =>{
+            (fontSize:PixelSize) =>{
                 const sizePx = this.boardCoords.getSizePx(fontSize)
                 return sizePx + 'px';
             }

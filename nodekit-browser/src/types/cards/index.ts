@@ -1,4 +1,4 @@
-import type {ColorHexString, MarkdownString, SpatialSize} from "../values.ts";
+import type {ColorHexString, MarkdownString, PixelSize} from "../values.ts";
 import type {Image, Video} from "../assets";
 import type {Region} from "../region";
 
@@ -20,7 +20,7 @@ export interface VideoCard extends BaseCard<'VideoCard'>{
 
 export interface TextCard extends BaseCard<'TextCard'>{
     text: MarkdownString
-    font_size: SpatialSize; // The height of the em-box (in Board units)
+    font_size: PixelSize; // The height of the em-box (in Board units)
     justification_horizontal: 'left' | 'center' | 'right';
     justification_vertical: 'top' | 'center' | 'bottom';
     text_color: ColorHexString;

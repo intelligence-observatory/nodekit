@@ -1,4 +1,4 @@
-import type {ColorHexString, MarkdownString, SpatialPoint, SpatialSize} from "./types/values.ts";
+import type {ColorHexString, MarkdownString, PixelPoint, PixelSize} from "./types/values.ts";
 import {marked} from "marked";
 import DOMPurify from "dompurify";
 import type {Region} from "./types/region";
@@ -7,7 +7,7 @@ import type {Region} from "./types/region";
 export interface TextContentParameters {
     text: MarkdownString
     textColor: ColorHexString
-    fontSize: SpatialSize // The height of the em-box, in Board units
+    fontSize: PixelSize // The height of the em-box, in Board units
     justificationHorizontal: 'left' | 'center' | 'right'
     justificationVertical: 'top' | 'center' | 'bottom'
 }
@@ -15,7 +15,7 @@ export interface TextContentParameters {
 
 export function renderTextContent(
     textContentParameters: TextContentParameters,
-    fontSizeToCSS: (fontSize: SpatialSize) => string
+    fontSizeToCSS: (fontSize: PixelSize) => string
 ): HTMLDivElement {
     const textDiv = document.createElement('div');
     textDiv.classList.add('text-content');
@@ -55,8 +55,8 @@ export function renderTextContent(
 }
 
 export function checkPointInRegion(
-    x: SpatialPoint,
-    y: SpatialPoint,
+    x: PixelPoint,
+    y: PixelPoint,
     region: Region,
 ): boolean {
     switch (region.mask) {

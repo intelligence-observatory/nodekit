@@ -1,4 +1,4 @@
-import type {ColorHexString, SpatialPoint, SpatialSize} from "../types/values.ts";
+import type {ColorHexString, PixelPoint, PixelSize} from "../types/values.ts";
 import './board-view.css'
 import {PointerStream} from "../input-streams/pointer-stream.ts";
 import {KeyStream} from "../input-streams/key-stream.ts";
@@ -29,10 +29,10 @@ export class BoardCoordinateSystem {
     }
 
     getBoardLocationPx(
-        x: SpatialPoint,
-        y: SpatialPoint,
-        w: SpatialSize,
-        h: SpatialSize,
+        x: PixelPoint,
+        y: PixelPoint,
+        w: PixelSize,
+        h: PixelSize,
     ) {
         // Returns the (left, top) coordinates of the given Board rectangle of size boardRectangle, with centroid located at boardLocation
         const unit = this.getUnitPx();
@@ -48,8 +48,8 @@ export class BoardCoordinateSystem {
     }
 
     getBoardRectanglePx(
-        width: SpatialSize,
-        height: SpatialSize,
+        width: PixelSize,
+        height: PixelSize,
     ) {
         // Returns the (width, height) of the given Board rectangle in pixels
         return {
@@ -58,14 +58,14 @@ export class BoardCoordinateSystem {
         }
     }
 
-    getSizePx(boardSize: SpatialSize): number {
+    getSizePx(boardSize: PixelSize): number {
         // Returns the size of the given Board size in pixels
         return this.getUnitPx() * boardSize;
     }
 
     getBoardLocationFromPointerEvent(e: PointerEvent): {
-        x: SpatialPoint,
-        y: SpatialPoint,
+        x: PixelPoint,
+        y: PixelPoint,
     } {
         // Converts a MouseEvent's (clientX, clientY) to Board coordinates (x, y)
         let clickX = (e.clientX - this.boardLeftPx) / this.boardWidthPx - 0.5;
@@ -77,8 +77,8 @@ export class BoardCoordinateSystem {
         clickY = parseFloat(clickY.toFixed(precision));
 
         return {
-            x: clickX as SpatialPoint,
-            y: clickY as SpatialPoint
+            x: clickX as PixelPoint,
+            y: clickY as PixelPoint
         };
     }
 }

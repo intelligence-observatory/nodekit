@@ -1,4 +1,4 @@
-import type {NodeId, PixelSize, PressableKey, SpatialPoint, TimeElapsedMsec} from "../values.ts";
+import type {NodeId, PixelSize, PressableKey, PixelPoint, TimeElapsedMsec} from "../values.ts";
 import type {Action} from "../actions.ts";
 import type {Node} from "../node.ts";
 
@@ -47,8 +47,8 @@ export interface NodeEndedEvent extends BaseNodeEvent<'NodeEndedEvent'> {}
 
 // Agent inputs:
 export interface PointerSampledEvent extends BaseEvent<'PointerSampledEvent'> {
-    x: SpatialPoint,
-    y: SpatialPoint,
+    x: PixelPoint,
+    y: PixelPoint,
     kind: 'down' | 'up' | 'move'
 }
 
