@@ -13,21 +13,18 @@ import matplotlib.pyplot as plt
 from matplotlib import animation
 from matplotlib.colors import to_rgba
 
-from typing import Dict
-
-
 def make_animation(
-    events: Dict[str, List[PointerSampledEvent]],  # trace_id -> event stream
+    events: dict[str, List[PointerSampledEvent]],  # trace_id -> event stream
     savepath: os.PathLike | str,
     accent_rgba: Tuple[float, float, float, float]
-    | Dict[str, Tuple[float, float, float, float]] = (
+    | dict[str, Tuple[float, float, float, float]] = (
         49 / 255,
         124 / 255,
         245 / 255,
         0.9,
     ),
     neutral_rgba: Tuple[float, float, float, float]
-    | Dict[str, Tuple[float, float, float, float]] = (0.1, 0.1, 0.1, 0.3),
+    | dict[str, Tuple[float, float, float, float]] = (0.1, 0.1, 0.1, 0.3),
     movie_size_px: int = 500,
     movie_time_sec: int = 10,
 ):
@@ -83,7 +80,7 @@ def make_animation(
     # ----------------------------
     trace_ids = list(events.keys())  # insertion order retained
 
-    def _normalize_color_spec(spec, name: str) -> Dict[str, Tuple[float, float, float, float]]:
+    def _normalize_color_spec(spec, name: str) -> dict[str, Tuple[float, float, float, float]]:
         if isinstance(spec, dict):
             missing = set(trace_ids) - set(spec.keys())
             extra = set(spec.keys()) - set(trace_ids)
