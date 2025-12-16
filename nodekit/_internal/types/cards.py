@@ -43,7 +43,7 @@ class VideoCard(BaseLeafCard):
 
     Attributes:
         video: The video asset to render.
-        loop: Whether  to loop the video when it ends.
+        loop: Whether to loop the video when it ends.
         region: The Board region where the video is rendered.
     """
 

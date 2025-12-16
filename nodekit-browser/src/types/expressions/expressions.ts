@@ -1,4 +1,4 @@
-import type {RegisterId, String, Value} from "../value.ts";
+import type {RegisterId, String, Value} from "../values.ts";
 
 export type LocalVariableName = String;
 

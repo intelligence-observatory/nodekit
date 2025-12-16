@@ -1,4 +1,4 @@
-import type {NodeId, PixelSize, PressableKey, SpatialPoint, TimeElapsedMsec} from "../value.ts";
+import type {NodeId, PixelSize, PressableKey, SpatialPoint, TimeElapsedMsec} from "../values.ts";
 import type {Action} from "../actions.ts";
 import type {Node} from "../node.ts";
 

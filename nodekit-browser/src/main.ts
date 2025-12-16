@@ -3,7 +3,7 @@ import {Clock} from "./clock.ts";
 import type {Graph, Trace} from "./types/node.ts";
 import {sampleBrowserContext} from "./user-gates/browser-context.ts";
 import {userDeviceIsValid} from "./user-gates/device-gate.ts";
-import type {NodeAddress, NodeId, RegisterId, TimeElapsedMsec} from "./types/value.ts";
+import type {NodeAddress, NodeId, RegisterId, TimeElapsedMsec} from "./types/values.ts";
 import {createNodeKitRootDiv} from "./ui/ui-builder.ts";
 import {AssetManager} from "./asset-manager";
 import {ShellUI} from "./ui/shell-ui/shell-ui.ts";

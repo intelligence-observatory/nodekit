@@ -7,7 +7,7 @@ import {createCardView} from "../board-view/card-views/create.ts";
 import {createSensorBinding} from "../board-view/sensor-bindings/create-sensor-binding.ts";
 import type {Clock} from "../clock.ts";
 import {Deferred} from "../utils.ts";
-import type {NodeAddress} from "../types/value.ts";
+import type {NodeAddress} from "../types/values.ts";
 import type {EventArray} from "../event-array.ts";
 import type {ActionTakenEvent, KeySampledEvent, NodeEndedEvent, NodeStartedEvent, PointerSampledEvent} from "../types/events";
 

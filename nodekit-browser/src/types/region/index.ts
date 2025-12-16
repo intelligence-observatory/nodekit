@@ -1,4 +1,4 @@
-import type {SpatialPoint, SpatialSize, Mask} from "../value.ts";
+import type {SpatialPoint, SpatialSize, Mask} from "../values.ts";
 
 export interface Region {
     x: SpatialPoint;

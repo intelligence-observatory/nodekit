@@ -1,4 +1,4 @@
-import type {ColorHexString, MarkdownString, SpatialSize} from "../value.ts";
+import type {ColorHexString, MarkdownString, SpatialSize} from "../values.ts";
 import type {Image, Video} from "../assets";
 import type {Region} from "../region";
 

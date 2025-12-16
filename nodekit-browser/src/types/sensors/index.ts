@@ -1,4 +1,4 @@
-import type {PressableKey, SpatialSize, TimeDurationMsec} from "../value.ts";
+import type {PressableKey, SpatialSize, TimeDurationMsec} from "../values.ts";
 import type {Region} from "../region";
 import type {SliderBinIndex} from "../../board-view/sensor-bindings/slider";
 import type {Card} from "../cards";

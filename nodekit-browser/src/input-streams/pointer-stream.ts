@@ -1,4 +1,4 @@
-import type {SpatialPoint, TimeElapsedMsec} from "../types/value.ts";
+import type {SpatialPoint, TimeElapsedMsec} from "../types/values.ts";
 import {BoardCoordinateSystem} from "../board-view/board-view.ts";
 import type {Clock} from "../clock.ts";
 

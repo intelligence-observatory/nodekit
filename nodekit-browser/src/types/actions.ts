@@ -1,4 +1,4 @@
-import type {Dict, PressableKey} from "./value.ts";
+import type {Dict, PressableKey} from "./values.ts";
 import type {SliderBinIndex} from "../board-view/sensor-bindings/slider";
 
 export interface BaseAction<T extends string> extends Dict {

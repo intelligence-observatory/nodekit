@@ -1,5 +1,5 @@
 import type {Expression} from "./expressions/expressions.ts";
-import type {LeafValue, NodeId, RegisterId} from "./value.ts";
+import type {LeafValue, NodeId, RegisterId} from "./values.ts";
 
 interface BaseTransition<T extends string> {
     transition_type: T
