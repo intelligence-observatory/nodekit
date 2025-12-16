@@ -50,25 +50,10 @@ def evaluate_expression(
             raise ValueError(f"Child Graph Register '{expression.id}' not found")
         return context.last_subgraph_registers[expression.id]
 
-    elif isinstance(expression, expr.Local):
-        if expression.name not in context.local_variables:
-            raise ValueError(f"Local variable '{expression.name}' not found")
-        return context.local_variables[expression.name]
-
     elif isinstance(expression, expr.LastAction):
         if context.last_action is None:
             raise ValueError("No last action available for 'la'")
         return cast(Value, context.last_action.action_value)
-
-    elif isinstance(expression, expr.GetListItem):
-        list_val = evaluate_expression(expression.list, context)
-        if not isinstance(list_val, list):
-            raise ValueError(f"gli: list must be array, got '{list_val}'")
-
-        index_val = evaluate_expression(expression.index, context)
-        if not isinstance(index_val, int):
-            raise ValueError(f"gli: index must be int, got '{index_val}'")
-        return list_val[int(index_val)]
 
     elif isinstance(expression, expr.GetDictValue):
         dict_val = evaluate_expression(expression.d, context)
@@ -118,23 +103,23 @@ def evaluate_expression(
         lhs = evaluate_expression(expression.lhs, context)
         rhs = evaluate_expression(expression.rhs, context)
 
+        if not (isinstance(lhs, (int, float)) and isinstance(rhs, (int, float))):
+            raise ValueError(
+                f"{expression.op}: only numeric comparison supported, got '{type(lhs)}'"
+            )
+
         if type(lhs) is not type(rhs):
             raise ValueError(
                 f"{expression.op}: lhs and rhs must have same type, got '{type(lhs)}' and '{type(rhs)}'"
             )
 
-        if not isinstance(lhs, (int, float, str)):
-            raise ValueError(
-                f"{expression.op}: only number or string comparison supported, got '{type(lhs)}'"
-            )
-
-        if expression.op == "gt":
+        if isinstance(expression, expr.Gt):
             return lhs > rhs
-        if expression.op == "ge":
+        if isinstance(expression, expr.Ge):
             return lhs >= rhs
-        if expression.op == "lt":
+        if isinstance(expression, expr.Lt):
             return lhs < rhs
-        if expression.op == "le":
+        if isinstance(expression, expr.Le):
             return lhs <= rhs
 
         _: Never = expression
@@ -144,13 +129,13 @@ def evaluate_expression(
         lhs = evaluate_expression(expression.lhs, context)
         rhs = evaluate_expression(expression.rhs, context)
 
-        if expression.op == "eq":
+        if isinstance(expression, expr.Eq):
             return lhs == rhs
-        if expression.op == "ne":
+        if isinstance(expression, expr.Ne):
             return lhs != rhs
 
         _: Never = expression
-        raise ValueError(f"Unsupported comparison operator: {expression.op}")
+        raise ValueError(f"Unsupported comparison operator: {expression}")
 
     elif isinstance(expression, (expr.Add, expr.Sub, expr.Mul, expr.Div)):
         lhs = evaluate_expression(expression.lhs, context)
@@ -161,96 +146,19 @@ def evaluate_expression(
                 f"{expression.op}: lhs and rhs must be numbers, got '{type(lhs)}' and '{type(rhs)}'"
             )
 
-        if expression.op == "add":
+        if isinstance(expression, expr.Add):
             return lhs + rhs
-        if expression.op == "sub":
+        if isinstance(expression, expr.Sub):
             return lhs - rhs
-        if expression.op == "mul":
+        if isinstance(expression, expr.Mul):
             return lhs * rhs
-        if expression.op == "div":
+        if isinstance(expression, expr.Div):
             if rhs == 0:
                 raise ValueError("div: division by zero")
             return lhs / rhs
 
         _: Never = expression
         raise ValueError(f"Unsupported arithmetic operator: {expression.op}")
-
-    elif isinstance(expression, (expr.Append, expr.Concat)):
-        array_val = evaluate_expression(expression.array, context)
-        if not isinstance(array_val, list):
-            raise ValueError(f"append: array must be array, got '{type(array_val)}'")
-
-        value_val = evaluate_expression(expression.value, context)
-
-        if expression.op == "append":
-            return [*array_val, value_val]
-        elif expression.op == "concat":
-            if not isinstance(value_val, list):
-                raise ValueError(f"concat: value must be array, got '{type(value_val)}'")
-            return [*array_val, *value_val]
-        _: Never = expression
-        raise ValueError(f"Unsupported list operation: {expression.op}")
-
-    elif isinstance(expression, expr.Slice):
-        array_val = evaluate_expression(expression.array, context)
-        if not isinstance(array_val, list):
-            raise ValueError(f"slice: array must be array, got '{type(array_val)}'")
-
-        start_val = evaluate_expression(expression.start, context)
-        if not isinstance(start_val, int):
-            raise ValueError(f"slice: start must be int, got '{type(start_val)}'")
-
-        end_val: Value | None = None
-        if expression.end is not None:
-            end_val = evaluate_expression(expression.end, context)
-            if not isinstance(end_val, int):
-                raise ValueError(f"slice: end must be int, got '{type(end_val)}'")
-
-        return array_val[start_val: end_val]
-
-    elif isinstance(expression, expr.Map):
-        array_val = evaluate_expression(expression.array, context)
-        if not isinstance(array_val, list):
-            raise ValueError(f"map: array must be array, got '{type(array_val)}'")
-
-        return [
-            evaluate_expression(
-                expression.func,
-                _with_locals(context, **{expression.cur: elem}),
-            )
-            for elem in array_val
-        ]
-
-    elif isinstance(expression, expr.Filter):
-        array_val = evaluate_expression(expression.array, context)
-        if not isinstance(array_val, list):
-            raise ValueError(f"filter: array must be array, got '{type(array_val)}'")
-
-        result: list[Value] = []
-        for elem in array_val:
-            keep = evaluate_expression(
-                expression.predicate,
-                _with_locals(context, **{expression.cur: elem}),
-            )
-            if not isinstance(keep, bool):
-                raise ValueError(f"filter: predicate must be boolean, got '{type(keep)}'")
-            if keep:
-                result.append(elem)
-        return result
-
-    elif isinstance(expression, expr.Fold):
-        array_val = evaluate_expression(expression.array, context)
-        if not isinstance(array_val, list):
-            raise ValueError(f"fold: array must be array, got '{type(array_val)}'")
-
-        acc = evaluate_expression(expression.init, context)
-
-        for elem in array_val:
-            acc = evaluate_expression(
-                expression.func,
-                _with_locals(context, **{expression.acc: acc, expression.cur: elem}),
-            )
-        return acc
 
     else:
         _: Never = expression

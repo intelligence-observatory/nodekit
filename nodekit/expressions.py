@@ -1,9 +1,7 @@
 __all__ = [
     "Reg",
     "ChildReg",
-    "Local",
     "LastAction",
-    "GetListItem",
     "GetDictValue",
     "Lit",
     "If",
@@ -20,21 +18,13 @@ __all__ = [
     "Sub",
     "Mul",
     "Div",
-    "Append",
-    "Concat",
-    "Slice",
-    "Map",
-    "Filter",
-    "Fold",
     "Expression",
 ]
 
 from nodekit._internal.types.expressions import (
     Reg,
     ChildReg,
-    Local,
     LastAction,
-    GetListItem,
     GetDictValue,
     Lit,
     If,
@@ -51,11 +41,5 @@ from nodekit._internal.types.expressions import (
     Sub,
     Mul,
     Div,
-    Append,
-    Concat,
-    Slice,
-    Map,
-    Filter,
-    Fold,
     Expression,
 )

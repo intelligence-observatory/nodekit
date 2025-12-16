@@ -128,7 +128,7 @@ def _get_reg_references(expression: expressions.Expression) -> set[RegisterId]:
     if isinstance(expression, (expressions.Reg, expressions.ChildReg)):
         return {expression.id}
 
-    if isinstance(expression, (expressions.Local, expressions.LastAction, expressions.Lit)):
+    if isinstance(expression, (expressions.LastAction, expressions.Lit)):
         return set()
 
     if isinstance(expression, expressions.Not):
@@ -150,33 +150,9 @@ def _get_reg_references(expression: expressions.Expression) -> set[RegisterId]:
             refs |= _get_reg_references(arg)
         return refs
 
-    if isinstance(expression, expressions.GetListItem):
-        return _get_reg_references(expression.list) | _get_reg_references(expression.index)
 
     if isinstance(expression, expressions.GetDictValue):
         return _get_reg_references(expression.d) | _get_reg_references(expression.key)
-
-    if isinstance(expression, (expressions.Append, expressions.Concat)):
-        return _get_reg_references(expression.array) | _get_reg_references(expression.value)
-
-    if isinstance(expression, expressions.Slice):
-        refs = _get_reg_references(expression.array) | _get_reg_references(expression.start)
-        if expression.end is not None:
-            refs |= _get_reg_references(expression.end)
-        return refs
-
-    if isinstance(expression, expressions.Map):
-        return _get_reg_references(expression.array) | _get_reg_references(expression.func)
-
-    if isinstance(expression, expressions.Filter):
-        return _get_reg_references(expression.array) | _get_reg_references(expression.predicate)
-
-    if isinstance(expression, expressions.Fold):
-        return (
-            _get_reg_references(expression.array)
-            | _get_reg_references(expression.init)
-            | _get_reg_references(expression.func)
-        )
 
     raise TypeError(f"Unhandled expression type: {type(expression)}")
 
