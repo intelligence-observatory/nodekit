@@ -1,5 +1,4 @@
 from enum import Enum
-from pathlib import Path
 
 import nodekit as nk
 import random

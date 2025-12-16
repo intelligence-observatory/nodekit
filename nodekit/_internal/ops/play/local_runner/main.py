@@ -266,8 +266,8 @@ def play(
             if any(e.event_type == EventTypeEnum.TraceEndedEvent for e in events):
                 break
             time.sleep(0.1)
+
+        return Trace(events=events)
     finally:
         # Shut down the server no matter how we exit
         runner.shutdown()
-
-    return Trace(events=events)
