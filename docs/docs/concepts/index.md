@@ -78,4 +78,4 @@ The Board is NodeKit's name for the region of the Agent's display where visual c
 
 Thus, a Board coordinate of (100, 100) would indicate a point that is 100 pixels to the right, and 100 pixels up from the Agent's display.
 
-The NodeKit Board is 1024 x 768 _reference pixels_. A 1024 x 768 region corresponds to ~21.81° x 16.26° of the Agent's visual field, given the assumptions above, and when viewed straight on.
+The NodeKit Board is 1024 x 1024 _reference pixels_. A 1024 x 1024 region corresponds to ~21.81° x 21.81° of the Agent's visual field, given the assumptions above, and when viewed straight on.
