@@ -78,6 +78,10 @@ def simulate(
     Returns:
 
     """
+
+    if agent is None:
+        agent = DummyAgent(seed=None)
+
     time_elapsed_msec = 0
 
     events: list[e.Event] = [e.TraceStartedEvent(t=time_elapsed_msec)]
