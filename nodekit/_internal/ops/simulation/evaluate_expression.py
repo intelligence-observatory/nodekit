@@ -200,7 +200,7 @@ def evaluate_expression(
         if not isinstance(start_val, int):
             raise ValueError(f"slice: start must be int, got '{type(start_val)}'")
 
-        end_val: int | None = None
+        end_val: Value | None = None
         if expression.end is not None:
             end_val = evaluate_expression(expression.end, context)
             if not isinstance(end_val, int):
