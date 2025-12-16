@@ -68,7 +68,14 @@ def benchmark(state: State, message: str) -> str:
     # Ignore the first frame because that's when assets are cached.
     renderer.render(state)
     t0 = time()
+    q = False
     for i in range(its):
+        if q:
+            state.t_msec = 1
+            q = False
+        else:
+            state.t_msec = 0
+            q = True
         renderer.render(state)
     fps = f'{1 / ((time() - t0) / its)} FPS'
     print(fps)
@@ -80,7 +87,14 @@ def benchmark_to(state: State, message: str) -> str:
     print(message)
     its = 1000
     t0 = time()
+    q = False
     for i in range(its):
+        if q:
+            state.t_msec = 1
+            q = False
+        else:
+            state.t_msec = 0
+            q = True
         renderer.render_to(state, board)
     fps = f'{1 / ((time() - t0) / its)} FPS'
     print(fps)

@@ -1,9 +1,10 @@
 mod asset;
 mod error;
 
-use crate::asset::{Asset, AssetKey};
+use asset::Asset;
 use blittle::ClippedRect;
 pub use error::Error;
+use itertools::Itertools;
 use nodekit_rs_card::CardType;
 use nodekit_rs_image::*;
 use nodekit_rs_state::*;
@@ -12,7 +13,8 @@ use numpy::{PyArray3, PyArrayMethods};
 use pyo3::exceptions::PyRuntimeError;
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
-use slotmap::{SecondaryMap, SlotMap};
+use slotmap::SecondaryMap;
+use std::ops::DerefMut;
 use uuid::Uuid;
 
 macro_rules! render_asset {
@@ -41,9 +43,9 @@ pub struct Renderer {
     /// Cached text engine.
     text_engine: nodekit_rs_text::TextEngine,
     /// Cached assets.
-    assets: SlotMap<AssetKey, Asset>,
+    assets: SecondaryMap<CardKey, Asset>,
     /// These assets need to be cleared and re-filled per frame.
-    dynamic_assets: Vec<AssetKey>,
+    overlaps: SecondaryMap<CardKey, Vec<CardKey>>,
     /// The known state ID.
     id: Option<Uuid>,
     cursor: Cursor,
@@ -70,9 +72,13 @@ impl Renderer {
     ///
     /// `board`'s data type MUST be `numpy.unit8` and its shape MUST be `(768, 768, 3)`.
     /// See: `Renderer.empty_board()`.
-    pub fn render_to(&mut self, state: &State, board: Bound<'_, PyArray3<u8>>) -> PyResult<()> {
+    pub fn render_to<'py>(
+        &mut self,
+        state: Bound<'py, State>,
+        board: Bound<'py, PyArray3<u8>>,
+    ) -> PyResult<()> {
         let bitmap = self
-            .blit(state)
+            .blit(state.borrow_mut().deref_mut())
             .map_err(|e| PyRuntimeError::new_err(e.to_string()))?;
         unsafe {
             board.as_slice_mut()?.copy_from_slice(bitmap);
@@ -87,10 +93,10 @@ impl Renderer {
     pub fn render<'py>(
         &mut self,
         py: Python<'py>,
-        state: &State,
+        state: Bound<'py, State>,
     ) -> PyResult<Bound<'py, PyArray3<u8>>> {
         let board = self
-            .blit(state)
+            .blit(state.borrow_mut().deref_mut())
             .map_err(|e| PyRuntimeError::new_err(e.to_string()))?;
         let arr = PyArray3::zeros(py, (BOARD_D, BOARD_D, STRIDE), false);
         unsafe {
@@ -101,15 +107,17 @@ impl Renderer {
 }
 
 impl Renderer {
-    fn blit(&mut self, state: &State) -> Result<&[u8], Error> {
+    fn blit(&mut self, state: &mut State) -> Result<&[u8], Error> {
         if self.is_new_state(state) {
             // New state.
             self.start(state)?;
         } else {
             // Re-render dirty assets.
-            for key in self.dynamic_assets.iter() {
-                // Blit.
-                render_asset!(self, &mut self.assets[*key], state);
+            for card_key in self.get_dirty_cards(state) {
+                // Render.
+                render_asset!(self, &mut self.assets[card_key], state);
+                // Mark as not dirty.
+                state.cards[card_key].dirty = false;
             }
         }
 
@@ -154,22 +162,45 @@ impl Renderer {
     fn fill_and_cache(&mut self, state: &State) -> Result<(), Error> {
         // Clear the asset caches.
         self.assets.clear();
-        self.dynamic_assets.clear();
         // Cache assets.
         self.cache(state)?;
-        // Find dirty rects.
-        self.set_dirty_rects();
+
+        // Set overlaps.
+        let rects = state
+            .cards
+            .iter()
+            .filter_map(|(k, _)| self.assets[k].rect().map(|rect| (k, rect)))
+            .collect::<SecondaryMap<CardKey, ClippedRect>>();
+        self.overlaps = rects
+            .iter()
+            .map(|(k_a, rect_a)| {
+                (
+                    k_a,
+                    rects
+                        .iter()
+                        .filter_map(|(k_b, rect_b)| {
+                            if k_a != k_b && rect_a.overlaps(rect_b) {
+                                Some(k_b)
+                            } else {
+                                None
+                            }
+                        })
+                        .collect(),
+                )
+            })
+            .collect();
+
         self.board
             .fill(parse_color_rgb(&state.board_color).map_err(Error::ParseColor)?);
         Ok(())
     }
 
     fn cache(&mut self, state: &State) -> Result<(), Error> {
-        for card in state.cards.iter() {
+        for (card_key, card) in state.cards.iter() {
             match &card.card_type {
                 CardType::Image(image) => {
                     if let Some(image) = load_image(image, &card.region).map_err(Error::Image)? {
-                        self.assets.insert(Asset::Image(image));
+                        self.assets.insert(card_key, Asset::Image(image));
                     }
                 }
                 CardType::Text(text_card) => {
@@ -178,14 +209,14 @@ impl Renderer {
                         .render(text_card, &card.region)
                         .map_err(Error::Text)?
                     {
-                        self.assets.insert(Asset::Text(buffers));
+                        self.assets.insert(card_key, Asset::Text(buffers));
                     }
                 }
                 CardType::Video { asset, looped: _ } => {
                     if let Some(video) =
                         nodekit_rs_video::Video::new(asset, &card.region).map_err(Error::Video)?
                     {
-                        self.assets.insert(Asset::Video(video));
+                        self.assets.insert(card_key, Asset::Video(video));
                     }
                 }
             }
@@ -193,44 +224,24 @@ impl Renderer {
         Ok(())
     }
 
-    fn set_dirty_rects(&mut self) {
-        // Get video rects.
-        let mut dirty_rects = self
-            .assets
+    fn get_dirty_cards(&self, state: &State) -> Vec<CardKey> {
+        state
+            .cards
             .iter()
-            .filter_map(|(key, asset)| match asset {
-                Asset::Video(video) => Some((key, video.rgb_buffer.rect)),
-                _ => None,
+            .filter(|(_, v)| v.dirty)
+            .flat_map(|(k, _)| {
+                let mut overlaps = vec![k];
+                overlaps.extend_from_slice(&self.overlaps[k]);
+                overlaps
             })
-            .collect::<SecondaryMap<AssetKey, ClippedRect>>();
-        self.get_dirty_rects_inner(&mut dirty_rects);
-        self.dynamic_assets = dirty_rects.keys().collect();
-    }
-
-    fn get_dirty_rects_inner(&mut self, dirty_rects: &mut SecondaryMap<AssetKey, ClippedRect>) {
-        let mut any_overlaps = false;
-        let clean_rects = self
-            .assets
-            .iter()
-            .filter(|(key, _)| !dirty_rects.contains_key(*key))
-            .collect::<Vec<(AssetKey, &Asset)>>();
-        for (key, asset) in clean_rects {
-            let rect = match asset {
-                // Already got videos.
-                Asset::Video(_) => None,
-                Asset::Image(buffer) => Some(buffer.rect()),
-                Asset::Text(buffers) => buffers.rect(),
-            };
-            if let Some(rect) = rect
-                && dirty_rects.values().any(|r| r.overlaps(&rect))
-            {
-                dirty_rects.insert(key, rect);
-                any_overlaps = true;
-            }
-        }
-        if any_overlaps {
-            self.get_dirty_rects_inner(dirty_rects)
-        }
+            .unique()
+            .sorted_by(|a, b| {
+                state.cards[*a]
+                    .region
+                    .z_index
+                    .cmp(&state.cards[*b].region.z_index)
+            })
+            .collect()
     }
 }
 
@@ -238,7 +249,7 @@ impl Renderer {
 mod tests {
     use crate::Renderer;
     use nodekit_rs_card::*;
-    use nodekit_rs_state::State;
+    use nodekit_rs_state::{CardKey, State};
     use std::path::PathBuf;
 
     #[test]
@@ -320,29 +331,34 @@ mod tests {
         let mut state = State::from_cards("#AAAAAAFF".to_string(), vec![image_card()]);
         renderer.start(&state).unwrap();
         // No need to re-blit.
-        assert!(renderer.dynamic_assets.is_empty());
-        state.cards = vec![text_card()];
+        assert_eq!(renderer.overlaps.len(), 1);
+        assert!(renderer.overlaps.values().all(|v| v.is_empty()));
+        assert!(state.cards.values().all(|card| !card.dirty));
+        state.cards.clear();
+        state.cards.insert(text_card());
         renderer.start(&state).unwrap();
         // No need to re-blit.
-        assert!(renderer.dynamic_assets.is_empty());
+        assert_eq!(renderer.overlaps.len(), 1);
+        assert!(renderer.overlaps.values().all(|v| v.is_empty()));
+        assert!(state.cards.values().all(|card| !card.dirty));
 
         state = State::from_cards("#AAAAAAFF".to_string(), vec![image_card(), text_card()]);
         renderer.start(&state).unwrap();
         // No need to re-blit.
-        assert!(renderer.dynamic_assets.is_empty());
+        assert_eq!(renderer.overlaps.len(), 2);
+        for o in renderer.overlaps.values() {
+            assert_eq!(o.len(), 1)
+        }
+        assert!(state.cards.values().all(|card| !card.dirty));
 
         state = State::from_cards("#AAAAAAFF".to_string(), vec![video_card()]);
         renderer.start(&state).unwrap();
         // Always re-blit a video.
-        assert_eq!(renderer.dynamic_assets.len(), 1);
-
-        state = State::from_cards(
-            "#AAAAAAFF".to_string(),
-            vec![image_card(), video_card(), text_card()],
-        );
-        renderer.start(&state).unwrap();
-        // Always re-blit a video.
-        assert_eq!(renderer.dynamic_assets.len(), 3);
+        assert_eq!(renderer.overlaps.len(), 1);
+        assert!(renderer.overlaps.values().all(|v| v.is_empty()));
+        assert!(state.cards.values().all(|card| !card.dirty));
+        state.set_t_msec(1);
+        assert!(state.cards.values().all(|card| card.dirty));
 
         state = State::from_cards(
             "#AAAAAAFF".to_string(),
@@ -350,6 +366,17 @@ mod tests {
         );
         renderer.start(&state).unwrap();
         // Always re-blit a video.
-        assert_eq!(renderer.dynamic_assets.len(), 3);
+        assert_eq!(renderer.overlaps.len(), 3);
+        let card_keys = state.cards.keys().collect::<Vec<CardKey>>();
+        let image_key = card_keys[0];
+        let text_key = card_keys[1];
+        let video_key = card_keys[2];
+        assert_eq!(renderer.overlaps[image_key].len(), 1);
+        assert!(renderer.overlaps[image_key].contains(&text_key));
+        assert_eq!(renderer.overlaps[text_key].len(), 2);
+        assert!(renderer.overlaps[text_key].contains(&image_key));
+        assert!(renderer.overlaps[text_key].contains(&video_key));
+        assert_eq!(renderer.overlaps[video_key].len(), 1);
+        assert!(renderer.overlaps[video_key].contains(&text_key));
     }
 }

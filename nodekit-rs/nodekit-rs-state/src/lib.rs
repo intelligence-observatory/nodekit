@@ -5,14 +5,17 @@ use pointer::Pointer;
 use pyo3::prelude::*;
 use pyo3::types::PyList;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
+use slotmap::{SlotMap, new_key_type};
 use uuid::Uuid;
+
+new_key_type! { pub struct CardKey; }
 
 /// Describes the state of the simulator.
 #[gen_stub_pyclass]
 #[pyclass]
 pub struct State {
     /// The node's cards.
-    pub cards: Vec<Card>,
+    pub cards: SlotMap<CardKey, Card>,
     /// The time elapsed from the start of the node.
     #[pyo3(get)]
     pub t_msec: u64,
@@ -26,8 +29,12 @@ pub struct State {
 
 impl State {
     pub fn from_cards(board_color: String, cards: Vec<Card>) -> Self {
+        let mut cards_map = SlotMap::with_capacity_and_key(cards.len());
+        for card in cards {
+            cards_map.insert(card);
+        }
         Self {
-            cards,
+            cards: cards_map,
             t_msec: 0,
             board_color,
             pointer: Pointer::default(),
@@ -49,7 +56,18 @@ impl State {
     #[setter]
     pub fn set_t_msec(&mut self, value: u64) {
         self.t_msec = value;
-        self.cards.iter_mut().filter(|card| matches!(&card.card_type, CardType::Video { asset: _, looped: _})).for_each(|card| card.dirty = true);
+        self.cards
+            .values_mut()
+            .filter(|card| {
+                matches!(
+                    &card.card_type,
+                    CardType::Video {
+                        asset: _,
+                        looped: _
+                    }
+                )
+            })
+            .for_each(|card| card.dirty = true);
     }
 
     /// Set the coordinates of the pointer.

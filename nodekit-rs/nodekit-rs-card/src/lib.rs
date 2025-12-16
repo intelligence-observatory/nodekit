@@ -21,7 +21,7 @@ pub struct Card {
     /// ImageCard, TextCard, etc.
     pub card_type: CardType,
     /// True if the card needs to be rerendered.
-    pub dirty: bool
+    pub dirty: bool,
 }
 
 impl FromPyObject<'_, '_> for Card {

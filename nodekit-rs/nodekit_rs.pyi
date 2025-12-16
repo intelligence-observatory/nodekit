@@ -46,10 +46,7 @@ class State:
         The time elapsed from the start of the node.
         """
     @t_msec.setter
-    def t_msec(self, value: builtins.int) -> None:
-        r"""
-        The time elapsed from the start of the node.
-        """
+    def t_msec(self, value: builtins.int) -> None: ...
     def __new__(cls, board_color: builtins.str, cards: list) -> State:
         r"""
         `board_color` must be a valid RGBA hex string e.g. "#808080ff"
