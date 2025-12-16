@@ -8,7 +8,7 @@ import nodekit._internal.types.sensors as s
 def sample_action(sensor: s.Sensor, rng: Random | None = None) -> a.Action:
     """
     Randomly sample an Action from the given Sensor.
-    Useful for simulating Participant behavior.
+    Useful for simulating Agent behavior.
 
     Args:
         sensor:

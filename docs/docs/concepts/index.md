@@ -66,7 +66,13 @@ A `Trace` is a description of a single Agent's run of a Graph.
 
 ## Board
 
-The Board is the square region of the Participant's display on which the Graph unfolds. Points on the Board are given using _Board coordinates_, where (0, 0) is the center of the Board and (0.5, 0.5) is the top right.
+The Board is NodeKit's name for the Agent's display. Points on the Board are described using _Board coordinates_, where: 
+* (0, 0) is the center of the display 
+* Positive increases in the first coordinate (x) causes movement in the **rightward** direction.
+* Positive increases in the second coordinate (y) causes movement in the **upward** direction. 
+* Units are given in reference pixels.
+
+For example, a Board coordinate of (100, 100) would indicate a point that is 100 pixels to the right, and 100 pixels up from the Agent's display.
 
 NodeKit defines the **ideal Board** as 768 x 768 _reference pixels_. A reference pixel is a unit of _visual angle_ defined in the [W3C specification](https://www.w3.org/TR/css-values-3/#reference-pixel) as the visual angle of one pixel on a
 device with 96 [dpi](https://en.wikipedia.org/wiki/Dots_per_inch) at an arm's length. Given an arm's length of 28 inches, a reference pixel is ~0.0213° of visual angle, and the Board is ~16.26° x 16.26° of the Participant's visual field

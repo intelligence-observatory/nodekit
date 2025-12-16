@@ -10,7 +10,7 @@ from nodekit._internal.types.values import Region, PressableKey, SpatialSize, Ti
 # %%
 class BaseSensor(pydantic.BaseModel, ABC):
     """
-    A Sensor is a listener for Participant behavior.
+    A Sensor is a listener for Agent behavior.
     When a Sensor is triggered, it emits an Action and optionally applies an Outcome.
     """
 
