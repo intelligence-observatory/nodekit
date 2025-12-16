@@ -6,12 +6,12 @@ def make_text_node(text: str) -> nk.Node:
         text=text,
         justification_horizontal="left",
         justification_vertical="center",
-        font_size=0.02,
+        font_size=20,
         region=nk.Region(
             x=0,
             y=0,
-            w=1,
-            h=0.6,
+            w=1000,
+            h=600,
         ),
     )
     sensor = nk.sensors.KeySensor(keys=[" "])
