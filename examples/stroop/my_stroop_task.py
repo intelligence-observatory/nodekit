@@ -28,46 +28,6 @@ def to_hex(color: StroopColor) -> str:
 
 
 # %%
-def make_stroop_instructions() -> nk.Node:
-    markdown_instructions = Path("my_stroop_instructions.md").read_text()
-
-    instructions_card = nk.cards.TextCard(
-        text=str(markdown_instructions),
-        justification_horizontal="left",
-        region=nk.Region(
-            x=0,
-            y=0,
-            w=1,
-            h=0.8,
-        ),
-    )
-    press_spacebar_card = nk.cards.TextCard(
-        region=nk.Region(
-            x=0,
-            y=-0.4,
-            w=0.5,
-            h=0.1,
-        ),
-        text="Press the **spacebar** to begin.",
-        font_size=0.02,
-        background_color="#e8e8e8",
-        justification_horizontal="center",
-        justification_vertical="center",
-    )
-    return nk.Node(
-        stimulus=nk.cards.CompositeCard(
-            children={
-                "instructions": instructions_card,
-                "press-spacebar": press_spacebar_card,
-            }
-        ),
-        sensor=nk.sensors.KeySensor(
-            keys=[" "],
-        ),
-        board_color="#FFFFFF",  # White background
-    )
-
-
 def make_stroop_trial(
     stimulus_color: StroopColor,
     stimulus_word: StroopColor,
@@ -84,11 +44,11 @@ def make_stroop_trial(
                     region=nk.Region(
                         x=0,
                         y=0,
-                        w=0.5,
-                        h=0.2,
+                        w=500,
+                        h=200,
                     ),
                     text=stimulus_word.value.upper(),
-                    font_size=0.1,
+                    font_size=100,
                     text_color=to_hex(stimulus_color),
                     justification_horizontal="center",
                     justification_vertical="center",
@@ -96,9 +56,9 @@ def make_stroop_trial(
                 "key-reminder": nk.cards.TextCard(
                     region=nk.Region(
                         x=0,
-                        y=-0.2,
+                        y=-200,
                         w=1,
-                        h=0.1,
+                        h=100,
                     ),
                     text="Is the ink color (r)ed, (g)reen, (b)lue, or (y)ellow?",
                 ),
@@ -121,11 +81,11 @@ def make_stroop_trial(
             region=nk.Region(
                 x=0,
                 y=0,
-                w=0.5,
-                h=0.2,
+                w=500,
+                h=200,
             ),
             text="Correct!",
-            font_size=0.1,
+            font_size=100,
             justification_horizontal="center",
             justification_vertical="center",
         ),
@@ -137,11 +97,11 @@ def make_stroop_trial(
             region=nk.Region(
                 x=0,
                 y=0,
-                w=0.5,
-                h=0.2,
+                w=500,
+                h=200,
             ),
             text="Incorrect!",
-            font_size=0.1,
+            font_size=100,
             justification_horizontal="center",
             justification_vertical="center",
         ),
@@ -155,11 +115,11 @@ def make_stroop_trial(
             region=nk.Region(
                 x=0,
                 y=0,
-                w=0.2,
-                h=0.2,
+                w=200,
+                h=200,
             ),
-            text="\+",
-            font_size=0.1,
+            text=r"\+",
+            font_size=200,
             justification_horizontal="center",
             justification_vertical="center",
         ),
@@ -187,6 +147,8 @@ def make_stroop_trial(
                 then=nk.transitions.Go(to="correct"),
                 else_=nk.transitions.Go(to="incorrect"),
             ),
+            "correct": nk.transitions.End(),
+            "incorrect": nk.transitions.End(),
         },
         start="fixation",
     )
