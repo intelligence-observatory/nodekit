@@ -78,7 +78,7 @@ def evaluate_expression(
         case expr.LastAction():
             if context.last_action is None:
                 raise ValueError("No last action available for 'la'")
-            return cast(Value, context.last_action.action_value)
+            return context.last_action.action_value
 
         case expr.GetListItem():
             list_val = evaluate_expression(expression.list, context)
@@ -157,12 +157,12 @@ def evaluate_expression(
                 )
 
             if expression.op == "gt":
-                return lhs > rhs  # type: ignore[operator]
+                return lhs > rhs
             if expression.op == "ge":
-                return lhs >= rhs  # type: ignore[operator]
+                return lhs >= rhs
             if expression.op == "lt":
-                return lhs < rhs  # type: ignore[operator]
-            return lhs <= rhs  # type: ignore[operator]
+                return lhs < rhs
+            return lhs <= rhs
 
         case expr.Eq():
             lhs = evaluate_expression(expression.lhs, context)
@@ -184,14 +184,14 @@ def evaluate_expression(
                 )
 
             if expression.op == "add":
-                return lhs + rhs  # type: ignore[operator]
+                return lhs + rhs
             if expression.op == "sub":
-                return lhs - rhs  # type: ignore[operator]
+                return lhs - rhs
             if expression.op == "mul":
-                return lhs * rhs  # type: ignore[operator]
+                return lhs * rhs
             if rhs == 0:
                 raise ValueError("div: division by zero")
-            return lhs / rhs  # type: ignore[operator]
+            return lhs / rhs
 
         case expr.Append():
             array_val = evaluate_expression(expression.array, context)

@@ -3,13 +3,13 @@ from typing import Literal, Union, Annotated, Dict, Any
 
 import pydantic
 
-from nodekit._internal.types.values import PressableKey
+from nodekit._internal.types.values import PressableKey, Value
 
 
 # %%
 class BaseAction(pydantic.BaseModel, ABC):
     action_type: str
-    action_value: Any
+    action_value: Value
 
 
 # %%
@@ -21,7 +21,7 @@ class WaitAction(BaseAction):
 # %%
 class KeyAction(BaseAction):
     action_type: Literal["KeyAction"] = "KeyAction"
-    action_value: PressableKey = pydantic.Field(description="The key that was pressed.")
+    action_value: str = pydantic.Field(description="The key that was pressed.")
 
 
 # %%
