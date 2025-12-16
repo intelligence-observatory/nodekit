@@ -59,9 +59,7 @@ class LocalRunner:
                 port=self.port,
                 log_level="warning",
             )
-            # We run uvicorn in a background thread, so let this process own signals.
-            if hasattr(config, "install_signal_handlers"):
-                config.install_signal_handlers = False
+
             self._server = uvicorn.Server(config=config)
             self._thread = threading.Thread(target=self._server.run, daemon=True)
             self._thread.start()
