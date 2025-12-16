@@ -1,7 +1,6 @@
-import type {ColorHexString, MarkdownString, PixelPoint, PixelSize} from "./types/values.ts";
+import type {ColorHexString, MarkdownString, PixelSize} from "./types/values.ts";
 import {marked} from "marked";
 import DOMPurify from "dompurify";
-import type {Region} from "./types/region";
 
 
 export interface TextContentParameters {
@@ -54,36 +53,6 @@ export function renderTextContent(
     return textDiv
 }
 
-export function checkPointInRegion(
-    x: PixelPoint,
-    y: PixelPoint,
-    region: Region,
-): boolean {
-    switch (region.mask) {
-        case 'rectangle':
-            const left = region.x - region.w / 2;
-            const right = region.x + region.w / 2;
-            const top = region.y + region.h / 2;
-            const bottom = region.y - region.h / 2;
-            return (x >= left) &&
-                (x <= right) &&
-                (y >= bottom) &&
-                (y <= top);
-        case 'ellipse':
-            const radius_x = region.w / 2;
-            const radius_y = region.h / 2;
-            const delta_x = x - region.x;
-            const delta_y = y - region.y;
-
-            return (
-                (delta_x * delta_x) / (radius_x * radius_x) +
-                (delta_y * delta_y) / (radius_y * radius_y) <=
-                1
-            );
-        default:
-            throw new Error(`Unknown mask: ${region.mask}`);
-    }
-}
 
 export class Deferred<T> {
     public readonly promise: Promise<T>
