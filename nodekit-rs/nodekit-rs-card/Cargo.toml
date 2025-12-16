@@ -1,5 +1,5 @@
 [package]
-name = "nodekit-rs-models"
+name = "nodekit-rs-card"
 version = "0.1.0"
 edition = "2024"
 

@@ -7,7 +7,7 @@ use cosmic_text::fontdb::Source;
 use cosmic_text::{Align, Attrs, Buffer, Color, Family, FontSystem, Metrics, Shaping, SwashCache};
 pub use error::Error;
 use md::{FontSize, parse};
-use nodekit_rs_models::{JustificationHorizontal, JustificationVertical, Region, TextCard};
+use nodekit_rs_card::{JustificationHorizontal, JustificationVertical, Region, TextCard};
 use nodekit_rs_visual::{
     BOARD_D_F64, BOARD_SIZE, RgbBuffer, RgbaBuffer, UnclippedRect, VisualBuffer, bitmap_rgb,
     parse_color_rgba,

@@ -1,5 +1,5 @@
 use criterion::{Criterion, criterion_group, criterion_main};
-use nodekit_rs_models::{JustificationHorizontal, JustificationVertical, Region, TextCard};
+use nodekit_rs_card::{JustificationHorizontal, JustificationVertical, Region, TextCard};
 use nodekit_rs_text::*;
 
 pub fn criterion_benchmark(c: &mut Criterion) {

@@ -12,7 +12,7 @@ use blittle::Size;
 use bytemuck::{cast_slice, cast_slice_mut};
 pub use error::Error;
 use nodekit_rs_asset::load_asset;
-use nodekit_rs_models::{Asset, Region};
+use nodekit_rs_card::{Asset, Region};
 use nodekit_rs_visual::*;
 use png::{ColorType, Decoder};
 

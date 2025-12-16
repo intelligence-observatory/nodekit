@@ -5,7 +5,7 @@ use asset::Asset;
 use blittle::ClippedRect;
 pub use error::Error;
 use itertools::Itertools;
-use nodekit_rs_models::CardType;
+use nodekit_rs_card::CardType;
 use nodekit_rs_image::*;
 use nodekit_rs_state::*;
 use nodekit_rs_visual::*;
@@ -248,7 +248,7 @@ impl Renderer {
 #[cfg(test)]
 mod tests {
     use crate::Renderer;
-    use nodekit_rs_models::*;
+    use nodekit_rs_card::*;
     use nodekit_rs_state::{CardKey, State};
     use std::path::PathBuf;
 

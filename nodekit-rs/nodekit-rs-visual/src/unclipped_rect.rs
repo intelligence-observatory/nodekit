@@ -1,6 +1,6 @@
 use crate::{size_coordinate, spatial_coordinate};
 use blittle::{ClippedRect, PositionI, Size};
-use nodekit_rs_models::Region;
+use nodekit_rs_card::Region;
 
 #[derive(Clone, Debug)]
 pub struct UnclippedRect {

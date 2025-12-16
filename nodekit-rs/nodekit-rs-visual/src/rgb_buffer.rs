@@ -2,7 +2,7 @@ use crate::{BOARD_SIZE, Error, resize};
 use blittle::stride::RGB;
 use blittle::{ClippedRect, Size};
 use fast_image_resize::PixelType;
-use nodekit_rs_models::Region;
+use nodekit_rs_card::Region;
 
 /// A raw RGB24 bitmap and its pixel size.
 pub struct RgbBuffer {

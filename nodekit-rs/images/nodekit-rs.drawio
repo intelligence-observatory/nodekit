@@ -87,7 +87,7 @@
         <mxCell id="bVZrfnQnO_vLHOjjuCpx-26" edge="1" parent="1" source="ikGKfwkhlr0Akzmn3M9r-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.75;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" target="ikGKfwkhlr0Akzmn3M9r-6">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="ikGKfwkhlr0Akzmn3M9r-2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="nodekit-rs-models" vertex="1">
+        <mxCell id="ikGKfwkhlr0Akzmn3M9r-2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="nodekit-rs-card" vertex="1">
           <mxGeometry height="60" width="120" x="130" y="10" as="geometry" />
         </mxCell>
         <mxCell id="bVZrfnQnO_vLHOjjuCpx-10" edge="1" parent="1" source="bVZrfnQnO_vLHOjjuCpx-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.75;entryY=0;entryDx=0;entryDy=0;exitX=1;exitY=0.75;exitDx=0;exitDy=0;" target="ikGKfwkhlr0Akzmn3M9r-3">
