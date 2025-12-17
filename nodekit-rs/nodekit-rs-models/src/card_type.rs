@@ -1,14 +1,9 @@
-use super::{
-    CARD_TYPE,
-    asset::Asset,
-    text::TextCard
-};
+use crate::*;
 use pyo3::{
     exceptions::PyValueError,
     prelude::*,
     types::PyString
 };
-use crate::sensor::{Slider, TextEntry};
 
 /// ImageCard, TextCard, etc.
 pub enum CardType {
@@ -23,12 +18,8 @@ impl CardType {
     fn asset(obj: Borrowed<'_, '_, PyAny>, key: &str) -> PyResult<Asset> {
         Asset::extract(obj.getattr(key)?.as_borrowed())
     }
-}
 
-impl<'py> FromPyObject<'_, 'py> for CardType {
-    type Error = PyErr;
-
-    fn extract(obj: Borrowed<'_, 'py, PyAny>) -> Result<Self, Self::Error> {
+    pub fn extract_card(obj: Borrowed<'_, '_, PyAny>) -> PyResult<Self> {
         let card_type = obj.getattr(CARD_TYPE)?;
         match card_type.cast::<PyString>()?.to_str()? {
             "ImageCard" => Ok(Self::Image(Self::asset(obj, "image")?)),
@@ -39,6 +30,21 @@ impl<'py> FromPyObject<'_, 'py> for CardType {
                 Ok(Self::Video { asset, looped })
             }
             other => Err(PyValueError::new_err(format!("Invalid card type: {other}"))),
+        }
+    }
+
+    pub fn extract_sensor(sensor: Borrowed<'_, '_, PyAny>) -> PyResult<Option<Self>> {
+        let sensor_type = sensor.getattr("sensor_type")?;
+        match sensor_type.cast::<PyString>()?.to_str()? {
+            "SliderSensor" => {
+                let slider = Slider::extract(sensor.as_borrowed())?;
+                Ok(Some(Self::Slider(slider)))
+            },
+            "TextEntrySensor" => {
+                let text_entry = TextEntry::extract(sensor.as_borrowed())?;
+                Ok(Some(Self::TextEntry(text_entry)))
+            }
+            _ => Ok(None)
         }
     }
 }
