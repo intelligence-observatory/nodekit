@@ -16,7 +16,7 @@ from nodekit._internal.types.actions import Action
 from nodekit._internal.types.graph import Graph
 from nodekit._internal.types.node import Node
 from nodekit._internal.types.trace import Trace
-from nodekit._internal.types.transition import (
+from nodekit._internal.types.transitions import (
     End,
     Go,
     IfThenElse,

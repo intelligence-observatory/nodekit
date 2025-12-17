@@ -1,6 +1,6 @@
 import type {Card} from "./cards";
-import type {Sensor} from "./sensors";
-import type {ColorHexString, NodeId, RegisterId, Value} from "./value.ts";
+import type {Sensor} from "./sensors.ts";
+import type {ColorHexString, NodeId, RegisterId, Value} from "./values.ts";
 import type {Event} from "./events";
 import type {Transition} from "./transition.ts";
 

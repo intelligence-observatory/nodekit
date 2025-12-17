@@ -6,7 +6,7 @@ __all__ = [
     "Transition",
 ]
 
-from nodekit._internal.types.transition import (
+from nodekit._internal.types.transitions import (
     Go,
     End,
     IfThenElse,

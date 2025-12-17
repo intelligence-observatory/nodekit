@@ -6,9 +6,8 @@ __all__ = [
     "Dict",
     "LeafValue",
     # Space
-    "SpatialSize",
-    "SpatialPoint",
-    "Mask",
+    "PixelSize",
+    "PixelPoint",
     # Time
     "TimeElapsedMsec",
     "TimeDurationMsec",
@@ -34,9 +33,8 @@ from nodekit._internal.types.values import (
     Dict,
     LeafValue,
     # Space
-    SpatialSize,
-    SpatialPoint,
-    Mask,
+    PixelSize,
+    PixelPoint,
     # Time
     TimeElapsedMsec,
     TimeDurationMsec,

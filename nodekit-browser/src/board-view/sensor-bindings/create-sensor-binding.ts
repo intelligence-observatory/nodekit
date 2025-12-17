@@ -1,4 +1,4 @@
-import type {Sensor} from "../../types/sensors";
+import type {Sensor} from "../../types/sensors.ts";
 import type {BoardView} from "../board-view.ts";
 import {SensorBinding} from "./index.ts";
 import {SliderSensorBinding} from "./slider";

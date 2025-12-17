@@ -8,7 +8,7 @@ from nodekit._internal.types.actions import Action
 from nodekit._internal.types.node import Node
 from nodekit._internal.types.values import (
     TimeElapsedMsec,
-    SpatialPoint,
+    PixelPoint,
     NodeAddress,
 )
 
@@ -49,7 +49,7 @@ class TraceEndedEvent(BaseEvent):
 
 class PageSuspendedEvent(BaseEvent):
     """
-    Emitted when a Participant suspends the page (e.g., closes the tab or navigates away).
+    Emitted when a Agent suspends the page (e.g., closes the tab or navigates away).
     """
 
     event_type: Literal[EventTypeEnum.PageSuspendedEvent] = EventTypeEnum.PageSuspendedEvent
@@ -57,7 +57,7 @@ class PageSuspendedEvent(BaseEvent):
 
 class PageResumedEvent(BaseEvent):
     """
-    Emitted when a Participant returns to the page (e.g., reopens the tab or navigates back).
+    Emitted when a Agent returns to the page (e.g., reopens the tab or navigates back).
     """
 
     event_type: Literal[EventTypeEnum.PageResumedEvent] = EventTypeEnum.PageResumedEvent
@@ -74,13 +74,13 @@ class BrowserContextSampledEvent(BaseEvent):
     )
     user_agent: str = pydantic.Field(description="The user agent string of the browser.")
     timestamp_client: str = pydantic.Field(
-        description="The ISO8601-formatted timestamp that the Participant's browser disclosed at the time of this event."
+        description="The ISO8601-formatted timestamp that the Agent's browser disclosed at the time of this event."
     )
     device_pixel_ratio: float = pydantic.Field(
         description="The ratio between physical pixels and logical CSS pixels on the device."
     )
     display: RegionSizePx = pydantic.Field(
-        description="The size of the Participant's display in physical pixels."
+        description="The size of the Agent's display in physical pixels."
     )
     viewport: RegionSizePx
 
@@ -88,8 +88,8 @@ class BrowserContextSampledEvent(BaseEvent):
 # %%
 class PointerSampledEvent(BaseEvent):
     event_type: Literal[EventTypeEnum.PointerSampledEvent] = EventTypeEnum.PointerSampledEvent
-    x: SpatialPoint
-    y: SpatialPoint
+    x: PixelPoint
+    y: PixelPoint
     kind: Literal["move", "down", "up"]
 
 

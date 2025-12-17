@@ -12,10 +12,10 @@ class Node(pydantic.BaseModel):
     type: Literal["Node"] = "Node"
     stimulus: Card | None = pydantic.Field(
         default=None,
-        description="The visual context presented to the Participant during this Node. If None, the Board will be blank (except for the background color).",
+        description="The visual context presented to the Agent during this Node. If None, the Board will be blank (except for the background color).",
     )
     sensor: Sensor = pydantic.Field(
-        description="The Action Set that the Participant must make a selection from to end this Node.",
+        description="The Action Set that the Agent must make a selection from to end this Node.",
     )
 
     board_color: ColorHexString = pydantic.Field(

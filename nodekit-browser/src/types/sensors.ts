@@ -1,7 +1,7 @@
-import type {PressableKey, SpatialSize, TimeDurationMsec} from "../value.ts";
-import type {Region} from "../region";
-import type {SliderBinIndex} from "../../board-view/sensor-bindings/slider";
-import type {Card} from "../cards";
+import type {PressableKey, PixelSize, TimeDurationMsec} from "./values.ts";
+import type {Region} from "./region";
+import type {SliderBinIndex} from "../board-view/sensor-bindings/slider";
+import type {Card} from "./cards";
 
 interface BaseSensor<T extends string> {
     sensor_type: T
@@ -40,7 +40,7 @@ export interface SliderSensor extends BaseSensor<'SliderSensor'>{
 
 export interface TextEntrySensor extends BaseSensor<'TextEntrySensor'>{
     prompt: string;
-    font_size: SpatialSize;
+    font_size: PixelSize;
     min_length: number;
     max_length: number | null;
     region: Region

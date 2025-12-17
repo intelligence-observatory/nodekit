@@ -7,9 +7,9 @@ import math
 
 # %%
 def make_fitts_trial(
-    target_size: float,
-    target_position: Tuple[float, float],
-    home_position: Tuple[float, float] = (0, 0),
+    target_size: int,
+    target_position: Tuple[int, int],
+    home_position: Tuple[int, int] = (0, 0),
 ) -> nk.Graph:
     background_color = "#ffffff"
     target_color = "#b8b8b8"
@@ -23,8 +23,8 @@ def make_fitts_trial(
                     region=nk.Region(
                         x=home_position[0],
                         y=home_position[1],
-                        w=0.05,
-                        h=0.05,
+                        w=50,
+                        h=50,
                     ),
                     text="",
                     background_color=target_color,
@@ -67,21 +67,22 @@ def make_fitts_trial(
 
 if __name__ == "__main__":
 
-    def sample_target_parameters(w: float) -> Tuple[float, float]:
+    def sample_target_parameters(w: int) -> Tuple[int, int]:
         # Maximum radius to keep target fully inside
-        r_max = 0.5 - w
+        r_max = 500 - w
 
         # Sample radius uniformly in area (sqrt)
-        r_min = 0.05
+        r_min = 50
         r = math.sqrt(random.uniform(r_min**2, r_max**2))
 
         theta = random.uniform(0, 2 * math.pi)
         x, y = r * math.cos(theta), r * math.sin(theta)
-
+        x = round(x)
+        y = round(y)
         return x, y
 
-    def sample_size() -> float:
-        return random.uniform(0.05, 0.15)
+    def sample_size() -> int:
+        return round(random.uniform(50, 150))
 
     random.seed(0)
     fitts_trials = []

@@ -29,7 +29,9 @@ Traditional psych tasks are implemented as bespoke spaghetti code: ad-hoc state 
 - `make build-browser`: build `nodekit-browser/` and copy bundle to `_static`.
 - `make build`: rebuild browser assets and run `uv build` for the package.
 - `make lint`: Ruff lint/format with fixes.
+- Use `make lint` to autofix lint/format issues instead of manual formatting.
 - `make check`: type-check (`ty`), Ruff lint, and formatting verification.
+- After code changes, run `make check` to verify type-checking and lint compliance.
 - `uv run pytest`: run tests in `tests/`; add `-k <pattern>` to scope.
 
 ## Coding Style, Schemas & Naming

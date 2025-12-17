@@ -18,7 +18,7 @@ def make_mts_trial(
     # Fixation node
     fixation_cross = nk.cards.ImageCard(
         image=nk.assets.Image.from_path("fixation-cross.svg"),
-        region=nk.Region(x=0, y=0, w=0.05, h=0.05),
+        region=nk.Region(x=0, y=0, w=50, h=50),
     )
 
     fixation_node = nk.Node(
@@ -26,10 +26,10 @@ def make_mts_trial(
     )
 
     # Stimulus node
-    stimulus_size = 0.375
+    stimulus_size = 375
     viewing_time_msec = 100
     post_stim_delay = 100
-    choice_size = 0.2
+    choice_size = 200
 
     stimulus_node = nk.Node(
         stimulus=nk.cards.ImageCard(
@@ -70,8 +70,8 @@ def make_mts_trial(
             region=nk.Region(
                 w=choice_size,
                 h=choice_size,
-                x=xcur,
-                y=ycur,
+                x=round(xcur),
+                y=round(ycur),
             ),
         )
         choice_cards[f"choice{i}"] = card
@@ -90,10 +90,10 @@ def make_mts_trial(
             region=nk.Region(
                 x=0,
                 y=0,
-                w=0.5,
-                h=0.5,
+                w=500,
+                h=500,
             ),
-            font_size=0.08,
+            font_size=80,
         ),
         sensor=nk.sensors.WaitSensor(duration_msec=1000),
     )
@@ -106,10 +106,10 @@ def make_mts_trial(
             region=nk.Region(
                 x=0,
                 y=0,
-                w=0.5,
-                h=0.5,
+                w=500,
+                h=500,
             ),
-            font_size=0.08,
+            font_size=80,
         ),
         sensor=nk.sensors.WaitSensor(duration_msec=300),
     )
@@ -186,6 +186,5 @@ if __name__ == "__main__":
         trials.append(trial)
 
     graph = nk.concat(trials)
-    nk.save_graph(graph, "mts-demo.nkg")
     sim = nk.simulate(graph)
     nk.play(graph)

@@ -4,33 +4,34 @@ import pydantic
 
 # %% Base Values
 
-# Containers
 type List = list["Value"]
 type Dict = dict[str, "Value"]
-# Full Value
 type LeafValue = bool | int | float | str
 type Value = LeafValue | List | Dict | None
 
 
 # %% Spatial
-type SpatialSize = Annotated[
-    float,
+type PixelSize = Annotated[
+    int,
     pydantic.Field(
         strict=True,
         ge=0,
-        le=1,
-        description="A spatial size relative to the smaller extent of the board (width or height, whichever is smaller). For example, a value of 0.5 corresponds to half the smaller extent of the board.",
+        description=("A spatial size in units of W3C reference pixels. "),
     ),
 ]
 
-type SpatialPoint = Annotated[float, pydantic.Field(strict=True, ge=-0.5, le=0.5)]
-
-type Mask = Annotated[
-    Literal["ellipse", "rectangle"],
+type PixelPoint = Annotated[
+    int,
     pydantic.Field(
-        description='Describes the shape of a region inside of a bounding box. "rectangle" uses the box itself; "ellipse" inscribes a tightly fitted ellipse within the box.'
+        strict=True,
+        ge=-512,
+        le=512,
+        description=(
+            "A spatial location relative to some origin, in units of W3C reference pixels."
+        ),
     ),
 ]
+
 
 # %% Time
 type TimeElapsedMsec = Annotated[
@@ -73,13 +74,7 @@ type ColorHexString = Annotated[
 ]
 
 # %% Keyboard
-PressableKey = Literal[
-    "Enter",
-    " ",
-    "ArrowDown",
-    "ArrowLeft",
-    "ArrowRight",
-    "ArrowUp",
+type PressableKey = Literal[
     "a",
     "b",
     "c",
@@ -116,6 +111,12 @@ PressableKey = Literal[
     "7",
     "8",
     "9",
+    "Enter",
+    " ",
+    "ArrowDown",
+    "ArrowLeft",
+    "ArrowRight",
+    "ArrowUp",
 ]
 
 # %% Assets
@@ -147,9 +148,14 @@ type RegisterId = Annotated[str, pydantic.Field(description="An identifier for a
 
 
 class Region(pydantic.BaseModel):
-    x: SpatialPoint
-    y: SpatialPoint
-    w: SpatialSize
-    h: SpatialSize
+    x: PixelPoint
+    y: PixelPoint
+    w: PixelSize
+    h: PixelSize
     z_index: int | None = None
-    mask: Mask = "rectangle"
+    mask: Annotated[
+        Literal["ellipse", "rectangle"],
+        pydantic.Field(
+            description='Describes the shape of a region inside of a bounding box. "rectangle" uses the box itself; "ellipse" inscribes a tightly fitted ellipse within the box.'
+        ),
+    ] = "rectangle"

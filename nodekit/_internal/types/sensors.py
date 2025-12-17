@@ -4,13 +4,13 @@ from typing import Literal, Annotated, Union, Self
 import pydantic
 
 from nodekit._internal.types.cards import Card
-from nodekit._internal.types.values import Region, PressableKey, SpatialSize, TimeDurationMsec
+from nodekit._internal.types.values import Region, PressableKey, PixelSize, TimeDurationMsec
 
 
 # %%
 class BaseSensor(pydantic.BaseModel, ABC):
     """
-    A Sensor is a listener for Participant behavior.
+    A Sensor is a listener for Agent behavior.
     When a Sensor is triggered, it emits an Action and optionally applies an Outcome.
     """
 
@@ -34,8 +34,14 @@ class WaitSensor(BaseSensor):
 class KeySensor(BaseSensor):
     sensor_type: Literal["KeySensor"] = "KeySensor"
     keys: list[PressableKey] = pydantic.Field(
-        description="The keys that triggers the Sensor when pressed down."
+        description="The keys that triggers the Sensor when pressed down.",
+        min_length=1,
     )
+
+    @pydantic.field_validator("keys", mode="after")
+    def canonicalize_keys(cls, keys: list[PressableKey]) -> list[PressableKey]:
+        unique_keys: set[PressableKey] = set(keys)
+        return sorted(unique_keys)
 
 
 # %%
@@ -88,9 +94,10 @@ class TextEntrySensor(BaseSensor):
         default="",
     )
 
-    font_size: SpatialSize = pydantic.Field(
+    font_size: PixelSize = pydantic.Field(
         description="The height of the em-box, in Board units.",
-        default=0.02,
+        default=20,
+        validate_default=True,
     )
 
     min_length: int = pydantic.Field(

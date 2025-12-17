@@ -2,9 +2,8 @@
 ::: nodekit.values.Dict
 ::: nodekit.values.LeafValue
 ::: nodekit.values.Value
-::: nodekit.values.SpatialSize
-::: nodekit.values.SpatialPoint
-::: nodekit.values.Mask
+::: nodekit.values.PixelSize
+::: nodekit.values.PixelPoint
 ::: nodekit.values.TimeElapsedMsec
 ::: nodekit.values.TimeDurationMsec
 ::: nodekit.values.MarkdownString

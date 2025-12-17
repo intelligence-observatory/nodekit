@@ -11,7 +11,7 @@ export interface Dict {
 }
 
 export type List = Value[];
-// DU
+
 export type LeafValue =
     | Boolean
     | Integer
@@ -26,10 +26,9 @@ export type Value =
 
 
 // Spatial
-export type SpatialSize = Float & { __brand: 'SpatialSize' };
-export type SpatialPoint = Float & { __brand: 'SpatialPoint' };
+export type PixelSize = Integer & { __brand: 'PixelSize' };
+export type PixelPoint = Float & { __brand: 'PixelPoint' };
 export type Mask = 'ellipse' | 'rectangle' & { __brand: 'Mask' };
-export type PixelSize = Integer & {__brand: 'PixelSize'};
 
 // Time
 export type TimeElapsedMsec = Integer & { __brand: 'TimeElapsedMsec' };

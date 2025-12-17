@@ -2,7 +2,7 @@ from collections import defaultdict, deque
 from typing import List, Tuple
 
 from nodekit import Graph
-from nodekit._internal.types.transition import IfThenElse, Switch, End, Go, Transition
+from nodekit._internal.types.transitions import IfThenElse, Switch, End, Go, Transition
 from nodekit._internal.types.values import NodeId
 
 

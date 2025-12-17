@@ -1,4 +1,4 @@
-import type {SHA256} from "../value.ts";
+import type {SHA256} from "../values.ts";
 
 
 // Locator

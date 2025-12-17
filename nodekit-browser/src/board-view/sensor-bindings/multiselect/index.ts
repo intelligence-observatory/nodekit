@@ -1,4 +1,4 @@
-import type {MultiSelectSensor} from "../../../types/sensors";
+import type {MultiSelectSensor} from "../../../types/sensors.ts";
 import {SensorBinding} from "../index.ts";
 import type {MultiSelectAction} from "../../../types/actions.ts";
 import type {PointerSample} from "../../../input-streams/pointer-stream.ts";
@@ -85,6 +85,12 @@ export class MultiSelectSensorBinding extends SensorBinding<MultiSelectSensor> {
             if (confirmed){
                 return
             }
+
+            // Return early if not pointer down
+            if (pointerSample.sampleType !== 'down'){
+                return
+            }
+
             const atMax = currentSelections.size >= maxSelections;
             let changed = false;
 
@@ -99,6 +105,7 @@ export class MultiSelectSensorBinding extends SensorBinding<MultiSelectSensor> {
                 if (!inside) {
                     continue;
                 }
+
 
                 const isSelected = currentSelections.has(cardId);
 

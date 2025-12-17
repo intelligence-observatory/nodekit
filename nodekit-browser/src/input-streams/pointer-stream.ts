@@ -1,4 +1,4 @@
-import type {SpatialPoint, TimeElapsedMsec} from "../types/value.ts";
+import type {PixelPoint, TimeElapsedMsec} from "../types/values.ts";
 import {BoardCoordinateSystem} from "../board-view/board-view.ts";
 import type {Clock} from "../clock.ts";
 
@@ -6,8 +6,8 @@ type PointerSampleType = 'move' | 'down' | 'up';
 
 export interface PointerSample {
     sampleType: PointerSampleType
-    x: SpatialPoint // In Board convention units
-    y: SpatialPoint
+    x: PixelPoint // In Board coordinate system
+    y: PixelPoint
     t: TimeElapsedMsec
 }
 

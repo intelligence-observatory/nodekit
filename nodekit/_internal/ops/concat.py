@@ -2,7 +2,7 @@ import collections
 
 from nodekit._internal.types.graph import Graph
 from nodekit._internal.types.node import Node
-from nodekit._internal.types.transition import End, Go, Transition
+from nodekit._internal.types.transitions import End, Go, Transition
 from nodekit._internal.types.values import NodeId
 
 

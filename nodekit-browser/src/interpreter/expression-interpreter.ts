@@ -1,4 +1,4 @@
-import type {List, RegisterId, Value} from "../types/value.ts";
+import type {List, RegisterId, Value} from "../types/values.ts";
 import type {Action} from "../types/actions.ts";
 import type {Expression, LocalVariableName} from "../types/expressions/expressions.ts";
 
