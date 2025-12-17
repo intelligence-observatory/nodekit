@@ -49,7 +49,7 @@ impl Card {
             cards.append(&mut cs?);
         }
         // Set the rendering order.
-        cards.sort_by(|a, b| a.region.z_index.cmp(&b.region.z_index));
+        Self::sort(&mut cards);
         Ok(cards)
     }
 
@@ -63,6 +63,10 @@ impl Card {
             })),
             None => Ok(None)
         }
+    }
+
+    pub fn sort(cards: &mut Vec<Self>) {
+        cards.sort_by(|a, b| a.region.z_index.cmp(&b.region.z_index));
     }
 
     /// Extract an item in a list of cards.

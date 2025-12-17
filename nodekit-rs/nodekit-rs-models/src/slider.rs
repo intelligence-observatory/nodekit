@@ -9,7 +9,7 @@ pub enum SliderOrientation {
 
 pub struct Slider {
     pub num_bins: usize,
-    pub bin_index: usize,
+    pub bin: usize,
     pub show_bin_markers: bool,
     pub orientation: SliderOrientation,
 }
@@ -28,7 +28,7 @@ impl FromPyObject<'_, '_> for Slider {
         }?;
         Ok(Self {
             num_bins,
-            bin_index,
+            bin: bin_index,
             show_bin_markers,
             orientation,
         })
