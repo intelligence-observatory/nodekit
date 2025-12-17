@@ -6,7 +6,6 @@ import nodekit as nk
 from nodekit._internal.types.value import NodeId
 
 
-
 def RGB_to_hex(RGB: tuple[int, int, int]) -> str:
     return "#%02x%02x%02x" % RGB
 
@@ -45,6 +44,7 @@ def get_random_trials(
         high_path = f"{directory}{ill}_{high_lum}.png"
 
         # randomize which side gets the brighter image
+        correct_side: Side | None = None
         if np.random.randint(2) == 0:
             left_path, right_path = low_path, high_path
             correct_side = "right"
@@ -54,7 +54,9 @@ def get_random_trials(
 
         trials.append(
             TrialSpec(
-                left_path=left_path, right_path=right_path, correct_side=correct_side
+                left_path=left_path,
+                right_path=right_path,
+                correct_side=correct_side
             )
         )
     return trials
