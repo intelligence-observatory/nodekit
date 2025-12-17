@@ -6,12 +6,6 @@ import nodekit as nk
 from nodekit._internal.types.value import NodeId
 
 
-def normalize_image(image: np.ndarray) -> np.ndarray:
-    min_val = np.min(image)
-    max_val = np.max(image)
-    normalized = (image - min_val) / (max_val - min_val)
-    return normalized
-
 
 def RGB_to_hex(RGB: tuple[int, int, int]) -> str:
     return "#%02x%02x%02x" % RGB
