@@ -90,8 +90,17 @@ def build_3stage_graph(
                 image=nk.assets.Image.from_path(mask),
                 region=nk.Region(x=0, y=0, w=stim_size, h=stim_size),
             )
+            instruction_card = nk.cards.TextCard(
+                text=f"""Compare the green region in both images and select the one that appears brighter.
+                         Press space to continue.""",
+                text_color="#60C9AF",
+                region=nk.Region(x=0, y=0.3, w=1.0, h=0.2),
+                font_size=0.05,
+            )
+            children: Dict[str, nk.cards.Card] = {"mask": mask_card, "instruction": instruction_card}
+
             nodes[key(stage, t, "mask")] = nk.Node(
-                stimulus=mask_card,
+                stimulus=nk.cards.CompositeCard(children=children),
                 sensor=nk.sensors.KeySensor(keys=[" "])
             )
 
@@ -108,7 +117,8 @@ def build_3stage_graph(
                 region=right_region,
             )
             key_card = nk.cards.TextCard(
-                text=f"trial {key(stage, t, "stim")}: Press ← for left, → for right",
+                text=f"""trial {key(stage, t, "stim")} 
+                        Press ← for left, → for right""",
                 text_color="#FFFFFF",
                 region=nk.Region(x=0, y=0.4, w=0.8, h=0.2),
                 font_size=0.05,
