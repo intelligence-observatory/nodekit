@@ -7,9 +7,11 @@ mod rgb_buffer;
 mod rgba_buffer;
 mod unclipped_rect;
 mod visual_buffer;
+mod borrowed_rgba_buffer;
 
 use blittle::Size;
 use blittle::stride::RGBA;
+pub use borrowed_rgba_buffer::*;
 pub use board::*;
 pub use cursor::Cursor;
 pub use error::Error;

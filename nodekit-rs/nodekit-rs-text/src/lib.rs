@@ -1,20 +1,20 @@
 mod error;
 mod md;
 mod text_buffers;
+mod text_entry_buffers;
+mod gutter;
 
 use blittle::{ClippedRect, PositionI, Size};
 use cosmic_text::fontdb::Source;
 use cosmic_text::{Align, Attrs, Buffer, Color, Family, FontSystem, Metrics, Shaping, SwashCache};
 pub use error::Error;
 use md::{FontSize, parse};
-use nodekit_rs_models::{JustificationHorizontal, JustificationVertical, Region, TextCard};
-use nodekit_rs_visual::{
-    BOARD_D_F64, BOARD_SIZE, RgbBuffer, RgbaBuffer, UnclippedRect, VisualBuffer, bitmap_rgb,
-    parse_color_rgba,
-};
+use nodekit_rs_models::{JustificationHorizontal, JustificationVertical, Region, TextCard, TextEntry};
+use nodekit_rs_visual::{BOARD_D_F64, BOARD_SIZE, RgbBuffer, RgbaBuffer, UnclippedRect, VisualBuffer, bitmap_rgb, parse_color_rgba};
 use pyo3::pyclass;
 use std::sync::Arc;
 pub use text_buffers::TextBuffers;
+use crate::text_entry_buffers::TextEntryBuffers;
 
 #[pyclass]
 pub struct TextEngine {
@@ -23,7 +23,7 @@ pub struct TextEngine {
 }
 
 impl TextEngine {
-    pub fn render(
+    pub fn render_text_card(
         &mut self,
         text_card: &TextCard,
         region: &Region,
@@ -54,6 +54,50 @@ impl TextEngine {
                         self.get_text(text_card, font_size, rect, background_rect.src_size)?;
                 }
                 Ok(Some(text_buffers))
+            }
+        }
+    }
+
+    pub fn render_text_entry(&mut self,
+                             text_entry: &TextEntry,
+                             region: &Region) -> Result<Option<TextEntryBuffers>, Error> {
+        const PADDING: usize = 8;
+
+        match UnclippedRect::new(region).into_clipped_rect(BOARD_SIZE) {
+            None => Ok(None),
+            Some(background_rect ) => {
+                // Get the font sizes.
+                let font_size = FontSize::new((text_entry.font_size * BOARD_D_F64).ceil() as u16);
+
+                // Get the size of the text buffer.
+                // Apply padding.
+                let mut text_size = background_rect.src_size;
+                text_size.w -= PADDING;
+                text_size.h -= PADDING;
+
+                // Render text.
+                match ClippedRect::new(PositionI::default(), BOARD_SIZE, text_size) {
+                    None => Ok(None),
+                    Some(rect) => {
+                        // Create a text card.
+                        let (text, text_color) = if text_entry.text.is_empty() {
+                            (text_entry.prompt.clone(), "#DCDCDCFF")
+                        } else {
+                            (text_entry.text.clone(), "#000000FF")
+                        };
+                        let text_card = TextCard {
+                            text,
+                            font_size: text_entry.font_size,
+                            justification_vertical: JustificationVertical::Top,
+                            justification_horizontal: JustificationHorizontal::Left,
+                            text_color: text_color.to_string(),
+                            background_color: "#00000000".to_string(),
+                        };
+                        // Render.
+                        let text = self.get_text(&text_card, font_size, rect, background_rect.src_size)?;
+                        Ok(Some(TextEntryBuffers::new(text, background_rect)))
+                    }
+                }
             }
         }
     }
@@ -243,7 +287,7 @@ mod tests {
         // Render the text.
         let mut text = TextEngine::default();
         let mut board = Board::new([200, 200, 200]);
-        let text_buffer = text.render(&card, &region).unwrap().unwrap();
+        let text_buffer = text.render_text_card(&card, &region).unwrap().unwrap();
         text_buffer.blit(&mut board);
         // Write the result as a .png file.
         nodekit_rs_png::board_to_png("out.png", board.get_board_without_cursor());

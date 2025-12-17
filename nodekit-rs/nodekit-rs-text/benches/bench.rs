@@ -17,7 +17,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     let mut text = TextEngine::default();
     c.bench_function("text rendering", |b| {
         b.iter(|| {
-            text.render(&card, &region).unwrap();
+            text.render_text_card(&card, &region).unwrap();
         })
     });
 }

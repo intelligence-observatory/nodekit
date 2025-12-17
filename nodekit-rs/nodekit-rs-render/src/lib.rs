@@ -206,7 +206,7 @@ impl Renderer {
                 CardType::Text(text_card) => {
                     if let Some(buffers) = self
                         .text_engine
-                        .render(text_card, &card.region)
+                        .render_text_card(text_card, &card.region)
                         .map_err(Error::Text)?
                     {
                         self.assets.insert(card_key, Asset::Text(buffers));
