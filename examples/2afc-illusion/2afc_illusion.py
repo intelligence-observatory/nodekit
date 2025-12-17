@@ -1,10 +1,10 @@
 import numpy as np
-import os
 from dataclasses import dataclass
 from typing import Dict, List, Literal
 
 import nodekit as nk
 from nodekit._internal.types.value import NodeId
+
 
 def normalize_image(image: np.ndarray) -> np.ndarray:
     min_val = np.min(image)
@@ -12,19 +12,28 @@ def normalize_image(image: np.ndarray) -> np.ndarray:
     normalized = (image - min_val) / (max_val - min_val)
     return normalized
 
+
 def RGB_to_hex(RGB: tuple[int, int, int]) -> str:
     return "#%02x%02x%02x" % RGB
 
 
 Side = Literal["left", "right"]
+
+
 @dataclass(frozen=True)
 class TrialSpec:
     left_path: str
     right_path: str
     correct_side: Side
 
-def get_random_trials(ill_names: List[str], lum_levels: List[str], n_trials: int, gap: int, directory="illusion_images/") -> List[TrialSpec]:
 
+def get_random_trials(
+    ill_names: List[str],
+    lum_levels: List[str],
+    n_trials: int,
+    gap: int,
+    directory="illusion_images/",
+) -> List[TrialSpec]:
     # Get the maximum index for the low luminance level with gap in mind
     max_low = len(lum_levels) - gap
 
@@ -49,19 +58,23 @@ def get_random_trials(ill_names: List[str], lum_levels: List[str], n_trials: int
             left_path, right_path = high_path, low_path
             correct_side = "left"
 
-        trials.append(TrialSpec(left_path=left_path, right_path=right_path, correct_side=correct_side))
+        trials.append(
+            TrialSpec(
+                left_path=left_path, right_path=right_path, correct_side=correct_side
+            )
+        )
     return trials
 
-def build_3stage_graph(
-        s1: List[TrialSpec], 
-        s2: List[TrialSpec], 
-        s3: List[TrialSpec],
-        *,
-        stim_size: float = 0.4,
-        reward_msec: int = 500,
-        punish_msec: int = 500,
-    ) -> nk.Graph:
 
+def build_3stage_graph(
+    s1: List[TrialSpec],
+    s2: List[TrialSpec],
+    s3: List[TrialSpec],
+    *,
+    stim_size: float = 0.4,
+    reward_msec: int = 500,
+    punish_msec: int = 500,
+) -> nk.Graph:
     if not (len(s1) == len(s2) == len(s3)):
         raise ValueError("s1, s2, s3 must have the same length")
     N = len(s1)
@@ -80,10 +93,8 @@ def build_3stage_graph(
     nodes: Dict[NodeId, nk.Node | nk.Graph] = {}
 
     for stage in (1, 2, 3):
-
         for t, spec in enumerate(stage_specs[stage]):
-            
-            mask = f"illusion_images/{spec.left_path.split("/")[-1].split("_")[0]}-mask.png"
+            mask = f"illusion_images/{spec.left_path.split('/')[-1].split('_')[0]}-mask.png"
 
             # mask
             mask_card = nk.cards.ImageCard(
@@ -91,17 +102,20 @@ def build_3stage_graph(
                 region=nk.Region(x=0, y=0, w=stim_size, h=stim_size),
             )
             instruction_card = nk.cards.TextCard(
-                text=f"""Compare the green region in both images and select the one that appears brighter.
+                text="""Compare the green region in both images and select the one that appears brighter.
                          Press space to continue.""",
                 text_color="#60C9AF",
                 region=nk.Region(x=0, y=0.3, w=1.0, h=0.2),
                 font_size=0.05,
             )
-            children: Dict[str, nk.cards.Card] = {"mask": mask_card, "instruction": instruction_card}
+            children: Dict[str, nk.cards.Card] = {
+                "mask": mask_card,
+                "instruction": instruction_card,
+            }
 
             nodes[key(stage, t, "mask")] = nk.Node(
                 stimulus=nk.cards.CompositeCard(children=children),
-                sensor=nk.sensors.KeySensor(keys=[" "])
+                sensor=nk.sensors.KeySensor(keys=[" "]),
             )
 
             # stimulus pair
@@ -124,7 +138,11 @@ def build_3stage_graph(
                 font_size=0.05,
             )
 
-            children: Dict[str, nk.cards.Card] = {"left": left_card, "right": right_card, "key": key_card}
+            children: Dict[str, nk.cards.Card] = {
+                "left": left_card,
+                "right": right_card,
+                "key": key_card,
+            }
 
             nodes[key(stage, t, "stim")] = nk.Node(
                 stimulus=nk.cards.CompositeCard(children=children),
@@ -133,13 +151,21 @@ def build_3stage_graph(
 
             # feedback
             nodes[key(stage, t, "reward")] = nk.Node(
-                stimulus=nk.cards.TextCard(text="Correct!", text_color="#3232c8",
-                                           region=nk.Region(x=0, y=0, w=0.6, h=0.3), font_size=0.08),
+                stimulus=nk.cards.TextCard(
+                    text="Correct!",
+                    text_color="#3232c8",
+                    region=nk.Region(x=0, y=0, w=0.6, h=0.3),
+                    font_size=0.08,
+                ),
                 sensor=nk.sensors.WaitSensor(duration_msec=reward_msec),
             )
             nodes[key(stage, t, "punish")] = nk.Node(
-                stimulus=nk.cards.TextCard(text="Incorrect.", text_color="#c80000",
-                                           region=nk.Region(x=0, y=0, w=0.6, h=0.3), font_size=0.08),
+                stimulus=nk.cards.TextCard(
+                    text="Incorrect.",
+                    text_color="#c80000",
+                    region=nk.Region(x=0, y=0, w=0.6, h=0.3),
+                    font_size=0.08,
+                ),
                 sensor=nk.sensors.WaitSensor(duration_msec=punish_msec),
             )
 
@@ -157,7 +183,9 @@ def build_3stage_graph(
 
             pressed_key = nk.expressions.GetDictValue(
                 d=nk.expressions.LastAction(),
-                key=nk.expressions.Lit(value="key"),  # change if your KeySensor uses a different field
+                key=nk.expressions.Lit(
+                    value="key"
+                ),  # change if your KeySensor uses a different field
             )
             correct_key = nk.expressions.Lit(
                 value="ArrowLeft" if spec.correct_side == "left" else "ArrowRight"
@@ -175,7 +203,9 @@ def build_3stage_graph(
 
             # correct: S1(t) progress to S2(t), S2(t) progress to S3(t), S3(t) ends
             transitions[reward] = (
-                nk.transitions.Go(to=key(stage + 1, t, "mask")) if stage < 3 else nk.transitions.End()
+                nk.transitions.Go(to=key(stage + 1, t, "mask"))
+                if stage < 3
+                else nk.transitions.End()
             )
 
     return nk.Graph(nodes=nodes, transitions=transitions, start=key(1, 0, "mask"))
