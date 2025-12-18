@@ -1,11 +1,13 @@
-import numpy as np
 from dataclasses import dataclass
 from typing import Dict, List, Literal
 
 import nodekit as nk
 from nodekit._internal.types.value import NodeId
 
+import random
 
+
+# %%
 def RGB_to_hex(RGB: tuple[int, int, int]) -> str:
     return "#%02x%02x%02x" % RGB
 
@@ -26,18 +28,20 @@ def get_random_trials(
         lum_levels: List[str],
         n_trials: int,
         gap: int,
+        seed: int,
         directory="illusion_images/",
 ) -> List[TrialSpec]:
     # Get the maximum index for the low luminance level with gap in mind
     max_low = len(lum_levels) - gap
 
+    rng = random.Random(seed)
     trials = []
     for _ in range(n_trials):
         # randomly select illusion
-        ill = np.random.choice(ill_names)
+        ill = rng.choice(ill_names)
 
         # randomly select low luminance level
-        i_low = np.random.randint(0, max_low)
+        i_low = rng.randint(0, max_low - 1)
         low_lum = lum_levels[i_low]
         high_lum = lum_levels[i_low + gap]
 
@@ -46,7 +50,7 @@ def get_random_trials(
 
         # randomize which side gets the brighter image
         correct_side: Side | None = None
-        if np.random.randint(2) == 0:
+        if rng.random() < 0.5:
             left_path, right_path = low_path, high_path
             correct_side = "right"
         else:
