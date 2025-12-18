@@ -14,25 +14,25 @@ graph = ...
 
 Play your task in your web browser: 
 ```python
-run = nk.play(graph)
+behavior = nk.play(graph)
 ```
 
 Treat your task as a model environment:
 ```python
-run = nk.simulate(graph, model)
+behavior = nk.simulate(graph, model)
 ```
 
-Build your task into a ready-to-deploy static website for Mechanical Turk:  
+Build your task into a ready-to-deploy static website:  
 ```python
-nk.build_site(graph, 'my-task')
+site = nk.build_site(graph, 'my-task')
 ```
 
 
 ## Why NodeKit?
 
 - **No HTML/JavaScript/CSS.** Instead, do everything in Python.
-- **Share reproducible tasks**, not Methods sections and website source code
-- **Fair comparisons between models and humans.** 
+- **Share reproducible tasks** instead of Methods sections and website source code
+- **Run fair comparisons between models and humans** 
 
 ## Why not NodeKit?
 
