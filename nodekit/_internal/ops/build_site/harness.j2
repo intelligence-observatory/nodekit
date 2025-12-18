@@ -11,118 +11,181 @@
 
 
     <script>
-        function tryInferTurkContext() {
+        function getSubmissionContext() {
             if (typeof window === "undefined" || !window.location) {
-                return null
-            }
-
-            const params = new URLSearchParams(window.location.search);
-
-            // MTurk-style query params
-            const assignmentId = params.get("assignmentId");
-            const hitId = params.get("hitId");
-            const workerId = params.get("workerId");
-            const turkSubmitTo = params.get("turkSubmitTo");
-
-            const looksLikeMTurk =
-                assignmentId !== null ||
-                hitId !== null ||
-                workerId !== null ||
-                turkSubmitTo !== null;
-
-            if (!looksLikeMTurk) {
-                return null
-            }
-
-            // Preview mode per MTurk docs: assignmentId is present and equals this sentinel.
-            const PREVIEW_SENTINEL = "ASSIGNMENT_ID_NOT_AVAILABLE";
-            const preview_mode = assignmentId === PREVIEW_SENTINEL;
-
-            if (preview_mode) {
                 return {
-                    previewMode: true,
-                    context: null,
+                    submitTo: null,
+                    traceId: null,
                 };
             }
 
-            // Not previewing → require all fields
-            if (!turkSubmitTo || !hitId || !assignmentId || !workerId) {
-                const e = new Error("Missing required parameters in the query for MTurk platform.");
-                e.name = "BadPlatformContextError";
-                throw e;
-            }
-
+            const params = new URLSearchParams(window.location.search);
             return {
-                previewMode: false,
-                context: {
-                    assignmentId: assignmentId,
-                    turkSubmitTo: turkSubmitTo,
-                    workerId: workerId,
-                },
+                submitTo: params.get("submitTo"),
+                traceId: params.get("traceId"),
             };
         }
     </script>
     <script>
-        function addPreviewSplash(){
-            if (typeof window === "undefined" || !window.location) {
+        function showOverlay({ title, message, details, showCopy = true }) {
+            if (typeof window === "undefined" || !window.document) {
                 return null
             }
-            const div = document.createElement('div');
-            div.textContent = 'Preview Mode. Accept the HIT to continue.';
-            Object.assign(div.style, {
-                position: 'fixed',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                padding: '1.5rem 2rem',
-                background: 'white',
-                border: '2px solid #ccc',
-                borderRadius: '8px',
-                fontFamily: 'sans-serif',
-                fontSize: '1.2rem',
-                textAlign: 'center',
-                boxShadow: '0 0 2px rgba(0,0,0,0.2)',
+
+            const existing = document.getElementById("nk-overlay");
+            if (existing) {
+                existing.remove();
+            }
+
+            const overlay = document.createElement("div");
+            overlay.id = "nk-overlay";
+            Object.assign(overlay.style, {
+                position: "fixed",
+                inset: "0",
+                background: "rgba(250, 250, 250, 0.98)",
+                color: "#111",
+                fontFamily: "sans-serif",
+                padding: "2rem",
+                overflow: "auto",
+                zIndex: "9999",
             });
-            document.body.appendChild(div);
+
+            const card = document.createElement("div");
+            Object.assign(card.style, {
+                maxWidth: "720px",
+                margin: "10vh auto",
+                background: "white",
+                border: "1px solid #ddd",
+                borderRadius: "10px",
+                padding: "1.5rem",
+                boxShadow: "0 6px 24px rgba(0,0,0,0.08)",
+            });
+
+            const titleEl = document.createElement("div");
+            titleEl.textContent = title;
+            Object.assign(titleEl.style, {
+                fontSize: "1.4rem",
+                fontWeight: "600",
+                marginBottom: "0.75rem",
+            });
+
+            const messageEl = document.createElement("div");
+            messageEl.textContent = message;
+            Object.assign(messageEl.style, {
+                marginBottom: "1rem",
+                lineHeight: "1.5",
+            });
+
+            card.appendChild(titleEl);
+            card.appendChild(messageEl);
+
+            let detailsEl = null;
+            if (details) {
+                detailsEl = document.createElement("textarea");
+                detailsEl.readOnly = true;
+                detailsEl.value = details;
+                Object.assign(detailsEl.style, {
+                    width: "100%",
+                    minHeight: "220px",
+                    fontFamily: "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+                    fontSize: "0.85rem",
+                    border: "1px solid #ddd",
+                    borderRadius: "6px",
+                    padding: "0.75rem",
+                    boxSizing: "border-box",
+                    background: "#fafafa",
+                    color: "#111",
+                });
+                card.appendChild(detailsEl);
+            }
+
+            if (showCopy && detailsEl) {
+                const btn = document.createElement("button");
+                btn.textContent = "Copy error report";
+                Object.assign(btn.style, {
+                    marginTop: "0.75rem",
+                    padding: "0.6rem 0.9rem",
+                    borderRadius: "6px",
+                    border: "1px solid #ccc",
+                    background: "#f4f4f4",
+                    cursor: "pointer",
+                });
+                btn.onclick = async () => {
+                    detailsEl.select();
+                    detailsEl.setSelectionRange(0, detailsEl.value.length);
+                    try {
+                        await navigator.clipboard.writeText(detailsEl.value);
+                        btn.textContent = "Copied";
+                        setTimeout(() => {
+                            btn.textContent = "Copy error report";
+                        }, 1500);
+                    } catch (e) {
+                        btn.textContent = "Copy failed";
+                    }
+                };
+                card.appendChild(btn);
+            }
+
+            overlay.appendChild(card);
+            document.body.appendChild(overlay);
+        }
+
+        function formatErrorReport(err, context) {
+            const parts = [];
+            parts.push("NodeKit Error Report");
+            parts.push(`timestamp: ${new Date().toISOString()}`);
+            parts.push(`url: ${typeof window !== "undefined" ? window.location.href : "unknown"}`);
+            parts.push(`userAgent: ${typeof navigator !== "undefined" ? navigator.userAgent : "unknown"}`);
+            parts.push(`context: ${JSON.stringify(context ?? null, null, 2)}`);
+
+            if (err) {
+                const name = err.name || "Error";
+                const message = err.message || String(err);
+                parts.push(`errorName: ${name}`);
+                parts.push(`errorMessage: ${message}`);
+                if (err.stack) {
+                    parts.push("stack:");
+                    parts.push(err.stack);
+                }
+            } else {
+                parts.push("error: unknown");
+            }
+
+            return parts.join("\n");
         }
     </script>
 
     <script>
-        function submitToTurk(
+        async function submitTrace(
             trace,
-            assignmentId,
-            turkSubmitTo,
+            submitTo,
+            traceId,
         ){
-            // Submission procedure for Mechanical Turk. See: https://docs.aws.amazon.com/AWSMechTurk/latest/AWSMechanicalTurkRequester/mturk-hits-defining-questions-html-javascript.html
-            // Note the following undocumented gotcha: the form must have at least one input element other than assignmentId, otherwise
-            // Mechanical Turk will not accept the submission. Here, we have the input element `sessionId`, which satisfies this requirement.
+            if (!submitTo) {
+                return;
+            }
 
-            // Get context variables:
+            const payload = {
+                trace: trace,
+                trace_id: traceId,
+            };
 
-            // create the form element and point it to the correct endpoint
-            const form = document.createElement('form')
-            form.action = (new URL('mturk/externalSubmit', turkSubmitTo)).href
-            form.method = 'post'
+            const response = await fetch(submitTo, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(payload),
+            });
 
-            // attach the assignmentId
-            const inputAssignmentId = document.createElement('input')
-            inputAssignmentId.name = 'assignmentId'
-            inputAssignmentId.value = assignmentId
-            inputAssignmentId.hidden = true
-            form.appendChild(inputAssignmentId)
-
-            // attach a runId to allow for Experimenters to map HITs to Sessions
-            const inputRunId = document.createElement('input')
-            inputRunId.name = 'trace';
-            inputRunId.value = JSON.stringify(trace);
-            inputRunId.hidden = true;
-            form.appendChild(inputRunId)
-
-            // attach the form to the HTML document and trigger submission
-            document.body.appendChild(form)
-
-            // Submit the form
-            form.submit()
+            if (!response.ok) {
+                const bodyText = await response.text();
+                const error = new Error(`Submission failed with status ${response.status}`);
+                error.name = "SubmissionError";
+                error.responseStatus = response.status;
+                error.responseBody = bodyText;
+                throw error;
+            }
         }
     </script>
 
@@ -130,26 +193,30 @@
         const graph = {{ graph | tojson(indent=4) | indent(8, first=False) }};
 
         window.onload = async () => {
-            // Infer the context:
-            const turkContext = tryInferTurkContext()
+            try {
+                const submissionContext = getSubmissionContext()
 
-            // Guard execution if in preview mode
-            if (turkContext && turkContext.previewMode === true){
-                // Add a simple, centered div in the middle of the page stating: "Preview Mode. Accept the HIT to continue."
-                addPreviewSplash()
-                return
-            }
+                // Play the Graph:
+                const trace = await NodeKit.play(graph);
 
-            // Play the Graph:
-            const trace = await NodeKit.play(graph);
-
-            // Handle close down procedures, based on the inferred context:
-            if(turkContext && turkContext.previewMode === false){
-                submitToTurk(
+                // Handle close down procedures, based on the inferred context:
+                await submitTrace(
                     trace,
-                    turkContext.context.assignmentId,
-                    turkContext.context.turkSubmitTo,
+                    submissionContext.submitTo,
+                    submissionContext.traceId,
                 )
+            } catch (err) {
+                const context = {
+                    submissionContext: getSubmissionContext(),
+                };
+
+                const report = formatErrorReport(err, context);
+                showOverlay({
+                    title: "Something went wrong",
+                    message: "Please copy the error report below and email it to the requester.",
+                    details: report,
+                    showCopy: true,
+                });
             }
         };
     </script>
