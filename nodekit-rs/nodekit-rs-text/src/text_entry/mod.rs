@@ -12,14 +12,14 @@ const CORNER_ISIZE: isize = CORNER_SIZE.cast_signed();
 /// The height of the gutter, minus `CORNER_SIZE`.
 const GUTTER_HEIGHT: usize = 44;
 
-pub struct TextEntryBuffers<'t> {
-    pub text_box: TextBox<'t>,
+pub struct TextEntryBuffers {
+    pub text_box: TextBox,
     pub text: Option<RgbaBuffer>,
-    pub gutter: Gutter<'t>,
+    pub gutter: Gutter,
     pub rect: ClippedRect,
 }
 
-impl TextEntryBuffers<'_> {
+impl TextEntryBuffers {
     pub fn new(text: Option<RgbaBuffer>, rect: ClippedRect) -> Self {
         let text_box_h = rect.src_size.h - GUTTER_HEIGHT;
         let text_box = TextBox::new(

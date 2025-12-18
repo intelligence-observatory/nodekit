@@ -17,16 +17,16 @@ lazy_static! {
 const COLOR: [u8; 3] = [255; 3];
 
 /// The background of a TextEntry card.
-pub struct TextBox<'t> {
+pub struct TextBox {
     /// Northwest corner.
-    nw: Option<BorrowedRgbaBuffer<'t>>,
+    nw: Option<BorrowedRgbaBuffer<'static>>,
     /// Northeast corner.
-    ne: Option<BorrowedRgbaBuffer<'t>>,
+    ne: Option<BorrowedRgbaBuffer<'static>>,
     header: Option<RgbBuffer>,
     body: Option<RgbBuffer>,
 }
 
-impl TextBox<'_> {
+impl TextBox {
     pub fn new(position: PositionI, size: Size) -> Self {
         // Get the corners.
         let nw = corner(&NW, position.x, position.y);

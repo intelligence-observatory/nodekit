@@ -13,18 +13,18 @@ lazy_static! {
     static ref SE: Vec<Vec4> = rgba8_to_rgba32(include_bytes!("../../text_entry/gutter_se.raw"));
 }
 
-pub struct Gutter<'g> {
+pub struct Gutter {
     /// Southwest corner.
-    sw: Option<BorrowedRgbaBuffer<'g>>,
+    sw: Option<BorrowedRgbaBuffer<'static>>,
     /// Southeast corner.
-    se: Option<BorrowedRgbaBuffer<'g>>,
+    se: Option<BorrowedRgbaBuffer<'static>>,
     /// The body above the corners.
     body: Option<RgbBuffer>,
     /// The rectangle between the corners.
     footer: Option<RgbBuffer>,
 }
 
-impl Gutter<'_> {
+impl Gutter {
     pub fn new(position: PositionI, width: usize) -> Self {
         // Get the corners.
         let corner_y = position.y + GUTTER_HEIGHT.cast_signed();

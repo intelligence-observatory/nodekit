@@ -18,6 +18,7 @@ use nodekit_rs_visual::{
 use pyo3::pyclass;
 use std::sync::Arc;
 pub use text_buffers::TextBuffers;
+pub use text_entry::TextEntryBuffers;
 use text_entry::*;
 
 #[pyclass]
@@ -66,7 +67,7 @@ impl TextEngine {
         &mut self,
         text_entry: &TextEntry,
         region: &Region,
-    ) -> Result<Option<TextEntryBuffers<'_>>, Error> {
+    ) -> Result<Option<TextEntryBuffers>, Error> {
         match UnclippedRect::new(region).into_clipped_rect(BOARD_SIZE) {
             None => Ok(None),
             Some(background_rect) => {

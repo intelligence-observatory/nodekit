@@ -26,6 +26,9 @@ macro_rules! render_asset {
             Asset::Text(text) => {
                 text.blit(&mut $self.board);
             }
+            Asset::TextEntry(text) => {
+                text.blit(&mut $self.board);
+            }
             Asset::Video(video) => {
                 video.get_frame($state.t_msec).map_err(Error::Video)?;
                 $self.board.blit_rgb(&video.rgb_buffer);
@@ -212,6 +215,16 @@ impl Renderer {
                         self.assets.insert(card_key, Asset::Text(buffers));
                     }
                 }
+                CardType::TextEntry(text_entry) => {
+                    if let Some(buffers) = self
+                        .text_engine
+                        .render_text_entry(text_entry, &card.region)
+                        .map_err(Error::Text)?
+                    {
+                        self.assets
+                            .insert(card_key, Asset::TextEntry(Box::new(buffers)));
+                    }
+                }
                 CardType::Video { asset, looped: _ } => {
                     if let Some(video) =
                         nodekit_rs_video::Video::new(asset, &card.region).map_err(Error::Video)?
@@ -219,6 +232,7 @@ impl Renderer {
                         self.assets.insert(card_key, Asset::Video(video));
                     }
                 }
+                CardType::Slider(_) => todo!("Cache the slider"),
             }
         }
         Ok(())
@@ -256,7 +270,23 @@ mod tests {
     fn test_render() {
         let cards = vec![image_card(), video_card(), text_card()];
 
-        let mut state = State::new_inner("#AAAAAAFF".to_string(), cards);
+        let sensor = Card {
+            card_type: CardType::TextEntry(TextEntry {
+                prompt: String::new(),
+                text: include_str!("../../nodekit-rs-text/lorem.txt").to_string(),
+                font_size: 0.02,
+            }),
+            region: Region {
+                x: 0.,
+                y: 0.,
+                w: 0.25,
+                h: 0.5,
+                z_index: Some(5),
+            },
+            dirty: false,
+        };
+
+        let mut state = State::new_inner("#AAAAAAFF".to_string(), cards, Some(sensor));
         let mut renderer = Renderer::default();
         render_image(&mut renderer, &mut state, 0, "000.png");
         render_image(&mut renderer, &mut state, 100, "100.png");
@@ -328,7 +358,7 @@ mod tests {
     #[test]
     fn test_dirty_rects() {
         let mut renderer = Renderer::new();
-        let mut state = State::new_inner("#AAAAAAFF".to_string(), vec![image_card()]);
+        let mut state = State::new_inner("#AAAAAAFF".to_string(), vec![image_card()], None);
         renderer.start(&state).unwrap();
         // No need to re-blit.
         assert_eq!(renderer.overlaps.len(), 1);
@@ -342,7 +372,11 @@ mod tests {
         assert!(renderer.overlaps.values().all(|v| v.is_empty()));
         assert!(state.cards.values().all(|card| !card.dirty));
 
-        state = State::new_inner("#AAAAAAFF".to_string(), vec![image_card(), text_card()]);
+        state = State::new_inner(
+            "#AAAAAAFF".to_string(),
+            vec![image_card(), text_card()],
+            None,
+        );
         renderer.start(&state).unwrap();
         // No need to re-blit.
         assert_eq!(renderer.overlaps.len(), 2);
@@ -351,7 +385,7 @@ mod tests {
         }
         assert!(state.cards.values().all(|card| !card.dirty));
 
-        state = State::new_inner("#AAAAAAFF".to_string(), vec![video_card()]);
+        state = State::new_inner("#AAAAAAFF".to_string(), vec![video_card()], None);
         renderer.start(&state).unwrap();
         // Always re-blit a video.
         assert_eq!(renderer.overlaps.len(), 1);
@@ -363,6 +397,7 @@ mod tests {
         state = State::new_inner(
             "#AAAAAAFF".to_string(),
             vec![image_card(), text_card(), video_card()],
+            None,
         );
         renderer.start(&state).unwrap();
         // Always re-blit a video.
