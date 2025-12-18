@@ -19,13 +19,14 @@ class TrialSpec:
     right_path: str
     correct_side: Side
 
+
 # %%
 def get_random_trials(
-    ill_names: List[str],
-    lum_levels: List[str],
-    n_trials: int,
-    gap: int,
-    directory="illusion_images/",
+        ill_names: List[str],
+        lum_levels: List[str],
+        n_trials: int,
+        gap: int,
+        directory="illusion_images/",
 ) -> List[TrialSpec]:
     # Get the maximum index for the low luminance level with gap in mind
     max_low = len(lum_levels) - gap
@@ -61,15 +62,16 @@ def get_random_trials(
         )
     return trials
 
+
 # %%
 def build_3stage_graph(
-    s1: List[TrialSpec],
-    s2: List[TrialSpec],
-    s3: List[TrialSpec],
-    *,
-    stim_size: float = 0.4,
-    reward_msec: int = 500,
-    punish_msec: int = 500,
+        s1: List[TrialSpec],
+        s2: List[TrialSpec],
+        s3: List[TrialSpec],
+        *,
+        stim_size: float = 0.4,
+        reward_msec: int = 500,
+        punish_msec: int = 500,
 ) -> nk.Graph:
     if not (len(s1) == len(s2) == len(s3)):
         raise ValueError("s1, s2, s3 must have the same length")
@@ -208,7 +210,6 @@ def build_3stage_graph(
 
 # %%
 if __name__ == '__main__':
-
     directory = "illusion_images/"
     ill_names = ["koffkas", "simcon", "simcona", "argyle"]
     lum_levels = ["0p10", "0p20", "0p30", "0p40", "0p50"]
