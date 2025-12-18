@@ -37,3 +37,19 @@ This is a paragraph with **bold** and _italic_ text.
 
 Here is <span style="color:#ff00ff">magenta text</span>.
 ```
+
+### How do I do linebreaks?
+
+Markdown requires two newline characters to cause a line break to be rendered. For example: 
+
+```markdown
+This is the first line.\n\n
+This is the second line. 
+```
+
+By contrast, this would **not** render a line break:
+
+```markdown
+This is the first line.\n
+This is also the first. 
+```
