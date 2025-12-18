@@ -1,8 +1,7 @@
 # NodeKit: a Python library for behavioral tasks 
 
-NodeKit is a Python library for writing behavioral tasks that can be run on humans or models.
+NodeKit is a Python library for writing behavioral tasks. Any task written in NodeKit can be run in the browser (for humans) or in Python (for models).
 
-Tasks written with NodeKit can be built into static websites (for humans) or Python simulation environments (for models).
 
 ### 1. Write your task in Python 
 

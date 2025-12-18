@@ -68,7 +68,7 @@ def simulate(
     Pointer and keyboard sample events are omitted; only Node start/action/end events
     are emitted for leaf Nodes.
 
-    If no Agent is provided, a DummyAgent is used that randomly selects the first
+    If no Agent is provided, a DummyAgent is used that randomly selects an
     available Action in each Node.
 
     Args:
