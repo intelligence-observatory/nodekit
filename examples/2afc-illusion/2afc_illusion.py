@@ -22,7 +22,7 @@ Side = Literal["left", "right"]
 class TrialSpec:
     left_path: str
     right_path: str
-    correct_side: Side
+    left_correct: bool
 
 
 # %%
@@ -52,19 +52,18 @@ def sample_trials(
         high_path = f"{directory}{ill}_{high_lum}.png"
 
         # randomize which side gets the brighter image
-        correct_side: Side | None = None
-        if rng.random() < 0.5:
-            left_path, right_path = low_path, high_path
-            correct_side = "right"
-        else:
+        left_correct = rng.random() < 0.5
+
+        if left_correct:
             left_path, right_path = high_path, low_path
-            correct_side = "left"
+        else:
+            left_path, right_path = low_path, high_path
 
         trials.append(
             TrialSpec(
                 left_path=left_path,
                 right_path=right_path,
-                correct_side=correct_side
+                left_correct=left_correct,
             )
         )
     return trials
@@ -192,7 +191,7 @@ def build_3stage_graph(
                 ),  # change if your KeySensor uses a different field
             )
             correct_key = nk.expressions.Lit(
-                value="ArrowLeft" if spec.correct_side == "left" else "ArrowRight"
+                value="ArrowLeft" if spec.left_correct else "ArrowRight"
             )
             is_correct = nk.expressions.Eq(lhs=pressed_key, rhs=correct_key)
 
