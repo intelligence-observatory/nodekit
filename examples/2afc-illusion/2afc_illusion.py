@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from typing import Dict, List, Literal
 
 import nodekit as nk
-from nodekit._internal.types.value import NodeId
 
 """
 This example was developed by Jaykishan Patel (@JaykishanPatel).
@@ -75,7 +74,7 @@ def build_3stage_graph(
     s2: List[TrialSpec],
     s3: List[TrialSpec],
     *,
-    stim_size: float = 0.4,
+    stim_size: int = 400,
     reward_msec: int = 500,
     punish_msec: int = 500,
 ) -> nk.Graph:
@@ -94,7 +93,7 @@ def build_3stage_graph(
     stage_specs = {1: s1, 2: s2, 3: s3}
 
     # Create all the nodes
-    nodes: Dict[NodeId, nk.Node | nk.Graph] = {}
+    nodes: Dict[str, nk.Node | nk.Graph] = {}
 
     for stage in (1, 2, 3):
         for t, spec in enumerate(stage_specs[stage]):
@@ -108,8 +107,8 @@ def build_3stage_graph(
             instruction_card = nk.cards.TextCard(
                 text="Compare the green region in both images and select the one that appears brighter.\n\nPress space to continue.",
                 text_color="#60C9AF",
-                region=nk.Region(x=0, y=0.3, w=1.0, h=0.2),
-                font_size=0.03,
+                region=nk.Region(x=0, y=300, w=1000, h=200),
+                font_size=30,
             )
             children: Dict[str, nk.cards.Card] = {
                 "mask": mask_card,
@@ -122,8 +121,8 @@ def build_3stage_graph(
             )
 
             # stimulus pair
-            left_region = nk.Region(x=-0.25, y=0, w=stim_size, h=stim_size)
-            right_region = nk.Region(x=0.25, y=0, w=stim_size, h=stim_size)
+            left_region = nk.Region(x=-250, y=0, w=stim_size, h=stim_size)
+            right_region = nk.Region(x=250, y=0, w=stim_size, h=stim_size)
 
             left_card = nk.cards.ImageCard(
                 image=nk.assets.Image.from_path(spec.left_path),
@@ -137,8 +136,8 @@ def build_3stage_graph(
                 text=f"""trial {key(stage, t, "stim")} 
                         Press ← for left, → for right""",
                 text_color="#FFFFFF",
-                region=nk.Region(x=0, y=0.4, w=0.8, h=0.2),
-                font_size=0.03,
+                region=nk.Region(x=0, y=400, w=800, h=200),
+                font_size=30,
             )
 
             children: Dict[str, nk.cards.Card] = {
@@ -157,8 +156,8 @@ def build_3stage_graph(
                 stimulus=nk.cards.TextCard(
                     text="Correct!",
                     text_color="#3232c8",
-                    region=nk.Region(x=0, y=0, w=0.6, h=0.3),
-                    font_size=0.08,
+                    region=nk.Region(x=0, y=0, w=600, h=300),
+                    font_size=80,
                 ),
                 sensor=nk.sensors.WaitSensor(duration_msec=reward_msec),
             )
@@ -166,8 +165,8 @@ def build_3stage_graph(
                 stimulus=nk.cards.TextCard(
                     text="Incorrect.",
                     text_color="#c80000",
-                    region=nk.Region(x=0, y=0, w=0.6, h=0.3),
-                    font_size=0.08,
+                    region=nk.Region(x=0, y=0, w=600, h=300),
+                    font_size=80,
                 ),
                 sensor=nk.sensors.WaitSensor(duration_msec=punish_msec),
             )
@@ -184,12 +183,7 @@ def build_3stage_graph(
 
             transitions[mask] = nk.transitions.Go(to=stim)
 
-            pressed_key = nk.expressions.GetDictValue(
-                d=nk.expressions.LastAction(),
-                key=nk.expressions.Lit(
-                    value="key"
-                ),  # change if your KeySensor uses a different field
-            )
+            pressed_key = nk.expressions.LastAction()
             correct_key = nk.expressions.Lit(
                 value="ArrowLeft" if spec.left_correct else "ArrowRight"
             )
