@@ -41,7 +41,7 @@ class HitRequest(pydantic.BaseModel):
 
 class Helper:
     """
-    Experimental; this might be moved to PsyHub / PsychoScope.
+    Experimental; this might be moved to PsychoScope.
     """
 
     def __init__(
@@ -71,6 +71,7 @@ class Helper:
         project_name: str,
         unique_request_token: str | None = None,
     ) -> HitId:
+
         """
         Creates a HIT based on the given Graph.
         Automatically ensures a public site for the Graph exists on S3.

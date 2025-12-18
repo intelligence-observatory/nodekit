@@ -114,6 +114,8 @@ if __name__ == "__main__":
     # %% Play the Graph now:
     trace = nk.play(graph)
 
+    nk.build_site(graph, 'dev-example-site')
+
     # %%
     print(f"Observed {len(trace.events)} events:")
     for event in trace.events:
