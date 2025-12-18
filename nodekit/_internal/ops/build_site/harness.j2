@@ -11,67 +11,19 @@
 
 
     <script>
-        function tryInferTurkContext() {
+        function getSubmissionContext() {
             if (typeof window === "undefined" || !window.location) {
-                return null
-            }
-
-            const params = new URLSearchParams(window.location.search);
-
-            // MTurk-style query params
-            const assignmentId = params.get("assignmentId");
-            const hitId = params.get("hitId");
-            const workerId = params.get("workerId");
-            const turkSubmitTo = params.get("turkSubmitTo");
-
-            const looksLikeMTurk =
-                assignmentId !== null ||
-                hitId !== null ||
-                workerId !== null ||
-                turkSubmitTo !== null;
-
-            if (!looksLikeMTurk) {
-                return null
-            }
-
-            // Preview mode per MTurk docs: assignmentId is present and equals this sentinel.
-            const PREVIEW_SENTINEL = "ASSIGNMENT_ID_NOT_AVAILABLE";
-            const preview_mode = assignmentId === PREVIEW_SENTINEL;
-
-            if (preview_mode) {
                 return {
-                    previewMode: true,
-                    context: null,
+                    submitTo: null,
+                    traceId: null,
                 };
             }
 
-            // Not previewing → require all fields
-            if (!turkSubmitTo || !hitId || !assignmentId || !workerId) {
-                const e = new Error("Missing required parameters in the query for MTurk platform.");
-                e.name = "BadPlatformContextError";
-                throw e;
-            }
-
+            const params = new URLSearchParams(window.location.search);
             return {
-                previewMode: false,
-                context: {
-                    assignmentId: assignmentId,
-                    turkSubmitTo: turkSubmitTo,
-                    workerId: workerId,
-                },
+                submitTo: params.get("submitTo"),
+                traceId: params.get("traceId"),
             };
-        }
-    </script>
-    <script>
-        function addPreviewSplash(){
-            if (typeof window === "undefined" || !window.location) {
-                return null
-            }
-            showOverlay({
-                title: "Preview Mode",
-                message: "Accept the HIT to continue. After accepting, refresh this page.",
-                showCopy: false,
-            });
         }
     </script>
     <script>
@@ -204,41 +156,36 @@
     </script>
 
     <script>
-        function submitToTurk(
+        async function submitTrace(
             trace,
-            assignmentId,
-            turkSubmitTo,
+            submitTo,
+            traceId,
         ){
-            // Submission procedure for Mechanical Turk. See: https://docs.aws.amazon.com/AWSMechTurk/latest/AWSMechanicalTurkRequester/mturk-hits-defining-questions-html-javascript.html
-            // Note the following undocumented gotcha: the form must have at least one input element other than assignmentId, otherwise
-            // Mechanical Turk will not accept the submission. Here, we have the input element `sessionId`, which satisfies this requirement.
+            if (!submitTo) {
+                return;
+            }
 
-            // Get context variables:
+            const payload = {
+                trace: trace,
+                trace_id: traceId,
+            };
 
-            // create the form element and point it to the correct endpoint
-            const form = document.createElement('form')
-            form.action = (new URL('mturk/externalSubmit', turkSubmitTo)).href
-            form.method = 'post'
+            const response = await fetch(submitTo, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(payload),
+            });
 
-            // attach the assignmentId
-            const inputAssignmentId = document.createElement('input')
-            inputAssignmentId.name = 'assignmentId'
-            inputAssignmentId.value = assignmentId
-            inputAssignmentId.hidden = true
-            form.appendChild(inputAssignmentId)
-
-            // attach a runId to allow for Experimenters to map HITs to Sessions
-            const inputRunId = document.createElement('input')
-            inputRunId.name = 'trace';
-            inputRunId.value = JSON.stringify(trace);
-            inputRunId.hidden = true;
-            form.appendChild(inputRunId)
-
-            // attach the form to the HTML document and trigger submission
-            document.body.appendChild(form)
-
-            // Submit the form
-            form.submit()
+            if (!response.ok) {
+                const bodyText = await response.text();
+                const error = new Error(`Submission failed with status ${response.status}`);
+                error.name = "SubmissionError";
+                error.responseStatus = response.status;
+                error.responseBody = bodyText;
+                throw error;
+            }
         }
     </script>
 
@@ -247,33 +194,21 @@
 
         window.onload = async () => {
             try {
-                // Infer the context:
-                const turkContext = tryInferTurkContext()
-
-                // Guard execution if in preview mode
-                if (turkContext && turkContext.previewMode === true){
-                    addPreviewSplash()
-                    return
-                }
+                const submissionContext = getSubmissionContext()
 
                 // Play the Graph:
                 const trace = await NodeKit.play(graph);
 
                 // Handle close down procedures, based on the inferred context:
-                if(turkContext && turkContext.previewMode === false){
-                    submitToTurk(
-                        trace,
-                        turkContext.context.assignmentId,
-                        turkContext.context.turkSubmitTo,
-                    )
-                }
+                await submitTrace(
+                    trace,
+                    submissionContext.submitTo,
+                    submissionContext.traceId,
+                )
             } catch (err) {
-                const context = {};
-                try {
-                    context.turkContext = tryInferTurkContext();
-                } catch (e) {
-                    context.turkContext = { error: String(e) };
-                }
+                const context = {
+                    submissionContext: getSubmissionContext(),
+                };
 
                 const report = formatErrorReport(err, context);
                 showOverlay({
