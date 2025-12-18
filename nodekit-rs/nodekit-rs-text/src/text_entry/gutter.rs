@@ -1,3 +1,4 @@
+use super::{CORNER_ISIZE, CORNER_SIZE, GUTTER_HEIGHT, corner};
 use blittle::overlay::{Vec4, rgba8_to_rgba32};
 use blittle::{PositionI, Size};
 use lazy_static::lazy_static;
@@ -5,10 +6,7 @@ use nodekit_rs_visual::{
     BOARD_SIZE, Board, BorrowedRgbaBuffer, RgbBuffer, UnclippedRect, bitmap_rgb,
 };
 
-const CORNER_SIZE: usize = 16;
-/// The height of the gutter, minus `CORNER_SIZE`.
-const GUTTER_HEIGHT: usize = 44;
-const COLOR: [u8; 3] = [128; 3];
+const COLOR: [u8; 3] = [220; 3];
 
 lazy_static! {
     static ref SW: Vec<Vec4> = rgba8_to_rgba32(include_bytes!("../../text_entry/gutter_sw.raw"));
@@ -28,13 +26,12 @@ pub struct Gutter<'g> {
 
 impl Gutter<'_> {
     pub fn new(position: PositionI, width: usize) -> Self {
-        let corner_size = CORNER_SIZE.cast_signed();
         // Get the corners.
         let corner_y = position.y + GUTTER_HEIGHT.cast_signed();
-        let sw = Self::corner(&SW, position.x, corner_y);
-        let se = Self::corner(
+        let sw = corner(&SW, position.x, corner_y);
+        let se = corner(
             &SE,
-            position.x + width.cast_signed() - corner_size,
+            position.x + width.cast_signed() - CORNER_ISIZE,
             corner_y,
         );
         let body = if width == 0 {
@@ -55,7 +52,7 @@ impl Gutter<'_> {
         } else {
             UnclippedRect {
                 position: PositionI {
-                    x: position.x + corner_size,
+                    x: position.x + CORNER_ISIZE,
                     y: position.y + GUTTER_HEIGHT.cast_signed(),
                 },
                 size: Size {
@@ -87,21 +84,6 @@ impl Gutter<'_> {
         if let Some(footer) = self.footer.as_ref() {
             board.blit_rgb(footer);
         }
-    }
-
-    fn corner(buffer: &[Vec4], x: isize, y: isize) -> Option<BorrowedRgbaBuffer<'_>> {
-        UnclippedRect {
-            position: PositionI { x, y },
-            size: Size {
-                w: CORNER_SIZE,
-                h: CORNER_SIZE,
-            },
-        }
-        .into_clipped_rect(BOARD_SIZE)
-        .map(|rect| {
-            println!("{rect}\n");
-            BorrowedRgbaBuffer { buffer, rect }
-        })
     }
 }
 

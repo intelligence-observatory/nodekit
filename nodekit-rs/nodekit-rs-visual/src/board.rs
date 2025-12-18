@@ -113,7 +113,7 @@ impl Board {
             rgb8_to_rgba32_in_place(&self.board8_without_cursor, &mut self.board32);
         }
         // Overlay.
-        overlay_rgba32(&buffer.buffer, &mut self.board32, &buffer.rect);
+        overlay_rgba32(buffer.buffer, &mut self.board32, &buffer.rect);
     }
 
     pub fn blit_cursor(&mut self, buffer: &[Vec4], rect: &Option<ClippedRect>) -> &[u8] {

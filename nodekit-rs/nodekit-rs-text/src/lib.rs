@@ -67,22 +67,14 @@ impl TextEngine {
         text_entry: &TextEntry,
         region: &Region,
     ) -> Result<Option<TextEntryBuffers<'_>>, Error> {
-        const PADDING: usize = 8;
-
         match UnclippedRect::new(region).into_clipped_rect(BOARD_SIZE) {
             None => Ok(None),
             Some(background_rect) => {
                 // Get the font sizes.
                 let font_size = FontSize::new((text_entry.font_size * BOARD_D_F64).ceil() as u16);
 
-                // Get the size of the text buffer.
-                // Apply padding.
-                let mut text_size = background_rect.src_size;
-                text_size.w -= PADDING;
-                text_size.h -= PADDING;
-
                 // Render text.
-                match ClippedRect::new(PositionI::default(), BOARD_SIZE, text_size) {
+                match text_rect(&background_rect) {
                     None => Ok(None),
                     Some(rect) => {
                         // Create a text card.
@@ -100,8 +92,7 @@ impl TextEngine {
                             background_color: "#00000000".to_string(),
                         };
                         // Render.
-                        let text =
-                            self.get_text(&text_card, font_size, rect, background_rect.src_size)?;
+                        let text = self.get_text(&text_card, font_size, rect, BOARD_SIZE)?;
                         Ok(Some(TextEntryBuffers::new(text, background_rect)))
                     }
                 }
@@ -280,7 +271,7 @@ mod tests {
     use nodekit_rs_visual::Board;
 
     #[test]
-    fn test_text_render() {
+    fn test_text_card_render() {
         let card = TextCard {
             text: include_str!("../lorem.txt").to_string(),
             font_size: 0.02,
@@ -298,5 +289,42 @@ mod tests {
         text_buffer.blit(&mut board);
         // Write the result as a .png file.
         nodekit_rs_png::board_to_png("out.png", board.get_board_without_cursor());
+    }
+
+    #[test]
+    fn test_text_entry_render() {
+        let card = TextEntry {
+            prompt: String::default(),
+            text: include_str!("../lorem.txt").to_string(),
+            font_size: 0.02,
+        };
+        let region = Region {
+            x: -0.4,
+            y: -0.4,
+            w: 0.25,
+            h: 0.5,
+            z_index: None,
+        };
+
+        // Render the text.
+        let mut text = TextEngine::default();
+        let mut board = Board::new([200, 200, 200]);
+        let text_buffer = text.render_text_entry(&card, &region).unwrap().unwrap();
+        text_buffer.blit(&mut board);
+        // Write the result as a .png file.
+        nodekit_rs_png::board_to_png("text_entry.png", board.get_board_without_cursor());
+
+        let card = TextEntry {
+            prompt: "This is a prompt".to_string(),
+            text: String::default(),
+            font_size: 0.02,
+        };
+
+        // Render the text.
+        let mut board = Board::new([200, 200, 200]);
+        let text_buffer = text.render_text_entry(&card, &region).unwrap().unwrap();
+        text_buffer.blit(&mut board);
+        // Write the result as a .png file.
+        nodekit_rs_png::board_to_png("text_entry_prompt.png", board.get_board_without_cursor());
     }
 }

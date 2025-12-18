@@ -64,7 +64,7 @@ impl Card {
         }
     }
 
-    pub fn sort(cards: &mut Vec<Self>) {
+    pub fn sort(cards: &mut [Self]) {
         cards.sort_by(|a, b| a.region.z_index.cmp(&b.region.z_index));
     }
 
