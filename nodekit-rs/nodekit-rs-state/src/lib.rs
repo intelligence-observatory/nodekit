@@ -1,8 +1,8 @@
 mod pointer;
 
-use pyo3::exceptions::PyValueError;
 use nodekit_rs_models::{Card, CardType};
 use pointer::Pointer;
+use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::types::PyList;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
@@ -57,8 +57,16 @@ impl State {
     /// `board_color` must be a valid RGBA hex string e.g. "#808080ff"
     /// `cards` must be of type `List[nodekit.Card]`
     #[new]
-    pub fn new(board_color: String, cards: Bound<'_, PyList>, sensor: Bound<'_, PyAny>) -> PyResult<Self> {
-        Ok(Self::new_inner(board_color, Card::extract_all(cards)?, Card::extract_sensor(sensor)?))
+    pub fn new(
+        board_color: String,
+        cards: Bound<'_, PyList>,
+        sensor: Bound<'_, PyAny>,
+    ) -> PyResult<Self> {
+        Ok(Self::new_inner(
+            board_color,
+            Card::extract_all(cards)?,
+            Card::extract_sensor(sensor)?,
+        ))
     }
 
     #[setter]
@@ -87,35 +95,37 @@ impl State {
 
     /// Try to set the text in a TextEntry sensor.
     pub fn set_text_entry(&mut self, text: String) -> PyResult<()> {
-        match self.cards.values_mut().find_map(|card| {
-            match &mut card.card_type {
+        match self
+            .cards
+            .values_mut()
+            .find_map(|card| match &mut card.card_type {
                 CardType::TextEntry(text_entry) => Some((text_entry, &mut card.dirty)),
-                _ => None
-            }
-        }) {
+                _ => None,
+            }) {
             Some((text_entry, dirty)) => {
                 text_entry.text = text;
                 *dirty = true;
                 Ok(())
             }
-            None => Err(PyValueError::new_err("Failed to find a TextEntrySensor."))
+            None => Err(PyValueError::new_err("Failed to find a TextEntrySensor.")),
         }
     }
-    
+
     /// Try to set the position of a SliderSensor.
     pub fn set_slider_bin(&mut self, bin: usize) -> PyResult<()> {
-        match self.cards.values_mut().find_map(|card| {
-            match &mut card.card_type {
+        match self
+            .cards
+            .values_mut()
+            .find_map(|card| match &mut card.card_type {
                 CardType::Slider(slider) => Some((slider, &mut card.dirty)),
-                _ => None
-            }
-        }) {
+                _ => None,
+            }) {
             Some((slider, dirty)) => {
                 slider.bin = bin;
                 *dirty = true;
                 Ok(())
             }
-            None => Err(PyValueError::new_err("Failed to find a TextEntrySensor."))
+            None => Err(PyValueError::new_err("Failed to find a TextEntrySensor.")),
         }
     }
 }

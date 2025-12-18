@@ -1,6 +1,7 @@
 use blittle::ClippedRect;
+use blittle::overlay::Vec4;
 
 pub struct BorrowedRgbaBuffer<'b> {
-    pub buffer: &'b [u8],
-    pub rect: ClippedRect
+    pub buffer: &'b [Vec4],
+    pub rect: ClippedRect,
 }

@@ -1,6 +1,5 @@
 //! Extract nodekit Card models into nodekit-rs structs.
 
-
 mod asset;
 mod card_type;
 mod region;
@@ -26,7 +25,7 @@ pub struct Card {
     /// ImageCard, TextCard, etc.
     pub card_type: CardType,
     /// True if the card needs to be rerendered.
-    pub dirty: bool
+    pub dirty: bool,
 }
 
 impl FromPyObject<'_, '_> for Card {
@@ -59,9 +58,9 @@ impl Card {
             Some(card_type) => Ok(Some(Self {
                 card_type,
                 region: Self::extract_region(sensor)?,
-                dirty: false
+                dirty: false,
             })),
-            None => Ok(None)
+            None => Ok(None),
         }
     }
 

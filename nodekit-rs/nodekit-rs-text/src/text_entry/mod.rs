@@ -1,11 +1,13 @@
+mod gutter;
+
 use blittle::ClippedRect;
+pub use gutter::Gutter;
 use nodekit_rs_visual::RgbaBuffer;
-use crate::gutter::Gutter;
 
 pub struct TextEntryBuffers<'t> {
     pub background: Option<RgbaBuffer>,
     pub text: Option<RgbaBuffer>,
-    pub gutter: Gutter<'t>
+    pub gutter: Gutter<'t>,
 }
 
 impl TextEntryBuffers<'_> {
@@ -14,7 +16,7 @@ impl TextEntryBuffers<'_> {
         Self {
             background: None, // TODO
             text,
-            gutter
+            gutter,
         }
     }
 

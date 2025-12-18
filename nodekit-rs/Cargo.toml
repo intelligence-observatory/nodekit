@@ -27,13 +27,14 @@ pyo3.workspace = true
 pyo3-stub-gen.workspace = true
 
 [workspace.dependencies]
-blittle = { path = "../../blittle", features = ["overlay"] }
+blittle = { version = "0.3.3", features = ["overlay"] }
 bytemuck = "1.24.0"
 cosmic-text = "0.15.0"
 criterion = "0.7.0"
 fast_image_resize = { version = "5.3.0", features = ["rayon"] }
 hex_color = "3.0.0"
 itertools = "0.14.0"
+lazy_static = "1.5.0"
 markdown = "1.0.0-alpha.24"
 numpy = "0.27.1"
 png = "0.18.0"

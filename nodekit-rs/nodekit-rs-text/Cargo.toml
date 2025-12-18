@@ -6,6 +6,7 @@ edition = "2024"
 [dependencies]
 blittle.workspace = true
 cosmic-text.workspace = true
+lazy_static.workspace = true
 markdown.workspace = true
 nodekit-rs-models = { path = "../nodekit-rs-models" }
 nodekit-rs-visual = { path = "../nodekit-rs-visual" }

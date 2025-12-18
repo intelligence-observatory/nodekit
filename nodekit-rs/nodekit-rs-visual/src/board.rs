@@ -1,12 +1,11 @@
 //! Various constants used to describe the size of the visual board.
 
-use std::slice::from_raw_parts;
-use crate::{BorrowedRgbaBuffer, VisualBuffer};
 use crate::rgb_buffer::RgbBuffer;
 use crate::rgba_buffer::RgbaBuffer;
+use crate::{BorrowedRgbaBuffer, VisualBuffer};
 use blittle::overlay::*;
 use blittle::*;
-use bytemuck::{cast_slice, cast_slice_mut};
+use bytemuck::cast_slice_mut;
 
 pub const BOARD_D: usize = 768;
 pub const BOARD_D_U32: u32 = 768;
@@ -114,8 +113,7 @@ impl Board {
             rgb8_to_rgba32_in_place(&self.board8_without_cursor, &mut self.board32);
         }
         // Overlay.
-        println!("{}", buffer.buffer.len());
-        overlay_rgba32(cast_slice::<u8, Vec4>(buffer.buffer), &mut self.board32, &buffer.rect);
+        overlay_rgba32(&buffer.buffer, &mut self.board32, &buffer.rect);
     }
 
     pub fn blit_cursor(&mut self, buffer: &[Vec4], rect: &Option<ClippedRect>) -> &[u8] {

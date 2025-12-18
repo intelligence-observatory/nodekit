@@ -1,9 +1,5 @@
 use crate::*;
-use pyo3::{
-    exceptions::PyValueError,
-    prelude::*,
-    types::PyString
-};
+use pyo3::{exceptions::PyValueError, prelude::*, types::PyString};
 
 /// ImageCard, TextCard, etc.
 pub enum CardType {
@@ -39,12 +35,12 @@ impl CardType {
             "SliderSensor" => {
                 let slider = Slider::extract(sensor.as_borrowed())?;
                 Ok(Some(Self::Slider(slider)))
-            },
+            }
             "TextEntrySensor" => {
                 let text_entry = TextEntry::extract(sensor.as_borrowed())?;
                 Ok(Some(Self::TextEntry(text_entry)))
             }
-            _ => Ok(None)
+            _ => Ok(None),
         }
     }
 }

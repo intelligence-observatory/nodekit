@@ -1,10 +1,10 @@
+use crate::{Card, CardType, Region};
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
-use crate::{Card, CardType, Region};
 
 pub enum SliderOrientation {
     Horizontal,
-    Vertical
+    Vertical,
 }
 
 pub struct Slider {
@@ -19,12 +19,17 @@ impl FromPyObject<'_, '_> for Slider {
 
     fn extract(obj: Borrowed<'_, '_, PyAny>) -> Result<Self, Self::Error> {
         let num_bins = obj.getattr("num_bins")?.extract::<i64>()?.cast_unsigned() as usize;
-        let bin_index = obj.getattr("initial_bin_index")?.extract::<i64>()?.cast_unsigned() as usize;
+        let bin_index = obj
+            .getattr("initial_bin_index")?
+            .extract::<i64>()?
+            .cast_unsigned() as usize;
         let show_bin_markers = obj.getattr("show_bin_markers")?.extract::<bool>()?;
         let orientation = match obj.getattr("orientation")?.extract::<&str>()? {
             "horizontal" => Ok(SliderOrientation::Horizontal),
             "vertical" => Ok(SliderOrientation::Vertical),
-            other => Err(PyValueError::new_err(format!("Invalid slider orientation: {other}")))
+            other => Err(PyValueError::new_err(format!(
+                "Invalid slider orientation: {other}"
+            ))),
         }?;
         Ok(Self {
             num_bins,

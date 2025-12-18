@@ -1,20 +1,24 @@
 mod error;
 mod md;
 mod text_buffers;
-mod text_entry_buffers;
-mod gutter;
+mod text_entry;
 
 use blittle::{ClippedRect, PositionI, Size};
 use cosmic_text::fontdb::Source;
 use cosmic_text::{Align, Attrs, Buffer, Color, Family, FontSystem, Metrics, Shaping, SwashCache};
 pub use error::Error;
 use md::{FontSize, parse};
-use nodekit_rs_models::{JustificationHorizontal, JustificationVertical, Region, TextCard, TextEntry};
-use nodekit_rs_visual::{BOARD_D_F64, BOARD_SIZE, RgbBuffer, RgbaBuffer, UnclippedRect, VisualBuffer, bitmap_rgb, parse_color_rgba};
+use nodekit_rs_models::{
+    JustificationHorizontal, JustificationVertical, Region, TextCard, TextEntry,
+};
+use nodekit_rs_visual::{
+    BOARD_D_F64, BOARD_SIZE, RgbBuffer, RgbaBuffer, UnclippedRect, VisualBuffer, bitmap_rgb,
+    parse_color_rgba,
+};
 use pyo3::pyclass;
 use std::sync::Arc;
 pub use text_buffers::TextBuffers;
-use crate::text_entry_buffers::TextEntryBuffers;
+use text_entry::*;
 
 #[pyclass]
 pub struct TextEngine {
@@ -58,14 +62,16 @@ impl TextEngine {
         }
     }
 
-    pub fn render_text_entry(&mut self,
-                             text_entry: &TextEntry,
-                             region: &Region) -> Result<Option<TextEntryBuffers>, Error> {
+    pub fn render_text_entry(
+        &mut self,
+        text_entry: &TextEntry,
+        region: &Region,
+    ) -> Result<Option<TextEntryBuffers>, Error> {
         const PADDING: usize = 8;
 
         match UnclippedRect::new(region).into_clipped_rect(BOARD_SIZE) {
             None => Ok(None),
-            Some(background_rect ) => {
+            Some(background_rect) => {
                 // Get the font sizes.
                 let font_size = FontSize::new((text_entry.font_size * BOARD_D_F64).ceil() as u16);
 
@@ -94,7 +100,8 @@ impl TextEngine {
                             background_color: "#00000000".to_string(),
                         };
                         // Render.
-                        let text = self.get_text(&text_card, font_size, rect, background_rect.src_size)?;
+                        let text =
+                            self.get_text(&text_card, font_size, rect, background_rect.src_size)?;
                         Ok(Some(TextEntryBuffers::new(text, background_rect)))
                     }
                 }

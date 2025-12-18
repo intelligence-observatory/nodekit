@@ -219,6 +219,8 @@ dependencies = [
 [[package]]
 name = "blittle"
 version = "0.3.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e9fd83b28ba81a402c0595a490580157c8542880fe1e31515927e790b48e8ef3"
 dependencies = [
  "bytemuck",
  "glam",
@@ -1462,6 +1464,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "507460a910eb7b32ee961886ff48539633b788a36b65692b95f225b844c82553"
 
 [[package]]
+name = "lazy_static"
+version = "1.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bbd2bcb4c963f2ddae06a2efc7e9f3591312473c50c6685e1f298068316e66fe"
+
+[[package]]
 name = "lebe"
 version = "0.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1794,6 +1802,7 @@ dependencies = [
  "blittle",
  "cosmic-text",
  "criterion",
+ "lazy_static",
  "markdown",
  "nodekit-rs-models",
  "nodekit-rs-png",
