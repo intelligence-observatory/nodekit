@@ -5,6 +5,10 @@ from typing import Dict, List, Literal
 import nodekit as nk
 from nodekit._internal.types.value import NodeId
 
+"""
+This example was developed by Jaykishan Patel (@JaykishanPatel).
+"""
+
 
 # %%
 def RGB_to_hex(RGB: tuple[int, int, int]) -> str:
@@ -22,7 +26,7 @@ class TrialSpec:
 
 
 # %%
-def get_random_trials(
+def sample_trials(
         ill_names: List[str],
         lum_levels: List[str],
         n_trials: int,
@@ -217,14 +221,15 @@ if __name__ == '__main__':
     ill_names = ["koffkas", "simcon", "simcona", "argyle"]
     lum_levels = ["0p10", "0p20", "0p30", "0p40", "0p50"]
 
-    s1 = get_random_trials(
+    s1 = sample_trials(
         ill_names,
         lum_levels,
         n_trials=5,
         gap=3,
         seed=0,
     )
-    s2 = get_random_trials(
+
+    s2 = sample_trials(
         ill_names,
         lum_levels,
         n_trials=5,
@@ -232,7 +237,7 @@ if __name__ == '__main__':
         seed=1
     )
 
-    s3 = get_random_trials(
+    s3 = sample_trials(
         ill_names,
         lum_levels,
         n_trials=5,
