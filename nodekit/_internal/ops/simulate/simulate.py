@@ -7,11 +7,11 @@ from dataclasses import dataclass
 from typing import Mapping
 
 import nodekit._internal.types.events as e
-from nodekit._internal.ops.simulation.evaluate_expression import (
+from nodekit._internal.ops.simulate.evaluate_expression import (
     EvalContext,
     evaluate_expression,
 )
-from nodekit._internal.ops.simulation.sample_action import sample_action
+from nodekit._internal.ops.simulate.sample_action import sample_action
 from nodekit._internal.types.actions import Action
 from nodekit._internal.types.graph import Graph
 from nodekit._internal.types.node import Node
