@@ -66,7 +66,7 @@ impl TextEngine {
         &mut self,
         text_entry: &TextEntry,
         region: &Region,
-    ) -> Result<Option<TextEntryBuffers>, Error> {
+    ) -> Result<Option<TextEntryBuffers<'_>>, Error> {
         const PADDING: usize = 8;
 
         match UnclippedRect::new(region).into_clipped_rect(BOARD_SIZE) {

@@ -8,33 +8,22 @@ use nodekit_rs_visual::{
 const CORNER_SIZE: usize = 16;
 /// The height of the gutter, minus `CORNER_SIZE`.
 const GUTTER_HEIGHT: usize = 44;
+const COLOR: [u8; 3] = [128; 3];
 
 lazy_static! {
     static ref SW: Vec<Vec4> = rgba8_to_rgba32(include_bytes!("../../text_entry/gutter_sw.raw"));
     static ref SE: Vec<Vec4> = rgba8_to_rgba32(include_bytes!("../../text_entry/gutter_se.raw"));
 }
 
-macro_rules! corner {
-    ($buffer:expr, $x:expr, $y:ident) => {{
-        UnclippedRect {
-            position: PositionI { x: $x, y: $y },
-            size: Size {
-                w: CORNER_SIZE,
-                h: CORNER_SIZE,
-            },
-        }
-        .into_clipped_rect(BOARD_SIZE)
-        .map(|rect| BorrowedRgbaBuffer {
-            buffer: $buffer,
-            rect,
-        })
-    }};
-}
-
 pub struct Gutter<'g> {
-    pub sw: Option<BorrowedRgbaBuffer<'g>>,
-    pub se: Option<BorrowedRgbaBuffer<'g>>,
-    pub body: Option<RgbBuffer>,
+    /// Southwest corner.
+    sw: Option<BorrowedRgbaBuffer<'g>>,
+    /// Southeast corner.
+    se: Option<BorrowedRgbaBuffer<'g>>,
+    /// The body above the corners.
+    body: Option<RgbBuffer>,
+    /// The rectangle between the corners.
+    footer: Option<RgbBuffer>,
 }
 
 impl Gutter<'_> {
@@ -42,11 +31,11 @@ impl Gutter<'_> {
         let corner_size = CORNER_SIZE.cast_signed();
         // Get the corners.
         let corner_y = position.y + GUTTER_HEIGHT.cast_signed();
-        let sw = corner!(&SW, position.x, corner_y);
-        let se = corner!(
+        let sw = Self::corner(&SW, position.x, corner_y);
+        let se = Self::corner(
             &SE,
-            position.x + corner_size + width.cast_signed(),
-            corner_y
+            position.x + width.cast_signed() - corner_size,
+            corner_y,
         );
         let body = if width == 0 {
             None
@@ -59,9 +48,30 @@ impl Gutter<'_> {
                 },
             }
             .into_clipped_rect(BOARD_SIZE)
-            .map(|rect| RgbBuffer::new(bitmap_rgb(width, GUTTER_HEIGHT, [220, 220, 220]), rect))
+            .map(|rect| RgbBuffer::new(bitmap_rgb(width, GUTTER_HEIGHT, COLOR), rect))
         };
-        Self { sw, se, body }
+        let footer = if width == 0 {
+            None
+        } else {
+            UnclippedRect {
+                position: PositionI {
+                    x: position.x + corner_size,
+                    y: position.y + GUTTER_HEIGHT.cast_signed(),
+                },
+                size: Size {
+                    w: width - CORNER_SIZE * 2,
+                    h: CORNER_SIZE,
+                },
+            }
+            .into_clipped_rect(BOARD_SIZE)
+            .map(|rect| RgbBuffer::new(bitmap_rgb(width, CORNER_SIZE, COLOR), rect))
+        };
+        Self {
+            sw,
+            se,
+            body,
+            footer,
+        }
     }
 
     pub fn blit(&self, board: &mut Board) {
@@ -74,6 +84,24 @@ impl Gutter<'_> {
         if let Some(body) = self.body.as_ref() {
             board.blit_rgb(body);
         }
+        if let Some(footer) = self.footer.as_ref() {
+            board.blit_rgb(footer);
+        }
+    }
+
+    fn corner(buffer: &[Vec4], x: isize, y: isize) -> Option<BorrowedRgbaBuffer<'_>> {
+        UnclippedRect {
+            position: PositionI { x, y },
+            size: Size {
+                w: CORNER_SIZE,
+                h: CORNER_SIZE,
+            },
+        }
+        .into_clipped_rect(BOARD_SIZE)
+        .map(|rect| {
+            println!("{rect}\n");
+            BorrowedRgbaBuffer { buffer, rect }
+        })
     }
 }
 
