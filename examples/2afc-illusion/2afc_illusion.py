@@ -207,13 +207,16 @@ def build_3stage_graph(
     return nk.Graph(nodes=nodes, transitions=transitions, start=key(1, 0, "mask"))
 
 
-directory = "illusion_images/"
-ill_names = ["koffkas", "simcon", "simcona", "argyle"]
-lum_levels = ["0p10", "0p20", "0p30", "0p40", "0p50"]
+# %%
+if __name__ == '__main__':
 
-s1 = get_random_trials(ill_names, lum_levels, n_trials=5, gap=3)
-s2 = get_random_trials(ill_names, lum_levels, n_trials=5, gap=2)
-s3 = get_random_trials(ill_names, lum_levels, n_trials=5, gap=1)
+    directory = "illusion_images/"
+    ill_names = ["koffkas", "simcon", "simcona", "argyle"]
+    lum_levels = ["0p10", "0p20", "0p30", "0p40", "0p50"]
 
-graph = build_3stage_graph(s1, s2, s3)
-nk.play(graph)
+    s1 = get_random_trials(ill_names, lum_levels, n_trials=5, gap=3)
+    s2 = get_random_trials(ill_names, lum_levels, n_trials=5, gap=2)
+    s3 = get_random_trials(ill_names, lum_levels, n_trials=5, gap=1)
+
+    graph = build_3stage_graph(s1, s2, s3)
+    nk.play(graph)
