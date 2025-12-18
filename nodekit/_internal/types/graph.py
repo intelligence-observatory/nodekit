@@ -25,7 +25,7 @@ class Graph(pydantic.BaseModel):
 
     registers: dict[RegisterId, LeafValue] = pydantic.Field(
         default_factory=dict,
-        description="The initial values register values. ",
+        description="The initial register values. ",
     )
 
     @pydantic.model_validator(mode="after")
