@@ -99,8 +99,8 @@ def make_trial(
     )
 
     # Make feedback nodes
-    correct_string = "**Correct!**\nPress the spacebar to continue."
-    incorrect_string = "Sorry, **wrong choice.**\nPress the spacebar to continue."
+    correct_string = "**Correct!**\n\nPress the spacebar to continue."
+    incorrect_string = "Sorry, **wrong choice.**\n\nPress the spacebar to continue."
 
     correct_node = nk.Node(
         stimulus=nk.cards.TextCard(

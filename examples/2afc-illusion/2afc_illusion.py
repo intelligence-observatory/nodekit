@@ -19,7 +19,7 @@ class TrialSpec:
     right_path: str
     correct_side: Side
 
-
+# %%
 def get_random_trials(
     ill_names: List[str],
     lum_levels: List[str],
@@ -61,7 +61,7 @@ def get_random_trials(
         )
     return trials
 
-
+# %%
 def build_3stage_graph(
     s1: List[TrialSpec],
     s2: List[TrialSpec],
@@ -98,8 +98,7 @@ def build_3stage_graph(
                 region=nk.Region(x=0, y=0, w=stim_size, h=stim_size),
             )
             instruction_card = nk.cards.TextCard(
-                text="""Compare the green region in both images and select the one that appears brighter.
-                         Press space to continue.""",
+                text="Compare the green region in both images and select the one that appears brighter.\nPress space to continue.",
                 text_color="#60C9AF",
                 region=nk.Region(x=0, y=0.3, w=1.0, h=0.2),
                 font_size=0.05,
