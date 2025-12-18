@@ -71,7 +71,6 @@ class Helper:
         project_name: str,
         unique_request_token: str | None = None,
     ) -> HitId:
-
         """
         Creates a HIT based on the given Graph.
         Automatically ensures a public site for the Graph exists on S3.

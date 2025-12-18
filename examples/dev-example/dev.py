@@ -112,10 +112,9 @@ if __name__ == "__main__":
     graph = nk.concat([dev_node])
 
     # %% Play the Graph now:
-    nk.build_site(graph, 'dev-example-site')
+    nk.build_site(graph, "dev-example-site")
 
     trace = nk.play(graph)
-
 
     # %%
     print(f"Observed {len(trace.events)} events:")
