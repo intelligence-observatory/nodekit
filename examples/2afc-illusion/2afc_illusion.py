@@ -1,10 +1,9 @@
+import random
 from dataclasses import dataclass
 from typing import Dict, List, Literal
 
 import nodekit as nk
 from nodekit._internal.types.value import NodeId
-
-import random
 
 
 # %%
@@ -218,9 +217,28 @@ if __name__ == '__main__':
     ill_names = ["koffkas", "simcon", "simcona", "argyle"]
     lum_levels = ["0p10", "0p20", "0p30", "0p40", "0p50"]
 
-    s1 = get_random_trials(ill_names, lum_levels, n_trials=5, gap=3)
-    s2 = get_random_trials(ill_names, lum_levels, n_trials=5, gap=2)
-    s3 = get_random_trials(ill_names, lum_levels, n_trials=5, gap=1)
+    s1 = get_random_trials(
+        ill_names,
+        lum_levels,
+        n_trials=5,
+        gap=3,
+        seed=0,
+    )
+    s2 = get_random_trials(
+        ill_names,
+        lum_levels,
+        n_trials=5,
+        gap=2,
+        seed=1
+    )
+
+    s3 = get_random_trials(
+        ill_names,
+        lum_levels,
+        n_trials=5,
+        gap=1,
+        seed=2,
+    )
 
     graph = build_3stage_graph(s1, s2, s3)
     nk.play(graph)
