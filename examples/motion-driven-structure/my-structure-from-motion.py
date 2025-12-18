@@ -26,17 +26,14 @@ def make_trial(
     # Fixation node
     fixation_cross = nk.cards.ImageCard(
         image=nk.assets.Image.from_path("fixation-cross.svg"),
-        region=nk.Region(x=0, y=0, w=0.05, h=0.05, mask="ellipse"),
+        region=nk.Region(x=0, y=0, w=50, h=50, mask="ellipse"),
     )
     fixation_node = nk.Node(
-        stimulus=fixation_cross,
-        sensor=nk.sensors.ClickSensor(
-            region=fixation_cross.region,
-        ),
+        sensor=nk.sensors.SelectSensor(choices={"fixation": fixation_cross}),
     )
 
     # Stimulus node
-    video_size = 0.4
+    video_size = 400
     stimulus_node = nk.Node(
         stimulus=nk.cards.VideoCard(
             region=nk.Region(
@@ -62,7 +59,7 @@ def make_trial(
     choices = {
         "left": nk.cards.VideoCard(
             region=nk.Region(
-                x=-0.3,
+                x=-300,
                 y=0,
                 w=video_size,
                 h=video_size,
@@ -72,7 +69,7 @@ def make_trial(
         ),
         "right": nk.cards.VideoCard(
             region=nk.Region(
-                x=0.3,
+                x=300,
                 y=0,
                 w=video_size,
                 h=video_size,
@@ -86,9 +83,9 @@ def make_trial(
         text="Which object did you see previously?",
         region=nk.Region(
             x=0,
-            y=0.35,
-            w=0.35,
-            h=0.1,
+            y=350,
+            w=350,
+            h=100,
         ),
         background_color="#c8c8c8",
     )
@@ -108,8 +105,8 @@ def make_trial(
             region=nk.Region(
                 x=0,
                 y=0,
-                w=0.5,
-                h=0.15,
+                w=500,
+                h=150,
             ),
             justification_horizontal="center",
             background_color="#c8c8c8",
@@ -124,8 +121,8 @@ def make_trial(
             region=nk.Region(
                 x=0,
                 y=0,
-                w=0.5,
-                h=0.15,
+                w=500,
+                h=150,
             ),
             justification_horizontal="center",
             background_color="#c8c8c8",
@@ -151,10 +148,7 @@ def make_trial(
             "isi": nk.transitions.Go(to="choice"),
             "choice": nk.transitions.IfThenElse(
                 if_=nk.expressions.Eq(
-                    lhs=nk.expressions.GetDictValue(
-                        d=nk.expressions.LastAction(),
-                        key=nk.expressions.Lit(value="selection"),
-                    ),
+                    lhs=nk.expressions.LastAction(),
                     rhs=nk.expressions.Lit(value=correct_choice),
                 ),
                 then=nk.transitions.Go(to="correct"),

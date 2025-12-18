@@ -1,5 +1,6 @@
-import type {NodeId, PixelSize, PressableKey, SpatialPoint, TimeElapsedMsec} from "../value.ts";
-import type {Action} from "../actions";
+import type {NodeId, PixelSize, PressableKey, PixelPoint, TimeElapsedMsec} from "../values.ts";
+import type {Action} from "../actions.ts";
+import type {Node} from "../node.ts";
 
 export interface BaseEvent<T extends string> {
     event_type: T,
@@ -31,10 +32,12 @@ export interface BrowserContextSampledEvent extends BaseEvent<'BrowserContextSam
 
 // Node events:
 interface BaseNodeEvent<T extends string> extends BaseEvent<T>{
-    node_id: NodeId
+    node_address: NodeId[]
 }
 
-export interface NodeStartedEvent extends BaseNodeEvent<'NodeStartedEvent'>{}
+export interface NodeStartedEvent extends BaseNodeEvent<'NodeStartedEvent'>{
+    node: Node
+}
 
 export interface ActionTakenEvent extends BaseNodeEvent<'ActionTakenEvent'>{
     action: Action
@@ -44,8 +47,8 @@ export interface NodeEndedEvent extends BaseNodeEvent<'NodeEndedEvent'> {}
 
 // Agent inputs:
 export interface PointerSampledEvent extends BaseEvent<'PointerSampledEvent'> {
-    x: SpatialPoint,
-    y: SpatialPoint,
+    x: PixelPoint,
+    y: PixelPoint,
     kind: 'down' | 'up' | 'move'
 }
 

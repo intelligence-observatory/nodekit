@@ -13,14 +13,14 @@ def make_mcq_node(
     The user clicks on a choice card to select it.
     """
 
-    card_height = (1 / 2) / len(choices_markdown) - 0.01
+    card_height = round(500 / len(choices_markdown) - 10)
     choices = {}
     for i_choice, choice_markdown in enumerate(choices_markdown):
         choice_card = nk.cards.TextCard(
             region=nk.Region(
                 x=0,
-                y=0 - (card_height + 0.01) * i_choice,
-                w=1,
+                y=0 - (card_height + 10) * i_choice,
+                w=1000,
                 h=card_height,
             ),
             text=choice_markdown,
@@ -34,14 +34,14 @@ def make_mcq_node(
         stimulus=nk.cards.TextCard(
             region=nk.Region(
                 x=0,
-                y=0.25,
-                w=1,
-                h=0.4,
+                y=250,
+                w=1000,
+                h=400,
             ),
             text=question_markdown,
             justification_horizontal="left",
             justification_vertical="center",
-            font_size=0.04,
+            font_size=40,
         ),
         sensor=nk.sensors.SelectSensor(choices=choices),
         board_color="#ffffff",

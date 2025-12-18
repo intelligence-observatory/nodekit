@@ -1,4 +1,4 @@
-import type {ColorHexString, SpatialPoint, SpatialSize} from "../types/value.ts";
+import type {ColorHexString, PixelPoint, PixelSize} from "../types/values.ts";
 import './board-view.css'
 import {PointerStream} from "../input-streams/pointer-stream.ts";
 import {KeyStream} from "../input-streams/key-stream.ts";
@@ -25,14 +25,14 @@ export class BoardCoordinateSystem {
 
     getUnitPx(): number {
         // Returns the size of one board unit in pixels
-        return Math.min(this.boardWidthPx, this.boardHeightPx);
+        return 1;
     }
 
     getBoardLocationPx(
-        x: SpatialPoint,
-        y: SpatialPoint,
-        w: SpatialSize,
-        h: SpatialSize,
+        x: PixelPoint,
+        y: PixelPoint,
+        w: PixelSize,
+        h: PixelSize,
     ) {
         // Returns the (left, top) coordinates of the given Board rectangle of size boardRectangle, with centroid located at boardLocation
         const unit = this.getUnitPx();
@@ -48,8 +48,8 @@ export class BoardCoordinateSystem {
     }
 
     getBoardRectanglePx(
-        width: SpatialSize,
-        height: SpatialSize,
+        width: PixelSize,
+        height: PixelSize,
     ) {
         // Returns the (width, height) of the given Board rectangle in pixels
         return {
@@ -58,27 +58,26 @@ export class BoardCoordinateSystem {
         }
     }
 
-    getSizePx(boardSize: SpatialSize): number {
+    getSizePx(boardSize: PixelSize): number {
         // Returns the size of the given Board size in pixels
         return this.getUnitPx() * boardSize;
     }
 
     getBoardLocationFromPointerEvent(e: PointerEvent): {
-        x: SpatialPoint,
-        y: SpatialPoint,
+        x: PixelPoint,
+        y: PixelPoint,
     } {
         // Converts a MouseEvent's (clientX, clientY) to Board coordinates (x, y)
-        let clickX = (e.clientX - this.boardLeftPx) / this.boardWidthPx - 0.5;
-        let clickY = -((e.clientY - this.boardTopPx) / this.boardHeightPx - 0.5);
+        let clickX = (e.clientX - this.boardLeftPx) - this.boardWidthPx/2;
+        let clickY = -((e.clientY - this.boardTopPx) - this.boardHeightPx/2);
 
-        // Standardize decimal places
-        const precision = 10;
-        clickX = parseFloat(clickX.toFixed(precision));
-        clickY = parseFloat(clickY.toFixed(precision));
+        // Standardize to integers:
+        clickX = Math.round(clickX);
+        clickY = Math.round(clickY)
 
         return {
-            x: clickX as SpatialPoint,
-            y: clickY as SpatialPoint
+            x: clickX as PixelPoint,
+            y: clickY as PixelPoint
         };
     }
 }

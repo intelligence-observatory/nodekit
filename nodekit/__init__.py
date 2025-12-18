@@ -6,6 +6,7 @@ __all__ = [
     "Trace",
     # One-off top-level types:
     "Region",
+    "Agent",
     # Namespaced types:
     "assets",
     "cards",
@@ -16,8 +17,9 @@ __all__ = [
     "expressions",
     "values",
     # Ops:
-    "play",
     "concat",
+    "play",
+    "simulate",
     "save_graph",
     "load_graph",
     "open_asset",
@@ -32,8 +34,9 @@ from nodekit._internal.types.node import Node
 from nodekit._internal.types.trace import Trace
 from nodekit._internal.types.graph import Graph
 
-# Random
-from nodekit._internal.types.regions import Region
+# One-off top-level types:
+from nodekit._internal.types.values import Region
+from nodekit._internal.ops.simulate.simulate import Agent
 
 # Namespaced types:
 import nodekit.cards as cards
@@ -47,6 +50,7 @@ import nodekit.values as values
 
 # Ops:
 from nodekit._internal.ops.play import play
+from nodekit._internal.ops.simulate.simulate import simulate
 from nodekit._internal.ops.concat import concat
 from nodekit._internal.ops.save_graph_load_graph import save_graph, load_graph
 from nodekit._internal.ops.open_asset_save_asset import open_asset

@@ -1,3 +1,7 @@
+## Building NodeKit
+* Run `make build` from the repo root to build the Python package; this is the canonical build path.
+* Note that `npm` is not used to distribute the NodeKit browser runtime (i.e. `nodekit.js` and `nodekit.css`; these ship with the Python build (see `_static`). 
+
 ## Documentation
 
 * To view the MkDocs site on one's local machine with live reloading, run `make view-docs` from the root of this repository.

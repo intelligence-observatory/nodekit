@@ -1,11 +1,12 @@
-import type {List, RegisterId, Value} from "../types/value.ts";
-import type {Action} from "../types/actions";
+import type {List, RegisterId, Value} from "../types/values.ts";
+import type {Action} from "../types/actions.ts";
 import type {Expression, LocalVariableName} from "../types/expressions/expressions.ts";
 
 export interface EvlContext {
     graphRegisters: Record<RegisterId, Value>,
-    lastAction: Action
-    localVariables: Record<LocalVariableName, Value>
+    lastAction: Action | null,
+    lastSubgraphRegisters: Record<RegisterId, Value> | null,
+    localVariables: Record<LocalVariableName, Value>,
 }
 
 
@@ -23,6 +24,15 @@ export function evl(
             }
             return context.graphRegisters[expression.id]
         }
+        case "creg": {
+            if (context.lastSubgraphRegisters === null) {
+                throw new Error(`No last subgraph registers available for 'creg'`);
+            }
+            if (!(expression.id in context.lastSubgraphRegisters)) {
+                throw new Error(`Child Graph Register '${expression.id}' not found`);
+            }
+            return context.lastSubgraphRegisters[expression.id];
+        }
         case "local": {
             if (!(expression.name in context.localVariables)) {
                 throw new Error(`Local variable '${expression.name}' not found`);
@@ -30,7 +40,10 @@ export function evl(
             return context.localVariables[expression.name];
         }
         case "la": {
-            return context.lastAction;
+            if (context.lastAction === null) {
+                throw new Error(`No last action available for 'la'`);
+            }
+            return context.lastAction.action_value;
         }
         case "gli": {
             const listVal = evl(

@@ -3,7 +3,7 @@ import {Clock} from "./clock.ts";
 import type {Graph, Trace} from "./types/node.ts";
 import {sampleBrowserContext} from "./user-gates/browser-context.ts";
 import {userDeviceIsValid} from "./user-gates/device-gate.ts";
-import type {NodeId, RegisterId, TimeElapsedMsec} from "./types/value.ts";
+import type {NodeAddress, NodeId, RegisterId, TimeElapsedMsec} from "./types/values.ts";
 import {createNodeKitRootDiv} from "./ui/ui-builder.ts";
 import {AssetManager} from "./asset-manager";
 import {ShellUI} from "./ui/shell-ui/shell-ui.ts";
@@ -14,7 +14,6 @@ import {gt, major} from 'semver';
 import {EventArray} from "./event-array.ts";
 
 import {evalTransition} from "./node-play/eval-transition.ts";
-import type {Action} from "./types/actions";
 
 /**
  * Plays a Graph, returning a Trace of Events.
@@ -96,7 +95,7 @@ export async function play(
     // Core play loop:
     await playGraph(
         graph,
-        '', // Root namespace
+        [], // Root namespace
         {
             eventArray: eventArray,
             boardViewsContainerDiv: boardViewsContainerDiv,
@@ -141,31 +140,30 @@ export interface PlayGraphContext {
     clock: Clock,
 }
 
+type RegisterFile = Readonly<Record<RegisterId, any>>;
 async function playGraph(
     graph: Graph,
-    namespace: string,
+    parentAddress: NodeAddress,
     context: PlayGraphContext,
-): Promise<Action> {
-
+): Promise<RegisterFile> {
 
     const nodes = graph.nodes;
-
-    const getNamespacedNodeId = (nodeId: NodeId): NodeId => {
-        return (namespace + nodeId) as NodeId;
-    }
+    const registers = { ...graph.registers };
 
     // Assemble transition map:
     let currentNodeId: NodeId = graph.start;
     let lastAction = null;
+    let lastSubgraphRegisters: Record<RegisterId, any> | null = null;
 
     while (true) {
         const node = nodes[currentNodeId];
+        const currentNodeAddress: NodeAddress = [...parentAddress, currentNodeId];
 
         // If a Graph, recurse.
         if (node.type === 'Graph') {
-            lastAction = await playGraph(
+            lastSubgraphRegisters = await playGraph(
                 node,
-                currentNodeId + '/', // New namespace
+                currentNodeAddress,
                 context
             )
         }
@@ -173,7 +171,7 @@ async function playGraph(
         else if (node.type === 'Node') {
             // Create and prepare the NodePlay:
             const nodePlay = new NodePlay(
-                getNamespacedNodeId(currentNodeId),
+                currentNodeAddress,
                 node,
                 context.assetManager,
                 context.clock,
@@ -206,8 +204,9 @@ async function playGraph(
         const res = evalTransition(
             {
                 transition: transition,
-                registers: graph.registers,
-                lastAction: lastAction
+                registers: registers,
+                lastAction: lastAction,
+                lastSubgraphRegisters: lastSubgraphRegisters,
             }
         )
         // Set next Node:
@@ -217,10 +216,16 @@ async function playGraph(
         }
         currentNodeId = nextNodeId;
 
+
         // Update Graph registers
         for (const [registerId, updateValue] of Object.entries(res.registerUpdates)) {
-            graph.registers[registerId as RegisterId] = updateValue
+            registers[registerId as RegisterId] = updateValue
         }
+
+        // Reset last:
+        lastSubgraphRegisters = null;
+        lastAction = null;
     }
-    return lastAction
+
+    return registers;
 }

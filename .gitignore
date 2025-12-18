@@ -1,6 +1,10 @@
 .idea/
 *.egg-info/
+.DS_Store
 
 nodekit-browser/node_modules/
 nodekit-browser/dist/
 *.pyc
+
+examples/**.nkg
+docs/site/

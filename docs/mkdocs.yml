@@ -2,23 +2,38 @@ site_name: NodeKit
 
 nav:
   - Home: index.md
-  - Tutorial: 'tutorial/getting-started.md'
-  - Concepts: concepts/index.md
+  - Tutorial:
+      - 1. Install NodeKit: 'tutorial/1-installation.md'
+      - 2. Write your first task: 'tutorial/2-first-graph.md'
+      - 3. Get behavioral data: 'tutorial/3-deploy-graph.md'
+      - What's next?: 'tutorial/whats-next.md'
+  - Concepts:
+      - Node: concepts/index.md
+      - Cards: concepts/index.md
+      - Sensors & Actions: concepts/index.md
+      - Graph: concepts/index.md
+      - Transitions: concepts/index.md
+      - Expressions & Values: concepts/index.md
+      - Nested Graphs: concepts/index.md
+      - Reproducibility: concepts/index.md
   - Guides:
       - Deploying to Mechanical Turk: 'guides/mechanical-turk.md'
+      - Using Markdown in TextCards: 'guides/styling-text.md'
+      - Adding time limits to Nodes: 'guides/adding-time-limits.md'
   - Reference:
-      - Node: api/node.md
-      - Graph: api/graph.md
-      - Trace: api/trace.md
-      - Cards: api/cards.md
-      - Sensors: api/sensors.md
-      - Actions: api/actions.md
-      - Transitions: api/transitions.md
-      - Events: api/events.md
-      - Expressions: api/expressions.md
-      - Assets: api/assets.md
-      - Values: api/values.md
-      - Ops: api/ops.md
+      - Node: reference/node.md
+      - Graph: reference/graph.md
+      - Trace: reference/trace.md
+      - Agent: reference/agent.md
+      - Cards: reference/cards.md
+      - Sensors: reference/sensors.md
+      - Actions: reference/actions.md
+      - Transitions: reference/transitions.md
+      - Events: reference/events.md
+      - Expressions: reference/expressions.md
+      - Assets: reference/assets.md
+      - Values: reference/values.md
+      - Ops: reference/ops.md
 
 
 
@@ -35,9 +50,9 @@ theme:
   features:
     - navigation.instant        # no full page reloads
     - navigation.tracking       # URL updates as you scroll
+    - navigation.footer
     - content.code.copy         # copy button on code blocks
     - content.tabs             # tabbed content
-    - toc.integrate             # move local TOC into sidebar
 
   palette:
     - scheme: default         # light
@@ -45,21 +60,29 @@ theme:
       accent: blue grey          # accent color
 
 markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
   - pymdownx.superfences
   - pymdownx.tabbed:
       alternate_style: true
   - toc:
       permalink: true
-      toc_depth: "2-3"
+      toc_depth: "1-3"
 plugins:
   - search
   - mkdocstrings:
       handlers:
         python: # https://mkdocstrings.github.io/python/usage/#recommended-settings
           inventories:
-            - https://docs.python.org/3/objects.inv
+            - https://docs.python.org/3.12/objects.inv
             - https://docs.pydantic.dev/latest/objects.inv
-          paths: [".."]                     # allow imports from repo root
+          paths: [ ".." ]                     # allow imports from repo root
           options:
             modernize_annotations: true
             docstring_style: google        # or "numpy" / "sphinx"

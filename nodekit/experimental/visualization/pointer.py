@@ -13,21 +13,19 @@ import matplotlib.pyplot as plt
 from matplotlib import animation
 from matplotlib.colors import to_rgba
 
-from typing import Dict
-
 
 def make_animation(
-    events: Dict[str, List[PointerSampledEvent]],  # trace_id -> event stream
+    events: dict[str, List[PointerSampledEvent]],  # trace_id -> event stream
     savepath: os.PathLike | str,
     accent_rgba: Tuple[float, float, float, float]
-    | Dict[str, Tuple[float, float, float, float]] = (
+    | dict[str, Tuple[float, float, float, float]] = (
         49 / 255,
         124 / 255,
         245 / 255,
         0.9,
     ),
     neutral_rgba: Tuple[float, float, float, float]
-    | Dict[str, Tuple[float, float, float, float]] = (0.1, 0.1, 0.1, 0.3),
+    | dict[str, Tuple[float, float, float, float]] = (0.1, 0.1, 0.1, 0.3),
     movie_size_px: int = 500,
     movie_time_sec: int = 10,
 ):
@@ -83,9 +81,7 @@ def make_animation(
     # ----------------------------
     trace_ids = list(events.keys())  # insertion order retained
 
-    def _normalize_color_spec(
-        spec, name: str
-    ) -> Dict[str, Tuple[float, float, float, float]]:
+    def _normalize_color_spec(spec, name: str) -> dict[str, Tuple[float, float, float, float]]:
         if isinstance(spec, dict):
             missing = set(trace_ids) - set(spec.keys())
             extra = set(spec.keys()) - set(trace_ids)
@@ -197,9 +193,7 @@ def make_animation(
         follow_line.set_color((S["neutral"][0], S["neutral"][1], S["neutral"][2], 0.0))
 
         # DOWN/UP scatter only
-        scatter = ax.scatter(
-            [], [], s=[], facecolors=[], edgecolors="none", zorder=base_z + 2
-        )
+        scatter = ax.scatter([], [], s=[], facecolors=[], edgecolors="none", zorder=base_z + 2)
 
         trace_artists.append(
             dict(scatter=scatter, persist=persist_line, follow=follow_line, stream=S)
@@ -326,10 +320,7 @@ def make_animation(
             A["follow"].set_color((neutral[0], neutral[1], neutral[2], 0.0))
             if ts.size >= 2:
                 idx_prev = np.searchsorted(ts, t_now, side="right") - 1
-                if (
-                    0 <= idx_prev < ts.size - 1
-                    and ts[idx_prev] <= t_now < ts[idx_prev + 1]
-                ):
+                if 0 <= idx_prev < ts.size - 1 and ts[idx_prev] <= t_now < ts[idx_prev + 1]:
                     t0, t1 = ts[idx_prev], ts[idx_prev + 1]
                     x0, y0 = xs[idx_prev], ys[idx_prev]
                     x1, y1 = xs[idx_prev + 1], ys[idx_prev + 1]

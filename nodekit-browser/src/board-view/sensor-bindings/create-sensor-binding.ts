@@ -1,10 +1,9 @@
-import type {Sensor} from "../../types/sensors";
+import type {Sensor} from "../../types/sensors.ts";
 import type {BoardView} from "../board-view.ts";
 import {SensorBinding} from "./index.ts";
 import {SliderSensorBinding} from "./slider";
 import {TextEntrySensorBinding} from "./text-entry/text-entry.ts";
 import {KeySensorBinding} from "./key";
-import {ClickSensorBinding} from "./click";
 import {WaitSensorBinding} from "./wait";
 import {SelectSensorBinding} from "./select";
 import {MultiSelectSensorBinding} from "./multiselect";
@@ -37,14 +36,6 @@ export async function createSensorBinding(
             );
             break
         }
-        case "ClickSensor": {
-            sensorBinding = new ClickSensorBinding(
-                sensor,
-                boardView,
-                assetManager,
-            );
-            break
-        }
         case "SliderSensor": {
             sensorBinding = new SliderSensorBinding(
                 sensor,
@@ -61,7 +52,6 @@ export async function createSensorBinding(
             );
             break
         }
-
         case "SelectSensor": {
             sensorBinding = new SelectSensorBinding(
                 sensor,

@@ -1,7 +1,7 @@
 import './slider.css'
-import type {SliderSensor} from "../../../types/sensors";
+import type {SliderSensor} from "../../../types/sensors.ts";
 import {BoardCoordinateSystem, createRegionDiv} from "../../board-view.ts";
-import type {SliderAction} from "../../../types/actions";
+import type {SliderAction} from "../../../types/actions.ts";
 import {SensorBinding} from "../index.ts";
 
 
@@ -34,7 +34,7 @@ export class SliderSensorBinding extends SensorBinding<SliderSensor> {
         const sliderChangedCallback = (sliderSample: SliderSample): void => {
             const sliderValue: SliderAction = {
                 action_type: 'SliderAction',
-                bin_index: sliderSample.binIndex
+                action_value: sliderSample.binIndex
             }
             this.emit(sliderValue)
         }

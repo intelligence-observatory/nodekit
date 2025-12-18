@@ -1,10 +1,9 @@
 import collections
-from typing import Dict
 
 from nodekit._internal.types.graph import Graph
 from nodekit._internal.types.node import Node
-from nodekit._internal.types.transition import End, Go, Transition
-from nodekit._internal.types.value import NodeId
+from nodekit._internal.types.transitions import End, Go, Transition
+from nodekit._internal.types.values import NodeId
 
 
 # %%
@@ -33,8 +32,8 @@ def concat(
         )
 
     # Assemble:
-    nodes: Dict[NodeId, Node | Graph] = {}
-    transitions: Dict[NodeId, Transition] = {}
+    nodes: dict[NodeId, Node | Graph] = {}
+    transitions: dict[NodeId, Transition] = {}
 
     for i, (node_id, node) in enumerate(zip(ids, sequence)):
         nodes[node_id] = node

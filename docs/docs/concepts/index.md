@@ -23,7 +23,7 @@ Cards represent a visual element on the Board. There are four Card types in Node
 * `ImageCard`
 * `VideoCard`
 * `TextCard`
-* `CompositeCard`, which is a container that can contain other Cards.
+* `CompositeCard`, which is a container that can contain other Cards. This should be used whenever the Stimulus cannot be expressed using a single Card, and/or when the user would like to organize Cards by group or ID.
 
 ### Sensor
 
@@ -66,60 +66,16 @@ A `Trace` is a description of a single Agent's run of a Graph.
 
 ## Board
 
-The Board is the square region of the Participant's display on which the Graph unfolds. Points on the Board are given using _Board coordinates_, where (0, 0) is the center of the Board and (0.5, 0.5) is the top right.
+The Board is NodeKit's name for the region of the Agent's display where visual content is rendered. Points on the Board are described using _Board coordinates_, where: 
 
-NodeKit defines the **ideal Board** as 768 x 768 _reference pixels_. A reference pixel is a unit of _visual angle_ defined in the [W3C specification](https://www.w3.org/TR/css-values-3/#reference-pixel) as the visual angle of one pixel on a
-device with 96 [dpi](https://en.wikipedia.org/wiki/Dots_per_inch) at an arm's length. Given an arm's length of 28 inches, a reference pixel is ~0.0213° of visual angle, and the Board is ~16.26° x 16.26° of the Participant's visual field
-when viewed straight on.
+* (0, 0) is the center of the Agent's display.
+* Positive increases in the first coordinate (x) causes movement in the **rightward** direction.
+* Positive increases in the second coordinate (y) causes movement in the **upward** direction. 
+* Units are normatively specified as **reference pixels**. A reference pixel is a unit of _visual angle_ defined in the [W3C specification](https://www.w3.org/TR/css-values-3/#reference-pixel) as the visual angle of one pixel on a
+  device with 96 [dpi](https://en.wikipedia.org/wiki/Dots_per_inch) at an arm's length. Given an arm's length of 28 inches, a reference pixel is ~0.0213° of visual angle. In practice, NodeKit interprets Board units as _CSS pixels_, which the W3C spec _recommends_ be mapped by the browser [1:1 with reference pixels](https://www.w3.org/TR/css-values-3/#absolute-lengths). Note that this mapping is always
+  approximate, in that the browser 1) does not know the Agent's viewing position, and 2) does not know the physical size of _device pixels_.
 
-In practice, NodeKit sets the Board to 768 x 768 _CSS pixels_, which the W3C spec _recommends_ be mapped by the browser [1:1 with reference pixels](https://www.w3.org/TR/css-values-3/#absolute-lengths). Note that this mapping is always
-approximate, in that the browser 1) does not know the Participant's viewing position, and 2) does not know the physical size of _device pixels_.
 
-## Values and Expressions
+Thus, a Board coordinate of (100, 100) would indicate a point that is 100 pixels to the right, and 100 pixels up from the Agent's display.
 
-- `Value`. Sum type of `bool`, `int`, `float`, `str`, `list[Value]`, `dict[str, Value]`.
-- `Expression<V>`. A computation the interpreter may _evaluate_ to a Value of type `V`, discriminated by `op`. Notable forms:
-    - Data access: `reg`, `local`, `la` (last action), `gli` (get list item), `gdv` (get dict value), `lit`.
-    - Conditionals and logic: `if`, `not`, variadic `or`/`and`.
-    - Comparators: `eq`, `ne`, `gt`, `ge`, `lt`, `le`.
-    - Arithmetic: `add`, `sub`, `mul`, `div`.
-    - Array ops: `slice`, `map`, `filter`, `fold` (with local bindings for `cur`/`acc` where relevant).
-
-## Markdown in NodeKit
-
-NodeKit supports a defined subset of [CommonMark](https://commonmark.org) for TextCards. Only the syntax below is supported; unsupported constructs might lead to runtime errors or strange rendering behaviors.
-
-### What’s supported
-
-- Headers: `#` through `######` followed by a space and text (levels above 6 are rejected).
-- Italics: use `*text*` or `_text_`;
-- Bolding: use `**text**` or `__text__`;
-- Italics+Bolding: use `***text***` (and equivalents).
-- Paragraphs: separate with a blank line; `<br>` is not supported. Soft line breaks are folded into spaces; hard breaks are not allowed.
-- Lists: unordered bullets using any marker (`-`, `*`, `+`, etc.); ordered lists with `1.`.
-- Color spans: `<span style="color:#rrggbb">text</span>` or `#rrggbbaa`. No other inline HTML or style attributes.
-
-### What’s not supported
-
-Any other CommonMark features are not supported, including:
-
-- Inline code or fenced code blocks (single or triple backticks)
-- Links and images
-- Blockquotes, tables, and other Markdown extensions
-- Any HTML beyond the color `<span>` above
-
-### Example
-
-```markdown
-# Heading
-
-This is a paragraph with **bold** and _italic_ text.
-
-- First item
-    - Nested item
-- Second item
-
-* Same list, different marker
-
-Here is <span style="color:#ff00ff">magenta text</span>.
-```
+NodeKit currently supports rendering the central 1024 x 1024 pixel region of the Board. A 1024 x 1024 region corresponds to ~21.81° x 21.81° of the Agent's visual field, given the assumptions above, and when viewed straight on.

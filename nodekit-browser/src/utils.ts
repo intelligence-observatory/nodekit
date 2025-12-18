@@ -1,13 +1,12 @@
-import type {ColorHexString, MarkdownString, SpatialPoint, SpatialSize} from "./types/value.ts";
+import type {ColorHexString, MarkdownString, PixelSize} from "./types/values.ts";
 import {marked} from "marked";
 import DOMPurify from "dompurify";
-import type {Region} from "./types/region";
 
 
 export interface TextContentParameters {
     text: MarkdownString
     textColor: ColorHexString
-    fontSize: SpatialSize // The height of the em-box, in Board units
+    fontSize: PixelSize // The height of the em-box, in Board units
     justificationHorizontal: 'left' | 'center' | 'right'
     justificationVertical: 'top' | 'center' | 'bottom'
 }
@@ -15,7 +14,7 @@ export interface TextContentParameters {
 
 export function renderTextContent(
     textContentParameters: TextContentParameters,
-    fontSizeToCSS: (fontSize: SpatialSize) => string
+    fontSizeToCSS: (fontSize: PixelSize) => string
 ): HTMLDivElement {
     const textDiv = document.createElement('div');
     textDiv.classList.add('text-content');
@@ -54,36 +53,6 @@ export function renderTextContent(
     return textDiv
 }
 
-export function checkPointInRegion(
-    x: SpatialPoint,
-    y: SpatialPoint,
-    region: Region,
-): boolean {
-    switch (region.mask) {
-        case 'rectangle':
-            const left = region.x - region.w / 2;
-            const right = region.x + region.w / 2;
-            const top = region.y + region.h / 2;
-            const bottom = region.y - region.h / 2;
-            return (x >= left) &&
-                (x <= right) &&
-                (y >= bottom) &&
-                (y <= top);
-        case 'ellipse':
-            const radius_x = region.w / 2;
-            const radius_y = region.h / 2;
-            const delta_x = x - region.x;
-            const delta_y = y - region.y;
-
-            return (
-                (delta_x * delta_x) / (radius_x * radius_x) +
-                (delta_y * delta_y) / (radius_y * radius_y) <=
-                1
-            );
-        default:
-            throw new Error(`Unknown mask: ${region.mask}`);
-    }
-}
 
 export class Deferred<T> {
     public readonly promise: Promise<T>

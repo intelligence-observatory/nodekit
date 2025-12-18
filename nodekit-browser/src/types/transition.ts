@@ -1,11 +1,13 @@
 import type {Expression} from "./expressions/expressions.ts";
-import type {LeafValue, NodeId, RegisterId} from "./value.ts";
+import type {LeafValue, NodeId, RegisterId} from "./values.ts";
 
 interface BaseTransition<T extends string> {
     transition_type: T
 }
 
-export interface End extends BaseTransition<'End'> {}
+export interface End extends BaseTransition<'End'> {
+    register_updates: Record<RegisterId, Expression>
+}
 
 export interface Go extends BaseTransition<'Go'> {
     // Leaf. Constant transition.
