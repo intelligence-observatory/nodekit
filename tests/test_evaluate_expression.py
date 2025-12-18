@@ -1,7 +1,7 @@
 import pytest
 
 import nodekit as nk
-from nodekit._internal.ops.simulation.evaluate_expression import EvalContext, evaluate_expression
+from nodekit._internal.ops.simulate.evaluate_expression import EvalContext, evaluate_expression
 
 
 @pytest.fixture
