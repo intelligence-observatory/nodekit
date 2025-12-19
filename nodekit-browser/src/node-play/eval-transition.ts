@@ -84,38 +84,6 @@ export function evalTransition(
                 });
             }
         }
-        case "Switch": {
-            const selector = evl(
-                transition.on,
-                {
-                    graphRegisters: registers,
-                    localVariables: {},
-                    lastAction:lastAction,
-                    lastSubgraphRegisters: lastSubgraphRegisters,
-
-                },
-            );
-
-            for (const [value, then] of transition.cases.entries()) {
-                if (selector === value) {
-                    return evalTransition({
-                        transition: then,
-                        registers,
-                        lastAction:lastAction,
-                        lastSubgraphRegisters: lastSubgraphRegisters,
-
-                    });
-                }
-            }
-
-            // Default case
-            return evalTransition({
-                transition: transition.default,
-                registers,
-                lastAction:lastAction,
-                lastSubgraphRegisters: lastSubgraphRegisters,
-            });
-        }
         default:
             const _exhaustiveCheck: never = transition;
             throw new Error(`Unhandled transition: ${JSON.stringify(_exhaustiveCheck)}`);

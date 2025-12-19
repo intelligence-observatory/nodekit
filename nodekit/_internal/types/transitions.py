@@ -55,17 +55,6 @@ class IfThenElse(BaseTransition):
     ]
 
 
-# %%
-class Switch(BaseTransition):
-    transition_type: Literal["Switch"] = "Switch"
-    on: Expression
-    cases: dict[LeafValue, LeafTransition]
-    default: LeafTransition = pydantic.Field(
-        default_factory=End,
-        description="The transition to take if no case matches.",
-        validate_default=True,
-    )
-
 
 # %%
 type Transition = Annotated[
@@ -73,7 +62,6 @@ type Transition = Annotated[
         Go,
         End,
         IfThenElse,
-        Switch,
     ],
     pydantic.Field(discriminator="transition_type"),
 ]

@@ -20,7 +20,6 @@ from nodekit._internal.types.transitions import (
     End,
     Go,
     IfThenElse,
-    Switch,
     Transition,
 )
 from nodekit._internal.types.values import RegisterId, Value
@@ -252,33 +251,6 @@ def _eval_transition(
             branch = transition.then if cond else transition.else_
             return _eval_transition(
                 transition=branch,
-                registers=registers,
-                last_action=last_action,
-                last_subgraph_registers=last_subgraph_registers,
-            )
-
-        case Switch():
-            selector = evaluate_expression(
-                transition.on,
-                EvalContext(
-                    graph_registers=registers,
-                    local_variables={},
-                    last_action=last_action,
-                    last_subgraph_registers=last_subgraph_registers,
-                ),
-            )
-
-            for case_value, case_transition in transition.cases.items():
-                if selector == case_value:
-                    return _eval_transition(
-                        transition=case_transition,
-                        registers=registers,
-                        last_action=last_action,
-                        last_subgraph_registers=last_subgraph_registers,
-                    )
-
-            return _eval_transition(
-                transition=transition.default,
                 registers=registers,
                 last_action=last_action,
                 last_subgraph_registers=last_subgraph_registers,
