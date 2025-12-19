@@ -1,7 +1,4 @@
-from __future__ import annotations
-
 import random
-import warnings
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Mapping
@@ -12,6 +9,7 @@ from nodekit._internal.ops.simulate.evaluate_expression import (
     evaluate_expression,
 )
 from nodekit._internal.ops.simulate.sample_action import sample_action
+from nodekit._internal.ops.simulate.validate_action import validate_action
 from nodekit._internal.types.actions import Action
 from nodekit._internal.types.graph import Graph
 from nodekit._internal.types.node import Node
@@ -157,7 +155,8 @@ def _simulate_core(
 
             action = agent(node_or_graph)
 
-            # Todo: Validate that action is valid for the node's sensor
+            # Validate that action is valid for the node's sensor
+            validate_action(sensor=node_or_graph.sensor, action=action)
 
             events.append(
                 e.ActionTakenEvent(
