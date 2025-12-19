@@ -22,3 +22,6 @@ my_task = nk.concat([trial1, trial2, trial3])
 Up to this point, all the Graphs have involved _linear sequencing_ of Nodes, where Nodes are administered to the agent one after the other.
 
 But many tasks involve branching. (todo)
+
+
+### Learn more 

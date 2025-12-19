@@ -72,7 +72,7 @@ graph = nk.Graph(
 
 ## Play your task
 
-Now it's time to play the Graph. NodeKit offers the `nk.play` function which launches your Graph on your local web browser. This function returns once you have completed the Graph. There is no special configuration required; just call `nk.play(graph)`:
+Now it's time to play the Graph. NodeKit offers the `nk.play` function which launches your Graph on your local web browser. There is no special configuration required; just call `nk.play(graph)`:
 
 ```python hl_lines="14-20" linenums="1"
 import nodekit as nk 
@@ -91,11 +91,15 @@ graph = nk.Graph(
 trace = nk.play(graph) # launch a local server
 ```
 
-You should see your Python output print out a link, which you should open up in your web browser. 
+You should see your Python output print out a link, which you can open up in your web browser to play the Graph. 
+
+Once you complete the Graph's (one and only) Node, the function returns with your **Trace** through that Graph.
 
 
 ## Next up
 
-We wrote a very simple Graph above. Moreover, 
+We wrote a very simple Graph consisting of a single Node with an **End** Transition. 
+
+Next up, we will write a more realistic Graph that describes a series of N-way classification trials. This Graph will showcase the rest of the Card, Sensor, and Transition types that you'll be using with NodeKit. You'll also learn about the useful `nk.concat` function.
 
 
