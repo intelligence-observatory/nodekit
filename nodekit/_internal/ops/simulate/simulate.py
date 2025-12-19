@@ -28,14 +28,14 @@ from nodekit._internal.types.values import RegisterId, Value
 # %%
 class Agent(ABC):
     @abstractmethod
-    def __call__(self, node: Node) -> Action | None:
+    def __call__(self, node: Node) -> Action:
         """
-        Return an Action or None (to end the simulation), given the Node.
+        Return an Action given a Node.
         Args:
             node:
 
         Returns:
-            Action | None: The selected Action, or None to end the simulation.
+            Action: The selected Action.
 
         """
         ...
@@ -50,7 +50,7 @@ class DummyAgent(Agent):
     def __init__(self, seed: int | None = None):
         self.rng = random.Random(seed)
 
-    def __call__(self, node: Node) -> Action | None:
+    def __call__(self, node: Node) -> Action:
         return sample_action(
             sensor=node.sensor,
             rng=self.rng,
@@ -156,11 +156,8 @@ def _simulate_core(
             )
 
             action = agent(node_or_graph)
-            if action is None:
-                warnings.warn(
-                    f"Agent returned None for node at address {current_address}. Ending run."
-                )
-                raise RuntimeError()
+
+            # Todo: Validate that action is valid for the node's sensor
 
             events.append(
                 e.ActionTakenEvent(
