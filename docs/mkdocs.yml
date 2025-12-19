@@ -24,7 +24,7 @@ nav:
       - Node: reference/node.md
       - Graph: reference/graph.md
       - Trace: reference/trace.md
-      - Agent: reference/agent.md
+      - Agents: reference/agent.md
       - Cards: reference/cards.md
       - Sensors: reference/sensors.md
       - Actions: reference/actions.md

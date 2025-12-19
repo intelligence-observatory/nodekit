@@ -22,7 +22,7 @@ class Agent(ABC):
         ...
 
 
-class DummyAgent(Agent):
+class RandomGuesser(Agent):
     """
     An Agent that randomly selects the first available Action in a Node.
     """

@@ -238,7 +238,7 @@ def test_simulate_raises_on_agent_returning_none() -> None:
         nk.simulate(graph, agent=NoneAgent())
 
 
-def test_dummy_agent_uses_seeded_rng(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_random_agent_uses_seeded_rng(monkeypatch: pytest.MonkeyPatch) -> None:
     used_rngs: list[object] = []
 
     def fake_sample_action(sensor: nk.sensors.Sensor, rng=None) -> nk.actions.Action:
@@ -246,7 +246,7 @@ def test_dummy_agent_uses_seeded_rng(monkeypatch: pytest.MonkeyPatch) -> None:
         return nk.actions.WaitAction()
 
     monkeypatch.setattr(simulate_module, "sample_action", fake_sample_action)
-    agent = nodekit._internal.types.agents.DummyAgent(seed=123)
+    agent = nodekit._internal.types.agents.RandomGuesser(seed=123)
 
     node = nk.Node(
         stimulus=None,

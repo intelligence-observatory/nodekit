@@ -9,7 +9,7 @@ from nodekit._internal.ops.simulate.evaluate_expression import (
 )
 from nodekit._internal.ops.simulate.validate_action import validate_action
 from nodekit._internal.types.actions import Action
-from nodekit._internal.types.agents import DummyAgent
+from nodekit._internal.types.agents import RandomGuesser
 from nodekit._internal.types.graph import Graph
 from nodekit._internal.types.node import Node
 from nodekit._internal.types.trace import Trace
@@ -44,7 +44,7 @@ def simulate(
     """
 
     if agent is None:
-        agent = DummyAgent(seed=None)
+        agent = RandomGuesser(seed=None)
 
     time_elapsed_msec = 0
 
