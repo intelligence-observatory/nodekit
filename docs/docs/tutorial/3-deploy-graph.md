@@ -1,9 +1,9 @@
 
- This tutorial will walk through the three different ways to get behavioral data using a Graph: 
+ This tutorial will walk through the three different ways to get behavioral data using NodeKit: 
 
-- Your local machine (to get behavior from yourself)
-- Model environment (to get behavior from a NodeKit-compliant agent)
-- Mechanical Turk (to get behavior from MTurkers)
+1. `nk.play`: run your Graph locally in your web browser (to get behavior from yourself)
+2. `nk.simulate`: run your Graph in Python (to get behavior from a NodeKit-compliant agent)
+3. `nk.build_site`: convert your Graph into a static site which can be deployed to platforms like Mechanical Turk or Prolific
 
 This tutorial requires that you have a Graph, ready-to-go. In the last tutorial, a simple Graph was written:
 
