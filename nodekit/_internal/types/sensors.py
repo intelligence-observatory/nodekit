@@ -74,11 +74,11 @@ class MultiSelectSensor(BaseSensor):
         if self.max_selections is None:
             self.max_selections = len(self.choices)
         if self.max_selections < self.min_selections:
-            raise pydantic.ValidationError(
+            raise ValueError(
                 f"max_selections ({self.max_selections}) must be greater than min_selections ({self.min_selections})",
             )
         if self.max_selections > len(self.choices):
-            raise pydantic.ValidationError(
+            raise ValueError(
                 f"max_selections ({self.max_selections}) cannot be greater than the number of available choices ({len(self.choices)})",
             )
 
