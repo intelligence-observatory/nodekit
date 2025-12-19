@@ -11,7 +11,7 @@ from nodekit._internal.types.values import NodeId, RegisterId, LeafValue
 # %%
 class Graph(pydantic.BaseModel):
     type: Literal["Graph"] = "Graph"
-    nodekit_version: Literal["0.2.1"] = pydantic.Field(default=VERSION, validate_default=True)
+    nodekit_version: Literal["0.2.2"] = pydantic.Field(default=VERSION, validate_default=True)
 
     nodes: dict[NodeId, Union[Node, "Graph"]] = pydantic.Field(
         description="The set of Nodes in the Graph, by NodeId. Note that a Graph can contain other Graphs as Nodes.",

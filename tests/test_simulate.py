@@ -1,5 +1,5 @@
-import pytest
 import pydantic
+import pytest
 
 import nodekit as nk
 

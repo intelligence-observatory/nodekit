@@ -4,7 +4,6 @@ import pytest
 
 import nodekit as nk
 
-
 ASSET_DIR = Path(__file__).parent / "assets"
 
 
