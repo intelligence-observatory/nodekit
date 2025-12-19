@@ -2,6 +2,7 @@ import pydantic
 import pytest
 
 import nodekit as nk
+import nodekit._internal.ops.simulate.simulate as simulate_module
 
 
 class FixedActionAgent(nk.Agent):
@@ -212,3 +213,44 @@ def test_simulate_raises_on_invalid_register_reference() -> None:
             },
             registers={"r1": 0},
         )
+
+
+def test_simulate_raises_on_agent_returning_none() -> None:
+    class NoneAgent(nk.Agent):
+        def __call__(self, node: nk.Node) -> None:
+            return None
+
+    graph = nk.Graph(
+        start="start",
+        nodes={
+            "start": nk.Node(
+                stimulus=nk.cards.TextCard(text="start"),
+                sensor=nk.sensors.WaitSensor(duration_msec=1),
+            )
+        },
+        transitions={
+            "start": nk.transitions.End(),
+        },
+    )
+
+    with pytest.raises(ValueError):
+        nk.simulate(graph, agent=NoneAgent())
+
+
+def test_dummy_agent_uses_seeded_rng(monkeypatch: pytest.MonkeyPatch) -> None:
+    used_rngs: list[object] = []
+
+    def fake_sample_action(sensor: nk.sensors.Sensor, rng=None) -> nk.actions.Action:
+        used_rngs.append(rng)
+        return nk.actions.WaitAction()
+
+    monkeypatch.setattr(simulate_module, "sample_action", fake_sample_action)
+    agent = simulate_module.DummyAgent(seed=123)
+
+    node = nk.Node(
+        stimulus=None,
+        sensor=nk.sensors.WaitSensor(duration_msec=1),
+    )
+    agent(node)
+
+    assert used_rngs == [agent.rng]
