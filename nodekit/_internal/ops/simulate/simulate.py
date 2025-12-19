@@ -53,7 +53,7 @@ class DummyAgent(Agent):
     def __call__(self, node: Node) -> Action | None:
         return sample_action(
             sensor=node.sensor,
-            rng=random.Random(),
+            rng=self.rng,
         )
 
 
