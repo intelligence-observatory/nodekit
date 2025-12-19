@@ -6,7 +6,7 @@ import nodekit._internal.ops.simulate.simulate as simulate_module
 import nodekit._internal.types.agents
 
 
-class FixedActionAgent(nodekit._internal.types.agents.Agent):
+class FixedActionAgent(nodekit._internal.types.agents.BaseAgent):
     def __init__(self, actions: list[nk.actions.Action]) -> None:
         self._actions = iter(actions)
 
@@ -217,7 +217,7 @@ def test_simulate_raises_on_invalid_register_reference() -> None:
 
 
 def test_simulate_raises_on_agent_returning_none() -> None:
-    class NoneAgent(nodekit._internal.types.agents.Agent):
+    class NoneAgent(nodekit._internal.types.agents.BaseAgent):
         def __call__(self, node: nk.Node) -> None:
             return None
 

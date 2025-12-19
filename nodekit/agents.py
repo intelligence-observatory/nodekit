@@ -1,9 +1,9 @@
 __all__ = [
-    'Agent',
+    'BaseAgent',
     'RandomGuesser',
 ]
 
 from nodekit._internal.types.agents import (
-    Agent,
+    BaseAgent,
     RandomGuesser,
 )

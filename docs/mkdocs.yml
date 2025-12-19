@@ -11,6 +11,7 @@ nav:
       - Deploying to Mechanical Turk: 'guides/mechanical-turk.md'
       - Using Markdown in TextCards: 'guides/styling-text.md'
       - Adding time limits to Nodes: 'guides/adding-time-limits.md'
+      - Writing your own Agent: 'guides/writing-agents.md'
   - Concepts:
       - Node: concepts/index.md
       - Cards: concepts/index.md

@@ -8,3 +8,9 @@
 * Google-style docstrings are used in this project.
 * Roughly structuring the documentation following guidance laid out in [Diátaxis](https://diataxis.fr). 
 * The [griffe-pydantic](https://mkdocstrings.github.io/griffe-pydantic/) mkdocs extension is used to document pydantic models in NodeKit; see [StackOverflow](https://stackoverflow.com/questions/78281256/automatic-documentation-of-pydantic-basemodel-with-mkdocstrings) discussion 
+
+
+### Documentation style 
+- Entities in NodeKit should be referred to as proper nouns; e.g. 
+  - "Nodes", not "nodes"
+  - "Agents", not "agents", unless the general concept of agent is being discussed (e.g. "RL agents" is ok; "NodeKit agents" is not)

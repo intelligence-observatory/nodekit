@@ -6,7 +6,7 @@ __all__ = [
     "Trace",
     # One-off top-level types:
     "Region",
-    "Agent",
+    "BaseAgent",
     # Namespaced types:
     "agents",
     "assets",
@@ -37,7 +37,7 @@ from nodekit._internal.types.graph import Graph
 
 # One-off top-level types:
 from nodekit._internal.types.values import Region
-from nodekit._internal.types.agents import Agent
+from nodekit._internal.types.agents import BaseAgent
 
 # Namespaced types:
 import nodekit.agents as agents

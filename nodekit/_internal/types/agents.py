@@ -7,7 +7,7 @@ from nodekit._internal.types.actions import Action
 
 
 #%%
-class Agent(ABC):
+class BaseAgent(ABC):
     @abstractmethod
     def __call__(self, node: Node) -> Action:
         """
@@ -22,7 +22,7 @@ class Agent(ABC):
         ...
 
 
-class RandomGuesser(Agent):
+class RandomGuesser(BaseAgent):
     """
     An Agent that randomly selects the first available Action in a Node.
     """

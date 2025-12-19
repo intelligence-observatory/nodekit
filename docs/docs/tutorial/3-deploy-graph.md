@@ -37,12 +37,11 @@ To do so, use the `nk.simulate` function:
 ```python hl_lines="14-16" linenums="1"
 import nodekit as nk
 graph = nk.Graph(...) # Insert your Graph here
-trace = nk.simulate(
-    graph, 
-    agent=nk.agents.RandomGuesser(seed=0)
-) 
+agent = nk.agents.RandomGuesser(seed=0) # Instantiate agent
+trace = nk.simulate(graph, agent) # Run Graph on agent and get its behavioral trace
 ```
 
+To write your own Agent, see the [Writing Agents Guide](../guides/writing-agents.md).
 
 ## 3. Build your Graph into a deployable site
 
@@ -78,4 +77,4 @@ If you'd like, you can open up the directory and launch the `index.html` file in
     While you could certainly use `nk.build_site` to preview your Graph, it doesn't automatically collect and return your data, and it also adds files to your file system.
 
 
-Deploying this site to users on Mechanical Turk, Prolific, or similar platforms is a topic which is discussed in the [deployment guide](../guides/mechanical-turk.md).
+Deploying this site to users on Mechanical Turk, Prolific, or similar platforms is a topic which is discussed in the [Deployment Guide](../guides/mechanical-turk.md).

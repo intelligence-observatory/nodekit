@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Mapping
 
 import nodekit._internal.types.events as e
-from nodekit import Agent
+from nodekit import BaseAgent
 from nodekit._internal.ops.simulate.evaluate_expression import (
     EvalContext,
     evaluate_expression,
@@ -25,7 +25,7 @@ from nodekit._internal.types.values import RegisterId, Value
 # %%
 def simulate(
     graph: Graph,
-    agent: Agent | None = None,
+    agent: BaseAgent | None = None,
 ) -> Trace:
     """
     Deterministically simulates a Graph using the provided Agent.
@@ -74,7 +74,7 @@ class EvalTransitionResult:
 
 def _simulate_core(
     graph: Graph,
-    agent: Agent,
+    agent: BaseAgent,
     address: list[str],
     time_elapsed_msec: int,
 ) -> tuple[list[e.Event], dict[RegisterId, Value], int]:
