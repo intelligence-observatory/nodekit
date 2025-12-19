@@ -3,7 +3,7 @@ from typing import Literal, Annotated, Union
 import pydantic
 
 from nodekit._internal.types.expressions import Expression
-from nodekit._internal.types.values import NodeId, RegisterId, LeafValue
+from nodekit._internal.types.values import NodeId, RegisterId
 
 
 # %%
@@ -53,7 +53,6 @@ class IfThenElse(BaseTransition):
         LeafTransition,
         pydantic.Field(default_factory=End, validate_default=True, alias="else"),
     ]
-
 
 
 # %%

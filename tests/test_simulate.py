@@ -50,10 +50,13 @@ def test_simulate_register_update_and_branch() -> None:
                     )
                 },
             ),
-            "next": nk.transitions.Switch(
-                on=nk.expressions.Reg(id="r"),
-                cases={3: nk.transitions.End()},
-                default=nk.transitions.Go(to="fallback"),
+            "next": nk.transitions.IfThenElse(
+                if_=nk.expressions.Eq(
+                    lhs=nk.expressions.Reg(id="r"),
+                    rhs=nk.expressions.Lit(value=3),
+                ),
+                then=nk.transitions.End(),
+                else_=nk.transitions.Go(to="fallback"),
             ),
             "fallback": nk.transitions.End(),
         },
@@ -139,10 +142,13 @@ def test_simulate_child_register_branching() -> None:
             ),
         },
         transitions={
-            "child": nk.transitions.Switch(
-                on=nk.expressions.ChildReg(id="score"),
-                cases={4: nk.transitions.Go(to="after")},
-                default=nk.transitions.Go(to="fail"),
+            "child": nk.transitions.IfThenElse(
+                if_=nk.expressions.Eq(
+                    lhs=nk.expressions.ChildReg(id="score"),
+                    rhs=nk.expressions.Lit(value=4),
+                ),
+                then=nk.transitions.Go(to="after"),
+                else_=nk.transitions.Go(to="fail"),
             ),
             "after": nk.transitions.End(),
             "fail": nk.transitions.End(),
@@ -198,10 +204,10 @@ def test_simulate_raises_on_invalid_register_reference() -> None:
                 )
             },
             transitions={
-                "start": nk.transitions.Switch(
-                    on=nk.expressions.Reg(id="missing"),
-                    cases={1: nk.transitions.End()},
-                    default=nk.transitions.End(),
+                "start": nk.transitions.IfThenElse(
+                    if_=nk.expressions.Reg(id="missing"),
+                    then=nk.transitions.End(),
+                    else_=nk.transitions.End(),
                 )
             },
             registers={"r1": 0},

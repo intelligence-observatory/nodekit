@@ -87,56 +87,54 @@ def test_if_branch_updates_checked():
         )
 
 
-def test_switch_on_expression_checked():
+def test_if_condition_child_register_refs_checked():
     with pytest.raises(pydantic.ValidationError, match="undefined registers"):
         nk.Graph(
             nodes={"start": wait_node()},
             transitions={
-                "start": nk.transitions.Switch(
-                    on=nk.expressions.Reg(id="missing"),
-                    cases={1: nk.transitions.Go(to="start")},
-                    default=nk.transitions.End(),
-                )
+                "start": nk.transitions.IfThenElse(
+                    if_=nk.expressions.ChildReg(id="missing"),
+                    then=nk.transitions.Go(to="start"),
+                    else_=nk.transitions.End(),
+                ),
             },
             start="start",
             registers={"r1": 0},
         )
 
 
-def test_switch_case_updates_checked():
+def test_if_else_branch_updates_checked():
     with pytest.raises(pydantic.ValidationError, match="undefined registers"):
         nk.Graph(
             nodes={"start": wait_node()},
             transitions={
-                "start": nk.transitions.Switch(
-                    on=nk.expressions.Lit(value=1),
-                    cases={
-                        1: nk.transitions.Go(
-                            to="start",
-                            register_updates={"r1": nk.expressions.Reg(id="missing")},
-                        )
-                    },
-                    default=nk.transitions.End(),
-                )
-            },
-            start="start",
-            registers={"r1": 0},
-        )
-
-
-def test_switch_default_updates_checked():
-    with pytest.raises(pydantic.ValidationError, match="undefined registers"):
-        nk.Graph(
-            nodes={"start": wait_node()},
-            transitions={
-                "start": nk.transitions.Switch(
-                    on=nk.expressions.Lit(value=1),
-                    cases={},
-                    default=nk.transitions.Go(
+                "start": nk.transitions.IfThenElse(
+                    if_=nk.expressions.Lit(value=True),
+                    then=nk.transitions.End(),
+                    else_=nk.transitions.Go(
                         to="start",
                         register_updates={"r1": nk.expressions.Reg(id="missing")},
                     ),
-                )
+                ),
+            },
+            start="start",
+            registers={"r1": 0},
+        )
+
+
+def test_if_else_branch_child_register_updates_checked():
+    with pytest.raises(pydantic.ValidationError, match="undefined registers"):
+        nk.Graph(
+            nodes={"start": wait_node()},
+            transitions={
+                "start": nk.transitions.IfThenElse(
+                    if_=nk.expressions.Lit(value=False),
+                    then=nk.transitions.End(),
+                    else_=nk.transitions.Go(
+                        to="start",
+                        register_updates={"r1": nk.expressions.ChildReg(id="missing")},
+                    ),
+                ),
             },
             start="start",
             registers={"r1": 0},
@@ -204,18 +202,19 @@ def test_valid_register_updates_pass():
             "end": wait_node(),
         },
         transitions={
-            "start": nk.transitions.Switch(
-                on=nk.expressions.Reg(id="r1"),
-                cases={
-                    0: nk.transitions.Go(
-                        to="end",
-                        register_updates={
-                            "r1": nk.expressions.Reg(id="r1"),
-                            "r2": nk.expressions.Lit(value=2),
-                        },
-                    ),
-                },
-                default=nk.transitions.Go(
+            "start": nk.transitions.IfThenElse(
+                if_=nk.expressions.Eq(
+                    lhs=nk.expressions.Reg(id="r1"),
+                    rhs=nk.expressions.Lit(value=0),
+                ),
+                then=nk.transitions.Go(
+                    to="end",
+                    register_updates={
+                        "r1": nk.expressions.Reg(id="r1"),
+                        "r2": nk.expressions.Lit(value=2),
+                    },
+                ),
+                else_=nk.transitions.Go(
                     to="end",
                     register_updates={"r2": nk.expressions.Reg(id="r1")},
                 ),
