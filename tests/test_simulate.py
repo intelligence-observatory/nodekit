@@ -3,9 +3,10 @@ import pytest
 
 import nodekit as nk
 import nodekit._internal.ops.simulate.simulate as simulate_module
+import nodekit._internal.types.agents
 
 
-class FixedActionAgent(nk.Agent):
+class FixedActionAgent(nodekit._internal.types.agents.Agent):
     def __init__(self, actions: list[nk.actions.Action]) -> None:
         self._actions = iter(actions)
 
@@ -216,7 +217,7 @@ def test_simulate_raises_on_invalid_register_reference() -> None:
 
 
 def test_simulate_raises_on_agent_returning_none() -> None:
-    class NoneAgent(nk.Agent):
+    class NoneAgent(nodekit._internal.types.agents.Agent):
         def __call__(self, node: nk.Node) -> None:
             return None
 
@@ -245,7 +246,7 @@ def test_dummy_agent_uses_seeded_rng(monkeypatch: pytest.MonkeyPatch) -> None:
         return nk.actions.WaitAction()
 
     monkeypatch.setattr(simulate_module, "sample_action", fake_sample_action)
-    agent = simulate_module.DummyAgent(seed=123)
+    agent = nodekit._internal.types.agents.DummyAgent(seed=123)
 
     node = nk.Node(
         stimulus=None,

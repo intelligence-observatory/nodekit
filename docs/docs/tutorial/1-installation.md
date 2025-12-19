@@ -1,6 +1,8 @@
-## Install NodeKit
+NodeKit uses the [uv](https://docs.astral.sh/uv/) Python package and project manager. 
 
-NodeKit uses the [uv](https://docs.astral.sh/uv/) Python package and project manager.
+If you already have uv set up for your project, you can just run `uv add nodekit` to install NodeKit. 
+
+Otherwise, follow the instructions below. 
 
 === "macOS and Linux"
 

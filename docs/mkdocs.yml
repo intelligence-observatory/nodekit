@@ -7,6 +7,10 @@ nav:
       - 2. Write your first task: 'tutorial/2-first-graph.md'
       - 3. Get behavioral data: 'tutorial/3-deploy-graph.md'
       - What's next?: 'tutorial/whats-next.md'
+  - Guides:
+      - Deploying to Mechanical Turk: 'guides/mechanical-turk.md'
+      - Using Markdown in TextCards: 'guides/styling-text.md'
+      - Adding time limits to Nodes: 'guides/adding-time-limits.md'
   - Concepts:
       - Node: concepts/index.md
       - Cards: concepts/index.md
@@ -16,10 +20,6 @@ nav:
       - Expressions & Values: concepts/index.md
       - Nested Graphs: concepts/index.md
       - Reproducibility: concepts/index.md
-  - Guides:
-      - Deploying to Mechanical Turk: 'guides/mechanical-turk.md'
-      - Using Markdown in TextCards: 'guides/styling-text.md'
-      - Adding time limits to Nodes: 'guides/adding-time-limits.md'
   - Reference:
       - Node: reference/node.md
       - Graph: reference/graph.md

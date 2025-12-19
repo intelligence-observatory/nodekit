@@ -8,6 +8,7 @@ __all__ = [
     "Region",
     "Agent",
     # Namespaced types:
+    "agents",
     "assets",
     "cards",
     "sensors",
@@ -36,9 +37,10 @@ from nodekit._internal.types.graph import Graph
 
 # One-off top-level types:
 from nodekit._internal.types.values import Region
-from nodekit._internal.ops.simulate.simulate import Agent
+from nodekit._internal.types.agents import Agent
 
 # Namespaced types:
+import nodekit.agents as agents
 import nodekit.cards as cards
 import nodekit.assets as assets
 import nodekit.sensors as sensors

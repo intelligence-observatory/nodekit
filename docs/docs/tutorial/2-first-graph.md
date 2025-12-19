@@ -1,10 +1,11 @@
 
-## A brief primer on NodeKit
 
-NodeKit describes tasks as a **Graph** consisting of **Nodes** and arrows which connect them. For example, here's a task consisting of a few AFC ("alternative forced choice") trials, expressed as a Graph:
+NodeKit describes tasks as **Graphs**. A Graph consists of **Nodes**, and the **Transition** arrows that connect them. Here's a Graph consisting of a few AFC ("alternative forced choice") trials:
 
 ![An example NodeKit Graph](example-graph.png)
  
+
+In this tutorial, we'll write a very simple Graph.
  
 
 ### What is a **Node**?
@@ -18,7 +19,7 @@ A Node is completed when the agent makes a selection from the Action set.
 
 ### What is a **Graph**?
 
-A Graph is a set of Nodes, and the "arrows" that connect them together. Specifically, a Graph has: 
+A Graph is a set of Nodes, and the arrows that connect them together. Specifically, a Graph has: 
 
 1. A set of Nodes. 
 2. A set of **Transitions** (the arrows) between those Nodes.
@@ -100,6 +101,6 @@ Once you complete the Graph's (one and only) Node, the function returns with you
 
 We wrote a very simple Graph consisting of a single Node with an **End** Transition. 
 
-Next up, we will write a more realistic Graph that describes a series of N-way classification trials. This Graph will showcase the rest of the Card, Sensor, and Transition types that you'll be using with NodeKit. You'll also learn about the useful `nk.concat` function.
+Next up, we will write a more realistic Graph that describes a series of N-way classification trials. This Graph will showcase the rest of the Card, Sensor, and Transition types that you'll be using with NodeKit. The very useful `nk.concat` function will also be introduced.
 
 

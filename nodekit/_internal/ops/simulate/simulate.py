@@ -1,16 +1,15 @@
-import random
-from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Mapping
 
 import nodekit._internal.types.events as e
+from nodekit import Agent
 from nodekit._internal.ops.simulate.evaluate_expression import (
     EvalContext,
     evaluate_expression,
 )
-from nodekit._internal.ops.simulate.sample_action import sample_action
 from nodekit._internal.ops.simulate.validate_action import validate_action
 from nodekit._internal.types.actions import Action
+from nodekit._internal.types.agents import DummyAgent
 from nodekit._internal.types.graph import Graph
 from nodekit._internal.types.node import Node
 from nodekit._internal.types.trace import Trace
@@ -21,38 +20,6 @@ from nodekit._internal.types.transitions import (
     Transition,
 )
 from nodekit._internal.types.values import RegisterId, Value
-
-
-# %%
-class Agent(ABC):
-    @abstractmethod
-    def __call__(self, node: Node) -> Action:
-        """
-        Return an Action given a Node.
-        Args:
-            node:
-
-        Returns:
-            Action: The selected Action.
-
-        """
-        ...
-
-
-# %%
-class DummyAgent(Agent):
-    """
-    An Agent that randomly selects the first available Action in a Node.
-    """
-
-    def __init__(self, seed: int | None = None):
-        self.rng = random.Random(seed)
-
-    def __call__(self, node: Node) -> Action:
-        return sample_action(
-            sensor=node.sensor,
-            rng=self.rng,
-        )
 
 
 # %%
