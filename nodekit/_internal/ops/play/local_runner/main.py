@@ -1,5 +1,6 @@
 import atexit
 import hashlib
+import socket
 import threading
 import time
 from pathlib import Path
@@ -61,7 +62,24 @@ class LocalRunner:
             )
 
             self._server = uvicorn.Server(config=config)
-            self._thread = threading.Thread(target=self._server.run, daemon=True)
+            try:
+                family = socket.AF_INET6 if self.host and ":" in self.host else socket.AF_INET
+                bound_socket = socket.socket(family=family)
+                bound_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                bound_socket.bind((self.host, self.port))
+                bound_socket.set_inheritable(True)
+            except OSError:
+                self._server = None
+                raise
+
+            # Update the port in case we bound to an ephemeral port (e.g., port=0).
+            self.port = bound_socket.getsockname()[1]
+
+            self._thread = threading.Thread(
+                target=self._server.run,
+                kwargs={"sockets": [bound_socket]},
+                daemon=True,
+            )
             self._thread.start()
             self._running = True
 
