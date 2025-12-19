@@ -40,15 +40,6 @@ export interface LastAction extends BaseExpression {
     op: "la";
 }
 
-export interface GetListItem extends BaseExpression {
-    /**
-     * Get an item from a List.
-     */
-    op: "gli";
-    list: Expression;
-    index: Expression;
-}
-
 export interface GetDictValue extends BaseExpression {
     /**
      * Get a value from a Dict.
@@ -153,76 +144,11 @@ export interface Div extends BaseArithmeticOperation {
     op: "div";
 }
 
-// =====================
-// Array operations
-// =====================
-export interface ListOp extends BaseExpression {
-    // Expression must be array-valued at runtime
-    array: Expression;
-}
-
-export interface Append extends ListOp {
-    op: "append";
-    value: Expression;
-}
-
-export interface Concat extends ListOp {
-    op: "concat";
-    value: Expression;
-}
-
-export interface Slice extends ListOp {
-    op: "slice";
-    start: Expression;
-    end: Expression | null;
-}
-
-export interface Map extends ListOp {
-    op: "map";
-    /**
-     * The variable name the current array element will be assigned to in locals. Can be referenced in the func: Expression with Loc(...).
-     */
-    cur: LocalVariableName;
-    /**
-     * Expression that will be applied to each element of the array.
-     */
-    func: Expression;
-}
-
-export interface Filter extends ListOp {
-    op: "filter";
-    /**
-     * The variable name the current array element will be assigned to in locals. Can be referenced in the func: Expression with Loc(...).
-     */
-    cur: LocalVariableName;
-    /**
-     * Expression that will be applied to each element of the array
-     * and interpreted as a predicate.
-     */
-    predicate: Expression;
-}
-
-export interface Fold extends ListOp {
-    op: "fold";
-    init: Expression;
-    /**
-     * The variable name the cumulant will be assigned to. Can be referenced in the func: Expression with Var(...).
-     */
-    acc: LocalVariableName;
-    /**
-     * The variable name the current array element will be assigned to in locals. Can be referenced in the func: Expression with Loc(...).
-     */
-    cur: LocalVariableName;
-    func: Expression;
-}
-
 export type Expression =
     // Root
     | Reg
     | ChildReg
-    | Local
     | LastAction
-    | GetListItem
     | GetDictValue
     | Lit
     // Logic
@@ -243,10 +169,4 @@ export type Expression =
     | Sub
     | Mul
     | Div
-    // Array ops
-    | Append
-    | Concat
-    | Slice
-    | Map
-    | Filter
-    | Fold;
+    ;
