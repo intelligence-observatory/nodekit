@@ -242,6 +242,16 @@ def play(
         The Trace of Events observed during execution.
 
     """
+    if isinstance(graph, Node):
+        # Wrap single Node into a Graph so the runner always receives a Graph.
+        graph = Graph(
+            nodes={
+                "": graph,
+            },
+            start="",
+            transitions={"": End()},
+        )
+
     # Candidate ports to try if the requested one is unavailable.
     if port is None:
         candidate_ports = [7651, 8765, 8822, 8877, 8933, 8999, 0]
@@ -252,27 +262,20 @@ def play(
     for candidate in candidate_ports:
         try:
             runner = LocalRunner(port=candidate)
+            runner.ensure_running()
+            runner.set_graph(graph)
             break
         except Exception as exc:  # noqa: BLE001 - broad by design to retry on any failure
             last_error = exc
+            if runner is not None:
+                runner.shutdown()
+                runner = None
             continue
 
     if runner is None:
         raise RuntimeError("Failed to initialize LocalRunner on any candidate port") from last_error
 
     try:
-        if isinstance(graph, Node):
-            # Wrap single Node into a Graph:
-            graph = Graph(
-                nodes={
-                    "": graph,
-                },
-                start="",
-                transitions={"": End()},
-            )
-        runner.ensure_running()
-        runner.set_graph(graph)
-
         print("Play the Graph at:\n", runner.url)
 
         # Wait until the End Event is observed or an error is recorded:
