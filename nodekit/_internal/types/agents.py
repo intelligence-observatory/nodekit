@@ -6,7 +6,7 @@ from nodekit._internal.ops.simulate.sample_action import sample_action
 from nodekit._internal.types.actions import Action
 
 
-#%%
+# %%
 class BaseAgent(ABC):
     @abstractmethod
     def __call__(self, node: Node) -> Action:

@@ -26,10 +26,7 @@ from nodekit._internal.types.sensors import (
 
 
 # %% Public API
-def validate_action(
-        sensor: Sensor,
-        action: Action
-) -> None:
+def validate_action(sensor: Sensor, action: Action) -> None:
     """
     Validates that the Action is compatible with the given Sensor.
     Raises ValueError on mismatch.
@@ -86,9 +83,7 @@ def validate_action(
         _require_action_type(sensor, action, SliderAction)
         value = action.action_value
         if value < 0 or value >= sensor.num_bins:
-            raise ValueError(
-                f"SliderAction bin {value} out of range [0, {sensor.num_bins - 1}]."
-            )
+            raise ValueError(f"SliderAction bin {value} out of range [0, {sensor.num_bins - 1}].")
         return
 
     if isinstance(sensor, ProductSensor):

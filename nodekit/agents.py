@@ -1,6 +1,6 @@
 __all__ = [
-    'BaseAgent',
-    'RandomGuesser',
+    "BaseAgent",
+    "RandomGuesser",
 ]
 
 from nodekit._internal.types.agents import (
