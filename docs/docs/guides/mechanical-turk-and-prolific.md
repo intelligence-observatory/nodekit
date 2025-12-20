@@ -49,18 +49,18 @@ Ensure you have the URL of the entrypoint HTML, and that it is publicly accessib
 The site built by `nk.build_site` is compatible with Mechanical Turk and Prolific. The built site handles the expected integration logic for each platform, out-of-the-box (e.g. extracting query parameters, POSTing data, redirecting at the right moment, ...), so you do not have to set this up yourself. 
 
 
-However, some configuration might still be needed: **if you are using Prolific**, you must provide a `nodekitSubmit` query parameter whose value is a [URL-encoded](https://developers.google.com/maps/url-encoding) submission endpoint. This is how the Graph site will know where to transmit the participants' Trace data to your server or bucket.
+However, some configuration might still be needed: **if you are using Prolific**, you must provide a `nodekitSubmitTo` query parameter whose value is a [URL-encoded](https://developers.google.com/maps/url-encoding) submission endpoint. This is how the Graph site will know where to transmit the participants' Trace data to your server or bucket.
 
-For example, if your entrypoint URL is "https://site.com/graphs/568...7f6a/index.html", and you have an endpoint set up at "https://my-endpoint.com", you would specify the `nodekitSubmit` query parameter with: 
+For example, if your entrypoint URL is "https://site.com/graphs/568...7f6a/index.html", and you have an endpoint set up at "https://my-endpoint.com", you would specify the `nodekitSubmitTo` query parameter with: 
 
 
->https://example.com/graphs/568...7f6a/index.html**?nodekitSubmit=https%3A%2F%2Fmy-endpoint.com**
+>https://example.com/graphs/568...7f6a/index.html**?nodekitSubmitTo=https%3A%2F%2Fmy-endpoint.com**
 
 
 
 ### 3a. Request a Mechanical Turk HIT
 
-Mechanical Turk allows ExternalQuestion Assignments to post behavioral data to their backend, where you can later retrieve it. The Graph site automatically submits the Trace data to Mechanical Turk, if `nodekitSubmit` is not provided. **Thus, supplying the `nodekitSubmit` query parameter is optional**, if you are using Mechanical Turk. 
+Mechanical Turk allows ExternalQuestion Assignments to post behavioral data to their backend, where you can later retrieve it. The Graph site automatically submits the Trace data to Mechanical Turk, if `nodekitSubmitTo` is not provided. **Thus, supplying the `nodekitSubmitTo` query parameter is optional**, if you are using Mechanical Turk. 
 
 Either way, once you have finalized the URL you will be using, use your preferred method to request an [ExternalQuestion HIT](https://docs.aws.amazon.com/AWSMechTurk/latest/AWSMturkAPI/ApiReference_ExternalQuestionArticle.html) which points to the URL. One standard approach might be to use the `mturk` client provided in [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/mturk.html).
 
@@ -76,12 +76,12 @@ Either way, once you have finalized the URL you will be using, use your preferre
 
 ### 3b. Request a Prolific Study
 
-Prolific requires that its requesters take responsibility for recording and storing the data generated across a Studies. **Thus, providing the `nodekitSubmit` query parameter is required if using Prolific**. 
+Prolific requires that its requesters take responsibility for recording and storing the data generated across a Studies. **Thus, providing the `nodekitSubmitTo` query parameter is required if using Prolific**. 
 
 
 ## 4. Download the results
 
-Depending on the If you supplied a `nodekitSubmit` endpoint in the previous step, you can expect a JSON document to have been POSTed whenever each participant completed the Graph: 
+Depending on the If you supplied a `nodekitSubmitTo` endpoint in the previous step, you can expect a JSON document to have been POSTed whenever each participant completed the Graph: 
 
 
 
@@ -119,7 +119,7 @@ Depending on the If you supplied a `nodekitSubmit` endpoint in the previous step
     }
     ```
 
-If you did not supply a `nodekitSubmit` endpoint when using Mechanical Turk, you can retrieve the data using the [GetAssignment](https://docs.aws.amazon.com/AWSMechTurk/latest/AWSMturkAPI/ApiReference_GetAssignmentOperation.html) operation and by inspecting the Answer data. 
+If you did not supply a `nodekitSubmitTo` endpoint when using Mechanical Turk, you can retrieve the data using the [GetAssignment](https://docs.aws.amazon.com/AWSMechTurk/latest/AWSMturkAPI/ApiReference_GetAssignmentOperation.html) operation and by inspecting the Answer data. 
 
 
 
