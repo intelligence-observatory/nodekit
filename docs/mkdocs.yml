@@ -8,7 +8,7 @@ nav:
       - 3. Get behavioral data: 'tutorial/3-deploy-graph.md'
       - What's next?: 'tutorial/whats-next.md'
   - Guides:
-      - Deploying to Mechanical Turk and Prolific: 'guides/mechanical-turk.md'
+      - Deploying to Mechanical Turk and Prolific: 'guides/mechanical-turk-and-prolific.md'
       - Formatting TextCards using Markdown: 'guides/styling-text.md'
       - Adding time limits to Nodes: 'guides/adding-time-limits.md'
       - Writing your own Agent: 'guides/writing-agents.md'

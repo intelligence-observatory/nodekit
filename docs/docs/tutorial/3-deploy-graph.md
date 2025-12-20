@@ -77,4 +77,4 @@ If you'd like, you can open up the directory and launch the `index.html` file in
     While you could certainly use `nk.build_site` to preview your Graph, it doesn't automatically collect and return your data, and it also adds stuff to your file system.
 
 
-Deploying this site to users on Mechanical Turk, Prolific, or similar platforms is a topic which is discussed in the [Deployment Guide](../guides/mechanical-turk.md).
+Deploying this site to users on Mechanical Turk, Prolific, or similar platforms is a topic which is discussed in the [Deployment Guide](../guides/mechanical-turk-and-prolific.md).
