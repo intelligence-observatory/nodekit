@@ -5,7 +5,7 @@ We wrote a fairly simple Graph in this tutorial, but more is possible:
 - Stimuli involving **images or video**, or **combinations thereof**
 - More Sensor types, like the **WaitSensor**, **SliderSensor**, **SelectSensor**, and **TextEntrySensor**.
 - Describing logic like **performance-gated blocks** using Graph Registers
-- Serialization
+- Serializing your Graphs & Assets as `.nkg` files
 
 ## Convenience methods
 ### Sequencing via `nk.concat`

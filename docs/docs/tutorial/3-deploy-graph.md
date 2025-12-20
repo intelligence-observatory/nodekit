@@ -72,9 +72,9 @@ If you'd like, you can open up the directory and launch the `index.html` file in
 
 ??? question "How is `nk.build_site` different from `nk.play`?"
 
-    The `nk.build_site` function results in a deployable website that can be uploaded for others, whereas `nk.play` simply plays the Graph on your local machine.
+    The `nk.build_site` function results in a deployable website that can be uploaded for viewing by others, whereas `nk.play` simply plays the Graph on your local machine.
     
-    While you could certainly use `nk.build_site` to preview your Graph, it doesn't automatically collect and return your data, and it also adds files to your file system.
+    While you could certainly use `nk.build_site` to preview your Graph, it doesn't automatically collect and return your data, and it also adds stuff to your file system.
 
 
 Deploying this site to users on Mechanical Turk, Prolific, or similar platforms is a topic which is discussed in the [Deployment Guide](../guides/mechanical-turk.md).
