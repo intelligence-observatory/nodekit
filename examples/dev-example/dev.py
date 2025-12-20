@@ -1,5 +1,6 @@
 import nodekit as nk
-
+from pathlib import Path
+nk.Trace.model_validate_json(Path('the-data.json').read_text()['trace'])
 # %%
 if __name__ == "__main__":
     # Assemble an "all-in-one" Node which showcases multiple Cards simultaneously

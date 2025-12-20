@@ -10,7 +10,11 @@
 * The [griffe-pydantic](https://mkdocstrings.github.io/griffe-pydantic/) mkdocs extension is used to document pydantic models in NodeKit; see [StackOverflow](https://stackoverflow.com/questions/78281256/automatic-documentation-of-pydantic-basemodel-with-mkdocstrings) discussion 
 
 
-### Documentation style 
+### Documentation style nits
+- Use "NodeKit" (for general usage) or `nodekit` (if referring to the importable Python package). Not: nodekit, Nodekit, NK. 
+- In nonfunctional code snippets, one should generally assume `import nodekit as nk` was run, not: `import nodekit`
 - Entities in NodeKit should be referred to as proper nouns; e.g. 
   - "Nodes", not "nodes"
   - "Agents", not "agents", unless the general concept of agent is being discussed (e.g. "RL agents" is ok; "NodeKit agents" is not)
+  - etc.
+- Mechanical Turk, not: "MTurk", "turk", "mturk", "Turk", "AMT" 
