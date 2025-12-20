@@ -2,14 +2,14 @@ This guide provides instructions for deploying a Graph to Mechanical Turk or Pro
 
 ## Prerequisites 
 * A Graph.
-* The ability to request ExternalQuestion HITs on [Mechanical Turk](https://docs.aws.amazon.com/mturk/) (e.g. via boto3) and/or Studies on [Prolific](https://docs.prolific.com/documentation/get-started/overview) (e.g. via Prolific's API or website) . 
 * The ability to upload then generate public URLs for files (e.g. via S3)
+* The ability to request ExternalQuestion HITs on [Mechanical Turk](https://docs.aws.amazon.com/mturk/) (e.g. via boto3) and/or Studies on [Prolific](https://docs.prolific.com/documentation/get-started/overview) (e.g. via Prolific's API or website) . 
 * An endpoint which accepts and stores JSON data posted from participant browsers (e.g. via AWS Lambda function which writes to an S3 bucket).
 
 
 
 ## 1. Build a site from your Graph
-Use the `nk.build_site` function to emit a self-contained folder with an HTML entrypoint, the `nodekit.js` and `nodekit.css` files, and all Assets referenced in the Graph, such as images and videos. 
+Use the `nk.build_site` function to convert your Graph into a static website; i.e. a folder with an HTML file, the `nodekit.js` and `nodekit.css` files, and any assets used by the Graph, such as images and videos. 
 
 ```python
 import nodekit as nk
@@ -18,7 +18,7 @@ graph = nk.Graph(...)  # put your Graph here
 result = nk.build_site(graph=graph, savedir="my-site") 
 ```
 
-Of special interest is the "entrypoint" HTML file, which the participant will be loading in their web browser to play the Graph. You may retrieve the relative location of this file by accessing `result.entrypoint`.
+Of special interest is the HTML file (the "entrypoint"), which the participant will load in their web browser to play the Graph. You may retrieve the relative location of this file in the folder by accessing the `.entrypoint` property of the result:
 
 ```python hl_lines="5" linenums="1"
 import nodekit as nk
@@ -43,6 +43,7 @@ aws s3 sync build/my-site s3://your-bucket/task --delete
 
 Ensure you have the URL of the entrypoint HTML, and that it is publicly accessible. This is the link you will be using when requesting an MTurk HIT or Prolific Study in the next step. 
 
+
 ## 3. Deploy to a recruitment platform
 
 The site built by `nk.build_site` is compatible with Mechanical Turk and Prolific. The built site handles the expected integration logic for each platform, out-of-the-box (e.g. extracting query parameters, POSTing data, redirecting at the right moment, ...), so you do not have to set this up yourself. 
@@ -63,14 +64,14 @@ Mechanical Turk allows ExternalQuestion Assignments to post behavioral data to t
 
 Either way, once you have finalized the URL you will be using, use your preferred method to request an [ExternalQuestion HIT](https://docs.aws.amazon.com/AWSMechTurk/latest/AWSMturkAPI/ApiReference_ExternalQuestionArticle.html) which points to the URL. One standard approach might be to use the `mturk` client provided in [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/mturk.html).
 
-??? tip "Maximize the size of the ExternalQuestion iFrame"
+??? tip "Maximizing the size of the display on Mechanical Turk"
 
     ExternalQuestion HITs on Mechanical Turk are displayed in an [iFrame](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/iframe) element. It is recommended that you set the ExternalQuestion [FrameHeight](https://docs.aws.amazon.com/AWSMechTurk/latest/AWSMturkAPI/ApiReference_ExternalQuestionArticle.html)  to `0`, which maximizes the size of the iFrame on the participant's web browser.
 
 
 ??? tip "Running the Graph outside the ExternalQuestion iFrame"
 
-    If you'd like to have the participant run the Graph in its own page, you could set the ExternalQuestion link to a simple landing page which displays a link to the entrypoint URL of the Graph. If you do this, ensure the landing page attaches all the [query parameters that Mechanical Turk adds](https://docs.aws.amazon.com/AWSMechTurk/latest/AWSMturkAPI/ApiReference_ExternalQuestionArticle.html) to the new page, such as the `assignmentId` query parameter. 
+    If you'd like to have the participant run the Graph in its own page, you could set the ExternalQuestion link to a simple landing page which displays a link to the entrypoint URL of the Graph. If you do this, ensure your landing page attaches all the [query parameters that Mechanical Turk adds](https://docs.aws.amazon.com/AWSMechTurk/latest/AWSMturkAPI/ApiReference_ExternalQuestionArticle.html) to the new page, such as the `assignmentId` query parameter. 
 
 
 ### 3b. Request a Prolific Study
@@ -78,9 +79,9 @@ Either way, once you have finalized the URL you will be using, use your preferre
 Prolific requires that its requesters take responsibility for recording and storing the data generated across a Studies. **Thus, providing the `nodekitSubmit` query parameter is required if using Prolific**. 
 
 
-## 4. Retrieve results when done
+## 4. Download the results
 
-If you supplied a `nodekitSubmit` endpoint in the previous step, you can expect a JSON document to have been POSTed whenever each participant completed the Graph: 
+Depending on the If you supplied a `nodekitSubmit` endpoint in the previous step, you can expect a JSON document to have been POSTed whenever each participant completed the Graph: 
 
 
 
@@ -109,11 +110,20 @@ If you supplied a `nodekitSubmit` endpoint in the previous step, you can expect 
     }
     ```
 
+=== "Other"
+
+    ```json
+    {
+        "platform": "Other",
+        "trace": {...}        
+    }
+    ```
+
 If you did not supply a `nodekitSubmit` endpoint when using Mechanical Turk, you can retrieve the data using the [GetAssignment](https://docs.aws.amazon.com/AWSMechTurk/latest/AWSMturkAPI/ApiReference_GetAssignmentOperation.html) operation and by inspecting the Answer data. 
 
 
 
-## 5. Validate the data:
+## 5. Validate results
 
 Once you download the data from the previous step, you can instantiate a Trace: 
 
