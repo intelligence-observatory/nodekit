@@ -218,7 +218,7 @@ def test_simulate_raises_on_invalid_register_reference() -> None:
 
 def test_simulate_raises_on_agent_returning_none() -> None:
     class NoneAgent(nodekit._internal.types.agents.BaseAgent):
-        def __call__(self, node: nk.Node) -> None:
+        def __call__(self, node: nk.Node):
             return None
 
     graph = nk.Graph(

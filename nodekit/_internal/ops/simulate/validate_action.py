@@ -32,23 +32,35 @@ def validate_action(sensor: Sensor, action: Action) -> None:
     Raises ValueError on mismatch.
     """
     if isinstance(sensor, WaitSensor):
-        _require_action_type(sensor, action, WaitAction)
+        if not isinstance(action, WaitAction):
+            raise ValueError(
+                f"Action {type(action).__name__} is not valid for {type(sensor).__name__}."
+            )
         return
 
     if isinstance(sensor, KeySensor):
-        _require_action_type(sensor, action, KeyAction)
+        if not isinstance(action, KeyAction):
+            raise ValueError(
+                f"Action {type(action).__name__} is not valid for {type(sensor).__name__}."
+            )
         if action.action_value not in sensor.keys:
             raise ValueError(f"KeyAction key '{action.action_value}' not in sensor keys.")
         return
 
     if isinstance(sensor, SelectSensor):
-        _require_action_type(sensor, action, SelectAction)
+        if not isinstance(action, SelectAction):
+            raise ValueError(
+                f"Action {type(action).__name__} is not valid for {type(sensor).__name__}."
+            )
         if action.action_value not in sensor.choices:
             raise ValueError(f"SelectAction choice '{action.action_value}' not in sensor choices.")
         return
 
     if isinstance(sensor, MultiSelectSensor):
-        _require_action_type(sensor, action, MultiSelectAction)
+        if not isinstance(action, MultiSelectAction):
+            raise ValueError(
+                f"Action {type(action).__name__} is not valid for {type(sensor).__name__}."
+            )
         selections = action.action_value
         unique = set(selections)
         if len(unique) != len(selections):
@@ -67,7 +79,10 @@ def validate_action(sensor: Sensor, action: Action) -> None:
         return
 
     if isinstance(sensor, TextEntrySensor):
-        _require_action_type(sensor, action, TextEntryAction)
+        if not isinstance(action, TextEntryAction):
+            raise ValueError(
+                f"Action {type(action).__name__} is not valid for {type(sensor).__name__}."
+            )
         length = len(action.action_value)
         if length < sensor.min_length:
             raise ValueError(
@@ -80,14 +95,20 @@ def validate_action(sensor: Sensor, action: Action) -> None:
         return
 
     if isinstance(sensor, SliderSensor):
-        _require_action_type(sensor, action, SliderAction)
+        if not isinstance(action, SliderAction):
+            raise ValueError(
+                f"Action {type(action).__name__} is not valid for {type(sensor).__name__}."
+            )
         value = action.action_value
         if value < 0 or value >= sensor.num_bins:
             raise ValueError(f"SliderAction bin {value} out of range [0, {sensor.num_bins - 1}].")
         return
 
     if isinstance(sensor, ProductSensor):
-        _require_action_type(sensor, action, ProductAction)
+        if not isinstance(action, ProductAction):
+            raise ValueError(
+                f"Action {type(action).__name__} is not valid for {type(sensor).__name__}."
+            )
         action_map = action.action_value
         expected_keys = set(sensor.children.keys())
         provided_keys = set(action_map.keys())
@@ -103,7 +124,10 @@ def validate_action(sensor: Sensor, action: Action) -> None:
         return
 
     if isinstance(sensor, SumSensor):
-        _require_action_type(sensor, action, SumAction)
+        if not isinstance(action, SumAction):
+            raise ValueError(
+                f"Action {type(action).__name__} is not valid for {type(sensor).__name__}."
+            )
         child_id, child_action = action.action_value
         if child_id not in sensor.children:
             raise ValueError(f"SumAction child_id '{child_id}' not in sensor children.")
@@ -112,11 +136,3 @@ def validate_action(sensor: Sensor, action: Action) -> None:
 
     _: Never = sensor
     raise TypeError(f"Unsupported sensor type: {type(sensor)}")
-
-
-# %% Helpers
-def _require_action_type(sensor: Sensor, action: Action, expected_type: type[Action]) -> None:
-    if not isinstance(action, expected_type):
-        raise ValueError(
-            f"Action {type(action).__name__} is not valid for {type(sensor).__name__}."
-        )

@@ -89,8 +89,6 @@ def _simulate_core(
     events: list[e.Event] = []
 
     current_node_id = graph.start
-    last_action: Action | None = None
-    last_subgraph_registers: Mapping[RegisterId, Value] | None = None
 
     def _tick() -> int:
         nonlocal time_elapsed_msec
@@ -122,7 +120,7 @@ def _simulate_core(
 
             action = agent(node_or_graph)
 
-            # Validate that action is valid for the node's sensor
+            # Validate that action is valid for the Node's sensor
             validate_action(sensor=node_or_graph.sensor, action=action)
 
             events.append(
@@ -164,8 +162,6 @@ def _simulate_core(
             break
 
         current_node_id = next_node_id
-        last_action = None
-        last_subgraph_registers = None
 
     return events, registers, time_elapsed_msec
 
