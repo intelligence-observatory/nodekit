@@ -970,7 +970,6 @@ name = "nodekit"
 version = "0.2.2"
 source = { editable = "." }
 dependencies = [
-    { name = "black" },
     { name = "boto3" },
     { name = "fastapi", extra = ["standard"] },
     { name = "jinja2" },
@@ -981,6 +980,7 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "black" },
     { name = "griffe-pydantic" },
     { name = "mkdocs" },
     { name = "mkdocs-material" },
@@ -992,7 +992,6 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "black", specifier = ">=25.12.0" },
     { name = "boto3", specifier = ">=1.40.55" },
     { name = "fastapi", extras = ["standard"], specifier = ">=0.116.1" },
     { name = "jinja2", specifier = ">=3.1.4" },
@@ -1003,6 +1002,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "black", specifier = ">=25.12.0" },
     { name = "griffe-pydantic", specifier = ">=1.1.8" },
     { name = "mkdocs", specifier = ">=1.6.1" },
     { name = "mkdocs-material", specifier = ">=9.7.0" },

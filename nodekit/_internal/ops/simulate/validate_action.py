@@ -38,7 +38,7 @@ def validate_action(sensor: Sensor, action: Action) -> None:
             )
         return
 
-    if isinstance(sensor, KeySensor):
+    elif isinstance(sensor, KeySensor):
         if not isinstance(action, KeyAction):
             raise ValueError(
                 f"Action {type(action).__name__} is not valid for {type(sensor).__name__}."
@@ -47,7 +47,7 @@ def validate_action(sensor: Sensor, action: Action) -> None:
             raise ValueError(f"KeyAction key '{action.action_value}' not in sensor keys.")
         return
 
-    if isinstance(sensor, SelectSensor):
+    elif isinstance(sensor, SelectSensor):
         if not isinstance(action, SelectAction):
             raise ValueError(
                 f"Action {type(action).__name__} is not valid for {type(sensor).__name__}."
@@ -56,7 +56,7 @@ def validate_action(sensor: Sensor, action: Action) -> None:
             raise ValueError(f"SelectAction choice '{action.action_value}' not in sensor choices.")
         return
 
-    if isinstance(sensor, MultiSelectSensor):
+    elif isinstance(sensor, MultiSelectSensor):
         if not isinstance(action, MultiSelectAction):
             raise ValueError(
                 f"Action {type(action).__name__} is not valid for {type(sensor).__name__}."
@@ -78,7 +78,7 @@ def validate_action(sensor: Sensor, action: Action) -> None:
             )
         return
 
-    if isinstance(sensor, TextEntrySensor):
+    elif isinstance(sensor, TextEntrySensor):
         if not isinstance(action, TextEntryAction):
             raise ValueError(
                 f"Action {type(action).__name__} is not valid for {type(sensor).__name__}."
@@ -94,7 +94,7 @@ def validate_action(sensor: Sensor, action: Action) -> None:
             )
         return
 
-    if isinstance(sensor, SliderSensor):
+    elif isinstance(sensor, SliderSensor):
         if not isinstance(action, SliderAction):
             raise ValueError(
                 f"Action {type(action).__name__} is not valid for {type(sensor).__name__}."
@@ -104,7 +104,7 @@ def validate_action(sensor: Sensor, action: Action) -> None:
             raise ValueError(f"SliderAction bin {value} out of range [0, {sensor.num_bins - 1}].")
         return
 
-    if isinstance(sensor, ProductSensor):
+    elif isinstance(sensor, ProductSensor):
         if not isinstance(action, ProductAction):
             raise ValueError(
                 f"Action {type(action).__name__} is not valid for {type(sensor).__name__}."
@@ -123,7 +123,7 @@ def validate_action(sensor: Sensor, action: Action) -> None:
             validate_action(sensor.children[child_id], child_action)
         return
 
-    if isinstance(sensor, SumSensor):
+    elif isinstance(sensor, SumSensor):
         if not isinstance(action, SumAction):
             raise ValueError(
                 f"Action {type(action).__name__} is not valid for {type(sensor).__name__}."
@@ -133,6 +133,6 @@ def validate_action(sensor: Sensor, action: Action) -> None:
             raise ValueError(f"SumAction child_id '{child_id}' not in sensor children.")
         validate_action(sensor.children[child_id], child_action)
         return
-
-    _: Never = sensor
-    raise TypeError(f"Unsupported sensor type: {type(sensor)}")
+    else:
+        _: Never = sensor
+        raise TypeError(f"Unsupported sensor type: {type(sensor)}")

@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import Mapping
 
 import nodekit._internal.types.events as e
 from nodekit import BaseAgent
