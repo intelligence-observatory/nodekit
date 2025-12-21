@@ -4,3 +4,6 @@
 ::: nodekit.save_graph
 ::: nodekit.load_graph
 ::: nodekit.open_asset
+
+::: nodekit.build_site
+::: nodekit.SubmissionPayload
