@@ -76,7 +76,18 @@ Either way, once you have finalized the URL you will be using, use your preferre
 
 ### 3b. Request a Prolific Study
 
-Prolific requires that its requesters take responsibility for recording and storing the data generated across a Studies. **Thus, providing the `nodekitSubmitTo` query parameter is required if using Prolific**. 
+If requesting a Prolific Study, add the following query parameters in the entrypoint URL:
+
+* `nodekitSubmitTo`. As Prolific does not store participant data, specify the endpoint where you can accept JSON POST messages originating from the participant web page.  
+* `COMPLETION_CODE`. NodeKit uses Prolific's recommended [redirect completion path](https://intercom-help.eu/prolific-research/en/articles/445127-data-collection#aTjpf) to submit the study. Specify the completion code you will use / has been issued when creating the Prolific Draft Study (see [link](https://docs.prolific.com/api-reference/studies/the-study-object#completion_codes-required)). Note NodeKit only supports the use of a single Prolific completion code.
+
+Then, add the following three strings, separated by &. These are placeholder parameters that Prolific will substitute at runtime for each participant session. 
+* `PROLIFIC_PID={{%PROLIFIC_PID%}}`. 
+* `STUDY_ID={{%STUDY_ID%}}`.
+* `SESSION_ID={{%SESSION_ID%}}`.
+
+A full example URL for a Prolific Study should look like:
+> https://my-task.com?nodekitSubmitTo=https%3A%2F%2Fmy-endpoint.com**&COMPLETION_CODE=1&PROLIFIC_PID={{%PROLIFIC_PID%}}&STUDY_ID={{%STUDY_ID%}}&SESSION_ID={{%SESSION_ID%}}**
 
 
 ## 4. Download the results
