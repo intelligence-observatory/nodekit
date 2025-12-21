@@ -95,49 +95,13 @@ A full example URL for a Prolific Study should look like:
 
 Depending on whether you supplied a `nodekitSubmitTo` endpoint in the previous step, you can expect a JSON document to have been POSTed whenever each participant completed the Graph: 
 
-
-
-=== "Mechanical Turk"
-
-    ```json
-    {
-        "platform": "MechanicalTurk",
-        "trace": {...}
-        "worker_id": "the-mturk-worker-id",
-        "hit_id": "the-mturk-hit-id",
-        "assignment_id": "the-mturk-assignment-id",
-    }
-    ```
-
-
-=== "Prolific"
-
-    ```json
-    {
-        "platform": "Prolific",
-        "trace": {...}        
-        "participant_id": "the-prolific-participant-id",
-        "study_id": "the-prolific-study-id",
-        "submission_id": "the-prolific-study-id", 
-    }
-    ```
-
-=== "Other"
-
-    ```json
-    {
-        "platform": "Other",
-        "trace": {...}        
-    }
-    ```
-
 If you did not supply a `nodekitSubmitTo` endpoint when using Mechanical Turk, you can retrieve the data using the [GetAssignment](https://docs.aws.amazon.com/AWSMechTurk/latest/AWSMturkAPI/ApiReference_GetAssignmentOperation.html) operation and by inspecting the Answer data. 
 
 
 
 ## 5. Validate results
 
-Once you download the data from the previous step, you can instantiate a Trace: 
+Once you download the submission payload from the previous step, you can validate the submission data:
 
 ```python 
 import nodekit as nk
@@ -145,7 +109,7 @@ from pathlib import Path
 import json 
 
 data = json.loads(Path('the-data.json').read_text())
-trace = nk.Trace.model_validate_json(data['trace'])
-
-print(trace.events)
+payload = nk.SubmissionPayload.model_validate_json(data)
+print(payload.platform_context)
+print(payload.trace)
 ```
