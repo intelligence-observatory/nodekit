@@ -46,7 +46,7 @@ type PlatformContext = Annotated[
 
 
 # %%
-class SubmissionPayload(pydantic.BaseModel):
+class SiteSubmission(pydantic.BaseModel):
     trace: Trace = pydantic.Field(description="The submitted Trace.")
     platform_context: PlatformContext = pydantic.Field(description="Information about the platform (if any) that the Graph site was hosted on.")
 

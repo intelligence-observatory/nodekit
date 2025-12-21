@@ -7,7 +7,7 @@ __all__ = [
     # One-off top-level types:
     "Region",
     "BaseAgent",
-    "SubmissionPayload",
+    "SiteSubmission",
     # Namespaced types:
     "agents",
     "assets",
@@ -39,7 +39,7 @@ from nodekit._internal.types.graph import Graph
 # One-off top-level types:
 from nodekit._internal.types.values import Region
 from nodekit._internal.types.agents import BaseAgent
-from nodekit._internal.ops.build_site.types import SubmissionPayload
+from nodekit._internal.ops.build_site.types import SiteSubmission
 
 # Namespaced types:
 import nodekit.agents as agents

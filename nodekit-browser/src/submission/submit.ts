@@ -3,7 +3,7 @@ import type {MechanicalTurkContext, PlatformContext, SubmissionTarget} from "./s
 
 
 //
-export interface SubmissionPayload {
+export interface SiteSubmission {
     trace: Trace
     platform_context: PlatformContext
 }
@@ -19,7 +19,7 @@ export async function submit(
     ): Promise<void> {
 
     const {nodekitSubmitTo, externalPlatformContext} = submissionTarget;
-    const payload: SubmissionPayload = {
+    const payload: SiteSubmission = {
         trace: trace,
         platform_context: externalPlatformContext,
     };
@@ -87,7 +87,7 @@ export function submitToTurk(
     form.appendChild(inputAssignmentId);
 
     // Attach the submission payload field:
-    const payload: SubmissionPayload = {
+    const payload: SiteSubmission = {
         trace: trace,
         platform_context: submissionTarget.externalPlatformContext
     }

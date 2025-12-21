@@ -106,10 +106,10 @@ Once you download the submission payload from the previous step, you can validat
 ```python 
 import nodekit as nk
 from pathlib import Path
-import json 
+import json
 
 data = json.loads(Path('the-data.json').read_text())
-payload = nk.SubmissionPayload.model_validate_json(data)
+payload = nk.SiteSubmission.model_validate_json(data)
 print(payload.platform_context)
 print(payload.trace)
 ```
