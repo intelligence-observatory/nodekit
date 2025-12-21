@@ -4,6 +4,7 @@ import pydantic
 
 from nodekit._internal.types.trace import Trace
 
+
 # %%
 class BasePlatformContext(pydantic.BaseModel):
     platform: str
@@ -15,8 +16,9 @@ class MechanicalTurkContext(BasePlatformContext):
     assignment_id: str = pydantic.Field(description="The Mechanical Turk Assignment ID.")
     worker_id: str = pydantic.Field(description="The Mechanical Turk Worker ID.")
     hit_id: str = pydantic.Field(description="The Mechanical Turk HIT ID.")
-    turk_submit_to: str = pydantic.Field(description="The link that the Trace was submitted to. Encodes whether sandbox or production.")
-
+    turk_submit_to: str = pydantic.Field(
+        description="The link that the Trace was submitted to. Encodes whether sandbox or production."
+    )
 
 
 # %%
@@ -44,10 +46,9 @@ type PlatformContext = Annotated[
 ]
 
 
-
 # %%
 class SiteSubmission(pydantic.BaseModel):
     trace: Trace = pydantic.Field(description="The submitted Trace.")
-    platform_context: PlatformContext = pydantic.Field(description="Information about the platform (if any) that the Graph site was hosted on.")
-
-
+    platform_context: PlatformContext = pydantic.Field(
+        description="Information about the platform (if any) that the Graph site was hosted on."
+    )

@@ -9,23 +9,6 @@
     <script src="{{ js_path }}"></script>
     <link href="{{ css_path }}" rel="stylesheet">
 
-
-    <script>
-        function getSubmissionContext() {
-            if (typeof window === "undefined" || !window.location) {
-                return {
-                    submitTo: null,
-                    traceId: null,
-                };
-            }
-
-            const params = new URLSearchParams(window.location.search);
-            return {
-                submitTo: params.get("submitTo"),
-                traceId: params.get("traceId"),
-            };
-        }
-    </script>
     <script>
         function showOverlay({ title, message, details, showCopy = true }) {
             if (typeof window === "undefined" || !window.document) {
@@ -156,45 +139,10 @@
     </script>
 
     <script>
-        async function submitTrace(
-            trace,
-            submitTo,
-            traceId,
-        ){
-            if (!submitTo) {
-                return;
-            }
-
-            const payload = {
-                trace: trace,
-                trace_id: traceId,
-            };
-
-            const response = await fetch(submitTo, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(payload),
-            });
-
-            if (!response.ok) {
-                const bodyText = await response.text();
-                const error = new Error(`Submission failed with status ${response.status}`);
-                error.name = "SubmissionError";
-                error.responseStatus = response.status;
-                error.responseBody = bodyText;
-                throw error;
-            }
-        }
-    </script>
-
-    <script>
         const graph = {{ graph | tojson(indent=4) | indent(8, first=False) }};
 
         window.onload = async () => {
             try {
-                const submissionContext = getSubmissionContext()
 
                 // Play the Graph:
                 const trace = await NodeKit.play(graph);
