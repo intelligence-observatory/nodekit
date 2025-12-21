@@ -4,7 +4,7 @@ This guide provides instructions for deploying a Graph to Mechanical Turk or Pro
 * A Graph.
 * The ability to upload then generate public URLs for files (e.g. via S3)
 * The ability to request ExternalQuestion HITs on [Mechanical Turk](https://docs.aws.amazon.com/mturk/) (e.g. via boto3) and/or Studies on [Prolific](https://docs.prolific.com/documentation/get-started/overview) (e.g. via Prolific's API or website) . 
-* An endpoint which accepts and stores JSON data posted from participant browsers (e.g. via AWS Lambda function which writes to an S3 bucket).
+* An endpoint which accepts and stores JSON data posted from participant browsers located at any of the public URLs mentioned above (e.g. via AWS Lambda function which writes to an S3 bucket). If this endpoint is at a different origin than your file uploads, ensure that the endpoint accepts cross-origin browser POSTs.
 
 
 
@@ -79,12 +79,13 @@ Either way, once you have finalized the URL you will be using, use your preferre
 If requesting a Prolific Study, add the following query parameters in the entrypoint URL:
 
 * `nodekitSubmitTo`. As Prolific does not store participant data, specify the endpoint where you can accept JSON POST messages originating from the participant web page.  
-* `COMPLETION_CODE`. NodeKit uses Prolific's recommended [redirect completion path](https://intercom-help.eu/prolific-research/en/articles/445127-data-collection#aTjpf) to submit the study. Specify the completion code you will use / has been issued when creating the Prolific Draft Study (see [link](https://docs.prolific.com/api-reference/studies/the-study-object#completion_codes-required)). Note NodeKit only supports the use of a single Prolific completion code.
+* `prolificCompletionCode`. Specify the completion code you will use / has been issued when creating the Prolific Draft Study (see [link](https://docs.prolific.com/api-reference/studies/the-study-object#completion_codes-required)). NodeKit uses this code to construct and redirect to Prolific’s completion URL, per Prolific's recommended [redirect completion path](https://intercom-help.eu/prolific-research/en/articles/445127-data-collection#aTjpf).  Note NodeKit only supports the use of a single Prolific completion code.
 
 Then, add the following three strings, separated by &. These are placeholder parameters that Prolific will substitute at runtime for each participant session. 
 * `PROLIFIC_PID={{%PROLIFIC_PID%}}`. 
 * `STUDY_ID={{%STUDY_ID%}}`.
 * `SESSION_ID={{%SESSION_ID%}}`.
+
 
 A full example URL for a Prolific Study should look like:
 > https://my-task.com?nodekitSubmitTo=https%3A%2F%2Fmy-endpoint.com**&COMPLETION_CODE=1&PROLIFIC_PID={{%PROLIFIC_PID%}}&STUDY_ID={{%STUDY_ID%}}&SESSION_ID={{%SESSION_ID%}}**
@@ -92,7 +93,7 @@ A full example URL for a Prolific Study should look like:
 
 ## 4. Download the results
 
-Depending on the If you supplied a `nodekitSubmitTo` endpoint in the previous step, you can expect a JSON document to have been POSTed whenever each participant completed the Graph: 
+Depending on whether you supplied a `nodekitSubmitTo` endpoint in the previous step, you can expect a JSON document to have been POSTed whenever each participant completed the Graph: 
 
 
 

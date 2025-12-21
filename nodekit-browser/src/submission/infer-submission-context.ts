@@ -84,7 +84,7 @@ function inferProlificContext(): ProlificContext | null {
     const prolificPid = params.get("PROLIFIC_PID");
     const studyId = params.get("STUDY_ID");
     const sessionId = params.get("SESSION_ID");
-    const completionCode = params.get("COMPLETION_CODE");
+    const completionCode = params.get("prolificCompletionCode");
 
     const looksLikeProlific =
         prolificPid !== null ||

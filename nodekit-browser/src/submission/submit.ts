@@ -38,7 +38,6 @@ export function submitToTurk(
 }
 
 
-
 //
 export interface SubmissionPayload {
     trace: Trace
@@ -50,9 +49,51 @@ export interface SubmissionPayload {
  * @param trace
  * @param submissionTarget
  */
-export function submitTrace(
+export async function submitTrace(
     trace: Trace,
     submissionTarget: SubmissionTarget,
-    ): void {
+    ): Promise<void> {
+
+    const {nodekitSubmitTo, externalPlatformContext} = submissionTarget;
+    const payload: SubmissionPayload = {
+        trace: trace,
+        platform_context: externalPlatformContext,
+    };
+
+    // Post the SubmissionPayload to nodekitSubmitTo, if not null:
+    if (nodekitSubmitTo) {
+        const response = await fetch(nodekitSubmitTo, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+            const bodyText = await response.text();
+            const error = new Error(`Submission failed with status ${response.status}`);
+            error.name = "SubmissionError";
+            (error as { responseStatus?: number }).responseStatus = response.status;
+            (error as { responseBody?: string }).responseBody = bodyText;
+            throw error;
+        }
+    }
+
+    // If using Turk, post the SubmissionPayload using submitToTurk.
+    if (externalPlatformContext.platform === "MechanicalTurk" && !nodekitSubmitTo) {
+        submitToTurk(
+            trace,
+            externalPlatformContext.assignment_id,
+            externalPlatformContext.turk_submit_to,
+        );
+    }
+
+    // If using Prolific, just redirect using the given completion code.
+    if (externalPlatformContext.platform === "Prolific") {
+        const completionUrl = new URL("https://app.prolific.com/submissions/complete");
+        completionUrl.searchParams.set("cc", externalPlatformContext.completion_code);
+        window.location.assign(completionUrl.toString());
+    }
 
 }
