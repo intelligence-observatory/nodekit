@@ -139,24 +139,55 @@
     </script>
 
     <script>
+        function isMturkPreviewMode() {
+            if (typeof window === "undefined" || !window.location) {
+                return false;
+            }
+
+            const params = new URLSearchParams(window.location.search);
+            const assignmentId = params.get("assignmentId");
+            const PREVIEW_SENTINEL = "ASSIGNMENT_ID_NOT_AVAILABLE";
+
+            return assignmentId === PREVIEW_SENTINEL;
+        }
+
+        function addPreviewSplash() {
+            showOverlay({
+                title: "Preview Mode",
+                message: "Accept the HIT to continue. After accepting, refresh this page.",
+                showCopy: false,
+            });
+        }
+    </script>
+
+    <script>
         const graph = {{ graph | tojson(indent=4) | indent(8, first=False) }};
 
         window.onload = async () => {
             try {
+                const submissionTarget = NodeKit.getSubmissionTarget();
+
+                if (isMturkPreviewMode()) {
+                    addPreviewSplash();
+                    return;
+                }
 
                 // Play the Graph:
                 const trace = await NodeKit.play(graph);
 
                 // Handle close down procedures, based on the inferred context:
-                await submitTrace(
+                await NodeKit.submit(
                     trace,
-                    submissionContext.submitTo,
-                    submissionContext.traceId,
-                )
+                    submissionTarget,
+                );
             } catch (err) {
-                const context = {
-                    submissionContext: getSubmissionContext(),
-                };
+                const context = {};
+                try {
+                    context.submissionTarget = NodeKit.getSubmissionTarget();
+                } catch (e) {
+                    context.submissionTarget = { error: String(e) };
+                }
+                context.previewMode = isMturkPreviewMode();
 
                 const report = formatErrorReport(err, context);
                 showOverlay({
