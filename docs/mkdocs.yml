@@ -14,7 +14,7 @@ nav:
       - Writing your own Agent: 'guides/writing-agents.md'
   - Concepts:
       - Board coordinates: concepts/board-coordinate-system.md
-  - Reference:
+  - API Reference:
       - Node: reference/node.md
       - Graph: reference/graph.md
       - Trace: reference/trace.md
@@ -29,6 +29,8 @@ nav:
       - Values: reference/values.md
       - Ops: reference/ops.md
       - Site: reference/site.md
+  - Examples:
+      - Hello, World!: examples/hello-world.md
 
 
 

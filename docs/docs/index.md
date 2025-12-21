@@ -4,6 +4,7 @@ NodeKit is a Python library for writing behavioral tasks. Any task written using
 
 ![An example NodeKit Graph](tutorial/example-graph.png)
 
+
 ## Why NodeKit?
 
 - **No HTML/JavaScript/CSS.** Instead, just use Python.
@@ -15,5 +16,4 @@ NodeKit is a Python library for writing behavioral tasks. Any task written using
 - **No HTML/JavaScript/CSS.** The infinite customizability of traditional front end web tools is not accessible in NodeKit.
 - **No audio.** NodeKit focuses on purely visual tasks.
   
-
 
