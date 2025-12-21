@@ -15,5 +15,4 @@ NodeKit is a Python library for writing behavioral tasks. Any task written using
 
 - **No HTML/JavaScript/CSS.** The infinite customizability of traditional front end web tools is not accessible in NodeKit.
 - **No audio.** NodeKit focuses on purely visual tasks.
-  
-
+- **Fixed layout philosophy.** NodeKit describes deterministic, pixel-for-pixel layouts that do not react to window resizing or device type.
