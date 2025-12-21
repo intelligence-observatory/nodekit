@@ -45,15 +45,17 @@ def build_site(
         ValueError: If savedir is not a directory.
 
     Site layout:
-        * assets/
+        ```
+        assets/
             {mime-type-1}/{mime-type-2}/{sha256}.{ext}
-        * runtime/
+        runtime/
             nodekit.{js-digest}.js
             nodekit.{css-digest}.css
-        * graphs/
+        graphs/
             {graph_digest}/
                 index.html
                 graph.json
+        ```
     """
     savedir = Path(savedir)
     if not savedir.exists():
