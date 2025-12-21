@@ -1,7 +1,7 @@
 import type {MechanicalTurkContext, PlatformContext, ProlificContext, SubmissionTarget} from "./submission-contexts.ts";
 
 
-export function inferSubmissionTarget(): SubmissionTarget {
+export function getSubmissionTarget(): SubmissionTarget {
     let externalPlatformContext: PlatformContext = {platform: "None"}
 
     // Not running in a browser:
@@ -23,6 +23,13 @@ export function inferSubmissionTarget(): SubmissionTarget {
     // Check that not both are present:
     if (mturkContext && prolificContext) {
         const error = new Error("Multiple platform contexts detected.");
+        error.name = "BadPlatformContextError";
+        throw error;
+    }
+
+    // Throw an error if Prolific is detected, but no nodekitSubmitTo was specified.
+    if (prolificContext && !nodekitSubmitTo) {
+        const error = new Error("nodekitSubmitTo is required when using Prolific.");
         error.name = "BadPlatformContextError";
         throw error;
     }

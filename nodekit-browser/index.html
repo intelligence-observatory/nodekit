@@ -233,12 +233,15 @@
         'registers': {},
     }
 
-    import {play} from '/src/main.ts';
+    import {play, getSubmissionTarget, submit} from '/src/main.ts';
 
     window.focus();
 
     window.onload = async () => {
         try {
+            const submissionTarget = getSubmissionTarget();
+            console.log('Submission target', submissionTarget)
+
             let trace = await play(
                 devGraph,
                 (event) => {
@@ -251,6 +254,9 @@
                 true,
             );
             console.log('Trace', trace);
+
+            submit(trace, submissionTarget)
+
         } catch (err) {
             console.error('Dev harness failed to play graph', err);
         }

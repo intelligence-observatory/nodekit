@@ -15,6 +15,10 @@ import {EventArray} from "./event-array.ts";
 
 import {evalTransition} from "./node-play/eval-transition.ts";
 
+
+export {getSubmissionTarget} from "./submission/get-submission-target.ts"
+export {submit} from "./submission/submit.ts"
+
 /**
  * Plays a Graph, returning a Trace of Events.
  * @param graph

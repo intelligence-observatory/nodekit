@@ -1,6 +1,6 @@
-export interface SubmissionTarget {
+export interface SubmissionTarget<T extends PlatformContext = PlatformContext> {
     nodekitSubmitTo: string | null // an optional side channel where the Trace will be POSTed when Graph is finished
-    externalPlatformContext: PlatformContext // describes the end-of-Graph submission procedure for a third party platform
+    externalPlatformContext: T // describes the end-of-Graph submission procedure for a third party platform
 }
 
 interface BasePlatformContext {
