@@ -178,10 +178,10 @@
     const productSensor = {
         "sensor_type": "ProductSensor",
         "children": {
-            'child-sensor1': textEntrySensor,
-            'select3': multiSelectSensor,
+            //'child-sensor1': textEntrySensor,
+            //'select3': multiSelectSensor,
             'slider': sliderSensorH,
-            'sliderV': sliderSensorV,
+            //'sliderV': sliderSensorV,
         }
     }
 
@@ -207,7 +207,23 @@
     const compositeCard = {
         "card_type": "CompositeCard",
         "children": {
-            'child-card-1': videoCard
+            'child-card-1': videoCard,
+            'text-card': {
+                "card_type": "TextCard",
+                "region": {
+                    "x": -300,
+                    "y": 0,
+                    "w": 200,
+                    "h": 100,
+                    "mask": 'rectangle',
+                },
+                "text": "I am a **TextCard** inside a CompositeCard.",
+                "font_size": 10,
+                "justification_horizontal": "center",
+                "justification_vertical": "center",
+                "text_color": "#000000ff",
+                "background_color": "#e6e6e6ff"
+            }
         }
     }
 
