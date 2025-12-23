@@ -43,6 +43,7 @@ export class ShellUI extends UIElementBase {
     showSessionConnectingOverlay(startDelayMsec: number = 500) {
         // Show the overlay
         this.sessionConnectingOverlay.show(startDelayMsec);
+        console.log('yo')
     }
 
     hideSessionConnectingOverlay() {

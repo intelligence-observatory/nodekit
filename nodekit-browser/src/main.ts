@@ -39,6 +39,7 @@ export async function play(
     // Initialize divs:
     const nodeKitDiv = createNodeKitRootDiv();
     const shellUI = new ShellUI()
+
     nodeKitDiv.appendChild(shellUI.root);
     const boardViewsContainerDiv = getBoardViewsContainerDiv();
     nodeKitDiv.appendChild(boardViewsContainerDiv)
@@ -57,8 +58,8 @@ export async function play(
 
     shellUI.showSessionConnectingOverlay()
     const assetManager = new AssetManager();
-
     shellUI.hideSessionConnectingOverlay()
+
 
     // Start screen:
     if (!debugMode) {
