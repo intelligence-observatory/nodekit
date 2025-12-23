@@ -16,7 +16,6 @@
     "test": "./tests/test.sh"
   },
   "dependencies": {
-    "@fontsource-variable/google-sans-code": "^5.2.3",
     "@fontsource/inter": "^5.2.5",
     "dompurify": "^3.2.6",
     "highlight.js": "^11.11.1",

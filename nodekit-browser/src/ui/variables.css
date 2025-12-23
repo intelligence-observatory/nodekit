@@ -1,6 +1,4 @@
-@import "@fontsource/inter/400.css";
-@import "@fontsource/inter/700.css";
-@import "@fontsource-variable/google-sans-code";
+@import "@fontsource/inter";
 @import 'board-views-ui/board-views-ui.css';
 
 :root {
@@ -15,7 +13,7 @@
 
     /* System Text */
     --font-family-sans: 'Inter';
-    --font-family-mono: 'Google Sans Code Variable', monospace;
+    --font-family-mono: monospace;
     --system-text-default-color-on-light: hsl(0, 0%, 15%);
     --system-text-default-color-on-dark: hsl(210, 0%, 75%);
 

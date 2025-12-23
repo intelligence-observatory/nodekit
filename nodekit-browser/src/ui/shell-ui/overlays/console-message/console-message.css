@@ -15,8 +15,8 @@ A fixed-width <div> which is not selectable.
 
 /* Text to be rendered inside the banner. Overflows into an ellipsis. */
 .console-title-box__text {
-    color: var(--system-text-default-color-on-dark);
-    font-family: var(--font-family-mono), monospace;
+    color: black;
+    font-family: var(--font-family-sans), monospace;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -24,7 +24,7 @@ A fixed-width <div> which is not selectable.
 
 .copy-button {
     background-color: hsla(0, 0%, 50%, 0.5);
-    color: var(--system-text-default-color-on-dark);
+    color: black;
     border: 0 solid rgba(100, 100, 100, 1);
     font-size: 0.75rem;
     border-radius: 4px;
