@@ -10,6 +10,7 @@ export class SessionStartedOverlay extends OverlayBase {
         // Create the submit button
         this.startButton = document.createElement("button");
         this.startButton.textContent = "Start →";
+        this.startButton.classList.add('confirm-button')
 
         // Mount
         this.root.appendChild(this.startButton);

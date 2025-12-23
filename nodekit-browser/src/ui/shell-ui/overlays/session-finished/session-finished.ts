@@ -10,6 +10,7 @@ export class SessionFinishedOverlay extends OverlayBase {
         // Create the submit button
         this.submitButton = document.createElement("button");
         this.submitButton.textContent = "Submit ↑";
+        this.submitButton.classList.add('confirm-button')
         // Mount
         this.root.appendChild(this.submitButton);
     }

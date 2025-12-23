@@ -3,7 +3,7 @@
     height: 100%;
 }
 
-.shell-ui button {
+.shell-ui .confirm-button {
     font-size: 30px;
     font-family: var(--font-family-sans), sans-serif;
     color: white;
@@ -13,10 +13,10 @@
     background: gray;
 }
 
-.shell-ui button:hover {
+.shell-ui .confirm-button:hover {
     background: rgba(128, 128, 128, 0.8);
 }
 
-.shell-ui button:active {
+.shell-ui .confirm-button:active {
     background: rgba(128, 128, 128, 0.5);
 }
