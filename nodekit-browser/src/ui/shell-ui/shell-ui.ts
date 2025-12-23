@@ -83,7 +83,6 @@ export class ShellUI {
         await startPressed
     }
     async playEndScreen(
-        message:string = '',
         endScreenTimeoutMsec: number = 10000
     ) {
 
@@ -91,7 +90,6 @@ export class ShellUI {
         let timeoutId: number | null = null;
         let submitPressed = new Promise<void>((resolve, _reject) => {
             this.sessionFinishedOverlay.show(
-                message,
                 () => {
                     this.sessionFinishedOverlay.hide()
                     if (timeoutId !== null) {

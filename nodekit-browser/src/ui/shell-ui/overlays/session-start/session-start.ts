@@ -1,5 +1,4 @@
 import {OverlayBase} from "../overlay-base.ts";
-import "./session-start.css";
 
 export class SessionStartedOverlay extends OverlayBase {
 
@@ -10,8 +9,7 @@ export class SessionStartedOverlay extends OverlayBase {
 
         // Create the submit button
         this.startButton = document.createElement("button");
-        this.startButton.classList.add("start-button");
-        this.startButton.textContent = "Press to Start";
+        this.startButton.textContent = "Start →";
 
         // Mount
         this.root.appendChild(this.startButton);

@@ -3,3 +3,20 @@
     height: 100%;
 }
 
+.shell-ui button {
+    font-size: 30px;
+    font-family: var(--font-family-sans), sans-serif;
+    color: white;
+    padding: 20px 20px;
+    border-radius: 10px;
+    border: none;
+    background: gray;
+}
+
+.shell-ui button:hover {
+    background: rgba(128, 128, 128, 0.8);
+}
+
+.shell-ui button:active {
+    background: rgba(128, 128, 128, 0.5);
+}
