@@ -5,7 +5,6 @@
 
 :root {
     /* ShellUI Dimensions */
-    --top-strip-height: 10px;
     --overlay-console-width: 80%;
 
     /* System Borders */
@@ -17,17 +16,13 @@
     /* System Text */
     --font-family-sans: 'Inter';
     --font-family-mono: 'Inconsolata Variable', monospace;
-    --system-text-muted-background-color: hsl(0, 0%, 80%);
     --system-text-default-color-on-light: hsl(0, 0%, 15%);
     --system-text-default-color-on-dark: hsl(210, 0%, 75%);
 
     --system-text-muted-color-on-light: rgba(0, 0, 0, 0.5);
-    --system-text-muted-color-on-dark: rgba(255, 255, 255, 0.5);
 
     /* System Valence */
-    --system-positive-color: #68d391;
     --system-neutral-color: hsla(0,100%,100%,0.2);
-    --system-negative-color: #ff5c5c;
 
     /* Cognition */
     --cognition-strong-color: hsl(208,100%,80%);
