@@ -20,6 +20,7 @@ dependencies = [
     "boto3>=1.40.55",
     "matplotlib>=3.10.8",
     "boto3-stubs~=1.42.10",
+    "pandas>=2.3.3",
 ]
 
 [dependency-groups]
@@ -42,7 +43,9 @@ module-name = "nodekit"
 module-root = ""
 
 [tool.ty.src]
-exclude = []
+exclude = [
+    "nodekit/experimental"
+]
 
 [tool.ruff]
 line-length = 100

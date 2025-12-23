@@ -45,7 +45,8 @@ def make_animation(
         then following trail, then DOWN/UP dots (highest).
 
     Coordinates:
-      - Input x,y in (-0.5, 0.5), right is +x, up is +y. Output is a square of size movie_size_px.
+      - Input x,y in pixels, origin at board center; board extent is 1024 x 1024,
+        so x,y are in [-512, 512]. Output is a square of size movie_size_px.
 
     Timing:
       - 60 fps, length = movie_time_sec. Samples outside [0, movie_time_sec*1000) ms are ignored.
@@ -54,7 +55,7 @@ def make_animation(
     # ----------------------------
     # Params & scaling
     # ----------------------------
-    scale = movie_size_px / 768.0  # baseline-normalized scaling
+    scale = movie_size_px / 1024.0  # baseline-normalized scaling
 
     fps = 60
     T_ms = int(movie_time_sec * 1000)
@@ -152,8 +153,8 @@ def make_animation(
     fig_inch = movie_size_px / dpi
     fig = plt.figure(figsize=(fig_inch, fig_inch), dpi=dpi)
     ax = plt.axes((0, 0, 1, 1))
-    ax.set_xlim(-0.5, 0.5)
-    ax.set_ylim(-0.5, 0.5)
+    ax.set_xlim(-512, 512)
+    ax.set_ylim(-512, 512)
     ax.set_aspect("equal", adjustable="box")
 
     fig.patch.set_alpha(0.0)

@@ -1,4 +1,4 @@
-import type {MechanicalTurkContext, PlatformContext, ProlificContext, SubmissionTarget} from "./submission-contexts.ts";
+import type {MechanicalTurkContext, MechanicalTurkPreviewModeContext, PlatformContext, ProlificContext, SubmissionTarget} from "./submission-contexts.ts";
 
 
 export function getSubmissionTarget(): SubmissionTarget {
@@ -46,7 +46,7 @@ export function getSubmissionTarget(): SubmissionTarget {
     }
 }
 
-function inferMturkContext(): MechanicalTurkContext | null {
+function inferMturkContext(): MechanicalTurkContext | MechanicalTurkPreviewModeContext | null {
     const params = new URLSearchParams(window.location.search);
 
     // MTurk-style query params
@@ -66,8 +66,14 @@ function inferMturkContext(): MechanicalTurkContext | null {
     }
 
     // Preview mode per MTurk docs: assignmentId is present and equals this sentinel.
-    // const PREVIEW_SENTINEL = "ASSIGNMENT_ID_NOT_AVAILABLE";
-    // const previewMode = assignmentId === PREVIEW_SENTINEL;
+    const PREVIEW_SENTINEL = "ASSIGNMENT_ID_NOT_AVAILABLE";
+    const previewMode = assignmentId === PREVIEW_SENTINEL;
+
+    if (previewMode){
+        return {
+            platform: "MechanicalTurkPreviewMode"
+        }
+    }
 
     // Not previewing -> require all fields
     if (!turkSubmitTo || !hitId || !assignmentId || !workerId) {
