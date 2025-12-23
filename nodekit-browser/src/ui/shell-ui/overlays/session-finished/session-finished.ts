@@ -14,12 +14,12 @@ export class SessionFinishedOverlay extends OverlayBase {
         // Create the submit button
         this.submitButton = new SubmitButton();
         // Mount
-        this.submitButton.mount(this.root)
+        this.submitButton.mount(this.content)
 
         // Add debrief message box
         this.messageBox = document.createElement("div");
         this.messageBox.classList.add("debrief-message-box");
-        this.root.appendChild(this.messageBox);
+        this.content.appendChild(this.messageBox);
 
         this.messageSpan = document.createElement("span");
         this.messageSpan.classList.add("debrief-message-box__text");

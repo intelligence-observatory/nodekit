@@ -17,6 +17,12 @@
     align-items: center;
 }
 
+.overlay__content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
 .overlay--visible-state {
     opacity: 1;
     pointer-events: auto;

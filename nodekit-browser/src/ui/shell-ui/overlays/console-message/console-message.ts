@@ -13,7 +13,7 @@ export class ConsoleMessageOverlay extends OverlayBase {
         // Add the console title box
         const titleBoxDiv = document.createElement("div");
         titleBoxDiv.classList.add("console-title-box");
-        this.root.appendChild(titleBoxDiv);
+        this.content.appendChild(titleBoxDiv);
 
         // Add the title content div box
         this.titleTextDiv = document.createElement("div");
@@ -22,7 +22,7 @@ export class ConsoleMessageOverlay extends OverlayBase {
 
         // Add the JSON viewer to the root flow
         this.jsonViewer = new JsonViewer();
-        this.jsonViewer.mount(this.root);
+        this.jsonViewer.mount(this.content);
 
         // Copy button
         const copyButton = new CopyButton();

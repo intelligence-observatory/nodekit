@@ -11,7 +11,7 @@ export class SessionStartedOverlay extends OverlayBase {
         // Create the submit button
         this.startButton = new StartButton();
         // Mount
-        this.startButton.mount(this.root)
+        this.startButton.mount(this.content)
     }
 
     show(
