@@ -2,7 +2,7 @@ import "./overlay-base.css"
 import {UIElementBase} from "../base.ts";
 
 export abstract class OverlayBase extends UIElementBase {
-    root: HTMLSpanElement;
+    root: HTMLDivElement;
 
     constructor(id:string) {
         super();
