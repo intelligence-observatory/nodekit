@@ -41,9 +41,9 @@ A fixed-width <div> which is not selectable.
 }
 
 .submit-button:hover {
-    background-color: var(--cognition-standard-color);
+    background-color: lightgray;
 }
 
 .submit-button:active {
-    background-color: var(--cognition-strong-color);
+    background-color: gray;
 }
