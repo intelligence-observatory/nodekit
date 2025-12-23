@@ -82,9 +82,10 @@ If requesting a Prolific Study, add the following query parameters in the entryp
 * `prolificCompletionCode`. Specify the completion code you will use / has been issued when creating the Prolific Draft Study (see [link](https://docs.prolific.com/api-reference/studies/the-study-object#completion_codes-required)). NodeKit uses this code to construct and redirect to Prolific’s completion URL, per Prolific's recommended [redirect completion path](https://intercom-help.eu/prolific-research/en/articles/445127-data-collection#aTjpf).  Note NodeKit only supports the use of a single Prolific completion code.
 
 Then, add the following three strings, separated by &. These are placeholder parameters that Prolific will substitute at runtime for each participant session. 
-* `PROLIFIC_PID={{%PROLIFIC_PID%}}`. 
-* `STUDY_ID={{%STUDY_ID%}}`.
-* `SESSION_ID={{%SESSION_ID%}}`.
+
+* `PROLIFIC_PID={{%PROLIFIC_PID%}}`
+* `STUDY_ID={{%STUDY_ID%}}`
+* `SESSION_ID={{%SESSION_ID%}}`
 
 
 A full example URL for a Prolific Study should look like:

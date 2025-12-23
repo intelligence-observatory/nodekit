@@ -100,6 +100,6 @@ export function submitToTurk(
     // Attach the form to the HTML document and trigger submission.
     document.body.appendChild(form);
 
-    // Submit the form.
+    // Submit the form; this should trigger a redirect.
     form.submit();
 }
