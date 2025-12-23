@@ -10,13 +10,13 @@
     padding: 20px 20px;
     border-radius: 10px;
     border: none;
-    background: gray;
+    background: rgba(0, 0, 0, 0.3);
 }
 
 .shell-ui .confirm-button:hover {
-    background: rgba(128, 128, 128, 0.8);
+    background: rgba(0, 0, 0, 0.2);
 }
 
 .shell-ui .confirm-button:active {
-    background: rgba(128, 128, 128, 0.5);
+    background: rgba(0, 0, 0, 0.1);
 }

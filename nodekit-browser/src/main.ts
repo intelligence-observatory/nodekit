@@ -131,6 +131,7 @@ export async function play(
     // Show the Trace in the console:
     shellUI.showConsoleMessageOverlay(
         'Trace',
+        '',
         trace,
     );
 

@@ -5,6 +5,8 @@ import './console-message.css'
 export class ConsoleMessageOverlay extends OverlayBase {
     jsonViewer: JsonViewer
     titleTextDiv: HTMLDivElement;
+    messageTextDiv: HTMLDivElement;
+    copyButton: CopyButton;
 
     constructor(
     ) {
@@ -19,22 +21,40 @@ export class ConsoleMessageOverlay extends OverlayBase {
         this.titleTextDiv.classList.add("console-title-box__text");
         titleBoxDiv.appendChild(this.titleTextDiv);
 
+        // Add the message content div box
+        this.messageTextDiv = document.createElement("div");
+        this.messageTextDiv.classList.add("console-message__text");
+        this.root.appendChild(this.messageTextDiv);
+
         // Add the JSON viewer to the root flow
         this.jsonViewer = new JsonViewer();
         this.root.appendChild(this.jsonViewer.root);
 
         // Copy button
-        const copyButton = new CopyButton();
-        copyButton.setCopyTarget(this.jsonViewer.root);
-        titleBoxDiv.appendChild(copyButton.root);
+        this.copyButton = new CopyButton();
+        this.copyButton.setCopyTarget(this.jsonViewer.root);
+        titleBoxDiv.appendChild(this.copyButton.root);
     }
-    displayMessage(banner:string, data:any) {
-        this.titleTextDiv.textContent = banner;
-        this.jsonViewer.displayAsJson(data);
+    displayMessage(
+        title: string,
+        message: string,
+        details: any,
+        showCopy: boolean = true,
+    ) {
+        this.titleTextDiv.textContent = title;
+        this.messageTextDiv.textContent = message;
+        this.messageTextDiv.classList.toggle(
+            "console-message__text--hidden",
+            message.trim().length === 0,
+        );
+        this.copyButton.root.hidden = !showCopy;
+        this.jsonViewer.displayAsJson(details);
         super.setVisibility(true)
     }
     hide(){
         this.titleTextDiv.textContent = "";
+        this.messageTextDiv.textContent = "";
+        this.messageTextDiv.classList.remove("console-message__text--hidden");
         // Clear the JSON data to avoid having to keep it in memory
         this.jsonViewer.clear()
         super.setVisibility(false)

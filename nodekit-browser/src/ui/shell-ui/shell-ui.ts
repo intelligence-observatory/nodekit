@@ -48,14 +48,20 @@ export class ShellUI {
         this.sessionConnectingOverlay.hide();
     }
 
-    showConsoleMessageOverlay(banner: string, data: any) {
+    showConsoleMessageOverlay(
+        title: string,
+        message: string,
+        details: any,
+        showCopy: boolean = true,
+    ) {
         // Show the overlay with the provided data
-        this.overlayConsoleMessage.displayMessage(banner, data);
+        this.overlayConsoleMessage.displayMessage(title, message, details, showCopy);
     }
 
     showErrorOverlay(error: Error) {
         this.showConsoleMessageOverlay(
             'The following error occurred:',
+            '',
             {
                 name: (error as Error).name,
                 message: (error as Error).message,

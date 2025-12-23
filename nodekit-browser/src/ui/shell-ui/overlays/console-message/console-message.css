@@ -22,6 +22,18 @@ A fixed-width <div> which is not selectable.
     text-overflow: ellipsis;
 }
 
+.console-message__text {
+    width: var(--overlay-console-width);
+    color: black;
+    font-family: var(--font-family-sans), sans-serif;
+    margin-bottom: 0.75rem;
+    line-height: 1.4;
+}
+
+.console-message__text--hidden {
+    display: none;
+}
+
 .copy-button {
     background-color: hsla(0, 0%, 50%, 0.5);
     color: black;
