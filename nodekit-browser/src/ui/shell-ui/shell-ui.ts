@@ -90,20 +90,23 @@ export class ShellUI extends UIElementBase {
     ) {
 
         // Await for the button to be pressed
+        let timeoutId: number | null = null;
         let submitPressed = new Promise<void>((resolve, _reject) => {
             this.sessionFinishedOverlay.show(
                 message,
                 () => {
                     this.sessionFinishedOverlay.hide()
+                    if (timeoutId !== null) {
+                        clearTimeout(timeoutId);
+                        timeoutId = null;
+                    }
                     resolve()
                 }
             )
         })
 
-        await submitPressed
-
         let timeoutPromise = new Promise<void>((resolve, _reject) => {
-            setTimeout(() => {
+            timeoutId = window.setTimeout(() => {
                 this.sessionFinishedOverlay.hide()
                 resolve()
             }, endScreenTimeoutMsec);

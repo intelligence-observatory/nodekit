@@ -46,6 +46,6 @@ export class JsonViewer extends UIElementBase {
 
     clear(){
         // Clear the content of the json viewer
-        //this.jsonViewerContent.innerHTML = "";
+        this.jsonViewerContent.innerHTML = "";
     }
 }

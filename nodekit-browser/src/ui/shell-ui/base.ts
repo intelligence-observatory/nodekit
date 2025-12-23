@@ -1,4 +1,5 @@
 type EventListenerReference = {
+    target: EventTarget;
     type: string;
     handler: EventListenerOrEventListenerObject;
     options?: boolean | AddEventListenerOptions;
@@ -51,13 +52,13 @@ export abstract class UIElementBase {
     }
 
     protected _registerEventListener(
-        target: HTMLElement, // Should almost always be this.root or its child
+        target: EventTarget, // Should almost always be this.root or its child
         type:string,
         handler: EventListenerOrEventListenerObject,
         options?: boolean | AddEventListenerOptions
     ): void {
         target.addEventListener(type, handler, options);
-        this._listenerRegistry.push({ type, handler, options });
+        this._listenerRegistry.push({ target, type, handler, options });
     }
 
     protected _findChildrenComponents(): UIElementBase[] {
@@ -76,8 +77,8 @@ export abstract class UIElementBase {
     }
 
     public removeAllEventListeners(): void {
-        for (const { type, handler, options } of this._listenerRegistry) {
-            this.root.removeEventListener(type, handler, options);
+        for (const { target, type, handler, options } of this._listenerRegistry) {
+            target.removeEventListener(type, handler, options);
         }
         this._listenerRegistry = [];
 

@@ -30,12 +30,12 @@ export class ConsoleMessageOverlay extends OverlayBase {
         copyButton.mount(titleBoxDiv);
     }
     displayMessage(banner:string, data:any) {
-        this.titleTextDiv.innerHTML = banner;
+        this.titleTextDiv.textContent = banner;
         this.jsonViewer.displayAsJson(data);
         super.setVisibility(true)
     }
     hide(){
-        this.titleTextDiv.innerHTML = "";
+        this.titleTextDiv.textContent = "";
         // Clear the JSON data to avoid having to keep it in memory
         this.jsonViewer.clear()
         super.setVisibility(false)
