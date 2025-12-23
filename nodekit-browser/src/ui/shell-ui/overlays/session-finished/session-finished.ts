@@ -1,25 +1,26 @@
 import {OverlayBase} from "../overlay-base.ts";
-import {UIElementBase} from "../../base.ts";
 import "./session-finished.css";
 
 export class SessionFinishedOverlay extends OverlayBase {
 
     messageBox: HTMLDivElement;
     messageSpan: HTMLSpanElement;
-    submitButton: SubmitButton;
+    submitButton: HTMLButtonElement;
 
     constructor() {
         super('session-finished-overlay');
 
         // Create the submit button
-        this.submitButton = new SubmitButton();
+        this.submitButton = document.createElement("button");
+        this.submitButton.classList.add("submit-button");
+        this.submitButton.textContent = "Press to Submit";
         // Mount
-        this.submitButton.mount(this.content)
+        this.root.appendChild(this.submitButton);
 
         // Add debrief message box
         this.messageBox = document.createElement("div");
         this.messageBox.classList.add("debrief-message-box");
-        this.content.appendChild(this.messageBox);
+        this.root.appendChild(this.messageBox);
 
         this.messageSpan = document.createElement("span");
         this.messageSpan.classList.add("debrief-message-box__text");
@@ -39,7 +40,7 @@ export class SessionFinishedOverlay extends OverlayBase {
         }
 
         this.messageSpan.textContent = message;
-        this.submitButton.attachClickListener(submitButtonClickedCallback);
+        this.submitButton.onclick = submitButtonClickedCallback;
         this.setVisibility(true);
     }
 
@@ -51,25 +52,7 @@ export class SessionFinishedOverlay extends OverlayBase {
         super.setVisibility(false);
 
         // Clear the event listener
-        this.submitButton.removeAllEventListeners()
+        this.submitButton.onclick = null;
     }
 }
 
-
-class SubmitButton extends UIElementBase {
-    root: HTMLButtonElement;
-
-    constructor() {
-        super();
-
-        const copyButton = document.createElement("button");
-        copyButton.classList.add("submit-button");
-        copyButton.textContent = "Press to Submit";
-        this.root = copyButton;
-    }
-
-    attachClickListener(callback: () => void): void {
-
-        this._registerEventListener(this.root, 'click', callback);
-    }
-}

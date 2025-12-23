@@ -1,4 +1,3 @@
-import {UIElementBase} from "../../../base.ts"
 import "./json-viewer.css"
 import hljs from "highlight.js/lib/core";
 import json from "highlight.js/lib/languages/json";
@@ -6,12 +5,11 @@ import json from "highlight.js/lib/languages/json";
 hljs.registerLanguage('json', json);
 import 'highlight.js/styles/github.css';
 
-export class JsonViewer extends UIElementBase {
+export class JsonViewer {
     root: HTMLDivElement;
     jsonViewerContent: HTMLDivElement;
 
     constructor() {
-        super();
 
         this.root = document.createElement("div");
         this.root.classList.add("json-viewer");

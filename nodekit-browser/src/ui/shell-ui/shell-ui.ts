@@ -1,5 +1,3 @@
-import {UIElementBase} from "./base.ts";
-
 import './shell-ui.css'
 
 import {SessionConnectingOverlay} from "./overlays/session-connecting/session-connecting.ts";
@@ -7,7 +5,7 @@ import {ConsoleMessageOverlay} from "./overlays/console-message/console-message.
 import {SessionFinishedOverlay} from "./overlays/session-finished/session-finished.ts";
 import {SessionStartedOverlay} from "./overlays/session-start/session-start.ts";
 
-export class ShellUI extends UIElementBase {
+export class ShellUI {
     root: HTMLDivElement
 
     // Overlays
@@ -17,26 +15,25 @@ export class ShellUI extends UIElementBase {
     private sessionFinishedOverlay: SessionFinishedOverlay;
 
     constructor() {
-        super()
         // Make a root div which will hold all Shell UI elements
         this.root = document.createElement("div");
         this.root.className = 'shell-ui';
 
         // Initialize overlay for session connecting
         this.sessionConnectingOverlay = new SessionConnectingOverlay();
-        this.sessionConnectingOverlay.mount(this.root);
+        this.root.appendChild(this.sessionConnectingOverlay.root);
 
         // Initialize overlay for JSON data
         this.overlayConsoleMessage = new ConsoleMessageOverlay()
-        this.overlayConsoleMessage.mount(this.root);
+        this.root.appendChild(this.overlayConsoleMessage.root);
 
         // Initialize overlay for session finished
         this.sessionFinishedOverlay = new SessionFinishedOverlay();
-        this.sessionFinishedOverlay.mount(this.root);
+        this.root.appendChild(this.sessionFinishedOverlay.root);
 
         // Initialize overlay for session started
         this.sessionStartedOverlay = new SessionStartedOverlay();
-        this.sessionStartedOverlay.mount(this.root);
+        this.root.appendChild(this.sessionStartedOverlay.root);
 
     }
 

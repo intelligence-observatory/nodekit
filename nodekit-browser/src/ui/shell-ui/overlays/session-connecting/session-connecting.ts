@@ -15,11 +15,11 @@ export class SessionConnectingOverlay extends OverlayBase {
         // Add connecting message div
         const messageBoxDiv = document.createElement("div");
         messageBoxDiv.classList.add("connecting-message-box");
-        this.content.appendChild(messageBoxDiv);
+        this.root.appendChild(messageBoxDiv);
 
         // Mount spinner before text
         this.spinner = new Spinner();
-        this.spinner.mount(messageBoxDiv);
+        messageBoxDiv.appendChild(this.spinner.root);
 
         // Add text
         const textDiv = document.createElement("div");

@@ -2,7 +2,6 @@ import {OverlayBase} from "../overlay-base.ts";
 import {JsonViewer} from "./json-viewer/json-viewer.ts";
 
 import './console-message.css'
-import {UIElementBase} from "../../base.ts";
 export class ConsoleMessageOverlay extends OverlayBase {
     jsonViewer: JsonViewer
     titleTextDiv: HTMLDivElement;
@@ -13,7 +12,7 @@ export class ConsoleMessageOverlay extends OverlayBase {
         // Add the console title box
         const titleBoxDiv = document.createElement("div");
         titleBoxDiv.classList.add("console-title-box");
-        this.content.appendChild(titleBoxDiv);
+        this.root.appendChild(titleBoxDiv);
 
         // Add the title content div box
         this.titleTextDiv = document.createElement("div");
@@ -22,12 +21,12 @@ export class ConsoleMessageOverlay extends OverlayBase {
 
         // Add the JSON viewer to the root flow
         this.jsonViewer = new JsonViewer();
-        this.jsonViewer.mount(this.content);
+        this.root.appendChild(this.jsonViewer.root);
 
         // Copy button
         const copyButton = new CopyButton();
         copyButton.setCopyTarget(this.jsonViewer.root);
-        copyButton.mount(titleBoxDiv);
+        titleBoxDiv.appendChild(copyButton.root);
     }
     displayMessage(banner:string, data:any) {
         this.titleTextDiv.textContent = banner;
@@ -44,11 +43,10 @@ export class ConsoleMessageOverlay extends OverlayBase {
 
 
 
-class CopyButton extends UIElementBase {
+class CopyButton {
     root: HTMLButtonElement;
 
     constructor() {
-        super();
 
         const copyButton = document.createElement("button");
         copyButton.classList.add("copy-button");
