@@ -35,10 +35,8 @@ A fixed-width <div> which is not selectable.
 
 .copy-button:hover {
     background-color: hsla(0, 0%, 90%, 0.5);
-    color: var(--system-text-default-color-on-light);
 }
 
 .copy-button:active {
     background-color: hsla(0, 0%, 90%, 1);
-    color: var(--system-text-default-color-on-light);
 }

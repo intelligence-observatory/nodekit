@@ -5,22 +5,12 @@
     /* ShellUI Dimensions */
     --overlay-console-width: 80%;
 
-    /* System Borders */
-    --system-border-radius: 12px;
-
     /* System Scrollbars */
     --system-scroll-color: rgba(128,128,128, 0.1);
 
     /* System Text */
     --font-family-sans: 'Inter';
     --font-family-mono: monospace;
-    --system-text-default-color-on-light: hsl(0, 0%, 15%);
-    --system-text-default-color-on-dark: hsl(210, 0%, 75%);
-
-    --system-text-muted-color-on-light: rgba(0, 0, 0, 0.5);
-
-    /* System Valence */
-    --system-neutral-color: hsla(0,100%,100%,0.2);
 
 }
 html, body {
@@ -64,7 +54,7 @@ html, body {
     height: 100%;
     width: 100%;
 
-    color: var(--system-text-default-color-on-light);
+    color: black;
 
     /* Scrollbars */
     scrollbar-width: thin; /* Firefox */

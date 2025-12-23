@@ -5,7 +5,7 @@ A fixed-width <div> which is not selectable.
 .connecting-message-box {
     font-size: 1rem;
     width: var(--overlay-console-width);
-    color: var(--system-text-default-color-on-dark);
+    color: white;
     display: flex;
     justify-content: center;
     align-items: center;
