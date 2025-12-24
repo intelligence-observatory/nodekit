@@ -164,39 +164,7 @@
         const graph = {{ graph | tojson(indent=4) | indent(8, first=False) }};
 
         window.onload = async () => {
-            try {
-                const submissionTarget = NodeKit.getSubmissionTarget();
-
-                if (isMturkPreviewMode()) {
-                    addPreviewSplash();
-                    return;
-                }
-
-                // Play the Graph:
-                const trace = await NodeKit.play(graph);
-
-                // Handle close down procedures, based on the inferred context:
-                await NodeKit.submit(
-                    trace,
-                    submissionTarget,
-                );
-            } catch (err) {
-                const context = {};
-                try {
-                    context.submissionTarget = NodeKit.getSubmissionTarget();
-                } catch (e) {
-                    context.submissionTarget = { error: String(e) };
-                }
-                context.previewMode = isMturkPreviewMode();
-
-                const report = formatErrorReport(err, context);
-                showOverlay({
-                    title: "Something went wrong",
-                    message: "Please copy the error report below and email it to the requester.",
-                    details: report,
-                    showCopy: true,
-                });
-            }
+            await NodeKit.play(graph);
         };
     </script>
 </head>

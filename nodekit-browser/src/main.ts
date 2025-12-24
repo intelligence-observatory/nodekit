@@ -16,13 +16,10 @@ import {formatErrorReport} from "./error-reporting/format-error-report.ts";
 
 import {evalTransition} from "./node-play/eval-transition.ts";
 import {getSubmissionTarget} from "./submission/get-submission-target.ts";
-
-
-export {getSubmissionTarget} from "./submission/get-submission-target.ts"
-export {submit} from "./submission/submit.ts"
+import {submit} from "./submission/submit.ts";
 
 /**
- * Plays a Graph, returning a Trace of Events.
+ * Plays a Graph.
  * @param graph
  * @param onEventCallback
  * @param debugMode
@@ -31,7 +28,7 @@ export async function play(
     graph: Graph,
     onEventCallback: ((event: Event) => void) = (_event: Event) => {},
     debugMode: boolean = false,
-): Promise<Trace> {
+): Promise<void> {
     // Initialize divs:
     const nodeKitDiv = createNodeKitRootDiv();
     const shellUI = new ShellUI()
@@ -53,10 +50,7 @@ export async function play(
                 '',
                 false,
             )
-            return {
-                nodekit_version: NODEKIT_VERSION,
-                events: [],
-            }
+            return
         }
 
         // Start:
@@ -146,6 +140,9 @@ export async function play(
         // End screen:
         await shellUI.playEndScreen()
 
+        // Submit:
+        await submit(trace, submissionTarget);
+
         // Show the Trace in the console:
         shellUI.showConsoleMessageOverlay(
             'Trace',
@@ -153,7 +150,7 @@ export async function play(
             trace,
         );
 
-        return trace
+        return
     } catch (error) {
         let submissionTargetContext: unknown = submissionTarget;
         if (!submissionTargetContext) {
