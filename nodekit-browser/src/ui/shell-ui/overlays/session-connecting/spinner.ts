@@ -1,6 +1,5 @@
-import {UIElementBase} from "../../base.ts";
 
-export class Spinner extends UIElementBase {
+export class Spinner {
     root: HTMLSpanElement;
 
     private spinnerFrames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
@@ -9,12 +8,10 @@ export class Spinner extends UIElementBase {
 
     constructor(
     ) {
-        super();
 
         // Add spinner text node
         this.root = document.createElement("span");
         this.root.style.paddingRight = "0.5rem";
-        //spinnerSpan.classList.add("shell-ui-spinner-frame");
         this.root.textContent = this.spinnerFrames[this.frameIndex];
     }
 

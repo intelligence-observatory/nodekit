@@ -1,11 +1,10 @@
 import "./overlay-base.css"
-import {UIElementBase} from "../base.ts";
 
-export abstract class OverlayBase extends UIElementBase {
-    root: HTMLSpanElement;
+export abstract class OverlayBase {
 
+    root: HTMLDivElement;
     constructor(id:string) {
-        super();
+
         this.root = document.createElement("div");
         this.root.classList.add("overlay");
         this.root.id = id;
