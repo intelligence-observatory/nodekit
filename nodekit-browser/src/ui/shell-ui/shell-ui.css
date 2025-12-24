@@ -6,6 +6,7 @@
 .shell-ui .confirm-button {
     font-size: 30px;
     font-family: var(--font-family-sans), sans-serif;
+    font-weight: bold;
     color: white;
     padding: 20px 20px;
     border-radius: 10px;

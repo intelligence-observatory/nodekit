@@ -35,6 +35,27 @@ A fixed-width <div> which is not selectable.
     display: none;
 }
 
+.json-viewer {
+    width: var(--overlay-console-width);
+    max-height: 65vh;
+    max-width: 80vw;
+    overflow: hidden;
+
+    position: relative;
+    font-size: 0.85rem;
+    overflow-y: auto;
+    font-family: var(--font-family-mono), monospace;
+
+    /* Border */
+    background: rgba(255,255, 255, 0.8);
+    border-radius: 8px;
+
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.json-viewer__content {}
+
 .copy-button {
     background-color: hsla(0, 0%, 50%, 0.5);
     color: black;
