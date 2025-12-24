@@ -6,7 +6,7 @@
     --overlay-console-width: 80%;
 
     /* System Scrollbars */
-    --system-scroll-color: rgba(128,128,128, 0.1);
+    --system-scroll-color: rgba(128,128,128, 0.5);
 
     /* System Text */
     --font-family-sans: 'Inter';

@@ -43,7 +43,7 @@ export class JsonViewer {
     }
 
     clear(){
-        // Clear the content of the json viewer
+        // Clear the content of the JSON viewer
         this.jsonViewerContent.innerHTML = "";
     }
 }

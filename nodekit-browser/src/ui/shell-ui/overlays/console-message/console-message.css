@@ -3,7 +3,8 @@
 A fixed-width <div> which is not selectable.
  */
 .console-title-box {
-    font-size: 1rem;
+    font-size: 30px;
+    font-weight: bold;
     width: var(--overlay-console-width);
     display: flex;
     justify-content: space-between;

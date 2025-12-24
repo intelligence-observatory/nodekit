@@ -36,6 +36,7 @@ export async function play(
     const boardViewsContainerDiv = getBoardViewsContainerDiv();
     nodeKitDiv.appendChild(boardViewsContainerDiv)
 
+
     let submissionTarget: ReturnType<typeof getSubmissionTarget> | null = null;
     try{
         // Get submission context:

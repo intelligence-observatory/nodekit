@@ -11,6 +11,9 @@
     font-family: var(--font-family-mono), monospace;
 
     /* Border */
+    background: rgba(255,255, 255, 0.8);
+    border-radius: 8px;
+
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 
