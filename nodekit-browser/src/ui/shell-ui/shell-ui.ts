@@ -51,7 +51,7 @@ export class ShellUI {
     showConsoleMessageOverlay(
         title: string,
         message: string,
-        details: unknown | null,
+        details: unknown | null = null,
     ) {
         // Show the overlay with the provided data
         this.overlayConsoleMessage.displayMessage(title, message, details);

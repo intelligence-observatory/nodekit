@@ -50,7 +50,6 @@ export async function play(
             shellUI.showConsoleMessageOverlay(
                 'Mechanical Turk Preview Mode',
                 'Accept the HIT to continue.',
-                '',
             )
             return
         }
