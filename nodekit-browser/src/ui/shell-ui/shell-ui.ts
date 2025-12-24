@@ -51,11 +51,10 @@ export class ShellUI {
     showConsoleMessageOverlay(
         title: string,
         message: string,
-        details: any,
-        showCopyDetailsButton: boolean = true,
+        details: unknown | null,
     ) {
         // Show the overlay with the provided data
-        this.overlayConsoleMessage.displayMessage(title, message, details, showCopyDetailsButton);
+        this.overlayConsoleMessage.displayMessage(title, message, details);
     }
 
     hideConsoleMessageOverlay() {

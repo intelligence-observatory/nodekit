@@ -58,6 +58,10 @@
 
 .json-viewer__content {}
 
+.json-viewer--hidden {
+    display: none;
+}
+
 .copy-button {
     background-color: transparent;
     color: black;

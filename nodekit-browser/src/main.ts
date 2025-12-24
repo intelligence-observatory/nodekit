@@ -38,6 +38,8 @@ export async function play(
 
 
     let submissionTarget: ReturnType<typeof getSubmissionTarget> | null = null;
+
+
     try{
         // Get submission context:
         submissionTarget = getSubmissionTarget();
@@ -49,7 +51,6 @@ export async function play(
                 'Mechanical Turk Preview Mode',
                 'Accept the HIT to continue.',
                 '',
-                false,
             )
             return
         }
