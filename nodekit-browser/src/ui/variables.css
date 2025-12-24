@@ -54,8 +54,6 @@ html, body {
     height: 100%;
     width: 100%;
 
-    color: black;
-
     /* Scrollbars */
     scrollbar-width: thin; /* Firefox */
     scrollbar-color: var(--system-scroll-color) transparent;
