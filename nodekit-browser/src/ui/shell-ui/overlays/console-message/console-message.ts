@@ -10,7 +10,7 @@ export class ConsoleMessageOverlay extends OverlayBase {
     jsonViewer: JsonViewer
     titleTextDiv: HTMLDivElement;
     messageTextDiv: HTMLDivElement;
-    copyButton: CopyButton;
+    copyButton: HTMLButtonElement;
 
     constructor(
     ) {
@@ -35,9 +35,14 @@ export class ConsoleMessageOverlay extends OverlayBase {
         this.root.appendChild(this.jsonViewer.root);
 
         // Copy button
-        this.copyButton = new CopyButton();
-        this.copyButton.setCopyTarget(this.jsonViewer.root);
-        titleBoxDiv.appendChild(this.copyButton.root);
+        this.copyButton = document.createElement("button");
+        this.copyButton.classList.add("copy-button");
+        this.copyButton.textContent = "Copy";
+        this.copyButton.onclick = () => {
+            const text = this.jsonViewer.root.textContent || "";
+            navigator.clipboard.writeText(text)
+        };
+        titleBoxDiv.appendChild(this.copyButton);
     }
     displayMessage(
         title: string,
@@ -51,7 +56,7 @@ export class ConsoleMessageOverlay extends OverlayBase {
             "console-message__text--hidden",
             message.trim().length === 0,
         );
-        this.copyButton.root.hidden = !showCopy;
+        this.copyButton.hidden = !showCopy;
         this.jsonViewer.displayAsJson(details);
         super.setVisibility(true)
     }
@@ -62,33 +67,6 @@ export class ConsoleMessageOverlay extends OverlayBase {
         // Clear the JSON data to avoid having to keep it in memory
         this.jsonViewer.clear()
         super.setVisibility(false)
-    }
-}
-
-
-
-class CopyButton {
-    root: HTMLButtonElement;
-
-    constructor() {
-
-        const copyButton = document.createElement("button");
-        copyButton.classList.add("copy-button");
-
-
-        copyButton.classList.add("copy-button");
-        copyButton.textContent = "Copy";
-
-        this.root = copyButton;
-    }
-
-    setCopyTarget(target: HTMLElement) {
-        // Append the button to the target element
-        this.root.onclick = () => {
-            const text = target.textContent || "";
-            navigator.clipboard.writeText(text)
-        };
-
     }
 }
 
