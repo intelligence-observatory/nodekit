@@ -1,34 +1,38 @@
 
-/*
-A fixed-width <div> which is not selectable.
- */
-.console-title-box {
-    font-size: 30px;
-    font-weight: bold;
-    width: var(--overlay-console-width);
+.console-card {
+    width: min(var(--overlay-console-width), 900px);
+    max-width: 90vw;
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
+}
+
+.console-card__header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    /* Prevent selection of text in banner */
+    gap: 1rem;
     user-select: none;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
 }
 
-/* Text to be rendered inside the banner. Overflows into an ellipsis. */
-.console-title-box__text {
+.console-card__title {
+    font-size: 1.6rem;
+    font-weight: 600;
     color: black;
-    font-family: var(--font-family-sans), monospace;
+    font-family: var(--font-family-sans), sans-serif;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
 .console-message__text {
-    width: var(--overlay-console-width);
     color: black;
     font-family: var(--font-family-sans), sans-serif;
-    margin-bottom: 0.75rem;
-    line-height: 1.4;
+    margin-bottom: 1rem;
+    line-height: 1.5;
 }
 
 .console-message__text--hidden {
@@ -36,9 +40,8 @@ A fixed-width <div> which is not selectable.
 }
 
 .json-viewer {
-    width: var(--overlay-console-width);
+    width: 100%;
     max-height: 65vh;
-    max-width: 80vw;
     overflow: hidden;
 
     position: relative;
@@ -47,30 +50,28 @@ A fixed-width <div> which is not selectable.
     font-family: var(--font-family-mono), monospace;
 
     /* Border */
-    background: rgba(255,255, 255, 0.8);
-    border-radius: 8px;
+    background: rgba(245, 245, 245, 0.9);
+    border-radius: 10px;
 
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .json-viewer__content {}
 
 .copy-button {
-    background-color: hsla(0, 0%, 50%, 0.5);
+    background-color: transparent;
     color: black;
-    border: 0 solid rgba(100, 100, 100, 1);
-    font-size: 0.75rem;
-    border-radius: 4px;
-    min-width: 4rem;
-    min-height: 1.5rem;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    font-size: 0.8rem;
+    border-radius: 999px;
+    padding: 0.35rem 0.8rem;
     cursor: pointer;
 }
 
 .copy-button:hover {
-    background-color: hsla(0, 0%, 90%, 0.5);
+    background-color: rgba(0, 0, 0, 0.05);
 }
 
 .copy-button:active {
-    background-color: hsla(0, 0%, 90%, 1);
+    background-color: rgba(0, 0, 0, 0.08);
 }

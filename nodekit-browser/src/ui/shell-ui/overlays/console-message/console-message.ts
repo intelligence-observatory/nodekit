@@ -15,24 +15,20 @@ export class ConsoleMessageOverlay extends OverlayBase {
     constructor(
     ) {
         super('console-message-overlay');
-        // Add the console title box
-        const titleBoxDiv = document.createElement("div");
-        titleBoxDiv.classList.add("console-title-box");
-        this.root.appendChild(titleBoxDiv);
+        // Add the console card container
+        const cardDiv = document.createElement("div");
+        cardDiv.classList.add("console-card");
+        this.root.appendChild(cardDiv);
 
-        // Add the title content div box
+        // Add header
+        const headerDiv = document.createElement("div");
+        headerDiv.classList.add("console-card__header");
+        cardDiv.appendChild(headerDiv);
+
+        // Add the title content div
         this.titleTextDiv = document.createElement("div");
-        this.titleTextDiv.classList.add("console-title-box__text");
-        titleBoxDiv.appendChild(this.titleTextDiv);
-
-        // Add the message content div box
-        this.messageTextDiv = document.createElement("div");
-        this.messageTextDiv.classList.add("console-message__text");
-        this.root.appendChild(this.messageTextDiv);
-
-        // Add the JSON viewer to the root flow
-        this.jsonViewer = new JsonViewer();
-        this.root.appendChild(this.jsonViewer.root);
+        this.titleTextDiv.classList.add("console-card__title");
+        headerDiv.appendChild(this.titleTextDiv);
 
         // Copy button
         this.copyButton = document.createElement("button");
@@ -42,7 +38,16 @@ export class ConsoleMessageOverlay extends OverlayBase {
             const text = this.jsonViewer.root.textContent || "";
             navigator.clipboard.writeText(text)
         };
-        titleBoxDiv.appendChild(this.copyButton);
+        headerDiv.appendChild(this.copyButton);
+
+        // Add the message content div
+        this.messageTextDiv = document.createElement("div");
+        this.messageTextDiv.classList.add("console-message__text");
+        cardDiv.appendChild(this.messageTextDiv);
+
+        // Add the JSON viewer to the root flow
+        this.jsonViewer = new JsonViewer();
+        cardDiv.appendChild(this.jsonViewer.root);
     }
     displayMessage(
         title: string,
