@@ -99,8 +99,9 @@ def _simulate_core(
         current_address = [*address, current_node_id]
 
         if isinstance(node_or_graph, Graph):
+            graph = node_or_graph
             child_events, child_registers, time_elapsed_msec = _simulate_core(
-                graph=node_or_graph,
+                graph=graph,
                 agent=agent,
                 address=current_address,
                 time_elapsed_msec=time_elapsed_msec,
@@ -109,18 +110,20 @@ def _simulate_core(
             last_subgraph_registers = child_registers
             last_action = None
         elif isinstance(node_or_graph, Node):
+            node = node_or_graph
             events.append(
                 e.NodeStartedEvent(
                     t=_tick(),
                     node_address=current_address,
-                    node=node_or_graph,
+                    node=node,
                 )
             )
 
-            action = agent(node_or_graph)
+            # Todo: the agent should report its own latency
+            action = agent(node)
 
             # Validate that action is valid for the Node's sensor
-            validate_action(sensor=node_or_graph.sensor, action=action)
+            validate_action(sensor=node.sensor, action=action)
 
             events.append(
                 e.ActionTakenEvent(
