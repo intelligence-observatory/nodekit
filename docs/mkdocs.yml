@@ -13,7 +13,7 @@ nav:
       - Adding time limits to Nodes: 'guides/adding-time-limits.md'
       - Writing your own Agent: 'guides/writing-agents.md'
   - Concepts:
-      - Board coordinates: concepts/board-coordinate-system.md
+      - Board coordinate system: concepts/board-coordinate-system.md
   - API Reference:
       - Node: reference/node.md
       - Graph: reference/graph.md

@@ -1,5 +1,6 @@
 
-The Board is NodeKit's name for the region of the Agent's display where visual content is rendered. Points on the Board are described using _Board coordinates_, where:
+
+The Board is NodeKit's name for the region of the Agent's display where visual content is rendered. Locations on the Board are described using _Board coordinates_, where:
 
 * (0, 0) is the center of the Agent's display.
 * Positive increases in the first coordinate (x) causes movement in the **rightward** direction.
@@ -11,4 +12,10 @@ The Board is NodeKit's name for the region of the Agent's display where visual c
 
 Thus, a Board coordinate of (100, 100) would indicate a point that is 100 pixels to the right, and 100 pixels up from the Agent's display.
 
-NodeKit currently supports rendering the central 1024 x 1024 pixel region of the Board. A 1024 x 1024 region corresponds to ~21.81° x 21.81° of the Agent's visual field, given the assumptions above, and when viewed straight on.
+Long story short: the **NodeKit Board is the central 1024 x 768 pixel** region on the agent's display.
+
+???+ info "Size of Board in visual degrees"
+    The size of the normative Board (1024 x 768 _reference pixels_) is ~21.81° x 16.35° of the Agent's visual field when viewed straight on.
+ 
+
+
