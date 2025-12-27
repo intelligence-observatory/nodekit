@@ -37,6 +37,7 @@ export interface SliderSensor extends BaseSensor<'SliderSensor'>{
     initial_bin_index: SliderBinIndex;
     orientation: 'horizontal' | 'vertical';
     region: Region
+    confirm_button?: Card | null;
 }
 
 export interface TextEntrySensor extends BaseSensor<'TextEntrySensor'>{
@@ -67,4 +68,3 @@ export type Sensor =
     | MultiSelectSensor
     | ProductSensor
     | SumSensor
-

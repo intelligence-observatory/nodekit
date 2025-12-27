@@ -11,7 +11,7 @@ from nodekit._internal.types.values import Region, PressableKey, PixelSize, Time
 class BaseSensor(pydantic.BaseModel, ABC):
     """
     A Sensor is a listener for Agent behavior.
-    When a Sensor is triggered, it emits an Action and optionally applies an Outcome.
+    When a Sensor is triggered, it emits an Action.
     """
 
     sensor_type: str
@@ -106,7 +106,7 @@ class TextEntrySensor(BaseSensor):
     )
 
     min_length: int = pydantic.Field(
-        description="The minimum number of characters the user must enter before the Sensor fires. If None, no limit.",
+        description="The minimum number of characters the user must enter before the Sensor fires.",
         default=1,
         ge=1,
         le=10000,
@@ -130,6 +130,11 @@ class SliderSensor(BaseSensor):
     show_bin_markers: bool = True
     orientation: Literal["horizontal", "vertical"] = "horizontal"
     region: Region
+
+    confirm_button: Card | None = pydantic.Field(
+        default=None,
+        description="If provided, the agent must click this button to confirm their slider selection.",
+    )
 
 
 # %%
