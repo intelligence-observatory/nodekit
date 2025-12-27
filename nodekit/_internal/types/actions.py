@@ -10,6 +10,7 @@ class BaseAction(pydantic.BaseModel, ABC):
     action_value: Any
 
 
+
 # %%
 class WaitAction(BaseAction):
     action_type: Literal["WaitAction"] = "WaitAction"
