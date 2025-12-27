@@ -1,8 +1,5 @@
-Many task designs impose maximum and minimum time limits on the agent's choice.
 
-### Setting a time limit for making an Action
-
-To end the Node at a particular time if the agent has not generated an Action, simply set `duration_msec` to an integer value.
+To end the Node at a particular time if the agent has not generated an Action, simply set the Sensor's `duration_msec` field to an integer value.
 
 ???+ info "Example of adding a time limit to a Node"
 
@@ -18,4 +15,6 @@ To end the Node at a particular time if the agent has not generated an Action, s
         )
     )
     ```
+
+    Note that by default, the Sensor's `duration_msec` is set to None, which means the agent has an unlimited amount of time to generate an Action for the Sensor.
 

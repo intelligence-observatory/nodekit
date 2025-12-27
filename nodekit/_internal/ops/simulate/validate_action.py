@@ -31,6 +31,13 @@ def validate_action(sensor: Sensor, action: Action) -> None:
     Validates that the Action is compatible with the given Sensor.
     Raises ValueError on mismatch.
     """
+    if isinstance(action, WaitAction):
+        if sensor.duration_msec is None:
+            raise ValueError(
+                f"WaitAction is not valid for {type(sensor).__name__} without duration_msec."
+            )
+        return
+
     if isinstance(sensor, WaitSensor):
         if not isinstance(action, WaitAction):
             raise ValueError(

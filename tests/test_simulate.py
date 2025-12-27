@@ -25,6 +25,10 @@ def _node_addresses(trace: nk.Trace) -> list[list[str]]:
     ]
 
 
+def _actions(trace: nk.Trace) -> list[nk.actions.Action]:
+    return [event.action for event in trace.events if isinstance(event, nk.events.ActionTakenEvent)]
+
+
 def test_simulate_register_update_and_branch() -> None:
     graph = nk.Graph(
         start="start",
@@ -236,6 +240,47 @@ def test_simulate_raises_on_agent_returning_none() -> None:
 
     with pytest.raises(ValueError):
         nk.simulate(graph, agent=NoneAgent())
+
+
+def test_simulate_accepts_wait_action_for_timed_sensor() -> None:
+    agent = FixedActionAgent(actions=[nk.actions.WaitAction()])
+    graph = nk.Graph(
+        start="start",
+        nodes={
+            "start": nk.Node(
+                stimulus=nk.cards.TextCard(text="start"),
+                sensor=nk.sensors.KeySensor(keys=["a"], duration_msec=1),
+            )
+        },
+        transitions={
+            "start": nk.transitions.End(),
+        },
+    )
+
+    trace = nk.simulate(graph, agent=agent)
+
+    actions = _actions(trace)
+    assert len(actions) == 1
+    assert isinstance(actions[0], nk.actions.WaitAction)
+
+
+def test_simulate_rejects_wait_action_without_duration() -> None:
+    agent = FixedActionAgent(actions=[nk.actions.WaitAction()])
+    graph = nk.Graph(
+        start="start",
+        nodes={
+            "start": nk.Node(
+                stimulus=nk.cards.TextCard(text="start"),
+                sensor=nk.sensors.KeySensor(keys=["a"]),
+            )
+        },
+        transitions={
+            "start": nk.transitions.End(),
+        },
+    )
+
+    with pytest.raises(ValueError):
+        nk.simulate(graph, agent=agent)
 
 
 def test_random_agent_uses_seeded_rng(monkeypatch: pytest.MonkeyPatch) -> None:
