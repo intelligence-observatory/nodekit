@@ -34,15 +34,15 @@ def test_simulate_register_update_and_branch() -> None:
         start="start",
         nodes={
             "start": nk.Node(
-                stimulus=nk.cards.TextCard(text="start"),
+                card=nk.cards.TextCard(text="start"),
                 sensor=nk.sensors.WaitSensor(duration_msec=1),
             ),
             "next": nk.Node(
-                stimulus=nk.cards.TextCard(text="next"),
+                card=nk.cards.TextCard(text="next"),
                 sensor=nk.sensors.WaitSensor(duration_msec=1),
             ),
             "fallback": nk.Node(
-                stimulus=nk.cards.TextCard(text="fallback"),
+                card=nk.cards.TextCard(text="fallback"),
                 sensor=nk.sensors.WaitSensor(duration_msec=1),
             ),
         },
@@ -80,15 +80,15 @@ def test_simulate_uses_last_action_in_transition() -> None:
         start="choose",
         nodes={
             "choose": nk.Node(
-                stimulus=nk.cards.TextCard(text="choose"),
+                card=nk.cards.TextCard(text="choose"),
                 sensor=nk.sensors.KeySensor(keys=["a", "b"]),
             ),
             "left": nk.Node(
-                stimulus=nk.cards.TextCard(text="left"),
+                card=nk.cards.TextCard(text="left"),
                 sensor=nk.sensors.WaitSensor(duration_msec=1),
             ),
             "right": nk.Node(
-                stimulus=nk.cards.TextCard(text="right"),
+                card=nk.cards.TextCard(text="right"),
                 sensor=nk.sensors.WaitSensor(duration_msec=1),
             ),
         },
@@ -117,7 +117,7 @@ def test_simulate_child_register_branching() -> None:
         start="inner",
         nodes={
             "inner": nk.Node(
-                stimulus=nk.cards.TextCard(text="inner"),
+                card=nk.cards.TextCard(text="inner"),
                 sensor=nk.sensors.WaitSensor(duration_msec=1),
             )
         },
@@ -139,11 +139,11 @@ def test_simulate_child_register_branching() -> None:
         nodes={
             "child": child,
             "after": nk.Node(
-                stimulus=nk.cards.TextCard(text="after"),
+                card=nk.cards.TextCard(text="after"),
                 sensor=nk.sensors.WaitSensor(duration_msec=1),
             ),
             "fail": nk.Node(
-                stimulus=nk.cards.TextCard(text="fail"),
+                card=nk.cards.TextCard(text="fail"),
                 sensor=nk.sensors.WaitSensor(duration_msec=1),
             ),
         },
@@ -172,11 +172,11 @@ def test_simulate_dict_lookup_in_register_update() -> None:
         start="start",
         nodes={
             "start": nk.Node(
-                stimulus=nk.cards.TextCard(text="start"),
+                card=nk.cards.TextCard(text="start"),
                 sensor=nk.sensors.WaitSensor(duration_msec=1),
             ),
             "end": nk.Node(
-                stimulus=nk.cards.TextCard(text="end"),
+                card=nk.cards.TextCard(text="end"),
                 sensor=nk.sensors.WaitSensor(duration_msec=1),
             ),
         },
@@ -205,7 +205,7 @@ def test_simulate_raises_on_invalid_register_reference() -> None:
             start="start",
             nodes={
                 "start": nk.Node(
-                    stimulus=nk.cards.TextCard(text="start"),
+                    card=nk.cards.TextCard(text="start"),
                     sensor=nk.sensors.WaitSensor(duration_msec=1),
                 )
             },
@@ -229,7 +229,7 @@ def test_simulate_raises_on_agent_returning_none() -> None:
         start="start",
         nodes={
             "start": nk.Node(
-                stimulus=nk.cards.TextCard(text="start"),
+                card=nk.cards.TextCard(text="start"),
                 sensor=nk.sensors.WaitSensor(duration_msec=1),
             )
         },
@@ -248,7 +248,7 @@ def test_simulate_accepts_wait_action_for_timed_sensor() -> None:
         start="start",
         nodes={
             "start": nk.Node(
-                stimulus=nk.cards.TextCard(text="start"),
+                card=nk.cards.TextCard(text="start"),
                 sensor=nk.sensors.KeySensor(keys=["a"], duration_msec=1),
             )
         },
@@ -270,7 +270,7 @@ def test_simulate_rejects_wait_action_without_duration() -> None:
         start="start",
         nodes={
             "start": nk.Node(
-                stimulus=nk.cards.TextCard(text="start"),
+                card=nk.cards.TextCard(text="start"),
                 sensor=nk.sensors.KeySensor(keys=["a"]),
             )
         },
@@ -294,7 +294,7 @@ def test_random_agent_uses_seeded_rng(monkeypatch: pytest.MonkeyPatch) -> None:
     agent = nodekit._internal.types.agents.RandomGuesser(seed=123)
 
     node = nk.Node(
-        stimulus=None,
+        card=None,
         sensor=nk.sensors.WaitSensor(duration_msec=1),
     )
     agent(node)

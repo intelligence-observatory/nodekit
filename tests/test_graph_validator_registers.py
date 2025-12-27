@@ -5,7 +5,7 @@ import nodekit as nk
 
 
 def wait_node() -> nk.Node:
-    return nk.Node(stimulus=None, sensor=nk.sensors.WaitSensor(duration_msec=1))
+    return nk.Node(card=None, sensor=nk.sensors.WaitSensor(duration_msec=1))
 
 
 def test_go_updates_require_known_register_targets():

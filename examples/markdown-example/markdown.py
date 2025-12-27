@@ -16,7 +16,7 @@ def make_text_node(text: str) -> nk.Node:
     )
     sensor = nk.sensors.KeySensor(keys=[" "])
     return nk.Node(
-        stimulus=stimulus,
+        card=stimulus,
         sensor=sensor,
         board_color="#ffffff",
     )

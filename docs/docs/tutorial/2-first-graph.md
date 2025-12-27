@@ -1,6 +1,6 @@
 
 
-NodeKit describes tasks as **Graphs**. A Graph consists of **Nodes**, and the **Transition** arrows that connect them. Here's a Graph consisting of a few AFC ("alternative forced choice") trials:
+In NodeKit, behavioral tasks are **Graphs**. A Graph consists of **Nodes** and the **Transition** arrows that connect them. Here's a Graph consisting of a few AFC ("alternative forced choice") trials:
 
 ![An example NodeKit Graph](example-graph.png)
  
@@ -12,7 +12,7 @@ In this tutorial, we'll write a very simple Graph.
  
 Nodes are the central object in NodeKit. It has two parts:
 
-1. A "__Card__" that the agent views, such as an _ImageCard_, a _VideoCard_, a _TextCard_, or some simultaneous combination of those things. 
+1. A "__Card__" that the agent may view. There are four card types in NodeKit: _ImageCard_, _VideoCard_, _TextCard_, or a combination of those things (via _CompositeCard_). 
 2. A "__Sensor__" which defines the particular set of __Actions__ the agent may take, such as a set of keypresses, a set of slider values, or even the set of all text strings under length `n`. 
 
 A Node is completed when the agent makes a selection from the Action set.
@@ -43,10 +43,10 @@ import nodekit as nk
 Next, a Node can be assembled. This Node's **Stimulus** is a piece of text. The **Sensor** is the **KeySensor**, which is configured to listen for the `f` keypress and `j` keypress.
 
 ```python hl_lines="3-6" linenums="1"
-import nodekit as nk 
+import nodekit as nk
 
 node = nk.Node(
-    stimulus=nk.cards.TextCard(text="Hello world! Press f or j to continue."),
+    card=nk.cards.TextCard(text="Hello world! Press f or j to continue."),
     sensor=nk.sensors.KeySensor(keys=['f', 'j'])
 )
 ```
@@ -54,13 +54,13 @@ node = nk.Node(
 ### Writing a Graph
 
 Now that a Node is written, we can assemble a Graph. 
-The Graph will have a single Node, which we will name `my-first-node`. As there is no other choice, `my-first-node` will also be the designated **start** Node of the Graph. Moreover, once the agent completes this Node, the Graph will end, as `my-first-node`'s associated Transition is the **End** transition. 
+The Graph will have a single Node, which we will name `my-first-node`. As there is no other choice, `my-first-node` will also be the designated **start** Node of the Graph. Moreover, once the agent completes this Node, the Graph will end, as `my-first-node`'s associated Transition is the **End** transition.
 
 ```python hl_lines="8-16" linenums="1"
-import nodekit as nk 
+import nodekit as nk
 
 node = nk.Node(
-    stimulus=nk.cards.TextCard(text="Hello world! Press f or j to continue."),
+    card=nk.cards.TextCard(text="Hello world! Press f or j to continue."),
     sensor=nk.sensors.KeySensor(keys=['f', 'j'])
 )
 
@@ -76,10 +76,10 @@ graph = nk.Graph(
 Now it's time to play the Graph. NodeKit offers the `nk.play` function which launches your Graph on your local web browser. There is no special configuration required; just call `nk.play(graph)`:
 
 ```python hl_lines="14-20" linenums="1"
-import nodekit as nk 
+import nodekit as nk
 
 node = nk.Node(
-    stimulus=nk.cards.TextCard(text="Hello world! Press f or j to continue."),
+    card=nk.cards.TextCard(text="Hello world! Press f or j to continue."),
     sensor=nk.sensors.KeySensor(keys=['f', 'j'])
 )
 
@@ -89,7 +89,7 @@ graph = nk.Graph(
     transitions={'my-first-node': nk.transitions.End()},
 )
 
-trace = nk.play(graph) # launch a local server
+trace = nk.play(graph)  # launch a local server
 ```
 
 You should see your Python output print out a link, which you can open up in your web browser to play the Graph. 

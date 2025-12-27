@@ -116,7 +116,7 @@ def build_3stage_graph(
             }
 
             nodes[key(stage, t, "mask")] = nk.Node(
-                stimulus=nk.cards.CompositeCard(children=children),
+                card=nk.cards.CompositeCard(children=children),
                 sensor=nk.sensors.KeySensor(keys=[" "]),
             )
 
@@ -147,13 +147,13 @@ def build_3stage_graph(
             }
 
             nodes[key(stage, t, "stim")] = nk.Node(
-                stimulus=nk.cards.CompositeCard(children=children),
+                card=nk.cards.CompositeCard(children=children),
                 sensor=nk.sensors.KeySensor(keys=["ArrowLeft", "ArrowRight"]),
             )
 
             # feedback
             nodes[key(stage, t, "reward")] = nk.Node(
-                stimulus=nk.cards.TextCard(
+                card=nk.cards.TextCard(
                     text="Correct!",
                     text_color="#3232c8",
                     region=nk.Region(x=0, y=0, w=600, h=300),
@@ -162,7 +162,7 @@ def build_3stage_graph(
                 sensor=nk.sensors.WaitSensor(duration_msec=reward_msec),
             )
             nodes[key(stage, t, "punish")] = nk.Node(
-                stimulus=nk.cards.TextCard(
+                card=nk.cards.TextCard(
                     text="Incorrect.",
                     text_color="#c80000",
                     region=nk.Region(x=0, y=0, w=600, h=300),

@@ -32,7 +32,7 @@ def make_mts_trial(
     choice_size = 200
 
     stimulus_node = nk.Node(
-        stimulus=nk.cards.ImageCard(
+        card=nk.cards.ImageCard(
             image=stimulus,
             region=nk.Region(
                 x=0,
@@ -47,7 +47,7 @@ def make_mts_trial(
 
     # ISI node
     isi_node = nk.Node(
-        stimulus=None,
+        card=None,
         sensor=nk.sensors.WaitSensor(duration_msec=post_stim_delay),
         hide_pointer=True,
     )
@@ -77,14 +77,14 @@ def make_mts_trial(
         choice_cards[f"choice{i}"] = card
 
     choice_node = nk.Node(
-        stimulus=None,
+        card=None,
         sensor=nk.sensors.SelectSensor(choices=choice_cards),
     )
 
     # Punish node
     punish_color = (200, 0, 0)
     punish_node = nk.Node(
-        stimulus=nk.cards.TextCard(
+        card=nk.cards.TextCard(
             text="Incorrect.",
             text_color=RGB_to_hex(punish_color),
             region=nk.Region(
@@ -100,7 +100,7 @@ def make_mts_trial(
 
     reward_color = (50, 50, 200)
     reward_node = nk.Node(
-        stimulus=nk.cards.TextCard(
+        card=nk.cards.TextCard(
             text="Correct!",
             text_color=RGB_to_hex(reward_color),
             region=nk.Region(

@@ -6,7 +6,7 @@ import nodekit as nk
 
 def wait_node() -> nk.Node:
     return nk.Node(
-        stimulus=None,
+        card=None,
         sensor=nk.sensors.WaitSensor(duration_msec=1),
     )
 

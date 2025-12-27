@@ -75,7 +75,7 @@ def make_big5_node(
 
     # Assemble Node
     node = nk.Node(
-        stimulus=stimulus,
+        card=stimulus,
         sensor=slider_sensor,
         board_color="#ffffff",
     )

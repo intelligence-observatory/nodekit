@@ -77,9 +77,9 @@ export class NodePlay {
         )
 
         // Create Stimulus CardView:
-        if (this.node.stimulus){
+        if (this.node.card){
             const cardView = await createCardView(
-                this.node.stimulus,
+                this.node.card,
                 this.boardView,
                 this.assetManager,
             )

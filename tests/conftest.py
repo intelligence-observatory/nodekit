@@ -34,7 +34,7 @@ def _make_graph_with_assets() -> nk.Graph:
     return nk.Graph(
         nodes={
             "start": nk.Node(
-                stimulus=stimulus,
+                card=stimulus,
                 sensor=nk.sensors.WaitSensor(duration_msec=1),
             ),
         },

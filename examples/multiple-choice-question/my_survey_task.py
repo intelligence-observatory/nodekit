@@ -31,7 +31,7 @@ def make_mcq_node(
         choices[f"choice {i_choice}"] = choice_card
 
     return nk.Node(
-        stimulus=nk.cards.TextCard(
+        card=nk.cards.TextCard(
             region=nk.Region(
                 x=0,
                 y=250,

@@ -39,7 +39,7 @@ class ImageCard(BaseLeafCard):
 
 # %%
 class VideoCard(BaseLeafCard):
-    """Video stimulus placed on the Board. The audio channel is ignored.
+    """Video placed on the Board. The audio channel is ignored.
 
     Attributes:
         video: The video asset to render.

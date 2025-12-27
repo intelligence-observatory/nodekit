@@ -65,7 +65,7 @@ def make_mars_trial(
     fixation_duration = 1000
 
     fixation_node = nk.Node(
-        stimulus=nk.cards.TextCard(
+        card=nk.cards.TextCard(
             text=r"\+",
             font_size=50,
             region=nk.Region(
@@ -99,7 +99,7 @@ def make_mars_trial(
         choice_cards.append(choice_card)
 
     matrix_node = nk.Node(
-        stimulus=nk.cards.ImageCard(
+        card=nk.cards.ImageCard(
             image=grid_image,
             region=nk.Region(
                 x=0,

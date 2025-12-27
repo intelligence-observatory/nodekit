@@ -35,7 +35,7 @@ def make_trial(
     # Stimulus node
     video_size = 400
     stimulus_node = nk.Node(
-        stimulus=nk.cards.VideoCard(
+        card=nk.cards.VideoCard(
             region=nk.Region(
                 x=0,
                 y=0,
@@ -50,7 +50,7 @@ def make_trial(
 
     # ISI node
     isi_node = nk.Node(
-        stimulus=None,
+        card=None,
         sensor=nk.sensors.WaitSensor(duration_msec=100),
         hide_pointer=True,
     )
@@ -91,7 +91,7 @@ def make_trial(
     )
 
     choice_node = nk.Node(
-        stimulus=prompt,
+        card=prompt,
         sensor=nk.sensors.SelectSensor(choices=choices),
     )
 
@@ -100,7 +100,7 @@ def make_trial(
     incorrect_string = "Sorry, **wrong choice.**\n\nPress the spacebar to continue."
 
     correct_node = nk.Node(
-        stimulus=nk.cards.TextCard(
+        card=nk.cards.TextCard(
             text=correct_string,
             region=nk.Region(
                 x=0,
@@ -116,7 +116,7 @@ def make_trial(
         ),
     )
     incorrect_node = nk.Node(
-        stimulus=nk.cards.TextCard(
+        card=nk.cards.TextCard(
             text=incorrect_string,
             region=nk.Region(
                 x=0,
