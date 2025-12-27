@@ -15,6 +15,11 @@ class BaseSensor(pydantic.BaseModel, ABC):
     """
 
     sensor_type: str
+    duration_msec: TimeDurationMsec | None = pydantic.Field(
+        description="The number of milliseconds from the start of the Node when the Sensor resolves to a WaitAction. If None, the Sensor does not automatically resolve.",
+        gt=0,
+        default=None,
+    )
 
 
 # %%

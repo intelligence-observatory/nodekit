@@ -85,7 +85,7 @@ export class SelectSensorBinding extends SensorBinding<SelectSensor> {
 
     }
 
-    start() {
+    protected onStart() {
         for (const cardView of this.choiceCardViews) {
             cardView.onStart();
         }

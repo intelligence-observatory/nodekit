@@ -47,7 +47,7 @@ export class ProductSensorBinding extends SensorBinding<ProductSensor>{
         }
     }
 
-    start(){
+    protected onStart(){
         // Start all children
         for (const [_, childSensorBinding] of Object.entries(this.childBindings)){
             childSensorBinding.start();
@@ -86,7 +86,7 @@ export class SumSensorBinding extends SensorBinding<SumSensor>{
         }
     }
 
-    start(){
+    protected onStart(){
         // Start all children
         for (const [_, childSensorBinding] of Object.entries(this.childBindings)){
             childSensorBinding.start();

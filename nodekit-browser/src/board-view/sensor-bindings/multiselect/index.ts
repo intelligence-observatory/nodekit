@@ -159,7 +159,7 @@ export class MultiSelectSensorBinding extends SensorBinding<MultiSelectSensor> {
         this.params.boardView.pointerStream.subscribe(pointerCallback);
     }
 
-    start(){
+    protected onStart(){
         for (const cardView of this.choiceCardViews) {
             cardView.onStart();
         }

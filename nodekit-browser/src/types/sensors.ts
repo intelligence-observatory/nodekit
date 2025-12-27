@@ -5,6 +5,7 @@ import type {Card} from "./cards";
 
 interface BaseSensor<T extends string> {
     sensor_type: T
+    duration_msec: TimeDurationMsec | null; // null means infinite duration
 }
 
 // Leaf Sensors
