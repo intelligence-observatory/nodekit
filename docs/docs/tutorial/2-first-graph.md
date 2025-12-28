@@ -9,7 +9,7 @@ A **Graph** consists of a set of **Nodes** and the **Transition** arrows that co
  Perhaps you can imagine "dropping" an agent onto the **Start** of that Graph, then seeing the agent walk from node-to-node through the Graph. Of course, this does not go on forever – a Graph is completed when the agent reaches the  **End**.
 
 ???+ question "What do you mean by "agent"?"
-    In NodeKit, we use the somewhat impersonal term "agent" to refer to the entity that interacts with the Graph, whether it is a person or an artificial model. The Graph works in either case!
+    In NodeKit, we use the slightly impersonal term "agent" to refer to the entity that interacts with the Graph, whether it is a person or an artificial model. The Graph works in either case!
  
 In this tutorial, we will be writing a very simple Graph, consisting of a single Node:
 
@@ -31,10 +31,10 @@ We're now ready to proceed! No other `import` lines are needed to use all of Nod
 
 We will be writing a Graph consisting of a single Node. But what exactly _is_ a Node? 
 
-In short, a Node describes **what the agent sees**, and **what the agent is allowed to do next** the agent may take. Accordingly, a Node consists of two parts:
+A Node describes **what the agent sees** and **what actions the agent may take** at a particular point in the task. Accordingly, a Node consists of two parts:
 
-1. A **Card** describing visual content the agent will view. In this tutorial, we will be using the _TextCard_.  
-2. A **Sensor** which defines a set of __Actions__ the agent can take. In this tutorial, we will be using the _KeySensor_, which describes a set of keyboard buttons the agent may press. 
+1. A **Card** describing what the agent sees. In this tutorial, we will be using the _TextCard_.  
+2. A **Sensor** describing **Actions** the agent can take. In this tutorial, we will be using the _KeySensor_, which describes a set of _KeyActions_ the agent may take. 
 
 Let's write a Node which displays a piece of text to the agent (`Hello world!...`), and listens for the agent to press the `f` or `j` keys on the keyboard.  Add the following lines of code:
 
@@ -95,7 +95,7 @@ And you've written your first Graph in NodeKit!
 
 ## Step 4: Play the Graph
 
-Now it's time for you to see the Graph in action by playing it in your web browser. 
+Now it's time to see the Graph in action by playing it in your web browser. 
 
 To do this, we'll call the `nk.play` function, which accepts a Graph and launches it on your localhost. There is no special setup or configuration required. Just call `nk.play(graph)`:
 
@@ -130,13 +130,13 @@ In this tutorial, you wrote, then played, your first Graph. The workflow we foll
 2. Wire those Nodes together into a **Graph**.
 3. Deploy that Graph and **get behavior** from agent(s).
 
-**At a conceptual level, these three bullet points are all there is to working with NodeKit.** The next tutorials will teach you deeper ways of performing each of these basic bullet points, such as showcasing other Cards & Sensors,  Transitions, and ways to deploy Graphs. 
+**At a conceptual level, these three bullet points are all there is to working with NodeKit.** The next tutorials will teach you deeper ways of performing each of these basic bullet points, such as showcasing more Cards & Sensors,  Transitions, and ways to deploy Graphs. 
 
 
 
 ## What's next?
 
-In the next tutorial, we will write a Graph that describes a "real task". This Graph will show the agent of some nicely-formatted text instructions, then a series of N-way classification trials with feedback. 
+In the next tutorial, we will write a Graph that describes a "real task". This Graph will show the agent some nicely-formatted text instructions, then a series of image classification trials with feedback. 
 
 Along the way, you'll be exposed to the rest of the Card, Sensor, and Transition types. 
 
