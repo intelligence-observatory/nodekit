@@ -6,17 +6,17 @@ A **Graph** consists of a set of **Nodes** and the **Transition** arrows that co
 
 ![An example NodeKit Graph](PNG/afc-trial-graph.png)
 
- Perhaps you can imagine "dropping" an agent onto the **Start** of that Graph, then seeing the agent progress through the Graph. Of course, this does not go on forever – a Graph is completed when the agent reaches the  **End**.
+ Perhaps you can imagine "dropping" an agent onto the **Start** of that Graph, then seeing the agent walk from node-to-node through the Graph. Of course, this does not go on forever – a Graph is completed when the agent reaches the  **End**.
 
 ???+ question "What do you mean by "agent"?"
-    In NodeKit, we use the somewhat impersonal term "agent" to refer to the entity – whether a person or an artificial model – that interacts with the Graph. This is because a NodeKit Graph can work on either!
-
+    In NodeKit, we use the somewhat impersonal term "agent" to refer to the entity that interacts with the Graph, whether it is a person or an artificial model. The Graph works in either case!
+ 
 In this tutorial, we will be writing a very simple Graph, consisting of a single Node:
 
 ![Hello, world!](PNG/hello-world-graph.png)
 
 
-### Step 0: Import NodeKit
+### Step 1: Import NodeKit
 
 
 After installing NodeKit in your virtual environment, start your favorite Python editor and open a new `.py` file. Then, import `nodekit`. This is conventionally done with the following line:
@@ -27,11 +27,11 @@ import nodekit as nk
 
 We're now ready to proceed! No other `import` lines are needed to use all of NodeKit. 
 
-### Step 1: Write a Node 
+### Step 2: Write a Node 
 
 We will be writing a Graph consisting of a single Node. But what exactly _is_ a Node? 
 
-In short, a Node describes **what is displayed on the screen** to the agent, and a **set of actions** the agent may take. Accordingly, a Node consists of two parts:
+In short, a Node describes **what the agent sees**, and **what the agent is allowed to do next** the agent may take. Accordingly, a Node consists of two parts:
 
 1. A **Card** describing visual content the agent will view. In this tutorial, we will be using the _TextCard_.  
 2. A **Sensor** which defines a set of __Actions__ the agent can take. In this tutorial, we will be using the _KeySensor_, which describes a set of keyboard buttons the agent may press. 
@@ -52,7 +52,7 @@ And you've written your first Node!
 
 
 
-### Step 2: Write the Graph
+### Step 3: Write the Graph
 
 Now that our first Node is written, we can assemble a Graph.
 
@@ -93,7 +93,7 @@ And you've written your first Graph in NodeKit!
 
 
 
-## Step 3: Play the Graph
+## Step 4: Play the Graph
 
 Now it's time for you to see the Graph in action by playing it in your web browser. 
 
@@ -126,9 +126,9 @@ Once you complete the Graph's (one and only) Node, the function returns with the
 
 In this tutorial, you wrote, then played, your first Graph. The workflow we followed in this tutorial is typical of how one works with NodeKit, in general: 
 
-1. Define a set of **Nodes**, each consisting of a **Card** and a **Sensor**.
-2. Wire Nodes together into a **Graph**, using **Transitions**.
-3. Deploy the Graph and **get behavior from agent(s)!**
+1. Define a set of **Nodes**.
+2. Wire those Nodes together into a **Graph**.
+3. Deploy that Graph and **get behavior** from agent(s).
 
 **At a conceptual level, these three bullet points are all there is to working with NodeKit.** The next tutorials will teach you deeper ways of performing each of these basic bullet points, such as showcasing other Cards & Sensors,  Transitions, and ways to deploy Graphs. 
 
