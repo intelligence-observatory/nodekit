@@ -1,5 +1,5 @@
-# NodeKit
+# NodeKit: a Python library for behavioral tasks
 
-**NodeKit** is a modern, type-safe framework for browser-ready behavioral experiments. 
+NodeKit is a Python library for writing behavioral tasks. Any task written using NodeKit can be run in the browser (for people) or in Python (for models).
 
 The framework is currently in alpha stage, and public APIs should be considered experimental and subject to change without notice. 
