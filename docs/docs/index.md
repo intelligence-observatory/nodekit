@@ -19,7 +19,7 @@ NodeKit is a Python library for writing behavioral tasks. Any task written using
 - **No audio support.** NodeKit focuses on purely visual tasks.
 
 
-## Project goals
+## Project roadmap
 
 NodeKit is in active, early development. Current goals in progress include: 
 
