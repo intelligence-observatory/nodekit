@@ -2,7 +2,6 @@ import pydantic
 import pytest
 
 import nodekit as nk
-import nodekit._internal.ops.simulate.simulate as simulate_module
 import nodekit._internal.types.agents
 
 
