@@ -8,7 +8,7 @@ NodeKit is a Python library for writing behavioral tasks. Any task written using
 ## Why use NodeKit? 
 
 - **No HTML/JavaScript/CSS.** Instead, write tasks with Python.
-- **Humans and models do the same exact task.** One NodeKit task can feed model simulations *and* web browser experiments. 
+- **Humans and models do the same task.** One NodeKit task can feed model simulations *and* web browser experiments. 
 - **A task is one JSON document**. A task is fully specified in a single file, with no  dependencies on external libraries or plugins.
  
 
