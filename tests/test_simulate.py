@@ -290,7 +290,7 @@ def test_random_agent_uses_seeded_rng(monkeypatch: pytest.MonkeyPatch) -> None:
         used_rngs.append(rng)
         return nk.actions.WaitAction()
 
-    monkeypatch.setattr(simulate_module, "sample_action", fake_sample_action)
+    monkeypatch.setattr(nodekit._internal.types.agents, "sample_action", fake_sample_action)
     agent = nodekit._internal.types.agents.RandomGuesser(seed=123)
 
     node = nk.Node(
