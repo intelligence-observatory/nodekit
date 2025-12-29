@@ -46,6 +46,20 @@ def make_big5_node(
             w=750,
             h=100,
         ),
+        confirm_button=nk.cards.TextCard(
+            text="Next",
+            font_size=30,
+            region=nk.Region(
+                x=0,
+                y=-250,
+                w=200,
+                h=80,
+            ),
+            justification_horizontal="center",
+            justification_vertical="center",
+            background_color="#00000080",
+            text_color="#FFFFFF",
+        )
     )
 
     cards = {

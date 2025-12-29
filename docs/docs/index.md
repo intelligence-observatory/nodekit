@@ -16,12 +16,16 @@ NodeKit is a Python library for writing behavioral tasks. Any task written using
 
 - **No HTML/JavaScript/CSS.** Arbitrary logic and visual customizability are not accessible in NodeKit.
 - **Fixed layout philosophy.** NodeKit tasks are intended to be pixel-for-pixel reproducible, and do not react to window resizing or device type.
-- **No audio support.** NodeKit focuses on purely visual tasks.
+- **No audio support.** NodeKit focuses on purely visual tasks. 
 
 
 ## Project roadmap
 
-NodeKit is in active, early development. Current goals in progress include: 
+NodeKit is a research tool under active development. 
+
+Its releases on PyPi are versioned, but do not yet follow [semantic versioning rules](https://semver.org). Semantic versioning will be introduced with NodeKit's `v1` release.
+
+Current goals in progress include: 
 
 * Refining and expanding the documentation site
 * Improving determinism in the web browser
