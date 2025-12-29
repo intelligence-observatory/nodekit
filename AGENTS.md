@@ -54,3 +54,18 @@ Traditional psych tasks are implemented as bespoke spaghetti code: ad-hoc state 
 ## Security & Configuration Tips
 - Never commit secrets; use env vars or ignored local config.
 - Keep `uv.lock` and `package-lock.json` aligned with dependency updates; rerun `make build-browser` after front-end changes.
+
+
+## Documentation style:
+
+### Tutorials
+- Start with a short purpose statement, then a clear “by the end” outcome and a target Graph image.
+- Organize as steps (`## Step N:`) with small sub-steps (“Define…”, “Wire…”), each with a concrete goal.
+- Use first-person plural, friendly instructional tone (“we’ll”, “let’s”, “now”), short paragraphs, frequent line breaks.
+- Introduce new concepts at point of use with plain-language explanations and minimal jargon.
+- Use explicit imperative cues before code (“Add the following code”, “Now let’s write…”, “Begin by…”).
+- Prefer full, evolving code blocks over diffs; include `hl_lines` and `linenums` in examples.
+- Use MkDocs-style admonitions (`??? tip`, `???+ question`) for side notes, defaults, and rationale.
+- Call out defaults and customization opportunities (“By default…”, “In general…”) and highlight key terms with **bold** or *italics*.
+- Keep examples concrete and tied to UI/behavior (“press the right arrow key”, “white background”).
+- Treat NodeKit concepts as proper nouns (Node, Graph, Transition) and emphasize explicit, deterministic flow.
