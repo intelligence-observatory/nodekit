@@ -61,7 +61,7 @@ export class ConsoleMessageOverlay extends OverlayBase {
             "console-message__text--hidden",
             message.trim().length === 0,
         );
-        const hasDetails = details !== null;
+        const hasDetails = details != null;
         this.cardDiv.classList.toggle("console-card--compact", !hasDetails);
         this.copyButton.hidden = !hasDetails;
         this.jsonViewer.root.classList.toggle(
