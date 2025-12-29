@@ -13,7 +13,7 @@ def make_numerosity_trial(
             y=0,
             w=50,
             h=50,
-            mask='ellipse',
+            mask="ellipse",
         ),
     )
 
