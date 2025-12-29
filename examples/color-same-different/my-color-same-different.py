@@ -23,6 +23,7 @@ def make_same_different_node(
                 y=0,
                 w=50,
                 h=50,
+                mask="ellipse",
             ),
         ),
         sensor=nk.sensors.KeySensor(keys=[" "]),

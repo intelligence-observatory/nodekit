@@ -21,6 +21,7 @@ if __name__ == "__main__":
                         y=0,
                         w=100,
                         h=100,
+                        mask="ellipse",
                     ),
                     image=nk.assets.Image.from_path("fixation-cross.svg"),
                 ),
