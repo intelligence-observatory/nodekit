@@ -3,6 +3,13 @@ on:
   push:
     branches:
       - main
+    paths:
+      - docs/**
+      - nodekit/**
+      - pyproject.toml
+      - uv.lock
+      - Makefile
+      - .github/workflows/deploy-docs.yaml
   workflow_dispatch:
 permissions:
   contents: read
