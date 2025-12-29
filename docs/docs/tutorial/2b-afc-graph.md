@@ -9,10 +9,10 @@ Along the way, you'll get exposed to more features of NodeKit. By the end, you'l
 
 ![Nested Graph](PNG/nested-graph.png)
 
-???+ question "Why does this Graph look different?"
+???+ tip "Nested Graphs"
     In the picture above, one can notice something new: a _Graph made up of Graphs_. This enables one to write a Graph _hierarchically_, using smaller organizational units of one's choosing (such as "trials" and "blocks").
     
-    This new concept will be introduced later in this tutorial. 
+    In this tutorial, we will be using this NodeKit feature. 
        
 
 ## Step 1: Create the instructions Graph

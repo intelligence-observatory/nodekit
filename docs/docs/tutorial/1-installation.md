@@ -1,16 +1,25 @@
 
 This tutorial walks through how to install NodeKit on your system. 
 
-NodeKit is a Python library, and is installed using the [uv](https://docs.astral.sh/uv/) Python package and project manager. 
+NodeKit is a Python library. It is installed using the [uv](https://docs.astral.sh/uv/) Python package and project manager. 
+
 
 ???+ tip "Quick install for uv users"
-    If you already know how to use uv and have it on your system, navigate to the directory containing the Python project where you'd like to install NodeKit. Then run: 
+    If you already know how to use uv and have it on your system, navigate to the directory containing the Python project where you'd like to install NodeKit. Then run:
 
     ```bash
     uv add nodekit
     ```
-    
-    You can then proceed to the next tutorial. 
+
+??? warning "Installation with pip"
+    If you prefer to use `pip`, and know how to manage your virtual environments and `pyproject.toml` file, you can also run:
+
+    ```bash
+    pip install nodekit
+    ```
+
+
+
 
 
 ## Step 1: Install uv 
