@@ -18,7 +18,7 @@ def make_mts_trial(
     # Fixation node
     fixation_cross = nk.cards.ImageCard(
         image=nk.assets.Image.from_path("fixation-cross.svg"),
-        region=nk.Region(x=0, y=0, w=50, h=50),
+        region=nk.Region(x=0, y=0, w=50, h=50, mask='ellipse'),
     )
 
     fixation_node = nk.Node(
