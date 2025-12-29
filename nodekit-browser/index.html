@@ -159,6 +159,22 @@
             'w': 300,
             'h': 100,
             'mask': 'rectangle',
+        },
+        "confirm_button": {
+            "card_type": "TextCard",
+            "region": {
+                "x": 0,
+                "y": -100,
+                "w": 150,
+                "h": 50,
+                "mask": 'rectangle',
+            },
+            "text": "Submit",
+            "font_size": 30,
+            "justification_horizontal": "center",
+            "justification_vertical": "center",
+            "text_color": "#ffffffff",
+            "background_color": "blue"
         }
     }
     const sliderSensorV = {
@@ -178,11 +194,11 @@
     const productSensor = {
         "sensor_type": "ProductSensor",
         "children": {
-            'child-sensor1': textEntrySensor,
-            'select3': multiSelectSensor,
+            //'child-sensor1': textEntrySensor,
+            //'select3': multiSelectSensor,
             'slider': sliderSensorH,
-            'sliderV': sliderSensorV,
-        }
+            //'sliderV': sliderSensorV,
+        },
     }
 
     const videoCard = {
@@ -207,7 +223,23 @@
     const compositeCard = {
         "card_type": "CompositeCard",
         "children": {
-            'child-card-1': videoCard
+            'child-card-1': videoCard,
+            'text-card': {
+                "card_type": "TextCard",
+                "region": {
+                    "x": -300,
+                    "y": 0,
+                    "w": 200,
+                    "h": 100,
+                    "mask": 'rectangle',
+                },
+                "text": "I am a **TextCard** inside a CompositeCard.",
+                "font_size": 14,
+                "justification_horizontal": "center",
+                "justification_vertical": "center",
+                "text_color": "#000000ff",
+                "background_color": "#e6e6e6ff"
+            }
         }
     }
 
@@ -217,7 +249,7 @@
         "nodes": {
             "my-node": {
                 "type": 'Node',
-                "stimulus": compositeCard,
+                "card": compositeCard,
                 "sensor": productSensor,
                 "board_color": "white",
                 "show_pointer": true,
@@ -238,22 +270,17 @@
     window.focus();
 
     window.onload = async () => {
-        try {
-            let trace = await play(
-                devGraph,
-                (event) => {
-                    // Avoid noise in the log
-                    if ("PointerSampledEvent" === event.event_type) {
-                        return;
-                    }
-                    console.log(event);
-                },
-                true,
-            );
-            console.log('Trace', trace);
-        } catch (err) {
-            console.error('Dev harness failed to play graph', err);
-        }
+        await play(
+            devGraph,
+            (event) => {
+                // Avoid noise in the log
+                if ("PointerSampledEvent" === event.event_type) {
+                    return;
+                }
+                console.log(event);
+            },
+            false,
+        );
     };
 </script>
 

@@ -1,5 +1,5 @@
 import type {Expression} from "./expressions/expressions.ts";
-import type {LeafValue, NodeId, RegisterId} from "./values.ts";
+import type {NodeId, RegisterId} from "./values.ts";
 
 interface BaseTransition<T extends string> {
     transition_type: T
@@ -23,18 +23,7 @@ export interface IfThenElse extends BaseTransition<'IfThenElse'> {
     else: LeafTransition
 }
 
-export interface Switch extends BaseTransition<'Switch'> {
-    /*
-    N-way structured switch. No fallthrough; first matching case is taken.
-    If no matches, take default.
-     */
-    on: Expression
-    cases: Map<LeafValue, LeafTransition>
-    default: LeafTransition // Default case if no matches
-}
-
 export type Transition =
     | Go
-    | Switch
     | IfThenElse
     | End;

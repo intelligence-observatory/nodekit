@@ -1,24 +1,30 @@
 
-These tutorials showcased the core concepts of NodeKit: the **Node** and the **Graph**. Most of the code one will write when using NodeKit concerns the creation of Nodes and Graphs.
-We wrote a fairly simple Graph in this tutorial, but more is possible:
+These tutorials showcased the core workflow of NodeKit. To recap, one uses NodeKit by"
 
-- Stimuli involving **images or video**, or **combinations thereof**
-- More Sensor types, like the **WaitSensor**, **SliderSensor**, **SelectSensor**, and **TextEntrySensor**.
-- Describing logic like **performance-gated blocks** using Graph Registers
-- Serialization
+1. Defining a set of **Nodes**, each of which consists of a Cards and a Sensor.
+2. Wiring those Nodes together into a **Graph**, using Transitions.
+3. Deploying that Graph (to your local machine, as a static website, or as a Python simulation) and **getting behavior** from agent(s).
 
-## Convenience methods
-### Sequencing via `nk.concat`
 
-The Graph we have written expresses a single trial. One can combine multiple Graphs into a single "mega Graph" which executes them sequentially. While this could be done manually, NodeKit offers a `nk.concat` operation to avoid having to wire Nodes together:
 
-```python
-import nodekit as nk
-my_task = nk.concat([trial1, trial2, trial3])
-```
+## Next steps
 
-### Branching
+Consider checking out the [Examples](../examples/index.md) to see a gallery of behavioral tasks written in NodeKit.
 
-Up to this point, all the Graphs have involved _linear sequencing_ of Nodes, where Nodes are administered to the agent one after the other.
+You may also consider browsing the user guides and the API reference manual. For example:
 
-But many tasks involve branching. (todo)
+- [How to deploy Graphs to Mechanical Turk or Prolific](../guides/mechanical-turk-and-prolific.md)
+- [How to save and load Graphs and Traces](../guides/saving-and-sharing.md) from disk
+- [An overview of all Card types](../reference/cards.md), including the _VideoCard_ and _CompositeCard_
+- [An overview of all Sensor types](../reference/sensors.md), including the _SliderSensor_ ,  _TextEntrySensor_, and _ProductSensor_
+
+You might also consider cloning the [GitHub repository for NodeKit](https://github.com/intelligence-observatory/nodekit) on your local machine, having your favorite coding agent read it, and asking it any questions you still have about the project. (Or have it use NodeKit for you). 
+
+
+## Advanced topics
+Certain advanced topics that are **not needed** for many tasks were not covered in these tutorials. For example: 
+
+- The use of **Graph Registers** which are needed to describe experimental designs like _performance-gated blocks_ and _staircases_. 
+- The full set of **Events** which are recorded in the Trace, such as key/pointer samples and page suspends, that enable finer-grained analysis 
+
+

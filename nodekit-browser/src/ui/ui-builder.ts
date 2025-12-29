@@ -2,8 +2,6 @@ import './variables.css'
 
 export type NodeKitRootDiv = HTMLDivElement & { __brand: 'NodeKitRootDiv' };
 
-
-
 export function createNodeKitRootDiv(): NodeKitRootDiv {
     const nodeKitDiv = document.createElement("div");
     nodeKitDiv.classList.add("nodekit-container")

@@ -19,7 +19,7 @@ export class SessionConnectingOverlay extends OverlayBase {
 
         // Mount spinner before text
         this.spinner = new Spinner();
-        this.spinner.mount(messageBoxDiv);
+        messageBoxDiv.appendChild(this.spinner.root);
 
         // Add text
         const textDiv = document.createElement("div");

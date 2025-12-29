@@ -13,6 +13,7 @@ def make_numerosity_trial(
             y=0,
             w=50,
             h=50,
+            mask="ellipse",
         ),
     )
 
@@ -22,7 +23,7 @@ def make_numerosity_trial(
 
     # Stimulus Node:
     stimulus_node = nk.Node(
-        stimulus=nk.cards.ImageCard(
+        card=nk.cards.ImageCard(
             image=image,
             region=nk.Region(
                 x=0,
@@ -37,14 +38,14 @@ def make_numerosity_trial(
 
     # ISI Node:
     isi_node = nk.Node(
-        stimulus=None,
+        card=None,
         sensor=nk.sensors.WaitSensor(duration_msec=200),
         hide_pointer=True,
     )
 
     # Choice Node:
     choice_node = nk.Node(
-        stimulus=nk.cards.TextCard(
+        card=nk.cards.TextCard(
             text="How many circles were there?",
             background_color="#ffffff",  # white,
             region=nk.Region(

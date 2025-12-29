@@ -3,7 +3,7 @@ from typing import Literal, Annotated, Union
 import pydantic
 
 from nodekit._internal.types.expressions import Expression
-from nodekit._internal.types.values import NodeId, RegisterId, LeafValue
+from nodekit._internal.types.values import NodeId, RegisterId
 
 
 # %%
@@ -56,24 +56,11 @@ class IfThenElse(BaseTransition):
 
 
 # %%
-class Switch(BaseTransition):
-    transition_type: Literal["Switch"] = "Switch"
-    on: Expression
-    cases: dict[LeafValue, LeafTransition]
-    default: LeafTransition = pydantic.Field(
-        default_factory=End,
-        description="The transition to take if no case matches.",
-        validate_default=True,
-    )
-
-
-# %%
 type Transition = Annotated[
     Union[
         Go,
         End,
         IfThenElse,
-        Switch,
     ],
     pydantic.Field(discriminator="transition_type"),
 ]

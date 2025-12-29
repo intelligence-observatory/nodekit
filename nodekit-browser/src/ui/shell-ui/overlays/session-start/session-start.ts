@@ -1,23 +1,25 @@
 import {OverlayBase} from "../overlay-base.ts";
-import {UIElementBase} from "../../base.ts";
-import "./session-start.css";
 
 export class SessionStartedOverlay extends OverlayBase {
-    startButton: StartButton;
+
+    startButton: HTMLButtonElement;
 
     constructor() {
         super('session-started-overlay');
 
         // Create the submit button
-        this.startButton = new StartButton();
+        this.startButton = document.createElement("button");
+        this.startButton.textContent = "Start →";
+        this.startButton.classList.add('confirm-button')
+
         // Mount
-        this.startButton.mount(this.root)
+        this.root.appendChild(this.startButton);
     }
 
     show(
         submitButtonClickedCallback: () => void
     ) {
-        this.startButton.attachClickListener(submitButtonClickedCallback);
+        this.startButton.onclick = submitButtonClickedCallback;
         this.setVisibility(true);
     }
 
@@ -26,25 +28,8 @@ export class SessionStartedOverlay extends OverlayBase {
         super.setVisibility(false);
 
         // Clear the event listener
-        this.startButton.removeAllEventListeners()
+        this.startButton.onclick = null;
     }
 
 }
 
-
-class StartButton extends UIElementBase {
-    root: HTMLButtonElement;
-
-    constructor() {
-        super();
-
-        const startButton = document.createElement("button");
-        startButton.classList.add("start-button");
-        startButton.textContent = "Press to Start";
-        this.root = startButton;
-    }
-
-    attachClickListener(callback: () => void): void {
-        this._registerEventListener(this.root, 'click', callback);
-    }
-}

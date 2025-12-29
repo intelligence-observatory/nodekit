@@ -18,7 +18,7 @@ def make_free_survey(image: nk.assets.Image, prompt: str) -> nk.Node:
     )
 
     return nk.Node(
-        stimulus=nk.cards.CompositeCard(
+        card=nk.cards.CompositeCard(
             children={
                 "image": image_card,
                 "prompt": prompt_card,

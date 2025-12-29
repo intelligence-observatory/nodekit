@@ -11,10 +11,15 @@ from nodekit._internal.types.values import Region, PressableKey, PixelSize, Time
 class BaseSensor(pydantic.BaseModel, ABC):
     """
     A Sensor is a listener for Agent behavior.
-    When a Sensor is triggered, it emits an Action and optionally applies an Outcome.
+    When a Sensor is triggered, it emits an Action.
     """
 
     sensor_type: str
+    duration_msec: TimeDurationMsec | None = pydantic.Field(
+        description="The number of milliseconds from the start of the Node when the Sensor resolves to a WaitAction. If None, the Sensor does not automatically resolve.",
+        gt=0,
+        default=None,
+    )
 
 
 # %%
@@ -74,11 +79,11 @@ class MultiSelectSensor(BaseSensor):
         if self.max_selections is None:
             self.max_selections = len(self.choices)
         if self.max_selections < self.min_selections:
-            raise pydantic.ValidationError(
+            raise ValueError(
                 f"max_selections ({self.max_selections}) must be greater than min_selections ({self.min_selections})",
             )
         if self.max_selections > len(self.choices):
-            raise pydantic.ValidationError(
+            raise ValueError(
                 f"max_selections ({self.max_selections}) cannot be greater than the number of available choices ({len(self.choices)})",
             )
 
@@ -101,7 +106,7 @@ class TextEntrySensor(BaseSensor):
     )
 
     min_length: int = pydantic.Field(
-        description="The minimum number of characters the user must enter before the Sensor fires. If None, no limit.",
+        description="The minimum number of characters the user must enter before the Sensor fires.",
         default=1,
         ge=1,
         le=10000,
@@ -125,6 +130,11 @@ class SliderSensor(BaseSensor):
     show_bin_markers: bool = True
     orientation: Literal["horizontal", "vertical"] = "horizontal"
     region: Region
+
+    confirm_button: Card | None = pydantic.Field(
+        default=None,
+        description="If provided, the agent must click this button to confirm their slider selection.",
+    )
 
 
 # %%

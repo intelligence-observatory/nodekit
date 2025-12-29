@@ -32,19 +32,30 @@ def build_site(
     graph: Graph,
     savedir: os.PathLike | str,
 ) -> BuildSiteResult:
-    """
-    Builds a static website for the given Graph, saving all assets and the HTML file to the given directory.
-    Returns a path to the entrypoint HTML file of the site ({graph-id}.html).
+    """Build a static website for a Graph and save it to disk.
 
-    assets/
-        {mime-type-1}/{mime-type-2}/{sha256}.{ext}
-    runtime/
-        nodekit.{js-digest}.js
-        nodekit.{css-digest}.css
-    graphs/
-        {graph_digest}/
-            index.html
-            graph.json
+    Args:
+        graph: Graph to serialize and render into a site.
+        savedir: Directory to write the site into.
+
+    Returns:
+        BuildSiteResult with the site root, entrypoint, and dependency list.
+
+    Raises:
+        ValueError: If savedir is not a directory.
+
+    Site layout:
+        ```
+        assets/
+            {mime-type-1}/{mime-type-2}/{sha256}.{ext}
+        runtime/
+            nodekit.{js-digest}.js
+            nodekit.{css-digest}.css
+        graphs/
+            {graph_digest}/
+                index.html
+                graph.json
+        ```
     """
     savedir = Path(savedir)
     if not savedir.exists():

@@ -16,13 +16,14 @@ def make_same_different_node(
     # Make fixation Node
 
     fixation_node = nk.Node(
-        stimulus=nk.cards.ImageCard(
+        card=nk.cards.ImageCard(
             image=nk.assets.Image.from_path("fixation-cross.svg"),
             region=nk.Region(
                 x=0,
                 y=0,
                 w=50,
                 h=50,
+                mask="ellipse",
             ),
         ),
         sensor=nk.sensors.KeySensor(keys=[" "]),
@@ -31,7 +32,7 @@ def make_same_different_node(
     stim_size = 400
 
     comparison_node = nk.Node(
-        stimulus=nk.cards.CompositeCard(
+        card=nk.cards.CompositeCard(
             children={
                 "left-color": nk.cards.TextCard(  # Hack; I should add the ShapeCard back in...
                     background_color=to_hex(*color_left),
@@ -69,7 +70,7 @@ def make_same_different_node(
     )
 
     punish_node = nk.Node(
-        stimulus=nk.cards.TextCard(
+        card=nk.cards.TextCard(
             text="WRONG",
             font_size=100,
             region=nk.Region(
@@ -84,7 +85,7 @@ def make_same_different_node(
     )
 
     reward_node = nk.Node(
-        stimulus=nk.cards.TextCard(
+        card=nk.cards.TextCard(
             text="CORRECT",
             font_size=100,
             region=nk.Region(

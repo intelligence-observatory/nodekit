@@ -1,5 +1,6 @@
 import atexit
 import hashlib
+import socket
 import threading
 import time
 from pathlib import Path
@@ -61,7 +62,24 @@ class LocalRunner:
             )
 
             self._server = uvicorn.Server(config=config)
-            self._thread = threading.Thread(target=self._server.run, daemon=True)
+            try:
+                family = socket.AF_INET6 if self.host and ":" in self.host else socket.AF_INET
+                bound_socket = socket.socket(family=family)
+                bound_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                bound_socket.bind((self.host, self.port))
+                bound_socket.set_inheritable(True)
+            except OSError:
+                self._server = None
+                raise
+
+            # Update the port in case we bound to an ephemeral port (e.g., port=0).
+            self.port = bound_socket.getsockname()[1]
+
+            self._thread = threading.Thread(
+                target=self._server.run,
+                kwargs={"sockets": [bound_socket]},
+                daemon=True,
+            )
             self._thread.start()
             self._running = True
 
@@ -242,6 +260,16 @@ def play(
         The Trace of Events observed during execution.
 
     """
+    if isinstance(graph, Node):
+        # Wrap single Node into a Graph so the runner always receives a Graph.
+        graph = Graph(
+            nodes={
+                "": graph,
+            },
+            start="",
+            transitions={"": End()},
+        )
+
     # Candidate ports to try if the requested one is unavailable.
     if port is None:
         candidate_ports = [7651, 8765, 8822, 8877, 8933, 8999, 0]
@@ -252,27 +280,20 @@ def play(
     for candidate in candidate_ports:
         try:
             runner = LocalRunner(port=candidate)
+            runner.ensure_running()
+            runner.set_graph(graph)
             break
         except Exception as exc:  # noqa: BLE001 - broad by design to retry on any failure
             last_error = exc
+            if runner is not None:
+                runner.shutdown()
+                runner = None
             continue
 
     if runner is None:
         raise RuntimeError("Failed to initialize LocalRunner on any candidate port") from last_error
 
     try:
-        if isinstance(graph, Node):
-            # Wrap single Node into a Graph:
-            graph = Graph(
-                nodes={
-                    "": graph,
-                },
-                start="",
-                transitions={"": End()},
-            )
-        runner.ensure_running()
-        runner.set_graph(graph)
-
         print("Play the Graph at:\n", runner.url)
 
         # Wait until the End Event is observed or an error is recorded:

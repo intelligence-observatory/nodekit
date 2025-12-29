@@ -1,7 +1,7 @@
 import type {Transition} from "../types/transition.ts";
 import type {NodeId, RegisterId, Value} from "../types/values.ts";
 import type {Action} from "../types/actions.ts";
-import {evl} from "../interpreter/expression-interpreter.ts";
+import {evl} from "../expression-interpreter.ts";
 
 
 export interface EvalTransitionParams {
@@ -83,38 +83,6 @@ export function evalTransition(
 
                 });
             }
-        }
-        case "Switch": {
-            const selector = evl(
-                transition.on,
-                {
-                    graphRegisters: registers,
-                    localVariables: {},
-                    lastAction:lastAction,
-                    lastSubgraphRegisters: lastSubgraphRegisters,
-
-                },
-            );
-
-            for (const [value, then] of transition.cases.entries()) {
-                if (selector === value) {
-                    return evalTransition({
-                        transition: then,
-                        registers,
-                        lastAction:lastAction,
-                        lastSubgraphRegisters: lastSubgraphRegisters,
-
-                    });
-                }
-            }
-
-            // Default case
-            return evalTransition({
-                transition: transition.default,
-                registers,
-                lastAction:lastAction,
-                lastSubgraphRegisters: lastSubgraphRegisters,
-            });
         }
         default:
             const _exhaustiveCheck: never = transition;

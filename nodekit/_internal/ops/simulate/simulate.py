@@ -1,18 +1,14 @@
-from __future__ import annotations
-
-import random
-import warnings
-from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Mapping
 
 import nodekit._internal.types.events as e
+from nodekit import BaseAgent
 from nodekit._internal.ops.simulate.evaluate_expression import (
     EvalContext,
     evaluate_expression,
 )
-from nodekit._internal.ops.simulate.sample_action import sample_action
+from nodekit._internal.ops.simulate.validate_action import validate_action
 from nodekit._internal.types.actions import Action
+from nodekit._internal.types.agents import RandomGuesser
 from nodekit._internal.types.graph import Graph
 from nodekit._internal.types.node import Node
 from nodekit._internal.types.trace import Trace
@@ -20,48 +16,15 @@ from nodekit._internal.types.transitions import (
     End,
     Go,
     IfThenElse,
-    Switch,
     Transition,
 )
 from nodekit._internal.types.values import RegisterId, Value
 
 
 # %%
-class Agent(ABC):
-    @abstractmethod
-    def __call__(self, node: Node) -> Action | None:
-        """
-        Return an Action or None (to end the simulation), given the Node.
-        Args:
-            node:
-
-        Returns:
-            Action | None: The selected Action, or None to end the simulation.
-
-        """
-        ...
-
-
-# %%
-class DummyAgent(Agent):
-    """
-    An Agent that randomly selects the first available Action in a Node.
-    """
-
-    def __init__(self, seed: int | None = None):
-        self.rng = random.Random(seed)
-
-    def __call__(self, node: Node) -> Action | None:
-        return sample_action(
-            sensor=node.sensor,
-            rng=random.Random(),
-        )
-
-
-# %%
 def simulate(
     graph: Graph,
-    agent: Agent | None = None,
+    agent: BaseAgent | None = None,
 ) -> Trace:
     """
     Deterministically simulates a Graph using the provided Agent.
@@ -80,7 +43,7 @@ def simulate(
     """
 
     if agent is None:
-        agent = DummyAgent(seed=None)
+        agent = RandomGuesser(seed=None)
 
     time_elapsed_msec = 0
 
@@ -110,7 +73,7 @@ class EvalTransitionResult:
 
 def _simulate_core(
     graph: Graph,
-    agent: Agent,
+    agent: BaseAgent,
     address: list[str],
     time_elapsed_msec: int,
 ) -> tuple[list[e.Event], dict[RegisterId, Value], int]:
@@ -125,8 +88,6 @@ def _simulate_core(
     events: list[e.Event] = []
 
     current_node_id = graph.start
-    last_action: Action | None = None
-    last_subgraph_registers: Mapping[RegisterId, Value] | None = None
 
     def _tick() -> int:
         nonlocal time_elapsed_msec
@@ -138,8 +99,9 @@ def _simulate_core(
         current_address = [*address, current_node_id]
 
         if isinstance(node_or_graph, Graph):
+            child_graph = node_or_graph
             child_events, child_registers, time_elapsed_msec = _simulate_core(
-                graph=node_or_graph,
+                graph=child_graph,
                 agent=agent,
                 address=current_address,
                 time_elapsed_msec=time_elapsed_msec,
@@ -148,20 +110,20 @@ def _simulate_core(
             last_subgraph_registers = child_registers
             last_action = None
         elif isinstance(node_or_graph, Node):
+            node = node_or_graph
             events.append(
                 e.NodeStartedEvent(
                     t=_tick(),
                     node_address=current_address,
-                    node=node_or_graph,
+                    node=node,
                 )
             )
 
-            action = agent(node_or_graph)
-            if action is None:
-                warnings.warn(
-                    f"Agent returned None for node at address {current_address}. Ending run."
-                )
-                raise RuntimeError()
+            # Todo: the agent should report its own latency
+            action = agent(node)
+
+            # Validate that action is valid for the Node's sensor
+            validate_action(sensor=node.sensor, action=action)
 
             events.append(
                 e.ActionTakenEvent(
@@ -202,8 +164,6 @@ def _simulate_core(
             break
 
         current_node_id = next_node_id
-        last_action = None
-        last_subgraph_registers = None
 
     return events, registers, time_elapsed_msec
 
@@ -252,33 +212,6 @@ def _eval_transition(
             branch = transition.then if cond else transition.else_
             return _eval_transition(
                 transition=branch,
-                registers=registers,
-                last_action=last_action,
-                last_subgraph_registers=last_subgraph_registers,
-            )
-
-        case Switch():
-            selector = evaluate_expression(
-                transition.on,
-                EvalContext(
-                    graph_registers=registers,
-                    local_variables={},
-                    last_action=last_action,
-                    last_subgraph_registers=last_subgraph_registers,
-                ),
-            )
-
-            for case_value, case_transition in transition.cases.items():
-                if selector == case_value:
-                    return _eval_transition(
-                        transition=case_transition,
-                        registers=registers,
-                        last_action=last_action,
-                        last_subgraph_registers=last_subgraph_registers,
-                    )
-
-            return _eval_transition(
-                transition=transition.default,
                 registers=registers,
                 last_action=last_action,
                 last_subgraph_registers=last_subgraph_registers,

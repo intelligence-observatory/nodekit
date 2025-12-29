@@ -30,7 +30,7 @@ def make_big5_node(
             x=0,
             y=250,
             w=1000,
-            h=60,
+            h=120,
         ),
     )
 
@@ -45,6 +45,20 @@ def make_big5_node(
             y=-100,
             w=750,
             h=100,
+        ),
+        confirm_button=nk.cards.TextCard(
+            text="Next",
+            font_size=30,
+            region=nk.Region(
+                x=0,
+                y=-250,
+                w=200,
+                h=80,
+            ),
+            justification_horizontal="center",
+            justification_vertical="center",
+            background_color="#00000080",
+            text_color="#FFFFFF",
         ),
     )
 
@@ -75,7 +89,7 @@ def make_big5_node(
 
     # Assemble Node
     node = nk.Node(
-        stimulus=stimulus,
+        card=stimulus,
         sensor=slider_sensor,
         board_color="#ffffff",
     )

@@ -4,7 +4,7 @@ import nodekit as nk
 if __name__ == "__main__":
     # Assemble an "all-in-one" Node which showcases multiple Cards simultaneously
     dev_node = nk.Node(
-        stimulus=nk.cards.CompositeCard(
+        card=nk.cards.CompositeCard(
             children={
                 "video": nk.cards.VideoCard(
                     region=nk.Region(
@@ -21,6 +21,7 @@ if __name__ == "__main__":
                         y=0,
                         w=100,
                         h=100,
+                        mask="ellipse",
                     ),
                     image=nk.assets.Image.from_path("fixation-cross.svg"),
                 ),

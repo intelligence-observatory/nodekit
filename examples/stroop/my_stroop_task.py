@@ -37,7 +37,7 @@ def make_stroop_trial(
 
     # Make the main node
     main_node = nk.Node(
-        stimulus=nk.cards.CompositeCard(
+        card=nk.cards.CompositeCard(
             children={
                 "stroop-stimulus": nk.cards.TextCard(
                     region=nk.Region(
@@ -76,7 +76,7 @@ def make_stroop_trial(
 
     # Make the reinforcer nodes
     correct_node = nk.Node(
-        stimulus=nk.cards.TextCard(
+        card=nk.cards.TextCard(
             region=nk.Region(
                 x=0,
                 y=0,
@@ -92,7 +92,7 @@ def make_stroop_trial(
         board_color="#FFFFFF",  # White background
     )
     incorrect_node = nk.Node(
-        stimulus=nk.cards.TextCard(
+        card=nk.cards.TextCard(
             region=nk.Region(
                 x=0,
                 y=0,
@@ -110,7 +110,7 @@ def make_stroop_trial(
 
     # Make the fixation node; need to press spacebar to continue
     fixation_node = nk.Node(
-        stimulus=nk.cards.TextCard(
+        card=nk.cards.TextCard(
             region=nk.Region(
                 x=0,
                 y=0,

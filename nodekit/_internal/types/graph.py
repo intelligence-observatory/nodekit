@@ -4,14 +4,14 @@ import pydantic
 
 from nodekit import VERSION, Node
 from nodekit._internal.types import expressions as expressions
-from nodekit._internal.types.transitions import Transition, Go, IfThenElse, Switch, End
+from nodekit._internal.types.transitions import Transition, Go, IfThenElse, End
 from nodekit._internal.types.values import NodeId, RegisterId, LeafValue
 
 
 # %%
 class Graph(pydantic.BaseModel):
     type: Literal["Graph"] = "Graph"
-    nodekit_version: Literal["0.2.1"] = pydantic.Field(default=VERSION, validate_default=True)
+    nodekit_version: Literal["0.2.2"] = pydantic.Field(default=VERSION, validate_default=True)
 
     nodes: dict[NodeId, Union[Node, "Graph"]] = pydantic.Field(
         description="The set of Nodes in the Graph, by NodeId. Note that a Graph can contain other Graphs as Nodes.",
@@ -71,15 +71,6 @@ class Graph(pydantic.BaseModel):
                     reg_refs |= _get_reg_references(expr)
                     reg_refs.add(register_id)
                 for register_id, expr in transition.else_.register_updates.items():
-                    reg_refs |= _get_reg_references(expr)
-                    reg_refs.add(register_id)
-            elif isinstance(transition, Switch):
-                reg_refs |= _get_reg_references(transition.on)
-                for case_transition in transition.cases.values():
-                    for register_id, expr in case_transition.register_updates.items():
-                        reg_refs |= _get_reg_references(expr)
-                        reg_refs.add(register_id)
-                for register_id, expr in transition.default.register_updates.items():
                     reg_refs |= _get_reg_references(expr)
                     reg_refs.add(register_id)
             else:
@@ -206,10 +197,6 @@ def _get_node_ids_with_path_to_end(
             return True
         if isinstance(transition, IfThenElse):
             return _contains_end(transition.then) or _contains_end(transition.else_)
-        if isinstance(transition, Switch):
-            return any(_contains_end(t) for t in transition.cases.values()) or _contains_end(
-                transition.default
-            )
         return False
 
     # Build reverse edges (target -> set of sources).
@@ -250,10 +237,4 @@ def _gather_go_targets(transition: Transition) -> list[NodeId]:
         return [transition.to]
     if isinstance(transition, IfThenElse):
         return _gather_go_targets(transition.then) + _gather_go_targets(transition.else_)
-    if isinstance(transition, Switch):
-        targets: list[NodeId] = []
-        for case_transition in transition.cases.values():
-            targets += _gather_go_targets(case_transition)
-        targets += _gather_go_targets(transition.default)
-        return targets
     return []

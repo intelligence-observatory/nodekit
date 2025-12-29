@@ -68,7 +68,7 @@ def make_likert_trial(
     # Assemble Node
     stim = nk.cards.CompositeCard(children=cards)
     node = nk.Node(
-        stimulus=stim,
+        card=stim,
         sensor=sensor,
         board_color="#ffffff",
     )

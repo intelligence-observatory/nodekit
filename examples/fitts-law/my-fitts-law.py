@@ -16,7 +16,7 @@ def make_fitts_trial(
 
     home_node = nk.Node(
         board_color=background_color,
-        stimulus=None,
+        card=None,
         sensor=nk.sensors.SelectSensor(
             choices={
                 "clicked-home": nk.cards.TextCard(
@@ -35,7 +35,7 @@ def make_fitts_trial(
 
     target_node = nk.Node(
         board_color=background_color,
-        stimulus=None,
+        card=None,
         sensor=nk.sensors.SelectSensor(
             choices={
                 "clicked-target": nk.cards.TextCard(

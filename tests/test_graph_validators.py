@@ -6,7 +6,7 @@ import nodekit as nk
 
 def wait_node() -> nk.Node:
     return nk.Node(
-        stimulus=None,
+        card=None,
         sensor=nk.sensors.WaitSensor(duration_msec=1),
     )
 
@@ -78,16 +78,16 @@ def test_ifthenelse_targets_exist():
         )
 
 
-def test_switch_targets_exist():
+def test_else_branch_targets_exist():
     with pytest.raises(pydantic.ValidationError, match="points to non-existent Node missing"):
         nk.Graph(
             nodes={"start": wait_node()},
             transitions={
-                "start": nk.transitions.Switch(
-                    on=nk.expressions.Lit(value=1),
-                    cases={1: nk.transitions.Go(to="missing")},
-                    default=nk.transitions.End(),
-                )
+                "start": nk.transitions.IfThenElse(
+                    if_=nk.expressions.Lit(value=True),
+                    then=nk.transitions.End(),
+                    else_=nk.transitions.Go(to="missing"),
+                ),
             },
             start="start",
         )

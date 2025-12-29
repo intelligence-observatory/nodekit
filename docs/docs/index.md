@@ -1,42 +1,31 @@
 # NodeKit: a Python library for behavioral tasks 
 
-NodeKit is a Python library for writing behavioral tasks. Any task written in NodeKit can be run in the browser (for humans) or in Python (for models).
+NodeKit is a Python library for writing behavioral tasks. Any task written using NodeKit can be run in the browser (for people) or in Python (for models).
+
+![An example NodeKit Graph](tutorial/PNG/afc-trial-graph.png)
 
 
-### 1. Write your task in Python 
+## Why use NodeKit? 
 
-```python
-import nodekit as nk
-graph = ...
-```
+- **No HTML/JavaScript/CSS.** Instead, write tasks with Python.
+- **Humans and models do the same task.** One NodeKit task can feed model simulations *and* web browser experiments. 
+- **A task is one JSON document**. NodeKit tasks are fully described by a single `.json` file, with no dependencies on external libraries or plugins.
+ 
 
-### 2. Get behavior from humans or models
+## Why not use NodeKit?
 
-Play your task in your web browser: 
-```python
-behavior = nk.play(graph)
-```
-
-Treat your task as a model environment:
-```python
-behavior = nk.simulate(graph, model)
-```
-
-Build your task into a ready-to-deploy static website:  
-```python
-site = nk.build_site(graph, 'my-task')
-```
+- **No HTML/JavaScript/CSS.** Arbitrary logic and visual customizability are not accessible in NodeKit.
+- **Fixed layout philosophy.** NodeKit tasks are intended to be pixel-for-pixel reproducible, and do not react to window resizing or device type.
+- **No audio support.** NodeKit focuses on purely visual tasks. 
 
 
-## Why NodeKit?
+## Project roadmap
 
-- **No HTML/JavaScript/CSS.** Instead, do everything in Python.
-- **Share reproducible tasks** instead of Methods sections and website source code
-- **Run fair comparisons between models and humans** 
+NodeKit is a research tool under active development. Its releases on PyPi are versioned, but do not yet follow [semantic versioning rules](https://semver.org). Semantic versioning will be introduced with NodeKit's `v1` release.
 
-## Why not NodeKit?
+Current goals include: 
 
-- **No HTML/JavaScript/CSS.**
-- No audio
-
+* Refining and expanding the documentation site
+* Improving determinism in the web browser
+* Enriching the simulator with an end-to-end headless renderer
 

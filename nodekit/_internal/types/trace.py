@@ -7,7 +7,7 @@ from nodekit._internal.types.events import Event
 
 
 class Trace(pydantic.BaseModel):
-    nodekit_version: Literal["0.2.1"] = pydantic.Field(default=VERSION, validate_default=True)
+    nodekit_version: Literal["0.2.2"] = pydantic.Field(default=VERSION, validate_default=True)
 
     events: list[Event]
 

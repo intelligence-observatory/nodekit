@@ -6,7 +6,7 @@ import type {Transition} from "./transition.ts";
 
 export interface Node {
     type: 'Node';
-    stimulus: Card | null;
+    card: Card | null;
     sensor: Sensor;
     board_color: ColorHexString;
     hide_pointer: boolean

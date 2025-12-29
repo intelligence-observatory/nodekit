@@ -3,6 +3,9 @@ import type {SliderSensor} from "../../../types/sensors.ts";
 import {BoardCoordinateSystem, createRegionDiv} from "../../board-view.ts";
 import type {SliderAction} from "../../../types/actions.ts";
 import {SensorBinding} from "../index.ts";
+import type {PointerSample} from "../../../input-streams/pointer-stream.ts";
+import {createCardView} from "../../card-views/create.ts";
+import type {CardView} from "../../card-views/card-view.ts";
 
 
 export type SliderBinIndex = number & { __brand: 'SliderBinIndex' };// 0 to num_bins - 1
@@ -20,6 +23,8 @@ type SliderSubscriber = (sample: SliderSample) => void;
  *
  */
 export class SliderSensorBinding extends SensorBinding<SliderSensor> {
+    private confirmCardView: CardView | null = null;
+
     async prepare(
     ) {
         const sliderCardView = new SliderSensorView(
@@ -30,16 +35,84 @@ export class SliderSensorBinding extends SensorBinding<SliderSensor> {
         // Bind
         this.params.boardView.root.appendChild(sliderCardView.root)
 
+        const confirmButton = this.params.sensor.confirm_button;
+        const hasConfirmButton = confirmButton != null;
+        let latestBinIndex = this.params.sensor.initial_bin_index;
+
         // Subscribe
         const sliderChangedCallback = (sliderSample: SliderSample): void => {
-            const sliderValue: SliderAction = {
-                action_type: 'SliderAction',
-                action_value: sliderSample.binIndex
+            latestBinIndex = sliderSample.binIndex;
+
+            if (!hasConfirmButton) {
+                const sliderValue: SliderAction = {
+                    action_type: 'SliderAction',
+                    action_value: sliderSample.binIndex
+                }
+                this.emit(sliderValue)
             }
-            this.emit(sliderValue)
         }
 
         sliderCardView.subscribeToSlider(sliderChangedCallback)
+
+        if (confirmButton != null) {
+            const confirmCardView = await createCardView(
+                confirmButton,
+                this.params.boardView,
+                this.params.assetManager,
+            );
+            this.confirmCardView = confirmCardView;
+
+            const disabledOpacity = 0.1;
+            const confirmedOpacity = 0.5;
+            confirmCardView.setOpacity(disabledOpacity);
+            confirmCardView.setHoverable(false);
+
+            let canConfirm = false;
+            let confirmed = false;
+
+            const enableConfirm = () => {
+                if (confirmed || canConfirm) {
+                    return;
+                }
+                canConfirm = true;
+                confirmCardView.setOpacity(1);
+                confirmCardView.setHoverable(true);
+            };
+
+            sliderCardView.subscribeToEngagement(enableConfirm);
+
+            const pointerCallback = (pointerSample: PointerSample) => {
+                if (confirmed || !canConfirm) {
+                    return;
+                }
+                if (pointerSample.sampleType !== 'down') {
+                    return;
+                }
+
+                const inside = confirmCardView.checkPointInCard(
+                    pointerSample.x,
+                    pointerSample.y,
+                );
+                if (!inside) {
+                    return;
+                }
+
+                const sliderValue: SliderAction = {
+                    action_type: 'SliderAction',
+                    action_value: latestBinIndex,
+                };
+                this.emit(sliderValue);
+                confirmed = true;
+                confirmCardView.setOpacity(confirmedOpacity);
+                confirmCardView.setHoverable(false);
+            };
+
+            this.params.boardView.pointerStream.subscribe(pointerCallback);
+        }
+    }
+
+    protected onStart() {
+        this.confirmCardView?.onStart();
     }
 }
 
@@ -61,6 +134,8 @@ export class SliderSensorView {
     private currentBinIndex: SliderBinIndex | null = null;
     private binIndexToProportion: (binIndex: SliderBinIndex) => number;
     private subscribers: Set<SliderSubscriber> = new Set();
+    private engagementSubscribers: Set<() => void> = new Set();
+    private hasEngaged: boolean = false;
     private isDraggingThumb: boolean = false;
 
     constructor(
@@ -261,6 +336,7 @@ export class SliderSensorView {
 
     private onPointerDownThumb = (e: PointerEvent) => {
         e.preventDefault();
+        this.markEngaged();
         this.isDraggingThumb = true;
         this.setThumbVisualState('dragging');
 
@@ -297,6 +373,7 @@ export class SliderSensorView {
 
     private onClickTrack = (e: PointerEvent) => {
         e.preventDefault();
+        this.markEngaged();
 
         // Snap to nearest bin:
         const nearestBin = this.calculateNearestBin(e);
@@ -348,6 +425,23 @@ export class SliderSensorView {
         // Emit to all subscribers
         for (let callback of this.subscribers) {
             callback(sample);
+        }
+    }
+
+    private markEngaged() {
+        if (this.hasEngaged) {
+            return;
+        }
+        this.hasEngaged = true;
+        for (let callback of this.engagementSubscribers) {
+            callback();
+        }
+    }
+
+    public subscribeToEngagement(callback: () => void) {
+        this.engagementSubscribers.add(callback);
+        if (this.hasEngaged) {
+            callback();
         }
     }
 

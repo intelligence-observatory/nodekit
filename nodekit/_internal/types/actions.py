@@ -1,15 +1,13 @@
 from abc import ABC
-from typing import Literal, Union, Annotated
+from typing import Annotated, Literal, Union, Any
 
 import pydantic
-
-from nodekit._internal.types.values import Value
 
 
 # %%
 class BaseAction(pydantic.BaseModel, ABC):
     action_type: str
-    action_value: Value
+    action_value: Any
 
 
 # %%

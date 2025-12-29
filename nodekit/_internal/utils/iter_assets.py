@@ -23,8 +23,8 @@ def iter_assets(graph: Graph) -> Iterator[Image | Video]:
             yield from iter_assets(node)
             continue
         elif isinstance(node, Node):
-            if node.stimulus is not None:
-                yield from _iter_card_assets(node.stimulus)
+            if node.card is not None:
+                yield from _iter_card_assets(node.card)
 
             # Some sensors carry cards (select/multiselect choices, products/sums).
 

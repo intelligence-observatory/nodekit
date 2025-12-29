@@ -2,7 +2,7 @@ from collections import defaultdict, deque
 from typing import List, Tuple
 
 from nodekit import Graph
-from nodekit._internal.types.transitions import IfThenElse, Switch, End, Go, Transition
+from nodekit._internal.types.transitions import IfThenElse, End, Go, Transition
 from nodekit._internal.types.values import NodeId
 
 
@@ -100,14 +100,6 @@ def _outgoing_targets(tr: Transition) -> list[NodeId]:
         return [tr.to]
     if isinstance(tr, End):
         return []
-    if isinstance(tr, Switch):
-        targets: list[NodeId] = []
-        for _value, transition in tr.cases.items():
-            if isinstance(transition, Go):
-                targets.append(transition.to)
-        if isinstance(tr.default, Go):
-            targets.append(tr.default.to)
-        return targets
     if isinstance(tr, IfThenElse):
         targets: list[NodeId] = []
         if isinstance(tr.then, Go):

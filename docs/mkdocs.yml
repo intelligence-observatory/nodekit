@@ -4,27 +4,23 @@ nav:
   - Home: index.md
   - Tutorial:
       - 1. Install NodeKit: 'tutorial/1-installation.md'
-      - 2. Write your first task: 'tutorial/2-first-graph.md'
-      - 3. Get behavioral data: 'tutorial/3-deploy-graph.md'
-      - What's next?: 'tutorial/whats-next.md'
-  - Concepts:
-      - Node: concepts/index.md
-      - Cards: concepts/index.md
-      - Sensors & Actions: concepts/index.md
-      - Graph: concepts/index.md
-      - Transitions: concepts/index.md
-      - Expressions & Values: concepts/index.md
-      - Nested Graphs: concepts/index.md
-      - Reproducibility: concepts/index.md
+      - 2. Write your first Graph: 'tutorial/2-first-graph.md'
+      - 3. Write your second Graph: 'tutorial/2b-afc-graph.md'
+      - 4. Get behavioral data: 'tutorial/3-deploy-graph.md'
+      - What's left to learn?: 'tutorial/whats-next.md'
   - Guides:
-      - Deploying to Mechanical Turk: 'guides/mechanical-turk.md'
-      - Using Markdown in TextCards: 'guides/styling-text.md'
-      - Adding time limits to Nodes: 'guides/adding-time-limits.md'
-  - Reference:
+      - Deploy to Mechanical Turk or Prolific: 'guides/mechanical-turk-and-prolific.md'
+      - Saving and sharing Graphs and Traces: 'guides/saving-and-sharing.md'
+      - Format TextCards using Markdown: 'guides/styling-text.md'
+      - Add time limits to Nodes: 'guides/adding-time-limits.md'
+      - Write your own Agent: 'guides/writing-agents.md'
+  - Concepts:
+      - Board coordinate system: concepts/board-coordinate-system.md
+  - API Reference:
       - Node: reference/node.md
       - Graph: reference/graph.md
       - Trace: reference/trace.md
-      - Agent: reference/agent.md
+      - Agents: reference/agent.md
       - Cards: reference/cards.md
       - Sensors: reference/sensors.md
       - Actions: reference/actions.md
@@ -34,6 +30,9 @@ nav:
       - Assets: reference/assets.md
       - Values: reference/values.md
       - Ops: reference/ops.md
+      - Site: reference/site.md
+  - Examples:
+      - Overview: examples/index.md
 
 
 

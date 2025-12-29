@@ -1,6 +1,6 @@
-import type {List, RegisterId, Value} from "../types/values.ts";
-import type {Action} from "../types/actions.ts";
-import type {Expression, LocalVariableName} from "../types/expressions/expressions.ts";
+import type {RegisterId, Value} from "./types/values.ts";
+import type {Action} from "./types/actions.ts";
+import type {Expression, LocalVariableName} from "./types/expressions/expressions.ts";
 
 export interface EvlContext {
     graphRegisters: Record<RegisterId, Value>,
@@ -33,39 +33,11 @@ export function evl(
             }
             return context.lastSubgraphRegisters[expression.id];
         }
-        case "local": {
-            if (!(expression.name in context.localVariables)) {
-                throw new Error(`Local variable '${expression.name}' not found`);
-            }
-            return context.localVariables[expression.name];
-        }
         case "la": {
             if (context.lastAction === null) {
                 throw new Error(`No last action available for 'la'`);
             }
             return context.lastAction.action_value;
-        }
-        case "gli": {
-            const listVal = evl(
-                expression.list,
-                context,
-            );
-            if (!Array.isArray(listVal)) {
-                throw new Error(`gli: list must be array, got '${typeof listVal}'`);
-            }
-
-            const indexVal = evl(
-                expression.index,
-                context,
-            );
-            if (typeof indexVal !== "number") {
-                throw new Error(`gli: index must be number, got '${typeof indexVal}'`);
-            }
-
-            if (indexVal < 0 || indexVal >= listVal.length) {
-                throw new Error(`gli: index out of bounds, got index ${indexVal} for list of length ${listVal.length}`);
-            }
-            return listVal[indexVal];
         }
         case "gdv" :{
             const dictVal = evl(
@@ -248,170 +220,6 @@ export function evl(
                     throw new Error(`Unsupported arithmetic op: ${(_exhaustive as any).op}`);
             }
         }
-        // =====================
-        // Array ops
-        // =====================
-        case "append":{
-            const arrayVal = evl(
-                expression.array,
-                context,
-            );
-
-            if (!Array.isArray(arrayVal)) {
-                throw new Error(`append: array must be array, got '${typeof arrayVal}'`);
-            }
-
-            const valueVal = evl(
-                expression.value,
-                context,
-            );
-
-            return [...arrayVal, valueVal] as List;
-        }
-        case "concat": {
-            const arrayVal = evl(
-                expression.array,
-                context,
-            );
-
-            if (!Array.isArray(arrayVal)) {
-                throw new Error(`concat: array must be array, got '${typeof arrayVal}'`);
-            }
-
-            const valueVal = evl(
-                expression.value,
-                context,
-            );
-
-            if (!Array.isArray(valueVal)) {
-                throw new Error(`concat: value must be array, got '${typeof valueVal}'`);
-            }
-
-            return [...arrayVal, ...valueVal] as List;
-        }
-        case "slice": {
-            const arrayVal = evl(
-                expression.array,
-                context,
-            );
-
-            if (!Array.isArray(arrayVal)) {
-                throw new Error(`slice: array must be array, got '${typeof arrayVal}'`);
-            }
-
-            const startVal = evl(
-                expression.start,
-                context,
-            );
-            if (typeof startVal !== "number") {
-                throw new Error(`slice: start must be number, got '${typeof startVal}'`);
-            }
-
-            let endVal: number | undefined;
-            if (expression.end !== null) {
-                const evEnd = evl(
-                    expression.end,
-                    context,
-                );
-                if (typeof evEnd !== "number") {
-                    throw new Error(`slice: end must be number, got '${typeof evEnd}'`);
-                }
-                endVal = evEnd;
-            }
-            return arrayVal.slice(startVal, endVal) as List;
-        }
-        case "map": {
-            const arrayVal = evl(
-                expression.array,
-                context,
-            );
-
-            if (!Array.isArray(arrayVal)) {
-                throw new Error(`map: array must be array, got '${typeof arrayVal}'`);
-            }
-
-            const curName = expression.cur;
-            const baseLocals = context.localVariables;
-
-            return arrayVal.map((elem) => evl(
-                expression.func,
-                {
-                    ...context,
-                    localVariables: {
-                        ...baseLocals,
-                        [curName]: elem,
-                    },
-                },
-            )) as List;
-        }
-        case "filter": {
-            const arrayVal = evl(
-                expression.array,
-                context,
-            );
-            if (!Array.isArray(arrayVal)) {
-                throw new Error(`filter: array must be array, got '${typeof arrayVal}'`);
-            }
-
-            const curName = expression.cur;
-            const baseLocals = context.localVariables;
-
-            const result: List = [];
-            for (const elem of arrayVal) {
-                const keep = evl(
-                    expression.predicate,
-                    {
-                        ...context,
-                        localVariables: {
-                            ...baseLocals,
-                            [curName]: elem,
-                        },
-                    },
-                );
-                if (typeof keep !== "boolean") {
-                    throw new Error(
-                        `filter: predicate must be boolean, got '${typeof keep}'`
-                    );
-                }
-                if (keep) {
-                    result.push(elem);
-                }
-            }
-            return result;
-        }
-        case "fold": {
-            const arrayVal = evl(
-                expression.array,
-                context,
-            );
-            if (!Array.isArray(arrayVal)) {
-                throw new Error(`fold: array must be array, got '${typeof arrayVal}'`);
-            }
-
-            let acc = evl(
-                expression.init,
-                context,
-            );
-            const accName = expression.acc;
-            const curName = expression.cur;
-            const baseLocals = context.localVariables;
-
-            for (const elem of arrayVal) {
-                acc = evl(
-                    expression.func,
-                    {
-                        ...context,
-                        localVariables: {
-                            ...baseLocals,
-                            [accName]: acc,
-                            [curName]: elem,
-                        },
-                    },
-                );
-            }
-            return acc;
-        }
-
         default: {
             const _exhaustive: never = expression;
             throw new Error(`Unsupported expression op: ${(_exhaustive as any).op}`);
