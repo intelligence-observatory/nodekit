@@ -1,15 +1,25 @@
 
- This tutorial will introduce the three different ways to get behavioral data using NodeKit: 
+ This tutorial will outline the three different ways to get behavioral data using NodeKit: 
 
 1. `nk.play`: run your Graph locally in your web browser (to get behavior from yourself)
-2. `nk.simulate`: run your Graph in Python (to get behavior from a NodeKit-compliant agent)
+2. `nk.simulate`: run your Graph in Python (to get behavior from a NodeKit-compatible agent)
 3. `nk.build_site`: convert your Graph into a deployable site which you can serve for users on platforms like Mechanical Turk and Prolific
 
-This tutorial requires that you have a Graph, ready-to-go. In the last tutorial, a simple Graph was written:
+This tutorial requires that you have a Graph, ready-to-go. Any Graph is suitable; here is a simple one below: 
 
 ```python
 import nodekit as nk
-graph = nk.Graph(...)
+
+node = nk.Node(
+    card=nk.cards.TextCard(text="Hello world! Press f or j to continue."),
+    sensor=nk.sensors.KeySensor(keys=['f', 'j'])
+)
+
+graph = nk.Graph(
+    start='my-first-node',
+    nodes={'my-first-node': node},
+    transitions={'my-first-node': nk.transitions.End()},
+)
 ```
 
 

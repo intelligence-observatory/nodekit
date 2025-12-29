@@ -171,7 +171,11 @@ In plain words, this Graph proceeds through the following phases:
 ### Define AFC Nodes
 Begin by picking image files. They should be SVG, PNG, or JPEG; NodeKit does not support other image formats.
 
-We'll assume you have four images on disk: a fixation image, a stimulus image, and two choice images. Start by defining a few sizes and durations:
+We'll assume you have four images on disk: a fixation image (`fixation.png`), a stimulus image (`stimulus.png`), and two choice images (`choice-correct.png` and `choice-incorrect.png`). 
+
+In the choice Node, we will put the correct choice on the left side of the screen.
+
+Start by defining a few sizes and durations:
 
 ```python hl_lines="1-7" linenums="1"
 import nodekit as nk
@@ -214,11 +218,11 @@ stimulus_node = nk.Node(
 
 choice_cards = {
     "left": nk.cards.ImageCard(
-        image=nk.assets.Image.from_path("choice-left.png"),
+        image=nk.assets.Image.from_path("choice-correct.png"),
         region=nk.Region(x=-200, y=0, w=choice_size, h=choice_size),
     ),
     "right": nk.cards.ImageCard(
-        image=nk.assets.Image.from_path("choice-right.png"),
+        image=nk.assets.Image.from_path("choice-incorrect.png"),
         region=nk.Region(x=200, y=0, w=choice_size, h=choice_size),
     ),
 }
@@ -291,7 +295,9 @@ afc_graph = nk.Graph(
     },
 )
 
+
 ```
+
 
 
 ???+ tip "The IfThenElse Transition, Expressions, and Values"
@@ -301,6 +307,7 @@ afc_graph = nk.Graph(
 
     Here, we wrote an Expression that is roughly equivalent to the following Python code: `last_action == 'left'`, where `last_action` is the value of the Action in the `choice` Node. When the Graph is actually run, and this Expression is encountered, it will _evaluate_ to a boolean. 
 
+    Remember that the correct choice was assigned the ID `left`, so we have the agent should go to the `reward` Node if they chose `left`. 
 
 
 
@@ -320,8 +327,9 @@ import nodekit as nk
 def generate_afc_graph(
         fixation_image_path: Path,
         stimulus_image_path: Path,
-        left_image_path: Path,
-        right_image_path: Path
+        correct_image_path: Path,
+        incorrect_image_path: Path, 
+        correct_on_left: bool,
 ) -> nk.Graph:
     # Code not shown here. 
     # Sorry, I'll add it in later!
