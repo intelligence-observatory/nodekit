@@ -59,7 +59,7 @@ def make_big5_node(
             justification_vertical="center",
             background_color="#00000080",
             text_color="#FFFFFF",
-        )
+        ),
     )
 
     cards = {

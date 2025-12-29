@@ -60,7 +60,7 @@ For example, if your entrypoint URL is "https://site.com/graphs/568...7f6a/index
 
 ### 3a. Request a Mechanical Turk HIT
 
-Mechanical Turk allows ExternalQuestion Assignments to post behavioral data to their backend, where you can later retrieve it. The Graph site automatically submits the Trace data to Mechanical Turk, if `nodekitSubmitTo` is not provided. **Thus, supplying the `nodekitSubmitTo` query parameter is optional**, if you are using Mechanical Turk. 
+Mechanical Turk allows ExternalQuestion Assignments to post behavioral data to their backend, where you can later retrieve it. The Graph site automatically submits the Trace data to Mechanical Turk, even if `nodekitSubmitTo` is not provided. **Thus, supplying the `nodekitSubmitTo` query parameter is optional**, if you are using Mechanical Turk. 
 
 Either way, once you have finalized the URL you will be using, use your preferred method to request an [ExternalQuestion HIT](https://docs.aws.amazon.com/AWSMechTurk/latest/AWSMturkAPI/ApiReference_ExternalQuestionArticle.html) which points to the URL. One standard approach might be to use the `mturk` client provided in [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/mturk.html).
 
