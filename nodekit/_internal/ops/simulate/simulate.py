@@ -99,9 +99,9 @@ def _simulate_core(
         current_address = [*address, current_node_id]
 
         if isinstance(node_or_graph, Graph):
-            graph = node_or_graph
+            child_graph = node_or_graph
             child_events, child_registers, time_elapsed_msec = _simulate_core(
-                graph=graph,
+                graph=child_graph,
                 agent=agent,
                 address=current_address,
                 time_elapsed_msec=time_elapsed_msec,
