@@ -15,7 +15,7 @@ Along the way, you'll get exposed to more features of NodeKit. By the end, you'l
     This new concept will be introduced later in this tutorial. 
        
 
-## Step 1: Create instructions Graph
+## Step 1: Create the instructions Graph
 
 We'll begin by writing an "instructions Graph" which consists of two pages of instructions. At the end of this step, we'll have a Graph that looks like this: 
 
@@ -154,7 +154,7 @@ But we have not seen this new **Go Transition**, which is attached to `page1`. T
 We're now done with the instructions Graph. If you'd like, try calling `nk.play` on the instructions Graph to inspect how it looks.
 
 
-## Step 2: Write the AFC Graphs
+## Step 2: Create the AFC Graphs
 
 Let's now turn our attention to writing an alternative forced choice ("AFC") image classification trial. A single trial has a Graph which looks like this:
 
@@ -311,7 +311,7 @@ afc_graph = nk.Graph(
 
 
 
-### Create multiple AFC trials
+### Write a factory function for AFC graphs
 
 In the previous steps, we wrote a single AFC trial. In this tutorial, we want to generate multiple AFC trials which differ by the image stimuli that are used. 
 

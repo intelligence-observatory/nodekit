@@ -7,9 +7,10 @@ nav:
       - 2. Write your first Graph: 'tutorial/2-first-graph.md'
       - 3. Write your second Graph: 'tutorial/2b-afc-graph.md'
       - 4. Get behavioral data: 'tutorial/3-deploy-graph.md'
-      - What's next?: 'tutorial/whats-next.md'
+      - What's left to learn?: 'tutorial/whats-next.md'
   - Guides:
       - Deploy to Mechanical Turk or Prolific: 'guides/mechanical-turk-and-prolific.md'
+      - Saving and sharing Graphs and Traces: 'guides/saving-and-sharing.md'
       - Format TextCards using Markdown: 'guides/styling-text.md'
       - Add time limits to Nodes: 'guides/adding-time-limits.md'
       - Write your own Agent: 'guides/writing-agents.md'
@@ -31,7 +32,7 @@ nav:
       - Ops: reference/ops.md
       - Site: reference/site.md
   - Examples:
-      - Hello, World!: examples/hello-world.md
+      - Overview: examples/index.md
 
 
 
