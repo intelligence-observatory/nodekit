@@ -89,7 +89,7 @@ Then, add the following three strings, separated by &. These are placeholder par
 
 
 A full example URL for a Prolific Study should look like:
-> https://my-task.com?nodekitSubmitTo=https%3A%2F%2Fmy-endpoint.com**&COMPLETION_CODE=1&PROLIFIC_PID={{%PROLIFIC_PID%}}&STUDY_ID={{%STUDY_ID%}}&SESSION_ID={{%SESSION_ID%}}**
+> https://my-task.com?nodekitSubmitTo=https%3A%2F%2Fmy-endpoint.com**&prolificCompletionCode=1&PROLIFIC_PID={{%PROLIFIC_PID%}}&STUDY_ID={{%STUDY_ID%}}&SESSION_ID={{%SESSION_ID%}}**
 
 
 ## 4. Download the results
