@@ -46,7 +46,7 @@ export async function submit(
     }
 
     // If using Turk, post the SubmissionPayload using submitToTurk.
-    if (externalPlatformContext.platform === "MechanicalTurk" && !nodekitSubmitTo) {
+    if (externalPlatformContext.platform === "MechanicalTurk") {
         submitToTurk(
             trace,
             submissionTarget as SubmissionTarget<MechanicalTurkContext>,
@@ -61,7 +61,7 @@ export async function submit(
     }
 
 
-    // Throw after attempting all submissions, to give the participant a chance to submit.
+    // Throw after attempting all submissions, to give the participant a chance to inspect any error messages.
     if (error) {
         throw error;
     }
