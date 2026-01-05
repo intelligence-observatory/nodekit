@@ -1,4 +1,6 @@
-from typing import Literal, Annotated, Union
+from __future__ import annotations
+
+from typing import Annotated, Literal, Union
 
 import pydantic
 
@@ -26,9 +28,6 @@ class End(BaseTransition):
     )
 
 
-type LeafTransition = Go | End
-
-
 # %%
 class IfThenElse(BaseTransition):
     model_config = pydantic.ConfigDict(
@@ -48,9 +47,9 @@ class IfThenElse(BaseTransition):
             description="A boolean-valued Expression.",
         ),
     ]
-    then: LeafTransition
+    then: Transition
     else_: Annotated[
-        LeafTransition,
+        Transition,
         pydantic.Field(default_factory=End, validate_default=True, alias="else"),
     ]
 
@@ -64,3 +63,6 @@ type Transition = Annotated[
     ],
     pydantic.Field(discriminator="transition_type"),
 ]
+
+# Ensure forward refs are resolved (Pydantic v2)
+IfThenElse.model_rebuild()

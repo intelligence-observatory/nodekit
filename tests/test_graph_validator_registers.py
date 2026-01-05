@@ -141,6 +141,29 @@ def test_if_else_branch_child_register_updates_checked():
         )
 
 
+def test_nested_if_branch_updates_checked():
+    with pytest.raises(pydantic.ValidationError, match="undefined registers"):
+        nk.Graph(
+            nodes={"start": wait_node()},
+            transitions={
+                "start": nk.transitions.IfThenElse(
+                    if_=nk.expressions.Lit(value=True),
+                    then=nk.transitions.IfThenElse(
+                        if_=nk.expressions.Lit(value=False),
+                        then=nk.transitions.Go(
+                            to="start",
+                            register_updates={"r1": nk.expressions.Reg(id="missing")},
+                        ),
+                        else_=nk.transitions.End(),
+                    ),
+                    else_=nk.transitions.End(),
+                ),
+            },
+            start="start",
+            registers={"r1": 0},
+        )
+
+
 def test_container_and_list_expression_refs_in_updates():
     with pytest.raises(pydantic.ValidationError, match="undefined registers"):
         nk.Graph(

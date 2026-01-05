@@ -60,23 +60,7 @@ class Graph(pydantic.BaseModel):
                     )
 
             # Check that the Transition only reference existing registers:
-            reg_refs = set()
-            if isinstance(transition, Go) or isinstance(transition, End):
-                for register_id, expr in transition.register_updates.items():
-                    reg_refs |= _get_reg_references(expr)
-                    reg_refs.add(register_id)
-            elif isinstance(transition, IfThenElse):
-                reg_refs |= _get_reg_references(transition.if_)
-                for register_id, expr in transition.then.register_updates.items():
-                    reg_refs |= _get_reg_references(expr)
-                    reg_refs.add(register_id)
-                for register_id, expr in transition.else_.register_updates.items():
-                    reg_refs |= _get_reg_references(expr)
-                    reg_refs.add(register_id)
-            else:
-                raise TypeError(
-                    f"Unhandled Transition type during register reference check: {type(transition)}"
-                )
+            reg_refs = _get_transition_reg_references(transition)
 
             undefined_regs = reg_refs - set(self.registers.keys())
             if len(undefined_regs) > 0:
@@ -145,6 +129,29 @@ def _get_reg_references(expression: expressions.Expression) -> set[RegisterId]:
         return _get_reg_references(expression.d) | _get_reg_references(expression.key)
 
     raise TypeError(f"Unhandled expression type: {type(expression)}")
+
+
+def _get_transition_reg_references(transition: Transition) -> set[RegisterId]:
+    """
+    Returns the set of RegisterIds referenced in this Transition subtree.
+    """
+    if isinstance(transition, (Go, End)):
+        reg_refs: set[RegisterId] = set()
+        for register_id, expr in transition.register_updates.items():
+            reg_refs |= _get_reg_references(expr)
+            reg_refs.add(register_id)
+        return reg_refs
+
+    if isinstance(transition, IfThenElse):
+        return (
+            _get_reg_references(transition.if_)
+            | _get_transition_reg_references(transition.then)
+            | _get_transition_reg_references(transition.else_)
+        )
+
+    raise TypeError(
+        f"Unhandled Transition type during register reference check: {type(transition)}"
+    )
 
 
 def _get_reachable_node_ids(

@@ -101,10 +101,5 @@ def _outgoing_targets(tr: Transition) -> list[NodeId]:
     if isinstance(tr, End):
         return []
     if isinstance(tr, IfThenElse):
-        targets: list[NodeId] = []
-        if isinstance(tr.then, Go):
-            targets.append(tr.then.to)
-        if isinstance(tr.else_, Go):
-            targets.append(tr.else_.to)
-        return targets
+        return _outgoing_targets(tr.then) + _outgoing_targets(tr.else_)
     raise TypeError(f"Unsupported transition type: {tr}")
