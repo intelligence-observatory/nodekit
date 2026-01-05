@@ -8,6 +8,7 @@ blittle.workspace = true
 bytemuck.workspace = true
 fast_image_resize.workspace = true
 hex_color.workspace = true
+imageproc.workspace = true
 nodekit-rs-models = { path = "../nodekit-rs-models" }
 thiserror.workspace = true
 

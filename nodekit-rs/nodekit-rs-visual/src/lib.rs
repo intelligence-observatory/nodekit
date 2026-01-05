@@ -8,6 +8,7 @@ mod rgb_buffer;
 mod rgba_buffer;
 mod unclipped_rect;
 mod visual_buffer;
+mod rounded_rectangle;
 
 use blittle::Size;
 use blittle::stride::RGBA;
