@@ -28,9 +28,6 @@ class End(BaseTransition):
     )
 
 
-type LeafTransition = Go | End
-
-
 # %%
 class IfThenElse(BaseTransition):
     model_config = pydantic.ConfigDict(
