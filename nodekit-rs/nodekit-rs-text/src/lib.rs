@@ -221,8 +221,10 @@ impl TextEngine {
             &mut self.swash_cache,
             text_color,
             |x, y, w, h, color| {
-                let x1 = (x as usize + w as usize).min(dst.rect.src_size_clipped.w);
-                let y1 = (y as usize + h as usize + y_offset).min(dst.rect.src_size_clipped.h);
+                let x = if x < 0 { 0 } else { x.cast_unsigned() };
+                let y = if y < 0 { 0 } else { y.cast_unsigned() };
+                let x1 = ((x + w) as usize).min(dst.rect.src_size_clipped.w);
+                let y1 = ((y + h) as usize + y_offset).min(dst.rect.src_size_clipped.h);
                 let alpha = color.a();
                 if alpha > 0 {
                     (x as usize..x1)

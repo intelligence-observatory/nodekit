@@ -63,7 +63,7 @@ impl Renderer {
     }
 
     /// Returns an empty numpy array that can be used by `self.render_to(state, board)`.
-    /// The shape of the returned array is: `(768, 768, 3)`.
+    /// The shape of the returned array is: `(1024, 1024, 3)`.
     #[staticmethod]
     pub fn empty_board<'py>(py: Python<'py>) -> Bound<'py, PyArray3<u8>> {
         PyArray3::zeros(py, (BOARD_D, BOARD_D, STRIDE), false)

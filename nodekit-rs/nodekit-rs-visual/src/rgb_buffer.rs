@@ -84,7 +84,7 @@ mod tests {
         )
         .unwrap()
         .unwrap();
-        assert_eq!(resized.rect.dst_position_clipped.x, 192);
+        assert_eq!(resized.rect.dst_position_clipped.x, 256);
         assert_eq!(resized.rect.dst_position_clipped.y, 0);
         assert_eq!(resized.rect.src_size_clipped.w, BOARD_D / 2);
         assert_eq!(resized.rect.src_size_clipped.h, BOARD_D);

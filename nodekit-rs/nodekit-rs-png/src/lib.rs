@@ -5,7 +5,7 @@ use std::fs::File;
 use std::io::BufWriter;
 
 pub fn board_to_png(filename: &str, board: &[u8]) {
-    to_png(filename, board, 768, 768, ColorType::Rgb);
+    to_png(filename, board, 1024, 1024, ColorType::Rgb);
 }
 
 pub fn rgb_to_png(filename: &str, buffer: &[u8], width: u32, height: u32) {

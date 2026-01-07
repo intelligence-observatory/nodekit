@@ -7,11 +7,11 @@ use blittle::overlay::*;
 use blittle::*;
 use bytemuck::cast_slice_mut;
 
-pub const BOARD_D: usize = 768;
-pub const BOARD_D_U32: u32 = 768;
-pub const BOARD_D_ISIZE: isize = 768;
-pub const BOARD_D_F64: f64 = 768.;
-pub const BOARD_D_F64_HALF: f64 = 384.;
+pub const BOARD_D: usize = 1024;
+pub const BOARD_D_U32: u32 = 1024;
+pub const BOARD_D_ISIZE: isize = 1024;
+pub const BOARD_D_F64: f64 = 1024.;
+pub const BOARD_D_F64_HALF: f64 = 512.;
 pub const BOARD_SIZE: Size = Size {
     w: BOARD_D,
     h: BOARD_D,
