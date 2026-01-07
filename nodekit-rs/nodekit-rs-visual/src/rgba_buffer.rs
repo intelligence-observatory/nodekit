@@ -2,9 +2,9 @@ use crate::{BOARD_SIZE, Error, STRIDE, resize};
 use blittle::overlay::{
     Vec4, overlay_pixel, rgba8_to_rgba32, rgba8_to_rgba32_color, rgba32_to_rgb8,
 };
-use blittle::stride::RGBA;
 use blittle::{ClippedRect, Size};
 use fast_image_resize::PixelType;
+use nodekit_rs_board_constants::*;
 use nodekit_rs_models::Region;
 
 pub struct RgbaBuffer {
@@ -13,7 +13,7 @@ pub struct RgbaBuffer {
 }
 
 impl RgbaBuffer {
-    pub fn new(rect: ClippedRect, color: [u8; RGBA]) -> Self {
+    pub fn new(rect: ClippedRect, color: RgbaColor) -> Self {
         let color = rgba8_to_rgba32_color(&color);
         let buffer = vec![color; rect.src_size.w * rect.src_size.h];
         Self { buffer, rect }
@@ -33,7 +33,7 @@ impl RgbaBuffer {
         )
     }
 
-    pub fn overlay_pixel_rgba(&mut self, src: &[u8; RGBA], dst_index: usize) {
+    pub fn overlay_pixel_rgba(&mut self, src: &RgbaColor, dst_index: usize) {
         if dst_index < self.buffer.len() {
             overlay_pixel(&rgba8_to_rgba32_color(src), &mut self.buffer[dst_index]);
         }
@@ -44,7 +44,7 @@ impl RgbaBuffer {
     }
 
     /// Overlay a `src` pixel onto a `dst` pixel.
-    pub(crate) const fn overlay_pixel_rgb(src: &[u8; RGBA], dst: &mut [u8; STRIDE]) {
+    pub(crate) const fn overlay_pixel_rgb(src: &RgbaColor, dst: &mut [u8; STRIDE]) {
         // If `src` is totally opaque, then just copy it over.
         if src[3] == 255 {
             dst[0] = src[0];

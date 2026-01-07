@@ -1,8 +1,7 @@
-use crate::*;
 use blittle::overlay::*;
-use blittle::stride::RGBA;
 use blittle::{ClippedRect, PositionI, Size};
 use bytemuck::cast_slice;
+use nodekit_rs_board_constants::*;
 
 const CURSOR_SIZE: Size = Size { w: 34, h: 44 };
 
@@ -10,7 +9,7 @@ const CURSOR_SIZE: Size = Size { w: 34, h: 44 };
 pub struct Cursor(pub Vec<Vec4>);
 
 impl Cursor {
-    pub const fn rect(x: f64, y: f64) -> Option<ClippedRect> {
+    pub const fn rect(x: i64, y: i64) -> Option<ClippedRect> {
         let position = PositionI {
             x: spatial_coordinate(x),
             y: spatial_coordinate(y),
@@ -22,7 +21,7 @@ impl Cursor {
 
 impl Default for Cursor {
     fn default() -> Self {
-        let buffer = cast_slice::<u8, [u8; RGBA]>(include_bytes!("../cursor"))
+        let buffer = cast_slice::<u8, RgbaColor>(include_bytes!("../cursor"))
             .iter()
             .map(rgba8_to_rgba32_color)
             .collect();

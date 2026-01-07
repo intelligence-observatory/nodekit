@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+nodekit-rs-board-constants = { path = "../nodekit-rs-board-constants" }
 pyo3.workspace = true
 pyo3-stub-gen.workspace = true
 slab_tree.workspace = true

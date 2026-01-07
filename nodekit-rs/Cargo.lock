@@ -1754,6 +1754,7 @@ dependencies = [
 name = "nodekit-rs-models"
 version = "0.1.0"
 dependencies = [
+ "nodekit-rs-board-constants",
  "pyo3",
  "pyo3-stub-gen",
  "slab_tree",
@@ -1824,6 +1825,7 @@ dependencies = [
  "blittle",
  "criterion",
  "nodekit-rs-asset",
+ "nodekit-rs-board-constants",
  "nodekit-rs-models",
  "nodekit-rs-png",
  "nodekit-rs-visual",

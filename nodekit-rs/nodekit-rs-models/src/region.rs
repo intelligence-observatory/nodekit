@@ -1,4 +1,5 @@
 use pyo3::prelude::*;
+use nodekit_rs_board_constants::*;
 
 /// A card's spatial region.
 #[derive(Clone, Debug)]
@@ -13,10 +14,10 @@ pub struct Region {
 impl Default for Region {
     fn default() -> Self {
         Self {
-            x: -0.5,
-            y: -0.5,
-            w: 1.,
-            h: 1.,
+            x: -BOARD_D_I64_HALF,
+            y: -BOARD_D_I64_HALF,
+            w: BOARD_D_I64,
+            h: BOARD_D_I64_HALF,
             z_index: None,
         }
     }
@@ -27,10 +28,10 @@ impl<'py> FromPyObject<'_, 'py> for Region {
 
     fn extract(obj: Borrowed<'_, 'py, PyAny>) -> Result<Self, Self::Error> {
         Ok(Self {
-            x: obj.getattr("x")?.extract::<f64>()?,
-            y: obj.getattr("y")?.extract::<f64>()?,
-            w: obj.getattr("w")?.extract::<f64>()?,
-            h: obj.getattr("h")?.extract::<f64>()?,
+            x: obj.getattr("x")?.extract::<i64>()?,
+            y: obj.getattr("y")?.extract::<i64>()?,
+            w: obj.getattr("w")?.extract::<i64>()?,
+            h: obj.getattr("h")?.extract::<i64>()?,
             z_index: obj.getattr("z_index")?.extract::<Option<i64>>()?,
         })
     }

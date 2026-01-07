@@ -11,13 +11,13 @@ mod unclipped_rect;
 mod visual_buffer;
 
 use blittle::Size;
-use blittle::stride::RGBA;
 pub use board::*;
 pub use borrowed_rgba_buffer::*;
 pub use cursor::Cursor;
 pub use error::Error;
 use fast_image_resize::{FilterType, PixelType, ResizeAlg, ResizeOptions, Resizer, SrcCropping};
 use hex_color::HexColor;
+use nodekit_rs_board_constants::*;
 use nodekit_rs_models::Region;
 pub use rgb_buffer::RgbBuffer;
 pub use rgba_buffer::RgbaBuffer;
@@ -26,13 +26,13 @@ pub use visual_buffer::*;
 
 pub const fn to_blittle_size(region: &Region) -> Size {
     Size {
-        w: size_coordinate(region.w),
-        h: size_coordinate(region.h),
+        w: region.w.cast_unsigned() as usize,
+        h: region.h.cast_unsigned() as usize,
     }
 }
 
 /// Convert a hex string e.g. `"#FF0000FF"` to an RGB24 color.
-pub fn parse_color_rgb(color: &str) -> Result<[u8; STRIDE], Error> {
+pub fn parse_color_rgb(color: &str) -> Result<RgbColor, Error> {
     let color = HexColor::parse_rgba(color).map_err(|e| Error::HexColor(color.to_string(), e))?;
     if color.a == 255 {
         Ok([color.r, color.g, color.b])
@@ -45,7 +45,7 @@ pub fn parse_color_rgb(color: &str) -> Result<[u8; STRIDE], Error> {
 }
 
 /// Convert a hex string e.g. `"#FF0000FF"` to an RGB32 color.
-pub fn parse_color_rgba(color: &str) -> Result<[u8; RGBA], Error> {
+pub fn parse_color_rgba(color: &str) -> Result<RgbaColor, Error> {
     let color = HexColor::parse_rgba(color).map_err(|e| Error::HexColor(color.to_string(), e))?;
     Ok(color.to_be_bytes())
 }

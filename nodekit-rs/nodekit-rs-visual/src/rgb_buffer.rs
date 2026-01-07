@@ -1,7 +1,7 @@
 use crate::{BOARD_SIZE, Error, resize};
-use blittle::stride::RGB;
 use blittle::{ClippedRect, Size};
 use fast_image_resize::PixelType;
+use nodekit_rs_board_constants::*;
 use nodekit_rs_models::Region;
 
 /// A raw RGB24 bitmap and its pixel size.
@@ -40,7 +40,7 @@ impl RgbBuffer {
 
 impl From<ClippedRect> for RgbBuffer {
     fn from(value: ClippedRect) -> Self {
-        Self::new(vec![0; value.src_size.w * value.src_size.h * RGB], value)
+        Self::new(vec![0; value.src_size.w * value.src_size.h * STRIDE], value)
     }
 }
 
@@ -74,13 +74,7 @@ mod tests {
         let resized = RgbBuffer::new_resized(
             &mut buffer,
             Size { w: 300, h: 600 },
-            &Region {
-                x: -0.5,
-                y: -0.5,
-                w: 1.,
-                h: 1.,
-                z_index: None,
-            },
+            &Region::default()
         )
         .unwrap()
         .unwrap();

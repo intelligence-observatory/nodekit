@@ -6,6 +6,7 @@ edition = "2024"
 [dependencies]
 blittle.workspace = true
 nodekit-rs-asset = { path = "../nodekit-rs-asset" }
+nodekit-rs-board-constants = { path = "../nodekit-rs-board-constants" }
 nodekit-rs-models = { path = "../nodekit-rs-models" }
 nodekit-rs-visual = { path = "../nodekit-rs-visual" }
 scuffle-ffmpeg.workspace = true

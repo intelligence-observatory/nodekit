@@ -1,5 +1,6 @@
 use blittle::{ClippedRect, PositionI, Size};
 use criterion::{Criterion, criterion_group, criterion_main};
+use nodekit_rs_board_constants::BOARD_SIZE;
 use nodekit_rs_models::Region;
 use nodekit_rs_visual::*;
 

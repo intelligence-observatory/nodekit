@@ -1,5 +1,5 @@
-use crate::{size_coordinate, spatial_coordinate};
 use blittle::{ClippedRect, PositionI, Size};
+use nodekit_rs_board_constants::spatial_coordinate;
 use nodekit_rs_models::Region;
 
 #[derive(Clone, Debug)]
@@ -16,8 +16,8 @@ impl UnclippedRect {
                 y: spatial_coordinate(region.y),
             },
             size: Size {
-                w: size_coordinate(region.w),
-                h: size_coordinate(region.h),
+                w: region.w.cast_unsigned() as usize,
+                h: region.h.cast_unsigned() as usize,
             },
         }
     }
