@@ -9,19 +9,19 @@ def get_state() -> State:
     d = Path(__file__).parent.parent
     cards = [
         nodekit.cards.ImageCard(
-            region=Region(x=-0.25, y=-0.25, w=0.25, h=0.5, z_index=0),
+            region=Region(x=-256, y=-256, w=256, h=512, z_index=0),
             image=nodekit.assets.Image.from_path(
                 d.joinpath("nodekit-rs-image/test_image.png").resolve()
             ),
         ),
         nodekit.cards.VideoCard(
-            region=Region(x=0, y=0, w=0.33, h=0.25, z_index=1),
+            region=Region(x=0, y=0, w=700, h=256, z_index=1),
             video=nodekit.assets.Video.from_path(
                 d.joinpath("nodekit-rs-video/test-video.mp4").resolve()
             ),
         ),
         nodekit.cards.TextCard(
-            region=Region(x=-0.5, y=-0.5, w=1, h=0.1, z_index=2),
+            region=Region(x=-512, y=-512, w=1, h=140, z_index=2),
             text="# Click the **test image**",
             justification_horizontal="left",
             text_color="#000000FF",

@@ -29,13 +29,13 @@ pub struct State {
 }
 
 impl State {
-    pub fn new_inner(board_color: String, mut cards: Vec<Card>, sensor: Option<Card>) -> Self {
+    pub fn new_inner(board_color: String, mut cards: Vec<Card>) -> Self {
         // Include the sensor.
-        if let Some(sensor) = sensor {
+        /*if let Some(sensor) = sensor {
             cards.push(sensor);
             // Set the rendering order.
             Card::sort(&mut cards);
-        }
+        }*/
         // Convert to a map.
         let mut cards_map = SlotMap::with_capacity_and_key(cards.len());
         for card in cards {
@@ -60,12 +60,10 @@ impl State {
     pub fn new(
         board_color: String,
         cards: Bound<'_, PyList>,
-        sensor: Bound<'_, PyAny>,
     ) -> PyResult<Self> {
         Ok(Self::new_inner(
             board_color,
             Card::extract_all(cards)?,
-            Card::extract_sensor(sensor)?,
         ))
     }
 

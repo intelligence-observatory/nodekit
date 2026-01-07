@@ -9,7 +9,7 @@ from nodekit_rs import Renderer
 font_size = 20
 font_padding = 4
 title_height = font_size + font_padding * 2
-board_dimension = 768
+board_dimension = 1024
 dimension = board_dimension * 2 + title_height * 2
 image = Image.new("RGB", (dimension, dimension))
 font_path = Path(
@@ -43,17 +43,17 @@ board = renderer.render(state)
 paste(board, 0)
 
 state.t_msec = 150
-state.set_pointer(x=0.2, y=-0.345)
+state.set_pointer(x=110, y=-176)
 board = renderer.render(state)
 paste(board, 1)
 
 state.t_msec = 220
-state.set_pointer(x=-0.3, y=0.4)
+state.set_pointer(x=-154, y=205)
 board = renderer.render(state)
 paste(board, 2)
 
 state.t_msec = 600
-state.set_pointer(x=0.1, y=-0.2)
+state.set_pointer(x=140, y=-230)
 board = renderer.render(state)
 paste(board, 3)
 
