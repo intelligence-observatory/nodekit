@@ -9,9 +9,11 @@ from nodekit_rs import Renderer
 font_size = 20
 font_padding = 4
 title_height = font_size + font_padding * 2
-board_dimension = 1024
-dimension = board_dimension * 2 + title_height * 2
-image = Image.new("RGB", (dimension, dimension))
+board_width = 1024
+board_height = 768
+width = board_width * 2 + title_height * 2
+height = board_height * 2 + title_height * 2
+image = Image.new("RGB", (width, height))
 font_path = Path(
     "../nodekit-rs-text/fonts/Inter/Inter-VariableFont_opsz,wght.ttf"
 ).resolve()
@@ -20,9 +22,9 @@ draw = ImageDraw.Draw(image)
 # Define the header positions.
 header_positions = [
     (font_padding, font_padding),
-    (font_padding * 2 + board_dimension, font_padding),
-    (font_padding, font_padding + title_height + board_dimension),
-    (font_padding * 2 + board_dimension, font_padding + title_height + board_dimension),
+    (font_padding * 2 + board_width, font_padding),
+    (font_padding, font_padding + title_height + board_height),
+    (font_padding * 2 + board_width, font_padding + title_height + board_height),
 ]
 
 

@@ -63,17 +63,17 @@ impl Renderer {
     }
 
     /// Returns an empty numpy array that can be used by `self.render_to(state, board)`.
-    /// The shape of the returned array is: `(1024, 768, 3)`.
+    /// The shape of the returned array is: `(768, 1024, 3)`.
     #[staticmethod]
     pub fn empty_board<'py>(py: Python<'py>) -> Bound<'py, PyArray3<u8>> {
-        PyArray3::zeros(py, (HORIZONTAL.u_size, VERTICAL.u_size, STRIDE), false)
+        PyArray3::zeros(py, (VERTICAL.u_size, HORIZONTAL.u_size, STRIDE), false)
     }
 
     /// Render `state` and copy the rendered bitmap into `board`.
     ///
     /// This is faster than `self.render(state) because it doesn't allocate a new array.
     ///
-    /// `board`'s data type MUST be `numpy.unit8` and its shape MUST be `(768, 768, 3)`.
+    /// `board`'s data type MUST be `numpy.unit8` and its shape MUST be `(768, 1024, 3)`.
     /// See: `Renderer.empty_board()`.
     pub fn render_to<'py>(
         &mut self,
@@ -90,7 +90,7 @@ impl Renderer {
     }
 
     /// Render `state`.
-    /// Returns a numpy array with shape: `(768, 768, 3)`.
+    /// Returns a numpy array with shape: `(768, 1024, 3)`.
     ///
     /// This is slower than `self.render_to(state, board)` because it needs to allocate a new array.
     pub fn render<'py>(
@@ -101,7 +101,7 @@ impl Renderer {
         let board = self
             .blit(state.borrow_mut().deref_mut())
             .map_err(|e| PyRuntimeError::new_err(e.to_string()))?;
-        let arr = PyArray3::zeros(py, (HORIZONTAL.u_size, VERTICAL.u_size, STRIDE), false);
+        let arr = Renderer::empty_board(py);
         unsafe {
             arr.as_slice_mut()?.copy_from_slice(board);
         }

@@ -16,7 +16,7 @@ class Renderer:
     def empty_board() -> numpy.typing.NDArray[numpy.uint8]:
         r"""
         Returns an empty numpy array that can be used by `self.render_to(state, board)`.
-        The shape of the returned array is: `(1024, 1024, 3)`.
+        The shape of the returned array is: `(768, 1024, 3)`.
         """
     def render_to(self, state: State, board: numpy.typing.NDArray[numpy.uint8]) -> None:
         r"""
@@ -24,13 +24,13 @@ class Renderer:
         
         This is faster than `self.render(state) because it doesn't allocate a new array.
         
-        `board`'s data type MUST be `numpy.unit8` and its shape MUST be `(768, 768, 3)`.
+        `board`'s data type MUST be `numpy.unit8` and its shape MUST be `(768, 1024, 3)`.
         See: `Renderer.empty_board()`.
         """
     def render(self, state: State) -> numpy.typing.NDArray[numpy.uint8]:
         r"""
         Render `state`.
-        Returns a numpy array with shape: `(768, 768, 3)`.
+        Returns a numpy array with shape: `(768, 1024, 3)`.
         
         This is slower than `self.render_to(state, board)` because it needs to allocate a new array.
         """
@@ -47,7 +47,7 @@ class State:
         """
     @t_msec.setter
     def t_msec(self, value: builtins.int) -> None: ...
-    def __new__(cls, board_color: builtins.str, cards: list, hide_pointer: builtins.bool = False) -> State:
+    def __new__(cls, board_color: builtins.str, cards: list, hide_pointer: builtins.bool) -> State:
         r"""
         `board_color` must be a valid RGBA hex string e.g. "#808080ff"
         `cards` must be of type `List[nodekit.Card]`

@@ -31,7 +31,7 @@ def rgb() -> State:
             background_color="#E6E6E6FF",
         ),
     ]
-    return State(board_color="#AAAAAAFF", cards=cards)
+    return State(board_color="#AAAAAAFF", cards=cards, hide_pointer=False)
 
 
 def rgba() -> State:
@@ -56,7 +56,7 @@ def rgba() -> State:
             background_color="#E6E6E633",
         ),
     ]
-    return State(board_color="#AAAAAAFF", cards=cards)
+    return State(board_color="#AAAAAAFF", cards=cards, hide_pointer=False)
 
 
 renderer = Renderer()

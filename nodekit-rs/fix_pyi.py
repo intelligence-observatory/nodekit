@@ -13,8 +13,5 @@ text = re.sub(
     r"@staticmethod\n    \1\2",
     text,
 )
-# Fix hide_pointer.
-hide_pointer = 'hide_pointer: builtins.bool'
-text = text.replace(hide_pointer, f'{hide_pointer} = False')
 
 path.write_text(text)

@@ -28,4 +28,4 @@ def get_state() -> State:
             background_color="#E6E6E611",
         ),
     ]
-    return State(board_color="#AAAAAAFF", cards=cards)
+    return State(board_color="#AAAAAAFF", cards=cards, hide_pointer=False)

@@ -1,5 +1,3 @@
-//! Various constants used to describe the size of the visual board.
-
 use crate::rgb_buffer::RgbBuffer;
 use crate::rgba_buffer::RgbaBuffer;
 use crate::{BorrowedRgbaBuffer, VisualBuffer};
@@ -15,14 +13,17 @@ pub fn bitmap_rgb(width: usize, height: usize, color: RgbColor) -> Vec<u8> {
     bitmap
 }
 
+/// Bitmaps used to render to the board.
 pub struct Board {
+    /// Render all cards to this bitmap.
     board8_without_cursor: Vec<u8>,
+    /// The final bitmap: `board8_without_cursor` + `board32` overlays + the cursor.
     board8_final: Vec<u8>,
-    /// An empty board used to clear the bitmap.
-    board8_clear: Vec<u8>,
+    /// This is used to apply overlays.
     board32: Vec<Vec4>,
-    board32_zeros: Vec<Vec4>,
+    /// If true, the board has been updated.
     dirty: bool,
+    /// The background color.
     color: RgbColor,
 }
 
@@ -34,10 +35,8 @@ impl Board {
         let board32_zeros = vec![Vec4::default(); board32.len()];
         Self {
             board8_without_cursor: board8.clone(),
-            board8_clear: board8.clone(),
             board8_final: board8,
             board32,
-            board32_zeros,
             dirty: false,
             color,
         }
@@ -45,13 +44,11 @@ impl Board {
 
     pub fn fill(&mut self, color: RgbColor) {
         self.color = color;
-        cast_slice_mut::<u8, RgbColor>(&mut self.board8_clear).fill(color);
         self.clear();
     }
 
     pub fn clear(&mut self) {
-        self.board8_without_cursor
-            .copy_from_slice(&self.board8_clear);
+        cast_slice_mut::<u8, RgbColor>(&mut self.board8_without_cursor).fill(self.color);
     }
 
     pub fn blit(&mut self, buffer: &VisualBuffer) {
@@ -136,7 +133,7 @@ impl Board {
             // Apply overlays.
             rgba32_to_rgb8_in_place(&self.board32, &mut self.board8_without_cursor);
             // Clear overlays.
-            self.board32.copy_from_slice(&self.board32_zeros);
+            self.board32.fill(Vec4::ZERO);
             // Clean.
             self.dirty = false;
         }
