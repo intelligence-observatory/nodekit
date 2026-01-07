@@ -3,10 +3,10 @@ use pyo3::prelude::*;
 /// A card's spatial region.
 #[derive(Clone, Debug)]
 pub struct Region {
-    pub x: f64,
-    pub y: f64,
-    pub w: f64,
-    pub h: f64,
+    pub x: i64,
+    pub y: i64,
+    pub w: i64,
+    pub h: i64,
     pub z_index: Option<i64>,
 }
 

@@ -3,9 +3,10 @@
 use png::ColorType;
 use std::fs::File;
 use std::io::BufWriter;
+use nodekit_rs_board_constants::BOARD_D_U32;
 
 pub fn board_to_png(filename: &str, board: &[u8]) {
-    to_png(filename, board, 1024, 1024, ColorType::Rgb);
+    to_png(filename, board, BOARD_D_U32, BOARD_D_U32, ColorType::Rgb);
 }
 
 pub fn rgb_to_png(filename: &str, buffer: &[u8], width: u32, height: u32) {

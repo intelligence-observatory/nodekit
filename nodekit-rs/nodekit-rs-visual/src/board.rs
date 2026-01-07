@@ -6,32 +6,12 @@ use crate::{BorrowedRgbaBuffer, VisualBuffer};
 use blittle::overlay::*;
 use blittle::*;
 use bytemuck::cast_slice_mut;
-
-pub const BOARD_D: usize = 1024;
-pub const BOARD_D_U32: u32 = 1024;
-pub const BOARD_D_ISIZE: isize = 1024;
-pub const BOARD_D_F64: f64 = 1024.;
-pub const BOARD_D_F64_HALF: f64 = 512.;
-pub const BOARD_SIZE: Size = Size {
-    w: BOARD_D,
-    h: BOARD_D,
-};
-pub const STRIDE: usize = stride::RGB;
-
-/// Convert a value between -0.5 and 0.5 into a pixel coordinate.
-pub const fn spatial_coordinate(c: f64) -> isize {
-    (BOARD_D_F64_HALF + BOARD_D_F64 * c) as isize
-}
-
-/// Convert a value between 0 and 1 into a pixel coordinate.
-pub const fn size_coordinate(c: f64) -> usize {
-    (BOARD_D_F64 * c) as usize
-}
+use nodekit_rs_board_constants::*;
 
 /// Create a bitmap and fill it with a color.
-pub fn bitmap_rgb(width: usize, height: usize, color: [u8; STRIDE]) -> Vec<u8> {
+pub fn bitmap_rgb(width: usize, height: usize, color: RgbColor) -> Vec<u8> {
     let mut bitmap = vec![0; width * height * STRIDE];
-    cast_slice_mut::<u8, [u8; STRIDE]>(&mut bitmap).fill(color);
+    cast_slice_mut::<u8, RgbColor>(&mut bitmap).fill(color);
     bitmap
 }
 
@@ -43,11 +23,11 @@ pub struct Board {
     board32: Vec<Vec4>,
     board32_zeros: Vec<Vec4>,
     dirty: bool,
-    color: [u8; STRIDE],
+    color: RgbColor,
 }
 
 impl Board {
-    pub fn new(color: [u8; STRIDE]) -> Self {
+    pub fn new(color: RgbColor) -> Self {
         // Create the boards.
         let board8 = bitmap_rgb(BOARD_D, BOARD_D, color);
         let board32 = rgb8_to_rgba32(&board8);
@@ -63,9 +43,9 @@ impl Board {
         }
     }
 
-    pub fn fill(&mut self, color: [u8; STRIDE]) {
+    pub fn fill(&mut self, color: RgbColor) {
         self.color = color;
-        fill(&mut self.board8_clear, color);
+        cast_slice_mut::<u8, RgbColor>(&mut self.board8_clear).fill(color);
         self.clear();
     }
 
@@ -90,7 +70,7 @@ impl Board {
             &buffer.buffer,
             &mut self.board8_without_cursor,
             &buffer.rect,
-            STRIDE,
+            &PIXEL_TYPE,
         );
     }
 
@@ -200,24 +180,6 @@ impl Default for Board {
 mod tests {
     use super::*;
     use crate::Cursor;
-
-    #[test]
-    fn test_board_constants() {
-        assert_eq!(BOARD_D, BOARD_D_U32 as usize);
-        assert_eq!(BOARD_D, BOARD_D_ISIZE as usize);
-        assert_eq!(BOARD_D, BOARD_D_F64 as usize);
-        assert_eq!(BOARD_D / 2, BOARD_D_F64_HALF as usize);
-    }
-
-    #[test]
-    fn test_coordinates() {
-        assert_eq!(spatial_coordinate(0.), BOARD_D_ISIZE / 2);
-        assert_eq!(spatial_coordinate(-0.5), 0);
-        assert_eq!(spatial_coordinate(0.5), BOARD_D_ISIZE);
-
-        assert_eq!(size_coordinate(0.), 0);
-        assert_eq!(size_coordinate(1.), BOARD_D);
-    }
 
     #[test]
     fn test_blit_cursor() {

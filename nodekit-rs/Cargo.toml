@@ -1,6 +1,7 @@
 [workspace]
 members = [
     "nodekit-rs-asset",
+    "nodekit-rs-board-constants",
     "nodekit-rs-models",
     "nodekit-rs-image",
     "nodekit-rs-png",
@@ -27,7 +28,7 @@ pyo3.workspace = true
 pyo3-stub-gen.workspace = true
 
 [workspace.dependencies]
-blittle = { version = "0.3.3", features = ["overlay"] }
+blittle = { version = "0.4.0", features = ["overlay"] }
 bytemuck = "1.24.0"
 cosmic-text = "0.15.0"
 criterion = "0.7.0"
