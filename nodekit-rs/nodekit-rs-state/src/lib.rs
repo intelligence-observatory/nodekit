@@ -57,14 +57,8 @@ impl State {
     /// `board_color` must be a valid RGBA hex string e.g. "#808080ff"
     /// `cards` must be of type `List[nodekit.Card]`
     #[new]
-    pub fn new(
-        board_color: String,
-        cards: Bound<'_, PyList>,
-    ) -> PyResult<Self> {
-        Ok(Self::new_inner(
-            board_color,
-            Card::extract_all(cards)?,
-        ))
+    pub fn new(board_color: String, cards: Bound<'_, PyList>) -> PyResult<Self> {
+        Ok(Self::new_inner(board_color, Card::extract_all(cards)?))
     }
 
     #[setter]

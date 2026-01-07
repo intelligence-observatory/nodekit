@@ -16,6 +16,8 @@ The size of the final `.whl` file should be approximately 37.5 MB.
 
 ## Usage
 
+### Render
+
 ```python
 from nodekit_rs import Renderer, State
 
@@ -26,9 +28,37 @@ renderer = Renderer()
 board = renderer.render(state)
 ```
 
-`board` is a numpy array of an RGB24 bitmap. Data type is `np.uint8`. Shape is `(768, 768, 3)`.
+`board` is a numpy array of an RGB24 bitmap. Data type is `np.uint8`. Shape is `(1024, 1024, 3)`.
 
-To set the pointer position, call `state.set_pointer(x, y)` where `x` and `y` are floats between -0.5 and 0.5
+### Render in-place
+
+You can, optionally, render to an existing numpy array, which will result in a small performance improvement:
+
+```python
+from nodekit_rs import Renderer, State
+
+cards = get_cards()  # Your code here.
+state = State(board_color="#AAAAAAFF", cards=cards)
+
+renderer = Renderer()
+
+board = renderer.empty_board()  # Get an empty board (a numpy array).
+
+for i in range(100):
+    renderer.render_to(state, board)  # Render into the pre-allocated `board`.
+```
+
+### Stateful information
+
+To set the pointer position, call `state.set_pointer(x, y)` where `x` and `y` are ints between -512 and 512:
+
+```python
+from nodekit_rs import State
+
+cards = get_cards()  # Your code here.
+state = State(board_color="#AAAAAAFF", cards=cards)
+state.set_pointer(0, 0)
+```
 
 If there are video cards, you will need to manually set the current time, in milliseconds:
 
