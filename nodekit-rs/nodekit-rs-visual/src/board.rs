@@ -6,7 +6,7 @@ use crate::{BorrowedRgbaBuffer, VisualBuffer};
 use blittle::overlay::*;
 use blittle::*;
 use bytemuck::cast_slice_mut;
-use nodekit_rs_board_constants::*;
+use nodekit_rs_models::board::*;
 
 /// Create a bitmap and fill it with a color.
 pub fn bitmap_rgb(width: usize, height: usize, color: RgbColor) -> Vec<u8> {

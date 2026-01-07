@@ -1730,13 +1730,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "nodekit-rs-board-constants"
-version = "0.1.0"
-dependencies = [
- "blittle",
-]
-
-[[package]]
 name = "nodekit-rs-image"
 version = "0.1.0"
 dependencies = [
@@ -1754,7 +1747,7 @@ dependencies = [
 name = "nodekit-rs-models"
 version = "0.1.0"
 dependencies = [
- "nodekit-rs-board-constants",
+ "blittle",
  "pyo3",
  "pyo3-stub-gen",
  "slab_tree",
@@ -1765,7 +1758,7 @@ dependencies = [
 name = "nodekit-rs-png"
 version = "0.1.0"
 dependencies = [
- "nodekit-rs-board-constants",
+ "nodekit-rs-models",
  "png",
 ]
 
@@ -1825,7 +1818,6 @@ dependencies = [
  "blittle",
  "criterion",
  "nodekit-rs-asset",
- "nodekit-rs-board-constants",
  "nodekit-rs-models",
  "nodekit-rs-png",
  "nodekit-rs-visual",
@@ -1842,7 +1834,6 @@ dependencies = [
  "criterion",
  "fast_image_resize",
  "hex_color",
- "nodekit-rs-board-constants",
  "nodekit-rs-models",
  "nodekit-rs-png",
  "thiserror",

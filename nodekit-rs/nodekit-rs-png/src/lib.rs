@@ -1,9 +1,9 @@
 //! This crate is used only for test renders.
 
+use nodekit_rs_models::board::BOARD_D_U32;
 use png::ColorType;
 use std::fs::File;
 use std::io::BufWriter;
-use nodekit_rs_board_constants::BOARD_D_U32;
 
 pub fn board_to_png(filename: &str, board: &[u8]) {
     to_png(filename, board, BOARD_D_U32, BOARD_D_U32, ColorType::Rgb);

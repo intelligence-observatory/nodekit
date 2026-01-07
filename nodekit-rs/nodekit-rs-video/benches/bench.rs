@@ -1,14 +1,15 @@
 use criterion::{Criterion, criterion_group, criterion_main};
+use nodekit_rs_models::board::BOARD_D_I64;
 use nodekit_rs_models::{Asset, Region};
 use nodekit_rs_video::*;
 use std::path::PathBuf;
 
 pub fn criterion_benchmark(c: &mut Criterion) {
     let region = Region {
-        x: 0.,
-        y: 0.1,
-        w: 0.4,
-        h: 0.6,
+        x: -BOARD_D_I64,
+        y: 564,
+        w: 410,
+        h: 614,
         z_index: None,
     };
     let mut video = Video::new(&Asset::Path(PathBuf::from("test-video.mp4")), &region)

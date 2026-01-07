@@ -3,7 +3,7 @@ mod error;
 use blittle::Size;
 pub use error::Error;
 use nodekit_rs_asset::load_asset;
-use nodekit_rs_models::{Asset, Region};
+use nodekit_rs_models::{Asset, Region, board::*};
 use nodekit_rs_visual::*;
 use scuffle_ffmpeg::decoder::DecoderOptions;
 use scuffle_ffmpeg::{
@@ -128,10 +128,10 @@ mod tests {
     #[test]
     fn test_video() {
         let region = Region {
-            x: 0.,
-            y: 0.1,
-            w: 0.4,
-            h: 0.6,
+            x: 300,
+            y: -400,
+            w: 410,
+            h: 614,
             z_index: None,
         };
         let mut video = Video::new(&Asset::Path(PathBuf::from("test-video.mp4")), &region)

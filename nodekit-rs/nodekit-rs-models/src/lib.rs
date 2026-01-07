@@ -1,6 +1,7 @@
 //! Extract nodekit Card models into nodekit-rs structs.
 
 mod asset;
+pub mod board;
 mod card_type;
 mod region;
 mod slider;

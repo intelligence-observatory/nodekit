@@ -1,8 +1,8 @@
 use crate::{BOARD_SIZE, Error, resize};
 use blittle::{ClippedRect, Size};
 use fast_image_resize::PixelType;
-use nodekit_rs_board_constants::*;
 use nodekit_rs_models::Region;
+use nodekit_rs_models::board::*;
 
 /// A raw RGB24 bitmap and its pixel size.
 pub struct RgbBuffer {
@@ -71,13 +71,10 @@ mod tests {
     #[test]
     fn test_rgb_buffer_resize() {
         let mut buffer = include_bytes!("../test_files/rgb.raw").to_vec();
-        let resized = RgbBuffer::new_resized(
-            &mut buffer,
-            Size { w: 300, h: 600 },
-            &Region::default()
-        )
-        .unwrap()
-        .unwrap();
+        let resized =
+            RgbBuffer::new_resized(&mut buffer, Size { w: 300, h: 600 }, &Region::default())
+                .unwrap()
+                .unwrap();
         assert_eq!(resized.rect.dst_position_clipped.x, 256);
         assert_eq!(resized.rect.dst_position_clipped.y, 0);
         assert_eq!(resized.rect.src_size_clipped.w, BOARD_D / 2);

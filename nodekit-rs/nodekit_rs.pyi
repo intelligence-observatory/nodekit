@@ -16,7 +16,7 @@ class Renderer:
     def empty_board() -> numpy.typing.NDArray[numpy.uint8]:
         r"""
         Returns an empty numpy array that can be used by `self.render_to(state, board)`.
-        The shape of the returned array is: `(768, 768, 3)`.
+        The shape of the returned array is: `(1024, 1024, 3)`.
         """
     def render_to(self, state: State, board: numpy.typing.NDArray[numpy.uint8]) -> None:
         r"""
@@ -47,14 +47,22 @@ class State:
         """
     @t_msec.setter
     def t_msec(self, value: builtins.int) -> None: ...
-    def __new__(cls, board_color: builtins.str, cards: list) -> State:
+    def __new__(cls, board_color: builtins.str, cards: list, sensor: typing.Any) -> State:
         r"""
         `board_color` must be a valid RGBA hex string e.g. "#808080ff"
         `cards` must be of type `List[nodekit.Card]`
         """
-    def set_pointer(self, x: builtins.float, y: builtins.float) -> None:
+    def set_pointer(self, x: builtins.int, y: builtins.int) -> None:
         r"""
         Set the coordinates of the pointer.
-        The coordinates must be between -0.5 and 0.5
+        The coordinates must be between -512 and 512.
+        """
+    def set_text_entry(self, text: builtins.str) -> None:
+        r"""
+        Try to set the text in a TextEntry sensor.
+        """
+    def set_slider_bin(self, bin: builtins.int) -> None:
+        r"""
+        Try to set the position of a SliderSensor.
         """
 

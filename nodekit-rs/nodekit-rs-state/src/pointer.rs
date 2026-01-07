@@ -1,5 +1,5 @@
 #[derive(Copy, Clone, Debug, Default)]
 pub struct Pointer {
-    pub x: f64,
-    pub y: f64,
+    pub x: i64,
+    pub y: i64,
 }

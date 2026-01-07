@@ -6,7 +6,7 @@ use blittle::ClippedRect;
 pub use error::Error;
 use itertools::Itertools;
 use nodekit_rs_image::*;
-use nodekit_rs_models::CardType;
+use nodekit_rs_models::{CardType, board::*};
 use nodekit_rs_state::*;
 use nodekit_rs_visual::*;
 use numpy::{PyArray3, PyArrayMethods};
@@ -169,8 +169,8 @@ impl Renderer {
         self.cache(state)?;
 
         // Set overlaps.
-        let rects = state
-            .cards
+        let rects = self
+            .assets
             .iter()
             .filter_map(|(k, _)| self.assets[k].rect().map(|rect| (k, rect)))
             .collect::<SecondaryMap<CardKey, ClippedRect>>();
@@ -262,6 +262,7 @@ impl Renderer {
 #[cfg(test)]
 mod tests {
     use crate::Renderer;
+    use nodekit_rs_models::board::{BOARD_D_I64, BOARD_D_I64_HALF};
     use nodekit_rs_models::*;
     use nodekit_rs_state::{CardKey, State};
     use std::path::PathBuf;
@@ -277,10 +278,10 @@ mod tests {
                 font_size: 0.02,
             }),
             region: Region {
-                x: 0.,
-                y: 0.,
-                w: 0.25,
-                h: 0.5,
+                x: -BOARD_D_I64_HALF,
+                y: -BOARD_D_I64_HALF,
+                w: BOARD_D_I64 / 4,
+                h: BOARD_D_I64_HALF,
                 z_index: Some(5),
             },
             dirty: false,
@@ -299,10 +300,10 @@ mod tests {
         assert!(image_path.exists());
         Card {
             region: Region {
-                x: -0.4,
-                y: -0.4,
-                w: 0.3,
-                h: 0.3,
+                x: -205,
+                y: -205,
+                w: 154,
+                h: 154,
                 z_index: Some(0),
             },
             card_type: CardType::Image(Asset::Path(image_path)),
@@ -314,10 +315,10 @@ mod tests {
         let video_path = PathBuf::from("../nodekit-rs-video/test-video.mp4");
         Card {
             region: Region {
-                x: 0.,
-                y: 0.1,
-                w: 0.4,
-                h: 0.6,
+                x: 100,
+                y: 50,
+                w: 410,
+                h: 614,
                 z_index: Some(1),
             },
             card_type: CardType::Video {
@@ -331,11 +332,11 @@ mod tests {
     fn text_card() -> Card {
         Card {
             region: Region {
-                x: -0.5,
-                y: -0.5,
-                w: 1.,
-                h: 1.,
-                z_index: Some(2),
+                x: -BOARD_D_I64_HALF,
+                y: -BOARD_D_I64_HALF,
+                w: BOARD_D_I64,
+                h: BOARD_D_I64,
+                z_index: Some(5),
             },
             card_type: CardType::Text(TextCard {
                 text: include_str!("../../nodekit-rs-text/lorem.txt").to_string(),
@@ -358,21 +359,20 @@ mod tests {
     #[test]
     fn test_dirty_rects() {
         let mut renderer = Renderer::new();
-        let mut state = State::new_inner("#AAAAAAFF".to_string(), vec![image_card()], None);
+        let state = State::new_inner("#AAAAAAFF".to_string(), vec![image_card()], None);
         renderer.start(&state).unwrap();
         // No need to re-blit.
         assert_eq!(renderer.overlaps.len(), 1);
         assert!(renderer.overlaps.values().all(|v| v.is_empty()));
         assert!(state.cards.values().all(|card| !card.dirty));
-        state.cards.clear();
-        state.cards.insert(text_card());
+        let state = State::new_inner("#AAAAAAFF".to_string(), vec![text_card()], None);
         renderer.start(&state).unwrap();
         // No need to re-blit.
         assert_eq!(renderer.overlaps.len(), 1);
         assert!(renderer.overlaps.values().all(|v| v.is_empty()));
         assert!(state.cards.values().all(|card| !card.dirty));
 
-        state = State::new_inner(
+        let state = State::new_inner(
             "#AAAAAAFF".to_string(),
             vec![image_card(), text_card()],
             None,
@@ -385,7 +385,7 @@ mod tests {
         }
         assert!(state.cards.values().all(|card| !card.dirty));
 
-        state = State::new_inner("#AAAAAAFF".to_string(), vec![video_card()], None);
+        let mut state = State::new_inner("#AAAAAAFF".to_string(), vec![video_card()], None);
         renderer.start(&state).unwrap();
         // Always re-blit a video.
         assert_eq!(renderer.overlaps.len(), 1);
@@ -394,7 +394,7 @@ mod tests {
         state.set_t_msec(1);
         assert!(state.cards.values().all(|card| card.dirty));
 
-        state = State::new_inner(
+        let state = State::new_inner(
             "#AAAAAAFF".to_string(),
             vec![image_card(), text_card(), video_card()],
             None,

@@ -5,7 +5,8 @@ use crate::text_entry::text_box::TextBox;
 use blittle::overlay::Vec4;
 use blittle::{ClippedRect, PositionI, Size};
 pub use gutter::Gutter;
-use nodekit_rs_visual::{BOARD_SIZE, Board, BorrowedRgbaBuffer, RgbaBuffer, UnclippedRect};
+use nodekit_rs_models::board::BOARD_SIZE;
+use nodekit_rs_visual::{Board, BorrowedRgbaBuffer, RgbaBuffer, UnclippedRect};
 
 const CORNER_SIZE: usize = 16;
 const CORNER_ISIZE: isize = CORNER_SIZE.cast_signed();

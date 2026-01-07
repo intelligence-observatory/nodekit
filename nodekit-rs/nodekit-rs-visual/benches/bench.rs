@@ -1,7 +1,7 @@
 use blittle::{ClippedRect, PositionI, Size};
 use criterion::{Criterion, criterion_group, criterion_main};
-use nodekit_rs_board_constants::BOARD_SIZE;
 use nodekit_rs_models::Region;
+use nodekit_rs_models::board::BOARD_SIZE;
 use nodekit_rs_visual::*;
 
 fn get_rgb_buffer() -> Vec<u8> {

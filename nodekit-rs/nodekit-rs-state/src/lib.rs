@@ -87,8 +87,8 @@ impl State {
     }
 
     /// Set the coordinates of the pointer.
-    /// The coordinates must be between -0.5 and 0.5
-    pub fn set_pointer(&mut self, x: f64, y: f64) {
+    /// The coordinates must be between -512 and 512.
+    pub fn set_pointer(&mut self, x: i64, y: i64) {
         self.pointer.x = x;
         self.pointer.y = y;
     }

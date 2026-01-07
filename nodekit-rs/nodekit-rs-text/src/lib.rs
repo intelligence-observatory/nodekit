@@ -8,12 +8,12 @@ use cosmic_text::fontdb::Source;
 use cosmic_text::{Align, Attrs, Buffer, Color, Family, FontSystem, Metrics, Shaping, SwashCache};
 pub use error::Error;
 use md::{FontSize, parse};
+use nodekit_rs_models::board::*;
 use nodekit_rs_models::{
     JustificationHorizontal, JustificationVertical, Region, TextCard, TextEntry,
 };
 use nodekit_rs_visual::{
-    BOARD_D_F64, BOARD_SIZE, RgbBuffer, RgbaBuffer, UnclippedRect, VisualBuffer, bitmap_rgb,
-    parse_color_rgba,
+    RgbBuffer, RgbaBuffer, UnclippedRect, VisualBuffer, bitmap_rgb, parse_color_rgba,
 };
 use pyo3::pyclass;
 use std::sync::Arc;
@@ -301,13 +301,7 @@ mod tests {
             text: include_str!("../lorem.txt").to_string(),
             font_size: 0.02,
         };
-        let region = Region {
-            x: -0.4,
-            y: -0.4,
-            w: 0.25,
-            h: 0.5,
-            z_index: None,
-        };
+        let region = Region::default();
 
         // Render the text.
         let mut text = TextEngine::default();

@@ -2,11 +2,10 @@ use super::{CORNER_ISIZE, CORNER_SIZE, GUTTER_HEIGHT, corner};
 use blittle::overlay::{Vec4, rgba8_to_rgba32};
 use blittle::{PositionI, Size};
 use lazy_static::lazy_static;
-use nodekit_rs_visual::{
-    BOARD_SIZE, Board, BorrowedRgbaBuffer, RgbBuffer, UnclippedRect, bitmap_rgb,
-};
+use nodekit_rs_models::board::{BOARD_SIZE, RgbColor};
+use nodekit_rs_visual::{Board, BorrowedRgbaBuffer, RgbBuffer, UnclippedRect, bitmap_rgb};
 
-const COLOR: [u8; 3] = [220; 3];
+const COLOR: RgbColor = [220; 3];
 
 lazy_static! {
     static ref SW: Vec<Vec4> = rgba8_to_rgba32(include_bytes!("../../text_entry/gutter_sw.raw"));
@@ -90,8 +89,8 @@ impl Gutter {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use nodekit_rs_models::board::*;
     use nodekit_rs_png::board_to_png;
-    use nodekit_rs_visual::{BOARD_D, BOARD_D_ISIZE, Board};
 
     #[test]
     fn test_gutter() {

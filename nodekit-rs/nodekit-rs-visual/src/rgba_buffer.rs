@@ -4,8 +4,8 @@ use blittle::overlay::{
 };
 use blittle::{ClippedRect, Size};
 use fast_image_resize::PixelType;
-use nodekit_rs_board_constants::*;
 use nodekit_rs_models::Region;
+use nodekit_rs_models::board::*;
 
 pub struct RgbaBuffer {
     pub buffer: Vec<Vec4>,

@@ -1,6 +1,5 @@
 //! Constants used to define the board's size.
 
-use std::borrow::ToOwned;
 use blittle::{PixelType, Size};
 
 pub const BOARD_D: usize = 1024;

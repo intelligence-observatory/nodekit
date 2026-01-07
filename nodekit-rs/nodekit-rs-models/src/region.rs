@@ -1,5 +1,5 @@
+use crate::board::*;
 use pyo3::prelude::*;
-use nodekit_rs_board_constants::*;
 
 /// A card's spatial region.
 #[derive(Clone, Debug)]
@@ -17,7 +17,7 @@ impl Default for Region {
             x: -BOARD_D_I64_HALF,
             y: -BOARD_D_I64_HALF,
             w: BOARD_D_I64,
-            h: BOARD_D_I64_HALF,
+            h: BOARD_D_I64,
             z_index: None,
         }
     }

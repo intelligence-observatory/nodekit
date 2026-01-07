@@ -3,18 +3,17 @@ use blittle::overlay::{Vec4, rgba8_to_rgba32};
 use blittle::{PositionI, Size};
 use bytemuck::{cast_slice, cast_slice_mut};
 use lazy_static::lazy_static;
-use nodekit_rs_visual::{
-    BOARD_SIZE, Board, BorrowedRgbaBuffer, RgbBuffer, UnclippedRect, bitmap_rgb,
-};
+use nodekit_rs_models::board::{BOARD_SIZE, RgbColor};
+use nodekit_rs_visual::{Board, BorrowedRgbaBuffer, RgbBuffer, UnclippedRect, bitmap_rgb};
 
 lazy_static! {
     static ref NW: Vec<Vec4> = rgba8_to_rgba32(include_bytes!("../../text_entry/text_box_nw.raw"));
     static ref NE: Vec<Vec4> = rgba8_to_rgba32(include_bytes!("../../text_entry/text_box_ne.raw"));
-    static ref LINE: Vec<[u8; 3]> =
-        cast_slice::<u8, [u8; 3]>(include_bytes!("../../text_entry/text_box_line.raw")).to_vec();
+    static ref LINE: Vec<RgbColor> =
+        cast_slice::<u8, RgbColor>(include_bytes!("../../text_entry/text_box_line.raw")).to_vec();
 }
 
-const COLOR: [u8; 3] = [255; 3];
+const COLOR: RgbColor = [255; 3];
 
 /// The background of a TextEntry card.
 pub struct TextBox {
@@ -124,8 +123,9 @@ impl TextBox {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use nodekit_rs_models::board::BOARD_D;
     use nodekit_rs_png::board_to_png;
-    use nodekit_rs_visual::{BOARD_D, Board};
+    use nodekit_rs_visual::Board;
 
     #[test]
     fn test_gutter() {
