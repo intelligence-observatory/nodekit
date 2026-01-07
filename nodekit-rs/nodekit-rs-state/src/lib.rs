@@ -23,13 +23,13 @@ pub struct State {
     /// The background color.
     pub board_color: String,
     /// The position of the cursor.
-    pub pointer: Pointer,
+    pub pointer: Option<Pointer>,
     /// A unique ID.
     pub id: Uuid,
 }
 
 impl State {
-    pub fn new_inner(board_color: String, mut cards: Vec<Card>) -> Self {
+    pub fn new_inner(board_color: String, cards: Vec<Card>, hide_pointer: bool) -> Self {
         // Include the sensor.
         /*if let Some(sensor) = sensor {
             cards.push(sensor);
@@ -41,11 +41,16 @@ impl State {
         for card in cards {
             cards_map.insert(card);
         }
+        let pointer = if hide_pointer {
+            None
+        } else {
+            Some(Pointer::default())
+        };
         Self {
             cards: cards_map,
             t_msec: 0,
             board_color,
-            pointer: Pointer::default(),
+            pointer,
             id: Uuid::new_v4(),
         }
     }
@@ -57,8 +62,16 @@ impl State {
     /// `board_color` must be a valid RGBA hex string e.g. "#808080ff"
     /// `cards` must be of type `List[nodekit.Card]`
     #[new]
-    pub fn new(board_color: String, cards: Bound<'_, PyList>) -> PyResult<Self> {
-        Ok(Self::new_inner(board_color, Card::extract_all(cards)?))
+    pub fn new(
+        board_color: String,
+        cards: Bound<'_, PyList>,
+        hide_pointer: bool,
+    ) -> PyResult<Self> {
+        Ok(Self::new_inner(
+            board_color,
+            Card::extract_all(cards)?,
+            hide_pointer,
+        ))
     }
 
     #[setter]
@@ -81,8 +94,10 @@ impl State {
     /// Set the coordinates of the pointer.
     /// The coordinates must be between -512 and 512.
     pub fn set_pointer(&mut self, x: i64, y: i64) {
-        self.pointer.x = x;
-        self.pointer.y = y;
+        if let Some(pointer) = self.pointer.as_mut() {
+            pointer.x = x;
+            pointer.y = y;
+        }
     }
 
     /// Try to set the text in a TextEntry sensor.

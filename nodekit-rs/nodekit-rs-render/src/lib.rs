@@ -125,10 +125,12 @@ impl Renderer {
         }
 
         // Copy to the final blit.
-        Ok(self.board.blit_cursor(
-            &self.cursor.0,
-            &Cursor::rect(state.pointer.x, state.pointer.y),
-        ))
+        match state.pointer.as_ref() {
+            Some(pointer) => Ok(self
+                .board
+                .blit_cursor(&self.cursor.0, &Cursor::rect(pointer.x, pointer.y))),
+            None => Ok(self.board.get_board_without_cursor()),
+        }
     }
 
     fn is_new_state(&self, state: &State) -> bool {
@@ -271,12 +273,21 @@ mod tests {
     fn test_render() {
         let cards = vec![image_card(), video_card(), text_card()];
 
-        let mut state = State::new_inner("#AAAAAAFF".to_string(), cards);
+        let mut state = State::new_inner("#AAAAAAFF".to_string(), cards, false);
         let mut renderer = Renderer::default();
         render_image(&mut renderer, &mut state, 0, "000.png");
         render_image(&mut renderer, &mut state, 100, "100.png");
         render_image(&mut renderer, &mut state, 200, "200.png");
         render_image(&mut renderer, &mut state, 600, "600.png");
+    }
+
+    #[test]
+    fn test_no_cursor() {
+        let cards = vec![image_card(), video_card(), text_card()];
+
+        let mut state = State::new_inner("#AAAAAAFF".to_string(), cards, true);
+        let mut renderer = Renderer::default();
+        render_image(&mut renderer, &mut state, 0, "no_cursor.png");
     }
 
     fn image_card() -> Card {
@@ -343,20 +354,24 @@ mod tests {
     #[test]
     fn test_dirty_rects() {
         let mut renderer = Renderer::new();
-        let state = State::new_inner("#AAAAAAFF".to_string(), vec![image_card()]);
+        let state = State::new_inner("#AAAAAAFF".to_string(), vec![image_card()], false);
         renderer.start(&state).unwrap();
         // No need to re-blit.
         assert_eq!(renderer.overlaps.len(), 1);
         assert!(renderer.overlaps.values().all(|v| v.is_empty()));
         assert!(state.cards.values().all(|card| !card.dirty));
-        let state = State::new_inner("#AAAAAAFF".to_string(), vec![text_card()]);
+        let state = State::new_inner("#AAAAAAFF".to_string(), vec![text_card()], false);
         renderer.start(&state).unwrap();
         // No need to re-blit.
         assert_eq!(renderer.overlaps.len(), 1);
         assert!(renderer.overlaps.values().all(|v| v.is_empty()));
         assert!(state.cards.values().all(|card| !card.dirty));
 
-        let state = State::new_inner("#AAAAAAFF".to_string(), vec![image_card(), text_card()]);
+        let state = State::new_inner(
+            "#AAAAAAFF".to_string(),
+            vec![image_card(), text_card()],
+            false,
+        );
         renderer.start(&state).unwrap();
         // No need to re-blit.
         assert_eq!(renderer.overlaps.len(), 2);
@@ -365,7 +380,7 @@ mod tests {
         }
         assert!(state.cards.values().all(|card| !card.dirty));
 
-        let mut state = State::new_inner("#AAAAAAFF".to_string(), vec![video_card()]);
+        let mut state = State::new_inner("#AAAAAAFF".to_string(), vec![video_card()], false);
         renderer.start(&state).unwrap();
         // Always re-blit a video.
         assert_eq!(renderer.overlaps.len(), 1);
@@ -377,6 +392,7 @@ mod tests {
         let state = State::new_inner(
             "#AAAAAAFF".to_string(),
             vec![image_card(), text_card(), video_card()],
+            false,
         );
         renderer.start(&state).unwrap();
         // Always re-blit a video.
