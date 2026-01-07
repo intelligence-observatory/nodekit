@@ -1,12 +1,12 @@
 use criterion::{Criterion, criterion_group, criterion_main};
-use nodekit_rs_models::board::BOARD_D_I64_HALF;
+use nodekit_rs_models::board::HORIZONTAL;
 use nodekit_rs_models::{Asset, Region};
 use nodekit_rs_video::*;
 use std::path::PathBuf;
 
 pub fn criterion_benchmark(c: &mut Criterion) {
     let region = Region {
-        x: -BOARD_D_I64_HALF,
+        x: -HORIZONTAL.i_64_half,
         y: -200,
         w: 410,
         h: 614,

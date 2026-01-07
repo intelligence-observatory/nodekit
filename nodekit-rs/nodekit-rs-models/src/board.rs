@@ -2,45 +2,38 @@
 
 use blittle::{PixelType, Size};
 
-pub const BOARD_D: usize = 1024;
-pub const BOARD_D_U32: u32 = 1024;
-pub const BOARD_D_ISIZE: isize = 1024;
-pub const BOARD_D_I64: i64 = 1024;
-pub const BOARD_D_ISIZE_HALF: isize = 512;
-pub const BOARD_D_I64_HALF: i64 = 512;
-pub const BOARD_D_F64: f64 = 1024.;
+macro_rules! dim {
+    ($name:ident, $value:literal) => {
+        pub const $name: BoardDimension = BoardDimension {
+            u_size: $value,
+            u_32: $value,
+            i_size: $value,
+            i_64: $value,
+            i_size_half: $value / 2,
+            i_64_half: $value / 2,
+            f_64: $value as f64,
+        };
+    };
+}
+
+pub struct BoardDimension {
+    pub u_size: usize,
+    pub u_32: u32,
+    pub i_size: isize,
+    pub i_64: i64,
+    pub i_size_half: isize,
+    pub i_64_half: i64,
+    pub f_64: f64,
+}
+
+dim!(HORIZONTAL, 1024);
+dim!(VERTICAL, 768);
+
 pub const BOARD_SIZE: Size = Size {
-    w: BOARD_D,
-    h: BOARD_D,
+    w: HORIZONTAL.u_size,
+    h: VERTICAL.u_size,
 };
 pub const PIXEL_TYPE: PixelType = PixelType::Rgb8;
 pub const STRIDE: usize = PIXEL_TYPE.stride();
 pub type RgbColor = [u8; STRIDE];
 pub type RgbaColor = [u8; PixelType::Rgba8.stride()];
-
-/// Convert a value between -BOARD_D / 2 and BOARD_D / 2 into a pixel coordinate.
-pub const fn spatial_coordinate(c: i64) -> isize {
-    BOARD_D_ISIZE_HALF + c as isize
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_board_constants() {
-        assert_eq!(BOARD_D, BOARD_D_U32 as usize);
-        assert_eq!(BOARD_D, BOARD_D_ISIZE as usize);
-        assert_eq!(BOARD_D, BOARD_D_F64 as usize);
-        assert_eq!(BOARD_D, BOARD_D_I64 as usize);
-        assert_eq!(BOARD_D_ISIZE_HALF, BOARD_D_I64_HALF as isize);
-        assert_eq!(BOARD_D / 2, BOARD_D_ISIZE_HALF as usize);
-    }
-
-    #[test]
-    fn test_coordinates() {
-        assert_eq!(spatial_coordinate(0), BOARD_D_ISIZE_HALF);
-        assert_eq!(spatial_coordinate(-BOARD_D_I64_HALF), 0);
-        assert_eq!(spatial_coordinate(BOARD_D_I64_HALF), BOARD_D_ISIZE);
-    }
-}

@@ -63,10 +63,10 @@ impl Renderer {
     }
 
     /// Returns an empty numpy array that can be used by `self.render_to(state, board)`.
-    /// The shape of the returned array is: `(1024, 1024, 3)`.
+    /// The shape of the returned array is: `(1024, 768, 3)`.
     #[staticmethod]
     pub fn empty_board<'py>(py: Python<'py>) -> Bound<'py, PyArray3<u8>> {
-        PyArray3::zeros(py, (BOARD_D, BOARD_D, STRIDE), false)
+        PyArray3::zeros(py, (HORIZONTAL.u_size, VERTICAL.u_size, STRIDE), false)
     }
 
     /// Render `state` and copy the rendered bitmap into `board`.
@@ -101,7 +101,7 @@ impl Renderer {
         let board = self
             .blit(state.borrow_mut().deref_mut())
             .map_err(|e| PyRuntimeError::new_err(e.to_string()))?;
-        let arr = PyArray3::zeros(py, (BOARD_D, BOARD_D, STRIDE), false);
+        let arr = PyArray3::zeros(py, (HORIZONTAL.u_size, VERTICAL.u_size, STRIDE), false);
         unsafe {
             arr.as_slice_mut()?.copy_from_slice(board);
         }
@@ -264,7 +264,7 @@ impl Renderer {
 #[cfg(test)]
 mod tests {
     use crate::Renderer;
-    use nodekit_rs_models::board::{BOARD_D_I64, BOARD_D_I64_HALF};
+    use nodekit_rs_models::board::*;
     use nodekit_rs_models::*;
     use nodekit_rs_state::{CardKey, State};
     use std::path::PathBuf;
@@ -327,10 +327,10 @@ mod tests {
     fn text_card() -> Card {
         Card {
             region: Region {
-                x: -BOARD_D_I64_HALF,
-                y: -BOARD_D_I64_HALF,
-                w: BOARD_D_I64,
-                h: BOARD_D_I64,
+                x: -HORIZONTAL.i_64_half,
+                y: -VERTICAL.i_64_half,
+                w: HORIZONTAL.i_64,
+                h: VERTICAL.i_64,
                 z_index: Some(5),
             },
             card_type: CardType::Text(TextCard {

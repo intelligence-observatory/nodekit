@@ -1,6 +1,6 @@
 use blittle::{ClippedRect, PositionI, Size};
 use nodekit_rs_models::Region;
-use nodekit_rs_models::board::spatial_coordinate;
+use nodekit_rs_models::board::{HORIZONTAL, VERTICAL};
 
 #[derive(Clone, Debug)]
 pub struct UnclippedRect {
@@ -12,8 +12,8 @@ impl UnclippedRect {
     pub const fn new(region: &Region) -> Self {
         Self {
             position: PositionI {
-                x: spatial_coordinate(region.x),
-                y: spatial_coordinate(region.y),
+                x: HORIZONTAL.i_size_half + region.x as isize,
+                y: VERTICAL.i_size_half + region.y as isize,
             },
             size: Size {
                 w: region.w.cast_unsigned() as usize,

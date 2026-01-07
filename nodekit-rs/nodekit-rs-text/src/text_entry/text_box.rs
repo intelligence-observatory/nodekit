@@ -123,7 +123,7 @@ impl TextBox {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use nodekit_rs_models::board::BOARD_D;
+    use nodekit_rs_models::board::{HORIZONTAL, VERTICAL};
     use nodekit_rs_png::board_to_png;
     use nodekit_rs_visual::Board;
 
@@ -133,8 +133,8 @@ mod tests {
         let header = TextBox::new(
             PositionI { x: 100, y: 100 },
             Size {
-                w: BOARD_D / 2,
-                h: BOARD_D / 3,
+                w: HORIZONTAL.u_size / 2,
+                h: VERTICAL.u_size / 3,
             },
         );
         header.blit(&mut board);

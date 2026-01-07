@@ -14,10 +14,10 @@ pub struct Region {
 impl Default for Region {
     fn default() -> Self {
         Self {
-            x: -BOARD_D_I64_HALF,
-            y: -BOARD_D_I64_HALF,
-            w: BOARD_D_I64,
-            h: BOARD_D_I64,
+            x: -HORIZONTAL.i_64_half,
+            y: -VERTICAL.i_64_half,
+            w: HORIZONTAL.i_64,
+            h: VERTICAL.i_64,
             z_index: None,
         }
     }

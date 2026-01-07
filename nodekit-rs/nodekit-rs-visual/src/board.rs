@@ -29,7 +29,7 @@ pub struct Board {
 impl Board {
     pub fn new(color: RgbColor) -> Self {
         // Create the boards.
-        let board8 = bitmap_rgb(BOARD_D, BOARD_D, color);
+        let board8 = bitmap_rgb(HORIZONTAL.u_size, VERTICAL.u_size, color);
         let board32 = rgb8_to_rgba32(&board8);
         let board32_zeros = vec![Vec4::default(); board32.len()];
         Self {
@@ -187,7 +187,10 @@ mod tests {
         let cursor = Cursor::default();
         nodekit_rs_png::board_to_png(
             "cursor.png",
-            &board.blit_cursor(&cursor.0, &Cursor::rect(BOARD_D_I64_HALF, BOARD_D_I64_HALF)),
+            &board.blit_cursor(
+                &cursor.0,
+                &Cursor::rect(HORIZONTAL.i_64_half, VERTICAL.i_64_half),
+            ),
         );
     }
 }

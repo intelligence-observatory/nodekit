@@ -98,9 +98,9 @@ mod tests {
         let gutter = Gutter::new(
             PositionI {
                 x: 0,
-                y: BOARD_D_ISIZE - 100,
+                y: VERTICAL.i_size - 100,
             },
-            BOARD_D / 2,
+            VERTICAL.u_size / 2,
         );
         gutter.blit(&mut board);
         board_to_png("gutter.png", board.get_board_without_cursor());

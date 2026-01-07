@@ -75,11 +75,10 @@ mod tests {
             RgbBuffer::new_resized(&mut buffer, Size { w: 300, h: 600 }, &Region::default())
                 .unwrap()
                 .unwrap();
-        assert_eq!(resized.rect.dst_position_clipped.x, 256);
+        assert_eq!(resized.rect.dst_position_clipped.x, 320);
         assert_eq!(resized.rect.dst_position_clipped.y, 0);
-        assert_eq!(resized.rect.src_size_clipped.w, BOARD_D / 2);
-        assert_eq!(resized.rect.src_size_clipped.h, BOARD_D);
-        assert_eq!(resized.buffer.len(), (BOARD_D / 2) * BOARD_D * 3);
+        assert_eq!(resized.rect.src_size_clipped.w, 384);
+        assert_eq!(resized.rect.src_size_clipped.h, VERTICAL.u_size);
         nodekit_rs_png::rgb_to_png(
             "rgb_resize.png",
             &resized.buffer,

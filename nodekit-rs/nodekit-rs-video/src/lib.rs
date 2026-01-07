@@ -128,7 +128,7 @@ mod tests {
     #[test]
     fn test_video() {
         let region = Region {
-            x: 300,
+            x: -200,
             y: -400,
             w: 410,
             h: 614,

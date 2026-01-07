@@ -1,12 +1,18 @@
 //! This crate is used only for test renders.
 
-use nodekit_rs_models::board::BOARD_D_U32;
+use nodekit_rs_models::board::*;
 use png::ColorType;
 use std::fs::File;
 use std::io::BufWriter;
 
 pub fn board_to_png(filename: &str, board: &[u8]) {
-    to_png(filename, board, BOARD_D_U32, BOARD_D_U32, ColorType::Rgb);
+    to_png(
+        filename,
+        board,
+        HORIZONTAL.u_32,
+        VERTICAL.u_32,
+        ColorType::Rgb,
+    );
 }
 
 pub fn rgb_to_png(filename: &str, buffer: &[u8], width: u32, height: u32) {

@@ -40,7 +40,8 @@ impl TextEngine {
                 // Get the background buffer.
                 let background = Self::get_background(background_rect, text_card)?;
                 // Get the font sizes.
-                let font_size = FontSize::new((text_card.font_size * BOARD_D_F64).ceil() as u16);
+                let font_size =
+                    FontSize::new((text_card.font_size * HORIZONTAL.f_64).ceil() as u16);
 
                 // Get the size of the text buffer.
                 // Apply padding.
@@ -72,7 +73,8 @@ impl TextEngine {
             None => Ok(None),
             Some(background_rect) => {
                 // Get the font sizes.
-                let font_size = FontSize::new((text_entry.font_size * BOARD_D_F64).ceil() as u16);
+                let font_size =
+                    FontSize::new((text_entry.font_size * HORIZONTAL.f_64).ceil() as u16);
 
                 // Render text.
                 match text_rect(&background_rect) {

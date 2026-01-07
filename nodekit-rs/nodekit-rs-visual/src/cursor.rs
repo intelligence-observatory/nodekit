@@ -11,8 +11,8 @@ pub struct Cursor(pub Vec<Vec4>);
 impl Cursor {
     pub const fn rect(x: i64, y: i64) -> Option<ClippedRect> {
         let position = PositionI {
-            x: spatial_coordinate(x),
-            y: spatial_coordinate(y),
+            x: HORIZONTAL.i_size_half + x as isize,
+            y: VERTICAL.i_size_half + y as isize,
         };
         let size = CURSOR_SIZE;
         ClippedRect::new(position, BOARD_SIZE, size)
