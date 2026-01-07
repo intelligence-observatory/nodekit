@@ -32,7 +32,6 @@ impl Board {
         // Create the boards.
         let board8 = bitmap_rgb(HORIZONTAL.u_size, VERTICAL.u_size, color);
         let board32 = rgb8_to_rgba32(&board8);
-        let board32_zeros = vec![Vec4::default(); board32.len()];
         Self {
             board8_without_cursor: board8.clone(),
             board8_final: board8,
