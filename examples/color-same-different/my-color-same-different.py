@@ -1,12 +1,13 @@
-import nodekit as nk
-from typing import Tuple
 import random
+from typing import Tuple, cast
+
+import nodekit as nk
 
 
 # %%
 def make_same_different_node(
-    color_left: Tuple[int, int, int],
-    color_right: Tuple[int, int, int],
+    color_left: tuple[int, int, int],
+    color_right: tuple[int, int, int],
 ):
     def to_hex(R, G, B):
         hex_str = f"#{R:02x}{G:02x}{B:02x}"
@@ -15,28 +16,29 @@ def make_same_different_node(
     # Make fixation Node
 
     fixation_node = nk.Node(
-        stimulus=nk.cards.ImageCard(
+        card=nk.cards.ImageCard(
             image=nk.assets.Image.from_path("fixation-cross.svg"),
             region=nk.Region(
                 x=0,
                 y=0,
-                w=0.05,
-                h=0.05,
+                w=50,
+                h=50,
+                mask="ellipse",
             ),
         ),
         sensor=nk.sensors.KeySensor(keys=[" "]),
     )
 
-    stim_size = 0.4
+    stim_size = 400
 
     comparison_node = nk.Node(
-        stimulus=nk.cards.CompositeCard(
+        card=nk.cards.CompositeCard(
             children={
                 "left-color": nk.cards.TextCard(  # Hack; I should add the ShapeCard back in...
                     background_color=to_hex(*color_left),
                     text=" ",
                     region=nk.Region(
-                        x=-0.25,
+                        x=-250,
                         y=0,
                         w=stim_size,
                         h=stim_size,
@@ -46,7 +48,7 @@ def make_same_different_node(
                     background_color=to_hex(*color_right),
                     text=" ",
                     region=nk.Region(
-                        x=0.25,
+                        x=250,
                         y=0,
                         w=stim_size,
                         h=stim_size,
@@ -57,9 +59,9 @@ def make_same_different_node(
                     text="Same (f) or Different (j)?",
                     region=nk.Region(
                         x=0,
-                        y=-0.35,
-                        w=0.35,
-                        h=0.07,
+                        y=-350,
+                        w=350,
+                        h=70,
                     ),
                 ),
             }
@@ -68,14 +70,14 @@ def make_same_different_node(
     )
 
     punish_node = nk.Node(
-        stimulus=nk.cards.TextCard(
+        card=nk.cards.TextCard(
             text="WRONG",
-            font_size=0.1,
+            font_size=100,
             region=nk.Region(
                 x=0,
                 y=0,
-                w=0.5,
-                h=0.1,
+                w=500,
+                h=100,
             ),
             text_color=to_hex(50, 50, 50),
         ),
@@ -83,14 +85,14 @@ def make_same_different_node(
     )
 
     reward_node = nk.Node(
-        stimulus=nk.cards.TextCard(
+        card=nk.cards.TextCard(
             text="CORRECT",
-            font_size=0.1,
+            font_size=100,
             region=nk.Region(
                 x=0,
                 y=0,
-                w=0.5,
-                h=0.1,
+                w=500,
+                h=100,
             ),
             text_color=to_hex(50, 50, 50),
         ),
@@ -110,10 +112,7 @@ def make_same_different_node(
             "fixation": nk.transitions.Go(to="main"),
             "main": nk.transitions.IfThenElse(
                 if_=nk.expressions.Eq(
-                    lhs=nk.expressions.GetDictValue(
-                        d=nk.expressions.LastAction(),
-                        key=nk.expressions.Lit(value="key"),
-                    ),
+                    lhs=nk.expressions.LastAction(),
                     rhs=nk.expressions.Lit(value=expected_key),
                 ),
                 then=nk.transitions.Go(to="reward"),
@@ -136,7 +135,7 @@ if __name__ == "__main__":
     random.seed(0)
     trials = []
     for _ in range(50):
-        color1 = (
+        color1: Tuple[int, int, int] = (
             random.randint(0, 255),
             random.randint(0, 255),
             random.randint(0, 255),
@@ -146,7 +145,10 @@ if __name__ == "__main__":
             color2 = color1
         else:
             # Just vary overall i guess
-            color2 = tuple(max(0, min(255, int(c + get_delta()))) for c in color1)
+            color2 = cast(
+                Tuple[int, int, int],
+                tuple(max(0, min(255, int(c + get_delta()))) for c in color1),
+            )
 
         trial = make_same_different_node(
             color_left=color1,

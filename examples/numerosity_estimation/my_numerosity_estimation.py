@@ -11,27 +11,25 @@ def make_numerosity_trial(
         region=nk.Region(
             x=0,
             y=0,
-            w=0.05,
-            h=0.05,
+            w=50,
+            h=50,
+            mask="ellipse",
         ),
     )
 
-    click_sensor = nk.sensors.ClickSensor(region=fixation_card.region)
-
     fixation_node = nk.Node(
-        stimulus=fixation_card,
-        sensor=click_sensor,
+        sensor=nk.sensors.SelectSensor(choices={"fixation": fixation_card}),
     )
 
     # Stimulus Node:
     stimulus_node = nk.Node(
-        stimulus=nk.cards.ImageCard(
+        card=nk.cards.ImageCard(
             image=image,
             region=nk.Region(
                 x=0,
                 y=0,
-                w=0.5,
-                h=0.5,
+                w=500,
+                h=500,
             ),
         ),
         sensor=nk.sensors.WaitSensor(duration_msec=500),
@@ -40,32 +38,32 @@ def make_numerosity_trial(
 
     # ISI Node:
     isi_node = nk.Node(
-        stimulus=None,
+        card=None,
         sensor=nk.sensors.WaitSensor(duration_msec=200),
         hide_pointer=True,
     )
 
     # Choice Node:
     choice_node = nk.Node(
-        stimulus=nk.cards.TextCard(
+        card=nk.cards.TextCard(
             text="How many circles were there?",
             background_color="#ffffff",  # white,
             region=nk.Region(
-                w=0.4,
+                w=400,
                 x=0,
-                y=-0.22,
-                h=0.05,
+                y=-220,
+                h=50,
             ),
         ),
         sensor=nk.sensors.TextEntrySensor(
             region=nk.Region(
                 x=0,
-                y=-0.35,
-                w=0.15,
-                h=0.15,
+                y=-350,
+                w=150,
+                h=150,
             ),
             prompt="",
-            font_size=0.05,
+            font_size=50,
             max_length=100,
         ),
     )

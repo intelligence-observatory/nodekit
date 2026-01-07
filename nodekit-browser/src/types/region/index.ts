@@ -1,10 +1,10 @@
-import type {SpatialPoint, SpatialSize, Mask} from "../value.ts";
+import type {PixelPoint, PixelSize, Mask} from "../values.ts";
 
 export interface Region {
-    x: SpatialPoint;
-    y: SpatialPoint;
-    w: SpatialSize;
-    h: SpatialSize;
+    x: PixelPoint;
+    y: PixelPoint;
+    w: PixelSize;
+    h: PixelSize;
     z_index: number | null;
     mask: Mask
 }

@@ -1,0 +1,33 @@
+import nodekit as nk
+
+
+def make_text_node(text: str) -> nk.Node:
+    stimulus = nk.cards.TextCard(
+        text=text,
+        justification_horizontal="left",
+        justification_vertical="center",
+        font_size=20,
+        region=nk.Region(
+            x=0,
+            y=0,
+            w=1000,
+            h=600,
+        ),
+    )
+    sensor = nk.sensors.KeySensor(keys=[" "])
+    return nk.Node(
+        card=stimulus,
+        sensor=sensor,
+        board_color="#ffffff",
+    )
+
+
+if __name__ == "__main__":
+    from pathlib import Path
+
+    node = make_text_node(
+        text=Path(__file__).parent.joinpath("lorem.txt").resolve().read_text(encoding="utf-8")
+    )
+    graph = nk.concat([node])
+    trace = nk.play(graph)
+    print(trace)

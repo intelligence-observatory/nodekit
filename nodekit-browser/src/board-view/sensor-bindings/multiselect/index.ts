@@ -1,6 +1,6 @@
-import type {MultiSelectSensor} from "../../../types/sensors";
+import type {MultiSelectSensor} from "../../../types/sensors.ts";
 import {SensorBinding} from "../index.ts";
-import type {MultiSelectAction} from "../../../types/actions";
+import type {MultiSelectAction} from "../../../types/actions.ts";
 import type {PointerSample} from "../../../input-streams/pointer-stream.ts";
 import {createCardView} from "../../card-views/create.ts";
 import type {CardView} from "../../card-views/card-view.ts";
@@ -67,7 +67,7 @@ export class MultiSelectSensorBinding extends SensorBinding<MultiSelectSensor> {
         const emitSelection = () => {
             const sensorValue: MultiSelectAction = {
                 action_type: "MultiSelectAction",
-                selections: Array.from(currentSelections),
+                action_value: Array.from(currentSelections),
             };
             this.emit(sensorValue);
         };
@@ -85,6 +85,12 @@ export class MultiSelectSensorBinding extends SensorBinding<MultiSelectSensor> {
             if (confirmed){
                 return
             }
+
+            // Return early if not pointer down
+            if (pointerSample.sampleType !== 'down'){
+                return
+            }
+
             const atMax = currentSelections.size >= maxSelections;
             let changed = false;
 
@@ -99,6 +105,7 @@ export class MultiSelectSensorBinding extends SensorBinding<MultiSelectSensor> {
                 if (!inside) {
                     continue;
                 }
+
 
                 const isSelected = currentSelections.has(cardId);
 
@@ -152,7 +159,7 @@ export class MultiSelectSensorBinding extends SensorBinding<MultiSelectSensor> {
         this.params.boardView.pointerStream.subscribe(pointerCallback);
     }
 
-    start(){
+    protected onStart(){
         for (const cardView of this.choiceCardViews) {
             cardView.onStart();
         }

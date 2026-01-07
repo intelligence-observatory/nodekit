@@ -1,8 +1,10 @@
-from nodekit._internal.types.value import SHA256
-import pydantic
+import hashlib
 from pathlib import Path
 from typing import BinaryIO
-import hashlib
+
+import pydantic
+
+from nodekit._internal.types.values import SHA256
 
 
 def hash_file(path: Path) -> SHA256:

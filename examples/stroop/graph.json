@@ -1,0 +1,1111 @@
+{
+  "start": "0",
+  "nodes": {
+    "0": {
+      "cards": {
+        "instructions": {
+          "selectable": false,
+          "card_type": "TextCard",
+          "x": 0.0,
+          "y": 0.0,
+          "z_index": null,
+          "w": 1.0,
+          "h": 0.8,
+          "start_msec": 0,
+          "end_msec": null,
+          "text": "## Welcome!\nIn this task, you will see words that are names of colors (\"RED\", \"GREEN\", \"BLUE\", \"YELLOW\").\n\nYour job is to identify the **color of the text** as quickly and accurately as possible.\nDo **not** read the word itself; instead, focus on the color in which the word is displayed.\n\n- Press the **R** key if the text is red.\n- Press the **G** key if the text is green.\n- Press the **B** key if the text is blue.\n- Press the **Y** key if the text is yellow.\n\nTry to respond as quickly as you can, but make sure to be accurate.\nPress the **spacebar** to begin each trial.\n\nYou will have a maximum of 5 seconds to respond to each stimulus. If you do not respond within this time, the trial will be marked as \"Too slow!\".\n\nGood luck!\n",
+          "font_size": 0.02,
+          "justification_horizontal": "left",
+          "justification_vertical": "center",
+          "text_color": "#000000ff",
+          "background_color": "#E6E6E600"
+        },
+        "press-spacebar": {
+          "selectable": false,
+          "card_type": "TextCard",
+          "x": 0.0,
+          "y": -0.4,
+          "z_index": null,
+          "w": 0.5,
+          "h": 0.1,
+          "start_msec": 4000,
+          "end_msec": null,
+          "text": "Press the **spacebar** to begin.",
+          "font_size": 0.02,
+          "justification_horizontal": "center",
+          "justification_vertical": "center",
+          "text_color": "#000000ff",
+          "background_color": "#e8e8e8ff"
+        }
+      },
+      "sensors": {
+        "done-reading-instructions": {
+          "sensor_type": "KeySensor",
+          "start_msec": 4000,
+          "end_msec": null,
+          "key": " "
+        }
+      },
+      "effects": [],
+      "board_color": "#ffffffff",
+      "annotation": null
+    },
+    "1/fixation": {
+      "cards": {
+        "fixation-cross": {
+          "selectable": false,
+          "card_type": "TextCard",
+          "x": 0.0,
+          "y": 0.0,
+          "z_index": null,
+          "w": 0.2,
+          "h": 0.2,
+          "start_msec": 0,
+          "end_msec": null,
+          "text": "\\+",
+          "font_size": 0.1,
+          "justification_horizontal": "center",
+          "justification_vertical": "center",
+          "text_color": "#000000ff",
+          "background_color": "#E6E6E600"
+        }
+      },
+      "sensors": {
+        "fixated": {
+          "sensor_type": "KeySensor",
+          "start_msec": 0,
+          "end_msec": null,
+          "key": " "
+        }
+      },
+      "effects": [],
+      "board_color": "#ffffffff",
+      "annotation": null
+    },
+    "1/main": {
+      "cards": {
+        "stroop-stimulus": {
+          "card_type": "TextCard",
+          "text": "RED",
+          "text_color": "#ff0000ff",
+          "x": 0.0,
+          "y": 0.0,
+          "w": 0.5,
+          "h": 0.2,
+          "start_msec": 0,
+          "end_msec": null,
+          "selectable": false,
+          "z_index": null,
+          "font_size": 0.1,
+          "justification_horizontal": "center",
+          "justification_vertical": "center",
+          "background_color": "#E6E6E600"
+        },
+        "key-reminder": {
+          "selectable": false,
+          "card_type": "TextCard",
+          "x": 0.0,
+          "y": -0.2,
+          "z_index": null,
+          "w": 1.0,
+          "h": 0.1,
+          "start_msec": 0,
+          "end_msec": null,
+          "text": "Is the ink color (r)ed, (g)reen, (b)lue, or (y)ellow?",
+          "font_size": 0.02,
+          "justification_horizontal": "center",
+          "justification_vertical": "center",
+          "text_color": "#000000ff",
+          "background_color": "#E6E6E600"
+        }
+      },
+      "sensors": {
+        "red": {
+          "sensor_type": "KeySensor",
+          "start_msec": 0,
+          "end_msec": null,
+          "key": "r"
+        },
+        "green": {
+          "sensor_type": "KeySensor",
+          "start_msec": 0,
+          "end_msec": null,
+          "key": "g"
+        },
+        "blue": {
+          "sensor_type": "KeySensor",
+          "start_msec": 0,
+          "end_msec": null,
+          "key": "b"
+        },
+        "yellow": {
+          "sensor_type": "KeySensor",
+          "start_msec": 0,
+          "end_msec": null,
+          "key": "y"
+        },
+        "timeout": {
+          "sensor_type": "TimeoutSensor",
+          "timeout_msec": 5000
+        }
+      },
+      "effects": [],
+      "board_color": "#ffffffff",
+      "annotation": null
+    },
+    "1/correct": {
+      "cards": {
+        "feedback-message": {
+          "selectable": false,
+          "card_type": "TextCard",
+          "x": 0.0,
+          "y": 0.0,
+          "z_index": null,
+          "w": 0.5,
+          "h": 0.2,
+          "start_msec": 0,
+          "end_msec": null,
+          "text": "Correct!",
+          "font_size": 0.1,
+          "justification_horizontal": "center",
+          "justification_vertical": "center",
+          "text_color": "#000000ff",
+          "background_color": "#E6E6E600"
+        }
+      },
+      "sensors": {
+        "wait": {
+          "sensor_type": "TimeoutSensor",
+          "timeout_msec": 500
+        }
+      },
+      "effects": [],
+      "board_color": "#ffffffff",
+      "annotation": null
+    },
+    "1/incorrect": {
+      "cards": {
+        "feedback-message": {
+          "selectable": false,
+          "card_type": "TextCard",
+          "x": 0.0,
+          "y": 0.0,
+          "z_index": null,
+          "w": 0.5,
+          "h": 0.2,
+          "start_msec": 0,
+          "end_msec": null,
+          "text": "Incorrect.",
+          "font_size": 0.1,
+          "justification_horizontal": "center",
+          "justification_vertical": "center",
+          "text_color": "#000000ff",
+          "background_color": "#E6E6E600"
+        }
+      },
+      "sensors": {
+        "wait": {
+          "sensor_type": "TimeoutSensor",
+          "timeout_msec": 2000
+        }
+      },
+      "effects": [],
+      "board_color": "#ffffffff",
+      "annotation": null
+    },
+    "1/too_slow": {
+      "cards": {
+        "feedback-message": {
+          "selectable": false,
+          "card_type": "TextCard",
+          "x": 0.0,
+          "y": 0.0,
+          "z_index": null,
+          "w": 0.5,
+          "h": 0.2,
+          "start_msec": 0,
+          "end_msec": null,
+          "text": "Too slow!",
+          "font_size": 0.1,
+          "justification_horizontal": "center",
+          "justification_vertical": "center",
+          "text_color": "#000000ff",
+          "background_color": "#E6E6E600"
+        }
+      },
+      "sensors": {
+        "wait": {
+          "sensor_type": "TimeoutSensor",
+          "timeout_msec": 2000
+        }
+      },
+      "effects": [],
+      "board_color": "#ffffffff",
+      "annotation": null
+    },
+    "2/fixation": {
+      "cards": {
+        "fixation-cross": {
+          "selectable": false,
+          "card_type": "TextCard",
+          "x": 0.0,
+          "y": 0.0,
+          "z_index": null,
+          "w": 0.2,
+          "h": 0.2,
+          "start_msec": 0,
+          "end_msec": null,
+          "text": "\\+",
+          "font_size": 0.1,
+          "justification_horizontal": "center",
+          "justification_vertical": "center",
+          "text_color": "#000000ff",
+          "background_color": "#E6E6E600"
+        }
+      },
+      "sensors": {
+        "fixated": {
+          "sensor_type": "KeySensor",
+          "start_msec": 0,
+          "end_msec": null,
+          "key": " "
+        }
+      },
+      "effects": [],
+      "board_color": "#ffffffff",
+      "annotation": null
+    },
+    "2/main": {
+      "cards": {
+        "stroop-stimulus": {
+          "selectable": false,
+          "card_type": "TextCard",
+          "x": 0.0,
+          "y": 0.0,
+          "z_index": null,
+          "w": 0.5,
+          "h": 0.2,
+          "start_msec": 0,
+          "end_msec": null,
+          "text": "GREEN",
+          "font_size": 0.1,
+          "justification_horizontal": "center",
+          "justification_vertical": "center",
+          "text_color": "#0000ffff",
+          "background_color": "#E6E6E600"
+        },
+        "key-reminder": {
+          "selectable": false,
+          "card_type": "TextCard",
+          "x": 0.0,
+          "y": -0.2,
+          "z_index": null,
+          "w": 1.0,
+          "h": 0.1,
+          "start_msec": 0,
+          "end_msec": null,
+          "text": "Is the ink color (r)ed, (g)reen, (b)lue, or (y)ellow?",
+          "font_size": 0.02,
+          "justification_horizontal": "center",
+          "justification_vertical": "center",
+          "text_color": "#000000ff",
+          "background_color": "#E6E6E600"
+        }
+      },
+      "sensors": {
+        "red": {
+          "sensor_type": "KeySensor",
+          "start_msec": 0,
+          "end_msec": null,
+          "key": "r"
+        },
+        "green": {
+          "sensor_type": "KeySensor",
+          "start_msec": 0,
+          "end_msec": null,
+          "key": "g"
+        },
+        "blue": {
+          "sensor_type": "KeySensor",
+          "start_msec": 0,
+          "end_msec": null,
+          "key": "b"
+        },
+        "yellow": {
+          "sensor_type": "KeySensor",
+          "start_msec": 0,
+          "end_msec": null,
+          "key": "y"
+        },
+        "timeout": {
+          "sensor_type": "TimeoutSensor",
+          "timeout_msec": 5000
+        }
+      },
+      "effects": [],
+      "board_color": "#ffffffff",
+      "annotation": null
+    },
+    "2/correct": {
+      "cards": {
+        "feedback-message": {
+          "selectable": false,
+          "card_type": "TextCard",
+          "x": 0.0,
+          "y": 0.0,
+          "z_index": null,
+          "w": 0.5,
+          "h": 0.2,
+          "start_msec": 0,
+          "end_msec": null,
+          "text": "Correct!",
+          "font_size": 0.1,
+          "justification_horizontal": "center",
+          "justification_vertical": "center",
+          "text_color": "#000000ff",
+          "background_color": "#E6E6E600"
+        }
+      },
+      "sensors": {
+        "wait": {
+          "sensor_type": "TimeoutSensor",
+          "timeout_msec": 500
+        }
+      },
+      "effects": [],
+      "board_color": "#ffffffff",
+      "annotation": null
+    },
+    "2/incorrect": {
+      "cards": {
+        "feedback-message": {
+          "selectable": false,
+          "card_type": "TextCard",
+          "x": 0.0,
+          "y": 0.0,
+          "z_index": null,
+          "w": 0.5,
+          "h": 0.2,
+          "start_msec": 0,
+          "end_msec": null,
+          "text": "Incorrect.",
+          "font_size": 0.1,
+          "justification_horizontal": "center",
+          "justification_vertical": "center",
+          "text_color": "#000000ff",
+          "background_color": "#E6E6E600"
+        }
+      },
+      "sensors": {
+        "wait": {
+          "sensor_type": "TimeoutSensor",
+          "timeout_msec": 2000
+        }
+      },
+      "effects": [],
+      "board_color": "#ffffffff",
+      "annotation": null
+    },
+    "2/too_slow": {
+      "cards": {
+        "feedback-message": {
+          "selectable": false,
+          "card_type": "TextCard",
+          "x": 0.0,
+          "y": 0.0,
+          "z_index": null,
+          "w": 0.5,
+          "h": 0.2,
+          "start_msec": 0,
+          "end_msec": null,
+          "text": "Too slow!",
+          "font_size": 0.1,
+          "justification_horizontal": "center",
+          "justification_vertical": "center",
+          "text_color": "#000000ff",
+          "background_color": "#E6E6E600"
+        }
+      },
+      "sensors": {
+        "wait": {
+          "sensor_type": "TimeoutSensor",
+          "timeout_msec": 2000
+        }
+      },
+      "effects": [],
+      "board_color": "#ffffffff",
+      "annotation": null
+    },
+    "3/fixation": {
+      "cards": {
+        "fixation-cross": {
+          "selectable": false,
+          "card_type": "TextCard",
+          "x": 0.0,
+          "y": 0.0,
+          "z_index": null,
+          "w": 0.2,
+          "h": 0.2,
+          "start_msec": 0,
+          "end_msec": null,
+          "text": "\\+",
+          "font_size": 0.1,
+          "justification_horizontal": "center",
+          "justification_vertical": "center",
+          "text_color": "#000000ff",
+          "background_color": "#E6E6E600"
+        }
+      },
+      "sensors": {
+        "fixated": {
+          "sensor_type": "KeySensor",
+          "start_msec": 0,
+          "end_msec": null,
+          "key": " "
+        }
+      },
+      "effects": [],
+      "board_color": "#ffffffff",
+      "annotation": null
+    },
+    "3/main": {
+      "cards": {
+        "stroop-stimulus": {
+          "selectable": false,
+          "card_type": "TextCard",
+          "x": 0.0,
+          "y": 0.0,
+          "z_index": null,
+          "w": 0.5,
+          "h": 0.2,
+          "start_msec": 0,
+          "end_msec": null,
+          "text": "GREEN",
+          "font_size": 0.1,
+          "justification_horizontal": "center",
+          "justification_vertical": "center",
+          "text_color": "#00ff00ff",
+          "background_color": "#E6E6E600"
+        },
+        "key-reminder": {
+          "selectable": false,
+          "card_type": "TextCard",
+          "x": 0.0,
+          "y": -0.2,
+          "z_index": null,
+          "w": 1.0,
+          "h": 0.1,
+          "start_msec": 0,
+          "end_msec": null,
+          "text": "Is the ink color (r)ed, (g)reen, (b)lue, or (y)ellow?",
+          "font_size": 0.02,
+          "justification_horizontal": "center",
+          "justification_vertical": "center",
+          "text_color": "#000000ff",
+          "background_color": "#E6E6E600"
+        }
+      },
+      "sensors": {
+        "red": {
+          "sensor_type": "KeySensor",
+          "start_msec": 0,
+          "end_msec": null,
+          "key": "r"
+        },
+        "green": {
+          "sensor_type": "KeySensor",
+          "start_msec": 0,
+          "end_msec": null,
+          "key": "g"
+        },
+        "blue": {
+          "sensor_type": "KeySensor",
+          "start_msec": 0,
+          "end_msec": null,
+          "key": "b"
+        },
+        "yellow": {
+          "sensor_type": "KeySensor",
+          "start_msec": 0,
+          "end_msec": null,
+          "key": "y"
+        },
+        "timeout": {
+          "sensor_type": "TimeoutSensor",
+          "timeout_msec": 5000
+        }
+      },
+      "effects": [],
+      "board_color": "#ffffffff",
+      "annotation": null
+    },
+    "3/correct": {
+      "cards": {
+        "feedback-message": {
+          "selectable": false,
+          "card_type": "TextCard",
+          "x": 0.0,
+          "y": 0.0,
+          "z_index": null,
+          "w": 0.5,
+          "h": 0.2,
+          "start_msec": 0,
+          "end_msec": null,
+          "text": "Correct!",
+          "font_size": 0.1,
+          "justification_horizontal": "center",
+          "justification_vertical": "center",
+          "text_color": "#000000ff",
+          "background_color": "#E6E6E600"
+        }
+      },
+      "sensors": {
+        "wait": {
+          "sensor_type": "TimeoutSensor",
+          "timeout_msec": 500
+        }
+      },
+      "effects": [],
+      "board_color": "#ffffffff",
+      "annotation": null
+    },
+    "3/incorrect": {
+      "cards": {
+        "feedback-message": {
+          "selectable": false,
+          "card_type": "TextCard",
+          "x": 0.0,
+          "y": 0.0,
+          "z_index": null,
+          "w": 0.5,
+          "h": 0.2,
+          "start_msec": 0,
+          "end_msec": null,
+          "text": "Incorrect.",
+          "font_size": 0.1,
+          "justification_horizontal": "center",
+          "justification_vertical": "center",
+          "text_color": "#000000ff",
+          "background_color": "#E6E6E600"
+        }
+      },
+      "sensors": {
+        "wait": {
+          "sensor_type": "TimeoutSensor",
+          "timeout_msec": 2000
+        }
+      },
+      "effects": [],
+      "board_color": "#ffffffff",
+      "annotation": null
+    },
+    "3/too_slow": {
+      "cards": {
+        "feedback-message": {
+          "selectable": false,
+          "card_type": "TextCard",
+          "x": 0.0,
+          "y": 0.0,
+          "z_index": null,
+          "w": 0.5,
+          "h": 0.2,
+          "start_msec": 0,
+          "end_msec": null,
+          "text": "Too slow!",
+          "font_size": 0.1,
+          "justification_horizontal": "center",
+          "justification_vertical": "center",
+          "text_color": "#000000ff",
+          "background_color": "#E6E6E600"
+        }
+      },
+      "sensors": {
+        "wait": {
+          "sensor_type": "TimeoutSensor",
+          "timeout_msec": 2000
+        }
+      },
+      "effects": [],
+      "board_color": "#ffffffff",
+      "annotation": null
+    },
+    "4/fixation": {
+      "cards": {
+        "fixation-cross": {
+          "selectable": false,
+          "card_type": "TextCard",
+          "x": 0.0,
+          "y": 0.0,
+          "z_index": null,
+          "w": 0.2,
+          "h": 0.2,
+          "start_msec": 0,
+          "end_msec": null,
+          "text": "\\+",
+          "font_size": 0.1,
+          "justification_horizontal": "center",
+          "justification_vertical": "center",
+          "text_color": "#000000ff",
+          "background_color": "#E6E6E600"
+        }
+      },
+      "sensors": {
+        "fixated": {
+          "sensor_type": "KeySensor",
+          "start_msec": 0,
+          "end_msec": null,
+          "key": " "
+        }
+      },
+      "effects": [],
+      "board_color": "#ffffffff",
+      "annotation": null
+    },
+    "4/main": {
+      "cards": {
+        "stroop-stimulus": {
+          "selectable": false,
+          "card_type": "TextCard",
+          "x": 0.0,
+          "y": 0.0,
+          "z_index": null,
+          "w": 0.5,
+          "h": 0.2,
+          "start_msec": 0,
+          "end_msec": null,
+          "text": "RED",
+          "font_size": 0.1,
+          "justification_horizontal": "center",
+          "justification_vertical": "center",
+          "text_color": "#ff0000ff",
+          "background_color": "#E6E6E600"
+        },
+        "key-reminder": {
+          "selectable": false,
+          "card_type": "TextCard",
+          "x": 0.0,
+          "y": -0.2,
+          "z_index": null,
+          "w": 1.0,
+          "h": 0.1,
+          "start_msec": 0,
+          "end_msec": null,
+          "text": "Is the ink color (r)ed, (g)reen, (b)lue, or (y)ellow?",
+          "font_size": 0.02,
+          "justification_horizontal": "center",
+          "justification_vertical": "center",
+          "text_color": "#000000ff",
+          "background_color": "#E6E6E600"
+        }
+      },
+      "sensors": {
+        "red": {
+          "sensor_type": "KeySensor",
+          "start_msec": 0,
+          "end_msec": null,
+          "key": "r"
+        },
+        "green": {
+          "sensor_type": "KeySensor",
+          "start_msec": 0,
+          "end_msec": null,
+          "key": "g"
+        },
+        "blue": {
+          "sensor_type": "KeySensor",
+          "start_msec": 0,
+          "end_msec": null,
+          "key": "b"
+        },
+        "yellow": {
+          "sensor_type": "KeySensor",
+          "start_msec": 0,
+          "end_msec": null,
+          "key": "y"
+        },
+        "timeout": {
+          "sensor_type": "TimeoutSensor",
+          "timeout_msec": 5000
+        }
+      },
+      "effects": [],
+      "board_color": "#ffffffff",
+      "annotation": null
+    },
+    "4/correct": {
+      "cards": {
+        "feedback-message": {
+          "selectable": false,
+          "card_type": "TextCard",
+          "x": 0.0,
+          "y": 0.0,
+          "z_index": null,
+          "w": 0.5,
+          "h": 0.2,
+          "start_msec": 0,
+          "end_msec": null,
+          "text": "Correct!",
+          "font_size": 0.1,
+          "justification_horizontal": "center",
+          "justification_vertical": "center",
+          "text_color": "#000000ff",
+          "background_color": "#E6E6E600"
+        }
+      },
+      "sensors": {
+        "wait": {
+          "sensor_type": "TimeoutSensor",
+          "timeout_msec": 500
+        }
+      },
+      "effects": [],
+      "board_color": "#ffffffff",
+      "annotation": null
+    },
+    "4/incorrect": {
+      "cards": {
+        "feedback-message": {
+          "selectable": false,
+          "card_type": "TextCard",
+          "x": 0.0,
+          "y": 0.0,
+          "z_index": null,
+          "w": 0.5,
+          "h": 0.2,
+          "start_msec": 0,
+          "end_msec": null,
+          "text": "Incorrect.",
+          "font_size": 0.1,
+          "justification_horizontal": "center",
+          "justification_vertical": "center",
+          "text_color": "#000000ff",
+          "background_color": "#E6E6E600"
+        }
+      },
+      "sensors": {
+        "wait": {
+          "sensor_type": "TimeoutSensor",
+          "timeout_msec": 2000
+        }
+      },
+      "effects": [],
+      "board_color": "#ffffffff",
+      "annotation": null
+    },
+    "4/too_slow": {
+      "cards": {
+        "feedback-message": {
+          "selectable": false,
+          "card_type": "TextCard",
+          "x": 0.0,
+          "y": 0.0,
+          "z_index": null,
+          "w": 0.5,
+          "h": 0.2,
+          "start_msec": 0,
+          "end_msec": null,
+          "text": "Too slow!",
+          "font_size": 0.1,
+          "justification_horizontal": "center",
+          "justification_vertical": "center",
+          "text_color": "#000000ff",
+          "background_color": "#E6E6E600"
+        }
+      },
+      "sensors": {
+        "wait": {
+          "sensor_type": "TimeoutSensor",
+          "timeout_msec": 2000
+        }
+      },
+      "effects": [],
+      "board_color": "#ffffffff",
+      "annotation": null
+    },
+    "5/fixation": {
+      "cards": {
+        "fixation-cross": {
+          "selectable": false,
+          "card_type": "TextCard",
+          "x": 0.0,
+          "y": 0.0,
+          "z_index": null,
+          "w": 0.2,
+          "h": 0.2,
+          "start_msec": 0,
+          "end_msec": null,
+          "text": "\\+",
+          "font_size": 0.1,
+          "justification_horizontal": "center",
+          "justification_vertical": "center",
+          "text_color": "#000000ff",
+          "background_color": "#E6E6E600"
+        }
+      },
+      "sensors": {
+        "fixated": {
+          "sensor_type": "KeySensor",
+          "start_msec": 0,
+          "end_msec": null,
+          "key": " "
+        }
+      },
+      "effects": [],
+      "board_color": "#ffffffff",
+      "annotation": null
+    },
+    "5/main": {
+      "cards": {
+        "stroop-stimulus": {
+          "selectable": false,
+          "card_type": "TextCard",
+          "x": 0.0,
+          "y": 0.0,
+          "z_index": null,
+          "w": 0.5,
+          "h": 0.2,
+          "start_msec": 0,
+          "end_msec": null,
+          "text": "RED",
+          "font_size": 0.1,
+          "justification_horizontal": "center",
+          "justification_vertical": "center",
+          "text_color": "#ffff00ff",
+          "background_color": "#E6E6E600"
+        },
+        "key-reminder": {
+          "selectable": false,
+          "card_type": "TextCard",
+          "x": 0.0,
+          "y": -0.2,
+          "z_index": null,
+          "w": 1.0,
+          "h": 0.1,
+          "start_msec": 0,
+          "end_msec": null,
+          "text": "Is the ink color (r)ed, (g)reen, (b)lue, or (y)ellow?",
+          "font_size": 0.02,
+          "justification_horizontal": "center",
+          "justification_vertical": "center",
+          "text_color": "#000000ff",
+          "background_color": "#E6E6E600"
+        }
+      },
+      "sensors": {
+        "red": {
+          "sensor_type": "KeySensor",
+          "start_msec": 0,
+          "end_msec": null,
+          "key": "r"
+        },
+        "green": {
+          "sensor_type": "KeySensor",
+          "start_msec": 0,
+          "end_msec": null,
+          "key": "g"
+        },
+        "blue": {
+          "sensor_type": "KeySensor",
+          "start_msec": 0,
+          "end_msec": null,
+          "key": "b"
+        },
+        "yellow": {
+          "sensor_type": "KeySensor",
+          "start_msec": 0,
+          "end_msec": null,
+          "key": "y"
+        },
+        "timeout": {
+          "sensor_type": "TimeoutSensor",
+          "timeout_msec": 5000
+        }
+      },
+      "effects": [],
+      "board_color": "#ffffffff",
+      "annotation": null
+    },
+    "5/correct": {
+      "cards": {
+        "feedback-message": {
+          "selectable": false,
+          "card_type": "TextCard",
+          "x": 0.0,
+          "y": 0.0,
+          "z_index": null,
+          "w": 0.5,
+          "h": 0.2,
+          "start_msec": 0,
+          "end_msec": null,
+          "text": "Correct!",
+          "font_size": 0.1,
+          "justification_horizontal": "center",
+          "justification_vertical": "center",
+          "text_color": "#000000ff",
+          "background_color": "#E6E6E600"
+        }
+      },
+      "sensors": {
+        "wait": {
+          "sensor_type": "TimeoutSensor",
+          "timeout_msec": 500
+        }
+      },
+      "effects": [],
+      "board_color": "#ffffffff",
+      "annotation": null
+    },
+    "5/incorrect": {
+      "cards": {
+        "feedback-message": {
+          "selectable": false,
+          "card_type": "TextCard",
+          "x": 0.0,
+          "y": 0.0,
+          "z_index": null,
+          "w": 0.5,
+          "h": 0.2,
+          "start_msec": 0,
+          "end_msec": null,
+          "text": "Incorrect.",
+          "font_size": 0.1,
+          "justification_horizontal": "center",
+          "justification_vertical": "center",
+          "text_color": "#000000ff",
+          "background_color": "#E6E6E600"
+        }
+      },
+      "sensors": {
+        "wait": {
+          "sensor_type": "TimeoutSensor",
+          "timeout_msec": 2000
+        }
+      },
+      "effects": [],
+      "board_color": "#ffffffff",
+      "annotation": null
+    },
+    "5/too_slow": {
+      "cards": {
+        "feedback-message": {
+          "selectable": false,
+          "card_type": "TextCard",
+          "x": 0.0,
+          "y": 0.0,
+          "z_index": null,
+          "w": 0.5,
+          "h": 0.2,
+          "start_msec": 0,
+          "end_msec": null,
+          "text": "Too slow!",
+          "font_size": 0.1,
+          "justification_horizontal": "center",
+          "justification_vertical": "center",
+          "text_color": "#000000ff",
+          "background_color": "#E6E6E600"
+        }
+      },
+      "sensors": {
+        "wait": {
+          "sensor_type": "TimeoutSensor",
+          "timeout_msec": 2000
+        }
+      },
+      "effects": [],
+      "board_color": "#ffffffff",
+      "annotation": null
+    }
+  },
+  "transitions": {
+    "1/fixation": {
+      "fixated": "1/main"
+    },
+    "1/main": {
+      "red": "1/correct",
+      "green": "1/incorrect",
+      "blue": "1/incorrect",
+      "yellow": "1/incorrect",
+      "timeout": "1/too_slow"
+    },
+    "0": {
+      "done-reading-instructions": "1/fixation"
+    },
+    "2/fixation": {
+      "fixated": "2/main"
+    },
+    "2/main": {
+      "red": "2/incorrect",
+      "green": "2/incorrect",
+      "blue": "2/correct",
+      "yellow": "2/incorrect",
+      "timeout": "2/too_slow"
+    },
+    "1/correct": {
+      "wait": "2/fixation"
+    },
+    "1/incorrect": {
+      "wait": "2/fixation"
+    },
+    "1/too_slow": {
+      "wait": "2/fixation"
+    },
+    "3/fixation": {
+      "fixated": "3/main"
+    },
+    "3/main": {
+      "red": "3/incorrect",
+      "green": "3/correct",
+      "blue": "3/incorrect",
+      "yellow": "3/incorrect",
+      "timeout": "3/too_slow"
+    },
+    "2/correct": {
+      "wait": "3/fixation"
+    },
+    "2/incorrect": {
+      "wait": "3/fixation"
+    },
+    "2/too_slow": {
+      "wait": "3/fixation"
+    },
+    "4/fixation": {
+      "fixated": "4/main"
+    },
+    "4/main": {
+      "red": "4/correct",
+      "green": "4/incorrect",
+      "blue": "4/incorrect",
+      "yellow": "4/incorrect",
+      "timeout": "4/too_slow"
+    },
+    "3/correct": {
+      "wait": "4/fixation"
+    },
+    "3/incorrect": {
+      "wait": "4/fixation"
+    },
+    "3/too_slow": {
+      "wait": "4/fixation"
+    },
+    "5/fixation": {
+      "fixated": "5/main"
+    },
+    "5/main": {
+      "red": "5/incorrect",
+      "green": "5/incorrect",
+      "blue": "5/incorrect",
+      "yellow": "5/correct",
+      "timeout": "5/too_slow"
+    },
+    "4/correct": {
+      "wait": "5/fixation"
+    },
+    "4/incorrect": {
+      "wait": "5/fixation"
+    },
+    "4/too_slow": {
+      "wait": "5/fixation"
+    }
+  },
+  "nodekit_version": "0.1.0"
+}

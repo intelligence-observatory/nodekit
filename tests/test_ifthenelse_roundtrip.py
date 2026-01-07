@@ -5,11 +5,11 @@ def test_ifthenelse_roundtrip():
     graph = nk.Graph(
         nodes={
             "start": nk.Node(
-                stimulus=None,
+                card=None,
                 sensor=nk.sensors.WaitSensor(duration_msec=1),
             ),
             "done": nk.Node(
-                stimulus=None,
+                card=None,
                 sensor=nk.sensors.WaitSensor(duration_msec=1),
             ),
         },

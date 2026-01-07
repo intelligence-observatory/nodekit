@@ -1,5 +1,5 @@
 import type {Node} from "../types/node.ts";
-import type {Action} from "../types/actions/";
+import type {Action} from "../types/actions.ts";
 import {BoardView} from "../board-view/board-view.ts";
 import {EventScheduler} from "./event-scheduler.ts";
 import type {AssetManager} from "../asset-manager";
@@ -7,7 +7,7 @@ import {createCardView} from "../board-view/card-views/create.ts";
 import {createSensorBinding} from "../board-view/sensor-bindings/create-sensor-binding.ts";
 import type {Clock} from "../clock.ts";
 import {Deferred} from "../utils.ts";
-import type {NodeId} from "../types/value.ts";
+import type {NodeAddress} from "../types/values.ts";
 import type {EventArray} from "../event-array.ts";
 import type {ActionTakenEvent, KeySampledEvent, NodeEndedEvent, NodeStartedEvent, PointerSampledEvent} from "../types/events";
 
@@ -22,10 +22,10 @@ export class NodePlay {
     private deferredAction: Deferred<Action> = new Deferred<Action>()
     private assetManager: AssetManager;
     private eventArray: EventArray;
-    private nodeId: NodeId;
+    private nodeAddress: NodeAddress;
 
     constructor(
-        nodeId: NodeId,
+        nodeAddress: NodeAddress,
         node: Node,
         assetManager: AssetManager,
         clock: Clock,
@@ -34,7 +34,7 @@ export class NodePlay {
         this.eventArray = eventArray;
         this.boardView = new BoardView(node.board_color, clock);
         this.root = this.boardView.root;
-        this.nodeId = nodeId;
+        this.nodeAddress = nodeAddress;
         this.node = node;
         this.scheduler = new EventScheduler();
         this.assetManager=assetManager;
@@ -77,9 +77,9 @@ export class NodePlay {
         )
 
         // Create Stimulus CardView:
-        if (this.node.stimulus){
+        if (this.node.card){
             const cardView = await createCardView(
-                this.node.stimulus,
+                this.node.card,
                 this.boardView,
                 this.assetManager,
             )
@@ -144,7 +144,8 @@ export class NodePlay {
         const eStart: NodeStartedEvent = {
             event_type: 'NodeStartedEvent',
             t: this.boardView.clock.now(),
-            node_id: this.nodeId,
+            node_address: this.nodeAddress,
+            node: this.node,
         }
         this.eventArray.push(eStart)
 
@@ -159,7 +160,7 @@ export class NodePlay {
         // Emit action event:
         const eAction: ActionTakenEvent = {
             event_type: 'ActionTakenEvent',
-            node_id: this.nodeId,
+            node_address: this.nodeAddress,
             action: action,
             t: this.boardView.clock.now(),
         }
@@ -173,7 +174,7 @@ export class NodePlay {
         const eEnd: NodeEndedEvent = {
             event_type: 'NodeEndedEvent',
             t: tEnd,
-            node_id: this.nodeId,
+            node_address: this.nodeAddress,
         }
         this.eventArray.push(eEnd)
 

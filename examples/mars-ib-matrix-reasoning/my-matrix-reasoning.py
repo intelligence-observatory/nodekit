@@ -14,16 +14,10 @@ import nodekit as nk
 class MarsItem(BaseModel):
     form: int = Field(..., description="Test/form family (tfN)")
     item: int = Field(..., description="Item ID within form")
-    tile_type: Literal["M", "T"] = Field(
-        ..., description="'M' for missing tile or 'T' for test option"
-    )
-    tile_index: Optional[int] = Field(
-        None, description="Tile index (1–4) if applicable"
-    )
+    tile_type: Literal["M", "T"] = Field(description="'M' for missing tile or 'T' for test option")
+    tile_index: Optional[int] = Field(description="Tile index (1–4) if applicable")
     shape_set: int = Field(..., description="Shape set index (ss1–ss3)")
-    variant: Optional[Literal["pd", "md"]] = Field(
-        None, description="Presentation variant"
-    )
+    variant: Literal["pd", "md"] | None = Field(default=None, description="Presentation variant")
     ext: str = Field(..., description="File extension (e.g. jpeg)")
 
     @classmethod
@@ -48,16 +42,16 @@ class MarsItem(BaseModel):
 
         gd = match.groupdict()
         tile = gd["tile"]
-        tile_type = "M" if tile == "M" else "T"
-        tile_index = None if tile == "M" else int(tile[1])
 
         return cls(
             form=int(gd["form"]),
             item=int(gd["item"]),
-            tile_type=tile_type,
-            tile_index=tile_index,
+            tile_type="M" if tile == "M" else "T",  # to type as Literal
+            tile_index=None if tile == "M" else int(tile[1]),
             shape_set=int(gd["shape_set"]),
-            variant=gd["variant"],
+            variant="pd"
+            if gd["variant"] == "pd"
+            else ("md" if gd["variant"] == "md" else None),  # type as Literal or None
             ext=gd["ext"],
         )
 
@@ -65,20 +59,20 @@ class MarsItem(BaseModel):
 # %%
 def make_mars_trial(
     grid_image: nk.assets.Image,
-    choices: Tuple[nk.assets.Image, nk.assets.Image, nk.assets.Image, nk.assets.Image],
+    choices: Tuple[nk.assets.Image, ...],
 ) -> nk.Graph:
     # Start with a fixation cross that disappears on its own
     fixation_duration = 1000
 
     fixation_node = nk.Node(
-        stimulus=nk.cards.TextCard(
+        card=nk.cards.TextCard(
             text=r"\+",
-            font_size=0.05,
+            font_size=50,
             region=nk.Region(
                 x=0,
-                y=0.15,
-                w=0.07,
-                h=0.07,
+                y=150,
+                w=70,
+                h=70,
             ),
         ),
         sensor=nk.sensors.WaitSensor(duration_msec=fixation_duration),
@@ -86,12 +80,12 @@ def make_mars_trial(
     )
 
     # Choice cards
-    choice_size = 0.16
-    choice_y = -0.35
+    choice_size = 160
+    choice_y = -350
 
     choice_cards = []
     for i in range(len(choices)):
-        choice_x_cur = -0.375 + 0.25 * i
+        choice_x_cur = int((-0.375 + 0.25 * i) * 1000)
         choice_card = nk.cards.ImageCard(
             image=choices[i],
             region=nk.Region(
@@ -105,13 +99,13 @@ def make_mars_trial(
         choice_cards.append(choice_card)
 
     matrix_node = nk.Node(
-        stimulus=nk.cards.ImageCard(
+        card=nk.cards.ImageCard(
             image=grid_image,
             region=nk.Region(
                 x=0,
-                y=0.15,
-                w=0.5,
-                h=0.5,
+                y=150,
+                w=500,
+                h=500,
             ),
         ),
         sensor=nk.sensors.SelectSensor(
@@ -153,9 +147,7 @@ if __name__ == "__main__":
     for i in range(10):
         item = i + 1
         stim_path = glob.glob(f"./items-png/tf1/{item}/tf1_{item}_M_ss*.png")[0]
-        correct_choice = glob.glob(f"./items-png/tf1/{item}/tf1_{item}_T1_ss*_md.png")[
-            0
-        ]
+        correct_choice = glob.glob(f"./items-png/tf1/{item}/tf1_{item}_T1_ss*_md.png")[0]
         distractor1 = glob.glob(f"./items-png/tf1/{item}/tf1_{item}_T2_ss*_md.png")[0]
         distractor2 = glob.glob(f"./items-png/tf1/{item}/tf1_{item}_T3_ss*_md.png")[0]
         distractor3 = glob.glob(f"./items-png/tf1/{item}/tf1_{item}_T4_ss*_md.png")[0]

@@ -1,6 +1,6 @@
-import type {KeySensor} from "../../../types/sensors";
+import type {KeySensor} from "../../../types/sensors.ts";
 import type {KeySample} from "../../../input-streams/key-stream.ts";
-import type {KeyAction} from "../../../types/actions";
+import type {KeyAction} from "../../../types/actions.ts";
 import {SensorBinding} from "../index.ts";
 
 /**
@@ -18,7 +18,7 @@ export class KeySensorBinding extends SensorBinding<KeySensor> {
             }
             const action: KeyAction = {
                 action_type: "KeyAction",
-                key: keySample.key,
+                action_value: keySample.key,
             };
 
             this.emit(action)

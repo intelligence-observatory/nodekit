@@ -1,9 +1,9 @@
 import atexit
 import hashlib
+import socket
 import threading
 import time
 from pathlib import Path
-from typing import List, Dict
 
 import fastapi
 import fastapi.responses
@@ -11,36 +11,39 @@ import fastapi.templating
 import pydantic
 import uvicorn
 
-from nodekit import Graph
+from nodekit import Graph, Node
+from nodekit._internal.ops.open_asset_save_asset import open_asset
+from nodekit._internal.types.assets import URL, Asset
+from nodekit._internal.types.events import Event, EventTypeEnum
+from nodekit._internal.types.trace import Trace
+from nodekit._internal.types.transitions import End
+from nodekit._internal.types.values import SHA256
 from nodekit._internal.utils.get_browser_bundle import get_browser_bundle
 from nodekit._internal.utils.iter_assets import iter_assets
-from nodekit._internal.types.assets import URL, Asset
-from nodekit._internal.types.value import SHA256
-from nodekit._internal.types.events.events import Event, EventTypeEnum
-from nodekit._internal.types.trace import Trace
-from nodekit._internal.ops.open_asset_save_asset import open_asset
 
 
 # %%
 class LocalRunner:
     def __init__(
         self,
-        port: int = 7651,
+        port: int,
         host: str = "127.0.0.1",
     ):
         self._lock = threading.RLock()
         self._thread: threading.Thread | None = None
         self._server: uvicorn.Server | None = None
         self._running = False
+        self._error: BaseException | None = None
+        self._error_event = threading.Event()
 
         self.port = port
         self.host = host
 
         # In-memory state of the runner:
         self._graph: Graph | None = None
-        self._events: List[Event] = []
+        self._events: list[Event] = []
 
-        self.asset_id_to_asset: Dict[SHA256, Asset] = {}
+        self.asset_id_to_asset: dict[SHA256, Asset] = {}
 
         # Initialize FastAPI app
         self.app = self._build_app()
@@ -57,8 +60,26 @@ class LocalRunner:
                 port=self.port,
                 log_level="warning",
             )
+
             self._server = uvicorn.Server(config=config)
-            self._thread = threading.Thread(target=self._server.run, daemon=True)
+            try:
+                family = socket.AF_INET6 if self.host and ":" in self.host else socket.AF_INET
+                bound_socket = socket.socket(family=family)
+                bound_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                bound_socket.bind((self.host, self.port))
+                bound_socket.set_inheritable(True)
+            except OSError:
+                self._server = None
+                raise
+
+            # Update the port in case we bound to an ephemeral port (e.g., port=0).
+            self.port = bound_socket.getsockname()[1]
+
+            self._thread = threading.Thread(
+                target=self._server.run,
+                kwargs={"sockets": [bound_socket]},
+                daemon=True,
+            )
             self._thread.start()
             self._running = True
 
@@ -120,9 +141,7 @@ class LocalRunner:
         def get_nodekit_css(css_hash: str) -> fastapi.responses.PlainTextResponse:
             if not css_hash == NODEKIT_CSS_HASH:
                 raise fastapi.HTTPException(status_code=404, detail="CSS not found")
-            return fastapi.responses.PlainTextResponse(
-                bundle.css, media_type="text/css"
-            )
+            return fastapi.responses.PlainTextResponse(bundle.css, media_type="text/css")
 
         @app.get("/health")
         def health():
@@ -190,39 +209,104 @@ class LocalRunner:
             self._events.append(event)
             return fastapi.Response(status_code=fastapi.status.HTTP_204_NO_CONTENT)
 
+        @app.exception_handler(Exception)
+        async def handle_exception(
+            request: fastapi.Request, exc: Exception
+        ) -> fastapi.responses.JSONResponse:
+            self._record_error(exc)
+            return fastapi.responses.JSONResponse(
+                status_code=500, content={"detail": "Internal server error"}
+            )
+
         return app
 
     @property
     def url(self) -> str:
         return f"http://{self.host}:{self.port}"
 
-    def list_events(self) -> List[Event]:
+    def list_events(self) -> list[Event]:
         with self._lock:
             return list(self._events)
+
+    def has_error(self) -> bool:
+        return self._error_event.is_set()
+
+    def get_error(self) -> BaseException | None:
+        with self._lock:
+            return self._error
+
+    def _record_error(self, exc: BaseException) -> None:
+        with self._lock:
+            if self._error is None:
+                self._error = exc
+                self._error_event.set()
+                if self._server is not None:
+                    self._server.should_exit = True
 
 
 # %%
 def play(
-    graph: Graph,
+    graph: Graph | Node,
+    port: int | None = None,
 ) -> Trace:
     """
-    Runs the Graph at http://localhost:{port}.
-    Blocks until the Trace is complete.
+    Play the given Graph locally, then return the Trace.
+    If a Node is given, it will be wrapped into a Graph with a single Node.
+
+    Args:
+        graph: The Graph or Node to play.
+        port: The port to connect to.
+    Returns:
+        The Trace of Events observed during execution.
+
     """
-    runner = LocalRunner()
-    runner.ensure_running()
-    runner.set_graph(graph)
+    if isinstance(graph, Node):
+        # Wrap single Node into a Graph so the runner always receives a Graph.
+        graph = Graph(
+            nodes={
+                "": graph,
+            },
+            start="",
+            transitions={"": End()},
+        )
 
-    print("Play the Graph at:\n", runner.url)
-
-    # Wait until the End Event is observed:
-    while True:
-        events = runner.list_events()
-        if any([e.event_type == EventTypeEnum.TraceEndedEvent for e in events]):
+    # Candidate ports to try if the requested one is unavailable.
+    if port is None:
+        candidate_ports = [7651, 8765, 8822, 8877, 8933, 8999, 0]
+    else:
+        candidate_ports = [port]
+    runner: LocalRunner | None = None
+    last_error: BaseException | None = None
+    for candidate in candidate_ports:
+        try:
+            runner = LocalRunner(port=candidate)
+            runner.ensure_running()
+            runner.set_graph(graph)
             break
-        time.sleep(1)
+        except Exception as exc:  # noqa: BLE001 - broad by design to retry on any failure
+            last_error = exc
+            if runner is not None:
+                runner.shutdown()
+                runner = None
+            continue
 
-    # Shut down the server:
-    runner.shutdown()
+    if runner is None:
+        raise RuntimeError("Failed to initialize LocalRunner on any candidate port") from last_error
 
-    return Trace(events=events)
+    try:
+        print("Play the Graph at:\n", runner.url)
+
+        # Wait until the End Event is observed or an error is recorded:
+        while True:
+            if runner.has_error():
+                raise RuntimeError("Local runner encountered an error") from runner.get_error()
+
+            events = runner.list_events()
+            if any(e.event_type == EventTypeEnum.TraceEndedEvent for e in events):
+                break
+            time.sleep(0.1)
+
+        return Trace(events=events)
+    finally:
+        # Shut down the server no matter how we exit
+        runner.shutdown()

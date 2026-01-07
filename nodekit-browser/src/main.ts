@@ -3,7 +3,7 @@ import {Clock} from "./clock.ts";
 import type {Graph, Trace} from "./types/node.ts";
 import {sampleBrowserContext} from "./user-gates/browser-context.ts";
 import {userDeviceIsValid} from "./user-gates/device-gate.ts";
-import type {NodeId, RegisterId, TimeElapsedMsec} from "./types/value.ts";
+import type {NodeAddress, NodeId, RegisterId, TimeElapsedMsec} from "./types/values.ts";
 import {createNodeKitRootDiv} from "./ui/ui-builder.ts";
 import {AssetManager} from "./asset-manager";
 import {ShellUI} from "./ui/shell-ui/shell-ui.ts";
@@ -12,12 +12,14 @@ import {NodePlay} from "./node-play";
 import {version as NODEKIT_VERSION} from '../package.json'
 import {gt, major} from 'semver';
 import {EventArray} from "./event-array.ts";
+import {formatErrorReport} from "./error-reporting/format-error-report.ts";
 
 import {evalTransition} from "./node-play/eval-transition.ts";
-import type {Action} from "./types/actions";
+import {getSubmissionTarget} from "./submission/get-submission-target.ts";
+import {submit} from "./submission/submit.ts";
 
 /**
- * Plays a Graph, returning a Trace of Events.
+ * Plays a Graph.
  * @param graph
  * @param onEventCallback
  * @param debugMode
@@ -26,13 +28,7 @@ export async function play(
     graph: Graph,
     onEventCallback: ((event: Event) => void) = (_event: Event) => {},
     debugMode: boolean = false,
-): Promise<Trace> {
-
-    const clock = new Clock();
-    clock.start()
-
-    const eventArray = new EventArray(onEventCallback);
-
+): Promise<void> {
     // Initialize divs:
     const nodeKitDiv = createNodeKitRootDiv();
     const shellUI = new ShellUI()
@@ -40,97 +36,144 @@ export async function play(
     const boardViewsContainerDiv = getBoardViewsContainerDiv();
     nodeKitDiv.appendChild(boardViewsContainerDiv)
 
-    // Version gate:
-    if (gt(graph.nodekit_version, NODEKIT_VERSION) || major(graph.nodekit_version) !== major(NODEKIT_VERSION)) {
-        throw new Error(`Incompatible NodeKit version requested: ${graph.nodekit_version}, Runtime version: ${NODEKIT_VERSION}`);
-    }
 
-    // Device gate:
-    if (!userDeviceIsValid()) {
-        const error = new Error('Unsupported device for NodeKit. Please use a desktop browser.');
-        shellUI.showErrorOverlay(error);
-        throw error;
-    }
+    let submissionTarget: ReturnType<typeof getSubmissionTarget> | null = null;
 
-    shellUI.showSessionConnectingOverlay()
-    const assetManager = new AssetManager();
 
-    shellUI.hideSessionConnectingOverlay()
+    try{
+        // Get submission context:
+        submissionTarget = getSubmissionTarget();
 
-    // Start screen:
-    if (!debugMode) {
-        await shellUI.playStartScreen()
-    }
-
-    const startEvent: TraceStartedEvent = {
-        event_type: "TraceStartedEvent",
-        t: 0 as TimeElapsedMsec,
-    }
-    eventArray.push(startEvent);
-
-    // Add a listener for the LeaveEvent:
-    function onVisibilityChange() {
-        if (document.visibilityState === "hidden") {
-            // Triggered when the document becomes hidden (e.g., user switches tabs or minimizes the window)
-            const leaveEvent: PageSuspendedEvent = {
-                event_type: "PageSuspendedEvent",
-                t: clock.now(),
-            };
-            eventArray.push(leaveEvent);
-        } else if (document.visibilityState === "visible") {
-            // Triggered when the document becomes visible again
-            const returnEvent: PageResumedEvent = {
-                event_type: "PageResumedEvent",
-                t: clock.now(),
-            };
-            eventArray.push(returnEvent);
+        // Check if guarded by
+        if (submissionTarget.externalPlatformContext.platform === "MechanicalTurkPreviewMode"){
+            // And feed it with a custom Turk message here (regarding preview mode)
+            shellUI.showConsoleMessageOverlay(
+                'Mechanical Turk Preview Mode',
+                'Accept the HIT to continue.',
+            )
+            return
         }
-    }
 
-    document.addEventListener("visibilitychange", onVisibilityChange)
+        // Start:
+        const clock = new Clock();
+        clock.start()
 
-    // Emit the BrowserContextEvent:
-    const browserContextEvent = sampleBrowserContext(clock);
-    eventArray.push(browserContextEvent);
+        const eventArray = new EventArray(onEventCallback);
 
-    // Core play loop:
-    await playGraph(
-        graph,
-        '', // Root namespace
-        {
-            eventArray: eventArray,
-            boardViewsContainerDiv: boardViewsContainerDiv,
-            assetManager: assetManager,
-            clock: clock,
+        // Version gate:
+        if (gt(graph.nodekit_version, NODEKIT_VERSION) || major(graph.nodekit_version) !== major(NODEKIT_VERSION)) {
+            throw new Error(`Incompatible NodeKit version requested: ${graph.nodekit_version}, Runtime version: ${NODEKIT_VERSION}`);
         }
-    )
 
-    // Generate the EndEvent:
-    const endEvent: TraceEndedEvent = {
-        event_type: "TraceEndedEvent",
-        t: clock.now(),
+        // Device gate:
+        if (!userDeviceIsValid()) {
+            throw new Error('Unsupported device for NodeKit. Please use a desktop browser.');
+        }
+
+        shellUI.showSessionConnectingOverlay()
+        const assetManager = new AssetManager();
+        shellUI.hideSessionConnectingOverlay()
+
+        // Start screen:
+        if (!debugMode) {
+            await shellUI.playStartScreen()
+        }
+
+        const startEvent: TraceStartedEvent = {
+            event_type: "TraceStartedEvent",
+            t: 0 as TimeElapsedMsec,
+        }
+        eventArray.push(startEvent);
+
+        // Add a listener for the LeaveEvent:
+        function onVisibilityChange() {
+            if (document.visibilityState === "hidden") {
+                // Triggered when the document becomes hidden (e.g., user switches tabs or minimizes the window)
+                const leaveEvent: PageSuspendedEvent = {
+                    event_type: "PageSuspendedEvent",
+                    t: clock.now(),
+                };
+                eventArray.push(leaveEvent);
+            } else if (document.visibilityState === "visible") {
+                // Triggered when the document becomes visible again
+                const returnEvent: PageResumedEvent = {
+                    event_type: "PageResumedEvent",
+                    t: clock.now(),
+                };
+                eventArray.push(returnEvent);
+            }
+        }
+
+        document.addEventListener("visibilitychange", onVisibilityChange)
+
+        // Emit the BrowserContextEvent:
+        const browserContextEvent = sampleBrowserContext(clock);
+        eventArray.push(browserContextEvent);
+
+        // Core play loop:
+        await playGraph(
+            graph,
+            [], // Root namespace
+            {
+                eventArray: eventArray,
+                boardViewsContainerDiv: boardViewsContainerDiv,
+                assetManager: assetManager,
+                clock: clock,
+            }
+        )
+
+        // Generate the EndEvent:
+        const endEvent: TraceEndedEvent = {
+            event_type: "TraceEndedEvent",
+            t: clock.now(),
+        }
+        eventArray.push(endEvent);
+
+        // Remove the visibility change listener:
+        document.removeEventListener("visibilitychange", onVisibilityChange);
+
+        // Assemble trace:
+        const trace: Trace = {
+            nodekit_version: NODEKIT_VERSION,
+            events: eventArray.events,
+        }
+
+        // End screen:
+        await shellUI.playEndScreen()
+
+        // Submit:
+        await submit(trace, submissionTarget);
+
+        // Show the Trace in the console:
+        shellUI.showConsoleMessageOverlay(
+            'Trace',
+            '',
+            trace,
+        );
+
+        return
+    } catch (error) {
+        let submissionTargetContext: unknown = submissionTarget;
+        if (!submissionTargetContext) {
+            try {
+                submissionTargetContext = getSubmissionTarget();
+            } catch (submissionTargetError) {
+                submissionTargetContext = {error: String(submissionTargetError)};
+            }
+        }
+        const report = formatErrorReport(error, {
+            nodekitVersion: NODEKIT_VERSION,
+            graphVersion: graph.nodekit_version,
+            debugMode,
+            submissionTarget: submissionTargetContext,
+        });
+        shellUI.showConsoleMessageOverlay(
+            'Something went wrong. ',
+            'Please copy the error report below and email it to the requester.',
+            report,
+        );
+        throw error
     }
-    eventArray.push(endEvent);
-
-    // Remove the visibility change listener:
-    document.removeEventListener("visibilitychange", onVisibilityChange);
-
-    // Assemble trace:
-    const trace: Trace = {
-        nodekit_version: NODEKIT_VERSION,
-        events: eventArray.events,
-    }
-
-    // End screen:
-    await shellUI.playEndScreen()
-
-    // Show the Trace in the console:
-    shellUI.showConsoleMessageOverlay(
-        'Trace',
-        trace,
-    );
-
-    return trace
 }
 
 
@@ -141,31 +184,30 @@ export interface PlayGraphContext {
     clock: Clock,
 }
 
+type RegisterFile = Readonly<Record<RegisterId, any>>;
 async function playGraph(
     graph: Graph,
-    namespace: string,
+    parentAddress: NodeAddress,
     context: PlayGraphContext,
-): Promise<Action> {
-
+): Promise<RegisterFile> {
 
     const nodes = graph.nodes;
-
-    const getNamespacedNodeId = (nodeId: NodeId): NodeId => {
-        return (namespace + nodeId) as NodeId;
-    }
+    const registers = { ...graph.registers };
 
     // Assemble transition map:
     let currentNodeId: NodeId = graph.start;
     let lastAction = null;
+    let lastSubgraphRegisters: Record<RegisterId, any> | null = null;
 
     while (true) {
         const node = nodes[currentNodeId];
+        const currentNodeAddress: NodeAddress = [...parentAddress, currentNodeId];
 
         // If a Graph, recurse.
         if (node.type === 'Graph') {
-            lastAction = await playGraph(
+            lastSubgraphRegisters = await playGraph(
                 node,
-                currentNodeId + '/', // New namespace
+                currentNodeAddress,
                 context
             )
         }
@@ -173,7 +215,7 @@ async function playGraph(
         else if (node.type === 'Node') {
             // Create and prepare the NodePlay:
             const nodePlay = new NodePlay(
-                getNamespacedNodeId(currentNodeId),
+                currentNodeAddress,
                 node,
                 context.assetManager,
                 context.clock,
@@ -206,8 +248,9 @@ async function playGraph(
         const res = evalTransition(
             {
                 transition: transition,
-                registers: graph.registers,
-                lastAction: lastAction
+                registers: registers,
+                lastAction: lastAction,
+                lastSubgraphRegisters: lastSubgraphRegisters,
             }
         )
         // Set next Node:
@@ -217,10 +260,16 @@ async function playGraph(
         }
         currentNodeId = nextNodeId;
 
+
         // Update Graph registers
         for (const [registerId, updateValue] of Object.entries(res.registerUpdates)) {
-            graph.registers[registerId as RegisterId] = updateValue
+            registers[registerId as RegisterId] = updateValue
         }
+
+        // Reset last:
+        lastSubgraphRegisters = null;
+        lastAction = null;
     }
-    return lastAction
+
+    return registers;
 }

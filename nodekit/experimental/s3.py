@@ -7,7 +7,7 @@ from typing import BinaryIO
 import hashlib
 import mimetypes
 
-from nodekit._internal.types.value import SHA256, MediaType
+from nodekit._internal.types.values import SHA256, MediaType
 import os
 from pathlib import Path
 
@@ -55,9 +55,7 @@ class S3Client:
     ) -> str:
         ext = mimetypes.guess_extension(mime_type)
         if ext is None:
-            raise ValueError(
-                f"Could not determine file extension for mime type {mime_type}"
-            )
+            raise ValueError(f"Could not determine file extension for mime type {mime_type}")
         return f"assets/{mime_type}/{sha256}{ext}"
 
     def _assemble_s3_url(self, key: str) -> pydantic.HttpUrl:
@@ -102,9 +100,7 @@ class S3Client:
         # ---- derive a safe S3 key
         ext = mimetypes.guess_extension(mime_type)
         if ext is None:
-            raise ValueError(
-                f"Could not determine file extension for mime type {mime_type}"
-            )
+            raise ValueError(f"Could not determine file extension for mime type {mime_type}")
 
         # First I/O pass: compute SHA256
         try:
@@ -125,9 +121,7 @@ class S3Client:
         sha256 = sha256.hexdigest()
 
         if not claimed_sha256 == sha256:
-            raise ValueError(
-                f"SHA256 mismatch: claimed {claimed_sha256}, computed {sha256}"
-            )
+            raise ValueError(f"SHA256 mismatch: claimed {claimed_sha256}, computed {sha256}")
 
         # Return immediately if already uploaded:
         key = self._derive_s3_key(sha256=sha256, mime_type=mime_type)

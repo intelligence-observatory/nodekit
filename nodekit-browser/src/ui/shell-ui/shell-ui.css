@@ -2,3 +2,22 @@
     width: 100%;
     height: 100%;
 }
+
+.shell-ui .confirm-button {
+    font-size: 30px;
+    font-family: var(--font-family-sans), sans-serif;
+    font-weight: bold;
+    color: white;
+    padding: 20px 20px;
+    border-radius: 10px;
+    border: none;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.shell-ui .confirm-button:hover {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.shell-ui .confirm-button:active {
+    background: rgba(0, 0, 0, 0.1);
+}

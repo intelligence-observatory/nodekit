@@ -1,7 +1,7 @@
 import './text-entry.css'
-import type {TextEntrySensor} from "../../../types/sensors";
+import type {TextEntrySensor} from "../../../types/sensors.ts";
 import {BoardCoordinateSystem, createRegionDiv} from "../../board-view.ts";
-import type {TextEntryAction} from "../../../types/actions";
+import type {TextEntryAction} from "../../../types/actions.ts";
 import {SensorBinding} from "../index.ts";
 
 
@@ -19,7 +19,7 @@ export class TextEntrySensorBinding extends SensorBinding<TextEntrySensor> {
         const textEnteredCallback = (sample: string): void => {
             const sensorValue: TextEntryAction = {
                 action_type: 'TextEntryAction',
-                text: sample,
+                action_value: sample,
             }
             this.emit(sensorValue)
         }

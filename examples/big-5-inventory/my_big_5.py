@@ -19,20 +19,18 @@ def make_big5_node(
     ]
     initial_index: int = 2
     if initial_index < 0 or initial_index >= len(ordinal_choice_descriptions):
-        raise ValueError(
-            "initial_index must be between 0 and len(ordinal_choice_descriptions) - 1"
-        )
+        raise ValueError("initial_index must be between 0 and len(ordinal_choice_descriptions) - 1")
 
     question_card = nk.cards.TextCard(
         text=prompt,
         justification_horizontal="center",
         justification_vertical="center",
-        font_size=0.04,
+        font_size=40,
         region=nk.Region(
             x=0,
-            y=0.25,
-            w=1,
-            h=0.4,
+            y=250,
+            w=1000,
+            h=120,
         ),
     )
 
@@ -44,9 +42,23 @@ def make_big5_node(
         show_bin_markers=True,
         region=nk.Region(
             x=0,
-            y=-0.1,
-            w=0.75,
-            h=0.1,
+            y=-100,
+            w=750,
+            h=100,
+        ),
+        confirm_button=nk.cards.TextCard(
+            text="Next",
+            font_size=30,
+            region=nk.Region(
+                x=0,
+                y=-250,
+                w=200,
+                h=80,
+            ),
+            justification_horizontal="center",
+            justification_vertical="center",
+            background_color="#00000080",
+            text_color="#FFFFFF",
         ),
     )
 
@@ -55,19 +67,19 @@ def make_big5_node(
     }
 
     # Assemble annotation cards
-    annotation_box_width = slider_sensor.region.w / (num_bins - 1)
-    slider_left = slider_sensor.region.x - slider_sensor.region.w / 2
+    annotation_box_width = round(slider_sensor.region.w / (num_bins - 1))
+    slider_left = round(slider_sensor.region.x - slider_sensor.region.w / 2)
 
     for i, description in enumerate(ordinal_choice_descriptions):
         cards[f"likert-description-{i}"] = nk.cards.TextCard(
             region=nk.Region(
-                x=slider_left + (i) * annotation_box_width,
-                y=slider_sensor.region.y + slider_sensor.region.h / 2 + 0.05,
+                x=round(slider_left + (i) * annotation_box_width),
+                y=round(slider_sensor.region.y + slider_sensor.region.h / 2 + 50),
                 w=annotation_box_width,
-                h=0.1,
+                h=100,
             ),
             text=description,
-            font_size=0.02,
+            font_size=20,
             justification_horizontal="center",
             justification_vertical="bottom",
             background_color="#E6E6E600",  # Transparent
@@ -77,7 +89,7 @@ def make_big5_node(
 
     # Assemble Node
     node = nk.Node(
-        stimulus=stimulus,
+        card=stimulus,
         sensor=slider_sensor,
         board_color="#ffffff",
     )

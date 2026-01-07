@@ -1,4 +1,4 @@
-from nodekit._internal.types.value import MediaType
+from nodekit._internal.types.values import MediaType
 
 
 def get_extension_from_media_type(media_type: MediaType) -> str:
@@ -7,6 +7,7 @@ def get_extension_from_media_type(media_type: MediaType) -> str:
     """
     mime_to_extension = {
         "image/png": "png",
+        "image/jpeg": "jpg",
         "image/svg+xml": "svg",
         "video/mp4": "mp4",
     }

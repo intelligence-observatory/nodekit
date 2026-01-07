@@ -2,20 +2,19 @@ import os
 import shutil
 import zipfile
 from pathlib import Path
-from typing import Tuple, Dict
 
-from nodekit._internal.utils.get_extension_from_media_type import (
-    get_extension_from_media_type,
-)
-from nodekit._internal.utils.iter_assets import iter_assets
 from nodekit._internal.ops.open_asset_save_asset import open_asset
 from nodekit._internal.types.assets import (
     ZipArchiveInnerPath,
     RelativePath,
     Asset,
 )
-from nodekit._internal.types.value import MediaType, SHA256
 from nodekit._internal.types.graph import Graph
+from nodekit._internal.types.values import MediaType, SHA256
+from nodekit._internal.utils.get_extension_from_media_type import (
+    get_extension_from_media_type,
+)
+from nodekit._internal.utils.iter_assets import iter_assets
 
 
 # %%
@@ -52,8 +51,8 @@ def save_graph(
     graph = graph.model_copy(deep=True)
 
     # Mutate all AssetLocators in the Graph to be RelativePathAssetLocators:
-    supplied_assets: Dict[Tuple[MediaType, SHA256], Asset] = {}
-    relative_asset_locators: Dict[Tuple[MediaType, SHA256], RelativePath] = {}
+    supplied_assets: dict[tuple[MediaType, SHA256], Asset] = {}
+    relative_asset_locators: dict[tuple[MediaType, SHA256], RelativePath] = {}
     for asset in iter_assets(graph=graph):
         # Log the asset locator if we haven't seen it before:
         asset_key = (asset.media_type, asset.sha256)
@@ -79,9 +78,7 @@ def save_graph(
             for asset_key, asset_locator in supplied_assets.items():
                 with open_asset(asset_locator) as src_file:
                     media_type, sha256 = asset_key
-                    archive_relative_path = _get_archive_relative_path(
-                        media_type, sha256
-                    )
+                    archive_relative_path = _get_archive_relative_path(media_type, sha256)
                     with myzip.open(str(archive_relative_path), "w") as dst_file:
                         shutil.copyfileobj(src_file, dst_file)
 
