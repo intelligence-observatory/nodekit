@@ -16,6 +16,10 @@ macro_rules! dim {
     };
 }
 
+/// A dimension of the board that images are rendered to.
+/// We need the number to be in different types (usize, u32, etc.) depending on the operation,
+/// and we need to do that "cast" frequently, so we'll just cache them here.
+/// See the `dim!` macro for how we avoid making mistakes.
 pub struct BoardDimension {
     pub u_size: usize,
     pub u_32: u32,
