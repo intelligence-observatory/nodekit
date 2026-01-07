@@ -6,9 +6,9 @@ mod cursor;
 mod error;
 mod rgb_buffer;
 mod rgba_buffer;
+mod rounded_rectangle;
 mod unclipped_rect;
 mod visual_buffer;
-mod rounded_rectangle;
 
 use blittle::Size;
 use blittle::stride::RGBA;
