@@ -899,7 +899,7 @@ version = "0.5.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bbc773e24e02d4ddd8395fd30dc147524273a83e54e0f312d986ea30de5f5646"
 dependencies = [
- "roxmltree",
+ "roxmltree 0.20.0",
 ]
 
 [[package]]
@@ -1849,12 +1849,14 @@ dependencies = [
  "bytemuck",
  "cosmic-text",
  "criterion",
+ "hex_color",
  "lazy_static",
  "markdown",
  "nodekit-rs-models",
  "nodekit-rs-png",
  "nodekit-rs-visual",
  "pyo3",
+ "roxmltree 0.21.1",
  "thiserror 2.0.17",
 ]
 
@@ -2686,6 +2688,15 @@ name = "roxmltree"
 version = "0.20.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6c20b6793b5c2fa6553b250154b78d6d0db37e72700ae35fad9387a46f487c97"
+
+[[package]]
+name = "roxmltree"
+version = "0.21.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f1964b10c76125c36f8afe190065a4bf9a87bf324842c05701330bba9f1cacbb"
+dependencies = [
+ "memchr",
+]
 
 [[package]]
 name = "rustc-hash"

@@ -5,6 +5,14 @@ use thiserror::Error;
 pub enum Error {
     #[error("Markdown parsing error: {0}")]
     Md(Message),
+    #[error("Error parsing HTML: {0}")]
+    Html(roxmltree::Error),
+    #[error("Got HTML that isn't a <span>: {0}")]
+    NotSpan(String),
+    #[error("<span> node doesn't have a color attribute: {0}")]
+    NoSpanColor(String),
+    #[error("The color attribute of the <span> node has an invalid color: {0} {1}")]
+    InvalidColor(String, hex_color::ParseHexColorError),
     #[error("Unsupported markdown node: {0}")]
     Node(String),
     #[error("Invalid header depth: {0}")]

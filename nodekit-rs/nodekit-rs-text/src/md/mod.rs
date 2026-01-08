@@ -6,7 +6,8 @@ mod span;
 use crate::error::Error;
 pub(crate) use crate::md::list_state::ListState;
 use crate::md::paragraph::Paragraph;
-use cosmic_text::{Attrs, Family, Style, Weight};
+use cosmic_text::{Attrs, Color, Style, Weight};
+use hex_color::HexColor;
 pub(crate) use font_size::*;
 use markdown::{Constructs, ParseOptions, mdast::Node, to_mdast};
 pub use span::Span;
@@ -66,12 +67,6 @@ fn add_node<'s>(
     match node {
         // Add from the root node.
         Node::Root(node) => children!(node, font_size, paragraphs, paragraph, attrs, list_state),
-        Node::InlineCode(node) => {
-            let mut attrs = attrs.clone();
-            attrs.family = Family::Monospace;
-            add_span(node.value, font_size, attrs, paragraph);
-            Ok(())
-        }
         Node::Emphasis(node) => {
             let mut attrs = attrs.clone();
             attrs.style = Style::Italic;
@@ -129,6 +124,26 @@ fn add_node<'s>(
         Node::ListItem(node) => {
             children!(node, font_size, paragraphs, paragraph, attrs, list_state)
         }
+        Node::Html(node ) => {
+            let doc = roxmltree::Document::parse(node.value.as_str()).map_err(Error::Html)?;
+            let root = doc.descendants().find(|n| n.has_tag_name("span")).ok_or(Error::NotSpan(node.value.to_string()))?;
+            if root.has_tag_name("span") {
+                // Fail silently if there is no text.
+                if let Some(text) = root.text() {
+                    // Parse the color.
+                    let hex_color = root.attribute("color").ok_or(Error::NoSpanColor(node.value.clone()))?;
+                    let color = HexColor::parse(hex_color).map_err(|e| Error::InvalidColor(node.value.clone(), e))?;
+                    // Set the color.
+                    let attrs = attrs.clone().color(Color(color.to_u32()));
+                    // Onward.
+                    add_span(text.to_string(), font_size, attrs, paragraph);
+                }
+                Ok(())
+            }
+            else {
+                Err(Error::NotSpan(node.value.clone()))
+            }
+        },
         other => {
             let s = other.to_string();
             Err(Error::Node(s))
@@ -167,5 +182,25 @@ fn add_span<'s>(
             p.spans.push(span);
             *paragraph = Some(p);
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_span() {
+        let attrs = Attrs::new();
+        let font_size = FontSize::new(12);
+        parse("<span color=\"#FF0000\">colorized</span>", &font_size, attrs.clone()).unwrap();
+        parse("<span color=\"#FF0000FF\">colorized</span>", &font_size, attrs.clone()).unwrap();
+        parse("<span color=\"#FF0000\"></span>", &font_size, attrs.clone()).unwrap();
+        parse("This is **valid** <span color=\"#FF0000\">colorized</span> text!", &font_size, attrs.clone()).unwrap();
+        parse("<span color=\"#FF0000\"></span>", &font_size, attrs.clone()).unwrap();
+        assert!(parse("<span color=\"not a color\">bad</span>", &font_size, attrs.clone()).is_err());
+        assert!(parse("<span>no color</span>", &font_size, attrs.clone()).is_err());
+        assert!(parse("<invalid_tag color=\"#FF0000\">invalid_tag</invalid_tag>", &font_size, attrs.clone()).is_err());
+        parse("<span color=\"#FF0000\", extra_attrib=\"a\">colorized</span>", &font_size, attrs.clone()).unwrap();
     }
 }
