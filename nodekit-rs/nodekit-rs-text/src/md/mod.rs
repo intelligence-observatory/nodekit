@@ -129,24 +129,6 @@ fn add_node<'s>(
         Node::ListItem(node) => {
             children!(node, font_size, paragraphs, paragraph, attrs, list_state)
         }
-        Node::Code(node) => {
-            // End the current paragraph.
-            if let Some(paragraph) = &paragraph {
-                paragraphs.push(paragraph.clone());
-            }
-            // Monospace block.
-            let mut p = Paragraph::from(font_size);
-            let mut attrs = attrs.clone();
-            attrs.family = Family::Monospace;
-            p.spans.push(Span {
-                text: node.value,
-                attrs,
-            });
-            // Start a new paragraph.
-            *paragraph = Some(p);
-            Ok(())
-        }
-        Node::Link(node) => children!(node, font_size, paragraphs, paragraph, attrs, list_state),
         other => {
             let s = other.to_string();
             Err(Error::Node(s))
