@@ -34,7 +34,7 @@ impl FromPyObject<'_, '_> for Card {
 
     fn extract(card: Borrowed<'_, '_, PyAny>) -> Result<Self, Self::Error> {
         Ok(Self {
-            region: Region::extract(card.getattr("region")?.as_borrowed())?,
+            region: Self::extract_region(card)?,
             card_type: CardType::extract_card(card)?,
             dirty: false,
         })
