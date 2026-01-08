@@ -13,8 +13,8 @@ markdown.workspace = true
 nodekit-rs-models = { path = "../nodekit-rs-models" }
 nodekit-rs-visual = { path = "../nodekit-rs-visual" }
 pyo3.workspace = true
-roxmltree.workspace = true
 thiserror.workspace = true
+tl.workspace = true
 
 [dev-dependencies]
 criterion.workspace = true

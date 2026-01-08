@@ -10,17 +10,20 @@ use cosmic_text::{Attrs, Color, Style, Weight};
 use hex_color::HexColor;
 pub(crate) use font_size::*;
 use markdown::{Constructs, ParseOptions, mdast::Node, to_mdast};
+use pyo3::impl_::pymethods::IterBaseKind;
+use tl::queryselector::iterable::QueryIterable;
+use tl::VDom;
 pub use span::Span;
 
 macro_rules! children {
-    ($node:ident, $font_size:ident, $paragraphs:ident, $paragraph:ident, $attrs:ident, $list_state:ident) => {{
+    ($node:ident, $font_size:ident, $paragraphs:ident, $paragraph:ident, $attrs:expr, $list_state:ident) => {{
         $node.children.into_iter().try_for_each(|child| {
             add_node(
                 child,
                 $font_size,
                 $paragraphs,
                 $paragraph,
-                $attrs.clone(),
+                $attrs,
                 $list_state,
             )
         })
@@ -31,7 +34,7 @@ macro_rules! children {
 pub fn parse<'s>(
     text: &str,
     font_size: &FontSize,
-    attrs: Attrs<'s>,
+    mut attrs: Attrs<'s>,
 ) -> Result<Vec<Paragraph<'s>>, Error> {
     let parse_options = ParseOptions {
         constructs: Constructs::gfm(),
@@ -45,7 +48,7 @@ pub fn parse<'s>(
         font_size,
         &mut paragraphs,
         &mut paragraph,
-        attrs,
+        &mut attrs,
         None,
     )?;
     // Add the last paragraph.
@@ -61,7 +64,7 @@ fn add_node<'s>(
     font_size: &FontSize,
     paragraphs: &mut Vec<Paragraph<'s>>,
     paragraph: &mut Option<Paragraph<'s>>,
-    attrs: Attrs<'s>,
+    attrs: &mut Attrs<'s>,
     list_state: Option<ListState>,
 ) -> Result<(), Error> {
     match node {
@@ -70,12 +73,12 @@ fn add_node<'s>(
         Node::Emphasis(node) => {
             let mut attrs = attrs.clone();
             attrs.style = Style::Italic;
-            children!(node, font_size, paragraphs, paragraph, attrs, list_state)
+            children!(node, font_size, paragraphs, paragraph, &mut attrs, list_state)
         }
         Node::Strong(node) => {
             let mut attrs = attrs.clone();
             attrs.weight = Weight::BOLD;
-            children!(node, font_size, paragraphs, paragraph, attrs, list_state)
+            children!(node, font_size, paragraphs, paragraph, &mut attrs, list_state)
         }
         Node::Text(text) => {
             let text = match list_state {
@@ -85,7 +88,7 @@ fn add_node<'s>(
                 },
                 None => text.value,
             };
-            add_span(text, font_size, attrs, paragraph);
+            add_span(text, font_size, attrs.clone(), paragraph);
             Ok(())
         }
         Node::Paragraph(node) => {
@@ -101,7 +104,7 @@ fn add_node<'s>(
             }
             let mut attrs = attrs.clone();
             attrs.weight = Weight::BOLD;
-            children!(node, font_size, paragraphs, paragraph, attrs, list_state)
+            children!(node, font_size, paragraphs, paragraph, &mut attrs, list_state)
         }
         Node::List(node) => {
             // Add the nodes, using the list order.
@@ -115,7 +118,7 @@ fn add_node<'s>(
                     font_size,
                     paragraphs,
                     paragraph,
-                    attrs.clone(),
+                    attrs,
                     Some(list_state),
                 )?;
             }
@@ -125,24 +128,19 @@ fn add_node<'s>(
             children!(node, font_size, paragraphs, paragraph, attrs, list_state)
         }
         Node::Html(node ) => {
-            let doc = roxmltree::Document::parse(node.value.as_str()).map_err(Error::Html)?;
-            let root = doc.descendants().find(|n| n.has_tag_name("span")).ok_or(Error::NotSpan(node.value.to_string()))?;
-            if root.has_tag_name("span") {
-                // Fail silently if there is no text.
-                if let Some(text) = root.text() {
-                    // Parse the color.
-                    let hex_color = root.attribute("color").ok_or(Error::NoSpanColor(node.value.clone()))?;
-                    let color = HexColor::parse(hex_color).map_err(|e| Error::InvalidColor(node.value.clone(), e))?;
-                    // Set the color.
-                    let attrs = attrs.clone().color(Color(color.to_u32()));
-                    // Onward.
-                    add_span(text.to_string(), font_size, attrs, paragraph);
-                }
-                Ok(())
+            let dom = tl::parse(&node.value, tl::ParserOptions::default()).map_err(Error::Html)?;
+            let parser = dom.parser();
+            let mut span = dom.query_selector("span").ok_or(Error::NotSpan(node.value.to_string()))?;
+            if let Some(span) = span.next() && let Some(span) = span.get(parser) {
+                let tag = span.as_tag().ok_or(Error::NotSpan(node.value.to_string()))?;
+                let color = tag.attributes().get("color").flatten().ok_or(Error::NoSpanColor(node.value.to_string()))?.as_utf8_str();
+                let color = HexColor::parse(color.as_ref()).map_err(Error::InvalidColor)?;
+                attrs.color_opt = Some(Color(color.to_u32()));
             }
             else {
-                Err(Error::NotSpan(node.value.clone()))
+                attrs.color_opt = Some(Color::rgb(0, 0, 0));
             }
+            Ok(())
         },
         other => {
             let s = other.to_string();
