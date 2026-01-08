@@ -52,6 +52,7 @@ pub struct Renderer {
     /// The known state ID.
     id: Option<Uuid>,
     cursor: Cursor,
+    hide_pointer: bool,
 }
 
 #[pymethods]
@@ -107,6 +108,11 @@ impl Renderer {
         }
         Ok(arr)
     }
+
+    /// Set whether the pointer is visible.
+    pub fn set_pointer_visibility(&mut self, visible: bool) {
+        self.hide_pointer = !visible;
+    }
 }
 
 impl Renderer {
@@ -124,12 +130,14 @@ impl Renderer {
             }
         }
 
-        // Copy to the final blit.
-        match state.pointer.as_ref() {
-            Some(pointer) => Ok(self
-                .board
-                .blit_cursor(&self.cursor.0, &Cursor::rect(pointer.x, pointer.y))),
-            None => Ok(self.board.get_board_without_cursor()),
+        if self.hide_pointer {
+            Ok(self.board.get_board_without_cursor())
+        } else {
+            // Copy to the final blit.
+            Ok(self.board.blit_cursor(
+                &self.cursor.0,
+                &Cursor::rect(state.pointer.x, state.pointer.y),
+            ))
         }
     }
 
@@ -273,7 +281,7 @@ mod tests {
     fn test_render() {
         let cards = vec![image_card(), video_card(), text_card()];
 
-        let mut state = State::new_inner("#AAAAAAFF".to_string(), cards, false);
+        let mut state = State::new_inner("#AAAAAAFF".to_string(), cards);
         let mut renderer = Renderer::default();
         render_image(&mut renderer, &mut state, 0, "000.png");
         render_image(&mut renderer, &mut state, 100, "100.png");
@@ -285,7 +293,7 @@ mod tests {
     fn test_no_cursor() {
         let cards = vec![image_card(), video_card(), text_card()];
 
-        let mut state = State::new_inner("#AAAAAAFF".to_string(), cards, true);
+        let mut state = State::new_inner("#AAAAAAFF".to_string(), cards);
         let mut renderer = Renderer::default();
         render_image(&mut renderer, &mut state, 0, "no_cursor.png");
     }
@@ -354,24 +362,20 @@ mod tests {
     #[test]
     fn test_dirty_rects() {
         let mut renderer = Renderer::new();
-        let state = State::new_inner("#AAAAAAFF".to_string(), vec![image_card()], false);
+        let state = State::new_inner("#AAAAAAFF".to_string(), vec![image_card()]);
         renderer.start(&state).unwrap();
         // No need to re-blit.
         assert_eq!(renderer.overlaps.len(), 1);
         assert!(renderer.overlaps.values().all(|v| v.is_empty()));
         assert!(state.cards.values().all(|card| !card.dirty));
-        let state = State::new_inner("#AAAAAAFF".to_string(), vec![text_card()], false);
+        let state = State::new_inner("#AAAAAAFF".to_string(), vec![text_card()]);
         renderer.start(&state).unwrap();
         // No need to re-blit.
         assert_eq!(renderer.overlaps.len(), 1);
         assert!(renderer.overlaps.values().all(|v| v.is_empty()));
         assert!(state.cards.values().all(|card| !card.dirty));
 
-        let state = State::new_inner(
-            "#AAAAAAFF".to_string(),
-            vec![image_card(), text_card()],
-            false,
-        );
+        let state = State::new_inner("#AAAAAAFF".to_string(), vec![image_card(), text_card()]);
         renderer.start(&state).unwrap();
         // No need to re-blit.
         assert_eq!(renderer.overlaps.len(), 2);
@@ -380,7 +384,7 @@ mod tests {
         }
         assert!(state.cards.values().all(|card| !card.dirty));
 
-        let mut state = State::new_inner("#AAAAAAFF".to_string(), vec![video_card()], false);
+        let mut state = State::new_inner("#AAAAAAFF".to_string(), vec![video_card()]);
         renderer.start(&state).unwrap();
         // Always re-blit a video.
         assert_eq!(renderer.overlaps.len(), 1);
@@ -392,7 +396,6 @@ mod tests {
         let state = State::new_inner(
             "#AAAAAAFF".to_string(),
             vec![image_card(), text_card(), video_card()],
-            false,
         );
         renderer.start(&state).unwrap();
         // Always re-blit a video.

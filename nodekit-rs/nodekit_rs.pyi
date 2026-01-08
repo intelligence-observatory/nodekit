@@ -34,6 +34,10 @@ class Renderer:
         
         This is slower than `self.render_to(state, board)` because it needs to allocate a new array.
         """
+    def set_pointer_visibility(self, visible: builtins.bool) -> None:
+        r"""
+        Set whether the pointer is visible.
+        """
 
 @typing.final
 class State:
@@ -47,7 +51,7 @@ class State:
         """
     @t_msec.setter
     def t_msec(self, value: builtins.int) -> None: ...
-    def __new__(cls, board_color: builtins.str, cards: list, hide_pointer: builtins.bool) -> State:
+    def __new__(cls, board_color: builtins.str, cards: list) -> State:
         r"""
         `board_color` must be a valid RGBA hex string e.g. "#808080ff"
         `cards` must be of type `List[nodekit.Card]`
