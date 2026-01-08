@@ -70,6 +70,23 @@ state = State(board_color="#AAAAAAFF", card=card)
 state.t_msec = 300
 ```
 
+## What works, what doesn't
+
+Works:
+
+- ImageCard
+- TextCard (with markdown formatting)
+- VideoCard
+- CompositeCard
+- Pointer
+
+Doesn't work:
+
+- Sensors
+- An exact replica of what's in the browser window. Some examples of might not look correct:
+  - Pixel scaling/sub-pixel rendering
+  - Text rendering e.g. kerning and line separation height
+
 ## Test
 
 Run unit tests:
