@@ -7,12 +7,11 @@ use crate::error::Error;
 pub(crate) use crate::md::list_state::ListState;
 use crate::md::paragraph::Paragraph;
 use cosmic_text::{Attrs, Color, Style, Weight};
-use hex_color::HexColor;
 pub(crate) use font_size::*;
+use hex_color::HexColor;
+use markdown::mdast::Html;
 use markdown::{Constructs, ParseOptions, mdast::Node, to_mdast};
-use pyo3::impl_::pymethods::IterBaseKind;
-use tl::queryselector::iterable::QueryIterable;
-use tl::VDom;
+use regex::Regex;
 pub use span::Span;
 
 macro_rules! children {
@@ -73,12 +72,16 @@ fn add_node<'s>(
         Node::Emphasis(node) => {
             let mut attrs = attrs.clone();
             attrs.style = Style::Italic;
-            children!(node, font_size, paragraphs, paragraph, &mut attrs, list_state)
+            children!(
+                node, font_size, paragraphs, paragraph, &mut attrs, list_state
+            )
         }
         Node::Strong(node) => {
             let mut attrs = attrs.clone();
             attrs.weight = Weight::BOLD;
-            children!(node, font_size, paragraphs, paragraph, &mut attrs, list_state)
+            children!(
+                node, font_size, paragraphs, paragraph, &mut attrs, list_state
+            )
         }
         Node::Text(text) => {
             let text = match list_state {
@@ -104,7 +107,9 @@ fn add_node<'s>(
             }
             let mut attrs = attrs.clone();
             attrs.weight = Weight::BOLD;
-            children!(node, font_size, paragraphs, paragraph, &mut attrs, list_state)
+            children!(
+                node, font_size, paragraphs, paragraph, &mut attrs, list_state
+            )
         }
         Node::List(node) => {
             // Add the nodes, using the list order.
@@ -127,21 +132,7 @@ fn add_node<'s>(
         Node::ListItem(node) => {
             children!(node, font_size, paragraphs, paragraph, attrs, list_state)
         }
-        Node::Html(node ) => {
-            let dom = tl::parse(&node.value, tl::ParserOptions::default()).map_err(Error::Html)?;
-            let parser = dom.parser();
-            let mut span = dom.query_selector("span").ok_or(Error::NotSpan(node.value.to_string()))?;
-            if let Some(span) = span.next() && let Some(span) = span.get(parser) {
-                let tag = span.as_tag().ok_or(Error::NotSpan(node.value.to_string()))?;
-                let color = tag.attributes().get("color").flatten().ok_or(Error::NoSpanColor(node.value.to_string()))?.as_utf8_str();
-                let color = HexColor::parse(color.as_ref()).map_err(Error::InvalidColor)?;
-                attrs.color_opt = Some(Color(color.to_u32()));
-            }
-            else {
-                attrs.color_opt = Some(Color::rgb(0, 0, 0));
-            }
-            Ok(())
-        },
+        Node::Html(node) => parse_html(node, attrs),
         other => {
             let s = other.to_string();
             Err(Error::Node(s))
@@ -183,6 +174,45 @@ fn add_span<'s>(
     }
 }
 
+/// Parse an HTML node.
+///
+/// An HTML node contains the tag, not the inner text.
+/// For example, `<span>text</span>` parses as three nodes:
+///
+/// 1. <span> (HTML)
+/// 2. text (Text)
+/// 3. </span> (HTML)
+///
+/// So, we look for two tags:
+///
+/// - If we see a `<span>` we look for a `color` attribute and set `attrs.color_opt` accordingly.
+/// - If we see a `</span>` we reset `attrs.color_opt` to the default color.
+/// - If we see any other tag, return an error.
+fn parse_html(html: Html, attrs: &mut Attrs<'_>) -> Result<(), Error> {
+    // Reset the color.
+    if html.value.as_str() == "</span>" {
+        attrs.color_opt = Some(Color::rgb(0, 0, 0));
+        Ok(())
+    } else {
+        // Use regex because it's just an HTML tag, so tokenized parsing is overkill.
+        let re = Regex::new("<span color(|\\s+)=(|\\s+)\"(#[0-9a-fA-F]{8})\">")
+            .map_err(Error::SpanRegex)?;
+        // This is a valid span tag.
+        match re.captures(&html.value) {
+            Some(captures) => {
+                // Get the group that contains the color.
+                let color = captures.get(3).ok_or(Error::SpanColorRegexGroup)?.as_str();
+                // Parse the color.
+                let color = HexColor::parse_rgba(color).map_err(Error::InvalidSpanColor)?;
+                // Set the color.
+                attrs.color_opt = Some(Color::rgba(color.r, color.g, color.b, color.a));
+                Ok(())
+            }
+            None => Err(Error::NotValidSpan(html.value.to_string())),
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -191,14 +221,73 @@ mod tests {
     fn test_span() {
         let attrs = Attrs::new();
         let font_size = FontSize::new(12);
-        parse("<span color=\"#FF0000\">colorized</span>", &font_size, attrs.clone()).unwrap();
-        parse("<span color=\"#FF0000FF\">colorized</span>", &font_size, attrs.clone()).unwrap();
-        parse("<span color=\"#FF0000\"></span>", &font_size, attrs.clone()).unwrap();
-        parse("This is **valid** <span color=\"#FF0000\">colorized</span> text!", &font_size, attrs.clone()).unwrap();
-        parse("<span color=\"#FF0000\"></span>", &font_size, attrs.clone()).unwrap();
-        assert!(parse("<span color=\"not a color\">bad</span>", &font_size, attrs.clone()).is_err());
+        parse(
+            "<span color=\"#FF0000FF\">colorized</span>",
+            &font_size,
+            attrs.clone(),
+        )
+        .unwrap();
+        parse(
+            "<span color = \"#FF0000FF\">colorized</span>",
+            &font_size,
+            attrs.clone(),
+        )
+        .unwrap();
+        assert!(parse("<span color=\"\">bad</span>", &font_size, attrs.clone()).is_err());
+        assert!(
+            parse(
+                "<span color=\"FF0000\">bad</span>",
+                &font_size,
+                attrs.clone()
+            )
+            .is_err()
+        );
+        parse(
+            "<span color=\"#FF0000FF\">colorized</span>",
+            &font_size,
+            attrs.clone(),
+        )
+        .unwrap();
+        parse(
+            "<span color=\"#FF0000FF\"></span>",
+            &font_size,
+            attrs.clone(),
+        )
+        .unwrap();
+        parse(
+            "This is **valid** <span color=\"#FF0000FF\">colorized</span> text!",
+            &font_size,
+            attrs.clone(),
+        )
+        .unwrap();
+        parse(
+            "<span color=\"#FF0000FF\"></span>",
+            &font_size,
+            attrs.clone(),
+        )
+        .unwrap();
+        assert!(
+            parse(
+                "<span color=\"not a color\">bad</span>",
+                &font_size,
+                attrs.clone()
+            )
+            .is_err()
+        );
         assert!(parse("<span>no color</span>", &font_size, attrs.clone()).is_err());
-        assert!(parse("<invalid_tag color=\"#FF0000\">invalid_tag</invalid_tag>", &font_size, attrs.clone()).is_err());
-        parse("<span color=\"#FF0000\", extra_attrib=\"a\">colorized</span>", &font_size, attrs.clone()).unwrap();
+        assert!(
+            parse(
+                "<p color=\"#FF0000FF\">invalid_tag</p>",
+                &font_size,
+                attrs.clone()
+            )
+            .is_err()
+        );
+        parse(
+            "<span color=\"#FF0000FF\", extra_attrib=\"a\">colorized</span>",
+            &font_size,
+            attrs.clone(),
+        )
+        .unwrap();
     }
 }
