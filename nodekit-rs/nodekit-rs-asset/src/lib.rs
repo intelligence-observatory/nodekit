@@ -14,7 +14,9 @@ use zip::ZipArchive;
 /// Load raw byte data from `asset`.
 pub fn load_asset(asset: &Asset) -> Result<Vec<u8>, Error> {
     match asset {
+        // Read.
         Asset::Path(path) => read(path).map_err(|e| Error::ReadPath(path.clone(), e)),
+        // Download.
         Asset::Url(url) => Ok(blocking::get(url.clone())
             .map_err(|e| Error::HttpGet(url.clone(), e))?
             .error_for_status()
@@ -22,6 +24,7 @@ pub fn load_asset(asset: &Asset) -> Result<Vec<u8>, Error> {
             .bytes()
             .map_err(|e| Error::HttpBytes(url.clone(), e))?
             .to_vec()),
+        // Extract.
         Asset::ZipArchiveInnerPath {
             zip_archive_path,
             inner_path,

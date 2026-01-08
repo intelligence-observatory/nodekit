@@ -6,8 +6,6 @@ use url::Url;
 pub enum Error {
     #[error("Failed to read file system path {0}: {1}")]
     ReadPath(PathBuf, std::io::Error),
-    #[error("Failed to read relative file system path {0}: {1}")]
-    ReadRelativePath(PathBuf, std::io::Error),
     #[error("Failed to download {0}: {1}")]
     HttpGet(Url, reqwest::Error),
     #[error("Failed to download due to an HTTP error {0}: {1}")]
