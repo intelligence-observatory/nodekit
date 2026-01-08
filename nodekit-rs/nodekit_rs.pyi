@@ -51,10 +51,10 @@ class State:
         """
     @t_msec.setter
     def t_msec(self, value: builtins.int) -> None: ...
-    def __new__(cls, board_color: builtins.str, cards: list) -> State:
+    def __new__(cls, board_color: builtins.str, card: typing.Any) -> State:
         r"""
         `board_color` must be a valid RGBA hex string e.g. "#808080ff"
-        `cards` must be of type `List[nodekit.Card]`
+        `cards` must be of type `nodekit.Card`
         """
     def set_pointer(self, x: builtins.int, y: builtins.int) -> None:
         r"""

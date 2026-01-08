@@ -21,8 +21,8 @@ The size of the final `.whl` file should be approximately 37.5 MB.
 ```python
 from nodekit_rs import Renderer, State
 
-cards = get_cards()  # Your code here.
-state = State(board_color="#AAAAAAFF", cards=cards)
+card = get_card()  # Your code here. Can be a CompositeCard.
+state = State(board_color="#AAAAAAFF", card=card)
 
 renderer = Renderer()
 board = renderer.render(state)
@@ -37,8 +37,8 @@ You can, optionally, render to an existing numpy array, which will result in a s
 ```python
 from nodekit_rs import Renderer, State
 
-cards = get_cards()  # Your code here.
-state = State(board_color="#AAAAAAFF", cards=cards)
+card = get_card()
+state = State(board_color="#AAAAAAFF", card=card)
 
 renderer = Renderer()
 
@@ -55,8 +55,8 @@ To set the pointer position, call `state.set_pointer(x, y)` where `x` and `y` ar
 ```python
 from nodekit_rs import State
 
-cards = get_cards()  # Your code here.
-state = State(board_color="#AAAAAAFF", cards=cards)
+card = get_card()
+state = State(board_color="#AAAAAAFF", card=card)
 state.set_pointer(0, 0)
 ```
 
@@ -65,8 +65,8 @@ If there are video cards, you will need to manually set the current time, in mil
 ```python
 from nodekit_rs import State
 
-cards = get_cards()  # Your code here.
-state = State(board_color="#AAAAAAFF", cards=cards)
+card = get_card()
+state = State(board_color="#AAAAAAFF", card=card)
 state.t_msec = 300
 ```
 

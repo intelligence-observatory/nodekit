@@ -10,53 +10,55 @@ d = Path(__file__).parent.parent
 
 
 def rgb() -> State:
-    cards = [
-        nodekit.cards.ImageCard(
+    cards = {
+        'image_0': nodekit.cards.ImageCard(
             region=Region(x=-256, y=-256, w=256, h=512, z_index=0),
             image=nodekit.assets.Image.from_path(
                 d.joinpath("nodekit-rs-image/test_image.png").resolve()
             ),
         ),
-        nodekit.cards.ImageCard(
+        'image_1': nodekit.cards.ImageCard(
             region=Region(x=0, y=0, w=170, h=256, z_index=1),
             image=nodekit.assets.Image.from_path(
                 d.joinpath("nodekit-rs-image/test_image.png").resolve()
             ),
         ),
-        nodekit.cards.TextCard(
+        'text': nodekit.cards.TextCard(
             region=Region(x=-512, y=-512, w=1, h=51, z_index=2),
             text="# Click the **test image**",
             justification_horizontal="left",
             text_color="#000000FF",
             background_color="#E6E6E6FF",
         ),
-    ]
-    return State(board_color="#AAAAAAFF", cards=cards)
+    }
+    card = nodekit.cards.CompositeCard(children=cards)
+    return State(board_color="#AAAAAAFF", card=card)
 
 
 def rgba() -> State:
-    cards = [
-        nodekit.cards.ImageCard(
+    cards = {
+        'image_0': nodekit.cards.ImageCard(
             region=Region(x=-256, y=-256, w=256, h=512, z_index=0),
             image=nodekit.assets.Image.from_path(
                 d.joinpath("nodekit-rs-image/test_image.png").resolve()
             ),
         ),
-        nodekit.cards.ImageCard(
+        'image_1': nodekit.cards.ImageCard(
             region=Region(x=0, y=0, w=170, h=256, z_index=1),
             image=nodekit.assets.Image.from_path(
                 d.joinpath("nodekit-rs-image/test_image.png").resolve()
             ),
         ),
-        nodekit.cards.TextCard(
+        'text': nodekit.cards.TextCard(
             region=Region(x=-512, y=-512, w=1, h=51, z_index=2),
             text="# Click the **test image**",
             justification_horizontal="left",
             text_color="#000000FF",
             background_color="#E6E6E633",
         ),
-    ]
-    return State(board_color="#AAAAAAFF", cards=cards)
+    }
+    card = nodekit.cards.CompositeCard(children=cards)
+    return State(board_color="#AAAAAAFF", card=card)
 
 
 renderer = Renderer()

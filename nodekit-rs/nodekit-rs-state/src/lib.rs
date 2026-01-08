@@ -4,7 +4,6 @@ use nodekit_rs_models::{Card, CardType};
 use pointer::Pointer;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
-use pyo3::types::PyList;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use slotmap::{SlotMap, new_key_type};
 use uuid::Uuid;
@@ -55,10 +54,12 @@ impl State {
 #[pymethods]
 impl State {
     /// `board_color` must be a valid RGBA hex string e.g. "#808080ff"
-    /// `cards` must be of type `List[nodekit.Card]`
+    /// `cards` must be of type `nodekit.Card`
     #[new]
-    pub fn new(board_color: String, cards: Bound<'_, PyList>) -> PyResult<Self> {
-        Ok(Self::new_inner(board_color, Card::extract_all(cards)?))
+    pub fn new(board_color: String, card: Bound<'_, PyAny>) -> PyResult<Self> {
+        let mut cards = vec![];
+        Card::extract_cards(card, &mut cards)?;
+        Ok(Self::new_inner(board_color, cards))
     }
 
     #[setter]
