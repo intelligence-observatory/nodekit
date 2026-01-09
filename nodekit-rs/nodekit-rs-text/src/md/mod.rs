@@ -78,7 +78,7 @@ fn add_node<'s>(
         }
         Node::Strong(node) => {
             let mut attrs = attrs.clone();
-            attrs.weight = Weight::BOLD;
+            attrs.weight = Weight::SEMIBOLD;
             children!(
                 node, font_size, paragraphs, paragraph, &mut attrs, list_state
             )
