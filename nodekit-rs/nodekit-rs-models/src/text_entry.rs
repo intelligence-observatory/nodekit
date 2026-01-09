@@ -2,7 +2,7 @@ use pyo3::prelude::*;
 
 pub struct TextEntry {
     pub prompt: String,
-    pub font_size: f64,
+    pub font_size: i64,
     pub text: String,
 }
 
@@ -11,7 +11,7 @@ impl FromPyObject<'_, '_> for TextEntry {
 
     fn extract(obj: Borrowed<'_, '_, PyAny>) -> Result<Self, Self::Error> {
         let prompt = obj.getattr("prompt")?.extract::<String>()?;
-        let font_size = obj.getattr("font_size")?.extract::<f64>()?;
+        let font_size = obj.getattr("font_size")?.extract::<i64>()?;
         Ok(Self {
             prompt,
             font_size,

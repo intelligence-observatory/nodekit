@@ -15,13 +15,13 @@ def get_state() -> State:
             ),
         ),
         'video': nodekit.cards.VideoCard(
-            region=Region(x=0, y=0, w=700, h=256, z_index=1),
+            region=Region(x=100, y=50, w=410, h=614, z_index=1),
             video=nodekit.assets.Video.from_path(
                 d.joinpath("nodekit-rs-video/test-video.mp4").resolve()
             ),
         ),
         'text': nodekit.cards.TextCard(
-            region=Region(x=-512, y=-512, w=1, h=140, z_index=2),
+            region=Region(x=-512, y=-384, w=1024, h=200, z_index=2),
             text="# Click the **test image**",
             justification_horizontal="left",
             text_color="#000000FF",

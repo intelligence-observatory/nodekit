@@ -343,7 +343,7 @@ mod tests {
             },
             card_type: CardType::Text(TextCard {
                 text: include_str!("../../nodekit-rs-text/lorem.txt").to_string(),
-                font_size: 0.02,
+                font_size: 20,
                 justification_horizontal: JustificationHorizontal::Left,
                 justification_vertical: JustificationVertical::Center,
                 text_color: "#003300FF".to_string(),

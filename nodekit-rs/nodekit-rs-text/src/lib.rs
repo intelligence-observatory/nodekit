@@ -41,7 +41,7 @@ impl TextEngine {
                 let background = Self::get_background(background_rect, text_card)?;
                 // Get the font sizes.
                 let font_size =
-                    FontSize::new((text_card.font_size * HORIZONTAL.f_64).ceil() as u16);
+                    FontSize::new(text_card.font_size.cast_unsigned() as u16);
 
                 // Get the size of the text buffer.
                 // Apply padding.
@@ -74,7 +74,7 @@ impl TextEngine {
             Some(background_rect) => {
                 // Get the font sizes.
                 let font_size =
-                    FontSize::new((text_entry.font_size * HORIZONTAL.f_64).ceil() as u16);
+                    FontSize::new(text_entry.font_size as u16);
 
                 // Render text.
                 match text_rect(&background_rect) {
@@ -279,7 +279,7 @@ mod tests {
     fn test_text_card_render() {
         let card = TextCard {
             text: include_str!("../lorem.txt").to_string(),
-            font_size: 0.02,
+            font_size: 20,
             justification_horizontal: JustificationHorizontal::Left,
             justification_vertical: JustificationVertical::Center,
             text_color: "#000000FF".to_string(),
@@ -301,7 +301,7 @@ mod tests {
         let card = TextEntry {
             prompt: String::default(),
             text: include_str!("../lorem.txt").to_string(),
-            font_size: 0.02,
+            font_size: 20,
         };
         let region = Region::default();
 
@@ -316,7 +316,7 @@ mod tests {
         let card = TextEntry {
             prompt: "This is a prompt".to_string(),
             text: String::default(),
-            font_size: 0.02,
+            font_size: 20,
         };
 
         // Render the text.

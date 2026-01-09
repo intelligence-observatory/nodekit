@@ -51,7 +51,7 @@ impl<'py> FromPyObject<'_, 'py> for JustificationVertical {
 /// Parameters for a text card.
 pub struct TextCard {
     pub text: String,
-    pub font_size: f64,
+    pub font_size: i64,
     pub justification_horizontal: JustificationHorizontal,
     pub justification_vertical: JustificationVertical,
     pub text_color: String,
@@ -64,7 +64,7 @@ impl<'py> FromPyObject<'_, 'py> for TextCard {
     fn extract(obj: Borrowed<'_, 'py, PyAny>) -> Result<Self, Self::Error> {
         Ok(Self {
             text: obj.getattr("text")?.extract::<String>()?,
-            font_size: obj.getattr("font_size")?.extract::<f64>()?,
+            font_size: obj.getattr("font_size")?.extract::<i64>()?,
             justification_horizontal: JustificationHorizontal::extract(
                 obj.getattr("justification_horizontal")?.as_borrowed(),
             )?,
