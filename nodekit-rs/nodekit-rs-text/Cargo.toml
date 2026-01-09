@@ -13,7 +13,7 @@ markdown.workspace = true
 nodekit-rs-models = { path = "../nodekit-rs-models" }
 nodekit-rs-visual = { path = "../nodekit-rs-visual" }
 pyo3.workspace = true
-regex.workspace = true
+scraper.workspace = true
 thiserror.workspace = true
 
 [dev-dependencies]

@@ -11,7 +11,7 @@ pub(crate) use font_size::*;
 use hex_color::HexColor;
 use markdown::mdast::Html;
 use markdown::{Constructs, ParseOptions, mdast::Node, to_mdast};
-use regex::Regex;
+use scraper::Selector;
 pub use span::Span;
 
 macro_rules! children {
@@ -192,25 +192,23 @@ fn parse_html(html: Html, attrs: &mut Attrs<'_>) -> Result<(), Error> {
     // Reset the color.
     if html.value.as_str() == "</span>" {
         attrs.color_opt = Some(Color::rgb(0, 0, 0));
-        Ok(())
     } else {
-        // Use regex because it's just an HTML tag, so tokenized parsing is overkill.
-        let re = Regex::new("<span color(|\\s+)=(|\\s+)\"(#[0-9a-fA-F]{8})\">")
-            .map_err(Error::SpanRegex)?;
-        // This is a valid span tag.
-        match re.captures(&html.value) {
-            Some(captures) => {
-                // Get the group that contains the color.
-                let color = captures.get(3).ok_or(Error::SpanColorRegexGroup)?.as_str();
-                // Parse the color.
-                let color = HexColor::parse_rgba(color).map_err(Error::InvalidSpanColor)?;
-                // Set the color.
-                attrs.color_opt = Some(Color::rgba(color.r, color.g, color.b, color.a));
-                Ok(())
-            }
-            None => Err(Error::NotValidSpan(html.value.to_string())),
-        }
+        let fragment = scraper::Html::parse_fragment(&html.value);
+        // This should always work.
+        let selector = Selector::parse("span").map_err(|_| Error::SpanSelector)?;
+        let q = fragment
+            .select(&selector)
+            .next()
+            .ok_or(Error::NotSpan(html.value.clone()))?;
+        let color = q
+            .attr("color")
+            .ok_or(Error::NoSpanColor(html.value.clone()))?;
+        // Parse the color.
+        let color = HexColor::parse_rgba(color).map_err(Error::InvalidSpanColor)?;
+        // Set the color.
+        attrs.color_opt = Some(Color::rgba(color.r, color.g, color.b, color.a));
     }
+    Ok(())
 }
 
 #[cfg(test)]
@@ -236,7 +234,7 @@ mod tests {
         assert!(parse("<span color=\"\">bad</span>", &font_size, attrs.clone()).is_err());
         assert!(
             parse(
-                "<span color=\"FF0000\">bad</span>",
+                "<span color=\"#FF0000\">bad</span>",
                 &font_size,
                 attrs.clone()
             )

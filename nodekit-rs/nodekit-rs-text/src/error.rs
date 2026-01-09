@@ -5,12 +5,12 @@ use thiserror::Error;
 pub enum Error {
     #[error("Markdown parsing error: {0}")]
     Md(Message),
-    #[error("Regex error: {0}")]
-    SpanRegex(regex::Error),
-    #[error("Failed to get span regex color group.")]
-    SpanColorRegexGroup,
+    #[error("Bad <span> selector. This should never happen!")]
+    SpanSelector,
     #[error("Got HTML that isn't a <span>: {0}")]
-    NotValidSpan(String),
+    NotSpan(String),
+    #[error("Got a <span> tag without a color attribute: {0}")]
+    NoSpanColor(String),
     #[error("The color attribute of the <span> node has an invalid color: {0}")]
     InvalidSpanColor(hex_color::ParseHexColorError),
     #[error("Unsupported markdown node: {0}")]
