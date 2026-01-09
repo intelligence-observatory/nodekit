@@ -10,7 +10,10 @@ pub struct UnclippedRect {
 impl UnclippedRect {
     pub const fn new(region: &Region) -> Self {
         Self {
-            position: region.get_position(),
+            position: PositionI {
+                x: region.x as isize,
+                y: region.y as isize,
+            },
             size: Size {
                 w: region.w.cast_unsigned() as usize,
                 h: region.h.cast_unsigned() as usize,
@@ -34,12 +37,14 @@ impl UnclippedRect {
             }
         };
 
-        if self.size.w < card_size.w {
-            self.position.x += (card_size.w / 2 - self.size.w / 2).cast_signed();
-        }
-        if self.size.h < card_size.h {
-            self.position.y += (card_size.h / 2 - self.size.h / 2).cast_signed();
-        }
+        let region = Region {
+            x: self.position.x as i64,
+            y: self.position.y as i64,
+            w: self.size.w.cast_signed() as i64,
+            h: self.size.h.cast_signed() as i64,
+            z_index: None,
+        };
+        self.position = region.get_position();
     }
 
     pub const fn into_clipped_rect(self, dst_size: Size) -> Option<ClippedRect> {

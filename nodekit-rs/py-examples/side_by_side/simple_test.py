@@ -21,13 +21,13 @@ cards = {
         ),
     ),
     'video': nk.cards.VideoCard(
-        region=nk.Region(x=-512, y=-512, w=512, h=512, z_index=1),
+        region=nk.Region(x=0, y=0, w=256, h=256, z_index=1),
         video=nk.assets.Video.from_path(
             d.joinpath("test-video.mp4").resolve()
         ),
     ),
     'text': nk.cards.TextCard(
-        region=nk.Region(x=-512, y=-384, w=1024, h=768, z_index=2),
+        region=nk.Region(x=0, y=0, w=1024, h=1024, z_index=2),
         text=d.joinpath('lorem.txt').read_text(encoding='utf-8'),
         justification_horizontal="left",
         text_color="#000000FF",
@@ -36,7 +36,7 @@ cards = {
 }
 card = nk.cards.CompositeCard(children=cards)
 
-board_color = '#AAAAAAFF'
+board_color = '#FFAAAAFF'
 
 render(c=card, bg=board_color, filename='simple_test')
 

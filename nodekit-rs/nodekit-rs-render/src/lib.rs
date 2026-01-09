@@ -335,8 +335,8 @@ mod tests {
     fn text_card() -> Card {
         Card {
             region: Region {
-                x: -HORIZONTAL.i_64_half,
-                y: VERTICAL.i_64_half,
+                x: 0,
+                y: 0,
                 w: HORIZONTAL.i_64,
                 h: VERTICAL.i_64,
                 z_index: Some(5),

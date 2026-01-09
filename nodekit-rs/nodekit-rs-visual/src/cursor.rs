@@ -1,8 +1,8 @@
 use blittle::overlay::*;
 use blittle::{ClippedRect, Size};
 use bytemuck::cast_slice;
-use nodekit_rs_models::board::*;
 use nodekit_rs_models::Region;
+use nodekit_rs_models::board::*;
 
 const CURSOR_SIZE: Size = Size { w: 34, h: 44 };
 

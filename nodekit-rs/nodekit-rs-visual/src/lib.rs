@@ -75,6 +75,7 @@ fn resize(
         let card_size = rect.size;
         rect.size = bitmap_size;
         rect.resize(&card_size);
+        rect.position = region.get_position();
 
         // Resize the image.
         let width = rect.size.w as u32;
