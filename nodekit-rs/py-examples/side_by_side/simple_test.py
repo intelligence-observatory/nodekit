@@ -21,7 +21,7 @@ cards = {
         ),
     ),
     'video': nk.cards.VideoCard(
-        region=nk.Region(x=-200, y=-200, w=700, h=256, z_index=1),
+        region=nk.Region(x=-512, y=-512, w=512, h=512, z_index=1),
         video=nk.assets.Video.from_path(
             d.joinpath("test-video.mp4").resolve()
         ),

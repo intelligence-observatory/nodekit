@@ -336,7 +336,7 @@ mod tests {
         Card {
             region: Region {
                 x: -HORIZONTAL.i_64_half,
-                y: -VERTICAL.i_64_half,
+                y: VERTICAL.i_64_half,
                 w: HORIZONTAL.i_64,
                 h: VERTICAL.i_64,
                 z_index: Some(5),
