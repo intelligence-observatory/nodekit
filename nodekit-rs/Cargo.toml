@@ -15,6 +15,8 @@ members = [
 name = "nodekit-rs"
 version = "0.1.0"
 edition = "2024"
+authors = ["Esther Alter <alters@mit.edu>", "Michael Lee <mil@mit.edu>"]
+description = "Render nodekit as a bitmap"
 
 [lib]
 name = "nodekit_rs"

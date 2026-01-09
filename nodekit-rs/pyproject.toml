@@ -7,7 +7,8 @@ build-backend = "maturin"
 name = "nodekit_rs"
 version = "0.1.0"
 authors = [
-    { name = "Esther Alter", email = "alters@mit.edu" }
+    { name = "Esther Alter", email = "alters@mit.edu" },
+    { name = "Michael Lee", email = "mil@mit.edu" },
 ]
 
 [tool.maturin]
