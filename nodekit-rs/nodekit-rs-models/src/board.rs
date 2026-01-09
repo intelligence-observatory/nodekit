@@ -31,7 +31,7 @@ pub struct BoardDimension {
 }
 
 dim!(HORIZONTAL, 1024);
-dim!(VERTICAL, 768);
+dim!(VERTICAL, 1024);
 
 pub const BOARD_SIZE: Size = Size {
     w: HORIZONTAL.u_size,

@@ -50,7 +50,7 @@ def rgba() -> State:
             ),
         ),
         'text': nodekit.cards.TextCard(
-            region=Region(x=-512, y=-512, w=1, h=51, z_index=2),
+            region=Region(x=-512, y=-512, w=1000, h=51, z_index=2),
             text="# Click the **test image**",
             justification_horizontal="left",
             text_color="#000000FF",

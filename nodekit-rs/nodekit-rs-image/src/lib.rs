@@ -114,9 +114,9 @@ fn rgba_to_rgb(buffer: &[u8]) -> Vec<u8> {
         .iter()
         .zip(cast_slice_mut::<u8, [u8; 3]>(&mut dst).iter_mut())
     {
-        dst[0] = src[1];
-        dst[1] = src[2];
-        dst[2] = src[3];
+        dst[0] = src[0];
+        dst[1] = src[1];
+        dst[2] = src[2];
     }
     dst
 }

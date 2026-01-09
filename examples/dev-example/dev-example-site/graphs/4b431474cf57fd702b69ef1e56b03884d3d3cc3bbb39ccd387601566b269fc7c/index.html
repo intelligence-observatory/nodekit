@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>NodeKit</title>
+    <link rel="shortcut icon" href="">
+
+    <!-- NodeKit -->
+    <script src="../../runtime/nodekit.f80e7047a1b718d3b68b91695063f78f3446d672f550961d8a07d84085cfc416.js"></script>
+    <link href="../../runtime/nodekit.a0b0c8852e44464ca3433f6ed1b90ee8b1e2ba3c7a9b1ab769481054b6f0388f.css" rel="stylesheet">
+    <script>
+        const graph = {
+            "nodekit_version": "0.2.2",
+            "nodes": {
+                "0": {
+                    "annotation": "",
+                    "board_color": "#808080ff",
+                    "card": {
+                        "card_type": "CompositeCard",
+                        "children": {
+                            "advertisement": {
+                                "background_color": "#e6e6e6ff",
+                                "card_type": "TextCard",
+                                "font_size": 30,
+                                "justification_horizontal": "center",
+                                "justification_vertical": "center",
+                                "region": {
+                                    "h": 100,
+                                    "mask": "rectangle",
+                                    "w": 200,
+                                    "x": -400,
+                                    "y": -400,
+                                    "z_index": null
+                                },
+                                "text": "I am a TextCard.",
+                                "text_color": "#000000ff"
+                            },
+                            "image": {
+                                "card_type": "ImageCard",
+                                "image": {
+                                    "locator": {
+                                        "locator_type": "RelativePath",
+                                        "relative_path": "../../assets/image/svg+xml/89fcd035750bf589cdcb63b4b551a4488ca2aa6e93e19943d1578ccc096f19ea.svg"
+                                    },
+                                    "media_type": "image/svg+xml",
+                                    "sha256": "89fcd035750bf589cdcb63b4b551a4488ca2aa6e93e19943d1578ccc096f19ea"
+                                },
+                                "region": {
+                                    "h": 100,
+                                    "mask": "ellipse",
+                                    "w": 100,
+                                    "x": 250,
+                                    "y": 0,
+                                    "z_index": null
+                                }
+                            },
+                            "video": {
+                                "card_type": "VideoCard",
+                                "loop": false,
+                                "region": {
+                                    "h": 300,
+                                    "mask": "rectangle",
+                                    "w": 300,
+                                    "x": 0,
+                                    "y": 0,
+                                    "z_index": null
+                                },
+                                "video": {
+                                    "locator": {
+                                        "locator_type": "RelativePath",
+                                        "relative_path": "../../assets/video/mp4/3f224a8b6a7917ae1364cf2cc9daf7a5f7073bfe0fb5d9b638d8a6efc1c867f7.mp4"
+                                    },
+                                    "media_type": "video/mp4",
+                                    "sha256": "3f224a8b6a7917ae1364cf2cc9daf7a5f7073bfe0fb5d9b638d8a6efc1c867f7"
+                                }
+                            }
+                        }
+                    },
+                    "hide_pointer": false,
+                    "sensor": {
+                        "children": {
+                            "affirm": {
+                                "choices": {
+                                    "submit-button": {
+                                        "background_color": "#4caf50ff",
+                                        "card_type": "TextCard",
+                                        "font_size": 30,
+                                        "justification_horizontal": "center",
+                                        "justification_vertical": "center",
+                                        "region": {
+                                            "h": 100,
+                                            "mask": "rectangle",
+                                            "w": 200,
+                                            "x": 0,
+                                            "y": -400,
+                                            "z_index": null
+                                        },
+                                        "text": "Submit",
+                                        "text_color": "#ffffffff"
+                                    }
+                                },
+                                "duration_msec": null,
+                                "sensor_type": "SelectSensor"
+                            },
+                            "free-text-test": {
+                                "duration_msec": null,
+                                "font_size": 20,
+                                "max_length": null,
+                                "min_length": 1,
+                                "prompt": "I am a TextEntrySensor. Try typing into me.",
+                                "region": {
+                                    "h": 200,
+                                    "mask": "rectangle",
+                                    "w": 600,
+                                    "x": 0,
+                                    "y": 400,
+                                    "z_index": null
+                                },
+                                "sensor_type": "TextEntrySensor"
+                            },
+                            "slider-horizontal": {
+                                "confirm_button": null,
+                                "duration_msec": null,
+                                "initial_bin_index": 5,
+                                "num_bins": 7,
+                                "orientation": "horizontal",
+                                "region": {
+                                    "h": 50,
+                                    "mask": "rectangle",
+                                    "w": 1024,
+                                    "x": 0,
+                                    "y": -250,
+                                    "z_index": null
+                                },
+                                "sensor_type": "SliderSensor",
+                                "show_bin_markers": true
+                            },
+                            "slider-horizontal2": {
+                                "confirm_button": null,
+                                "duration_msec": null,
+                                "initial_bin_index": 25,
+                                "num_bins": 100,
+                                "orientation": "horizontal",
+                                "region": {
+                                    "h": 50,
+                                    "mask": "rectangle",
+                                    "w": 1024,
+                                    "x": 0,
+                                    "y": -300,
+                                    "z_index": null
+                                },
+                                "sensor_type": "SliderSensor",
+                                "show_bin_markers": true
+                            },
+                            "slider-vertical": {
+                                "confirm_button": null,
+                                "duration_msec": null,
+                                "initial_bin_index": 80,
+                                "num_bins": 100,
+                                "orientation": "vertical",
+                                "region": {
+                                    "h": 300,
+                                    "mask": "rectangle",
+                                    "w": 100,
+                                    "x": -250,
+                                    "y": 0,
+                                    "z_index": null
+                                },
+                                "sensor_type": "SliderSensor",
+                                "show_bin_markers": true
+                            }
+                        },
+                        "duration_msec": null,
+                        "sensor_type": "ProductSensor"
+                    },
+                    "type": "Node"
+                }
+            },
+            "registers": {},
+            "start": "0",
+            "transitions": {
+                "0": {
+                    "register_updates": {},
+                    "transition_type": "End"
+                }
+            },
+            "type": "Graph"
+        };
+        window.onload = async () => {await NodeKit.play(graph)};
+    </script>
+</head>
+<body></body>
+</html>
