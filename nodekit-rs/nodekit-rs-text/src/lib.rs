@@ -3,7 +3,7 @@ mod md;
 mod text_buffers;
 mod text_entry;
 
-use blittle::{ClippedRect, PositionI, Size};
+use blittle::{ClippedRect, PositionI};
 use cosmic_text::fontdb::Source;
 use cosmic_text::{Align, Attrs, Buffer, Color, Family, FontSystem, Metrics, Shaping, SwashCache};
 pub use error::Error;
@@ -54,9 +54,10 @@ impl TextEngine {
                 };
 
                 // Get the text rect. Draw text.
-                if let Some(rect) = ClippedRect::new(background_rect.dst_position, BOARD_SIZE, text_size) {
-                    text_buffers.foreground =
-                        self.get_text(text_card, font_size, rect, BOARD_SIZE)?;
+                if let Some(rect) =
+                    ClippedRect::new(background_rect.dst_position, BOARD_SIZE, text_size)
+                {
+                    text_buffers.foreground = self.get_text(text_card, font_size, rect)?;
                 }
                 Ok(Some(text_buffers))
             }
@@ -93,7 +94,7 @@ impl TextEngine {
                             background_color: "#00000000".to_string(),
                         };
                         // Render.
-                        let text = self.get_text(&text_card, font_size, rect, BOARD_SIZE)?;
+                        let text = self.get_text(&text_card, font_size, rect)?;
                         Ok(Some(TextEntryBuffers::new(text, background_rect)))
                     }
                 }
@@ -132,7 +133,6 @@ impl TextEngine {
         text_card: &TextCard,
         font_size: FontSize,
         rect: ClippedRect,
-        background_size: Size,
     ) -> Result<Option<RgbaBuffer>, Error> {
         let mut text_buffer = Buffer::new(&mut self.font_system, Metrics::from(&font_size));
         text_buffer.set_size(
@@ -201,12 +201,10 @@ impl TextEngine {
             size: rect.src_size,
         };
 
-        Ok(unclipped_rect
-            .into_clipped_rect(background_size)
-            .map(|rect| {
-                text_surface.rect = rect;
-                text_surface
-            }))
+        Ok(unclipped_rect.into_clipped_rect(BOARD_SIZE).map(|rect| {
+            text_surface.rect = rect;
+            text_surface
+        }))
     }
 
     fn draw(
@@ -299,17 +297,17 @@ mod tests {
         let card = TextCard {
             text: "Describe everything you notice in this image, as if you were explaining it to someone who can’t see it.".to_string(),
             font_size: 20,
-            justification_horizontal: JustificationHorizontal::Left,
+            justification_horizontal: JustificationHorizontal::Center,
             justification_vertical: JustificationVertical::Center,
             text_color: "#000000FF".to_string(),
-            background_color: "#00000000".to_string(),
+            background_color: "#E6E6E600".to_string(),
         };
         let region = Region {
             x: 0,
             y: -150,
             w: 600,
             h: 200,
-            z_index: None
+            z_index: None,
         };
 
         // Render the text.

@@ -10,10 +10,7 @@ pub struct UnclippedRect {
 impl UnclippedRect {
     pub const fn new(region: &Region) -> Self {
         Self {
-            position: PositionI {
-                x: region.x as isize,
-                y: region.y as isize,
-            },
+            position: region.get_position(),
             size: Size {
                 w: region.w.cast_unsigned() as usize,
                 h: region.h.cast_unsigned() as usize,
