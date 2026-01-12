@@ -71,7 +71,7 @@ fn add_node<'s>(
         Node::Root(node) => children!(node, font_size, paragraphs, paragraph, attrs, list_state),
         Node::Emphasis(node) => {
             let mut attrs = attrs.clone();
-            attrs.style = Style::Oblique;
+            attrs.style = Style::Italic;
             children!(
                 node, font_size, paragraphs, paragraph, &mut attrs, list_state
             )
@@ -106,7 +106,7 @@ fn add_node<'s>(
                 paragraph.metrics = font_size.header_metrics(node.depth)?;
             }
             let mut attrs = attrs.clone();
-            attrs.weight = Weight::BOLD;
+            attrs.weight = Weight::MEDIUM;
             children!(
                 node, font_size, paragraphs, paragraph, &mut attrs, list_state
             )

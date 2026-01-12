@@ -250,10 +250,16 @@ impl Default for TextEngine {
         let locale = "en-US".to_string();
         let mut db = fontdb::Database::new();
         db.load_font_source(Source::Binary(Arc::new(include_bytes!(
-            "../fonts/Inter/Inter-VariableFont_opsz,wght.ttf"
+            "../fonts/Inter-Regular.otf"
         ))));
         db.load_font_source(Source::Binary(Arc::new(include_bytes!(
-            "../fonts/Inter/Inter-Italic-VariableFont_opsz,wght.ttf"
+            "../fonts/Inter-Medium.otf"
+        ))));
+        db.load_font_source(Source::Binary(Arc::new(include_bytes!(
+            "../fonts/Inter-Italic.otf"
+        ))));
+        db.load_font_source(Source::Binary(Arc::new(include_bytes!(
+            "../fonts/Inter-MediumItalic.otf"
         ))));
         db.set_sans_serif_family("Inter");
 
