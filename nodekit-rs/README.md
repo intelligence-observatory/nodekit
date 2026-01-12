@@ -72,20 +72,15 @@ state.t_msec = 300
 
 ## What works, what doesn't
 
-Works:
+**`nodekit-rs` is in alpha.** The goal is to faithfully replicate `nodekit-browser`. In some cases, the replication isn't exact. In other cases, features are missing.
 
-- ImageCard
-- TextCard (with markdown formatting)
-- VideoCard
-- CompositeCard
-- Pointer
+ImageCard, VideoCard, and CompositeCard card should always look the same as they would in a browser.
 
-Doesn't work:
+TextCard is WIP. Markdown formatting is supported. Colorized words are supported (but not in `nodekit-browser`). There are differences in line heights and font weights. There are minor kerning problems with list items.
 
-- Sensors
-- An exact replica of what's in the browser window. Some examples of might not look correct:
-  - Pixel scaling/sub-pixel rendering
-  - Text rendering e.g. kerning and line separation height
+Pointer rendering is supported but might not be the same as in the browser.
+
+Sensors are not yet implemented.
 
 ## Test
 

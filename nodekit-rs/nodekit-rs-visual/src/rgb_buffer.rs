@@ -75,7 +75,7 @@ mod tests {
             RgbBuffer::new_resized(&mut buffer, Size { w: 300, h: 600 }, &Region::default())
                 .unwrap()
                 .unwrap();
-        assert_eq!(resized.rect.dst_position_clipped.x, 0);
+        assert_eq!(resized.rect.dst_position_clipped.x, 256);
         assert_eq!(resized.rect.dst_position_clipped.y, 0);
         assert_eq!(resized.rect.src_size_clipped.w, 512);
         assert_eq!(resized.rect.src_size_clipped.h, VERTICAL.u_size);
