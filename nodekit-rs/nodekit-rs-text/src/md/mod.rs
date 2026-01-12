@@ -1,11 +1,13 @@
 mod font_size;
 mod list_state;
 mod paragraph;
+pub(crate) mod paragraph_type;
 mod span;
 
 use crate::error::Error;
 pub(crate) use crate::md::list_state::ListState;
 use crate::md::paragraph::Paragraph;
+use crate::md::paragraph_type::ParagraphType;
 use cosmic_text::{Attrs, Color, Style, Weight};
 pub(crate) use font_size::*;
 use hex_color::HexColor;
@@ -104,6 +106,7 @@ fn add_node<'s>(
             // Set the header metrics.
             if let Some(paragraph) = paragraph {
                 paragraph.metrics = font_size.header_metrics(node.depth)?;
+                paragraph.paragraph_type = ParagraphType::Header;
             }
             let mut attrs = attrs.clone();
             attrs.weight = Weight::MEDIUM;
@@ -130,6 +133,9 @@ fn add_node<'s>(
             Ok(())
         }
         Node::ListItem(node) => {
+            if let Some(paragraph) = paragraph.as_mut() {
+                paragraph.paragraph_type = ParagraphType::ListItem;
+            }
             children!(node, font_size, paragraphs, paragraph, attrs, list_state)
         }
         Node::Html(node) => parse_html(node, attrs),

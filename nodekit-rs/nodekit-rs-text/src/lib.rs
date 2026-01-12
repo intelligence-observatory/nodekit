@@ -3,9 +3,14 @@ mod md;
 mod text_buffers;
 mod text_entry;
 
+use crate::md::LINE_HEIGHT;
+use crate::md::paragraph_type::ParagraphType;
 use blittle::{ClippedRect, PositionI};
 use cosmic_text::fontdb::Source;
-use cosmic_text::{fontdb, Align, Attrs, Buffer, Color, Family, FontSystem, Metrics, PlatformFallback, Shaping, SwashCache};
+use cosmic_text::{
+    Align, Attrs, Buffer, Color, Family, FontSystem, Metrics, PlatformFallback, Shaping,
+    SwashCache, fontdb,
+};
 pub use error::Error;
 use md::{FontSize, parse};
 use nodekit_rs_models::board::*;
@@ -174,12 +179,20 @@ impl TextEngine {
                 .layout_runs()
                 .map(|layout| layout.line_height)
                 .sum::<f32>()
-                * 1.2) as usize;
+                * LINE_HEIGHT) as usize;
 
+            if let ParagraphType::Header = paragraph.paragraph_type {
+                y += font_size.header_height_usize
+            };
             // Draw.
             self.draw(text_color, y, &mut text_buffer, &mut text_surface);
+            let paragraph_height = match paragraph.paragraph_type {
+                ParagraphType::Header => font_size.header_height_usize,
+                ParagraphType::ListItem => 0,
+                ParagraphType::Text => font_size.line_height_usize,
+            };
             // Update y
-            y += height + font_size.line_height_usize;
+            y += height + paragraph_height;
         }
 
         // The total height of the text.
@@ -261,9 +274,16 @@ impl Default for TextEngine {
         db.load_font_source(Source::Binary(Arc::new(include_bytes!(
             "../fonts/Inter-MediumItalic.otf"
         ))));
+        db.load_font_source(Source::Binary(Arc::new(include_bytes!(
+            "../fonts/Inter-SemiBold.otf"
+        ))));
+        db.load_font_source(Source::Binary(Arc::new(include_bytes!(
+            "../fonts/Inter-SemiBoldItalic.otf"
+        ))));
         db.set_sans_serif_family("Inter");
 
-        let font_system = FontSystem::new_with_locale_and_db_and_fallback(locale, db, PlatformFallback);
+        let font_system =
+            FontSystem::new_with_locale_and_db_and_fallback(locale, db, PlatformFallback);
         let swash_cache = SwashCache::new();
         Self {
             font_system,

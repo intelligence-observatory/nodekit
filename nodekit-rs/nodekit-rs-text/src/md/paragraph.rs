@@ -1,3 +1,4 @@
+use super::paragraph_type::ParagraphType;
 use super::{FontSize, Span};
 use cosmic_text::Metrics;
 
@@ -5,6 +6,7 @@ use cosmic_text::Metrics;
 pub struct Paragraph<'s> {
     pub metrics: Metrics,
     pub spans: Vec<Span<'s>>,
+    pub paragraph_type: ParagraphType,
 }
 
 impl From<&FontSize> for Paragraph<'_> {
@@ -12,6 +14,7 @@ impl From<&FontSize> for Paragraph<'_> {
         Self {
             metrics: Metrics::from(value),
             spans: Vec::default(),
+            paragraph_type: ParagraphType::Text,
         }
     }
 }
