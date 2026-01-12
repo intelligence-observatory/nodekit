@@ -1,7 +1,7 @@
 import nodekit as nk
 from common import render
 
-image = nk.assets.Image.from_path("assets/san-diego.png")
+image = nk.assets.Image.from_path("assets/ocean_life.png")
 image_card = nk.cards.ImageCard(
     image=image,
     region=nk.Region(
@@ -12,7 +12,7 @@ image_card = nk.cards.ImageCard(
     ),
 )
 
-prompt = "Describe everything you notice in this image, as if you were explaining it to someone who can’t see it."
+prompt = "Click on parts of the image that remind you most of home, in descending order from most memorable to least."
 prompt_card = nk.cards.TextCard(
     text=prompt,
     region=nk.Region(x=0, y=-150, h=200, w=600),
@@ -37,6 +37,6 @@ node = nk.Node(
     )
 
 
-render(card=card, board_color=board_color, filename='image_free_response_nodekit_rs')
+render(card=card, board_color=board_color, filename='ocean_life_rs')
 graph = nk.concat([node])
 nk.play(graph)

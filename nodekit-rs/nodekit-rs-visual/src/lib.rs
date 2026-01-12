@@ -75,8 +75,6 @@ fn resize(
         let card_size = rect.size;
         rect.size = bitmap_size;
         rect.resize(&card_size);
-        rect.position = region.get_position();
-
         // Resize the image.
         let width = rect.size.w as u32;
         let height = rect.size.h as u32;
@@ -90,6 +88,13 @@ fn resize(
         resizer
             .resize(&src, &mut dst, Some(&options))
             .map_err(Error::ImageResize)?;
+
+        // Shift the position.
+        let mut region = region.clone();
+        region.w = rect.size.w.cast_signed() as i64;
+        region.h = rect.size.h.cast_signed() as i64;
+        rect.position = region.get_position();
+
         Ok((dst.buffer().to_vec(), rect))
     }
 }
