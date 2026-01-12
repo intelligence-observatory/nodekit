@@ -295,6 +295,33 @@ mod tests {
     }
 
     #[test]
+    fn test_text_non_default_region() {
+        let card = TextCard {
+            text: include_str!("../lorem.txt").to_string(),
+            font_size: 20,
+            justification_horizontal: JustificationHorizontal::Left,
+            justification_vertical: JustificationVertical::Center,
+            text_color: "#000000FF".to_string(),
+            background_color: "#00000000".to_string(),
+        };
+        let region = Region {
+            x: 0,
+            y: -150,
+            w: 200,
+            h: 600,
+            z_index: None
+        };
+
+        // Render the text.
+        let mut text = TextEngine::default();
+        let mut board = Board::new([200, 200, 200]);
+        let text_buffer = text.render_text_card(&card, &region).unwrap().unwrap();
+        text_buffer.blit(&mut board);
+        // Write the result as a .png file.
+        nodekit_rs_png::board_to_png("rect.png", board.get_board_without_cursor());
+    }
+
+    #[test]
     fn test_text_entry_render() {
         let card = TextEntry {
             prompt: String::default(),
