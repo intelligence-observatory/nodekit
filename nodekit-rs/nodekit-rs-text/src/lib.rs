@@ -5,7 +5,7 @@ mod text_entry;
 
 use blittle::{ClippedRect, PositionI};
 use cosmic_text::fontdb::Source;
-use cosmic_text::{Align, Attrs, Buffer, Color, Family, FontSystem, Metrics, Shaping, SwashCache};
+use cosmic_text::{fontdb, Align, Attrs, Buffer, Color, Family, FontSystem, Metrics, PlatformFallback, Shaping, SwashCache};
 pub use error::Error;
 use md::{FontSize, parse};
 use nodekit_rs_models::board::*;
@@ -247,17 +247,17 @@ impl TextEngine {
 
 impl Default for TextEngine {
     fn default() -> Self {
-        let mut font_system = FontSystem::new();
-        font_system
-            .db_mut()
-            .load_font_source(Source::Binary(Arc::new(include_bytes!(
-                "../fonts/Inter/Inter-VariableFont_opsz,wght.ttf"
-            ))));
-        font_system
-            .db_mut()
-            .load_font_source(Source::Binary(Arc::new(include_bytes!(
-                "../fonts/Inter/Inter-Italic-VariableFont_opsz,wght.ttf"
-            ))));
+        let locale = "en-US".to_string();
+        let mut db = fontdb::Database::new();
+        db.load_font_source(Source::Binary(Arc::new(include_bytes!(
+            "../fonts/Inter/Inter-VariableFont_opsz,wght.ttf"
+        ))));
+        db.load_font_source(Source::Binary(Arc::new(include_bytes!(
+            "../fonts/Inter/Inter-Italic-VariableFont_opsz,wght.ttf"
+        ))));
+        db.set_sans_serif_family("Inter");
+
+        let font_system = FontSystem::new_with_locale_and_db_and_fallback(locale, db, PlatformFallback);
         let swash_cache = SwashCache::new();
         Self {
             font_system,

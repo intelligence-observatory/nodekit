@@ -71,14 +71,14 @@ fn add_node<'s>(
         Node::Root(node) => children!(node, font_size, paragraphs, paragraph, attrs, list_state),
         Node::Emphasis(node) => {
             let mut attrs = attrs.clone();
-            attrs.style = Style::Italic;
+            attrs.style = Style::Oblique;
             children!(
                 node, font_size, paragraphs, paragraph, &mut attrs, list_state
             )
         }
         Node::Strong(node) => {
             let mut attrs = attrs.clone();
-            attrs.weight = Weight::SEMIBOLD;
+            attrs.weight = Weight::MEDIUM;
             children!(
                 node, font_size, paragraphs, paragraph, &mut attrs, list_state
             )
