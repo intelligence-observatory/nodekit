@@ -274,12 +274,6 @@ impl Default for TextEngine {
         db.load_font_source(Source::Binary(Arc::new(include_bytes!(
             "../fonts/Inter-MediumItalic.otf"
         ))));
-        db.load_font_source(Source::Binary(Arc::new(include_bytes!(
-            "../fonts/Inter-SemiBold.otf"
-        ))));
-        db.load_font_source(Source::Binary(Arc::new(include_bytes!(
-            "../fonts/Inter-SemiBoldItalic.otf"
-        ))));
         db.set_sans_serif_family("Inter");
 
         let font_system =
