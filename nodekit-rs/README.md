@@ -12,7 +12,7 @@ The first time you run steps 4 and 5 they will take a while; subsequent executio
 
 Steps 4 and 5 require approximately 37 GB of disk space, nearly all of which is cached data. You can free up that space by running `cargo clean`, but then steps 4. and 5. will be slow the next time you run them.
 
-The size of the final `.whl` file should be approximately 37.5 MB.
+The size of the final `.whl` file should be approximately 44 MB.
 
 ## Usage
 
