@@ -54,9 +54,9 @@ impl TextEngine {
                 };
 
                 // Get the text rect. Draw text.
-                if let Some(rect) = ClippedRect::new(PositionI::default(), BOARD_SIZE, text_size) {
+                if let Some(rect) = ClippedRect::new(background_rect.dst_position, BOARD_SIZE, text_size) {
                     text_buffers.foreground =
-                        self.get_text(text_card, font_size, rect, background_rect.src_size)?;
+                        self.get_text(text_card, font_size, rect, BOARD_SIZE)?;
                 }
                 Ok(Some(text_buffers))
             }
@@ -297,7 +297,7 @@ mod tests {
     #[test]
     fn test_text_non_default_region() {
         let card = TextCard {
-            text: include_str!("../lorem.txt").to_string(),
+            text: "Describe everything you notice in this image, as if you were explaining it to someone who can’t see it.".to_string(),
             font_size: 20,
             justification_horizontal: JustificationHorizontal::Left,
             justification_vertical: JustificationVertical::Center,
@@ -307,8 +307,8 @@ mod tests {
         let region = Region {
             x: 0,
             y: -150,
-            w: 200,
-            h: 600,
+            w: 600,
+            h: 200,
             z_index: None
         };
 
