@@ -33,15 +33,6 @@ impl UnclippedRect {
                 h: card_size.h,
             }
         };
-
-        let region = Region {
-            x: self.position.x as i64,
-            y: self.position.y as i64,
-            w: self.size.w.cast_signed() as i64,
-            h: self.size.h.cast_signed() as i64,
-            z_index: None,
-        };
-        self.position = region.get_position();
     }
 
     pub const fn into_clipped_rect(self, dst_size: Size) -> Option<ClippedRect> {

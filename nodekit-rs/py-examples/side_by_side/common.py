@@ -10,6 +10,8 @@ def render(card: nk.cards.Card, board_color: str, filename: str) -> None:
     Render using nodekit-rs
     """
 
-    p = Path(__file__).parent.joinpath(f'output/{filename}.png').resolve()
-    board = Renderer().render(State(card=card, board_color=board_color))
-    Image.fromarray(board).save(p)
+    path = Path(__file__).parent.joinpath(f'output/{filename}.png').resolve()
+    renderer = Renderer()
+    renderer.set_pointer_visibility(False)
+    board = renderer.render(State(card=card, board_color=board_color))
+    Image.fromarray(board).save(path)

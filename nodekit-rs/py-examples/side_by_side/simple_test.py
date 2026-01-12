@@ -26,7 +26,7 @@ card = nk.cards.CompositeCard(children=cards)
 
 board_color = '#FFAAAAFF'
 
-render(card=card, board_color=board_color, filename='simple_test')
+render(card=card, board_color=board_color, filename='simple_test_rs')
 
 
 # TODO
