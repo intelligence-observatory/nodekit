@@ -5,7 +5,7 @@
 1. [Install Rust](https://rust-lang.org/tools/install/)
 2. Activate Python venv
 3. [Install `cargo-vcpkg`](https://github.com/mcgoo/cargo-vcpkg?tab=readme-ov-file#installation)
-4. `cargo vcpkg build`
+4. `cd nodekit-rs-video && cargo vcpkg build`
 5. `./develop.sh`
 
 The first time you run steps 4 and 5 they will take a while; subsequent executions will be much faster because they'll use cached data.
