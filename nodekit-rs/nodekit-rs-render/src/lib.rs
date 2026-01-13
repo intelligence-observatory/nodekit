@@ -29,6 +29,7 @@ macro_rules! render_asset {
             Asset::TextEntry(text) => {
                 text.blit(&mut $self.board);
             }
+            #[cfg(target_os = "linux")]
             Asset::Video(video) => {
                 video.get_frame($state.t_msec).map_err(Error::Video)?;
                 $self.board.blit_rgb(&video.rgb_buffer);
@@ -236,6 +237,7 @@ impl Renderer {
                     }
                 }
                 CardType::Video { asset, looped: _ } => {
+                    #[cfg(target_os = "linux")]
                     if let Some(video) =
                         nodekit_rs_video::Video::new(asset, &card.region).map_err(Error::Video)?
                     {
