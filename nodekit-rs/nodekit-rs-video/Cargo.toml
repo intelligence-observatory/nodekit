@@ -24,6 +24,6 @@ git = "https://github.com/microsoft/vcpkg"
 rev = "e2bb93a35f70851c2bfb60006f1f7659cd1637d1"
 
 [package.metadata.vcpkg.target]
-arm64-apple-darwin = { triplet = "x64-osx", install = ["ffmpeg"] }
+aarch64-apple-darwin = { triplet = "arm64-osx", install = ["ffmpeg"] }
 x86_64-apple-darwin = { triplet = "x64-osx", install = ["ffmpeg"] }
 x86_64-unknown-linux-gnu = {triplet = "x64-linux", install = ["ffmpeg"] }
