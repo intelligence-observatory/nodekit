@@ -33,8 +33,11 @@ cd ..
 uv tool install maturin
 
 # Generate the .pyi file.
-cargo run --example stub_gen
-python3 fix_pyi.py
+# This doesn't work on MacOS.
+if [[ $OSTYPE == "linux-gnu" ]]; then
+  cargo run --example stub_gen
+  python3 fix_pyi.py
+fi
 
 # Build the Python library.
 maturin develop --release --uv
