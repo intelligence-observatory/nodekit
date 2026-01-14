@@ -3,16 +3,15 @@
 ## Setup
 
 1. [Install Rust](https://rust-lang.org/tools/install/)
-2. Activate Python venv
-3. [Install `cargo-vcpkg`](https://github.com/mcgoo/cargo-vcpkg?tab=readme-ov-file#installation)
-4. `cd nodekit-rs-video && cargo vcpkg build`
-5. `./develop.sh`
+2. [Install uv](https://docs.astral.sh/uv/)
+3. Activate Python venv
+4. `./develop.sh`
 
 The first time you run steps 4 and 5 they will take a while; subsequent executions will be much faster because they'll use cached data.
 
-Steps 4 and 5 require approximately 37 GB of disk space, nearly all of which is cached data. You can free up that space by running `cargo clean`, but then steps 4. and 5. will be slow the next time you run them.
+Steps 4 and 5 require approximately 37 GB of disk space, nearly all of which is cached build artifacts. You can free up that space by running `cargo clean`, but then steps 4. and 5. will be slow the next time you run them.
 
-The size of the final `.whl` file should be approximately 44 MB.
+The size of the final library file should be approximately 44 MB.
 
 ## Usage
 
