@@ -7,8 +7,8 @@
 3. Activate Python venv
 4. `./develop.sh`
 
-The first time you run `develop.sh`, it will take a while to compile `nodekit-rs` and will generate a *lot* of cached build artifacts. These artifacts allow the compiler to be *much* faster on subsequent usages. You can free up that space by running `cargo clean`, but then `develop.sh` will be slow the next time you run it.
-
+The first time you run `develop.sh`, it will take a while to compile `nodekit-rs` and will generate a approximately 5.5 GB of cached build artifacts. These artifacts allow the compiler to be *much* faster on subsequent usages. You can free up that space by running `cargo clean`, but then `develop.sh` will be slow the next time you run it.
+ls
 The size of the final library file should be approximately 44 MB.
 
 ## Usage
