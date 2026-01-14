@@ -21,7 +21,7 @@ harness = false
 
 [package.metadata.vcpkg]
 git = "https://github.com/microsoft/vcpkg"
-rev = "4657ac53ae9e4ca6f62a7b873bd52265bf8e3d55"
+rev = "e2bb93a35f70851c2bfb60006f1f7659cd1637d1"
 
 [package.metadata.vcpkg.target]
 aarch64-apple-darwin = { dependencies = ["ffmpeg"] }

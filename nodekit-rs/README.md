@@ -7,9 +7,7 @@
 3. Activate Python venv
 4. `./develop.sh`
 
-The first time you run steps 4 and 5 they will take a while; subsequent executions will be much faster because they'll use cached data.
-
-Steps 4 and 5 require approximately 37 GB of disk space, nearly all of which is cached build artifacts. You can free up that space by running `cargo clean`, but then steps 4. and 5. will be slow the next time you run them.
+The first time you run `develop.sh`, it will take a while to compile `nodekit-rs` and will generate a *lot* of cached build artifacts. These artifacts allow the compiler to be *much* faster on subsequent usages. You can free up that space by running `cargo clean`, but then `develop.sh` will be slow the next time you run it.
 
 The size of the final library file should be approximately 44 MB.
 
