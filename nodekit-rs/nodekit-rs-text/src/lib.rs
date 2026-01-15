@@ -7,10 +7,7 @@ use crate::md::LINE_HEIGHT;
 use crate::md::paragraph_type::ParagraphType;
 use blittle::{ClippedRect, PositionI};
 use cosmic_text::fontdb::Source;
-use cosmic_text::{
-    Align, Attrs, Buffer, Color, Family, FontSystem, Metrics, PlatformFallback, Shaping,
-    SwashCache, fontdb,
-};
+use cosmic_text::{Align, Attrs, Buffer, Color, Family, FontSystem, Metrics, PlatformFallback, Shaping, SwashCache, fontdb, Weight};
 pub use error::Error;
 use md::{FontSize, parse};
 use nodekit_rs_models::board::*;
@@ -151,6 +148,7 @@ impl TextEngine {
         // Prepare font attributes.
         let mut attrs = Attrs::new().color(text_color);
         attrs.family = Family::SansSerif;
+        attrs.weight = Weight::MEDIUM;
         let mut text_surface = RgbaBuffer::new(rect, [0, 0, 0, 0]);
         // Parse the markdown text.
         let paragraphs = parse(&text_card.text, &font_size, attrs.clone())?;
@@ -263,16 +261,16 @@ impl Default for TextEngine {
         let locale = "en-US".to_string();
         let mut db = fontdb::Database::new();
         db.load_font_source(Source::Binary(Arc::new(include_bytes!(
-            "../fonts/Inter-Regular.otf"
-        ))));
-        db.load_font_source(Source::Binary(Arc::new(include_bytes!(
             "../fonts/Inter-Medium.otf"
         ))));
         db.load_font_source(Source::Binary(Arc::new(include_bytes!(
-            "../fonts/Inter-Italic.otf"
+            "../fonts/Inter-Bold.otf"
         ))));
         db.load_font_source(Source::Binary(Arc::new(include_bytes!(
             "../fonts/Inter-MediumItalic.otf"
+        ))));
+        db.load_font_source(Source::Binary(Arc::new(include_bytes!(
+            "../fonts/Inter-BoldItalic.otf"
         ))));
         db.set_sans_serif_family("Inter");
 

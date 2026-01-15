@@ -80,7 +80,7 @@ fn add_node<'s>(
         }
         Node::Strong(node) => {
             let mut attrs = attrs.clone();
-            attrs.weight = Weight::MEDIUM;
+            attrs.weight = Weight::BOLD;
             children!(
                 node, font_size, paragraphs, paragraph, &mut attrs, list_state
             )
@@ -109,7 +109,7 @@ fn add_node<'s>(
                 paragraph.paragraph_type = ParagraphType::Header;
             }
             let mut attrs = attrs.clone();
-            attrs.weight = Weight::MEDIUM;
+            attrs.weight = Weight::BOLD;
             children!(
                 node, font_size, paragraphs, paragraph, &mut attrs, list_state
             )
