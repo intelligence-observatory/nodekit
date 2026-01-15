@@ -19,6 +19,8 @@ pub struct Board {
     board8_without_cursor: Vec<u8>,
     /// The final bitmap: `board8_without_cursor` + `board32` overlays + the cursor.
     board8_final: Vec<u8>,
+    /// This is used to erase the board.
+    board8_empty: Vec<u8>,
     /// This is used to apply overlays.
     board32: Vec<Vec4>,
     /// If true, the board has been updated.
@@ -34,6 +36,7 @@ impl Board {
         let board32 = rgb8_to_rgba32(&board8);
         Self {
             board8_without_cursor: board8.clone(),
+            board8_empty: board8.clone(),
             board8_final: board8,
             board32,
             dirty: false,
@@ -48,6 +51,8 @@ impl Board {
 
     pub fn clear(&mut self) {
         cast_slice_mut::<u8, RgbColor>(&mut self.board8_without_cursor).fill(self.color);
+        self.board8_empty
+            .copy_from_slice(&self.board8_without_cursor);
     }
 
     pub fn blit(&mut self, buffer: &VisualBuffer) {
@@ -125,6 +130,15 @@ impl Board {
         // Apply remaining overlays.
         self.apply_overlays();
         &self.board8_without_cursor
+    }
+
+    pub fn erase(&mut self, rect: &ClippedRect) {
+        blit(
+            &self.board8_empty,
+            &mut self.board8_without_cursor,
+            rect,
+            &PIXEL_TYPE,
+        );
     }
 
     fn apply_overlays(&mut self) {

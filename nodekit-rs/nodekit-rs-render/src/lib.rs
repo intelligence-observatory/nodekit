@@ -133,8 +133,11 @@ impl Renderer {
             // New state.
             self.start(state)?;
         } else {
+            let dirty_cards = self.get_dirty_cards(state);
+            // Erase.
+            self.erase(&dirty_cards);
             // Re-render dirty assets.
-            for card_key in self.get_dirty_cards(state) {
+            for card_key in dirty_cards {
                 // Render.
                 render_asset!(self, &mut self.assets[card_key], state);
                 // Mark as not dirty.
@@ -215,6 +218,7 @@ impl Renderer {
             })
             .collect();
 
+        // Fill the board.
         self.board
             .fill(parse_color_rgb(&state.board_color).map_err(Error::ParseColor)?);
         Ok(())
@@ -278,6 +282,18 @@ impl Renderer {
                     .cmp(&state.cards[*b].region.z_index)
             })
             .collect()
+    }
+
+    fn erase(&mut self, card_keys: &[CardKey]) {
+        card_keys
+            .iter()
+            .filter_map(|card_key| match &self.assets[*card_key] {
+                Asset::Image(buffer) => Some(buffer.rect()),
+                Asset::Text(text_buffers) => text_buffers.rect(),
+                Asset::Video(video) => Some(video.rgb_buffer.rect),
+                Asset::TextEntry(text_buffers) => Some(text_buffers.rect),
+            })
+            .for_each(|rect| self.board.erase(&rect));
     }
 }
 
