@@ -1,0 +1,370 @@
+mod error;
+mod md;
+mod text_buffers;
+mod text_entry;
+
+use crate::md::LINE_HEIGHT;
+use crate::md::paragraph_type::ParagraphType;
+use blittle::{ClippedRect, PositionI};
+use cosmic_text::fontdb::Source;
+use cosmic_text::{Align, Attrs, Buffer, Color, Family, FontSystem, Metrics, PlatformFallback, Shaping, SwashCache, fontdb, Weight};
+pub use error::Error;
+use md::{FontSize, parse};
+use nodekit_rs_models::board::*;
+use nodekit_rs_models::{
+    JustificationHorizontal, JustificationVertical, Region, TextCard, TextEntry,
+};
+use nodekit_rs_visual::{
+    RgbBuffer, RgbaBuffer, UnclippedRect, VisualBuffer, bitmap_rgb, parse_color_rgba,
+};
+use pyo3::pyclass;
+use std::sync::Arc;
+pub use text_buffers::TextBuffers;
+pub use text_entry::TextEntryBuffers;
+use text_entry::*;
+
+#[pyclass]
+pub struct TextEngine {
+    font_system: FontSystem,
+    swash_cache: SwashCache,
+}
+
+impl TextEngine {
+    pub fn render_text_card(
+        &mut self,
+        text_card: &TextCard,
+        region: &Region,
+    ) -> Result<Option<TextBuffers>, Error> {
+        // Get the rect.
+        match UnclippedRect::new(region).into_clipped_rect(BOARD_SIZE) {
+            None => Ok(None),
+            Some(background_rect) => {
+                // Get the background buffer.
+                let background = Self::get_background(background_rect, text_card)?;
+                // Get the font sizes.
+                let font_size = FontSize::new(text_card.font_size.cast_unsigned() as u16);
+
+                // Get the size of the text buffer.
+                // Apply padding.
+                let mut text_size = background_rect.src_size;
+                text_size.w -= font_size.font_usize * 2;
+                text_size.h -= font_size.font_usize * 2;
+
+                let mut text_buffers = TextBuffers {
+                    background,
+                    foreground: None,
+                };
+
+                // Get the text rect. Draw text.
+                if let Some(rect) =
+                    ClippedRect::new(background_rect.dst_position, BOARD_SIZE, text_size)
+                {
+                    text_buffers.foreground = self.get_text(text_card, font_size, rect)?;
+                }
+                Ok(Some(text_buffers))
+            }
+        }
+    }
+
+    pub fn render_text_entry(
+        &mut self,
+        text_entry: &TextEntry,
+        region: &Region,
+    ) -> Result<Option<TextEntryBuffers>, Error> {
+        match UnclippedRect::new(region).into_clipped_rect(BOARD_SIZE) {
+            None => Ok(None),
+            Some(background_rect) => {
+                // Get the font sizes.
+                let font_size = FontSize::new(text_entry.font_size as u16);
+
+                // Render text.
+                match text_rect(&background_rect) {
+                    None => Ok(None),
+                    Some(rect) => {
+                        // Create a text card.
+                        let (text, text_color) = if text_entry.text.is_empty() {
+                            (text_entry.prompt.clone(), "#DCDCDCFF")
+                        } else {
+                            (text_entry.text.clone(), "#000000FF")
+                        };
+                        let text_card = TextCard {
+                            text,
+                            font_size: text_entry.font_size,
+                            justification_vertical: JustificationVertical::Top,
+                            justification_horizontal: JustificationHorizontal::Left,
+                            text_color: text_color.to_string(),
+                            background_color: "#00000000".to_string(),
+                        };
+                        // Render.
+                        let text = self.get_text(&text_card, font_size, rect)?;
+                        Ok(Some(TextEntryBuffers::new(text, background_rect)))
+                    }
+                }
+            }
+        }
+    }
+
+    fn get_background(
+        rect: ClippedRect,
+        text_card: &TextCard,
+    ) -> Result<Option<VisualBuffer>, Error> {
+        let background_color =
+            parse_color_rgba(&text_card.background_color).map_err(Error::BackgroundColor)?;
+        Ok(if background_color[3] == 0 {
+            None
+        } else if background_color[3] == 255 {
+            Some(VisualBuffer::Rgb(RgbBuffer::new(
+                bitmap_rgb(
+                    rect.src_size.w,
+                    rect.src_size.h,
+                    [
+                        background_color[0],
+                        background_color[1],
+                        background_color[2],
+                    ],
+                ),
+                rect,
+            )))
+        } else {
+            Some(VisualBuffer::Rgba(RgbaBuffer::new(rect, background_color)))
+        })
+    }
+
+    fn get_text(
+        &mut self,
+        text_card: &TextCard,
+        font_size: FontSize,
+        rect: ClippedRect,
+    ) -> Result<Option<RgbaBuffer>, Error> {
+        let mut text_buffer = Buffer::new(&mut self.font_system, Metrics::from(&font_size));
+        text_buffer.set_size(
+            &mut self.font_system,
+            Some(rect.src_size.w as f32),
+            Some(rect.src_size.h as f32),
+        );
+        // Get the text color.
+        let text_color = parse_color_rgba(&text_card.text_color).map_err(Error::TextColor)?;
+        let text_color = Color::rgba(text_color[0], text_color[1], text_color[2], text_color[3]);
+        // Prepare font attributes.
+        let mut attrs = Attrs::new().color(text_color);
+        attrs.family = Family::SansSerif;
+        attrs.weight = Weight::MEDIUM;
+        let mut text_surface = RgbaBuffer::new(rect, [0, 0, 0, 0]);
+        // Parse the markdown text.
+        let paragraphs = parse(&text_card.text, &font_size, attrs.clone())?;
+
+        // Shape the glyphs.
+        let mut y = 0;
+        for paragraph in paragraphs {
+            // Set the metrics of this paragraph.
+            text_buffer.set_metrics(&mut self.font_system, paragraph.metrics);
+
+            // Shape the text.
+            text_buffer.set_rich_text(
+                &mut self.font_system,
+                paragraph
+                    .spans
+                    .iter()
+                    .map(|span| (span.text.as_str(), span.attrs.clone())),
+                &attrs,
+                Shaping::Advanced,
+                Some(Self::get_align(text_card.justification_horizontal)),
+            );
+            text_buffer.shape_until_scroll(&mut self.font_system, true);
+
+            // Get the total rendered height.
+            let height = (text_buffer
+                .layout_runs()
+                .map(|layout| layout.line_height)
+                .sum::<f32>()
+                * LINE_HEIGHT) as usize;
+
+            if let ParagraphType::Header = paragraph.paragraph_type {
+                y += font_size.header_height_usize
+            };
+            // Draw.
+            self.draw(text_color, y, &mut text_buffer, &mut text_surface);
+            let paragraph_height = match paragraph.paragraph_type {
+                ParagraphType::Header => font_size.header_height_usize,
+                ParagraphType::ListItem => 0,
+                ParagraphType::Text => font_size.line_height_usize,
+            };
+            // Update y
+            y += height + paragraph_height;
+        }
+
+        // The total height of the text.
+        let height = (y - font_size.line_height_usize).cast_signed();
+
+        // Get the vertical justification.
+        let y_offset = match text_card.justification_vertical {
+            JustificationVertical::Top => 0,
+            JustificationVertical::Center => rect.src_size.h.cast_signed() / 2 - height / 2,
+            JustificationVertical::Bottom => rect.src_size.h.cast_signed() - height,
+        } + font_size.line_height_usize.cast_signed();
+
+        // Unclip.
+        let unclipped_rect = UnclippedRect {
+            position: PositionI {
+                x: rect.dst_position.x + font_size.font_isize,
+                y: rect.dst_position.y + font_size.font_isize + y_offset,
+            },
+            size: rect.src_size,
+        };
+
+        Ok(unclipped_rect.into_clipped_rect(BOARD_SIZE).map(|rect| {
+            text_surface.rect = rect;
+            text_surface
+        }))
+    }
+
+    fn draw(
+        &mut self,
+        text_color: Color,
+        y_offset: usize,
+        buffer: &mut Buffer,
+        dst: &mut RgbaBuffer,
+    ) {
+        buffer.draw(
+            &mut self.font_system,
+            &mut self.swash_cache,
+            text_color,
+            |x, y, w, h, color| {
+                let x = if x < 0 { 0 } else { x.cast_unsigned() };
+                let y = if y < 0 { 0 } else { y.cast_unsigned() };
+                let x1 = ((x + w) as usize).min(dst.rect.src_size_clipped.w);
+                let y1 = ((y + h) as usize + y_offset).min(dst.rect.src_size_clipped.h);
+                let alpha = color.a();
+                if alpha > 0 {
+                    (x as usize..x1)
+                        .zip(y as usize + y_offset..y1)
+                        .for_each(|(x, y)| {
+                            let index = x + y * dst.rect.src_size.w;
+                            dst.overlay_pixel_rgba(&color.as_rgba(), index);
+                        });
+                }
+            },
+        )
+    }
+
+    const fn get_align(justification: JustificationHorizontal) -> Align {
+        match justification {
+            JustificationHorizontal::Left => Align::Left,
+            JustificationHorizontal::Center => Align::Center,
+            JustificationHorizontal::Right => Align::Right,
+        }
+    }
+}
+
+impl Default for TextEngine {
+    fn default() -> Self {
+        let locale = "en-US".to_string();
+        let mut db = fontdb::Database::new();
+        db.load_font_source(Source::Binary(Arc::new(include_bytes!(
+            "../fonts/Inter-Medium.otf"
+        ))));
+        db.load_font_source(Source::Binary(Arc::new(include_bytes!(
+            "../fonts/Inter-Bold.otf"
+        ))));
+        db.load_font_source(Source::Binary(Arc::new(include_bytes!(
+            "../fonts/Inter-MediumItalic.otf"
+        ))));
+        db.load_font_source(Source::Binary(Arc::new(include_bytes!(
+            "../fonts/Inter-BoldItalic.otf"
+        ))));
+        db.set_sans_serif_family("Inter");
+
+        let font_system =
+            FontSystem::new_with_locale_and_db_and_fallback(locale, db, PlatformFallback);
+        let swash_cache = SwashCache::new();
+        Self {
+            font_system,
+            swash_cache,
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use nodekit_rs_visual::Board;
+
+    #[test]
+    fn test_text_card_render() {
+        let card = TextCard {
+            text: include_str!("../lorem.txt").to_string(),
+            font_size: 20,
+            justification_horizontal: JustificationHorizontal::Left,
+            justification_vertical: JustificationVertical::Center,
+            text_color: "#000000FF".to_string(),
+            background_color: "#AAAAAAFF".to_string(),
+        };
+        let region = Region::default();
+
+        // Render the text.
+        let mut text = TextEngine::default();
+        let mut board = Board::new([200, 200, 200]);
+        let text_buffer = text.render_text_card(&card, &region).unwrap().unwrap();
+        text_buffer.blit(&mut board);
+        // Write the result as a .png file.
+        nodekit_rs_png::board_to_png("out.png", board.get_board_without_cursor());
+    }
+
+    #[test]
+    fn test_text_non_default_region() {
+        let card = TextCard {
+            text: "Describe everything you notice in this image, as if you were explaining it to someone who can’t see it.".to_string(),
+            font_size: 20,
+            justification_horizontal: JustificationHorizontal::Center,
+            justification_vertical: JustificationVertical::Center,
+            text_color: "#000000FF".to_string(),
+            background_color: "#E6E6E600".to_string(),
+        };
+        let region = Region {
+            x: 0,
+            y: -150,
+            w: 600,
+            h: 200,
+            z_index: None,
+        };
+
+        // Render the text.
+        let mut text = TextEngine::default();
+        let mut board = Board::new([200, 200, 200]);
+        let text_buffer = text.render_text_card(&card, &region).unwrap().unwrap();
+        text_buffer.blit(&mut board);
+        // Write the result as a .png file.
+        nodekit_rs_png::board_to_png("rect.png", board.get_board_without_cursor());
+    }
+
+    #[test]
+    fn test_text_entry_render() {
+        let card = TextEntry {
+            prompt: String::default(),
+            text: include_str!("../lorem.txt").to_string(),
+            font_size: 20,
+        };
+        let region = Region::default();
+
+        // Render the text.
+        let mut text = TextEngine::default();
+        let mut board = Board::new([200, 200, 200]);
+        let text_buffer = text.render_text_entry(&card, &region).unwrap().unwrap();
+        text_buffer.blit(&mut board);
+        // Write the result as a .png file.
+        nodekit_rs_png::board_to_png("text_entry.png", board.get_board_without_cursor());
+
+        let card = TextEntry {
+            prompt: "This is a prompt".to_string(),
+            text: String::default(),
+            font_size: 20,
+        };
+
+        // Render the text.
+        let mut board = Board::new([200, 200, 200]);
+        let text_buffer = text.render_text_entry(&card, &region).unwrap().unwrap();
+        text_buffer.blit(&mut board);
+        // Write the result as a .png file.
+        nodekit_rs_png::board_to_png("text_entry_prompt.png", board.get_board_without_cursor());
+    }
+}

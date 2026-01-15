@@ -1,0 +1,52 @@
+[workspace]
+members = [
+    "nodekit-rs-asset",
+    "nodekit-rs-models",
+    "nodekit-rs-image",
+    "nodekit-rs-png",
+    "nodekit-rs-render",
+    "nodekit-rs-state",
+    "nodekit-rs-text",
+    "nodekit-rs-video",
+    "nodekit-rs-visual",
+]
+
+[package]
+name = "nodekit-rs"
+version = "0.1.0"
+edition = "2024"
+authors = ["Esther Alter <alters@mit.edu>", "Michael Lee <mil@mit.edu>"]
+description = "Render nodekit as a bitmap"
+
+[lib]
+name = "nodekit_rs"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+nodekit-rs-render = { path = "nodekit-rs-render" }
+nodekit-rs-state = { path = "nodekit-rs-state" }
+pyo3.workspace = true
+pyo3-stub-gen.workspace = true
+
+[workspace.dependencies]
+blittle = { version = "0.4.1", features = ["overlay"] }
+bytemuck = "1.24.0"
+cosmic-text = "0.16.0"
+criterion = "0.8.1"
+fast_image_resize = { version = "5.6.0", features = ["rayon"] }
+hex_color = "3.0.0"
+itertools = "0.14.0"
+lazy_static = "1.5.0"
+markdown = "1.0.0-alpha.24"
+numpy = "0.27.1"
+png = "0.18.0"
+pyo3 = { version = "0.27.1", features = ["experimental-inspect", "extension-module"] }
+pyo3-stub-gen = "0.17.2"
+reqwest = { version = "0.13.1", features = ["blocking"] }
+scuffle-ffmpeg = { version = "0.3.5", default-features = false, features = ["link_vcpkg_ffmpeg"] }
+scraper = "0.25.0"
+slotmap = "1.1.1"
+thiserror = "2.0.17"
+url = "2.5.8"
+uuid = { version = "1.19.0", features = ["v4"] }
+zip = "7.0.0"

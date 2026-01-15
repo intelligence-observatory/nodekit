@@ -1,0 +1,1104 @@
+{
+  "$defs": {
+    "AssetLocator": {
+      "discriminator": {
+        "mapping": {
+          "FileSystemPath": "#/$defs/FileSystemPath",
+          "RelativePath": "#/$defs/RelativePath",
+          "URL": "#/$defs/URL",
+          "ZipArchiveInnerPath": "#/$defs/ZipArchiveInnerPath"
+        },
+        "propertyName": "locator_type"
+      },
+      "oneOf": [
+        {
+          "$ref": "#/$defs/FileSystemPath"
+        },
+        {
+          "$ref": "#/$defs/ZipArchiveInnerPath"
+        },
+        {
+          "$ref": "#/$defs/RelativePath"
+        },
+        {
+          "$ref": "#/$defs/URL"
+        }
+      ]
+    },
+    "ClickSensor": {
+      "properties": {
+        "sensor_type": {
+          "const": "ClickSensor",
+          "default": "ClickSensor",
+          "title": "Sensor Type",
+          "type": "string"
+        },
+        "start_msec": {
+          "default": 0,
+          "description": "The time (in milliseconds) relative to Node start when the Sensor is armed.",
+          "minimum": 0,
+          "title": "Start Msec",
+          "type": "integer"
+        },
+        "end_msec": {
+          "anyOf": [
+            {
+              "description": "A point in time relative to the start of a Node.",
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The time (in milliseconds) relative to Node start when the Sensor is disarmed. If None, the Sensor remains armed until the Node ends.",
+          "title": "End Msec"
+        },
+        "x": {
+          "description": "The center of the bounding box of the clickable region, along the Board x-axis.",
+          "maximum": 0.5,
+          "minimum": -0.5,
+          "title": "X",
+          "type": "number"
+        },
+        "y": {
+          "description": "The center of the bounding box of the clickable region, along the Board y-axis.",
+          "maximum": 0.5,
+          "minimum": -0.5,
+          "title": "Y",
+          "type": "number"
+        },
+        "w": {
+          "description": "The width of the bounding box of the clickable region, in Board units.",
+          "exclusiveMinimum": 0,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "W",
+          "type": "number"
+        },
+        "h": {
+          "description": "The height of the bounding box of the clickable region, in Board units.",
+          "exclusiveMinimum": 0,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "H",
+          "type": "number"
+        },
+        "mask": {
+          "default": "rectangle",
+          "description": "The shape of the clickable region. \"rectangle\" uses the box itself; \"ellipse\" inscribes an ellipse within the box.",
+          "enum": [
+            "rectangle",
+            "ellipse"
+          ],
+          "title": "Mask",
+          "type": "string"
+        }
+      },
+      "required": [
+        "x",
+        "y",
+        "w",
+        "h"
+      ],
+      "title": "ClickSensor",
+      "type": "object"
+    },
+    "FileSystemPath": {
+      "description": "A locator which points to an absolute filepath on the viewer's local file system.",
+      "properties": {
+        "locator_type": {
+          "const": "FileSystemPath",
+          "default": "FileSystemPath",
+          "title": "Locator Type",
+          "type": "string"
+        },
+        "path": {
+          "description": "The absolute path to the asset file in the local filesystem.",
+          "format": "file-path",
+          "title": "Path",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "title": "FileSystemPath",
+      "type": "object"
+    },
+    "FreeTextEntryCard": {
+      "properties": {
+        "card_type": {
+          "const": "FreeTextEntryCard",
+          "default": "FreeTextEntryCard",
+          "title": "Card Type",
+          "type": "string"
+        },
+        "x": {
+          "description": "The x-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in x moves right.",
+          "maximum": 0.5,
+          "minimum": -0.5,
+          "title": "X",
+          "type": "number"
+        },
+        "y": {
+          "description": "The y-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in y moves up.",
+          "maximum": 0.5,
+          "minimum": -0.5,
+          "title": "Y",
+          "type": "number"
+        },
+        "w": {
+          "description": "The width of the Card, in Board units.",
+          "maximum": 1,
+          "minimum": 0,
+          "title": "W",
+          "type": "number"
+        },
+        "h": {
+          "description": "The height of the Card, in Board units.",
+          "maximum": 1,
+          "minimum": 0,
+          "title": "H",
+          "type": "number"
+        },
+        "start_msec": {
+          "default": 0,
+          "description": "The time (in milliseconds) relative to Node start when the Card is placed on the Board.",
+          "minimum": 0,
+          "title": "Start Msec",
+          "type": "integer"
+        },
+        "end_msec": {
+          "anyOf": [
+            {
+              "description": "A point in time relative to the start of a Node.",
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The time (in milliseconds) relative to Node start when the Card is removed from the Board.",
+          "title": "End Msec"
+        },
+        "prompt": {
+          "default": "",
+          "description": "The initial placeholder text shown in the free text response box. It disappears when the user selects the element.",
+          "title": "Prompt",
+          "type": "string"
+        },
+        "font_size": {
+          "default": 0.02,
+          "description": "The height of the em-box, in Board units.",
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Font Size",
+          "type": "number"
+        },
+        "text_color": {
+          "default": "#000000",
+          "maxLength": 9,
+          "minLength": 9,
+          "pattern": "^#[0-9a-f]{8}$",
+          "title": "Text Color",
+          "type": "string"
+        },
+        "background_color": {
+          "default": "#ffffff",
+          "description": "The background color of the entry field.",
+          "maxLength": 9,
+          "minLength": 9,
+          "pattern": "^#[0-9a-f]{8}$",
+          "title": "Background Color",
+          "type": "string"
+        },
+        "max_length": {
+          "anyOf": [
+            {
+              "maximum": 10000,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The maximum number of characters the user can enter. If None, no limit.",
+          "title": "Max Length"
+        }
+      },
+      "required": [
+        "x",
+        "y",
+        "w",
+        "h"
+      ],
+      "title": "FreeTextEntryCard",
+      "type": "object"
+    },
+    "HidePointerEffect": {
+      "description": "Effect to hide the pointer during a timespan.",
+      "properties": {
+        "effect_type": {
+          "const": "HidePointerEffect",
+          "default": "HidePointerEffect",
+          "title": "Effect Type",
+          "type": "string"
+        },
+        "start_msec": {
+          "default": 0,
+          "description": "The time (in milliseconds) relative to Node start when the Effect begins.",
+          "minimum": 0,
+          "title": "Start Msec",
+          "type": "integer"
+        },
+        "end_msec": {
+          "description": "A point in time relative to the start of a Node.",
+          "minimum": 0,
+          "title": "End Msec",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "end_msec"
+      ],
+      "title": "HidePointerEffect",
+      "type": "object"
+    },
+    "Image": {
+      "properties": {
+        "sha256": {
+          "description": "The SHA-256 hash of the asset file, as a hex string.",
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "media_type": {
+          "description": "The IANA media (MIME) type of the image file.",
+          "enum": [
+            "image/png",
+            "image/svg+xml"
+          ],
+          "title": "Media Type",
+          "type": "string"
+        },
+        "locator": {
+          "$ref": "#/$defs/AssetLocator",
+          "description": "A location which is a claimed source of valid bytes for this Asset."
+        }
+      },
+      "required": [
+        "sha256",
+        "media_type",
+        "locator"
+      ],
+      "title": "Image",
+      "type": "object"
+    },
+    "ImageCard": {
+      "properties": {
+        "card_type": {
+          "const": "ImageCard",
+          "default": "ImageCard",
+          "title": "Card Type",
+          "type": "string"
+        },
+        "x": {
+          "description": "The x-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in x moves right.",
+          "maximum": 0.5,
+          "minimum": -0.5,
+          "title": "X",
+          "type": "number"
+        },
+        "y": {
+          "description": "The y-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in y moves up.",
+          "maximum": 0.5,
+          "minimum": -0.5,
+          "title": "Y",
+          "type": "number"
+        },
+        "w": {
+          "description": "The width of the Card, in Board units.",
+          "maximum": 1,
+          "minimum": 0,
+          "title": "W",
+          "type": "number"
+        },
+        "h": {
+          "description": "The height of the Card, in Board units.",
+          "maximum": 1,
+          "minimum": 0,
+          "title": "H",
+          "type": "number"
+        },
+        "start_msec": {
+          "default": 0,
+          "description": "The time (in milliseconds) relative to Node start when the Card is placed on the Board.",
+          "minimum": 0,
+          "title": "Start Msec",
+          "type": "integer"
+        },
+        "end_msec": {
+          "anyOf": [
+            {
+              "description": "A point in time relative to the start of a Node.",
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The time (in milliseconds) relative to Node start when the Card is removed from the Board.",
+          "title": "End Msec"
+        },
+        "image": {
+          "$ref": "#/$defs/Image"
+        }
+      },
+      "required": [
+        "x",
+        "y",
+        "w",
+        "h",
+        "image"
+      ],
+      "title": "ImageCard",
+      "type": "object"
+    },
+    "KeySensor": {
+      "properties": {
+        "sensor_type": {
+          "const": "KeySensor",
+          "default": "KeySensor",
+          "title": "Sensor Type",
+          "type": "string"
+        },
+        "start_msec": {
+          "default": 0,
+          "description": "The time (in milliseconds) relative to Node start when the Sensor is armed.",
+          "minimum": 0,
+          "title": "Start Msec",
+          "type": "integer"
+        },
+        "end_msec": {
+          "anyOf": [
+            {
+              "description": "A point in time relative to the start of a Node.",
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The time (in milliseconds) relative to Node start when the Sensor is disarmed. If None, the Sensor remains armed until the Node ends.",
+          "title": "End Msec"
+        },
+        "key": {
+          "description": "The key that triggers the Sensor when pressed down.",
+          "enum": [
+            "Enter",
+            "space",
+            "ArrowDown",
+            "ArrowLeft",
+            "ArrowRight",
+            "ArrowUp",
+            "a",
+            "b",
+            "c",
+            "d",
+            "e",
+            "f",
+            "g",
+            "h",
+            "i",
+            "j",
+            "k",
+            "l",
+            "m",
+            "n",
+            "o",
+            "p",
+            "q",
+            "r",
+            "s",
+            "t",
+            "u",
+            "v",
+            "w",
+            "x",
+            "y",
+            "z",
+            "0",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9"
+          ],
+          "title": "Key",
+          "type": "string"
+        }
+      },
+      "required": [
+        "key"
+      ],
+      "title": "KeySensor",
+      "type": "object"
+    },
+    "Node": {
+      "properties": {
+        "cards": {
+          "additionalProperties": {
+            "discriminator": {
+              "mapping": {
+                "FreeTextEntryCard": "#/$defs/FreeTextEntryCard",
+                "ImageCard": "#/$defs/ImageCard",
+                "SliderCard": "#/$defs/SliderCard",
+                "TextCard": "#/$defs/TextCard",
+                "VideoCard": "#/$defs/VideoCard"
+              },
+              "propertyName": "card_type"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/ImageCard"
+              },
+              {
+                "$ref": "#/$defs/VideoCard"
+              },
+              {
+                "$ref": "#/$defs/TextCard"
+              },
+              {
+                "$ref": "#/$defs/SliderCard"
+              },
+              {
+                "$ref": "#/$defs/FreeTextEntryCard"
+              }
+            ]
+          },
+          "description": "Set of Cards placed on the Board.",
+          "propertyNames": {
+            "description": "An identifier for a Card which is unique within a Node."
+          },
+          "title": "Cards",
+          "type": "object"
+        },
+        "sensors": {
+          "additionalProperties": {
+            "discriminator": {
+              "mapping": {
+                "ClickSensor": "#/$defs/ClickSensor",
+                "KeySensor": "#/$defs/KeySensor",
+                "SubmitSensor": "#/$defs/SubmitSensor",
+                "TimeoutSensor": "#/$defs/TimeoutSensor"
+              },
+              "propertyName": "sensor_type"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/TimeoutSensor"
+              },
+              {
+                "$ref": "#/$defs/ClickSensor"
+              },
+              {
+                "$ref": "#/$defs/KeySensor"
+              },
+              {
+                "$ref": "#/$defs/SubmitSensor"
+              }
+            ]
+          },
+          "description": "Set of Sensors that listen for a Participant Action. The first Sensor that is triggered ends the Node.",
+          "minProperties": 1,
+          "propertyNames": {
+            "description": "An identifier for a Sensor which is unique within a Node."
+          },
+          "title": "Sensors",
+          "type": "object"
+        },
+        "effects": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "HidePointerEffect": "#/$defs/HidePointerEffect"
+              },
+              "propertyName": "effect_type"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/HidePointerEffect"
+              }
+            ]
+          },
+          "title": "Effects",
+          "type": "array"
+        },
+        "board_color": {
+          "default": "#808080ff",
+          "description": "The color of the Board during this Node (the \"background color\").",
+          "maxLength": 9,
+          "minLength": 9,
+          "pattern": "^#[0-9a-f]{8}$",
+          "title": "Board Color",
+          "type": "string"
+        }
+      },
+      "required": [
+        "cards",
+        "sensors"
+      ],
+      "title": "Node",
+      "type": "object"
+    },
+    "RelativePath": {
+      "description": "A locator which points to a relative path on the viewer's local file system.\nThis is useful for assets that are bundled alongside a graph file, e.g., in a zip archive.\nThe viewer must resolve the relative path against a known base path.",
+      "properties": {
+        "locator_type": {
+          "const": "RelativePath",
+          "default": "RelativePath",
+          "title": "Locator Type",
+          "type": "string"
+        },
+        "relative_path": {
+          "description": "The relative path to the asset file in the local filesystem.",
+          "format": "path",
+          "title": "Relative Path",
+          "type": "string"
+        }
+      },
+      "required": [
+        "relative_path"
+      ],
+      "title": "RelativePath",
+      "type": "object"
+    },
+    "SliderCard": {
+      "properties": {
+        "card_type": {
+          "const": "SliderCard",
+          "default": "SliderCard",
+          "title": "Card Type",
+          "type": "string"
+        },
+        "x": {
+          "description": "The x-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in x moves right.",
+          "maximum": 0.5,
+          "minimum": -0.5,
+          "title": "X",
+          "type": "number"
+        },
+        "y": {
+          "description": "The y-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in y moves up.",
+          "maximum": 0.5,
+          "minimum": -0.5,
+          "title": "Y",
+          "type": "number"
+        },
+        "w": {
+          "description": "The width of the Card, in Board units.",
+          "maximum": 1,
+          "minimum": 0,
+          "title": "W",
+          "type": "number"
+        },
+        "h": {
+          "description": "The height of the Card, in Board units.",
+          "maximum": 1,
+          "minimum": 0,
+          "title": "H",
+          "type": "number"
+        },
+        "start_msec": {
+          "default": 0,
+          "description": "The time (in milliseconds) relative to Node start when the Card is placed on the Board.",
+          "minimum": 0,
+          "title": "Start Msec",
+          "type": "integer"
+        },
+        "end_msec": {
+          "anyOf": [
+            {
+              "description": "A point in time relative to the start of a Node.",
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The time (in milliseconds) relative to Node start when the Card is removed from the Board.",
+          "title": "End Msec"
+        },
+        "num_bins": {
+          "default": 7,
+          "description": "The number of discrete bins in the slider.",
+          "minimum": 2,
+          "title": "Num Bins",
+          "type": "integer"
+        },
+        "initial_bin_index": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The initial bin index that the slider is set to when it first appears. If None, defaults to the middle bin.",
+          "title": "Initial Bin Index"
+        },
+        "orientation": {
+          "default": "horizontal",
+          "description": "The orientation of the slider. In the horizontal orientation, the slider positional index grows left to right. In the vertical orientation, the slider positional index grows bottom to top.",
+          "enum": [
+            "horizontal",
+            "vertical"
+          ],
+          "title": "Orientation",
+          "type": "string"
+        },
+        "show_bin_markers": {
+          "default": false,
+          "description": "Whether to show the bin markers on the slider. This is best used for sliders with a small number of bins.",
+          "title": "Show Bin Markers",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "x",
+        "y",
+        "w",
+        "h"
+      ],
+      "title": "SliderCard",
+      "type": "object"
+    },
+    "SubmitSensor": {
+      "description": "A Sensor that triggers when a submit button is initiated.\nIt reports the values of one or more associated SliderCards or FreeTextEntryCards",
+      "properties": {
+        "sensor_type": {
+          "const": "SubmitSensor",
+          "default": "SubmitSensor",
+          "title": "Sensor Type",
+          "type": "string"
+        },
+        "start_msec": {
+          "default": 0,
+          "description": "The time (in milliseconds) relative to Node start when the Sensor is armed.",
+          "minimum": 0,
+          "title": "Start Msec",
+          "type": "integer"
+        },
+        "end_msec": {
+          "anyOf": [
+            {
+              "description": "A point in time relative to the start of a Node.",
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The time (in milliseconds) relative to Node start when the Sensor is disarmed. If None, the Sensor remains armed until the Node ends.",
+          "title": "End Msec"
+        },
+        "submitter_id": {
+          "description": "The ID of the TextCard that submits the Slider value. If None, the Sensor triggers immediately when the Slider value changes.",
+          "title": "Submitter Id",
+          "type": "string"
+        },
+        "source_ids": {
+          "description": "The CardIds of the SliderCards or FreeTextEntryCards that this Sensor is associated with.",
+          "items": {
+            "description": "An identifier for a Card which is unique within a Node.",
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "submitter_id",
+        "source_ids"
+      ],
+      "title": "SubmitSensor",
+      "type": "object"
+    },
+    "TextCard": {
+      "properties": {
+        "selectable": {
+          "default": false,
+          "title": "Selectable",
+          "type": "boolean"
+        },
+        "card_type": {
+          "const": "TextCard",
+          "default": "TextCard",
+          "title": "Card Type",
+          "type": "string"
+        },
+        "x": {
+          "description": "The x-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in x moves right.",
+          "maximum": 0.5,
+          "minimum": -0.5,
+          "title": "X",
+          "type": "number"
+        },
+        "y": {
+          "description": "The y-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in y moves up.",
+          "maximum": 0.5,
+          "minimum": -0.5,
+          "title": "Y",
+          "type": "number"
+        },
+        "w": {
+          "description": "The width of the Card, in Board units.",
+          "maximum": 1,
+          "minimum": 0,
+          "title": "W",
+          "type": "number"
+        },
+        "h": {
+          "description": "The height of the Card, in Board units.",
+          "maximum": 1,
+          "minimum": 0,
+          "title": "H",
+          "type": "number"
+        },
+        "start_msec": {
+          "default": 0,
+          "description": "The time (in milliseconds) relative to Node start when the Card is placed on the Board.",
+          "minimum": 0,
+          "title": "Start Msec",
+          "type": "integer"
+        },
+        "end_msec": {
+          "anyOf": [
+            {
+              "description": "A point in time relative to the start of a Node.",
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The time (in milliseconds) relative to Node start when the Card is removed from the Board.",
+          "title": "End Msec"
+        },
+        "text": {
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        },
+        "font_size": {
+          "default": 0.02,
+          "description": "The height of the em-box, in Board units.",
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Font Size",
+          "type": "number"
+        },
+        "justification_horizontal": {
+          "default": "center",
+          "enum": [
+            "left",
+            "center",
+            "right"
+          ],
+          "title": "Justification Horizontal",
+          "type": "string"
+        },
+        "justification_vertical": {
+          "default": "center",
+          "enum": [
+            "top",
+            "center",
+            "bottom"
+          ],
+          "title": "Justification Vertical",
+          "type": "string"
+        },
+        "text_color": {
+          "default": "#000000",
+          "maxLength": 9,
+          "minLength": 9,
+          "pattern": "^#[0-9a-f]{8}$",
+          "title": "Text Color",
+          "type": "string"
+        },
+        "background_color": {
+          "default": "#E6E6E600",
+          "description": "The background color of the TextCard in hexadecimal format.",
+          "maxLength": 9,
+          "minLength": 9,
+          "pattern": "^#[0-9a-f]{8}$",
+          "title": "Background Color",
+          "type": "string"
+        }
+      },
+      "required": [
+        "x",
+        "y",
+        "w",
+        "h",
+        "text"
+      ],
+      "title": "TextCard",
+      "type": "object"
+    },
+    "TimeoutSensor": {
+      "description": "A Sensor that triggers when the specified time has elapsed since the start of the Node.",
+      "properties": {
+        "sensor_type": {
+          "const": "TimeoutSensor",
+          "default": "TimeoutSensor",
+          "title": "Sensor Type",
+          "type": "string"
+        },
+        "timeout_msec": {
+          "description": "The number of milliseconds from the start of the Node when the Sensor triggers.",
+          "exclusiveMinimum": 0,
+          "minimum": 0,
+          "title": "Timeout Msec",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "timeout_msec"
+      ],
+      "title": "TimeoutSensor",
+      "type": "object"
+    },
+    "URL": {
+      "properties": {
+        "locator_type": {
+          "const": "URL",
+          "default": "URL",
+          "title": "Locator Type",
+          "type": "string"
+        },
+        "url": {
+          "description": "The URL to the asset file. May be a relative or absolute URL.",
+          "title": "Url",
+          "type": "string"
+        }
+      },
+      "required": [
+        "url"
+      ],
+      "title": "URL",
+      "type": "object"
+    },
+    "Video": {
+      "properties": {
+        "sha256": {
+          "description": "The SHA-256 hash of the asset file, as a hex string.",
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "media_type": {
+          "const": "video/mp4",
+          "description": "The IANA media (MIME) type of the video file.",
+          "title": "Media Type",
+          "type": "string"
+        },
+        "locator": {
+          "$ref": "#/$defs/AssetLocator",
+          "description": "A location which is a claimed source of valid bytes for this Asset."
+        }
+      },
+      "required": [
+        "sha256",
+        "media_type",
+        "locator"
+      ],
+      "title": "Video",
+      "type": "object"
+    },
+    "VideoCard": {
+      "properties": {
+        "card_type": {
+          "const": "VideoCard",
+          "default": "VideoCard",
+          "title": "Card Type",
+          "type": "string"
+        },
+        "x": {
+          "description": "The x-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in x moves right.",
+          "maximum": 0.5,
+          "minimum": -0.5,
+          "title": "X",
+          "type": "number"
+        },
+        "y": {
+          "description": "The y-coordinate of the Card center on the Board. 0 is the center of the Board. An increase in y moves up.",
+          "maximum": 0.5,
+          "minimum": -0.5,
+          "title": "Y",
+          "type": "number"
+        },
+        "w": {
+          "description": "The width of the Card, in Board units.",
+          "maximum": 1,
+          "minimum": 0,
+          "title": "W",
+          "type": "number"
+        },
+        "h": {
+          "description": "The height of the Card, in Board units.",
+          "maximum": 1,
+          "minimum": 0,
+          "title": "H",
+          "type": "number"
+        },
+        "start_msec": {
+          "default": 0,
+          "description": "The time (in milliseconds) relative to Node start when the Card is placed on the Board.",
+          "minimum": 0,
+          "title": "Start Msec",
+          "type": "integer"
+        },
+        "end_msec": {
+          "anyOf": [
+            {
+              "description": "A point in time relative to the start of a Node.",
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The time (in milliseconds) relative to Node start when the Card is removed from the Board.",
+          "title": "End Msec"
+        },
+        "video": {
+          "$ref": "#/$defs/Video"
+        },
+        "muted": {
+          "default": true,
+          "description": "Whether to mute the video audio.",
+          "title": "Muted",
+          "type": "boolean"
+        },
+        "loop": {
+          "default": false,
+          "description": "Whether to loop the video when it ends.",
+          "title": "Loop",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "x",
+        "y",
+        "w",
+        "h",
+        "video"
+      ],
+      "title": "VideoCard",
+      "type": "object"
+    },
+    "ZipArchiveInnerPath": {
+      "properties": {
+        "locator_type": {
+          "const": "ZipArchiveInnerPath",
+          "default": "ZipArchiveInnerPath",
+          "title": "Locator Type",
+          "type": "string"
+        },
+        "zip_archive_path": {
+          "description": "The path to the zip archive file on the local filesystem",
+          "format": "file-path",
+          "title": "Zip Archive Path",
+          "type": "string"
+        },
+        "inner_path": {
+          "description": "The internal path within the zip archive to the asset file.",
+          "format": "path",
+          "title": "Inner Path",
+          "type": "string"
+        }
+      },
+      "required": [
+        "zip_archive_path",
+        "inner_path"
+      ],
+      "title": "ZipArchiveInnerPath",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "start": {
+      "description": "An identifier for a Node which is unique within a Graph.",
+      "title": "Start",
+      "type": "string"
+    },
+    "nodes": {
+      "additionalProperties": {
+        "$ref": "#/$defs/Node"
+      },
+      "propertyNames": {
+        "description": "An identifier for a Node which is unique within a Graph."
+      },
+      "title": "Nodes",
+      "type": "object"
+    },
+    "transitions": {
+      "additionalProperties": {
+        "additionalProperties": {
+          "description": "An identifier for a Node which is unique within a Graph.",
+          "type": "string"
+        },
+        "propertyNames": {
+          "description": "An identifier for a Sensor which is unique within a Node."
+        },
+        "type": "object"
+      },
+      "description": "A mapping from (NodeId, SensorId) to the next Node that will be transitioned if the Sensor is triggered in that Node.",
+      "propertyNames": {
+        "description": "An identifier for a Node which is unique within a Graph."
+      },
+      "title": "Transitions",
+      "type": "object"
+    },
+    "nodekit_version": {
+      "const": "0.1.0",
+      "default": "0.1.0",
+      "title": "Nodekit Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "start",
+    "nodes",
+    "transitions"
+  ],
+  "title": "Graph",
+  "type": "object"
+}

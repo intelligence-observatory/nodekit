@@ -1,0 +1,23 @@
+[package]
+name = "nodekit-rs-render"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+blittle.workspace = true
+itertools.workspace = true
+nodekit-rs-models = { path = "../nodekit-rs-models" }
+nodekit-rs-image = { path = "../nodekit-rs-image" }
+nodekit-rs-state = { path = "../nodekit-rs-state" }
+nodekit-rs-text = { path = "../nodekit-rs-text" }
+nodekit-rs-video = { path = "../nodekit-rs-video" }
+nodekit-rs-visual = { path = "../nodekit-rs-visual" }
+numpy.workspace = true
+pyo3.workspace = true
+pyo3-stub-gen.workspace = true
+slotmap.workspace = true
+thiserror.workspace = true
+uuid.workspace = true
+
+[dev-dependencies]
+nodekit-rs-png = { path = "../nodekit-rs-png" }

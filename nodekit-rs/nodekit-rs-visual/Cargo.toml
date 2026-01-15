@@ -1,0 +1,20 @@
+[package]
+name = "nodekit-rs-visual"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+blittle.workspace = true
+bytemuck.workspace = true
+fast_image_resize.workspace = true
+hex_color.workspace = true
+nodekit-rs-models = { path = "../nodekit-rs-models" }
+thiserror.workspace = true
+
+[dev-dependencies]
+criterion.workspace = true
+nodekit-rs-png = { path = "../nodekit-rs-png" }
+
+[[bench]]
+name = "bench"
+harness = false
