@@ -9,7 +9,7 @@ use nodekit_rs_image::*;
 use nodekit_rs_models::{CardType, board::*};
 use nodekit_rs_state::*;
 use nodekit_rs_visual::*;
-use numpy::{PyArray3, PyArrayMethods};
+use numpy::{PyArray3, PyArrayMethods, PyUntypedArrayMethods};
 use pyo3::exceptions::PyRuntimeError;
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
@@ -81,13 +81,25 @@ impl Renderer {
         state: Bound<'py, State>,
         board: Bound<'py, PyArray3<u8>>,
     ) -> PyResult<()> {
-        let bitmap = self
-            .blit(state.borrow_mut().deref_mut())
-            .map_err(|e| PyRuntimeError::new_err(e.to_string()))?;
-        unsafe {
-            board.as_slice_mut()?.copy_from_slice(bitmap);
+        let shape = board.shape();
+        if shape.len() == 3
+            && shape[0] == VERTICAL.u_size
+            && shape[1] == HORIZONTAL.u_size
+            && shape[2] == STRIDE
+        {
+            let bitmap = self
+                .blit(state.borrow_mut().deref_mut())
+                .map_err(|e| PyRuntimeError::new_err(e.to_string()))?;
+            unsafe {
+                board.as_slice_mut()?.copy_from_slice(bitmap);
+            }
+            Ok(())
+        } else {
+            Err(PyRuntimeError::new_err(format!(
+                "Expected a numpy array of shape [{}, {}, {STRIDE}] but got: {:?}",
+                VERTICAL.u_size, HORIZONTAL.u_size, shape
+            )))
         }
-        Ok(())
     }
 
     /// Render `state`.
