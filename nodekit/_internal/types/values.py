@@ -24,8 +24,6 @@ type PixelPoint = Annotated[
     int,
     pydantic.Field(
         strict=True,
-        ge=-512,
-        le=512,
         description=(
             "A spatial location relative to some origin, in units of W3C reference pixels."
         ),
