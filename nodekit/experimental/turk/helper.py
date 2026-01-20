@@ -96,7 +96,7 @@ class RecruiterServiceClient(ABC):
 # %%
 
 
-def extract_trace(xml: str) -> str:
+def extract_external_question_answer(xml: str) -> str:
     # pull the contents of the <FreeText> element
     m = re.search(r"<FreeText>(.*?)</FreeText>", xml, re.DOTALL)
     if not m:
@@ -268,7 +268,7 @@ class MturkClient(RecruiterServiceClient):
                     worker_id=assignment.WorkerId,
                     assignment_id=assignment.AssignmentId,
                     status=assignment.AssignmentStatus,
-                    submission_payload=extract_trace(assignment.Answer),
+                    submission_payload=extract_external_question_answer(assignment.Answer),
                 )
 
                 yield item
@@ -374,11 +374,9 @@ class MturkClient(RecruiterServiceClient):
             )
 
             if "NextToken" in res:
-                next_token = res["NextToken"]
+                call_kwargs["NextToken"] = next_token
             else:
-                next_token = None
-
-            call_kwargs["NextToken"] = next_token
+                call_kwargs = {}
 
             qreturn = res["QualificationTypes"]
             for q in qreturn:
@@ -464,6 +462,9 @@ class Helper:
             / self.recruiter_service_client.get_recruiter_service_name()
         )
 
+    def _get_hit_savepath(self, project_name: str, hit_id: HitId) -> Path:
+        return self._get_hit_cachedir() / project_name / f"{hit_id}.json"
+
     def create_hit(
         self,
         graph: nk.Graph,
@@ -511,7 +512,7 @@ class Helper:
                 unique_request_token=unique_request_token,
                 hit_id=hit_id,
             )
-            savepath = self._get_hit_cachedir() / project_name / f"{hit_id}.json"
+            savepath = self._get_hit_savepath(project_name=project_name, hit_id=hit_id)
             if not savepath.parent.exists():
                 savepath.parent.mkdir(parents=True)
             savepath.write_text(hit_request.model_dump_json(indent=2))
@@ -520,8 +521,17 @@ class Helper:
 
         return hit_id
 
+    def list_projects(self) -> list[str]:
+        savedir = self._get_hit_cachedir()
+        project_names: list[str] = []
+
+        search_results = glob.glob(str(savedir / "*"))
+        for path in search_results:
+            if Path(path).is_dir():
+                project_names.append(Path(path).name)
+        return project_names
+
     def list_hits(self, project_name: str | None = None) -> list[HitId]:
-        # Just read off the local cache
         savedir = self._get_hit_cachedir()
         savedir.mkdir(parents=True, exist_ok=True)
         hit_ids: list[HitId] = []
@@ -600,18 +610,3 @@ class Helper:
                 worker_id=worker_id,
             )
         )
-
-    def get_hit(
-        self,
-        hit_id: HitId,
-    ) -> HitRequest:
-        """
-        Loads the Graph associated with the given HIT ID.
-        (Hit the local cache)
-        """
-        savepath = self._get_hit_cachedir() / f"{hit_id}.json"
-        if not savepath.parent.exists():
-            raise Exception(f"Could not save Graph for HIT {hit_id}.")
-
-        hit_request = HitRequest.model_validate_json(savepath.read_text())
-        return hit_request
