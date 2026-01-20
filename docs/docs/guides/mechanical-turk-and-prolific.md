@@ -110,7 +110,7 @@ from pathlib import Path
 import json
 
 data = json.loads(Path('the-data.json').read_text())
-payload = nk.SiteSubmission.model_validate_json(data)
-print(payload.platform_context)
-print(payload.trace)
+site_submission = nk.SiteSubmission.model_validate_json(data)
+print(site_submission.platform_context)
+print(site_submission.trace)
 ```

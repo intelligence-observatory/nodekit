@@ -1,10 +1,11 @@
 import type {Trace} from "../types/node.ts";
 import type {MechanicalTurkContext, PlatformContext, SubmissionTarget} from "./submission-contexts.ts";
+import {compressTrace} from "./compression.ts";
 
 
 //
 export interface SiteSubmission {
-    trace: Trace
+    trace_gzipped_base64: string // The submitted Trace as base64-encoded gzipped JSON bytes.
     platform_context: PlatformContext
 }
 
@@ -21,8 +22,11 @@ export async function submit(
     let error: Error | null = null;
 
     const {nodekitSubmitTo, externalPlatformContext} = submissionTarget;
+
+    const traceGzippedBase64 = await compressTrace(trace)
+
     const payload: SiteSubmission = {
-        trace: trace,
+        trace_gzipped_base64: traceGzippedBase64,
         platform_context: externalPlatformContext,
     };
 
@@ -48,7 +52,7 @@ export async function submit(
     // If using Turk, post the SubmissionPayload using submitToTurk.
     if (externalPlatformContext.platform === "MechanicalTurk") {
         submitToTurk(
-            trace,
+            payload,
             submissionTarget as SubmissionTarget<MechanicalTurkContext>,
         );
     }
@@ -70,7 +74,7 @@ export async function submit(
 
 
 export function submitToTurk(
-    trace: Trace,
+    payload: SiteSubmission,
     submissionTarget: SubmissionTarget<MechanicalTurkContext>,
 ): void {
     // Submission procedure for Mechanical Turk. See:
@@ -94,10 +98,6 @@ export function submitToTurk(
     form.appendChild(inputAssignmentId);
 
     // Attach the submission payload field:
-    const payload: SiteSubmission = {
-        trace: trace,
-        platform_context: submissionTarget.externalPlatformContext
-    }
     const inputPayload = document.createElement("input");
     inputPayload.name = "nodekitSubmissionPayload";
     inputPayload.value = JSON.stringify(payload);
