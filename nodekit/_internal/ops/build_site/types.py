@@ -9,6 +9,7 @@ import pydantic
 
 from nodekit._internal.types.trace import Trace
 
+
 # %%
 class BasePlatformContext(pydantic.BaseModel):
     platform: str
@@ -58,6 +59,7 @@ class SiteSubmission(pydantic.BaseModel):
     platform_context: PlatformContext = pydantic.Field(
         description="Information about the platform (if any) that the Graph site was hosted on."
     )
+
     @cached_property
     def trace(self) -> Trace:
         """
