@@ -552,22 +552,16 @@ class Helper:
         # Build the Graph site
         build_site_result = nk.build_site(graph=graph, savedir=self.local_cachedir)
 
-        # Ensure index is sync'd
-        index_path = build_site_result.site_root / build_site_result.entrypoint
-        index_url = self.s3_client.sync_file(
-            local_path=index_path,
-            local_root=build_site_result.site_root,
-            bucket_root="",
-            force=False,
+        uploaded = self.s3_client.sync_directory(
+            local_directory=build_site_result.site_root,
+            bucket_directory="",
+            verbose=True,
         )
-
-        # Ensure deps are sync'd
-        for dep in build_site_result.dependencies:
-            self.s3_client.sync_file(
-                local_path=build_site_result.site_root / dep,
-                local_root=build_site_result.site_root,
-                bucket_root="",
-                force=False,
+        entrypoint_rel = build_site_result.entrypoint.as_posix()
+        index_url = uploaded.get(entrypoint_rel)
+        if index_url is None:
+            raise RuntimeError(
+                f"Entrypoint {entrypoint_rel} was not uploaded from {build_site_result.site_root}"
             )
 
         return index_url

@@ -47,6 +47,90 @@ class S3Client:
             aws_secret_access_key=self.config.aws_secret_access_key.get_secret_value(),
         )
 
+    def sync_directory(
+        self,
+        local_directory: os.PathLike | str,
+        bucket_directory: os.PathLike | str,
+        verbose: bool = True,
+    ) -> dict[str, str]:
+        """
+        Synchronize a local directory to a directory in the S3 bucket.
+
+
+        Args:
+            local_directory: The path to the local directory to synchronize.
+            bucket_directory: The path to the directory in the S3 bucket. For example, if 'foo/' is given, the contents
+                of `local_directory` will be uploaded under the `foo/` prefix in the bucket.
+                Note that the contents of `local_directory` are uploaded, not the directory itself.
+            verbose: If True, print progress messages.
+        Returns:
+            A dictionary mapping local file paths (relative to local_directory) to their corresponding S3 URLs.
+
+        """
+        local_directory = Path(local_directory)
+        if not local_directory.is_dir():
+            raise ValueError(f"Local directory does not exist or is not a directory: {local_directory}")
+
+        bucket_prefix = str(bucket_directory).strip("/")
+        endpoint = self._client.meta.endpoint_url.rstrip("/")
+        is_aws = "amazonaws.com" in endpoint
+
+        def key_to_url(key: str) -> str:
+            encoded_key = quote(key, safe="/")
+            if is_aws:
+                return (
+                    f"https://{self.config.bucket_name}.s3.{self.config.region_name}.amazonaws.com/{encoded_key}"
+                )
+            return f"{endpoint}/{self.config.bucket_name}/{encoded_key}"
+
+        files: list[tuple[Path, str, int, str]] = []
+        for path in local_directory.rglob("*"):
+            if not path.is_file() or path.is_symlink():
+                continue
+            rel = path.relative_to(local_directory).as_posix()
+            key = f"{bucket_prefix}/{rel}" if bucket_prefix else rel
+            size = path.stat().st_size
+            prefix = f"{key.rsplit('/', 1)[0]}/" if "/" in key else ""
+            files.append((path, key, size, prefix))
+
+        prefixes = {p for _, _, _, p in files if p}
+        remote_sizes: dict[str, int] = {}
+        paginator = self._client.get_paginator("list_objects_v2")
+        for prefix in prefixes:
+            for page in paginator.paginate(
+                Bucket=self.config.bucket_name,
+                Prefix=prefix,
+            ):
+                for obj in page.get("Contents", []):
+                    remote_sizes[obj["Key"]] = obj["Size"]
+
+        uploaded: dict[str, str] = {}
+        for path, key, size, _ in files:
+            url = key_to_url(key)
+            rel = path.relative_to(local_directory).as_posix()
+            if remote_sizes.get(key) == size:
+                uploaded[rel] = url
+                continue
+
+            mime, _ = mimetypes.guess_type(path.name)
+            extra = {
+                "ContentType": mime or "application/octet-stream",
+                "ACL": "public-read",
+            }
+            with path.open("rb") as f:
+                self._client.upload_fileobj(
+                    Fileobj=f,
+                    Bucket=self.config.bucket_name,
+                    Key=key,
+                    ExtraArgs=extra,
+                )
+            if verbose:
+                print(f"Uploaded {path.name} to S3")
+            uploaded[rel] = url
+
+        return uploaded
+
+
     def sync_file(
         self,
         local_path: os.PathLike | str,
