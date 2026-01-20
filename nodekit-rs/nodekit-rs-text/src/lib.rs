@@ -170,7 +170,7 @@ impl TextEngine {
                     .iter()
                     .map(|span| (span.text.as_str(), span.attrs.clone())),
                 &attrs,
-                Shaping::Advanced,
+                Shaping::Basic,
                 Some(Self::get_align(text_card.justification_horizontal)),
             );
             text_buffer.shape_until_scroll(&mut self.font_system, true);
