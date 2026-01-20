@@ -23,7 +23,7 @@ export async function submit(
 
     const {nodekitSubmitTo, externalPlatformContext} = submissionTarget;
 
-    const traceGzippedBase64 = await compressTrace(trace)
+    const traceGzippedBase64 = await compressTrace(trace);
 
     const payload: SiteSubmission = {
         trace_gzipped_base64: traceGzippedBase64,
