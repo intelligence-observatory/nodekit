@@ -432,13 +432,6 @@ type WorkerId = str
 
 
 # %%
-class TraceResult(pydantic.BaseModel):
-    hit_id: HitId
-    assignment_id: AssignmentId
-    worker_id: WorkerId
-    trace: nk.Trace | None  # If None, validation failed
-
-
 class HitRequest(pydantic.BaseModel):
     graph: nk.Graph
     num_assignments: int
