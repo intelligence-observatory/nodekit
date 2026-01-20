@@ -3,7 +3,6 @@ use cosmic_text::Metrics;
 
 /// Line spacing is: `font_size * LINE_HEIGHT`.
 pub const LINE_HEIGHT: f32 = 1.2;
-pub const PARAGRAPH_SPACING: f32 = 1.5;
 
 macro_rules! metrics {
     ($self:ident, $h:expr) => {

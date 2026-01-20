@@ -80,6 +80,7 @@ fn add_node<'s>(
     match node {
         // Add from the root node.
         Node::Root(node) => children!(node, font_size, paragraphs, paragraph, attrs, list_state),
+        // Italicize.
         Node::Emphasis(node) => {
             let mut attrs = attrs.clone();
             attrs.style = Style::Italic;
@@ -87,6 +88,7 @@ fn add_node<'s>(
                 node, font_size, paragraphs, paragraph, &mut attrs, list_state
             )
         }
+        // Embolden.
         Node::Strong(node) => {
             let mut attrs = attrs.clone();
             attrs.weight = Weight::BOLD;
@@ -94,6 +96,7 @@ fn add_node<'s>(
                 node, font_size, paragraphs, paragraph, &mut attrs, list_state
             )
         }
+        // Add some text.
         Node::Text(text) => {
             let text = match list_state {
                 Some(list_state) => match list_state {
@@ -105,11 +108,14 @@ fn add_node<'s>(
             add_span(text, font_size, attrs.clone(), paragraph);
             Ok(())
         }
+        // Start a new paragraph.
         Node::Paragraph(node) => {
             start_paragraph(font_size, paragraphs, paragraph);
             children!(node, font_size, paragraphs, paragraph, attrs, list_state)
         }
+        // Add a header.
         Node::Heading(node) => {
+            // Headers get extra spacing above them.
             if let Some(paragraph) = paragraph_mut!(paragraph) {
                 // Start a header paragraph.
                 let header_paragraph = Paragraph::header(node.depth, font_size)?;
@@ -118,8 +124,9 @@ fn add_node<'s>(
                 // End the previous paragraph.
                 paragraphs.push(paragraph.clone());
             }
+            // Start the header paragraph.
             *paragraph = Some(Paragraph::header(node.depth, font_size)?);
-
+            // Headers are always bold.
             let mut attrs = attrs.clone();
             attrs.weight = Weight::BOLD;
             children!(
@@ -150,11 +157,13 @@ fn add_node<'s>(
             Ok(())
         }
         Node::ListItem(node) => {
+            // Set the line height and paragraph spacing..
             if let Some(paragraph) = paragraph_mut!(paragraph) {
                 paragraph.list_item(font_size);
             }
             children!(node, font_size, paragraphs, paragraph, attrs, list_state)
         }
+        // Colorize.
         Node::Html(node) => parse_html(node, attrs),
         other => {
             let s = other.to_string();
@@ -163,8 +172,8 @@ fn add_node<'s>(
     }
 }
 
+/// End the current paragraph.
 fn end_paragraph<'s>(paragraphs: &mut Vec<Paragraph<'s>>, paragraph: &mut Option<Paragraph<'s>>) {
-    // End the current paragraph.
     if let Some(paragraph) = &paragraph
         && !paragraph.spans.is_empty()
     {
@@ -172,6 +181,7 @@ fn end_paragraph<'s>(paragraphs: &mut Vec<Paragraph<'s>>, paragraph: &mut Option
     }
 }
 
+/// End the current paragraph and start a new text paragraph.
 fn start_paragraph<'s>(
     font_size: &FontSize,
     paragraphs: &mut Vec<Paragraph<'s>>,
@@ -182,6 +192,7 @@ fn start_paragraph<'s>(
     *paragraph = Some(Paragraph::text(font_size));
 }
 
+/// Add a new span to the paragraph.
 fn add_span<'s>(
     text: String,
     font_size: &FontSize,
@@ -190,9 +201,11 @@ fn add_span<'s>(
 ) {
     let span = Span { text, attrs };
     match paragraph.as_mut() {
+        // Add a span to an existing paragraph.
         Some(paragraph) => {
             paragraph.spans.push(span);
         }
+        // Start a new paragraph and add the span to it.
         None => {
             let mut p = Paragraph::text(font_size);
             p.spans.push(span);
