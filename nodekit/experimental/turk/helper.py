@@ -572,7 +572,7 @@ class Helper:
 
         return index_url
 
-    def iter_traces(
+    def iter_site_submissions(
         self,
         hit_id: HitId,
     ) -> Iterable[nk.SiteSubmission | None]:
