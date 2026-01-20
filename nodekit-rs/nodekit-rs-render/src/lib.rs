@@ -1,7 +1,9 @@
 mod asset;
 mod error;
 mod sensor;
+mod overlap;
 
+use std::collections::HashMap;
 use crate::sensor::{HoverableAsset, SelectableAsset, Sensor};
 use asset::Asset;
 use blittle::overlay::{Vec4, rgba8_to_rgba32_color};
@@ -19,6 +21,7 @@ use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use slotmap::SecondaryMap;
 use std::ops::DerefMut;
 use uuid::Uuid;
+use crate::overlap::{Overlap, OverlapKey};
 
 macro_rules! render_asset {
     ($self:ident, $asset:expr, $state:ident) => {{
@@ -61,7 +64,7 @@ pub struct Renderer {
     assets: SecondaryMap<CardKey, Asset>,
     sensor: Option<Sensor>,
     /// These assets need to be cleared and re-filled per frame.
-    overlaps: SecondaryMap<CardKey, Vec<CardKey>>,
+    overlaps: HashMap<OverlapKey, Vec<Overlap>>,
     /// The known state ID.
     id: Option<Uuid>,
     cursor: Cursor,
@@ -203,9 +206,6 @@ impl Renderer {
     fn fill_and_cache(&mut self, state: &State) -> Result<(), Error> {
         // Clear the asset caches.
         self.assets.clear();
-        // Clear selectables.
-        self.hoverables.clear();
-        self.selectables.clear();
         // Cache assets.
         self.cache_cards(state)?;
         self.cache_sensor(state)?;
@@ -213,21 +213,48 @@ impl Renderer {
         // TODO add sensor rects.
 
         // Set overlaps.
-        let rects = self
+        let mut rects = self
             .assets
             .iter()
-            .filter_map(|(k, _)| self.assets[k].rect().map(|rect| (k, rect)))
-            .collect::<SecondaryMap<CardKey, ClippedRect>>();
+            .filter_map(|(k, _)| self.assets[k].rect().map(|rect| (OverlapKey::Card(k), Overlap {
+                rect,
+                z_index: state.cards[k].region.z_index
+            })))
+            .collect::<HashMap<OverlapKey, Overlap>>();
+        // Add sensor rects.
+        if let Some(sensor) = self.sensor.as_ref() {
+            match sensor {
+                Sensor::Select(assets) => { 
+                    for (k, overlap) in assets.iter().filter_map(|(k, asset)| asset.asset.rect().map(|rect| (OverlapKey::Selectable(k), Overlap {
+                        rect,
+                        z_index: asset.asset
+                    }))) {
+                        rects.insert(k, overlap);
+                    }
+                }
+                Sensor::MultiSelect { choices, confirm,} => {
+                    for (k, v) in choices.iter().filter_map(|(k, asset)| asset.hoverable.asset.rect().map(|rect| (OverlapKey::Selectable(k), rect))) {
+                        rects.insert(k, v);
+                    }
+                    for (k, v) in confirm.iter().filter_map(|(k, asset)| asset.rect().map(|rect| (OverlapKey::Confirm(k), rect))) {
+                        rects.insert(k, v);
+                    }
+                }
+                Sensor::TextEntry(buffers) => {
+                    rects.insert(OverlapKey::TextEntry, buffers.rect);
+                }
+            }
+        }
         self.overlaps = rects
             .iter()
             .map(|(k_a, rect_a)| {
                 (
-                    k_a,
+                    *k_a,
                     rects
                         .iter()
                         .filter_map(|(k_b, rect_b)| {
                             if k_a != k_b && rect_a.overlaps(rect_b) {
-                                Some(k_b)
+                                Some(*k_b)
                             } else {
                                 None
                             }
@@ -369,14 +396,16 @@ impl Renderer {
         RgbaBuffer { buffer, rect }
     }
 
-    fn get_dirty_cards(&self, state: &State) -> Vec<CardKey> {
-        state
+    fn get_dirty(&self, state: &State) -> Vec<OverlapKey> {
+        let mut dirty = Vec::default();
+        dirty.extend(state
             .cards
             .iter()
             .filter(|(_, v)| v.dirty)
             .flat_map(|(k, _)| {
+                let k = OverlapKey::Card(k);
                 let mut overlaps = vec![k];
-                overlaps.extend_from_slice(&self.overlaps[k]);
+                overlaps.extend_from_slice(&self.overlaps[&k]);
                 overlaps
             })
             .unique()
@@ -385,8 +414,9 @@ impl Renderer {
                     .region
                     .z_index
                     .cmp(&state.cards[*b].region.z_index)
-            })
-            .collect()
+            }));
+        // TODO sort by z index.
+        dirty
     }
 
     fn erase(&mut self, card_keys: &[CardKey]) {
