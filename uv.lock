@@ -992,7 +992,7 @@ wheels = [
 
 [[package]]
 name = "nodekit"
-version = "0.2.3"
+version = "0.2.3.dev1"
 source = { editable = "." }
 dependencies = [
     { name = "boto3" },

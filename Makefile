@@ -26,3 +26,20 @@ build: lint check test build-browser build-docs
 view-docs: build-docs
 	cd docs && \
 	uv run mkdocs serve --livereload
+
+
+publish:
+	@version="$$(uv version --short)"; \
+	case "$$version" in \
+		*.dev*) ;; \
+		*) \
+			printf "Version %s does not include .dev. Continue? [y/N] " "$$version"; \
+			read -r answer; \
+			case "$$answer" in \
+				y|Y) ;; \
+				*) echo "Aborted."; exit 1 ;; \
+			esac ;; \
+	esac; \
+	rm -rf dist && \
+	uv build && \
+	uv publish
