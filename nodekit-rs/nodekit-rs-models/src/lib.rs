@@ -4,16 +4,15 @@ mod asset;
 pub mod board;
 mod card_type;
 mod region;
-mod slider;
 mod text_card;
 mod text_entry;
+mod sensor;
 
 pub use asset::Asset;
 pub use card_type::*;
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyString};
 pub use region::*;
-pub use slider::*;
 pub use text_card::*;
 pub use text_entry::TextEntry;
 
@@ -57,18 +56,6 @@ impl Card {
         // Set the rendering order.
         Self::sort(cards);
         Ok(())
-    }
-
-    pub fn extract_sensor(sensor: Bound<'_, PyAny>) -> PyResult<Option<Self>> {
-        let sensor = sensor.as_borrowed();
-        match CardType::extract_sensor(sensor)? {
-            Some(card_type) => Ok(Some(Self {
-                card_type,
-                region: Self::extract_region(sensor)?,
-                dirty: false,
-            })),
-            None => Ok(None),
-        }
     }
 
     pub fn sort(cards: &mut [Self]) {
