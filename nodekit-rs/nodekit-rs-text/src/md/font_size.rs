@@ -1,14 +1,13 @@
-//! http://zuga.net/articles/html-heading-elements/
-
 use super::Error;
 use cosmic_text::Metrics;
 
+/// Line spacing is: `font_size * LINE_HEIGHT`.
 pub const LINE_HEIGHT: f32 = 1.2;
-pub const HEADER_LINE_HEIGHT: f32 = 2.;
+pub const PARAGRAPH_SPACING: f32 = 1.5;
 
 macro_rules! metrics {
     ($self:ident, $h:expr) => {
-        Ok(Metrics::new($h, $self.header_height))
+        Ok(Metrics::new($h, $h * LINE_HEIGHT))
     };
 }
 
@@ -18,9 +17,7 @@ pub struct FontSize {
     pub font_usize: usize,
     pub font_isize: isize,
     pub line_height: f32,
-    pub header_height: f32,
     pub line_height_usize: usize,
-    pub header_height_usize: usize,
     h1: f32,
     h2: f32,
     h3: f32,
@@ -33,11 +30,10 @@ impl FontSize {
     pub fn new(font_size: u16) -> Self {
         let font_size = font_size as f32;
         let line_height = font_size * LINE_HEIGHT;
-        let header_height = font_size * HEADER_LINE_HEIGHT;
+        // Source: http://zuga.net/articles/html-heading-elements/
         Self {
             font_size,
             line_height,
-            header_height,
             h1: font_size * 2.,
             h2: font_size * 1.5,
             h3: font_size * 1.17,
@@ -47,7 +43,6 @@ impl FontSize {
             font_usize: font_size as usize,
             font_isize: font_size as isize,
             line_height_usize: line_height as usize,
-            header_height_usize: header_height as usize,
         }
     }
 }

@@ -4,10 +4,12 @@ mod text_buffers;
 mod text_entry;
 
 use crate::md::LINE_HEIGHT;
-use crate::md::paragraph_type::ParagraphType;
 use blittle::{ClippedRect, PositionI};
 use cosmic_text::fontdb::Source;
-use cosmic_text::{Align, Attrs, Buffer, Color, Family, FontSystem, Metrics, PlatformFallback, Shaping, SwashCache, fontdb, Weight};
+use cosmic_text::{
+    Align, Attrs, Buffer, Color, Family, FontSystem, Metrics, PlatformFallback, Shaping,
+    SwashCache, Weight, fontdb,
+};
 pub use error::Error;
 use md::{FontSize, parse};
 use nodekit_rs_models::board::*;
@@ -153,9 +155,10 @@ impl TextEngine {
         // Parse the markdown text.
         let paragraphs = parse(&text_card.text, &font_size, attrs.clone())?;
 
-        // Shape the glyphs.
+        // Shape the paragraphs.
         let mut y = 0;
-        for paragraph in paragraphs {
+        let num_paragraphs = paragraphs.len();
+        for (i, paragraph) in paragraphs.into_iter().enumerate() {
             // Set the metrics of this paragraph.
             text_buffer.set_metrics(&mut self.font_system, paragraph.metrics);
 
@@ -173,35 +176,31 @@ impl TextEngine {
             text_buffer.shape_until_scroll(&mut self.font_system, true);
 
             // Get the total rendered height.
-            let height = (text_buffer
+            let height = text_buffer
                 .layout_runs()
-                .map(|layout| layout.line_height)
-                .sum::<f32>()
-                * LINE_HEIGHT) as usize;
+                .map(|layout| layout.line_height * LINE_HEIGHT)
+                .sum::<f32>() as usize;
 
-            if let ParagraphType::Header = paragraph.paragraph_type {
-                y += font_size.header_height_usize
-            };
             // Draw.
             self.draw(text_color, y, &mut text_buffer, &mut text_surface);
-            let paragraph_height = match paragraph.paragraph_type {
-                ParagraphType::Header => font_size.header_height_usize,
-                ParagraphType::ListItem => 0,
-                ParagraphType::Text => font_size.line_height_usize,
-            };
-            // Update y
-            y += height + paragraph_height;
+
+            // Add the height of the paragraph to the y offset.
+            y += height;
+            // Add an empty line after this paragraph.
+            if i < num_paragraphs - 1 {
+                y += paragraph.spacing;
+            }
         }
 
         // The total height of the text.
-        let height = (y - font_size.line_height_usize).cast_signed();
+        let height = y.cast_signed();
 
         // Get the vertical justification.
         let y_offset = match text_card.justification_vertical {
             JustificationVertical::Top => 0,
             JustificationVertical::Center => rect.src_size.h.cast_signed() / 2 - height / 2,
             JustificationVertical::Bottom => rect.src_size.h.cast_signed() - height,
-        } + font_size.line_height_usize.cast_signed();
+        };
 
         // Unclip.
         let unclipped_rect = UnclippedRect {

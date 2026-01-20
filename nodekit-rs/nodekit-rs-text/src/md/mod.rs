@@ -1,13 +1,11 @@
 mod font_size;
 mod list_state;
 mod paragraph;
-pub(crate) mod paragraph_type;
 mod span;
 
 use crate::error::Error;
 pub(crate) use crate::md::list_state::ListState;
 use crate::md::paragraph::Paragraph;
-use crate::md::paragraph_type::ParagraphType;
 use cosmic_text::{Attrs, Color, Style, Weight};
 pub(crate) use font_size::*;
 use hex_color::HexColor;
@@ -15,6 +13,15 @@ use markdown::mdast::Html;
 use markdown::{Constructs, ParseOptions, mdast::Node, to_mdast};
 use scraper::Selector;
 pub use span::Span;
+
+macro_rules! paragraph_mut {
+    ($paragraph:ident) => {{
+        $paragraph
+            .as_mut()
+            .map(|p| if p.spans.is_empty() { None } else { Some(p) })
+            .flatten()
+    }};
+}
 
 macro_rules! children {
     ($node:ident, $font_size:ident, $paragraphs:ident, $paragraph:ident, $attrs:expr, $list_state:ident) => {{
@@ -53,7 +60,9 @@ pub fn parse<'s>(
         None,
     )?;
     // Add the last paragraph.
-    if let Some(paragraph) = paragraph {
+    if let Some(paragraph) = paragraph
+        && !paragraph.spans.is_empty()
+    {
         paragraphs.push(paragraph);
     }
     Ok(paragraphs)
@@ -101,13 +110,16 @@ fn add_node<'s>(
             children!(node, font_size, paragraphs, paragraph, attrs, list_state)
         }
         Node::Heading(node) => {
-            // Start a paragraph.
-            start_paragraph(font_size, paragraphs, paragraph);
-            // Set the header metrics.
-            if let Some(paragraph) = paragraph {
-                paragraph.metrics = font_size.header_metrics(node.depth)?;
-                paragraph.paragraph_type = ParagraphType::Header;
+            if let Some(paragraph) = paragraph_mut!(paragraph) {
+                // Start a header paragraph.
+                let header_paragraph = Paragraph::header(node.depth, font_size)?;
+                // Set the paragraph spacing of the previous paragraph to be header spacing.
+                paragraph.spacing = header_paragraph.spacing;
+                // End the previous paragraph.
+                paragraphs.push(paragraph.clone());
             }
+            *paragraph = Some(Paragraph::header(node.depth, font_size)?);
+
             let mut attrs = attrs.clone();
             attrs.weight = Weight::BOLD;
             children!(
@@ -115,6 +127,11 @@ fn add_node<'s>(
             )
         }
         Node::List(node) => {
+            // Add a little extra spacing to start the list.
+            if let Some(paragraph) = paragraph_mut!(paragraph) {
+                paragraph.spacing += (paragraph.metrics.font_size * 0.5) as usize;
+            }
+            start_paragraph(font_size, paragraphs, paragraph);
             // Add the nodes, using the list order.
             for (i, child) in node.children.into_iter().enumerate() {
                 let list_state = match node.start {
@@ -133,8 +150,8 @@ fn add_node<'s>(
             Ok(())
         }
         Node::ListItem(node) => {
-            if let Some(paragraph) = paragraph.as_mut() {
-                paragraph.paragraph_type = ParagraphType::ListItem;
+            if let Some(paragraph) = paragraph_mut!(paragraph) {
+                paragraph.list_item(font_size);
             }
             children!(node, font_size, paragraphs, paragraph, attrs, list_state)
         }
@@ -146,19 +163,23 @@ fn add_node<'s>(
     }
 }
 
-fn start_paragraph<'s>(
-    font_size: &FontSize,
-    paragraphs: &mut Vec<Paragraph<'s>>,
-    paragraph: &mut Option<Paragraph<'s>>,
-) {
+fn end_paragraph<'s>(paragraphs: &mut Vec<Paragraph<'s>>, paragraph: &mut Option<Paragraph<'s>>) {
     // End the current paragraph.
     if let Some(paragraph) = &paragraph
         && !paragraph.spans.is_empty()
     {
         paragraphs.push(paragraph.clone());
     }
+}
+
+fn start_paragraph<'s>(
+    font_size: &FontSize,
+    paragraphs: &mut Vec<Paragraph<'s>>,
+    paragraph: &mut Option<Paragraph<'s>>,
+) {
+    end_paragraph(paragraphs, paragraph);
     // Start a new paragraph.
-    *paragraph = Some(font_size.into());
+    *paragraph = Some(Paragraph::text(font_size));
 }
 
 fn add_span<'s>(
@@ -173,7 +194,7 @@ fn add_span<'s>(
             paragraph.spans.push(span);
         }
         None => {
-            let mut p = Paragraph::from(font_size);
+            let mut p = Paragraph::text(font_size);
             p.spans.push(span);
             *paragraph = Some(p);
         }
