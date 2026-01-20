@@ -1915,6 +1915,7 @@ dependencies = [
  "blittle",
  "pyo3",
  "pyo3-stub-gen",
+ "slotmap",
  "url",
 ]
 

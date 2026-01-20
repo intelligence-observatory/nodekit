@@ -4,15 +4,16 @@ mod asset;
 pub mod board;
 mod card_type;
 mod region;
+mod sensor;
 mod text_card;
 mod text_entry;
-mod sensor;
 
 pub use asset::Asset;
 pub use card_type::*;
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyString};
 pub use region::*;
+pub use sensor::*;
 pub use text_card::*;
 pub use text_entry::TextEntry;
 
