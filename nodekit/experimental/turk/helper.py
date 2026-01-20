@@ -426,8 +426,6 @@ class MturkClient(RecruiterServiceClient):
 
 
 # %%
-
-# %%
 type HitId = str
 type AssignmentId = str
 type WorkerId = str
@@ -552,9 +550,12 @@ class Helper:
         # Build the Graph site
         build_site_result = nk.build_site(graph=graph, savedir=self.local_cachedir)
 
+        manifest = [build_site_result.entrypoint, *build_site_result.dependencies]
+        manifest = list(dict.fromkeys(manifest))
         uploaded = self.s3_client.sync_directory(
-            local_directory=build_site_result.site_root,
-            bucket_directory="",
+            local_root=build_site_result.site_root,
+            bucket_root="",
+            manifest=[path.as_posix() for path in manifest],
             verbose=True,
         )
         entrypoint_rel = build_site_result.entrypoint.as_posix()
