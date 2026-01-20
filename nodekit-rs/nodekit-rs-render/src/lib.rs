@@ -1,13 +1,15 @@
 mod asset;
 mod error;
-mod hoverable;
+mod sensor;
 
+use crate::sensor::{HoverableAsset, SelectableAsset, Sensor};
 use asset::Asset;
-use blittle::ClippedRect;
+use blittle::overlay::{Vec4, rgba8_to_rgba32_color};
+use blittle::{ClippedRect, get_index};
 pub use error::Error;
 use itertools::Itertools;
 use nodekit_rs_image::*;
-use nodekit_rs_models::{CardType, board::*};
+use nodekit_rs_models::{Card, CardType, SelectableCardKey, SensorType, board::*};
 use nodekit_rs_state::*;
 use nodekit_rs_visual::*;
 use numpy::{PyArray3, PyArrayMethods, PyUntypedArrayMethods};
@@ -38,6 +40,15 @@ macro_rules! render_asset {
     }};
 }
 
+const HOVERABLE_OVERLAY_COLOR: Vec4 = Vec4::new(0., 0., 0., 0.1);
+const SELECTABLE_COLOR_CHANNEL: f32 = 50. / 255.;
+const SELECTABLE_BORDER_COLOR: Vec4 = Vec4::new(
+    SELECTABLE_COLOR_CHANNEL,
+    SELECTABLE_COLOR_CHANNEL,
+    SELECTABLE_COLOR_CHANNEL,
+    0.9,
+);
+
 /// Render a `State` while storing an internal cache of loaded data (fonts, video buffers, etc.)
 #[pyclass]
 #[gen_stub_pyclass]
@@ -48,6 +59,7 @@ pub struct Renderer {
     text_engine: nodekit_rs_text::TextEngine,
     /// Cached assets.
     assets: SecondaryMap<CardKey, Asset>,
+    sensor: Option<Sensor>,
     /// These assets need to be cleared and re-filled per frame.
     overlaps: SecondaryMap<CardKey, Vec<CardKey>>,
     /// The known state ID.
@@ -191,8 +203,14 @@ impl Renderer {
     fn fill_and_cache(&mut self, state: &State) -> Result<(), Error> {
         // Clear the asset caches.
         self.assets.clear();
+        // Clear selectables.
+        self.hoverables.clear();
+        self.selectables.clear();
         // Cache assets.
-        self.cache(state)?;
+        self.cache_cards(state)?;
+        self.cache_sensor(state)?;
+
+        // TODO add sensor rects.
 
         // Set overlaps.
         let rects = self
@@ -225,44 +243,130 @@ impl Renderer {
         Ok(())
     }
 
-    fn cache(&mut self, state: &State) -> Result<(), Error> {
+    fn get_asset(&mut self, card: &Card) -> Result<Option<Asset>, Error> {
+        match &card.card_type {
+            CardType::Image(image) => Ok(load_image(image, &card.region)
+                .map_err(Error::Image)?
+                .map(Asset::Image)),
+            CardType::Text(text_card) => Ok(self
+                .text_engine
+                .render_text_card(text_card, &card.region)
+                .map_err(Error::Text)?
+                .map(Asset::Text)),
+            CardType::Video { asset, looped: _ } => {
+                Ok(nodekit_rs_video::Video::new(asset, &card.region)
+                    .map_err(Error::Video)?
+                    .map(Asset::Video))
+            }
+        }
+    }
+
+    fn cache_cards(&mut self, state: &State) -> Result<(), Error> {
         for (card_key, card) in state.cards.iter() {
-            match &card.card_type {
-                CardType::Image(image) => {
-                    if let Some(image) = load_image(image, &card.region).map_err(Error::Image)? {
-                        self.assets.insert(card_key, Asset::Image(image));
-                    }
-                }
-                CardType::Text(text_card) => {
-                    if let Some(buffers) = self
-                        .text_engine
-                        .render_text_card(text_card, &card.region)
-                        .map_err(Error::Text)?
-                    {
-                        self.assets.insert(card_key, Asset::Text(buffers));
-                    }
-                }
-                CardType::TextEntry(text_entry) => {
-                    if let Some(buffers) = self
-                        .text_engine
-                        .render_text_entry(text_entry, &card.region)
-                        .map_err(Error::Text)?
-                    {
-                        self.assets
-                            .insert(card_key, Asset::TextEntry(Box::new(buffers)));
-                    }
-                }
-                CardType::Video { asset, looped: _ } => {
-                    if let Some(video) =
-                        nodekit_rs_video::Video::new(asset, &card.region).map_err(Error::Video)?
-                    {
-                        self.assets.insert(card_key, Asset::Video(video));
-                    }
-                }
-                CardType::Slider(_) => todo!("Cache the slider"),
+            if let Some(asset) = self.get_asset(card)? {
+                self.assets.insert(card_key, asset);
             }
         }
         Ok(())
+    }
+
+    fn cache_sensor(&mut self, state: &State) -> Result<(), Error> {
+        if let Some(sensor) = state.sensor.as_ref() {
+            match &sensor.sensor_type {
+                SensorType::TextEntry(text_entry) => {
+                    if let Some(buffers) = self
+                        .text_engine
+                        .render_text_entry(text_entry)
+                        .map_err(Error::Text)?
+                    {
+                        self.sensor = Some(Sensor::TextEntry(Box::new(buffers)));
+                    }
+                }
+                SensorType::Select { cards, hovering: _ } => {
+                    let mut assets = SecondaryMap::default();
+                    for (k, card) in cards {
+                        if let Some(asset) = self.get_asset(card)?
+                            && let Some(rect) = asset.rect()
+                        {
+                            assets.insert(
+                                k,
+                                HoverableAsset {
+                                    asset,
+                                    overlay: Self::hoverable_overlay(rect),
+                                },
+                            );
+                        }
+                    }
+                    self.sensor = Some(Sensor::Select(assets));
+                }
+                SensorType::MultiSelect {
+                    cards,
+                    hovering: _,
+                    selected: _,
+                    confirm,
+                } => {
+                    let mut choices = SecondaryMap::default();
+                    for (k, card) in cards {
+                        if let Some(asset) = self.get_asset(&card.card)?
+                            && let Some(rect) = asset.rect()
+                        {
+                            choices.insert(
+                                k,
+                                SelectableAsset {
+                                    hoverable: HoverableAsset {
+                                        asset,
+                                        overlay: Self::hoverable_overlay(rect),
+                                    },
+                                    border: Self::selectable_border(rect),
+                                },
+                            );
+                        }
+                    }
+                    let mut confirm_assets = Vec::default();
+                    for card in confirm.iter() {
+                        if let Some(asset) = self.get_asset(card)? {
+                            confirm_assets.push(asset)
+                        }
+                    }
+                    self.sensor = Some(Sensor::MultiSelect {
+                        choices,
+                        confirm: confirm_assets,
+                    });
+                }
+                SensorType::Slider {
+                    num_bins: _,
+                    bin: _,
+                    show_bin_markers: _,
+                    orientation: _,
+                    region: _,
+                } => todo!(),
+            }
+        }
+        Ok(())
+    }
+
+    fn hoverable_overlay(rect: ClippedRect) -> RgbaBuffer {
+        let buffer = vec![HOVERABLE_OVERLAY_COLOR; rect.src_size.w * rect.src_size.h];
+        RgbaBuffer { buffer, rect }
+    }
+
+    fn selectable_border(rect: ClippedRect) -> RgbaBuffer {
+        let mut buffer = vec![Vec4::ZERO; rect.src_size.w * rect.src_size.h];
+        // Horizontal.
+        let horizontal = vec![SELECTABLE_BORDER_COLOR; rect.src_size.w];
+        for y in [0, 1, rect.src_size.h - 2, rect.src_size.h - 1] {
+            let index = y * rect.src_size.w;
+            buffer[index..index + rect.src_size.w].copy_from_slice(&horizontal);
+        }
+        // Vertical.
+        let xs = [0, 1, rect.src_size.w - 2, rect.src_size.h - 1];
+        for y in 2..rect.src_size.h - 2 {
+            for x in xs {
+                let index = x + y * rect.src_size.w;
+                buffer[index] = SELECTABLE_BORDER_COLOR;
+            }
+        }
+        RgbaBuffer { buffer, rect }
     }
 
     fn get_dirty_cards(&self, state: &State) -> Vec<CardKey> {

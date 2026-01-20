@@ -1,19 +1,19 @@
 use super::slider_orientation::SliderOrientation;
-use crate::sensor::multi_select::{MultiSelectCard, MultiSelectCardKey};
+use crate::sensor::multi_select::MultiSelectCard;
+use crate::sensor::text_entry::TextEntry;
 use crate::{Card, Region};
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyString};
 use slotmap::{SecondaryMap, SlotMap, new_key_type};
-use std::collections::HashMap;
 
 new_key_type! { pub struct SelectableCardKey; }
 
 pub enum SensorType {
     MultiSelect {
-        cards: SlotMap<MultiSelectCardKey, MultiSelectCard>,
-        hovering: Option<MultiSelectCardKey>,
-        selected: SecondaryMap<MultiSelectCardKey, ()>,
+        cards: SlotMap<SelectableCardKey, MultiSelectCard>,
+        hovering: Option<SelectableCardKey>,
+        selected: SecondaryMap<SelectableCardKey, ()>,
         confirm: Vec<Card>,
     },
     Select {
@@ -27,12 +27,7 @@ pub enum SensorType {
         orientation: SliderOrientation,
         region: Region,
     },
-    TextEntry {
-        prompt: String,
-        font_size: i64,
-        text: String,
-        region: Region,
-    },
+    TextEntry(TextEntry),
 }
 
 impl SensorType {
@@ -122,11 +117,11 @@ impl SensorType {
         let prompt = sensor.getattr("prompt")?.extract::<String>()?;
         let font_size = sensor.getattr("font_size")?.extract::<i64>()?;
         let region = Region::extract(sensor)?;
-        Ok(Self::TextEntry {
+        Ok(Self::TextEntry(TextEntry {
             prompt,
             font_size,
             text: String::default(),
             region,
-        })
+        }))
     }
 }

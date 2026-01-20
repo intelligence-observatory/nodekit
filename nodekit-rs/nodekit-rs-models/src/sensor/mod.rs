@@ -1,10 +1,12 @@
 mod multi_select;
 mod sensor_type;
 mod slider_orientation;
+mod text_entry;
 
 pub use multi_select::*;
 pub use sensor_type::{SelectableCardKey, SensorType};
 pub use slider_orientation::SliderOrientation;
+pub use text_entry::TextEntry;
 
 pub struct Sensor {
     pub sensor_type: SensorType,

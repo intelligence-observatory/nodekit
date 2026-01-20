@@ -71,9 +71,8 @@ impl TextEngine {
     pub fn render_text_entry(
         &mut self,
         text_entry: &TextEntry,
-        region: &Region,
     ) -> Result<Option<TextEntryBuffers>, Error> {
-        match UnclippedRect::new(region).into_clipped_rect(BOARD_SIZE) {
+        match UnclippedRect::new(&text_entry.region).into_clipped_rect(BOARD_SIZE) {
             None => Ok(None),
             Some(background_rect) => {
                 // Get the font sizes.
@@ -342,13 +341,13 @@ mod tests {
             prompt: String::default(),
             text: include_str!("../lorem.txt").to_string(),
             font_size: 20,
+            region: Region::default(),
         };
-        let region = Region::default();
 
         // Render the text.
         let mut text = TextEngine::default();
         let mut board = Board::new([200, 200, 200]);
-        let text_buffer = text.render_text_entry(&card, &region).unwrap().unwrap();
+        let text_buffer = text.render_text_entry(&card).unwrap().unwrap();
         text_buffer.blit(&mut board);
         // Write the result as a .png file.
         nodekit_rs_png::board_to_png("text_entry.png", board.get_board_without_cursor());
@@ -357,11 +356,12 @@ mod tests {
             prompt: "This is a prompt".to_string(),
             text: String::default(),
             font_size: 20,
+            region: Region::default(),
         };
 
         // Render the text.
         let mut board = Board::new([200, 200, 200]);
-        let text_buffer = text.render_text_entry(&card, &region).unwrap().unwrap();
+        let text_buffer = text.render_text_entry(&card).unwrap().unwrap();
         text_buffer.blit(&mut board);
         // Write the result as a .png file.
         nodekit_rs_png::board_to_png("text_entry_prompt.png", board.get_board_without_cursor());

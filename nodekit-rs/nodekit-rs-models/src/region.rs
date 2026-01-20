@@ -31,7 +31,10 @@ impl Region {
     pub const fn contains(&self, x: i64, y: i64) -> bool {
         let my_position = self.get_position();
         let position = Self::position(x, y);
-        position.x >= my_position.x && position.x < my_position.x + self.w as isize && position.y >= my_position.y && position.y < my_position.y + self.h as isize
+        position.x >= my_position.x
+            && position.x < my_position.x + self.w as isize
+            && position.y >= my_position.y
+            && position.y < my_position.y + self.h as isize
     }
 }
 
