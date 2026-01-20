@@ -7,14 +7,16 @@ use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyString};
 use slotmap::{SecondaryMap, SlotMap, new_key_type};
 
+new_key_type! { pub struct MultiSelectCardKey; }
 new_key_type! { pub struct SelectableCardKey; }
+new_key_type! { pub struct MultiSelectConfirmCardKey; }
 
 pub enum SensorType {
     MultiSelect {
-        cards: SlotMap<SelectableCardKey, MultiSelectCard>,
-        hovering: Option<SelectableCardKey>,
-        selected: SecondaryMap<SelectableCardKey, ()>,
-        confirm: Vec<Card>,
+        cards: SlotMap<MultiSelectCardKey, MultiSelectCard>,
+        hovering: Option<MultiSelectCardKey>,
+        selected: SecondaryMap<MultiSelectCardKey, ()>,
+        confirm: SlotMap<MultiSelectConfirmCardKey, Card>,
     },
     Select {
         cards: SlotMap<SelectableCardKey, Card>,
@@ -34,7 +36,7 @@ impl SensorType {
     pub fn extract(obj: Borrowed<'_, '_, PyAny>) -> PyResult<Option<Self>> {
         let sensor_type = obj.getattr("sensor_type")?;
         match sensor_type.cast::<PyString>()?.to_str()? {
-            "MultiSelectSensor" => Ok(Self::extract_select(obj).ok()),
+            "MultiSelectSensor" => Ok(Self::extract_multi_select(obj).ok()),
             "SelectSensor" => Ok(Self::extract_select(obj).ok()),
             "SliderSensor" => Ok(Self::extract_slider(obj).ok()),
             "TextEntrySensor" => Ok(Self::extract_text_entry(obj).ok()),
@@ -43,8 +45,12 @@ impl SensorType {
     }
 
     fn extract_multi_select(sensor: Borrowed<'_, '_, PyAny>) -> PyResult<Self> {
-        let mut confirm = Vec::default();
-        Card::extract_cards(sensor.getattr("confirm_button")?, &mut confirm)?;
+        let mut confirm_cards = Vec::default();
+        Card::extract_cards(sensor.getattr("confirm_button")?, &mut confirm_cards)?;
+        let mut confirm = SlotMap::with_capacity_and_key(confirm_cards.len());
+        for c in confirm_cards {
+            confirm.insert(c);
+        }
 
         let choices = sensor.getattr("choices")?;
         let choices: &Bound<PyDict> = choices.cast::<PyDict>()?;

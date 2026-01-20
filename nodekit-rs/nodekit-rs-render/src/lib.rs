@@ -1,27 +1,34 @@
 mod asset;
+mod asset_key;
 mod error;
-mod sensor;
+mod hoverable;
 mod overlap;
+mod selectable;
 
-use std::collections::HashMap;
-use crate::sensor::{HoverableAsset, SelectableAsset, Sensor};
+use crate::asset::{AssetType, InteractiveAsset, NonInteractiveAsset};
+use crate::asset_key::{AssetKey, Overlap, OverlapKey};
+use crate::hoverable::Hoverable;
+use crate::selectable::Selectable;
 use asset::Asset;
 use blittle::overlay::{Vec4, rgba8_to_rgba32_color};
 use blittle::{ClippedRect, get_index};
 pub use error::Error;
 use itertools::Itertools;
 use nodekit_rs_image::*;
-use nodekit_rs_models::{Card, CardType, SelectableCardKey, SensorType, board::*};
+use nodekit_rs_models::{
+    Card, CardType, MultiSelectCardKey, SelectableCardKey, SensorType, board::*,
+};
 use nodekit_rs_state::*;
+use nodekit_rs_text::TextEntryBuffers;
 use nodekit_rs_visual::*;
 use numpy::{PyArray3, PyArrayMethods, PyUntypedArrayMethods};
 use pyo3::exceptions::PyRuntimeError;
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use slotmap::SecondaryMap;
+use std::collections::{HashMap, HashSet};
 use std::ops::DerefMut;
 use uuid::Uuid;
-use crate::overlap::{Overlap, OverlapKey};
 
 macro_rules! render_asset {
     ($self:ident, $asset:expr, $state:ident) => {{
@@ -61,10 +68,10 @@ pub struct Renderer {
     /// Cached text engine.
     text_engine: nodekit_rs_text::TextEngine,
     /// Cached assets.
-    assets: SecondaryMap<CardKey, Asset>,
-    sensor: Option<Sensor>,
+    assets: HashMap<AssetKey, Asset>,
     /// These assets need to be cleared and re-filled per frame.
-    overlaps: HashMap<OverlapKey, Vec<Overlap>>,
+    overlaps: HashMap<AssetKey, Vec<AssetKey>>,
+    text_entry_key: Option<AssetKey>,
     /// The known state ID.
     id: Option<Uuid>,
     cursor: Cursor,
@@ -206,45 +213,17 @@ impl Renderer {
     fn fill_and_cache(&mut self, state: &State) -> Result<(), Error> {
         // Clear the asset caches.
         self.assets.clear();
+        self.text_entry_key = None;
         // Cache assets.
         self.cache_cards(state)?;
         self.cache_sensor(state)?;
-
-        // TODO add sensor rects.
 
         // Set overlaps.
         let mut rects = self
             .assets
             .iter()
-            .filter_map(|(k, _)| self.assets[k].rect().map(|rect| (OverlapKey::Card(k), Overlap {
-                rect,
-                z_index: state.cards[k].region.z_index
-            })))
-            .collect::<HashMap<OverlapKey, Overlap>>();
-        // Add sensor rects.
-        if let Some(sensor) = self.sensor.as_ref() {
-            match sensor {
-                Sensor::Select(assets) => { 
-                    for (k, overlap) in assets.iter().filter_map(|(k, asset)| asset.asset.rect().map(|rect| (OverlapKey::Selectable(k), Overlap {
-                        rect,
-                        z_index: asset.asset
-                    }))) {
-                        rects.insert(k, overlap);
-                    }
-                }
-                Sensor::MultiSelect { choices, confirm,} => {
-                    for (k, v) in choices.iter().filter_map(|(k, asset)| asset.hoverable.asset.rect().map(|rect| (OverlapKey::Selectable(k), rect))) {
-                        rects.insert(k, v);
-                    }
-                    for (k, v) in confirm.iter().filter_map(|(k, asset)| asset.rect().map(|rect| (OverlapKey::Confirm(k), rect))) {
-                        rects.insert(k, v);
-                    }
-                }
-                Sensor::TextEntry(buffers) => {
-                    rects.insert(OverlapKey::TextEntry, buffers.rect);
-                }
-            }
-        }
+            .filter_map(|(k, _)| self.assets[k].asset.rect().map(|rect| (k, rect)))
+            .collect::<HashMap<AssetKey, ClippedRect>>();
         self.overlaps = rects
             .iter()
             .map(|(k_a, rect_a)| {
@@ -270,28 +249,37 @@ impl Renderer {
         Ok(())
     }
 
-    fn get_asset(&mut self, card: &Card) -> Result<Option<Asset>, Error> {
+    fn get_non_interactive_asset(
+        &mut self,
+        card: &Card,
+    ) -> Result<Option<NonInteractiveAsset>, Error> {
         match &card.card_type {
             CardType::Image(image) => Ok(load_image(image, &card.region)
                 .map_err(Error::Image)?
-                .map(Asset::Image)),
+                .map(NonInteractiveAsset::Image)),
             CardType::Text(text_card) => Ok(self
                 .text_engine
                 .render_text_card(text_card, &card.region)
                 .map_err(Error::Text)?
-                .map(Asset::Text)),
+                .map(NonInteractiveAsset::Text)),
             CardType::Video { asset, looped: _ } => {
                 Ok(nodekit_rs_video::Video::new(asset, &card.region)
                     .map_err(Error::Video)?
-                    .map(Asset::Video))
+                    .map(NonInteractiveAsset::Video))
             }
         }
     }
 
     fn cache_cards(&mut self, state: &State) -> Result<(), Error> {
         for (card_key, card) in state.cards.iter() {
-            if let Some(asset) = self.get_asset(card)? {
-                self.assets.insert(card_key, asset);
+            if let Some(asset) = self.get_non_interactive_asset(card)? {
+                self.assets.insert(
+                    AssetKey::Card(card_key),
+                    Asset {
+                        asset: AssetType::NonInteractive(asset),
+                        z_index: card.region.z_index,
+                    },
+                );
             }
         }
         Ok(())
@@ -306,25 +294,33 @@ impl Renderer {
                         .render_text_entry(text_entry)
                         .map_err(Error::Text)?
                     {
-                        self.sensor = Some(Sensor::TextEntry(Box::new(buffers)));
+                        let k = AssetKey::TextEntry;
+                        self.assets.insert(
+                            k,
+                            Asset {
+                                asset: AssetType::Interactive(InteractiveAsset::TextEntry(buffers)),
+                                z_index: text_entry.region.z_index,
+                            },
+                        );
+                        self.text_entry_key = Some(k);
                     }
                 }
                 SensorType::Select { cards, hovering: _ } => {
-                    let mut assets = SecondaryMap::default();
                     for (k, card) in cards {
-                        if let Some(asset) = self.get_asset(card)?
-                            && let Some(rect) = asset.rect()
+                        if let Some(asset) = self.get_non_interactive_asset(card)?
+                            && let Some(asset) = Hoverable::new(asset)
                         {
-                            assets.insert(
-                                k,
-                                HoverableAsset {
-                                    asset,
-                                    overlay: Self::hoverable_overlay(rect),
+                            self.assets.insert(
+                                AssetKey::Hoverable(k),
+                                Asset {
+                                    asset: AssetType::Interactive(InteractiveAsset::Hoverable(
+                                        asset,
+                                    )),
+                                    z_index: card.region.z_index,
                                 },
                             );
                         }
                     }
-                    self.sensor = Some(Sensor::Select(assets));
                 }
                 SensorType::MultiSelect {
                     cards,
@@ -332,33 +328,32 @@ impl Renderer {
                     selected: _,
                     confirm,
                 } => {
-                    let mut choices = SecondaryMap::default();
                     for (k, card) in cards {
-                        if let Some(asset) = self.get_asset(&card.card)?
-                            && let Some(rect) = asset.rect()
+                        if let Some(asset) = self.get_non_interactive_asset(&card.card)?
+                            && let Some(asset) = Selectable::new(asset)
                         {
-                            choices.insert(
-                                k,
-                                SelectableAsset {
-                                    hoverable: HoverableAsset {
+                            self.assets.insert(
+                                AssetKey::Selectable(k),
+                                Asset {
+                                    asset: AssetType::Interactive(InteractiveAsset::Selectable(
                                         asset,
-                                        overlay: Self::hoverable_overlay(rect),
-                                    },
-                                    border: Self::selectable_border(rect),
+                                    )),
+                                    z_index: card.card.region.z_index,
                                 },
                             );
                         }
                     }
-                    let mut confirm_assets = Vec::default();
-                    for card in confirm.iter() {
-                        if let Some(asset) = self.get_asset(card)? {
-                            confirm_assets.push(asset)
+                    for (k, card) in confirm.iter() {
+                        if let Some(asset) = self.get_non_interactive_asset(card)? {
+                            self.assets.insert(
+                                AssetKey::MultiSelectConfirm(k),
+                                Asset {
+                                    asset: AssetType::MultiSelectConfirm(asset),
+                                    z_index: card.region.z_index,
+                                },
+                            );
                         }
                     }
-                    self.sensor = Some(Sensor::MultiSelect {
-                        choices,
-                        confirm: confirm_assets,
-                    });
                 }
                 SensorType::Slider {
                     num_bins: _,
@@ -377,46 +372,69 @@ impl Renderer {
         RgbaBuffer { buffer, rect }
     }
 
-    fn selectable_border(rect: ClippedRect) -> RgbaBuffer {
-        let mut buffer = vec![Vec4::ZERO; rect.src_size.w * rect.src_size.h];
-        // Horizontal.
-        let horizontal = vec![SELECTABLE_BORDER_COLOR; rect.src_size.w];
-        for y in [0, 1, rect.src_size.h - 2, rect.src_size.h - 1] {
-            let index = y * rect.src_size.w;
-            buffer[index..index + rect.src_size.w].copy_from_slice(&horizontal);
-        }
-        // Vertical.
-        let xs = [0, 1, rect.src_size.w - 2, rect.src_size.h - 1];
-        for y in 2..rect.src_size.h - 2 {
-            for x in xs {
-                let index = x + y * rect.src_size.w;
-                buffer[index] = SELECTABLE_BORDER_COLOR;
+    fn get_dirty(&self, state: &State) -> Vec<AssetKey> {
+        let mut dirty = HashSet::default();
+        // Get dirty cards.
+        dirty.extend(
+            state
+                .cards
+                .iter()
+                .filter(|(_, v)| v.dirty)
+                .flat_map(|(k, _)| {
+                    let k = AssetKey::Card(k);
+                    let mut overlaps = vec![k];
+                    overlaps.extend_from_slice(&self.overlaps[&k]);
+                    overlaps
+                }),
+        );
+        // Get dirty sensors.
+        if let Some(sensor) = state.sensor.as_ref()
+            && sensor.dirty
+        {
+            match &sensor.sensor_type {
+                SensorType::Slider {
+                    num_bins: _,
+                    bin: _,
+                    show_bin_markers: _,
+                    orientation: _,
+                    region: _,
+                } => todo!(),
+                SensorType::MultiSelect {
+                    cards: _,
+                    hovering,
+                    selected,
+                    confirm: _,
+                } => {
+                    if let Some(hovering) = hovering {
+                        let k = AssetKey::Selectable(*hovering);
+                        dirty.push(k);
+                        dirty.extend_from_slice(&self.overlaps[&k]);
+                    }
+                    for selected in selected.keys() {
+                        let k = AssetKey::Selectable(selected);
+                        dirty.push(k);
+                        dirty.extend_from_slice(&self.overlaps[&k]);
+                    }
+                }
+                SensorType::Select { cards: _, hovering } => {
+                    if let Some(hovering) = hovering {
+                        let k = AssetKey::Selectable(*hovering);
+                        dirty.push(k);
+                        dirty.extend_from_slice(&self.overlaps[&k]);
+                    }
+                }
+                SensorType::TextEntry(text_entry ) => {
+                    if let Some(k) = self.text_entry_key {
+                        let k = AssetKey::Selectable(k);
+                        dirty.push(k);
+                        dirty.extend_from_slice(&self.overlaps[&k]);
+                    }
+                }
             }
         }
-        RgbaBuffer { buffer, rect }
-    }
-
-    fn get_dirty(&self, state: &State) -> Vec<OverlapKey> {
-        let mut dirty = Vec::default();
-        dirty.extend(state
-            .cards
-            .iter()
-            .filter(|(_, v)| v.dirty)
-            .flat_map(|(k, _)| {
-                let k = OverlapKey::Card(k);
-                let mut overlaps = vec![k];
-                overlaps.extend_from_slice(&self.overlaps[&k]);
-                overlaps
-            })
-            .unique()
-            .sorted_by(|a, b| {
-                state.cards[*a]
-                    .region
-                    .z_index
-                    .cmp(&state.cards[*b].region.z_index)
-            }));
-        // TODO sort by z index.
-        dirty
+        // Set rendering order.
+        dirty.sort_by(|a, b| self.assets[a].z_index.cmp(&self.assets[b].z_index));
+        dirty.into()
     }
 
     fn erase(&mut self, card_keys: &[CardKey]) {

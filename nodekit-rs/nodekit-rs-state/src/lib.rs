@@ -112,12 +112,14 @@ impl State {
     pub fn set_pointer(&mut self, x: i64, y: i64) {
         self.pointer.x = x;
         self.pointer.y = y;
-
+    }
+    
+    pub fn set_hovering(&mut self, id: &str, hover: bool) {
         // Set the hovering state.
         if let Some(sensor) = self.sensor.as_mut() {
             match &mut sensor.sensor_type {
                 SensorType::Select { cards, hovering } => {
-                    match cards.iter().find(|(_, card)| card.region.contains(x, y)) {
+                    match cards.iter().find(|(_, card)| card.region.contains(self.pointer.x, self.pointer.y)) {
                         Some((k, _)) => start_hovering!(sensor, hovering, k),
                         None => stop_hovering!(sensor, hovering),
                     }
