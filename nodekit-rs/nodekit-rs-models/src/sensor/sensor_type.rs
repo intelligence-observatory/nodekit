@@ -30,6 +30,7 @@ pub enum SensorType {
     TextEntry {
         prompt: String,
         font_size: i64,
+        text: String,
         region: Region,
     },
 }
@@ -124,6 +125,7 @@ impl SensorType {
         Ok(Self::TextEntry {
             prompt,
             font_size,
+            text: String::default(),
             region,
         })
     }

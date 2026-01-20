@@ -1,5 +1,6 @@
 mod asset;
 mod error;
+mod hoverable;
 
 use asset::Asset;
 use blittle::ClippedRect;
