@@ -15,12 +15,10 @@ export interface Go extends BaseTransition<'Go'> {
     register_updates: Record<RegisterId, Expression>
 }
 
-type LeafTransition = Go | End;
-
 export interface IfThenElse extends BaseTransition<'IfThenElse'> {
     if: Expression
-    then: LeafTransition
-    else: LeafTransition
+    then: Transition
+    else: Transition
 }
 
 export type Transition =
