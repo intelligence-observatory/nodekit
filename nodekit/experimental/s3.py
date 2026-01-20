@@ -22,6 +22,7 @@ class S3Client:
         """
         Used to validate and store S3 client configuration.
         """
+
         bucket_name: str
         region_name: str
         aws_access_key_id: str
@@ -69,7 +70,9 @@ class S3Client:
         """
         local_directory = Path(local_directory)
         if not local_directory.is_dir():
-            raise ValueError(f"Local directory does not exist or is not a directory: {local_directory}")
+            raise ValueError(
+                f"Local directory does not exist or is not a directory: {local_directory}"
+            )
 
         bucket_prefix = str(bucket_directory).strip("/")
         endpoint = self._client.meta.endpoint_url.rstrip("/")
@@ -78,9 +81,7 @@ class S3Client:
         def key_to_url(key: str) -> str:
             encoded_key = quote(key, safe="/")
             if is_aws:
-                return (
-                    f"https://{self.config.bucket_name}.s3.{self.config.region_name}.amazonaws.com/{encoded_key}"
-                )
+                return f"https://{self.config.bucket_name}.s3.{self.config.region_name}.amazonaws.com/{encoded_key}"
             return f"{endpoint}/{self.config.bucket_name}/{encoded_key}"
 
         files: list[tuple[Path, str, int, str]] = []
@@ -129,7 +130,6 @@ class S3Client:
             uploaded[rel] = url
 
         return uploaded
-
 
     def sync_file(
         self,
