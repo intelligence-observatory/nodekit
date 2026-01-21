@@ -1,7 +1,10 @@
-use thiserror::Error;
+use std::fmt::{Display, Formatter};
 
-#[derive(Debug, Error)]
-pub enum SensorError {
-    #[error("Invalid sensor child key: {0}")]
-    ChildKey(String),
+#[derive(Debug)]
+pub struct ChoiceKeyError(pub String);
+
+impl Display for ChoiceKeyError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Invalid choice key for select sensor: {}", &self.0)
+    }
 }

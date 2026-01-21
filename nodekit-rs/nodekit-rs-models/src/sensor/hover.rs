@@ -1,10 +1,15 @@
 use crate::card::{Card, CardKey};
-use crate::sensor::error::SensorError;
+use crate::sensor::error::ChoiceKeyError;
 use hashbrown::HashMap;
 use slotmap::SlotMap;
 
+/// Listen for mouse hovering.
 pub struct Hover {
+    /// The cards that can receive hover overlays.
+    /// Key: The choices key, from the raw nodekit model.
+    /// Value: The keys to the flattened card value from the raw nodekit model.
     pub hoverables: HashMap<String, Vec<CardKey>>,
+    /// The choice key of the card(s) that receive hovering overlays.
     pub hovering: Option<String>,
 }
 
@@ -13,7 +18,7 @@ impl Hover {
         &mut self,
         hovering: Option<String>,
         cards: &mut SlotMap<CardKey, Card>,
-    ) -> Result<(), SensorError> {
+    ) -> Result<(), ChoiceKeyError> {
         // Only update if something changed.
         if hovering != self.hovering {
             match (self.hovering.as_ref(), hovering) {
@@ -51,12 +56,11 @@ impl Hover {
         &self,
         choice: &str,
         cards: &mut SlotMap<CardKey, Card>,
-    ) -> Result<(), SensorError> {
-        // Mark the cards as dirty.
+    ) -> Result<(), ChoiceKeyError> {
         for card_key in self
             .hoverables
             .get(choice)
-            .ok_or(SensorError::ChildKey(choice.to_string()))?
+            .ok_or(ChoiceKeyError(choice.to_string()))?
         {
             cards[*card_key].dirty = true;
         }

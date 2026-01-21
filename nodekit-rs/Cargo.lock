@@ -1934,7 +1934,6 @@ dependencies = [
  "pyo3",
  "pyo3-stub-gen",
  "slotmap",
- "thiserror 2.0.17",
  "url",
 ]
 
