@@ -2,6 +2,7 @@ mod asset;
 mod error;
 mod overlap;
 mod sensor;
+mod selectables;
 
 use asset::Asset;
 use blittle::overlay::{Vec4, rgba8_to_rgba32_color};
@@ -18,12 +19,11 @@ use pyo3::prelude::*;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use slotmap::SecondaryMap;
 use std::ops::DerefMut;
-use hashbrown::HashSet;
 use uuid::Uuid;
 use nodekit_rs_models::board::{HORIZONTAL, STRIDE, VERTICAL};
 use nodekit_rs_models::card::{Card, CardKey, CardType};
 use nodekit_rs_models::sensor::SensorType;
-use sensor::*;
+use crate::selectables::Selectables;
 
 macro_rules! render_asset {
     ($self:ident, $asset:expr, $state:ident) => {{
@@ -60,7 +60,7 @@ pub struct Renderer {
     assets: SecondaryMap<CardKey, Asset>,
     /// These assets need to be cleared and re-filled per frame.
     overlaps: SecondaryMap<CardKey, Vec<CardKey>>,
-    sensor: Option<Sensor>,
+    selectables: Selectables,
     /// The known state ID.
     id: Option<Uuid>,
     cursor: Cursor,
@@ -154,6 +154,15 @@ impl Renderer {
                 // Render.
                 render_asset!(self, &mut self.assets[card_key], state);
                 
+                // Blit the overlay.
+                if let Some(overlay) = self.selectables.get_hover_overlay(card_key) {
+                    self.board.overlay_rgba(overlay);
+                }
+                // Blit the selection border.
+                if let Some(overlay) = self.selectables.get_select_border(card_key) {
+                    self.board.overlay_rgba(overlay);
+                }
+                
                 // Mark as not dirty.
                 state.cards[card_key].dirty = false;
             }
@@ -204,8 +213,7 @@ impl Renderer {
     fn fill_and_cache(&mut self, state: &State) -> Result<(), Error> {
         // Clear the asset caches.
         self.assets.clear();
-        // Clear the sensor.
-        self.sensor = None;
+        self.selectables.clear();
          // Cache assets.
         self.cache_cards(state)?;
         self.cache_sensor(state)?;
@@ -281,11 +289,11 @@ impl Renderer {
             Some(sensor) => match &sensor.sensor_type {
                 SensorType::TextEntry(card_key) => self.cache_text_entry(*card_key),
                 SensorType::Hover(hover) => {
-                    self.cache_hover_sensor(hover);
+                    self.cache_hover_sensor(hover, false);
                     Ok(())
                 },
                 SensorType::Select(select) => {
-                    self.cache_select_sensor(select);
+                    self.cache_hover_sensor(&select.hover, true);
                     Ok(())
                 }
                 SensorType::Slider(_) => todo!("Slider asset caching not yet implemented."),
@@ -302,28 +310,15 @@ impl Renderer {
         {
             // Add the asset.
             self.assets.insert(card_key, Asset::TextEntry(buffers));
-            // Store the key.
-            self.sensor = Some(Sensor::TextEntry(card_key));
         }
         Ok(())
     }
 
-    fn cache_hover_sensor(&mut self, hover: &nodekit_rs_models::sensor::Hover) {
-        let mut sensor = Hover::default();
+    fn cache_hover_sensor(&mut self, hover: &nodekit_rs_models::sensor::Hover, selectable: bool) {
         for card_key in hover.hoverable.values().flatten() {
             let card_key = *card_key;
             if let Some(rect) =  &self.assets[card_key].rect() {
-                sensor.insert(card_key, *rect);
-            }
-        }
-    }
-
-    fn cache_select_sensor(&mut self, select: &nodekit_rs_models::sensor::Select) {
-        let mut sensor = Select::default();
-        for card_key in select.hover.hoverable.values().flatten() {
-            let card_key = *card_key;
-            if let Some(rect) =  &self.assets[card_key].rect() {
-                sensor.insert(card_key, *rect);
+                self.selectables.insert(card_key, *rect, selectable);
             }
         }
     }
@@ -357,18 +352,6 @@ impl Renderer {
                 Asset::TextEntry(text_buffers) => Some(text_buffers.rect),
             })
             .for_each(|rect| self.board.erase(&rect));
-    }
-    
-    fn get_dirty_overlays(&self, state: &State) -> Vec<CardKey> {
-        if let Some(sensor) = state.sensor.as_ref() && sensor.dirty && let Some(render_sensor) = self.sensor.as_ref() {
-            match sensor {
-                SensorType::Hover(hover) => {
-                    if let Some(hoverable) = hover.hovering.as_ref().map(|h|  &hover.hoverable[h]) {
-                        
-                    }
-                }
-            }
-        }
     }
 }
 
