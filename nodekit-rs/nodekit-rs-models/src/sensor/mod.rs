@@ -1,11 +1,9 @@
-mod multi_select;
 mod sensor_type;
 mod slider_orientation;
 mod text_entry;
 
-pub use multi_select::*;
 pub use sensor_type::{
-    MultiSelectCardKey, MultiSelectConfirmCardKey, SelectableCardKey, SensorType,
+    MultiSelectConfirmCardKey, SensorType,
 };
 pub use slider_orientation::SliderOrientation;
 pub use text_entry::TextEntry;

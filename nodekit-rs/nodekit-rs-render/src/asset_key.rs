@@ -1,11 +1,11 @@
-use nodekit_rs_models::{MultiSelectCardKey, MultiSelectConfirmCardKey, SelectableCardKey};
+use nodekit_rs_models::MultiSelectConfirmCardKey;
 use nodekit_rs_state::CardKey;
 
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum AssetKey {
     Card(CardKey),
-    Hoverable(SelectableCardKey),
-    Selectable(MultiSelectCardKey),
+    Hoverable(String),
+    Selectable(String),
     MultiSelectConfirm(MultiSelectConfirmCardKey),
     TextEntry,
 }

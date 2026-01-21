@@ -1,26 +1,24 @@
+use std::collections::{HashMap, HashSet};
 use super::slider_orientation::SliderOrientation;
-use crate::sensor::multi_select::MultiSelectCard;
 use crate::sensor::text_entry::TextEntry;
 use crate::{Card, Region};
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyString};
-use slotmap::{SecondaryMap, SlotMap, new_key_type};
+use slotmap::{SlotMap, new_key_type};
 
-new_key_type! { pub struct MultiSelectCardKey; }
-new_key_type! { pub struct SelectableCardKey; }
 new_key_type! { pub struct MultiSelectConfirmCardKey; }
 
 pub enum SensorType {
     MultiSelect {
-        cards: SlotMap<MultiSelectCardKey, MultiSelectCard>,
-        hovering: Option<MultiSelectCardKey>,
-        selected: SecondaryMap<MultiSelectCardKey, ()>,
+        cards: HashMap<String, Vec<Card>>,
+        hovering: Option<String>,
+        selected: HashSet<String>,
         confirm: SlotMap<MultiSelectConfirmCardKey, Card>,
     },
     Select {
-        cards: SlotMap<SelectableCardKey, Card>,
-        hovering: Option<SelectableCardKey>,
+        cards: HashMap<String, Card>,
+        hovering: Option<String>,
     },
     Slider {
         num_bins: usize,
@@ -54,23 +52,18 @@ impl SensorType {
 
         let choices = sensor.getattr("choices")?;
         let choices: &Bound<PyDict> = choices.cast::<PyDict>()?;
-        let mut cards = SlotMap::default();
+        let mut cards = HashMap::default();
         for (card_id, card) in choices {
             let choice = card_id.extract::<String>()?;
             let mut cs = Vec::default();
             Card::extract_cards(card, &mut cs)?;
-            for card in cs {
-                cards.insert(MultiSelectCard {
-                    choice: choice.clone(),
-                    card,
-                });
-            }
+            cards.insert(choice, cs);
         }
 
         Ok(Self::MultiSelect {
             cards,
             hovering: None,
-            selected: SecondaryMap::default(),
+            selected: HashSet::default(),
             confirm,
         })
     }
@@ -78,12 +71,12 @@ impl SensorType {
     fn extract_select(sensor: Borrowed<'_, '_, PyAny>) -> PyResult<Self> {
         let choices = sensor.getattr("choices")?;
         let choices: &Bound<PyDict> = choices.cast::<PyDict>()?;
-        let mut cards = SlotMap::default();
-        for card in choices.values() {
+        let mut cards = HashMap::default();
+        for (key, card) in choices {
             let mut cs = Vec::default();
             Card::extract_cards(card, &mut cs)?;
             for card in cs {
-                cards.insert(card);
+                cards.insert(key.extract::<String>()?, card);
             }
         }
         Ok(Self::Select {

@@ -1,30 +1,12 @@
 mod pointer;
 
-use nodekit_rs_models::{Card, CardType, SelectableCardKey, Sensor, SensorType};
+use nodekit_rs_models::{Card, CardType, Sensor, SensorType};
 use pointer::Pointer;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use slotmap::{SlotMap, new_key_type};
 use uuid::Uuid;
-
-macro_rules! start_hovering {
-    ($sensor:ident, $hovering:ident, $k:ident) => {{
-        if *$hovering != Some($k) {
-            *$hovering = Some($k);
-            $sensor.dirty = true;
-        }
-    }};
-}
-
-macro_rules! stop_hovering {
-    ($sensor:ident, $hovering:ident) => {{
-        if *$hovering != None {
-            *$hovering = None;
-            $sensor.dirty = true;
-        }
-    }};
-}
 
 new_key_type! { pub struct CardKey; }
 
@@ -114,40 +96,45 @@ impl State {
         self.pointer.y = y;
     }
     
-    pub fn set_hovering(&mut self, id: &str, hover: bool) {
+    /// Set which card has a hovered state.
+    /// 
+    /// If id is a string, then it's a key in SelectSensor.choices or MultiSelectSensor.choices
+    /// If id is None, then no card will have a hovered state. 
+    /// 
+    /// Throws an exception if there is no sensor, 
+    /// or if the sensor isn't a SelectSensor or MultiSelectSensor.
+    pub fn set_hovering(&mut self, id: Option<String>) -> PyResult<()> {
         // Set the hovering state.
-        if let Some(sensor) = self.sensor.as_mut() {
-            match &mut sensor.sensor_type {
-                SensorType::Select { cards, hovering } => {
-                    match cards.iter().find(|(_, card)| card.region.contains(self.pointer.x, self.pointer.y)) {
-                        Some((k, _)) => start_hovering!(sensor, hovering, k),
-                        None => stop_hovering!(sensor, hovering),
+        match self.sensor.as_mut() {
+            Some(sensor) => {
+                match &mut sensor.sensor_type {
+                    SensorType::Select { cards: _, hovering } => {
+                        *hovering = id;
+                        Ok(())
                     }
-                }
-                SensorType::MultiSelect {
-                    cards,
-                    hovering,
-                    selected: _,
-                    confirm: _,
-                } => {
-                    match cards
-                        .iter()
-                        .find(|(_, card)| card.card.region.contains(x, y))
-                    {
-                        Some((k, _)) => start_hovering!(sensor, hovering, k),
-                        None => stop_hovering!(sensor, hovering),
+                    SensorType::MultiSelect {
+                        cards: _,
+                        hovering,
+                        selected: _,
+                        confirm: _,
+                    } => {
+                        *hovering = id;
+                        Ok(())
                     }
+                    _ => Err(PyValueError::new_err(
+                        "Failed to find a SelectSensor or MultiSelectSensor.",
+                    )),
                 }
-                _ => (),
             }
+            None => Self::invalid_sensor()
         }
     }
 
-    /// Select a MultiSelectSensor's card.
+    /// Select or deselect a MultiSelectSensor's card.
     ///
     /// For SelectSensor, this fails silently because the render state wouldn't change.
-    /// For MultiSelectSensor, this adds `choice` the sensor isn't a SelectSensor or MultiSelectSensor.o
-    pub fn select(&mut self, choice: String) -> PyResult<()> {
+    /// For MultiSelectSensor, this adds `choice` the sensor isn't a SelectSensor or MultiSelectSensor.
+    pub fn select(&mut self, choice: String, select: bool) -> PyResult<()> {
         match self.sensor.as_mut() {
             Some(sensor) => match &mut sensor.sensor_type {
                 // No need to render anything.
@@ -156,49 +143,22 @@ impl State {
                     hovering: _,
                 } => Ok(()),
                 SensorType::MultiSelect {
-                    cards,
+                    cards: _,
                     hovering: _,
                     selected,
                     confirm: _,
                 } => {
-                    selected.clear();
-                    for (k, _) in cards.iter().filter(|(_, card)| card.choice == choice) {
-                        selected.insert(k, ());
+                    if select {
+                        selected.insert(choice);
+                    }
+                    else {
+                        selected.remove(&choice);
                     }
                     Ok(())
                 }
                 _ => Err(PyValueError::new_err(
                     "Failed to find a SelectSensor or MultiSelectSensor.",
                 )),
-            },
-            None => Self::invalid_sensor(),
-        }
-    }
-
-    /// Deselect a MultiSelectSensor's card.
-    ///
-    /// Throws an exception if the sensor isn't a MultiSelectSensor.
-    pub fn deselect(&mut self, choice: String) -> PyResult<()> {
-        match self.sensor.as_mut() {
-            Some(sensor) => match &mut sensor.sensor_type {
-                SensorType::MultiSelect {
-                    cards,
-                    hovering: _,
-                    selected,
-                    confirm: _,
-                } => {
-                    let keys = cards
-                        .iter()
-                        .filter_map(
-                            |(k, card)| {
-                                if card.choice == choice { Some(k) } else { None }
-                            },
-                        )
-                        .collect::<Vec<SelectableCardKey>>();
-                    selected.retain(|key, _| keys.contains(&key));
-                    Ok(())
-                }
-                _ => Err(PyValueError::new_err("Failed to find a MultiSelectSensor.")),
             },
             None => Self::invalid_sensor(),
         }

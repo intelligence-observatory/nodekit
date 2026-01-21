@@ -219,21 +219,21 @@ impl Renderer {
         self.cache_sensor(state)?;
 
         // Set overlaps.
-        let mut rects = self
+        let rects = self
             .assets
             .iter()
-            .filter_map(|(k, _)| self.assets[k].asset.rect().map(|rect| (k, rect)))
+            .filter_map(|(k, _)| self.assets[k].asset.rect().map(|rect| (k.clone(), rect)))
             .collect::<HashMap<AssetKey, ClippedRect>>();
         self.overlaps = rects
             .iter()
             .map(|(k_a, rect_a)| {
                 (
-                    *k_a,
+                    k_a.clone(),
                     rects
                         .iter()
                         .filter_map(|(k_b, rect_b)| {
                             if k_a != k_b && rect_a.overlaps(rect_b) {
-                                Some(*k_b)
+                                Some(k_b.clone())
                             } else {
                                 None
                             }
@@ -296,7 +296,7 @@ impl Renderer {
                     {
                         let k = AssetKey::TextEntry;
                         self.assets.insert(
-                            k,
+                            k.clone(),
                             Asset {
                                 asset: AssetType::Interactive(InteractiveAsset::TextEntry(buffers)),
                                 z_index: text_entry.region.z_index,
@@ -311,7 +311,7 @@ impl Renderer {
                             && let Some(asset) = Hoverable::new(asset)
                         {
                             self.assets.insert(
-                                AssetKey::Hoverable(k),
+                                AssetKey::Hoverable(k.clone()),
                                 Asset {
                                     asset: AssetType::Interactive(InteractiveAsset::Hoverable(
                                         asset,
@@ -328,19 +328,21 @@ impl Renderer {
                     selected: _,
                     confirm,
                 } => {
-                    for (k, card) in cards {
-                        if let Some(asset) = self.get_non_interactive_asset(&card.card)?
-                            && let Some(asset) = Selectable::new(asset)
-                        {
-                            self.assets.insert(
-                                AssetKey::Selectable(k),
-                                Asset {
-                                    asset: AssetType::Interactive(InteractiveAsset::Selectable(
-                                        asset,
-                                    )),
-                                    z_index: card.card.region.z_index,
-                                },
-                            );
+                    for (choice, cards) in cards {
+                        for card in cards.iter() {
+                            if let Some(asset) = self.get_non_interactive_asset(&card)?
+                                && let Some(asset) = Selectable::new(asset)
+                            {
+                                self.assets.insert(
+                                    AssetKey::Selectable(choice.clone()), // TODO this is incorrect.
+                                    Asset {
+                                        asset: AssetType::Interactive(InteractiveAsset::Selectable(
+                                            asset,
+                                        )),
+                                        z_index: card.region.z_index,
+                                    },
+                                );
+                            }
                         }
                     }
                     for (k, card) in confirm.iter() {
