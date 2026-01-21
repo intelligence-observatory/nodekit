@@ -51,22 +51,46 @@ class State:
         """
     @t_msec.setter
     def t_msec(self, value: builtins.int) -> None: ...
-    def __new__(cls, board_color: builtins.str, card: typing.Any) -> State:
+    def __new__(cls, board_color: builtins.str, card: typing.Any, sensor: typing.Any) -> State:
         r"""
         `board_color` must be a valid RGBA hex string e.g. "#808080ff"
-        `cards` must be of type `nodekit.Card`
+        `cards` must be of type `nodekit.cards.Card`
+        `sensor` must be of type `nodekit.sensors.Sensor`.
+        
+        Note that only some sensors are supported in nodekit-rs:
+        - SelectSensor
+        - MultiSelectSensor
+        
+        All other sensor types are permitted, but will fail silently.
         """
     def set_pointer(self, x: builtins.int, y: builtins.int) -> None:
         r"""
         Set the coordinates of the pointer.
         The coordinates must be between -512 and 512.
+        
+        If the sensor is a SelectSensor or MultiSelectSensor, this will automatically set the hovering state of the cards, if applicable.
+        """
+    def set_hovering(self, choice: typing.Optional[builtins.str]) -> None:
+        r"""
+        Set which card has a hovered state.
+        
+        If id is a string, then it's a key in SelectSensor.choices or MultiSelectSensor.choices
+        If id is None, then no card will have a hovered state.
+        
+        Throws an exception if there is no sensor,
+        or if the sensor isn't a SelectSensor or MultiSelectSensor.
+        """
+    def select(self, choice: builtins.str, select: builtins.bool) -> None:
+        r"""
+        Select or deselect a MultiSelectSensor's card.
+        
+        For SelectSensor, this fails silently because the render state wouldn't change.
+        For MultiSelectSensor, this adds `choice` the sensor isn't a SelectSensor or MultiSelectSensor.
         """
     def set_text_entry(self, text: builtins.str) -> None:
         r"""
-        Try to set the text in a TextEntry sensor.
-        """
-    def set_slider_bin(self, bin: builtins.int) -> None:
-        r"""
-        Try to set the position of a SliderSensor.
+        Set the text of a TextEntrySensor.
+        
+        Throws an exception if the sensor isn't a TextEntrySensor.
         """
 
