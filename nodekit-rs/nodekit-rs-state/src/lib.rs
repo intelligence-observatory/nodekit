@@ -46,6 +46,23 @@ impl State {
         s
     }
 
+    pub fn get_hovering_over(&self) -> Vec<CardKey> {
+        match self.sensor.as_ref() {
+            Some(sensor) => match sensor.get_hovering_over() {
+                Some(hovering) => hovering.clone(),
+                None => Vec::default(),
+            },
+            None => Vec::default(),
+        }
+    }
+
+    pub fn get_selected(&self) -> Vec<CardKey> {
+        match self.sensor.as_ref() {
+            Some(sensor) => sensor.get_selected().unwrap_or_else(|| Vec::default()),
+            None => Vec::default(),
+        }
+    }
+
     fn invalid_sensor() -> PyResult<()> {
         Err(PyValueError::new_err("Failed to find a renderable sensor."))
     }

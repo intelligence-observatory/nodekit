@@ -4,7 +4,7 @@ use hashbrown::HashMap;
 use slotmap::SlotMap;
 
 pub struct Hover {
-    pub hoverable: HashMap<String, Vec<CardKey>>,
+    pub hoverables: HashMap<String, Vec<CardKey>>,
     pub hovering: Option<String>,
 }
 
@@ -40,6 +40,13 @@ impl Hover {
         }
     }
 
+    pub fn get_hovering_over(&self) -> Option<&Vec<CardKey>> {
+        self.hovering
+            .as_ref()
+            .map(|hovering| self.hoverables.get(hovering))
+            .flatten()
+    }
+
     pub(super) fn set_dirty_cards(
         &self,
         choice: &str,
@@ -47,7 +54,7 @@ impl Hover {
     ) -> Result<(), SensorError> {
         // Mark the cards as dirty.
         for card_key in self
-            .hoverable
+            .hoverables
             .get(choice)
             .ok_or(SensorError::ChildKey(choice.to_string()))?
         {

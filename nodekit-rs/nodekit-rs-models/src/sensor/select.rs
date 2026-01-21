@@ -32,4 +32,13 @@ impl Select {
             }
         }
     }
+
+    pub fn get_selected(&self) -> Vec<CardKey> {
+        self.selected
+            .iter()
+            .flat_map(|s| self.hover.hoverables.get(s))
+            .flatten()
+            .map(|c| *c)
+            .collect()
+    }
 }

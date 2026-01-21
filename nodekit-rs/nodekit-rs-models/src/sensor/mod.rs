@@ -34,6 +34,21 @@ impl Sensor {
         }
     }
 
+    pub fn get_hovering_over(&self) -> Option<&Vec<CardKey>> {
+        match self {
+            Self::Hover(hover) => hover.get_hovering_over(),
+            Self::Select(select) => select.hover.get_hovering_over(),
+            _ => None,
+        }
+    }
+
+    pub fn get_selected(&self) -> Option<Vec<CardKey>> {
+        match self {
+            Self::Select(select) => Some(select.get_selected()),
+            _ => None,
+        }
+    }
+
     fn extract_multi_select(
         sensor: Borrowed<'_, '_, PyAny>,
         cards: &mut SlotMap<CardKey, Card>,
@@ -136,7 +151,7 @@ impl Sensor {
         }
 
         Ok(Hover {
-            hoverable,
+            hoverables: hoverable,
             hovering: None,
         })
     }

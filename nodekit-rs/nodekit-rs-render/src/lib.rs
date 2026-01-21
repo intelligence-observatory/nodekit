@@ -138,6 +138,8 @@ impl Renderer {
             // New state.
             self.start(state)?;
         } else {
+            let hovering_over = state.get_hovering_over();
+            let selected = state.get_selected();
             // Get dirty cards.
             let dirty_cards = self.get_dirty(state);
             // Erase.
@@ -148,11 +150,16 @@ impl Renderer {
                 render_asset!(self, &mut self.assets[card_key], state);
 
                 // Blit the overlay.
-                if let Some(overlay) = self.selectables.get_hover_overlay(card_key) {
+                if hovering_over.contains(&card_key)
+                    && let Some(overlay) = self.selectables.get_hover_overlay(card_key)
+                {
                     self.board.overlay_rgba(overlay);
                 }
+
                 // Blit the selection border.
-                if let Some(overlay) = self.selectables.get_select_border(card_key) {
+                if selected.contains(&card_key)
+                    && let Some(overlay) = self.selectables.get_select_border(card_key)
+                {
                     self.board.overlay_rgba(overlay);
                 }
 
@@ -309,7 +316,7 @@ impl Renderer {
     }
 
     fn cache_hover_sensor(&mut self, hover: &nodekit_rs_models::sensor::Hover, selectable: bool) {
-        for card_key in hover.hoverable.values().flatten() {
+        for card_key in hover.hoverables.values().flatten() {
             let card_key = *card_key;
             if let Some(rect) = &self.assets[card_key].rect() {
                 self.selectables.insert(card_key, *rect, selectable);
@@ -357,7 +364,9 @@ impl Renderer {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use hashbrown::{HashMap, HashSet};
     use nodekit_rs_models::Region;
+    use nodekit_rs_models::sensor::{Hover, Select};
     use slotmap::SlotMap;
     use std::path::PathBuf;
 
@@ -386,6 +395,32 @@ mod tests {
         let mut state = State::new_inner("#AAAAAAFF".to_string(), cards, None);
         let mut renderer = Renderer::default();
         render_image(&mut renderer, &mut state, 0, "no_cursor.png");
+    }
+
+    #[test]
+    fn test_sensor() {
+        let mut cards = SlotMap::with_capacity_and_key(3);
+        let mut image = image_card();
+        image.dirty = true;
+        let image = cards.insert(image);
+        let mut video = video_card();
+        video.dirty = true;
+        let video = cards.insert(video);
+        let mut hoverables = HashMap::default();
+        let a = "a".to_string();
+        let b = "b".to_string();
+        hoverables.insert(a.clone(), vec![image]);
+        hoverables.insert(b.clone(), vec![video]);
+        let sensor = Sensor::Select(Select {
+            hover: Hover {
+                hoverables,
+                hovering: Some(a),
+            },
+            selected: HashSet::from([b]),
+        });
+        let mut state = State::new_inner("#AAAAAAFF".to_string(), cards, Some(sensor));
+        let mut renderer = Renderer::default();
+        render_image(&mut renderer, &mut state, 0, "sensor.png");
     }
 
     fn image_card() -> Card {
