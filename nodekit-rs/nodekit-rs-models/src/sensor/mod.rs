@@ -140,11 +140,11 @@ impl Sensor {
     ) -> PyResult<Hover> {
         let mut hoverable = HashMap::default();
 
-        let current_keys = cards.keys().collect::<Vec<CardKey>>();
-
         let choices = sensor.getattr("choices")?;
         let choices: &Bound<PyDict> = choices.cast::<PyDict>()?;
         for (choice, card) in choices {
+            let current_keys = cards.keys().collect::<Vec<CardKey>>();
+
             // The child key.
             let choice = choice.extract::<String>()?;
             // Extract new cards.

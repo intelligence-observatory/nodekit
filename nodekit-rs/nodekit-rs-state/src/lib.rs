@@ -58,7 +58,7 @@ impl State {
 
     pub fn get_selected(&self) -> Vec<CardKey> {
         match self.sensor.as_ref() {
-            Some(sensor) => sensor.get_selected().unwrap_or_else(|| Vec::default()),
+            Some(sensor) => sensor.get_selected().unwrap_or_else(Vec::default),
             None => Vec::default(),
         }
     }

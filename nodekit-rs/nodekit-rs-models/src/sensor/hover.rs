@@ -48,8 +48,7 @@ impl Hover {
     pub fn get_hovering_over(&self) -> Option<&Vec<CardKey>> {
         self.hovering
             .as_ref()
-            .map(|hovering| self.hoverables.get(hovering))
-            .flatten()
+            .and_then(|hovering| self.hoverables.get(hovering))
     }
 
     pub(super) fn set_dirty_cards(

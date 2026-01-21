@@ -43,7 +43,7 @@ impl Select {
             .iter()
             .flat_map(|s| self.hover.hoverables.get(s))
             .flatten()
-            .map(|c| *c)
+            .copied()
             .collect()
     }
 }

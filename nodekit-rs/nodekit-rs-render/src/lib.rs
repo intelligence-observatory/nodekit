@@ -205,9 +205,28 @@ impl Renderer {
             }
         }
 
+        // Get all assets that are being hovered over.
+        let hovering_over = state.get_hovering_over();
+        // Get all selected states.
+        let selected = state.get_selected();
+
         // Initial blit.
-        for asset in self.assets.values_mut() {
+        for (card_key, asset) in self.assets.iter_mut() {
             render_asset!(self, asset, state);
+
+            // Blit the hovering overlay.
+            if hovering_over.contains(&card_key)
+                && let Some(overlay) = self.sensor.get_hover_overlay(card_key)
+            {
+                self.board.overlay_rgba(overlay);
+            }
+
+            // Blit the selection border.
+            if selected.contains(&card_key)
+                && let Some(overlay) = self.sensor.get_select_border(card_key)
+            {
+                self.board.overlay_rgba(overlay);
+            }
         }
 
         Ok(())
