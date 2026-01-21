@@ -10,5 +10,4 @@ pub struct Slider {
     pub bin: usize,
     pub show_bin_markers: bool,
     pub orientation: SliderOrientation,
-    pub region: Region,
 }

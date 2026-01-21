@@ -1,10 +1,5 @@
-use super::{
-    hover::Hover,
-    select::Select,
-    slider::{Slider, SliderOrientation},
-    text_entry::TextEntry,
-};
-use crate::{Card, CardKey, Region};
+use super::{hover::Hover, select::Select};
+use crate::{Region, card::*};
 use hashbrown::{HashMap, HashSet};
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
@@ -14,8 +9,8 @@ use slotmap::SlotMap;
 pub enum SensorType {
     Select(Select),
     Hover(Hover),
-    Slider(Slider),
-    TextEntry(TextEntry),
+    Slider(CardKey),
+    TextEntry(CardKey),
 }
 
 impl SensorType {
@@ -27,8 +22,8 @@ impl SensorType {
         match sensor_type.cast::<PyString>()?.to_str()? {
             "MultiSelectSensor" => Ok(Self::extract_multi_select(obj, cards).ok()),
             "SelectSensor" => Ok(Self::extract_select(obj, cards).ok()),
-            "SliderSensor" => Ok(Self::extract_slider(obj).ok()),
-            "TextEntrySensor" => Ok(Self::extract_text_entry(obj).ok()),
+            "SliderSensor" => Ok(Self::extract_slider(obj, cards).ok()),
+            "TextEntrySensor" => Ok(Self::extract_text_entry(obj, cards).ok()),
             _ => Ok(None),
         }
     }
@@ -54,7 +49,10 @@ impl SensorType {
         Ok(Self::Hover(Self::extract_hover(sensor, cards)?))
     }
 
-    fn extract_slider(sensor: Borrowed<'_, '_, PyAny>) -> PyResult<Self> {
+    fn extract_slider(
+        sensor: Borrowed<'_, '_, PyAny>,
+        cards: &mut SlotMap<CardKey, Card>,
+    ) -> PyResult<Self> {
         let num_bins = sensor
             .getattr("num_bins")?
             .extract::<i64>()?
@@ -72,25 +70,39 @@ impl SensorType {
             ))),
         }?;
         let region = Region::extract(sensor)?;
-        Ok(Self::Slider(Slider {
-            num_bins,
-            bin: bin_index,
-            show_bin_markers,
-            orientation,
+        let card = Card {
+            card_type: CardType::Slider(Slider {
+                num_bins,
+                bin: bin_index,
+                show_bin_markers,
+                orientation,
+            }),
             region,
-        }))
+            dirty: false,
+        };
+        let slider = cards.insert(card);
+        Ok(Self::Slider(slider))
     }
 
-    fn extract_text_entry(sensor: Borrowed<'_, '_, PyAny>) -> PyResult<Self> {
+    fn extract_text_entry(
+        sensor: Borrowed<'_, '_, PyAny>,
+        cards: &mut SlotMap<CardKey, Card>,
+    ) -> PyResult<Self> {
         let prompt = sensor.getattr("prompt")?.extract::<String>()?;
         let font_size = sensor.getattr("font_size")?.extract::<i64>()?;
         let region = Region::extract(sensor)?;
-        Ok(Self::TextEntry(TextEntry {
-            prompt,
-            font_size,
-            text: String::default(),
+        let card = Card {
+            card_type: CardType::TextEntry(TextEntry {
+                prompt,
+                font_size,
+                text: String::default(),
+            }),
             region,
-        }))
+            dirty: false,
+        };
+        // Add a text entry card.
+        let text_entry = cards.insert(card);
+        Ok(Self::TextEntry(text_entry))
     }
 
     fn extract_hover(

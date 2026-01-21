@@ -1,8 +1,9 @@
 mod pointer;
 
-use nodekit_rs_models::{Card, CardKey, CardType, Sensor, SensorType};
+use nodekit_rs_models::card::{Card, CardKey, CardType};
+use nodekit_rs_models::sensor::{Sensor, SensorType};
 use pointer::Pointer;
-use pyo3::exceptions::PyValueError;
+use pyo3::exceptions::{PyKeyError, PyValueError};
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use slotmap::SlotMap;
@@ -102,16 +103,22 @@ impl State {
     ///
     /// Throws an exception if there is no sensor,
     /// or if the sensor isn't a SelectSensor or MultiSelectSensor.
-    pub fn set_hovering(&mut self, id: Option<String>) -> PyResult<()> {
+    pub fn set_hovering(&mut self, choice: Option<String>) -> PyResult<()> {
         // Set the hovering state.
         match self.sensor.as_mut() {
             Some(sensor) => match &mut sensor.sensor_type {
                 SensorType::Select(select) => {
-                    select.hover.hovering = id;
+                    // Set the hover state and mark cards as dirty.
+                    select.hover.set(choice, &mut self.cards).map_err(|e| PyKeyError::new_err(e.to_string()))?;
+                    // Set the sensor as dirty.
+                    sensor.dirty = true;
                     Ok(())
                 }
                 SensorType::Hover(hover) => {
-                    hover.hovering = id;
+                    // Set the hover state and mark cards as dirty.
+                    hover.set(choice, &mut self.cards).map_err(|e| PyKeyError::new_err(e.to_string()))?;
+                    // Set the sensor as dirty.
+                    sensor.dirty = true;
                     Ok(())
                 }
                 _ => Err(PyValueError::new_err(
@@ -132,11 +139,8 @@ impl State {
                 // No need to render anything.
                 SensorType::Hover(_) => Ok(()),
                 SensorType::Select(select_sensor) => {
-                    if select {
-                        select_sensor.selected.insert(choice);
-                    } else {
-                        select_sensor.selected.remove(&choice);
-                    }
+                    select_sensor.select(choice, select, &mut self.cards).map_err(|e| PyKeyError::new_err(e.to_string()))?;
+                    sensor.dirty = true;
                     Ok(())
                 }
                 _ => Err(PyValueError::new_err(
@@ -153,9 +157,10 @@ impl State {
     pub fn set_text_entry(&mut self, text: String) -> PyResult<()> {
         match self.sensor.as_mut() {
             Some(sensor) => {
-                if let SensorType::TextEntry(text_entry) = &mut sensor.sensor_type {
+                if let SensorType::TextEntry(text_entry) = &mut sensor.sensor_type
+                    && let CardType::TextEntry(text_entry) = &mut self.cards[*text_entry].card_type
+                {
                     text_entry.text = text;
-                    sensor.dirty = true;
                     Ok(())
                 } else {
                     Err(PyValueError::new_err("Failed to find a TextEntrySensor."))

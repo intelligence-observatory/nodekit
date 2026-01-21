@@ -1,14 +1,11 @@
 mod hover;
 mod select;
 mod sensor_type;
-mod slider;
-mod text_entry;
+pub(crate) mod error;
 
 pub use hover::Hover;
 pub use select::Select;
 pub use sensor_type::SensorType;
-pub use slider::*;
-pub use text_entry::TextEntry;
 
 pub struct Sensor {
     /// Per-sensor definitions and mappings.

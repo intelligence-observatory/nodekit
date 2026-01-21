@@ -1,10 +1,12 @@
-use crate::*;
+use super::{Asset, CARD_TYPE, Slider, TextCard, TextEntry};
 use pyo3::{exceptions::PyValueError, prelude::*, types::PyString};
 
 /// ImageCard, TextCard, etc.
 pub enum CardType {
     Image(Asset),
+    Slider(Slider),
     Text(TextCard),
+    TextEntry(TextEntry),
     Video { asset: Asset, looped: bool },
 }
 
