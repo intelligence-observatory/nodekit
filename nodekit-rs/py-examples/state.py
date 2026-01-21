@@ -1,6 +1,7 @@
 from pathlib import Path
 import nodekit.assets
 import nodekit.cards
+import nodekit.sensors
 from nodekit import Region
 from nodekit_rs import State
 
@@ -29,4 +30,6 @@ def get_state() -> State:
         ),
     }
     card = nodekit.cards.CompositeCard(children=cards)
-    return State(board_color="#AAAAAAFF", card=card)
+    return State(
+        board_color="#AAAAAAFF", card=card, sensor=nodekit.sensors.WaitSensor(duration_msec=10000)
+    )

@@ -37,9 +37,9 @@ sensor = nk.sensors.MultiSelectSensor(
     max_selections=3,
     confirm_button=confirm_button,
 )
-state = State(board_color='#DDDDDDFF', card=card, sensor=sensor)
-state.select(choice='b', select=True)
-state.hover(choice='c')
+state = State(board_color="#DDDDDDFF", card=card, sensor=sensor)
+state.select(choice="b", select=True)
+state.hover(choice="c")
 state.set_pointer(x=245, y=20)
 renderer = Renderer()
 board = renderer.render(state=state)
