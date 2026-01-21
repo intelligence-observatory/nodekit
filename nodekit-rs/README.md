@@ -19,7 +19,8 @@ The size of the final library file should be approximately 44 MB.
 from nodekit_rs import Renderer, State
 
 card = get_card()  # Your code here. Can be a CompositeCard.
-state = State(board_color="#AAAAAAFF", card=card)
+sensor = get_sensor()  # Your code here.
+state = State(board_color="#AAAAAAFF", sensor=sensor)
 
 renderer = Renderer()
 board = renderer.render(state)
@@ -35,7 +36,8 @@ You can, optionally, render to an existing numpy array, which will result in a s
 from nodekit_rs import Renderer, State
 
 card = get_card()
-state = State(board_color="#AAAAAAFF", card=card)
+sensor = get_sensor()
+state = State(board_color="#AAAAAAFF", card=card, sensor=sensor)
 
 renderer = Renderer()
 
@@ -45,7 +47,7 @@ for i in range(100):
     renderer.render_to(state, board)  # Render into the pre-allocated `board`.
 ```
 
-### Stateful information
+### Pointer position
 
 To set the pointer position, call `state.set_pointer(x, y)` where `x` and `y` are ints between -512 and 512:
 
@@ -53,9 +55,11 @@ To set the pointer position, call `state.set_pointer(x, y)` where `x` and `y` ar
 from nodekit_rs import State
 
 card = get_card()
-state = State(board_color="#AAAAAAFF", card=card)
-state.set_pointer(0, 0)
+sensor = get_sensor()
+state = State(board_color="#AAAAAAFF", card=card, sensor=sensor)
 ```
+
+### Video seeking
 
 If there are video cards, you will need to manually set the current time, in milliseconds:
 
@@ -63,9 +67,68 @@ If there are video cards, you will need to manually set the current time, in mil
 from nodekit_rs import State
 
 card = get_card()
-state = State(board_color="#AAAAAAFF", card=card)
+sensor = get_sensor()
+state = State(board_color="#AAAAAAFF", card=card, sensor=sensor)
 state.t_msec = 300
 ```
+
+### Sensors
+
+`nodekit-rs` will accept any sensor type, but will fail silently for most of them.
+
+For example, this is valid code:
+
+```python
+import nodekit as nk
+from nodekit_rs import State
+
+card = get_card()  # Your code here.
+sensor = nk.sensors.WaitSensor(duration_msec=10000)
+state = State(board_color="#AAAAAAFF", card=card, sensor=sensor)
+```
+
+`nodekit-rs` currently supports graphical renderings of:
+
+- `SelectSensor`
+- `MultiSelectSensor`
+
+#### Hovering
+
+To graphically render cards that are being hovered over, set the sensor as `SelectSensor` or `MultiSelectSensor` and then call `state.set_hovering(choice)`.
+
+`nodekit-rs` will not check the actual position of the pointer.
+
+```python
+import nodekit as nk
+from nodekit_rs import State
+
+card = get_card()  # Your code here.
+sensor = nk.sensors.SelectSensor(choices={
+    'a': get_another_card()  # Your code here.
+})
+state = State(board_color="#AAAAAAFF", card=card, sensor=sensor)
+state.set_hovering('a')
+```
+
+To stop rendering any hovering overlays, call `state.set_hovering(None)`
+
+#### Selecting
+
+To graphically render a selected card, set the sensor as a `MultiSelectSensor` and call `state.set_selection(choice, select)`:
+
+```python
+import nodekit as nk
+from nodekit_rs import State
+
+card = get_card()  # Your code here.
+sensor = nk.sensors.MultiSelectSensor(choices={
+    'a': get_another_card()  # Your code here.
+})
+state = State(board_color="#AAAAAAFF", card=card, sensor=sensor)
+state.select('a', True)
+```
+
+You can also opt for a `SelectSensor` but it will fail silently. All other sensor types will throw an exception.
 
 ## What works, what doesn't
 
@@ -73,11 +136,11 @@ state.t_msec = 300
 
 ImageCard, VideoCard, and CompositeCard card should always look the same as they would in a browser.
 
-TextCard is WIP. Markdown formatting is supported. Colorized words are supported (but not in `nodekit-browser`). There are differences in line heights and font weights. There are minor kerning problems with list items.
+TextCard is WIP. Markdown formatting is supported. Colorized words are supported (but not in `nodekit-browser`). There are minor kerning problems with list items.
 
 Pointer rendering is supported but might not be the same as in the browser.
 
-Sensors are not yet implemented.
+Most sensors are not yet implemented.
 
 ## Test
 
