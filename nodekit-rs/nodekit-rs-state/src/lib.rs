@@ -72,7 +72,14 @@ impl State {
 #[pymethods]
 impl State {
     /// `board_color` must be a valid RGBA hex string e.g. "#808080ff"
-    /// `cards` must be of type `nodekit.Card`
+    /// `cards` must be of type `nodekit.cards.Card`
+    /// `sensor` must be of type `nodekit.sensors.Sensor`.
+    ///
+    /// Note that only some sensors are supported in nodekit-rs:
+    /// - SelectSensor
+    /// - MultiSelectSensor
+    ///
+    /// All other sensor types are permitted, but will fail silently.
     #[new]
     pub fn new(
         board_color: String,
