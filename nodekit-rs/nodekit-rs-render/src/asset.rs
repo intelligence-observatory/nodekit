@@ -7,7 +7,7 @@ pub enum Asset {
     Image(VisualBuffer),
     Text(TextBuffers),
     Video(Video),
-    TextEntry(TextEntryBuffers)
+    TextEntry(TextEntryBuffers),
 }
 
 impl Asset {

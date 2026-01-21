@@ -1,31 +1,27 @@
 use blittle::ClippedRect;
 use blittle::overlay::Vec4;
-use slotmap::SecondaryMap;
 use nodekit_rs_models::card::CardKey;
 use nodekit_rs_visual::RgbaBuffer;
+use slotmap::SecondaryMap;
 
 const HOVERABLE_OVERLAY_COLOR: Vec4 = Vec4::new(0., 0., 0., 0.1);
 const C: f32 = 50. / 255.;
-const SELECTABLE_BORDER_COLOR: Vec4 = Vec4::new(
-    C,
-    C,
-    C,
-    0.9,
-);
-
+const SELECTABLE_BORDER_COLOR: Vec4 = Vec4::new(C, C, C, 0.9);
 
 #[derive(Default)]
 pub struct Selectables {
     hover_overlays: SecondaryMap<CardKey, RgbaBuffer>,
-    select_borders: SecondaryMap<CardKey, RgbaBuffer>
+    select_borders: SecondaryMap<CardKey, RgbaBuffer>,
 }
 
 impl Selectables {
     pub fn insert(&mut self, card_key: CardKey, rect: ClippedRect, selectable: bool) {
         let buffer = vec![HOVERABLE_OVERLAY_COLOR; rect.src_size.w * rect.src_size.h];
-        self.hover_overlays.insert(card_key, RgbaBuffer { buffer, rect });
+        self.hover_overlays
+            .insert(card_key, RgbaBuffer { buffer, rect });
         if selectable {
-            self.select_borders.insert(card_key, Self::selectable_border(rect));
+            self.select_borders
+                .insert(card_key, Self::selectable_border(rect));
         }
     }
 

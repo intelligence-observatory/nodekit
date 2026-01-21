@@ -1,15 +1,18 @@
 mod asset;
 mod error;
 mod overlap;
-mod sensor;
 mod selectables;
 
+use crate::selectables::Selectables;
 use asset::Asset;
 use blittle::overlay::{Vec4, rgba8_to_rgba32_color};
 use blittle::{ClippedRect, get_index};
 pub use error::Error;
 use itertools::Itertools;
 use nodekit_rs_image::*;
+use nodekit_rs_models::board::{HORIZONTAL, STRIDE, VERTICAL};
+use nodekit_rs_models::card::{Card, CardKey, CardType};
+use nodekit_rs_models::sensor::Sensor;
 use nodekit_rs_state::*;
 use nodekit_rs_text::TextEntryBuffers;
 use nodekit_rs_visual::*;
@@ -20,10 +23,6 @@ use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use slotmap::SecondaryMap;
 use std::ops::DerefMut;
 use uuid::Uuid;
-use nodekit_rs_models::board::{HORIZONTAL, STRIDE, VERTICAL};
-use nodekit_rs_models::card::{Card, CardKey, CardType};
-use nodekit_rs_models::sensor::SensorType;
-use crate::selectables::Selectables;
 
 macro_rules! render_asset {
     ($self:ident, $asset:expr, $state:ident) => {{
@@ -44,9 +43,6 @@ macro_rules! render_asset {
         }
     }};
 }
-
-
-
 
 /// Render a `State` while storing an internal cache of loaded data (fonts, video buffers, etc.)
 #[pyclass]
@@ -153,7 +149,7 @@ impl Renderer {
             for card_key in dirty_cards {
                 // Render.
                 render_asset!(self, &mut self.assets[card_key], state);
-                
+
                 // Blit the overlay.
                 if let Some(overlay) = self.selectables.get_hover_overlay(card_key) {
                     self.board.overlay_rgba(overlay);
@@ -162,7 +158,7 @@ impl Renderer {
                 if let Some(overlay) = self.selectables.get_select_border(card_key) {
                     self.board.overlay_rgba(overlay);
                 }
-                
+
                 // Mark as not dirty.
                 state.cards[card_key].dirty = false;
             }
@@ -214,7 +210,7 @@ impl Renderer {
         // Clear the asset caches.
         self.assets.clear();
         self.selectables.clear();
-         // Cache assets.
+        // Cache assets.
         self.cache_cards(state)?;
         self.cache_sensor(state)?;
 
@@ -249,10 +245,7 @@ impl Renderer {
         Ok(())
     }
 
-    fn get_asset(
-        &mut self,
-        card: &Card,
-    ) -> Result<Option<Asset>, Error> {
+    fn get_asset(&mut self, card: &Card) -> Result<Option<Asset>, Error> {
         match &card.card_type {
             CardType::Image(image) => Ok(load_image(image, &card.region)
                 .map_err(Error::Image)?
@@ -266,19 +259,21 @@ impl Renderer {
                 Ok(nodekit_rs_video::Video::new(asset, &card.region)
                     .map_err(Error::Video)?
                     .map(Asset::Video))
-            },
+            }
             CardType::TextEntry(_) => todo!("Text entry not yet implemented."),
-            CardType::Slider(_) => todo!("Slider not yet implemented.")
+            CardType::Slider(_) => todo!("Slider not yet implemented."),
         }
     }
 
     fn cache_cards(&mut self, state: &State) -> Result<(), Error> {
         // Add assets, ordered by z_index.
-        for (card_key, card) in state.cards.iter().sorted_by(|(_, a), (_, b)| a.region.z_index.cmp(&b.region.z_index)) {
+        for (card_key, card) in state
+            .cards
+            .iter()
+            .sorted_by(|(_, a), (_, b)| a.region.z_index.cmp(&b.region.z_index))
+        {
             if let Some(asset) = self.get_asset(card)? {
-                self.assets.insert(
-                    card_key, asset
-                );
+                self.assets.insert(card_key, asset);
             }
         }
         Ok(())
@@ -286,19 +281,19 @@ impl Renderer {
 
     fn cache_sensor(&mut self, state: &State) -> Result<(), Error> {
         match state.sensor.as_ref() {
-            Some(sensor) => match &sensor.sensor_type {
-                SensorType::TextEntry(card_key) => self.cache_text_entry(*card_key),
-                SensorType::Hover(hover) => {
+            Some(sensor) => match sensor {
+                Sensor::TextEntry(card_key) => self.cache_text_entry(*card_key),
+                Sensor::Hover(hover) => {
                     self.cache_hover_sensor(hover, false);
                     Ok(())
-                },
-                SensorType::Select(select) => {
+                }
+                Sensor::Select(select) => {
                     self.cache_hover_sensor(&select.hover, true);
                     Ok(())
                 }
-                SensorType::Slider(_) => todo!("Slider asset caching not yet implemented."),
-            }
-            None => Ok(())
+                Sensor::Slider(_) => todo!("Slider asset caching not yet implemented."),
+            },
+            None => Ok(()),
         }
     }
 
@@ -317,7 +312,7 @@ impl Renderer {
     fn cache_hover_sensor(&mut self, hover: &nodekit_rs_models::sensor::Hover, selectable: bool) {
         for card_key in hover.hoverable.values().flatten() {
             let card_key = *card_key;
-            if let Some(rect) =  &self.assets[card_key].rect() {
+            if let Some(rect) = &self.assets[card_key].rect() {
                 self.selectables.insert(card_key, *rect, selectable);
             }
         }
@@ -338,7 +333,12 @@ impl Renderer {
             // Unique keys only.
             .unique()
             // Sort by rendering order.
-            .sorted_by(|a, b| state.cards[a].region.z_index.cmp(&state.cards[b].region.z_index))
+            .sorted_by(|a, b| {
+                state.cards[a]
+                    .region
+                    .z_index
+                    .cmp(&state.cards[b].region.z_index)
+            })
             .collect()
     }
 
@@ -357,17 +357,19 @@ impl Renderer {
 
 #[cfg(test)]
 mod tests {
-    use crate::Renderer;
-    use nodekit_rs_models::board::*;
-    use nodekit_rs_models::*;
-    use nodekit_rs_state::{CardKey, State};
+    use super::*;
+    use nodekit_rs_models::Region;
+    use slotmap::SlotMap;
     use std::path::PathBuf;
 
     #[test]
     fn test_render() {
-        let cards = vec![image_card(), video_card(), text_card()];
+        let mut cards = SlotMap::with_capacity_and_key(3);
+        cards.insert(image_card());
+        cards.insert(video_card());
+        cards.insert(text_card());
 
-        let mut state = State::new_inner("#AAAAAAFF".to_string(), cards);
+        let mut state = State::new_inner("#AAAAAAFF".to_string(), cards, None);
         let mut renderer = Renderer::default();
         render_image(&mut renderer, &mut state, 0, "000.png");
         render_image(&mut renderer, &mut state, 100, "100.png");
@@ -377,9 +379,12 @@ mod tests {
 
     #[test]
     fn test_no_cursor() {
-        let cards = vec![image_card(), video_card(), text_card()];
+        let mut cards = SlotMap::with_capacity_and_key(3);
+        cards.insert(image_card());
+        cards.insert(video_card());
+        cards.insert(text_card());
 
-        let mut state = State::new_inner("#AAAAAAFF".to_string(), cards);
+        let mut state = State::new_inner("#AAAAAAFF".to_string(), cards, None);
         let mut renderer = Renderer::default();
         render_image(&mut renderer, &mut state, 0, "no_cursor.png");
     }
@@ -395,7 +400,7 @@ mod tests {
                 h: 154,
                 z_index: Some(0),
             },
-            card_type: CardType::Image(Asset::Path(image_path)),
+            card_type: CardType::Image(nodekit_rs_models::card::Asset::Path(image_path)),
             dirty: false,
         }
     }
@@ -411,7 +416,7 @@ mod tests {
                 z_index: Some(1),
             },
             card_type: CardType::Video {
-                asset: Asset::Path(video_path),
+                asset: nodekit_rs_models::card::Asset::Path(video_path),
                 looped: false,
             },
             dirty: false,
@@ -427,11 +432,11 @@ mod tests {
                 h: VERTICAL.i_64,
                 z_index: Some(5),
             },
-            card_type: CardType::Text(TextCard {
+            card_type: CardType::Text(nodekit_rs_models::card::TextCard {
                 text: include_str!("../../nodekit-rs-text/lorem.txt").to_string(),
                 font_size: 20,
-                justification_horizontal: JustificationHorizontal::Left,
-                justification_vertical: JustificationVertical::Center,
+                justification_horizontal: nodekit_rs_models::card::JustificationHorizontal::Left,
+                justification_vertical: nodekit_rs_models::card::JustificationVertical::Center,
                 text_color: "#003300FF".to_string(),
                 background_color: "#EE00EE11".to_string(),
             }),
@@ -448,20 +453,28 @@ mod tests {
     #[test]
     fn test_dirty_rects() {
         let mut renderer = Renderer::new();
-        let state = State::new_inner("#AAAAAAFF".to_string(), vec![image_card()]);
-        renderer.start(&state).unwrap();
-        // No need to re-blit.
-        assert_eq!(renderer.overlaps.len(), 1);
-        assert!(renderer.overlaps.values().all(|v| v.is_empty()));
-        assert!(state.cards.values().all(|card| !card.dirty));
-        let state = State::new_inner("#AAAAAAFF".to_string(), vec![text_card()]);
+        let mut cards = SlotMap::default();
+        cards.insert(image_card());
+        let state = State::new_inner("#AAAAAAFF".to_string(), cards, None);
         renderer.start(&state).unwrap();
         // No need to re-blit.
         assert_eq!(renderer.overlaps.len(), 1);
         assert!(renderer.overlaps.values().all(|v| v.is_empty()));
         assert!(state.cards.values().all(|card| !card.dirty));
 
-        let state = State::new_inner("#AAAAAAFF".to_string(), vec![image_card(), text_card()]);
+        let mut cards = SlotMap::default();
+        cards.insert(text_card());
+        let state = State::new_inner("#AAAAAAFF".to_string(), cards, None);
+        renderer.start(&state).unwrap();
+        // No need to re-blit.
+        assert_eq!(renderer.overlaps.len(), 1);
+        assert!(renderer.overlaps.values().all(|v| v.is_empty()));
+        assert!(state.cards.values().all(|card| !card.dirty));
+
+        let mut cards = SlotMap::default();
+        cards.insert(image_card());
+        cards.insert(text_card());
+        let state = State::new_inner("#AAAAAAFF".to_string(), cards, None);
         renderer.start(&state).unwrap();
         // No need to re-blit.
         assert_eq!(renderer.overlaps.len(), 2);
@@ -470,7 +483,9 @@ mod tests {
         }
         assert!(state.cards.values().all(|card| !card.dirty));
 
-        let mut state = State::new_inner("#AAAAAAFF".to_string(), vec![video_card()]);
+        let mut cards = SlotMap::default();
+        cards.insert(video_card());
+        let mut state = State::new_inner("#AAAAAAFF".to_string(), cards, None);
         renderer.start(&state).unwrap();
         // Always re-blit a video.
         assert_eq!(renderer.overlaps.len(), 1);
@@ -479,10 +494,11 @@ mod tests {
         state.set_t_msec(1);
         assert!(state.cards.values().all(|card| card.dirty));
 
-        let state = State::new_inner(
-            "#AAAAAAFF".to_string(),
-            vec![image_card(), text_card(), video_card()],
-        );
+        let mut cards = SlotMap::default();
+        cards.insert(image_card());
+        cards.insert(text_card());
+        cards.insert(video_card());
+        let state = State::new_inner("#AAAAAAFF".to_string(), cards, None);
         renderer.start(&state).unwrap();
         // Always re-blit a video.
         assert_eq!(renderer.overlaps.len(), 3);
