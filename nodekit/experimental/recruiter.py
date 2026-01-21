@@ -110,7 +110,7 @@ class MechanicalTurkRecruiter:
         if description is None:
             description = title
 
-        if keywords is not None:
+        if keywords is None:
             keywords = ["nodekit", "psychology", "task", "cognitive", "science", "game"]
 
         if allowed_participant_ids is None:

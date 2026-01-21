@@ -117,7 +117,7 @@ class S3Client:
                 "ACL": "public-read",
             }
             with path.open("rb") as f:
-                self._client.upload_fileobj(
+                self._client.upload_fileobj(  # type: ignore
                     Fileobj=f,
                     Bucket=self.config.bucket_name,
                     Key=key,
@@ -164,7 +164,7 @@ class S3Client:
 
         # Skip if already present with same size (unless force)
         try:
-            head = self._client.head_object(Bucket=self.config.bucket_name, Key=key)
+            head = self._client.head_object(Bucket=self.config.bucket_name, Key=key)  # type: ignore
             if head.get("ContentLength") == p.stat().st_size and not force:
                 return url
         except self._client.exceptions.ClientError as e:
@@ -178,7 +178,7 @@ class S3Client:
             "ACL": "public-read",
         }
         with p.open("rb") as f:
-            self._client.upload_fileobj(
+            self._client.upload_fileobj(  # type: ignore
                 Fileobj=f,
                 Bucket=self.config.bucket_name,
                 Key=key,
