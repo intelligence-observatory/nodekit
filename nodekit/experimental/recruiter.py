@@ -216,12 +216,15 @@ class MechanicalTurkRecruiter:
         for hit_id in hit_ids:
             hit = self.get_hit(hit_id=hit_id)
 
+            assignment_cachedir = self._get_assignment_cachedir(hit_id=hit_id)
+            assignment_paths = glob.glob(str(assignment_cachedir / "*.json"))
+
             # Decide whether to pull assignments:
-            if hit.NumberOfAssignmentsCompleted < hit.MaxAssignments:
+            if len(assignment_paths) < hit.NumberOfAssignmentsCompleted:
                 # Pull assignments:
                 for asn in self.mturk_client.iter_assignments(hit_id=hit_id):
-                    if asn.AssignmentStatus != "Approved":
-                        # This client always approves Assignments
+                    if asn.AssignmentStatus == "Submitted":
+                        # This client always approves Submitted Assignments
                         self.mturk_client.approve_assignment(
                             assignment_id=asn.AssignmentId,
                         )
@@ -233,10 +236,7 @@ class MechanicalTurkRecruiter:
                     savepath.parent.mkdir(parents=True, exist_ok=True)
                     savepath.write_text(asn.model_dump_json(indent=2))
 
-            # Now iterate and parse submissions
-            assignment_paths = glob.glob(
-                str(self._get_assignment_cachedir(hit_id=hit_id) / "*.json")
-            )
+                assignment_paths = glob.glob(str(assignment_cachedir / "*.json"))
 
             for path in assignment_paths:
                 asn_json = Path(path).read_text()
