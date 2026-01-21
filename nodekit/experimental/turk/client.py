@@ -207,9 +207,11 @@ class MturkClient:
                 UniqueRequestToken=unique_request_token,  # For idempotency
             )
         except Exception as e:
-            if "idempotency" in str(e):
+            message = str(e).lower()
+            if "idempotency" in message:
                 # Expected error for duplicate request
-                pass
+                return
+            raise
 
     def approve_assignment(self, assignment_id: str) -> None:
         self.boto3_client.approve_assignment(
