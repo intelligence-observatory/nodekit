@@ -32,8 +32,10 @@ def extract_external_question_answer(xml: str) -> str:
 # %%
 class MechanicalTurkRecruiter:
     """
-    A helper class for recruiting human participants from Mechanical Turk to play Graphs.
-    It requires AWS credentials with access to MTurk and write / make public permissions to an S3 bucket.
+    Helper for recruiting participants on Mechanical Turk to run a Graph via a hosted site.
+    Builds and uploads Graph sites to S3, creates HITs, caches HIT/assignment metadata,
+    approves Submitted assignments, and yields validated site submissions.
+    Requires AWS credentials with MTurk access and S3 write/public permissions.
     """
 
     def __init__(
@@ -45,6 +47,17 @@ class MechanicalTurkRecruiter:
         region_name: str,
         s3_bucket_name: str,
     ):
+        """
+        Initialize MTurk and S3 clients and set the local cache root.
+
+        Args:
+            project_directory: Local directory used for HIT/assignment/bonus caches and site builds.
+            mturk_sandbox: Whether to use the MTurk sandbox environment.
+            aws_access_key_id: AWS access key for MTurk and S3.
+            aws_secret_access_key: AWS secret access key for MTurk and S3.
+            region_name: AWS region for the S3 bucket.
+            s3_bucket_name: S3 bucket used to host Graph sites.
+        """
         self.mturk_client = MturkClient(
             sandbox=mturk_sandbox,
             aws_access_key_id=aws_access_key_id,
@@ -59,12 +72,25 @@ class MechanicalTurkRecruiter:
         self._project_directory = Path(project_directory)
 
     def _get_hit_cachedir(self) -> Path:
+        """Return the local directory where HIT metadata is cached.
+
+        Returns:
+            Directory path for cached HIT metadata.
+        """
         return self._project_directory / "hits" / self.mturk_client.get_recruiter_service_name()
 
     def _get_assignment_cachedir(
         self,
         hit_id: str,
     ):
+        """Return the local directory where assignments for a HIT are cached.
+
+        Args:
+            hit_id: HIT ID used to namespace the cache.
+
+        Returns:
+            Directory path for cached assignments for the HIT.
+        """
         return (
             self._project_directory
             / "assignments"
@@ -73,12 +99,34 @@ class MechanicalTurkRecruiter:
         )
 
     def _get_assignment_savepath(self, hit_id: str, assignment_id: str) -> Path:
+        """Return the JSON cache path for a specific assignment.
+
+        Args:
+            hit_id: HIT ID used to namespace the cache.
+            assignment_id: MTurk assignment ID.
+
+        Returns:
+            File path to the cached assignment JSON.
+        """
         return self._get_assignment_cachedir(hit_id=hit_id) / f"{assignment_id}.json"
 
     def _get_hit_savepath(self, hit_id: str) -> Path:
+        """Return the JSON cache path for a specific HIT.
+
+        Args:
+            hit_id: MTurk HIT ID.
+
+        Returns:
+            File path to the cached HIT JSON.
+        """
         return self._get_hit_cachedir() / f"{hit_id}.json"
 
     def _get_bonus_payments_cachedir(self) -> Path:
+        """Return the local directory where bonus payment receipts are cached.
+
+        Returns:
+            Directory path for cached bonus payment receipts.
+        """
         return (
             self._project_directory
             / "bonus_payments"
@@ -86,6 +134,11 @@ class MechanicalTurkRecruiter:
         )
 
     def _get_graph_site_cachedir(self) -> Path:
+        """Return the local directory where Graph sites are built before upload.
+
+        Returns:
+            Directory path for built Graph site assets.
+        """
         return self._project_directory / "sites"
 
     def create_hit(
@@ -100,9 +153,18 @@ class MechanicalTurkRecruiter:
         keywords: list[str] | None = None,
     ) -> str:
         """
-        Creates a HIT based on the given Graph.
-        Automatically ensures a public site for the Graph exists on S3.
-        Caches the HIT (and its Graph) in the local cache.
+        Create and publish a HIT for a Graph, building and uploading its site to S3.
+        Caches the HIT metadata locally and returns the HIT ID.
+
+        Args:
+            graph: Graph to host and run.
+            num_assignments: Maximum assignments allowed for the HIT.
+            base_payment_usd: Base payment per assignment, in USD (string to preserve precision).
+            title: HIT title shown to workers.
+            duration_sec: Assignment duration in seconds.
+            allowed_participant_ids: Optional allowlist of worker IDs.
+            description: Optional HIT description (defaults to title).
+            keywords: Optional list of keywords (defaults to a NodeKit set).
         """
 
         graph_site_url = self._upload_graph_site(graph=graph)
@@ -140,14 +202,13 @@ class MechanicalTurkRecruiter:
 
     def get_hit(self, hit_id: str) -> HIT:
         """
-        Ping Turk if the HIT was last known to be still active, and return its status.
-        Otherwise, return cached (terminal) status.
+        Return a HIT record, refreshing from MTurk if it was last cached as active.
+
         Args:
-            hit_id:
+            hit_id: HIT ID to load.
 
         Returns:
-
-
+            HIT model, possibly refreshed from MTurk if status was Assignable.
         """
 
         # Read cached HIT info
@@ -168,7 +229,8 @@ class MechanicalTurkRecruiter:
 
     def list_hit_ids(self) -> list[str]:
         """
-        List the HIT IDs stored in the project directory.
+        List the HIT IDs stored in the local cache.
+
         Returns:
             A list of HIT IDs derived from cached `{hit_id}.json` files.
         """
@@ -178,8 +240,13 @@ class MechanicalTurkRecruiter:
         return [path.stem for path in savedir.glob("*.json")]
 
     def _upload_graph_site(self, graph: nk.Graph) -> str:
-        """
-        Returns a URL to a public Graph site.
+        """Build the Graph site and upload its assets to S3.
+
+        Args:
+            graph: Graph to build and upload.
+
+        Returns:
+            Public URL to the site entrypoint.
         """
 
         # Build the Graph site
@@ -207,8 +274,12 @@ class MechanicalTurkRecruiter:
         hit_id: str | None = None,
     ) -> Iterable[nk.SiteSubmission]:
         """
-        Iterate the Traces collected under the given HIT ID.
-        Automatically approves any unapproved assignments.
+        Yield validated SiteSubmission payloads for cached assignments.
+        If cached assignments are fewer than MTurk's completed count, fetch and cache all.
+        Automatically approves Submitted assignments.
+
+        Args:
+            hit_id: Optional HIT ID to filter by; if omitted, iterates all cached HITs.
         """
 
         hit_ids = [hit_id] if hit_id is not None else self.list_hit_ids()
@@ -261,16 +332,13 @@ class MechanicalTurkRecruiter:
         amount_usd: str,
     ) -> None:
         """
-        Pay a bonus to a worker for a given assignment. Writes a receipt to the project directory.
-        Idempotent operation: if a receipt already exists, skips payment.
+        Pay a bonus to a worker for a given assignment and write a local receipt.
+        Skips payment if a receipt already exists.
 
         Args:
-            worker_id:
-            assignment_id:
-            amount_usd:
-
-        Returns:
-
+            worker_id: MTurk worker ID.
+            assignment_id: MTurk assignment ID.
+            amount_usd: Bonus amount in USD (string to preserve precision).
         """
 
         # Check if a receipt already exists
