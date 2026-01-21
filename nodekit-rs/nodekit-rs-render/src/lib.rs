@@ -1,12 +1,10 @@
 mod asset;
 mod error;
-mod overlap;
 mod selectables;
 
 use crate::selectables::Selectables;
 use asset::Asset;
-use blittle::overlay::{Vec4, rgba8_to_rgba32_color};
-use blittle::{ClippedRect, get_index};
+use blittle::ClippedRect;
 pub use error::Error;
 use itertools::Itertools;
 use nodekit_rs_image::*;
@@ -14,7 +12,6 @@ use nodekit_rs_models::board::{HORIZONTAL, STRIDE, VERTICAL};
 use nodekit_rs_models::card::{Card, CardKey, CardType};
 use nodekit_rs_models::sensor::Sensor;
 use nodekit_rs_state::*;
-use nodekit_rs_text::TextEntryBuffers;
 use nodekit_rs_visual::*;
 use numpy::{PyArray3, PyArrayMethods, PyUntypedArrayMethods};
 use pyo3::exceptions::PyRuntimeError;
@@ -142,7 +139,7 @@ impl Renderer {
             self.start(state)?;
         } else {
             // Get dirty cards.
-            let dirty_cards = self.get_dirty_cards(state);
+            let dirty_cards = self.get_dirty(state);
             // Erase.
             self.erase(&dirty_cards);
             // Re-render dirty assets.
@@ -218,18 +215,18 @@ impl Renderer {
         let rects = self
             .assets
             .iter()
-            .filter_map(|(k, _)| self.assets[k].rect().map(|rect| (k.clone(), rect)))
+            .filter_map(|(k, _)| self.assets[k].rect().map(|rect| (k, rect)))
             .collect::<SecondaryMap<CardKey, ClippedRect>>();
         self.overlaps = rects
             .iter()
             .map(|(k_a, rect_a)| {
                 (
-                    k_a.clone(),
+                    k_a,
                     rects
                         .iter()
                         .filter_map(|(k_b, rect_b)| {
                             if k_a != k_b && rect_a.overlaps(rect_b) {
-                                Some(k_b.clone())
+                                Some(k_b)
                             } else {
                                 None
                             }
@@ -282,7 +279,7 @@ impl Renderer {
     fn cache_sensor(&mut self, state: &State) -> Result<(), Error> {
         match state.sensor.as_ref() {
             Some(sensor) => match sensor {
-                Sensor::TextEntry(card_key) => self.cache_text_entry(*card_key),
+                Sensor::TextEntry(card_key) => self.cache_text_entry(*card_key, state),
                 Sensor::Hover(hover) => {
                     self.cache_hover_sensor(hover, false);
                     Ok(())
@@ -297,14 +294,16 @@ impl Renderer {
         }
     }
 
-    fn cache_text_entry(&mut self, card_key: CardKey) -> Result<(), Error> {
-        if let Some(buffers) = self
-            .text_engine
-            .render_text_entry(&card_key)
-            .map_err(Error::Text)?
+    fn cache_text_entry(&mut self, card_key: CardKey, state: &State) -> Result<(), Error> {
+        if let CardType::TextEntry(text_entry) = &state.cards[card_key].card_type
+            && let Some(buffers) = self
+                .text_engine
+                .render_text_entry(text_entry, &state.cards[card_key].region)
+                .map_err(Error::Text)?
         {
             // Add the asset.
-            self.assets.insert(card_key, Asset::TextEntry(buffers));
+            self.assets
+                .insert(card_key, Asset::TextEntry(Box::new(buffers)));
         }
         Ok(())
     }
@@ -327,17 +326,17 @@ impl Renderer {
             // Get every card the dirty cards overlap with.
             .flat_map(|(card_key, _)| {
                 let mut overlaps = vec![card_key];
-                overlaps.extend_from_slice(&self.overlaps[&card_key]);
+                overlaps.extend_from_slice(&self.overlaps[card_key]);
                 overlaps
             })
             // Unique keys only.
             .unique()
             // Sort by rendering order.
             .sorted_by(|a, b| {
-                state.cards[a]
+                state.cards[*a]
                     .region
                     .z_index
-                    .cmp(&state.cards[b].region.z_index)
+                    .cmp(&state.cards[*b].region.z_index)
             })
             .collect()
     }

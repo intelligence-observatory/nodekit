@@ -66,7 +66,7 @@ impl State {
         // Extract cards.
         Card::extract_cards(card, &mut cards)?;
         // Try to extract a sensor, and possibly extract more cards.
-        let sensor = Sensor::extract(sensor.as_borrowed(), &mut cards)?.map(Sensor::from);
+        let sensor = Sensor::extract(sensor.as_borrowed(), &mut cards)?;
         Ok(Self::new_inner(board_color, cards, sensor))
     }
 

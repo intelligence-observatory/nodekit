@@ -3,7 +3,7 @@ mod error;
 use blittle::Size;
 pub use error::Error;
 use nodekit_rs_asset::load_asset;
-use nodekit_rs_models::{Asset, Region, board::*};
+use nodekit_rs_models::{Region, board::*, card::Asset};
 use nodekit_rs_visual::*;
 use scuffle_ffmpeg::decoder::DecoderOptions;
 use scuffle_ffmpeg::{
@@ -122,7 +122,7 @@ impl Video {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use nodekit_rs_models::{Asset, Region};
+    use nodekit_rs_models::{Region, card::Asset};
     use std::path::PathBuf;
 
     #[test]

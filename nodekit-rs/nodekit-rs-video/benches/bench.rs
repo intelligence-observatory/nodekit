@@ -1,6 +1,6 @@
 use criterion::{Criterion, criterion_group, criterion_main};
 use nodekit_rs_models::board::HORIZONTAL;
-use nodekit_rs_models::{Asset, Region};
+use nodekit_rs_models::{Region, card::Asset};
 use nodekit_rs_video::*;
 use std::path::PathBuf;
 

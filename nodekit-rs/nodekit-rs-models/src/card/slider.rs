@@ -1,5 +1,3 @@
-use crate::Region;
-
 pub enum SliderOrientation {
     Horizontal,
     Vertical,
