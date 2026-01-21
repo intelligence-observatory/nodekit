@@ -1,8 +1,9 @@
 mod asset;
 mod card_type;
 mod slider;
-mod text_card;
+mod text;
 mod text_entry;
+mod video;
 
 use crate::Region;
 pub use asset::Asset;
@@ -11,8 +12,9 @@ use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyString};
 pub use slider::*;
 use slotmap::{SlotMap, new_key_type};
-pub use text_card::*;
+pub use text::*;
 pub use text_entry::TextEntry;
+pub use video::VideoCard;
 
 new_key_type! { pub struct CardKey; }
 
@@ -33,7 +35,7 @@ impl FromPyObject<'_, '_> for Card {
 
     fn extract(card: Borrowed<'_, '_, PyAny>) -> Result<Self, Self::Error> {
         Ok(Self {
-            region: Self::extract_region(card)?,
+            region: Region::extract(card.getattr("region")?.as_borrowed())?,
             card_type: CardType::extract_card(card)?,
             dirty: false,
         })
@@ -57,9 +59,5 @@ impl Card {
             cards.insert(Card::extract(card.as_borrowed())?);
         }
         Ok(())
-    }
-
-    fn extract_region(obj: Borrowed<'_, '_, PyAny>) -> PyResult<Region> {
-        Region::extract(obj.getattr("region")?.as_borrowed())
     }
 }

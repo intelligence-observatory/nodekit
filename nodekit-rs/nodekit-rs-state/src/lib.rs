@@ -1,6 +1,6 @@
 mod pointer;
 
-use nodekit_rs_models::card::{Card, CardKey, CardType};
+use nodekit_rs_models::card::{Card, CardKey, CardType, VideoCard};
 use nodekit_rs_models::sensor::Sensor;
 use pointer::Pointer;
 use pyo3::exceptions::{PyKeyError, PyValueError};
@@ -95,10 +95,10 @@ impl State {
             .filter(|card| {
                 matches!(
                     &card.card_type,
-                    CardType::Video {
+                    CardType::Video(VideoCard {
                         asset: _,
                         looped: _
-                    }
+                    })
                 )
             })
             .for_each(|card| card.dirty = true);

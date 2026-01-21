@@ -1,4 +1,5 @@
 use super::{Asset, CARD_TYPE, Slider, TextCard, TextEntry};
+use crate::card::video::VideoCard;
 use pyo3::{exceptions::PyValueError, prelude::*, types::PyString};
 
 /// ImageCard, TextCard, etc.
@@ -7,7 +8,7 @@ pub enum CardType {
     Slider(Slider),
     Text(TextCard),
     TextEntry(TextEntry),
-    Video { asset: Asset, looped: bool },
+    Video(VideoCard),
 }
 
 impl CardType {
@@ -23,7 +24,7 @@ impl CardType {
             "VideoCard" => {
                 let asset = Self::asset(obj, "video")?;
                 let looped = obj.getattr("loop")?.extract::<bool>()?;
-                Ok(Self::Video { asset, looped })
+                Ok(Self::Video(VideoCard { asset, looped }))
             }
             other => Err(PyValueError::new_err(format!("Invalid card type: {other}"))),
         }

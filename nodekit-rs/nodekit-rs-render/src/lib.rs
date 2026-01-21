@@ -9,7 +9,7 @@ pub use error::Error;
 use itertools::Itertools;
 use nodekit_rs_image::*;
 use nodekit_rs_models::board::{HORIZONTAL, STRIDE, VERTICAL};
-use nodekit_rs_models::card::{Card, CardKey, CardType};
+use nodekit_rs_models::card::{Card, CardKey, CardType, VideoCard};
 use nodekit_rs_models::sensor::Sensor;
 use nodekit_rs_state::*;
 use nodekit_rs_visual::*;
@@ -259,7 +259,7 @@ impl Renderer {
                 .render_text_card(text_card, &card.region)
                 .map_err(Error::Text)?
                 .map(Asset::Text)),
-            CardType::Video { asset, looped: _ } => {
+            CardType::Video(VideoCard { asset, looped: _ }) => {
                 Ok(nodekit_rs_video::Video::new(asset, &card.region)
                     .map_err(Error::Video)?
                     .map(Asset::Video))
@@ -449,10 +449,10 @@ mod tests {
                 h: 614,
                 z_index: Some(1),
             },
-            card_type: CardType::Video {
+            card_type: CardType::Video(VideoCard {
                 asset: nodekit_rs_models::card::Asset::Path(video_path),
                 looped: false,
-            },
+            }),
             dirty: false,
         }
     }

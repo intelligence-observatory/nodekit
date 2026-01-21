@@ -13,9 +13,13 @@ pub use select::Select;
 use slotmap::SlotMap;
 
 pub enum Sensor {
+    /// Wrapper for MultiSelectSensor that includes hovering and selecting.
     Select(Select),
+    /// Wrapper for SelectSensor that includes hovering.
     Hover(Hover),
+    /// The card key for a Slider.
     Slider(CardKey),
+    /// The card key for a TextEntry.
     TextEntry(CardKey),
 }
 
@@ -34,6 +38,8 @@ impl Sensor {
         }
     }
 
+    /// Returns the keys of cards that are being hovered over,
+    /// or none if there isn't a hovering listener.
     pub fn get_hovering_over(&self) -> Option<&Vec<CardKey>> {
         match self {
             Self::Hover(hover) => hover.get_hovering_over(),
@@ -42,6 +48,8 @@ impl Sensor {
         }
     }
 
+    /// Returns the keys of cards that are selected,
+    /// or none if there isn't a selection listener.
     pub fn get_selected(&self) -> Option<Vec<CardKey>> {
         match self {
             Self::Select(select) => Some(select.get_selected()),
