@@ -67,3 +67,74 @@ impl Hover {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::Region;
+    use crate::card::*;
+
+    #[test]
+    fn test_hover() {
+        let mut cards = SlotMap::<CardKey, Card>::default();
+        let a = cards.insert(get_card(0, 0));
+        let b = cards.insert(get_card(100, 100));
+        let mut hoverables = HashMap::<String, Vec<CardKey>>::default();
+        let choice_a = "a".to_string();
+        let choice_b = "b".to_string();
+        hoverables.insert(choice_a.clone(), vec![a]);
+        hoverables.insert(choice_b.clone(), vec![b]);
+        let mut hover = Hover {
+            hoverables,
+            hovering: None,
+        };
+
+        // Do nothing.
+        hover.set(None, &mut cards).unwrap();
+        assert!(hover.hovering.is_none());
+        assert!(!cards.values().any(|c| c.dirty));
+
+        // Select.
+        hover.set(Some(choice_a.clone()), &mut cards).unwrap();
+        assert_eq!(hover.hovering.as_ref().unwrap(), &choice_a);
+        assert!(cards[a].dirty);
+        assert!(!cards[b].dirty);
+
+        // Select something else.
+        hover.set(Some(choice_b.clone()), &mut cards).unwrap();
+        assert_eq!(hover.hovering.as_ref().unwrap(), &choice_b);
+        assert!(cards.values().all(|c| c.dirty));
+
+        // Invalid key.
+        assert!(hover.set(Some("c".to_string()), &mut cards).is_err());
+        // Nothing changed.
+        assert_eq!(hover.hovering.as_ref().unwrap(), &choice_b);
+        assert!(cards.values().all(|c| c.dirty));
+
+        // Deselect.
+        hover.set(None, &mut cards).unwrap();
+        assert!(hover.hovering.is_none());
+        assert!(cards.values().all(|c| c.dirty));
+    }
+
+    fn get_card(x: i64, y: i64) -> Card {
+        Card {
+            card_type: CardType::Text(TextCard {
+                text: "Hello world".to_string(),
+                font_size: 16,
+                justification_horizontal: JustificationHorizontal::Left,
+                justification_vertical: JustificationVertical::Center,
+                text_color: "#FFFFFFFF".to_string(),
+                background_color: "#000000FF".to_string(),
+            }),
+            region: Region {
+                x,
+                y,
+                w: 400,
+                h: 300,
+                z_index: None,
+            },
+            dirty: false,
+        }
+    }
+}
