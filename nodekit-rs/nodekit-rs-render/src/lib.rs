@@ -1,8 +1,7 @@
 mod asset;
 mod error;
-mod selectables;
+mod sensor;
 
-use crate::selectables::Selectables;
 use asset::Asset;
 use blittle::ClippedRect;
 pub use error::Error;
@@ -46,6 +45,7 @@ macro_rules! render_asset {
 #[gen_stub_pyclass]
 #[derive(Default)]
 pub struct Renderer {
+    /// Blit to this board.
     board: Board,
     /// Cached text engine.
     text_engine: nodekit_rs_text::TextEngine,
@@ -53,7 +53,8 @@ pub struct Renderer {
     assets: SecondaryMap<CardKey, Asset>,
     /// These assets need to be cleared and re-filled per frame.
     overlaps: SecondaryMap<CardKey, Vec<CardKey>>,
-    selectables: Selectables,
+    /// Sensor-related bitmaps such as hovering overlays.
+    sensor: sensor::Sensor,
     /// The known state ID.
     id: Option<Uuid>,
     cursor: Cursor,
@@ -138,7 +139,9 @@ impl Renderer {
             // New state.
             self.start(state)?;
         } else {
+            // Get all assets that are being hovered over.
             let hovering_over = state.get_hovering_over();
+            // Get all selected states.
             let selected = state.get_selected();
             // Get dirty cards.
             let dirty_cards = self.get_dirty(state);
@@ -149,16 +152,16 @@ impl Renderer {
                 // Render.
                 render_asset!(self, &mut self.assets[card_key], state);
 
-                // Blit the overlay.
+                // Blit the hovering overlay.
                 if hovering_over.contains(&card_key)
-                    && let Some(overlay) = self.selectables.get_hover_overlay(card_key)
+                    && let Some(overlay) = self.sensor.get_hover_overlay(card_key)
                 {
                     self.board.overlay_rgba(overlay);
                 }
 
                 // Blit the selection border.
                 if selected.contains(&card_key)
-                    && let Some(overlay) = self.selectables.get_select_border(card_key)
+                    && let Some(overlay) = self.sensor.get_select_border(card_key)
                 {
                     self.board.overlay_rgba(overlay);
                 }
@@ -213,7 +216,7 @@ impl Renderer {
     fn fill_and_cache(&mut self, state: &State) -> Result<(), Error> {
         // Clear the asset caches.
         self.assets.clear();
-        self.selectables.clear();
+        self.sensor.clear();
         // Cache assets.
         self.cache_cards(state)?;
         self.cache_sensor(state)?;
@@ -286,11 +289,14 @@ impl Renderer {
     fn cache_sensor(&mut self, state: &State) -> Result<(), Error> {
         match state.sensor.as_ref() {
             Some(sensor) => match sensor {
+                // Cache a TextEntry asset.
                 Sensor::TextEntry(card_key) => self.cache_text_entry(*card_key, state),
+                // Cache overlays per hoverable card.
                 Sensor::Hover(hover) => {
                     self.cache_hover_sensor(hover, false);
                     Ok(())
                 }
+                // Cache border overlays per selectable card.
                 Sensor::Select(select) => {
                     self.cache_hover_sensor(&select.hover, true);
                     Ok(())
@@ -319,7 +325,7 @@ impl Renderer {
         for card_key in hover.hoverables.values().flatten() {
             let card_key = *card_key;
             if let Some(rect) = &self.assets[card_key].rect() {
-                self.selectables.insert(card_key, *rect, selectable);
+                self.sensor.insert_hoverable(card_key, *rect, selectable);
             }
         }
     }

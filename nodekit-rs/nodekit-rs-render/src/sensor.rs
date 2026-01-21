@@ -8,14 +8,19 @@ const HOVERABLE_OVERLAY_COLOR: Vec4 = Vec4::new(0., 0., 0., 0.1);
 const C: f32 = 50. / 255.;
 const SELECTABLE_BORDER_COLOR: Vec4 = Vec4::new(C, C, C, 0.9);
 
+/// Sensor-related bitmaps.
 #[derive(Default)]
-pub struct Selectables {
+pub struct Sensor {
+    /// Overlays used for hovering.
     hover_overlays: SecondaryMap<CardKey, RgbaBuffer>,
+    /// Overlays used for selections.
     select_borders: SecondaryMap<CardKey, RgbaBuffer>,
 }
 
-impl Selectables {
-    pub fn insert(&mut self, card_key: CardKey, rect: ClippedRect, selectable: bool) {
+impl Sensor {
+    /// Add a hoverable overlay mapped to `card_key` with shape `rect`.
+    /// If `selectable`, add a selection borders overlay too.
+    pub fn insert_hoverable(&mut self, card_key: CardKey, rect: ClippedRect, selectable: bool) {
         let buffer = vec![HOVERABLE_OVERLAY_COLOR; rect.src_size.w * rect.src_size.h];
         self.hover_overlays
             .insert(card_key, RgbaBuffer { buffer, rect });
@@ -39,9 +44,11 @@ impl Selectables {
     }
 
     fn selectable_border(rect: ClippedRect) -> RgbaBuffer {
+        // An empty buffer.
         let mut buffer = vec![Vec4::ZERO; rect.src_size.w * rect.src_size.h];
         // Horizontal.
         let horizontal = vec![SELECTABLE_BORDER_COLOR; rect.src_size.w];
+        // Lines are 2 pixels thick.
         for y in [0, 1, rect.src_size.h - 2, rect.src_size.h - 1] {
             let index = y * rect.src_size.w;
             buffer[index..index + rect.src_size.w].copy_from_slice(&horizontal);
