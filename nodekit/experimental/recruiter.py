@@ -208,7 +208,7 @@ class MechanicalTurkRecruiter:
             hit_id: HIT ID to load.
 
         Returns:
-            HIT model, possibly refreshed from MTurk if status was Assignable.
+            HIT model, possibly refreshed from MTurk if status was Assignable or Unassignable.
         """
 
         # Read cached HIT info
@@ -218,8 +218,8 @@ class MechanicalTurkRecruiter:
         hit_json = hit_savepath.read_text()
         hit = HIT.model_validate_json(hit_json)
 
-        if hit.HITStatus == "Assignable":
-            # Still live; ping Turk
+        if hit.HITStatus in {"Assignable", "Unassignable"}:
+            # Still active; ping Turk
             hit = self.mturk_client.get_hit(hit_id=hit_id)
 
             # Write

@@ -340,6 +340,12 @@ class MturkClient:
 
         call_kwargs = {}
         while next_token is not None:
+            if next_token != "":
+                call_kwargs["NextToken"] = next_token
+            else:
+                if "NextToken" in call_kwargs:
+                    del call_kwargs["NextToken"]
+
             res = self.boto3_client.list_qualification_types(
                 MustBeRequestable=False,
                 MustBeOwnedByCaller=True,
@@ -348,9 +354,9 @@ class MturkClient:
             )
 
             if "NextToken" in res:
-                call_kwargs["NextToken"] = next_token
+                next_token = res["NextToken"]
             else:
-                call_kwargs = {}
+                next_token = None
 
             qreturn = res["QualificationTypes"]
             for q in qreturn:
