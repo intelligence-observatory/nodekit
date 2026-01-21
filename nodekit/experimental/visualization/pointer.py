@@ -4,7 +4,7 @@ from pathlib import Path
 import matplotlib
 import numpy as np
 
-from nodekit.events import PointerSampledEvent
+from nodekit.events import Event, PointerSampledEvent
 
 matplotlib.use("Agg")  # safe for headless render
 import matplotlib.pyplot as plt
@@ -15,7 +15,7 @@ from matplotlib.colors import to_rgba
 # %%
 Color = tuple[float, float, float, float]
 ColorSpec = Color | dict[str, Color]
-EventStream = list[PointerSampledEvent]
+EventStream = list[Event]
 
 
 # %%
@@ -29,11 +29,13 @@ def make_animation(
         0.9,
     ),
     neutral_rgba: ColorSpec = (0.1, 0.1, 0.1, 0.3),
+    background_color_rgba: Color = (0.0, 0.0, 0.0, 0.0),
     movie_size_px: int = 500,
     movie_time_sec: int = 10,
+    time_scale: float = 1.0,
 ):
     """
-    Render multiple pointer streams into a transparent .mov.
+    Render multiple pointer streams into a .mov.
 
     Visual semantics (per trace):
       - DOWN/UP: accent-colored dots; alpha and (UP) size decay over time.
@@ -53,19 +55,23 @@ def make_animation(
 
     Timing:
       - 60 fps; frames are spaced at 1000/fps ms. Samples outside
-        [0, movie_time_sec*1000) ms are ignored.
+        [0, movie_time_sec*1000) ms are ignored after time scaling.
+      - Movie time = physical time / time_scale.
 
     Args:
-        events: Mapping from trace id to PointerSampledEvent sequences. Events are filtered
-            to the movie time window and sorted by time.
+        events: Mapping from trace id to event sequences. Non-pointer events are ignored.
+            Pointer events are sorted by time and filtered to the movie time window.
         savepath: Destination path for the rendered .mov (suffix forced to .mov).
         accent_rgba: RGBA color used for DOWN/UP dots, or a per-trace mapping.
         neutral_rgba: RGBA color used for trails, or a per-trace mapping.
+        background_color_rgba: RGBA background color for the output (alpha=0 is transparent).
         movie_size_px: Output movie size in pixels (square).
         movie_time_sec: Output movie length in seconds.
+        time_scale: Playback speed multiplier (movie time = physical time / time_scale).
 
     Raises:
         ValueError: If accent_rgba or neutral_rgba are dicts that do not enumerate all trace ids.
+        ValueError: If time_scale is not positive.
 
     Returns:
         None. Writes a .mov to savepath.
@@ -74,6 +80,9 @@ def make_animation(
     # ----------------------------
     # Params & scaling
     # ----------------------------
+    if time_scale <= 0:
+        raise ValueError("time_scale must be > 0")
+
     board_size_px = 1024.0
     half_board_px = board_size_px / 2.0
     scale = movie_size_px / board_size_px  # baseline-normalized scaling
@@ -120,14 +129,16 @@ def make_animation(
 
     per_trace_accent = _normalize_color_spec(accent_rgba, "accent_rgba")
     per_trace_neutral = _normalize_color_spec(neutral_rgba, "neutral_rgba")
+    background_rgba = to_rgba(background_color_rgba)
+    transparent = background_rgba[3] == 0.0
 
     # ----------------------------
-    # Preprocess per-trace arrays (sorted, filtered to movie window)
+    # Preprocess per-trace arrays (pointer events only, sorted, filtered to movie window)
     # ----------------------------
     streams = []  # list of dicts, in z-order
     for tid in trace_ids:
-        ev = [e for e in events[tid] if 0 <= e.t < movie_time_ms]
-        if not ev:
+        pointer_events = [e for e in events[tid] if isinstance(e, PointerSampledEvent)]
+        if not pointer_events:
             # still create an empty stream so z-ordering remains consistent
             streams.append(
                 dict(
@@ -135,19 +146,39 @@ def make_animation(
                     kinds=np.array([], dtype=object),
                     xs=np.array([], dtype=float),
                     ys=np.array([], dtype=float),
-                    ts=np.array([], dtype=int),
+                    ts=np.array([], dtype=float),
                     accent=per_trace_accent[tid],
                     neutral=per_trace_neutral[tid],
                 )
             )
             continue
 
-        ev.sort(key=lambda e: e.t)
+        pointer_events.sort(key=lambda e: e.t)
 
-        kinds = np.array([e.kind for e in ev], dtype=object)
-        xs = np.array([e.x for e in ev], dtype=float)
-        ys = np.array([e.y for e in ev], dtype=float)
-        ts = np.array([e.t for e in ev], dtype=int)
+        kinds = np.array([e.kind for e in pointer_events], dtype=object)
+        xs = np.array([e.x for e in pointer_events], dtype=float)
+        ys = np.array([e.y for e in pointer_events], dtype=float)
+        ts = np.array([e.t for e in pointer_events], dtype=float) / time_scale
+
+        in_window = (ts >= 0) & (ts < movie_time_ms)
+        if not np.any(in_window):
+            streams.append(
+                dict(
+                    trace_id=tid,
+                    kinds=np.array([], dtype=object),
+                    xs=np.array([], dtype=float),
+                    ys=np.array([], dtype=float),
+                    ts=np.array([], dtype=float),
+                    accent=per_trace_accent[tid],
+                    neutral=per_trace_neutral[tid],
+                )
+            )
+            continue
+
+        kinds = kinds[in_window]
+        xs = xs[in_window]
+        ys = ys[in_window]
+        ts = ts[in_window]
 
         streams.append(
             dict(
@@ -172,8 +203,8 @@ def make_animation(
     ax.set_ylim(-half_board_px, half_board_px)
     ax.set_aspect("equal", adjustable="box")
 
-    fig.patch.set_alpha(0.0)
-    ax.set_facecolor((0, 0, 0, 0))
+    fig.patch.set_facecolor(background_rgba)
+    ax.set_facecolor(background_rgba)
     for spine in ax.spines.values():
         spine.set_visible(False)
     ax.set_xticks([])
@@ -364,7 +395,7 @@ def make_animation(
     )
 
     # ----------------------------
-    # Save with transparent background
+    # Save with requested background
     # ----------------------------
     savepath = Path(savepath)
     savepath.parent.mkdir(parents=True, exist_ok=True)
@@ -392,7 +423,7 @@ def make_animation(
                 str(savepath),
                 writer=writer,
                 dpi=dpi,
-                savefig_kwargs={"transparent": True, "facecolor": (0, 0, 0, 0)},
+                savefig_kwargs={"transparent": transparent, "facecolor": background_rgba},
             )
         except Exception:
             writer = animation.FFMpegWriter(
@@ -405,7 +436,7 @@ def make_animation(
                 str(savepath),
                 writer=writer,
                 dpi=dpi,
-                savefig_kwargs={"transparent": True, "facecolor": (0, 0, 0, 0)},
+                savefig_kwargs={"transparent": transparent, "facecolor": background_rgba},
             )
     finally:
         plt.close(fig)
