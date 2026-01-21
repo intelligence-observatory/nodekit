@@ -15,12 +15,11 @@ from matplotlib.colors import to_rgba
 # %%
 Color = tuple[float, float, float, float]
 ColorSpec = Color | dict[str, Color]
-EventStream = list[Event]
 
 
 # %%
 def make_animation(
-    events: dict[str, EventStream],  # trace_id -> event stream
+    events: dict[str, list[Event]],  # trace_id -> event stream
     savepath: os.PathLike | str,
     accent_rgba: ColorSpec = (
         49 / 255,
