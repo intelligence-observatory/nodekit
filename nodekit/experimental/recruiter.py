@@ -160,7 +160,6 @@ class MechanicalTurkRecruiter:
         if hit.HITStatus == "Assignable":
             # Still live; ping Turk
             hit = self.mturk_client.get_hit(hit_id=hit_id)
-            print('updated', hit)
 
             # Write
             hit_savepath.write_text(hit.model_dump_json(indent=2))
