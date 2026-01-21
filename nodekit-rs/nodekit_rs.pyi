@@ -70,7 +70,7 @@ class State:
         
         If the sensor is a SelectSensor or MultiSelectSensor, this will automatically set the hovering state of the cards, if applicable.
         """
-    def set_hovering(self, choice: typing.Optional[builtins.str]) -> None:
+    def hover(self, choice: typing.Optional[builtins.str]) -> None:
         r"""
         Set which card has a hovered state.
         

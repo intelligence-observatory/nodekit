@@ -127,7 +127,7 @@ impl State {
     ///
     /// Throws an exception if there is no sensor,
     /// or if the sensor isn't a SelectSensor or MultiSelectSensor.
-    pub fn set_hovering(&mut self, choice: Option<String>) -> PyResult<()> {
+    pub fn hover(&mut self, choice: Option<String>) -> PyResult<()> {
         // Set the hovering state.
         match self.sensor.as_mut() {
             Some(sensor) => match sensor {

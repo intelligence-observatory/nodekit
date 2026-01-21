@@ -11,19 +11,19 @@ d = Path(__file__).parent.parent
 
 def rgb() -> State:
     cards = {
-        'image_0': nodekit.cards.ImageCard(
+        "image_0": nodekit.cards.ImageCard(
             region=Region(x=-256, y=-256, w=256, h=512, z_index=0),
             image=nodekit.assets.Image.from_path(
                 d.joinpath("nodekit-rs-image/test_image.png").resolve()
             ),
         ),
-        'image_1': nodekit.cards.ImageCard(
+        "image_1": nodekit.cards.ImageCard(
             region=Region(x=0, y=0, w=170, h=256, z_index=1),
             image=nodekit.assets.Image.from_path(
                 d.joinpath("nodekit-rs-image/test_image.png").resolve()
             ),
         ),
-        'text': nodekit.cards.TextCard(
+        "text": nodekit.cards.TextCard(
             region=Region(x=-512, y=-512, w=1, h=51, z_index=2),
             text="# Click the **test image**",
             justification_horizontal="left",
@@ -37,19 +37,19 @@ def rgb() -> State:
 
 def rgba() -> State:
     cards = {
-        'image_0': nodekit.cards.ImageCard(
+        "image_0": nodekit.cards.ImageCard(
             region=Region(x=-256, y=-256, w=256, h=512, z_index=0),
             image=nodekit.assets.Image.from_path(
                 d.joinpath("nodekit-rs-image/test_image.png").resolve()
             ),
         ),
-        'image_1': nodekit.cards.ImageCard(
+        "image_1": nodekit.cards.ImageCard(
             region=Region(x=0, y=0, w=170, h=256, z_index=1),
             image=nodekit.assets.Image.from_path(
                 d.joinpath("nodekit-rs-image/test_image.png").resolve()
             ),
         ),
-        'text': nodekit.cards.TextCard(
+        "text": nodekit.cards.TextCard(
             region=Region(x=-512, y=-512, w=1000, h=51, z_index=2),
             text="# Click the **test image**",
             justification_horizontal="left",
@@ -79,9 +79,9 @@ def benchmark(state: State, message: str) -> str:
             state.t_msec = 0
             q = True
         renderer.render(state)
-    fps = f'{1 / ((time() - t0) / its)} FPS'
+    fps = f"{1 / ((time() - t0) / its)} FPS"
     print(fps)
-    return f'{message} {fps}'
+    return f"{message} {fps}"
 
 
 def benchmark_to(state: State, message: str) -> str:
@@ -98,9 +98,9 @@ def benchmark_to(state: State, message: str) -> str:
             state.t_msec = 0
             q = True
         renderer.render_to(state, board)
-    fps = f'{1 / ((time() - t0) / its)} FPS'
+    fps = f"{1 / ((time() - t0) / its)} FPS"
     print(fps)
-    return f'{message} {fps}'
+    return f"{message} {fps}"
 
 
 if __name__ == "__main__":
@@ -110,4 +110,6 @@ if __name__ == "__main__":
     b3 = benchmark_to(rgba(), "RGBA (in place):")
     b4 = benchmark(get_state(), "RGBA + Video:")
     b5 = benchmark_to(get_state(), "RGBA + Video (in place):")
-    Path(__file__).parent.joinpath('benchmark.txt').write_text('\n\n'.join([b0, b1, b2, b3, b4, b5]))
+    Path(__file__).parent.joinpath("benchmark.txt").write_text(
+        "\n\n".join([b0, b1, b2, b3, b4, b5])
+    )

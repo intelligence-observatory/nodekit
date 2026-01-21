@@ -18,25 +18,25 @@ prompt_card = nk.cards.TextCard(
     region=nk.Region(x=0, y=-150, h=200, w=600),
 )
 card = nk.cards.CompositeCard(
-            children={
-                "image": image_card,
-                "prompt": prompt_card,
-            }
-        )
+    children={
+        "image": image_card,
+        "prompt": prompt_card,
+    }
+)
 
 board_color = "#ffffffff"
 node = nk.Node(
-        card=nk.cards.CompositeCard(
-            children={
-                "image": image_card,
-                "prompt": prompt_card,
-            }
-        ),
-        board_color=board_color,
-        sensor=nk.sensors.WaitSensor(duration_msec=10000)
-    )
+    card=nk.cards.CompositeCard(
+        children={
+            "image": image_card,
+            "prompt": prompt_card,
+        }
+    ),
+    board_color=board_color,
+    sensor=nk.sensors.WaitSensor(duration_msec=10000),
+)
 
 
-render(card=card, board_color=board_color, filename='ocean_life_rs')
+render(card=card, board_color=board_color, filename="ocean_life_rs")
 graph = nk.concat([node])
 nk.play(graph)

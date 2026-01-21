@@ -94,7 +94,7 @@ state = State(board_color="#AAAAAAFF", card=card, sensor=sensor)
 
 #### Hovering
 
-To graphically render cards that are being hovered over, set the sensor as `SelectSensor` or `MultiSelectSensor` and then call `state.set_hovering(choice)`.
+To graphically render cards that are being hovered over, set the sensor as `SelectSensor` or `MultiSelectSensor` and then call `state.hover(choice)`.
 
 `nodekit-rs` will not check the actual position of the pointer.
 
@@ -107,10 +107,10 @@ sensor = nk.sensors.SelectSensor(choices={
     'a': get_another_card()  # Your code here.
 })
 state = State(board_color="#AAAAAAFF", card=card, sensor=sensor)
-state.set_hovering('a')
+state.hover('a')
 ```
 
-To stop rendering any hovering overlays, call `state.set_hovering(None)`
+To stop rendering any hovering overlays, call `state.hover(None)`
 
 #### Selecting
 
