@@ -47,3 +47,77 @@ impl Select {
             .collect()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::sensor::tests::get_card;
+    use hashbrown::HashMap;
+
+    #[test]
+    fn test_select() {
+        let mut cards = SlotMap::<CardKey, Card>::default();
+        let a = cards.insert(get_card(0, 0));
+        let b = cards.insert(get_card(100, 100));
+        let c = cards.insert(get_card(-40, -40));
+        let mut hoverables = HashMap::<String, Vec<CardKey>>::default();
+        let choice_a = "a".to_string();
+        let choice_b = "b".to_string();
+        hoverables.insert(choice_a.clone(), vec![a]);
+        hoverables.insert(choice_b.clone(), vec![b]);
+        let hover = Hover {
+            hoverables,
+            hovering: None,
+        };
+        let mut select = Select {
+            hover,
+            selected: HashSet::default(),
+        };
+
+        // Select.
+        select
+            .select(choice_a.to_string(), true, &mut cards)
+            .unwrap();
+        assert!(select.selected.contains(&choice_a));
+        assert!(cards[a].dirty);
+        assert!(!cards[b].dirty);
+        assert!(!cards[c].dirty);
+
+        // Invalid.
+        for s in [true, false] {
+            assert!(select.select("c".to_string(), s, &mut cards).is_err());
+            assert!(select.selected.contains(&choice_a));
+            assert!(cards[a].dirty);
+            assert!(!cards[b].dirty);
+            assert!(!cards[c].dirty);
+        }
+
+        // Deselect and fail silently.
+        select
+            .select(choice_b.to_string(), false, &mut cards)
+            .unwrap();
+        assert!(select.selected.contains(&choice_a));
+        assert!(cards[a].dirty);
+        assert!(!cards[b].dirty);
+        assert!(!cards[c].dirty);
+
+        // Select.
+        select
+            .select(choice_b.to_string(), true, &mut cards)
+            .unwrap();
+        assert!(select.selected.contains(&choice_a));
+        assert!(select.selected.contains(&choice_b));
+        assert!(cards[a].dirty);
+        assert!(cards[b].dirty);
+        assert!(!cards[c].dirty);
+
+        // Deselect.
+        select
+            .select(choice_b.to_string(), false, &mut cards)
+            .unwrap();
+        assert!(select.selected.contains(&choice_a));
+        assert!(!select.selected.contains(&choice_b));
+        assert!(cards[b].dirty);
+        assert!(!cards[c].dirty);
+    }
+}

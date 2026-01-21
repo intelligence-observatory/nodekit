@@ -164,3 +164,35 @@ impl Sensor {
         })
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::Region;
+    use crate::card::{
+        Card, CardKey, CardType, JustificationHorizontal, JustificationVertical, TextCard,
+    };
+    use crate::sensor::Hover;
+    use hashbrown::HashMap;
+    use slotmap::SlotMap;
+
+    pub(crate) fn get_card(x: i64, y: i64) -> Card {
+        Card {
+            card_type: CardType::Text(TextCard {
+                text: "Hello world".to_string(),
+                font_size: 16,
+                justification_horizontal: JustificationHorizontal::Left,
+                justification_vertical: JustificationVertical::Center,
+                text_color: "#FFFFFFFF".to_string(),
+                background_color: "#000000FF".to_string(),
+            }),
+            region: Region {
+                x,
+                y,
+                w: 400,
+                h: 300,
+                z_index: None,
+            },
+            dirty: false,
+        }
+    }
+}
