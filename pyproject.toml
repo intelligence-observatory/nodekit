@@ -43,12 +43,10 @@ module-name = "nodekit"
 module-root = ""
 
 [tool.ty.src]
-exclude = [
-    "nodekit/experimental"
-]
+exclude = []
 
 [tool.ruff]
-line-length = 100
+line-length = 100k
 
 
 [tool.pytest.ini_options]

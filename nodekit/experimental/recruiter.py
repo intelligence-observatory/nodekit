@@ -1,0 +1,305 @@
+import os
+import uuid
+from decimal import Decimal
+from pathlib import Path
+from typing import Iterable
+
+import nodekit as nk
+import pydantic
+from nodekit.experimental.s3 import S3Client
+from nodekit.experimental.turk.client import CreateHitRequest, MturkClient, SendBonusPaymentRequest
+from nodekit.experimental.turk.models import HIT, Assignment
+
+import warnings
+import datetime
+import glob
+import json
+import re
+
+
+# %%
+def extract_external_question_answer(xml: str) -> str:
+    # pull the contents of the <FreeText> element
+    m = re.search(r"<FreeText>(.*?)</FreeText>", xml, re.DOTALL)
+    if not m:
+        raise ValueError("No <FreeText> found")
+    raw = m.group(1)
+
+    # MTurk sometimes form-encodes it (+ for space, %xx etc.)
+    return raw
+
+
+# %%
+class MechanicalTurkRecruiter:
+    """
+    A helper class for recruiting human participants from Mechanical Turk to play Graphs.
+    It requires AWS credentials with access to MTurk and write / make public permissions to an S3 bucket.
+    """
+
+    def __init__(
+        self,
+        project_directory: os.PathLike | str,
+        mturk_sandbox: bool,
+        aws_access_key_id: str,
+        aws_secret_access_key: str,
+        region_name: str,
+        s3_bucket_name: str,
+    ):
+        self.mturk_client = MturkClient(
+            sandbox=mturk_sandbox,
+            aws_access_key_id=aws_access_key_id,
+            aws_secret_access_key=aws_secret_access_key,
+        )
+        self.s3_client = S3Client(
+            bucket_name=s3_bucket_name,
+            region_name=region_name,
+            aws_access_key_id=aws_access_key_id,
+            aws_secret_access_key=aws_secret_access_key,
+        )
+        self._project_directory = Path(project_directory)
+
+    def _get_hit_cachedir(self) -> Path:
+        return self._project_directory / "hits" / self.mturk_client.get_recruiter_service_name()
+
+    def _get_assignment_cachedir(
+        self,
+        hit_id: str,
+    ):
+        return (
+            self._project_directory
+            / "assignments"
+            / self.mturk_client.get_recruiter_service_name()
+            / hit_id
+        )
+
+    def _get_assignment_savepath(self, hit_id: str, assignment_id: str) -> Path:
+        return self._get_assignment_cachedir(hit_id=hit_id) / f"{assignment_id}.json"
+
+    def _get_hit_savepath(self, hit_id: str) -> Path:
+        return self._get_hit_cachedir() / f"{hit_id}.json"
+
+    def _get_bonus_payments_cachedir(self) -> Path:
+        return (
+            self._project_directory
+            / "bonus_payments"
+            / self.mturk_client.get_recruiter_service_name()
+        )
+
+    def _get_graph_site_cachedir(self) -> Path:
+        return self._project_directory / "sites"
+
+    def create_hit(
+        self,
+        graph: nk.Graph,
+        num_assignments: int,
+        base_payment_usd: str,
+        title: str,
+        duration_sec: int,
+        allowed_participant_ids: list[str] | None = None,
+        description: str | None = None,
+        keywords: list[str] | None = None,
+    ) -> str:
+        """
+        Creates a HIT based on the given Graph.
+        Automatically ensures a public site for the Graph exists on S3.
+        Caches the HIT (and its Graph) in the local cache.
+        """
+
+        graph_site_url = self._upload_graph_site(graph=graph)
+
+        if description is None:
+            description = title
+
+        if keywords is not None:
+            keywords = ["nodekit", "psychology", "task", "cognitive", "science", "game"]
+
+        if allowed_participant_ids is None:
+            allowed_participant_ids = []
+
+        request = CreateHitRequest(
+            entrypoint_url=graph_site_url,
+            title=title,
+            description=description,
+            keywords=keywords,
+            num_assignments=num_assignments,
+            duration_sec=duration_sec,
+            completion_reward_usd=Decimal(base_payment_usd),
+            unique_request_token=uuid.uuid4().hex,
+            allowed_participant_ids=allowed_participant_ids,
+        )
+
+        hit = self.mturk_client.create_hit(request=request)
+
+        # Cache the HIT info
+        savedir = self._get_hit_cachedir()
+        savedir.mkdir(parents=True, exist_ok=True)
+        hit_savepath = self._get_hit_savepath(hit_id=hit.HITId)
+        hit_savepath.write_text(hit.model_dump_json(indent=2))
+
+        return hit.HITId
+
+    def get_hit(self, hit_id: str) -> HIT:
+        """
+        Ping Turk if the HIT was last known to be still active, and return its status.
+        Otherwise, return cached (terminal) status.
+        Args:
+            hit_id:
+
+        Returns:
+
+
+        """
+
+        # Read cached HIT info
+        hit_savepath = self._get_hit_savepath(hit_id=hit_id)
+        if not hit_savepath.exists():
+            raise ValueError(f"HIT ID {hit_id} not found in local cache at {hit_savepath}")
+        hit_json = hit_savepath.read_text()
+        hit = HIT.model_validate_json(hit_json)
+
+        if hit.HITReviewStatus == "Assignable":
+            # Still live; ping Turk
+            hit = self.mturk_client.get_hit(hit_id=hit_id)
+
+            # Write
+            hit_savepath.write_text(hit.model_dump_json(indent=2))
+
+        return hit
+
+    def list_hit_ids(self) -> list[str]:
+        """
+        List the HIT IDs stored in the project directory.
+        Returns:
+            A list of HIT IDs derived from cached `{hit_id}.json` files.
+        """
+        savedir = self._get_hit_cachedir()
+        if not savedir.is_dir():
+            return []
+        return [path.stem for path in savedir.glob("*.json")]
+
+    def _upload_graph_site(self, graph: nk.Graph) -> str:
+        """
+        Returns a URL to a public Graph site.
+        """
+
+        # Build the Graph site
+        build_site_result = nk.build_site(graph=graph, savedir=self._get_graph_site_cachedir())
+
+        manifest = [build_site_result.entrypoint, *build_site_result.dependencies]
+        manifest = list(dict.fromkeys(manifest))
+        uploaded = self.s3_client.sync_directory(
+            local_root=build_site_result.site_root,
+            bucket_root="",
+            manifest=[path.as_posix() for path in manifest],
+            verbose=True,
+        )
+        entrypoint_rel = build_site_result.entrypoint.as_posix()
+        index_url = uploaded.get(entrypoint_rel)
+        if index_url is None:
+            raise RuntimeError(
+                f"Entrypoint {entrypoint_rel} was not uploaded from {build_site_result.site_root}"
+            )
+
+        return index_url
+
+    def iter_site_submissions(
+        self,
+        hit_id: str | None = None,
+    ) -> Iterable[nk.SiteSubmission]:
+        """
+        Iterate the Traces collected under the given HIT ID.
+        Automatically approves any unapproved assignments.
+        """
+
+        hit_ids = [hit_id] if hit_id is not None else self.list_hit_ids()
+
+        for hit_id in hit_ids:
+            hit = self.get_hit(hit_id=hit_id)
+
+            # Decide whether to pull assignments:
+            if hit.NumberOfAssignmentsCompleted < hit.MaxAssignments:
+                # Pull assignments:
+                for asn in self.mturk_client.iter_assignments(hit_id=hit_id):
+                    if asn.AssignmentStatus != "Approved":
+                        # This client always approves Assignments
+                        self.mturk_client.approve_assignment(
+                            assignment_id=asn.AssignmentId,
+                        )
+
+                    # Cache the assignment payload locally
+                    savepath = self._get_assignment_savepath(
+                        hit_id=hit_id, assignment_id=asn.AssignmentId
+                    )
+                    savepath.parent.mkdir(parents=True, exist_ok=True)
+                    savepath.write_text(asn.model_dump_json(indent=2))
+
+            # Now iterate and parse submissions
+            assignment_paths = glob.glob(
+                str(self._get_assignment_cachedir(hit_id=hit_id) / "*.json")
+            )
+
+            for path in assignment_paths:
+                asn_json = Path(path).read_text()
+                asn = Assignment.model_validate_json(asn_json)
+
+                submission_payload = extract_external_question_answer(asn.Answer)
+
+                try:
+                    site_submission = nk.SiteSubmission.model_validate_json(submission_payload)
+                except pydantic.ValidationError as e:
+                    warnings.warn(
+                        f"\n\nAssignment {asn.AssignmentId}: Error validating submission payload:\n{str(e)[:200]}...\n\n"
+                    )
+                    continue
+
+                yield site_submission
+
+    def pay_bonus(
+        self,
+        worker_id: str,
+        assignment_id: str,
+        amount_usd: str,
+    ) -> None:
+        """
+        Pay a bonus to a worker for a given assignment. Writes a receipt to the project directory.
+        Idempotent operation: if a receipt already exists, skips payment.
+
+        Args:
+            worker_id:
+            assignment_id:
+            amount_usd:
+
+        Returns:
+
+        """
+
+        # Check if a receipt already exists
+        savedir = self._get_bonus_payments_cachedir()
+        receipt_path = savedir / f"{assignment_id}_{worker_id}_bonus.json"
+
+        if receipt_path.exists():
+            warnings.warn(
+                f"Bonus payment receipt already exists at {receipt_path}, skipping bonus payment."
+            )
+            return
+
+        self.mturk_client.send_bonus_payment(
+            request=SendBonusPaymentRequest(
+                assignment_id=assignment_id,
+                amount_usd=Decimal(amount_usd),
+                worker_id=worker_id,
+            )
+        )
+
+        # Write a receipt
+        savedir.mkdir(parents=True, exist_ok=True)
+        timestamp = datetime.datetime.now(datetime.timezone.utc).isoformat().replace("+00:00", "Z")
+        receipt = {
+            "worker_id": worker_id,
+            "assignment_id": assignment_id,
+            "amount_usd": amount_usd,
+            "timestamp": timestamp,
+        }
+
+        with open(receipt_path, "w") as f:
+            json.dump(receipt, f, indent=4)

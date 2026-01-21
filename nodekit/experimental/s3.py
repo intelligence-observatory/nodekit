@@ -7,27 +7,21 @@ import boto3
 import botocore.client
 import botocore.exceptions
 import pydantic
-from nodekit._internal.types.values import MediaType, SHA256
 
 
 # %%
-class UploadAssetResult(pydantic.BaseModel):
-    sha256: SHA256
-    mime_type: MediaType
-    asset_url: pydantic.HttpUrl
+class S3Config(pydantic.BaseModel):
+    """
+    Used to validate and store S3 client configuration.
+    """
+
+    bucket_name: str
+    region_name: str
+    aws_access_key_id: str
+    aws_secret_access_key: pydantic.SecretStr
 
 
 class S3Client:
-    class Config(pydantic.BaseModel):
-        """
-        Used to validate and store S3 client configuration.
-        """
-
-        bucket_name: str
-        region_name: str
-        aws_access_key_id: str
-        aws_secret_access_key: pydantic.SecretStr
-
     def __init__(
         self,
         bucket_name: str,
@@ -35,7 +29,7 @@ class S3Client:
         aws_access_key_id: str,
         aws_secret_access_key: str,
     ):
-        self.config = self.Config(
+        self.config = S3Config(
             bucket_name=bucket_name,
             region_name=region_name,
             aws_access_key_id=aws_access_key_id,
@@ -47,6 +41,7 @@ class S3Client:
             aws_access_key_id=self.config.aws_access_key_id,
             aws_secret_access_key=self.config.aws_secret_access_key.get_secret_value(),
         )
+        self._client.head_bucket(Bucket=self.config.bucket_name)
 
     def sync_directory(
         self,

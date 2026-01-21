@@ -1,5 +1,4 @@
 import datetime
-import re
 from abc import ABC, abstractmethod
 from decimal import Decimal
 from typing import Iterable, List, Literal
@@ -9,16 +8,6 @@ import pydantic
 from boto3.session import Session
 
 import nodekit.experimental.turk.models as boto3_models
-
-
-import os
-import uuid
-from pathlib import Path
-import glob
-
-import nodekit as nk
-
-from nodekit.experimental.s3 import S3Client
 
 
 # %%
@@ -96,19 +85,8 @@ class RecruiterServiceClient(ABC):
 # %%
 
 
-def extract_external_question_answer(xml: str) -> str:
-    # pull the contents of the <FreeText> element
-    m = re.search(r"<FreeText>(.*?)</FreeText>", xml, re.DOTALL)
-    if not m:
-        raise ValueError("No <FreeText> found")
-    raw = m.group(1)
-
-    # MTurk sometimes form-encodes it (+ for space, %xx etc.)
-    return raw
-
-
 # %%
-class MturkClient(RecruiterServiceClient):
+class MturkClient:
     def __init__(
         self,
         aws_access_key_id: str,
@@ -146,7 +124,7 @@ class MturkClient(RecruiterServiceClient):
     def create_hit(
         self,
         request: CreateHitRequest,
-    ) -> CreateHitResponse:
+    ) -> boto3_models.HIT:
         # Unpack:
         entrypoint_url = request.entrypoint_url
         title = request.title
@@ -212,7 +190,7 @@ class MturkClient(RecruiterServiceClient):
         hit = boto3_models.HIT.model_validate(obj=hit_info)
 
         # Idempotency error: botocore.errorfactory.RequestError: An error occurred (RequestError) when calling the CreateHIT operation: The HIT with ID "{hit_id}" already exists.
-        return CreateHitResponse(hit_id=hit.HITId)
+        return hit
 
     def send_bonus_payment(
         self,
@@ -242,7 +220,7 @@ class MturkClient(RecruiterServiceClient):
     def iter_assignments(
         self,
         hit_id: str,
-    ) -> Iterable[ListAssignmentsItem]:
+    ) -> Iterable[boto3_models.Assignment]:
         AssignmentStatuses = ["Submitted", "Approved", "Rejected"]
 
         request_kwargs = dict(
@@ -263,15 +241,7 @@ class MturkClient(RecruiterServiceClient):
             call_return = self.boto3_client.list_assignments_for_hit(**request_kwargs)
             for asn_info in call_return["Assignments"]:
                 assignment = boto3_models.Assignment.model_validate(obj=asn_info)
-                item = ListAssignmentsItem(
-                    hit_id=assignment.HITId,
-                    worker_id=assignment.WorkerId,
-                    assignment_id=assignment.AssignmentId,
-                    status=assignment.AssignmentStatus,
-                    submission_payload=extract_external_question_answer(assignment.Answer),
-                )
-
-                yield item
+                yield assignment
 
             if "NextToken" in call_return:
                 next_token = call_return["NextToken"]
@@ -279,10 +249,14 @@ class MturkClient(RecruiterServiceClient):
                 # Will break
                 next_token = None
 
-    def cleanup_hit(self, hit_id: str) -> None:
-        # First, retrieve the HIT to ensure it exists
+    def get_hit(self, hit_id: str) -> boto3_models.HIT:
         hit_info = self.boto3_client.get_hit(HITId=hit_id)
         hit = boto3_models.HIT.model_validate(obj=hit_info["HIT"])
+        return hit
+
+    def cleanup_hit(self, hit_id: str) -> None:
+        # First, retrieve the HIT to ensure it exists
+        hit = self.get_hit(hit_id=hit_id)
 
         # See if this HIT has any QualificationRequirements
         qual_reqs = hit.QualificationRequirements
@@ -421,192 +395,3 @@ class MturkClient(RecruiterServiceClient):
         qualification_type_id: str,
     ):
         self.boto3_client.delete_qualification_type(QualificationTypeId=qualification_type_id)
-
-
-# %%
-type HitId = str
-type AssignmentId = str
-type WorkerId = str
-
-
-# %%
-class HitRequest(pydantic.BaseModel):
-    graph: nk.Graph
-    num_assignments: int
-    base_payment_usd: str
-    title: str
-    duration_sec: int = pydantic.Field(gt=0)
-    unique_request_token: str | None
-    hit_id: HitId
-
-
-class Helper:
-    """
-    Experimental; this might be moved to PsyHub / PsychoScope.
-    """
-
-    def __init__(
-        self,
-        recruiter_service_client: RecruiterServiceClient,
-        s3_client: S3Client,
-        local_cachedir: os.PathLike | str,
-    ):
-        self.recruiter_service_client = recruiter_service_client
-        self.s3_client = s3_client
-        self.local_cachedir = Path(local_cachedir)
-
-    def _get_hit_cachedir(self) -> Path:
-        return (
-            self.local_cachedir
-            / "hits"
-            / self.recruiter_service_client.get_recruiter_service_name()
-        )
-
-    def _get_hit_savepath(self, project_name: str, hit_id: HitId) -> Path:
-        return self._get_hit_cachedir() / project_name / f"{hit_id}.json"
-
-    def create_hit(
-        self,
-        graph: nk.Graph,
-        num_assignments: int,
-        base_payment_usd: str,
-        title: str,
-        duration_sec: int,
-        project_name: str,
-        unique_request_token: str | None = None,
-    ) -> HitId:
-        """
-        Creates a HIT based on the given Graph.
-        Automatically ensures a public site for the Graph exists on S3.
-        Caches the HIT (and its Graph) in the local cache.
-        """
-
-        graph_site_url = self.upload_graph_site(graph=graph)
-
-        if unique_request_token is None:
-            unique_request_token = uuid.uuid4().hex
-
-        response = self.recruiter_service_client.create_hit(
-            request=CreateHitRequest(
-                entrypoint_url=graph_site_url,
-                title=title,
-                description=title,
-                keywords=["psychology", "task", "cognitive", "science", "game"],
-                num_assignments=num_assignments,
-                duration_sec=duration_sec,
-                completion_reward_usd=Decimal(base_payment_usd),
-                unique_request_token=unique_request_token,
-                allowed_participant_ids=[],
-            )
-        )
-        hit_id: HitId = response.hit_id
-
-        # Just save the raw wire model, and hope the asset refs don't change. Todo: !
-        try:
-            hit_request = HitRequest(
-                graph=graph,
-                num_assignments=num_assignments,
-                base_payment_usd=base_payment_usd,
-                title=title,
-                duration_sec=duration_sec,
-                unique_request_token=unique_request_token,
-                hit_id=hit_id,
-            )
-            savepath = self._get_hit_savepath(project_name=project_name, hit_id=hit_id)
-            if not savepath.parent.exists():
-                savepath.parent.mkdir(parents=True)
-            savepath.write_text(hit_request.model_dump_json(indent=2))
-        except Exception as e:
-            raise Exception(f"Could not save Graph for HIT ({hit_id}) to local cache.") from e
-
-        return hit_id
-
-    def list_projects(self) -> list[str]:
-        savedir = self._get_hit_cachedir()
-        project_names: list[str] = []
-
-        search_results = glob.glob(str(savedir / "*"))
-        for path in search_results:
-            if Path(path).is_dir():
-                project_names.append(Path(path).name)
-        return project_names
-
-    def list_hits(self, project_name: str | None = None) -> list[HitId]:
-        savedir = self._get_hit_cachedir()
-        savedir.mkdir(parents=True, exist_ok=True)
-        hit_ids: list[HitId] = []
-
-        if project_name is None:
-            search_results = glob.glob(str(savedir / "**/*.json"), recursive=True)
-        else:
-            search_results = glob.glob(str(savedir / f"{project_name}/*.json"))
-
-        for path in search_results:
-            hit_ids.append(Path(path).stem.split("*.json")[0])
-        return hit_ids
-
-    def upload_graph_site(self, graph: nk.Graph) -> str:
-        """
-        Returns a URL to a public Graph site.
-        """
-
-        # Build the Graph site
-        build_site_result = nk.build_site(graph=graph, savedir=self.local_cachedir)
-
-        manifest = [build_site_result.entrypoint, *build_site_result.dependencies]
-        manifest = list(dict.fromkeys(manifest))
-        uploaded = self.s3_client.sync_directory(
-            local_root=build_site_result.site_root,
-            bucket_root="",
-            manifest=[path.as_posix() for path in manifest],
-            verbose=True,
-        )
-        entrypoint_rel = build_site_result.entrypoint.as_posix()
-        index_url = uploaded.get(entrypoint_rel)
-        if index_url is None:
-            raise RuntimeError(
-                f"Entrypoint {entrypoint_rel} was not uploaded from {build_site_result.site_root}"
-            )
-
-        return index_url
-
-    def iter_site_submissions(
-        self,
-        hit_id: HitId,
-    ) -> Iterable[nk.SiteSubmission | None]:
-        """
-        Iterate the Traces collected under the given HIT ID.
-        Automatically approves any unapproved assignments.
-        """
-
-        # Pull new assignments
-        for asn in self.recruiter_service_client.iter_assignments(hit_id=hit_id):
-            # Ensure assignment is approved
-            if asn.status != "Approved":
-                self.recruiter_service_client.approve_assignment(
-                    assignment_id=asn.assignment_id,
-                )
-            try:
-                site_submission = nk.SiteSubmission.model_validate_json(asn.submission_payload)
-            except pydantic.ValidationError:
-                print(
-                    f"\n\n{asn.assignment_id}: Error validating submission payload:",
-                    asn.submission_payload,
-                )
-                site_submission = None
-
-            yield site_submission
-
-    def pay_bonus(
-        self,
-        worker_id: WorkerId,
-        assignment_id: AssignmentId,
-        amount_usd: str,
-    ) -> None:
-        self.recruiter_service_client.send_bonus_payment(
-            request=SendBonusPaymentRequest(
-                assignment_id=assignment_id,
-                amount_usd=Decimal(amount_usd),
-                worker_id=worker_id,
-            )
-        )
