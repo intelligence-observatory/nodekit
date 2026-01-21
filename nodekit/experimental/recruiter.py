@@ -25,7 +25,7 @@ def extract_external_question_answer(xml: str) -> str:
         raise ValueError("No <FreeText> found")
     raw = m.group(1)
 
-    # MTurk sometimes form-encodes it (+ for space, %xx etc.)
+    # Returns raw content; callers can decode if their submission payloads are encoded.
     return raw
 
 
@@ -202,13 +202,13 @@ class MechanicalTurkRecruiter:
 
     def get_hit(self, hit_id: str) -> HIT:
         """
-        Return a HIT record, refreshing from MTurk if it was last cached as active.
+        Return a HIT record, refreshing from MTurk and updating the cache.
 
         Args:
             hit_id: HIT ID to load.
 
         Returns:
-            HIT model, possibly refreshed from MTurk if status was Assignable or Unassignable.
+            HIT model refreshed from MTurk.
         """
 
         # Read cached HIT info
@@ -218,12 +218,10 @@ class MechanicalTurkRecruiter:
         hit_json = hit_savepath.read_text()
         hit = HIT.model_validate_json(hit_json)
 
-        if hit.HITStatus in {"Assignable", "Unassignable"}:
-            # Still active; ping Turk
-            hit = self.mturk_client.get_hit(hit_id=hit_id)
+        hit = self.mturk_client.get_hit(hit_id=hit_id)
 
-            # Write
-            hit_savepath.write_text(hit.model_dump_json(indent=2))
+        # Write
+        hit_savepath.write_text(hit.model_dump_json(indent=2))
 
         return hit
 
