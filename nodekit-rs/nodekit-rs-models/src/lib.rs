@@ -13,7 +13,10 @@ use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyString};
 pub use region::*;
 pub use sensor::*;
+use slotmap::{SlotMap, new_key_type};
 pub use text_card::*;
+
+new_key_type! { pub struct CardKey; }
 
 const CARD_TYPE: &str = "card_type";
 
@@ -41,7 +44,10 @@ impl FromPyObject<'_, '_> for Card {
 
 impl Card {
     /// Extract `obj` into a flat vec of `Card`s.
-    pub fn extract_cards(card: Bound<'_, PyAny>, cards: &mut Vec<Card>) -> PyResult<()> {
+    pub fn extract_cards(
+        card: Bound<'_, PyAny>,
+        cards: &mut SlotMap<CardKey, Card>,
+    ) -> PyResult<()> {
         // Extract a composite card's children.
         if card.getattr(CARD_TYPE)?.cast::<PyString>()? == "CompositeCard" {
             // Recurse until we get single cards.
@@ -50,15 +56,9 @@ impl Card {
             }
         } else {
             // Extract a single card.
-            cards.push(Card::extract(card.as_borrowed())?);
+            cards.insert(Card::extract(card.as_borrowed())?);
         }
-        // Set the rendering order.
-        Self::sort(cards);
         Ok(())
-    }
-
-    pub fn sort(cards: &mut [Self]) {
-        cards.sort_by(|a, b| a.region.z_index.cmp(&b.region.z_index));
     }
 
     fn extract_region(obj: Borrowed<'_, '_, PyAny>) -> PyResult<Region> {

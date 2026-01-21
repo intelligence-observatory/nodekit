@@ -67,6 +67,8 @@ pub struct Renderer {
     board: Board,
     /// Cached text engine.
     text_engine: nodekit_rs_text::TextEngine,
+    /// TODO
+    render_order: Vec<AssetKey>,
     /// Cached assets.
     assets: HashMap<AssetKey, Asset>,
     /// These assets need to be cleared and re-filled per frame.
@@ -336,9 +338,9 @@ impl Renderer {
                                 self.assets.insert(
                                     AssetKey::Selectable(choice.clone()), // TODO this is incorrect.
                                     Asset {
-                                        asset: AssetType::Interactive(InteractiveAsset::Selectable(
-                                            asset,
-                                        )),
+                                        asset: AssetType::Interactive(
+                                            InteractiveAsset::Selectable(asset),
+                                        ),
                                         z_index: card.region.z_index,
                                     },
                                 );
@@ -425,7 +427,7 @@ impl Renderer {
                         dirty.extend_from_slice(&self.overlaps[&k]);
                     }
                 }
-                SensorType::TextEntry(text_entry ) => {
+                SensorType::TextEntry(text_entry) => {
                     if let Some(k) = self.text_entry_key {
                         let k = AssetKey::Selectable(k);
                         dirty.push(k);

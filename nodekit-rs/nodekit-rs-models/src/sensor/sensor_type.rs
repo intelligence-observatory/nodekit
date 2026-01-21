@@ -1,88 +1,57 @@
-use std::collections::{HashMap, HashSet};
-use super::slider_orientation::SliderOrientation;
-use crate::sensor::text_entry::TextEntry;
-use crate::{Card, Region};
+use super::{
+    hover::Hover,
+    select::Select,
+    slider::{Slider, SliderOrientation},
+    text_entry::TextEntry,
+};
+use crate::{Card, CardKey, Region};
+use hashbrown::{HashMap, HashSet};
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyString};
-use slotmap::{SlotMap, new_key_type};
-
-new_key_type! { pub struct MultiSelectConfirmCardKey; }
+use slotmap::SlotMap;
 
 pub enum SensorType {
-    MultiSelect {
-        cards: HashMap<String, Vec<Card>>,
-        hovering: Option<String>,
-        selected: HashSet<String>,
-        confirm: SlotMap<MultiSelectConfirmCardKey, Card>,
-    },
-    Select {
-        cards: HashMap<String, Card>,
-        hovering: Option<String>,
-    },
-    Slider {
-        num_bins: usize,
-        bin: usize,
-        show_bin_markers: bool,
-        orientation: SliderOrientation,
-        region: Region,
-    },
+    Select(Select),
+    Hover(Hover),
+    Slider(Slider),
     TextEntry(TextEntry),
 }
 
 impl SensorType {
-    pub fn extract(obj: Borrowed<'_, '_, PyAny>) -> PyResult<Option<Self>> {
+    pub fn extract(
+        obj: Borrowed<'_, '_, PyAny>,
+        cards: &mut SlotMap<CardKey, Card>,
+    ) -> PyResult<Option<Self>> {
         let sensor_type = obj.getattr("sensor_type")?;
         match sensor_type.cast::<PyString>()?.to_str()? {
-            "MultiSelectSensor" => Ok(Self::extract_multi_select(obj).ok()),
-            "SelectSensor" => Ok(Self::extract_select(obj).ok()),
+            "MultiSelectSensor" => Ok(Self::extract_multi_select(obj, cards).ok()),
+            "SelectSensor" => Ok(Self::extract_select(obj, cards).ok()),
             "SliderSensor" => Ok(Self::extract_slider(obj).ok()),
             "TextEntrySensor" => Ok(Self::extract_text_entry(obj).ok()),
             _ => Ok(None),
         }
     }
 
-    fn extract_multi_select(sensor: Borrowed<'_, '_, PyAny>) -> PyResult<Self> {
-        let mut confirm_cards = Vec::default();
-        Card::extract_cards(sensor.getattr("confirm_button")?, &mut confirm_cards)?;
-        let mut confirm = SlotMap::with_capacity_and_key(confirm_cards.len());
-        for c in confirm_cards {
-            confirm.insert(c);
-        }
-
-        let choices = sensor.getattr("choices")?;
-        let choices: &Bound<PyDict> = choices.cast::<PyDict>()?;
-        let mut cards = HashMap::default();
-        for (card_id, card) in choices {
-            let choice = card_id.extract::<String>()?;
-            let mut cs = Vec::default();
-            Card::extract_cards(card, &mut cs)?;
-            cards.insert(choice, cs);
-        }
-
-        Ok(Self::MultiSelect {
-            cards,
-            hovering: None,
+    fn extract_multi_select(
+        sensor: Borrowed<'_, '_, PyAny>,
+        cards: &mut SlotMap<CardKey, Card>,
+    ) -> PyResult<Self> {
+        // Extract the cards constituting the confirm button.
+        Card::extract_cards(sensor.getattr("confirm_button")?, cards)?;
+        // Extract hoverables.
+        let hover = Self::extract_hover(sensor, cards)?;
+        Ok(Self::Select(Select {
+            hover,
             selected: HashSet::default(),
-            confirm,
-        })
+        }))
     }
 
-    fn extract_select(sensor: Borrowed<'_, '_, PyAny>) -> PyResult<Self> {
-        let choices = sensor.getattr("choices")?;
-        let choices: &Bound<PyDict> = choices.cast::<PyDict>()?;
-        let mut cards = HashMap::default();
-        for (key, card) in choices {
-            let mut cs = Vec::default();
-            Card::extract_cards(card, &mut cs)?;
-            for card in cs {
-                cards.insert(key.extract::<String>()?, card);
-            }
-        }
-        Ok(Self::Select {
-            cards,
-            hovering: None,
-        })
+    fn extract_select(
+        sensor: Borrowed<'_, '_, PyAny>,
+        cards: &mut SlotMap<CardKey, Card>,
+    ) -> PyResult<Self> {
+        Ok(Self::Hover(Self::extract_hover(sensor, cards)?))
     }
 
     fn extract_slider(sensor: Borrowed<'_, '_, PyAny>) -> PyResult<Self> {
@@ -103,13 +72,13 @@ impl SensorType {
             ))),
         }?;
         let region = Region::extract(sensor)?;
-        Ok(Self::Slider {
+        Ok(Self::Slider(Slider {
             num_bins,
             bin: bin_index,
             show_bin_markers,
             orientation,
             region,
-        })
+        }))
     }
 
     fn extract_text_entry(sensor: Borrowed<'_, '_, PyAny>) -> PyResult<Self> {
@@ -122,5 +91,35 @@ impl SensorType {
             text: String::default(),
             region,
         }))
+    }
+
+    fn extract_hover(
+        sensor: Borrowed<'_, '_, PyAny>,
+        cards: &mut SlotMap<CardKey, Card>,
+    ) -> PyResult<Hover> {
+        let mut hoverable = HashMap::default();
+
+        let current_keys = cards.keys().collect::<Vec<CardKey>>();
+
+        let choices = sensor.getattr("choices")?;
+        let choices: &Bound<PyDict> = choices.cast::<PyDict>()?;
+        for (choice, card) in choices {
+            // The child key.
+            let choice = choice.extract::<String>()?;
+            // Extract new cards.
+            Card::extract_cards(card, cards)?;
+            // Get the keys of the cards that we just added.
+            let new_keys = cards
+                .keys()
+                .filter(|k| !current_keys.contains(k))
+                .collect::<Vec<CardKey>>();
+            // Store these as hoverable.
+            hoverable.insert(choice, new_keys);
+        }
+
+        Ok(Hover {
+            hoverable,
+            hovering: None,
+        })
     }
 }

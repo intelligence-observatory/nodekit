@@ -1,14 +1,12 @@
 mod pointer;
 
-use nodekit_rs_models::{Card, CardType, Sensor, SensorType};
+use nodekit_rs_models::{Card, CardKey, CardType, Sensor, SensorType};
 use pointer::Pointer;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
-use slotmap::{SlotMap, new_key_type};
+use slotmap::SlotMap;
 use uuid::Uuid;
-
-new_key_type! { pub struct CardKey; }
 
 /// Describes the state of the simulator.
 #[gen_stub_pyclass]
@@ -30,14 +28,13 @@ pub struct State {
 }
 
 impl State {
-    pub fn new_inner(board_color: String, cards: Vec<Card>, sensor: Option<Sensor>) -> Self {
-        // Convert to a map.
-        let mut cards_map = SlotMap::with_capacity_and_key(cards.len());
-        for card in cards {
-            cards_map.insert(card);
-        }
+    pub fn new_inner(
+        board_color: String,
+        cards: SlotMap<CardKey, Card>,
+        sensor: Option<Sensor>,
+    ) -> Self {
         let mut s = Self {
-            cards: cards_map,
+            cards,
             sensor,
             t_msec: 0,
             board_color,
@@ -64,9 +61,11 @@ impl State {
         card: Bound<'_, PyAny>,
         sensor: Bound<'_, PyAny>,
     ) -> PyResult<Self> {
-        let mut cards = vec![];
+        let mut cards = SlotMap::default();
+        // Extract cards.
         Card::extract_cards(card, &mut cards)?;
-        let sensor = SensorType::extract(sensor.as_borrowed())?.map(Sensor::from);
+        // Try to extract a sensor, and possibly extract more cards.
+        let sensor = SensorType::extract(sensor.as_borrowed(), &mut cards)?.map(Sensor::from);
         Ok(Self::new_inner(board_color, cards, sensor))
     }
 
@@ -95,38 +94,31 @@ impl State {
         self.pointer.x = x;
         self.pointer.y = y;
     }
-    
+
     /// Set which card has a hovered state.
-    /// 
+    ///
     /// If id is a string, then it's a key in SelectSensor.choices or MultiSelectSensor.choices
-    /// If id is None, then no card will have a hovered state. 
-    /// 
-    /// Throws an exception if there is no sensor, 
+    /// If id is None, then no card will have a hovered state.
+    ///
+    /// Throws an exception if there is no sensor,
     /// or if the sensor isn't a SelectSensor or MultiSelectSensor.
     pub fn set_hovering(&mut self, id: Option<String>) -> PyResult<()> {
         // Set the hovering state.
         match self.sensor.as_mut() {
-            Some(sensor) => {
-                match &mut sensor.sensor_type {
-                    SensorType::Select { cards: _, hovering } => {
-                        *hovering = id;
-                        Ok(())
-                    }
-                    SensorType::MultiSelect {
-                        cards: _,
-                        hovering,
-                        selected: _,
-                        confirm: _,
-                    } => {
-                        *hovering = id;
-                        Ok(())
-                    }
-                    _ => Err(PyValueError::new_err(
-                        "Failed to find a SelectSensor or MultiSelectSensor.",
-                    )),
+            Some(sensor) => match &mut sensor.sensor_type {
+                SensorType::Select(select) => {
+                    select.hover.hovering = id;
+                    Ok(())
                 }
-            }
-            None => Self::invalid_sensor()
+                SensorType::Hover(hover) => {
+                    hover.hovering = id;
+                    Ok(())
+                }
+                _ => Err(PyValueError::new_err(
+                    "Failed to find a SelectSensor or MultiSelectSensor.",
+                )),
+            },
+            None => Self::invalid_sensor(),
         }
     }
 
@@ -138,21 +130,12 @@ impl State {
         match self.sensor.as_mut() {
             Some(sensor) => match &mut sensor.sensor_type {
                 // No need to render anything.
-                SensorType::Select {
-                    cards: _,
-                    hovering: _,
-                } => Ok(()),
-                SensorType::MultiSelect {
-                    cards: _,
-                    hovering: _,
-                    selected,
-                    confirm: _,
-                } => {
+                SensorType::Hover(_) => Ok(()),
+                SensorType::Select(select_sensor) => {
                     if select {
-                        selected.insert(choice);
-                    }
-                    else {
-                        selected.remove(&choice);
+                        select_sensor.selected.insert(choice);
+                    } else {
+                        select_sensor.selected.remove(&choice);
                     }
                     Ok(())
                 }

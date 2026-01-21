@@ -1,15 +1,19 @@
+mod hover;
+mod select;
 mod sensor_type;
-mod slider_orientation;
+mod slider;
 mod text_entry;
 
-pub use sensor_type::{
-    MultiSelectConfirmCardKey, SensorType,
-};
-pub use slider_orientation::SliderOrientation;
+pub use hover::Hover;
+pub use select::Select;
+pub use sensor_type::SensorType;
+pub use slider::*;
 pub use text_entry::TextEntry;
 
 pub struct Sensor {
+    /// Per-sensor definitions and mappings.
     pub sensor_type: SensorType,
+    /// If true, the sensor needs to be re-rendered.
     pub dirty: bool,
 }
 
