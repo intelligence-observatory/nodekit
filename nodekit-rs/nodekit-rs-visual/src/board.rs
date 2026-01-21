@@ -199,7 +199,7 @@ mod tests {
             "cursor.png",
             &board.blit_cursor(
                 &cursor.0,
-                &Cursor::rect(HORIZONTAL.i_64_half, VERTICAL.i_64_half),
+                &Cursor::rect(0, 0),
             ),
         );
     }

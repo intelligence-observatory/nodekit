@@ -4,7 +4,7 @@ use bytemuck::cast_slice;
 use nodekit_rs_models::Region;
 use nodekit_rs_models::board::*;
 
-const CURSOR_SIZE: Size = Size { w: 34, h: 44 };
+const CURSOR_SIZE: Size = Size { w: 25, h: 33 };
 
 /// A cursor icon.
 pub struct Cursor(pub Vec<Vec4>);
