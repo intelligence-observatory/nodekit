@@ -1,24 +1,20 @@
 use std::process::Command;
-use std::str::from_utf8;
+
+const CARGO_VCPKG: &str = "cargo-vcpkg";
 
 fn main() {
     // Check if cargo-vcpkg is installed.
-    let out = Command::new("cargo")
-        .arg("install")
-        .arg("--list")
-        .output()
-        .unwrap();
-    let out = from_utf8(&out.stdout).unwrap();
+    let e = Command::new(CARGO_VCPKG).status().unwrap();
     // Install cargo-vcpkg
-    if !out.contains("cargo-vcpkg") {
+    if !e.success() {
         let e = Command::new("cargo")
             .arg("install")
-            .arg("cargo-vcpkg")
+            .arg(CARGO_VCPKG)
             .status()
             .unwrap();
         assert!(e.success());
     }
     // Compile.
-    let e = Command::new("cargo-vcpkg").arg("build").status().unwrap();
+    let e = Command::new(CARGO_VCPKG).arg("build").status().unwrap();
     assert!(e.success());
 }
