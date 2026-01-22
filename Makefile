@@ -22,7 +22,7 @@ build-docs:
 install-maturin:
 	uv tool install maturin
 
-build-nodekit-rs:
+build-rs: install-maturin
 	maturin develop --manifest-path nodekit-rs/Cargo.toml --release --uv
 
 nodekit-rs-stub-gen:
@@ -30,7 +30,7 @@ nodekit-rs-stub-gen:
 	cargo run --example stub_gen && \
 	python3 fix_pyi.py
 
-build: lint check test build-browser build-docs install-maturin build-nodekit-rs
+build: lint check test build-browser build-docs build-rs
 	rm -rf dist && \
 	uv build
 
