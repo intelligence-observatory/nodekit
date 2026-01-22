@@ -19,7 +19,18 @@ build-docs:
 	cd docs && \
 	uv run mkdocs build --strict
 
-build: lint check test build-browser build-docs
+install-maturin:
+	uv tool install maturin
+
+build-nodekit-rs:
+	maturin develop --manifest-path nodekit-rs/Cargo.toml --release --uv
+
+nodekit-rs-stub-gen:
+	cd nodekit-rs && \
+	cargo run --example stub_gen && \
+	python3 fix_pyi.py
+
+build: lint check test build-browser build-docs install-maturin build-nodekit-rs
 	rm -rf dist && \
 	uv build
 

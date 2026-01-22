@@ -1,3 +1,3 @@
-import nodekit.experimental.renderer
+from nodekit.experimental import renderer
 
-__all__ = ['renderer']
+__all__ = ["renderer"]
