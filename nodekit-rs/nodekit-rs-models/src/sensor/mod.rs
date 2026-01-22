@@ -168,9 +168,7 @@ impl Sensor {
 #[cfg(test)]
 mod tests {
     use crate::Region;
-    use crate::card::{
-        Card, CardType, JustificationHorizontal, JustificationVertical, TextCard,
-    };
+    use crate::card::{Card, CardType, JustificationHorizontal, JustificationVertical, TextCard};
 
     pub(crate) fn get_card(x: i64, y: i64) -> Card {
         Card {
