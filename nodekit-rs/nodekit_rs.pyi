@@ -21,9 +21,9 @@ class Renderer:
     def render_to(self, state: State, board: numpy.typing.NDArray[numpy.uint8]) -> None:
         r"""
         Render `state` and copy the rendered bitmap into `board`.
-        
+
         This is faster than `self.render(state) because it doesn't allocate a new array.
-        
+
         `board`'s data type MUST be `numpy.unit8` and its shape MUST be `(768, 1024, 3)`.
         See: `Renderer.empty_board()`.
         """
@@ -31,7 +31,7 @@ class Renderer:
         r"""
         Render `state`.
         Returns a numpy array with shape: `(768, 1024, 3)`.
-        
+
         This is slower than `self.render_to(state, board)` because it needs to allocate a new array.
         """
     def set_pointer_visibility(self, visible: builtins.bool) -> None:
@@ -56,41 +56,40 @@ class State:
         `board_color` must be a valid RGBA hex string e.g. "#808080ff"
         `cards` must be of type `nodekit.cards.Card`
         `sensor` must be of type `nodekit.sensors.Sensor`.
-        
+
         Note that only some sensors are supported in nodekit-rs:
         - SelectSensor
         - MultiSelectSensor
-        
+
         All other sensor types are permitted, but will fail silently.
         """
     def set_pointer(self, x: builtins.int, y: builtins.int) -> None:
         r"""
         Set the coordinates of the pointer.
         The coordinates must be between -512 and 512.
-        
+
         If the sensor is a SelectSensor or MultiSelectSensor, this will automatically set the hovering state of the cards, if applicable.
         """
     def hover(self, choice: typing.Optional[builtins.str]) -> None:
         r"""
         Set which card has a hovered state.
-        
+
         If id is a string, then it's a key in SelectSensor.choices or MultiSelectSensor.choices
         If id is None, then no card will have a hovered state.
-        
+
         Throws an exception if there is no sensor,
         or if the sensor isn't a SelectSensor or MultiSelectSensor.
         """
     def select(self, choice: builtins.str, select: builtins.bool) -> None:
         r"""
         Select or deselect a MultiSelectSensor's card.
-        
+
         For SelectSensor, this fails silently because the render state wouldn't change.
         For MultiSelectSensor, this adds `choice` the sensor isn't a SelectSensor or MultiSelectSensor.
         """
     def set_text_entry(self, text: builtins.str) -> None:
         r"""
         Set the text of a TextEntrySensor.
-        
+
         Throws an exception if the sensor isn't a TextEntrySensor.
         """
-
