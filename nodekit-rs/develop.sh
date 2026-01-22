@@ -14,19 +14,8 @@ if [[ $? -eq 1 ]]; then
   exit 1
 fi
 
-# Check if cargo-vcpkg is installed.
-cargo install --list | grep cargo-vcpkg > /dev/null
-if [[ $? -eq 1 ]]; then
-  cargo install cargo-vcpkg
-fi
-
 # Now that we've checked for all install requirements, we can halt on errors.
 set -e
-
-# vcpkg
-cd nodekit-rs-video
-cargo vcpkg build
-cd ..
 
 # Install maturin if needed.
 # We don't check to see if maturin is already installed because this is very fast.
