@@ -1,70 +1,71 @@
 from pathlib import Path
 from time import time
 from state import get_state
-import nodekit.assets
-import nodekit.cards
-from nodekit import Region
-from nodekit_rs import Renderer, State
+import nodekit as nk
 
 d = Path(__file__).parent.parent
 
 
-def rgb() -> State:
+def rgb() -> nk.experimental.renderer.State:
     cards = {
-        "image_0": nodekit.cards.ImageCard(
-            region=Region(x=-256, y=-256, w=256, h=512, z_index=0),
-            image=nodekit.assets.Image.from_path(
+        "image_0": nk.cards.ImageCard(
+            region=nk.Region(x=-256, y=-256, w=256, h=512, z_index=0),
+            image=nk.assets.Image.from_path(
                 d.joinpath("nodekit-rs-image/test_image.png").resolve()
             ),
         ),
-        "image_1": nodekit.cards.ImageCard(
-            region=Region(x=0, y=0, w=170, h=256, z_index=1),
-            image=nodekit.assets.Image.from_path(
+        "image_1": nk.cards.ImageCard(
+            region=nk.Region(x=0, y=0, w=170, h=256, z_index=1),
+            image=nk.assets.Image.from_path(
                 d.joinpath("nodekit-rs-image/test_image.png").resolve()
             ),
         ),
-        "text": nodekit.cards.TextCard(
-            region=Region(x=-512, y=-512, w=1, h=51, z_index=2),
+        "text": nk.cards.TextCard(
+            region=nk.Region(x=-512, y=-512, w=1, h=51, z_index=2),
             text="# Click the **test image**",
             justification_horizontal="left",
             text_color="#000000FF",
             background_color="#E6E6E6FF",
         ),
     }
-    card = nodekit.cards.CompositeCard(children=cards)
-    return State(board_color="#AAAAAAFF", card=card)
+    card = nk.cards.CompositeCard(children=cards)
+    return nk.experimental.renderer.State(
+        board_color="#AAAAAAFF", card=card, sensor=nk.sensors.WaitSensor(duration_msec=10000)
+    )
 
 
-def rgba() -> State:
+def rgba() -> nk.experimental.renderer.State:
     cards = {
-        "image_0": nodekit.cards.ImageCard(
-            region=Region(x=-256, y=-256, w=256, h=512, z_index=0),
-            image=nodekit.assets.Image.from_path(
+        "image_0": nk.cards.ImageCard(
+            region=nk.Region(x=-256, y=-256, w=256, h=512, z_index=0),
+            image=nk.assets.Image.from_path(
                 d.joinpath("nodekit-rs-image/test_image.png").resolve()
             ),
         ),
-        "image_1": nodekit.cards.ImageCard(
-            region=Region(x=0, y=0, w=170, h=256, z_index=1),
-            image=nodekit.assets.Image.from_path(
+        "image_1": nk.cards.ImageCard(
+            region=nk.Region(x=0, y=0, w=170, h=256, z_index=1),
+            image=nk.assets.Image.from_path(
                 d.joinpath("nodekit-rs-image/test_image.png").resolve()
             ),
         ),
-        "text": nodekit.cards.TextCard(
-            region=Region(x=-512, y=-512, w=1000, h=51, z_index=2),
+        "text": nk.cards.TextCard(
+            region=nk.Region(x=-512, y=-512, w=1000, h=51, z_index=2),
             text="# Click the **test image**",
             justification_horizontal="left",
             text_color="#000000FF",
             background_color="#E6E6E633",
         ),
     }
-    card = nodekit.cards.CompositeCard(children=cards)
-    return State(board_color="#AAAAAAFF", card=card)
+    card = nk.cards.CompositeCard(children=cards)
+    return nk.experimental.renderer.State(
+        board_color="#AAAAAAFF", card=card, sensor=nk.sensors.WaitSensor(duration_msec=10000)
+    )
 
 
-renderer = Renderer()
+renderer = nk.experimental.renderer.Renderer()
 
 
-def benchmark(state: State, message: str) -> str:
+def benchmark(state: nk.experimental.renderer.State, message: str) -> str:
     print(message)
     its = 1000
     # Ignore the first frame because that's when assets are cached.
@@ -84,8 +85,8 @@ def benchmark(state: State, message: str) -> str:
     return f"{message} {fps}"
 
 
-def benchmark_to(state: State, message: str) -> str:
-    board = Renderer.empty_board()
+def benchmark_to(state: nk.experimental.renderer.State, message: str) -> str:
+    board = nk.experimental.renderer.Renderer.empty_board()
     print(message)
     its = 1000
     t0 = time()

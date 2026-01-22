@@ -16,13 +16,18 @@ The size of the final library file should be approximately 44 MB.
 ### Render
 
 ```python
-from nodekit_rs import Renderer, State
+import nodekit as nk
 
 card = get_card()  # Your code here. Can be a CompositeCard.
 sensor = get_sensor()  # Your code here.
-state = State(board_color="#AAAAAAFF", sensor=sensor)
 
-renderer = Renderer()
+state = nk.experimental.renderer.State(
+    board_color="#AAAAAAFF",
+    card=card, 
+    sensor=sensor
+)
+
+renderer = nk.experimental.renderer.Renderer()
 board = renderer.render(state)
 ```
 
@@ -33,13 +38,17 @@ board = renderer.render(state)
 You can, optionally, render to an existing numpy array, which will result in a small performance improvement:
 
 ```python
-from nodekit_rs import Renderer, State
+import nodekit as nk
 
 card = get_card()
 sensor = get_sensor()
-state = State(board_color="#AAAAAAFF", card=card, sensor=sensor)
+state = nk.experimental.renderer.State(
+    board_color="#AAAAAAFF",
+    card=card, 
+    sensor=sensor
+)
 
-renderer = Renderer()
+renderer = nk.experimental.renderer.Renderer()
 
 board = renderer.empty_board()  # Get an empty board (a numpy array).
 
@@ -52,11 +61,16 @@ for i in range(100):
 To set the pointer position, call `state.set_pointer(x, y)` where `x` and `y` are ints between -512 and 512:
 
 ```python
-from nodekit_rs import State
+import nodekit as nk
 
-card = get_card()
-sensor = get_sensor()
-state = State(board_color="#AAAAAAFF", card=card, sensor=sensor)
+card = get_card()  # Your code here. Can be a CompositeCard.
+sensor = get_sensor()  # Your code here.
+state = nk.experimental.renderer.State(
+    board_color="#AAAAAAFF",
+    card=card, 
+    sensor=sensor
+)
+state.set_pointer(0, -100)
 ```
 
 ### Video seeking
@@ -64,11 +78,15 @@ state = State(board_color="#AAAAAAFF", card=card, sensor=sensor)
 If there are video cards, you will need to manually set the current time, in milliseconds:
 
 ```python
-from nodekit_rs import State
+import nodekit as nk
 
-card = get_card()
-sensor = get_sensor()
-state = State(board_color="#AAAAAAFF", card=card, sensor=sensor)
+card = get_card()  # Your code here. Can be a CompositeCard.
+sensor = get_sensor()  # Your code here.
+state = nk.experimental.renderer.State(
+    board_color="#AAAAAAFF",
+    card=card,
+    sensor=sensor
+)
 state.t_msec = 300
 ```
 
@@ -80,11 +98,19 @@ For example, this is valid code:
 
 ```python
 import nodekit as nk
-from nodekit_rs import State
 
-card = get_card()  # Your code here.
+card = get_card()  # Your code here. Can be a CompositeCard.
 sensor = nk.sensors.WaitSensor(duration_msec=10000)
-state = State(board_color="#AAAAAAFF", card=card, sensor=sensor)
+
+state = nk.experimental.renderer.State(
+    board_color="#AAAAAAFF",
+    card=card,
+    sensor=sensor
+)
+state.t_msec = 300
+
+renderer = nk.experimental.renderer.Renderer()
+board = renderer.render(state)
 ```
 
 `nodekit-rs` currently supports graphical renderings of:
@@ -100,13 +126,16 @@ To graphically render cards that are being hovered over, set the sensor as `Sele
 
 ```python
 import nodekit as nk
-from nodekit_rs import State
 
 card = get_card()  # Your code here.
 sensor = nk.sensors.SelectSensor(choices={
     'a': get_another_card()  # Your code here.
 })
-state = State(board_color="#AAAAAAFF", card=card, sensor=sensor)
+state = nk.experimental.renderer.State(
+    board_color="#AAAAAAFF", 
+    card=card,
+    sensor=sensor
+)
 state.hover('a')
 ```
 
@@ -114,21 +143,9 @@ To stop rendering any hovering overlays, call `state.hover(None)`
 
 #### Selecting
 
-To graphically render a selected card, set the sensor as a `MultiSelectSensor` and call `state.set_selection(choice, select)`:
+To graphically render a selected card, set the sensor as a `MultiSelectSensor` and call `state.set_selection(choice, select)` where `choice` is a valid key in `MultiSelectSensor.choices` and `select` is a boolean that will (de)select the card(s).
 
-```python
-import nodekit as nk
-from nodekit_rs import State
-
-card = get_card()  # Your code here.
-sensor = nk.sensors.MultiSelectSensor(choices={
-    'a': get_another_card()  # Your code here.
-})
-state = State(board_color="#AAAAAAFF", card=card, sensor=sensor)
-state.select('a', True)
-```
-
-You can also opt for a `SelectSensor` but it will fail silently. All other sensor types will throw an exception.
+If you call `state.select(choice, select)` and the sensor is a `SelectSensor`, the call will fail silently. All other sensor types will throw an exception.
 
 ## What works, what doesn't
 
