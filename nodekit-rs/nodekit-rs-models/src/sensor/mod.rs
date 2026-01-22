@@ -169,11 +169,8 @@ impl Sensor {
 mod tests {
     use crate::Region;
     use crate::card::{
-        Card, CardKey, CardType, JustificationHorizontal, JustificationVertical, TextCard,
+        Card, CardType, JustificationHorizontal, JustificationVertical, TextCard,
     };
-    use crate::sensor::Hover;
-    use hashbrown::HashMap;
-    use slotmap::SlotMap;
 
     pub(crate) fn get_card(x: i64, y: i64) -> Card {
         Card {
