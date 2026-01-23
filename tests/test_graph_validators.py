@@ -93,6 +93,25 @@ def test_else_branch_targets_exist():
         )
 
 
+def test_nested_if_targets_exist():
+    with pytest.raises(pydantic.ValidationError, match="points to non-existent Node missing"):
+        nk.Graph(
+            nodes={"start": wait_node()},
+            transitions={
+                "start": nk.transitions.IfThenElse(
+                    if_=nk.expressions.Lit(value=True),
+                    then=nk.transitions.IfThenElse(
+                        if_=nk.expressions.Lit(value=False),
+                        then=nk.transitions.Go(to="missing"),
+                        else_=nk.transitions.End(),
+                    ),
+                    else_=nk.transitions.End(),
+                ),
+            },
+            start="start",
+        )
+
+
 def test_orphan_nodes_rejected():
     with pytest.raises(pydantic.ValidationError, match="orphan"):
         nk.Graph(
