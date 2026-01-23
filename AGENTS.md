@@ -9,8 +9,7 @@ Its purpose is to let researchers specify experiments as deterministic, portable
 ### Core goals of NodeKit
 1. Determinism: No hidden state. No implicit randomness. All behavior arises from explicit Node, Graph, and Transition definitions.
 2. Portability: A task defined once in NodeKit must run identically in Python and TypeScript runtimes.
-3. Declarativity: NodeKit describes what the task _is_, not how to execute it.
-4. Minimalism: NodeKit should constantly strive for containing the smallest possible set of concepts. Expressivity should come through _composition_, not by introducing new members to the ontology.
+3. Minimalism: NodeKit should constantly strive for containing the smallest possible set of concepts. Expressivity should come through _composition_, not by introducing new members to the ontology.
 
 ### Why NodeKit exists
 Traditional psych tasks are implemented as bespoke spaghetti code: ad-hoc state machines scattered across JS callbacks, inconsistent timing behavior, and non-portable logic. NodeKit provides:
