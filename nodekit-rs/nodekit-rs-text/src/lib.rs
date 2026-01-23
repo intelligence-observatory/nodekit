@@ -46,8 +46,9 @@ impl TextEngine {
                 // Get the size of the text buffer.
                 // Apply padding.
                 let mut text_size = background_rect.src_size;
-                text_size.w -= font_size.font_usize * 2;
-                text_size.h -= font_size.font_usize * 2;
+                let font_usize = font_size.font_size as usize;
+                text_size.w -= font_usize * 2;
+                text_size.h -= font_usize * 2;
 
                 let mut text_buffers = TextBuffers {
                     background,
@@ -152,6 +153,8 @@ impl TextEngine {
         // Parse the markdown text.
         let paragraphs = parse(&text_card.text, &font_size, attrs.clone())?;
 
+        let font_isize = font_size.font_size as isize;
+
         // Shape the paragraphs.
         let mut y = 0;
         let num_paragraphs = paragraphs.len();
@@ -202,8 +205,8 @@ impl TextEngine {
         // Unclip.
         let unclipped_rect = UnclippedRect {
             position: PositionI {
-                x: rect.dst_position.x + font_size.font_isize,
-                y: rect.dst_position.y + font_size.font_isize + y_offset,
+                x: rect.dst_position.x + font_isize,
+                y: rect.dst_position.y + font_isize + y_offset,
             },
             size: rect.src_size,
         };
@@ -287,14 +290,7 @@ mod tests {
 
     #[test]
     fn test_text_card_render() {
-        let card = TextCard {
-            text: include_str!("../lorem.txt").to_string(),
-            font_size: 20,
-            justification_horizontal: JustificationHorizontal::Left,
-            justification_vertical: JustificationVertical::Center,
-            text_color: "#000000FF".to_string(),
-            background_color: "#AAAAAAFF".to_string(),
-        };
+        let card = lorem();
         let region = Region::default();
 
         // Render the text.
@@ -362,5 +358,16 @@ mod tests {
         text_buffer.blit(&mut board);
         // Write the result as a .png file.
         nodekit_rs_png::board_to_png("text_entry_prompt.png", board.get_board_without_cursor());
+    }
+
+    fn lorem() -> TextCard {
+        TextCard {
+            text: include_str!("../lorem.txt").to_string(),
+            font_size: 20,
+            justification_horizontal: JustificationHorizontal::Left,
+            justification_vertical: JustificationVertical::Center,
+            text_color: "#000000FF".to_string(),
+            background_color: "#AAAAAAFF".to_string(),
+        }
     }
 }

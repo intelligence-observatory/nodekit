@@ -17,7 +17,7 @@ impl Paragraph<'_> {
                 line_height: font_size.line_height,
             },
             spans: Vec::new(),
-            spacing: font_size.line_height_usize,
+            spacing: font_size.line_height as usize,
         }
     }
 

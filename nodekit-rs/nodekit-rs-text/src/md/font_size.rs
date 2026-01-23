@@ -13,10 +13,7 @@ macro_rules! metrics {
 #[derive(Copy, Clone, Debug)]
 pub struct FontSize {
     pub font_size: f32,
-    pub font_usize: usize,
-    pub font_isize: isize,
     pub line_height: f32,
-    pub line_height_usize: usize,
     h1: f32,
     h2: f32,
     h3: f32,
@@ -39,9 +36,6 @@ impl FontSize {
             h4: font_size,
             h5: font_size,
             h6: font_size * 0.67,
-            font_usize: font_size as usize,
-            font_isize: font_size as isize,
-            line_height_usize: line_height as usize,
         }
     }
 }
