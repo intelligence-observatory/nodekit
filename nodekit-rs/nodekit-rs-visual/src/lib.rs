@@ -1,18 +1,15 @@
 //! Visual buffer functionality that is shared by images, text, and video.
 
 mod board;
-mod borrowed_rgba_buffer;
 mod cursor;
 mod error;
 mod rgb_buffer;
 mod rgba_buffer;
-mod rounded_rectangle;
 mod unclipped_rect;
 mod visual_buffer;
 
 use blittle::Size;
 pub use board::*;
-pub use borrowed_rgba_buffer::*;
 pub use cursor::Cursor;
 pub use error::Error;
 use fast_image_resize::{FilterType, PixelType, ResizeAlg, ResizeOptions, Resizer, SrcCropping};

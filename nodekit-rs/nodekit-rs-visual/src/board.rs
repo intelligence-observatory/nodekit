@@ -1,6 +1,6 @@
+use crate::VisualBuffer;
 use crate::rgb_buffer::RgbBuffer;
 use crate::rgba_buffer::RgbaBuffer;
-use crate::{BorrowedRgbaBuffer, VisualBuffer};
 use blittle::overlay::*;
 use blittle::*;
 use bytemuck::cast_slice_mut;
@@ -84,17 +84,6 @@ impl Board {
         }
         // Overlay.
         overlay_rgba32(&buffer.buffer, &mut self.board32, &buffer.rect);
-    }
-
-    pub fn overlay_borrowed_rgba(&mut self, buffer: &BorrowedRgbaBuffer<'_>) {
-        // Mark as dirty.
-        if !self.dirty {
-            self.dirty = true;
-            // Convert RGB8 data into RGBA32 data.
-            rgb8_to_rgba32_in_place(&self.board8_without_cursor, &mut self.board32);
-        }
-        // Overlay.
-        overlay_rgba32(buffer.buffer, &mut self.board32, &buffer.rect);
     }
 
     pub fn blit_cursor(&mut self, buffer: &[Vec4], rect: &Option<ClippedRect>) -> &[u8] {

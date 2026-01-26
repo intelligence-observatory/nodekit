@@ -19,8 +19,7 @@ use nodekit_rs_visual::{
 use pyo3::pyclass;
 use std::sync::Arc;
 pub use text_buffers::TextBuffers;
-pub use text_entry::TextEntryBuffers;
-use text_entry::*;
+pub use text_entry::TextEntry;
 
 #[pyclass]
 pub struct TextEngine {
@@ -68,39 +67,34 @@ impl TextEngine {
 
     pub fn render_text_entry(
         &mut self,
-        text_entry: &TextEntry,
+        text_entry: &nodekit_rs_models::card::TextEntry,
         region: &Region,
-    ) -> Result<Option<TextEntryBuffers>, Error> {
-        match UnclippedRect::new(region).into_clipped_rect(BOARD_SIZE) {
-            None => Ok(None),
-            Some(background_rect) => {
-                // Get the font sizes.
-                let font_size = FontSize::new(text_entry.font_size as u16);
+    ) -> Result<Option<TextEntry>, Error> {
+        // Get the font sizes.
+        let font_size = FontSize::new(text_entry.font_size as u16);
 
-                // Render text.
-                match text_rect(&background_rect) {
-                    None => Ok(None),
-                    Some(rect) => {
-                        // Create a text card.
-                        let (text, text_color) = if text_entry.text.is_empty() {
-                            (text_entry.prompt.clone(), "#DCDCDCFF")
-                        } else {
-                            (text_entry.text.clone(), "#000000FF")
-                        };
-                        let text_card = TextCard {
-                            text,
-                            font_size: text_entry.font_size,
-                            justification_vertical: JustificationVertical::Top,
-                            justification_horizontal: JustificationHorizontal::Left,
-                            text_color: text_color.to_string(),
-                            background_color: "#00000000".to_string(),
-                        };
-                        // Render.
-                        let text = self.get_text(&text_card, font_size, rect)?;
-                        Ok(Some(TextEntryBuffers::new(text, background_rect)))
-                    }
-                }
+        match TextEntry::new(region)? {
+            Some(mut text_entry_buffers) => {
+                // Create a text card.
+                let (text, text_color) = if text_entry.text.is_empty() {
+                    (text_entry.prompt.clone(), "#DCDCDCFF")
+                } else {
+                    (text_entry.text.clone(), "#000000FF")
+                };
+                let text_card = TextCard {
+                    text,
+                    font_size: text_entry.font_size,
+                    justification_vertical: JustificationVertical::Top,
+                    justification_horizontal: JustificationHorizontal::Left,
+                    text_color: text_color.to_string(),
+                    background_color: "#00000000".to_string(),
+                };
+                // Render.
+                text_entry_buffers.text =
+                    self.get_text(&text_card, font_size, text_entry_buffers.background.rect)?;
+                Ok(Some(text_entry_buffers))
             }
+            None => Ok(None),
         }
     }
 
@@ -331,7 +325,7 @@ mod tests {
 
     #[test]
     fn test_text_entry_render() {
-        let card = TextEntry {
+        let card = nodekit_rs_models::card::TextEntry {
             prompt: String::default(),
             text: include_str!("../lorem.txt").to_string(),
             font_size: 20,
@@ -346,7 +340,7 @@ mod tests {
         // Write the result as a .png file.
         nodekit_rs_png::board_to_png("text_entry.png", board.get_board_without_cursor());
 
-        let card = TextEntry {
+        let card = nodekit_rs_models::card::TextEntry {
             prompt: "This is a prompt".to_string(),
             text: String::default(),
             font_size: 20,

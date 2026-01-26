@@ -255,9 +255,9 @@ dependencies = [
 
 [[package]]
 name = "blittle"
-version = "0.4.1"
+version = "0.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a8b5787aac3a6d0f336abd5bb97e59a2bef2c085eb069dc4f43c8ccd33b6e510"
+checksum = "219eaac166243fc5a5884a6b6aa6275e052be4f5d6ad3ccc9fb2cc12607b727f"
 dependencies = [
  "bytemuck",
  "glam",
@@ -920,6 +920,18 @@ dependencies = [
  "image",
  "num-traits",
  "rayon",
+ "thiserror 2.0.17",
+]
+
+[[package]]
+name = "fast_image_resize"
+version = "6.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "12dd43e5011e8d8411a3215a0d57a2ec5c68282fb90eb5d7221fab0113442174"
+dependencies = [
+ "cfg-if",
+ "document-features",
+ "num-traits",
  "thiserror 2.0.17",
 ]
 
@@ -1891,6 +1903,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "650eef8c711430f1a879fdd01d4745a7deea475becfb90269c06775983bbf086"
 
 [[package]]
+name = "nine-slice"
+version = "0.1.0"
+dependencies = [
+ "blittle",
+ "fast_image_resize 6.0.0",
+ "thiserror 2.0.17",
+]
+
+[[package]]
 name = "nodekit-rs"
 version = "0.1.0"
 dependencies = [
@@ -1989,6 +2010,7 @@ dependencies = [
  "hex_color",
  "lazy_static",
  "markdown",
+ "nine-slice",
  "nodekit-rs-models",
  "nodekit-rs-png",
  "nodekit-rs-visual",
@@ -2018,7 +2040,7 @@ dependencies = [
  "blittle",
  "bytemuck",
  "criterion",
- "fast_image_resize",
+ "fast_image_resize 5.6.0",
  "hex_color",
  "nodekit-rs-models",
  "nodekit-rs-png",

@@ -21,4 +21,8 @@ pub enum Error {
     BackgroundColor(nodekit_rs_visual::Error),
     #[error("Failed to parse text color: {0}")]
     TextColor(nodekit_rs_visual::Error),
+    #[error("Failed to load text entry background: {0}")]
+    TextEntryBackground(nine_slice::fast_image_resize::ImageBufferError),
+    #[error("Nine-slice error: {0}")]
+    TextEntryNineSlice(nine_slice::Error),
 }

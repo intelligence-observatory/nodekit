@@ -184,10 +184,11 @@ impl State {
     pub fn set_text_entry(&mut self, text: String) -> PyResult<()> {
         match self.sensor.as_mut() {
             Some(sensor) => {
-                if let Sensor::TextEntry(text_entry) = sensor
-                    && let CardType::TextEntry(text_entry) = &mut self.cards[*text_entry].card_type
+                if let Sensor::TextEntry(card_key) = sensor
+                    && let CardType::TextEntry(text_entry) = &mut self.cards[*card_key].card_type
                 {
                     text_entry.text = text;
+                    self.cards[*card_key].dirty = true;
                     Ok(())
                 } else {
                     Err(PyValueError::new_err("Failed to find a TextEntrySensor."))

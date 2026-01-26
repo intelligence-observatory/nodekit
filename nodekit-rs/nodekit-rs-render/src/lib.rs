@@ -286,7 +286,13 @@ impl Renderer {
                     .map_err(Error::Video)?
                     .map(Asset::Video))
             }
-            CardType::TextEntry(_) => todo!("Text entry not yet implemented."),
+            CardType::TextEntry(text_entry) => {
+                match self.text_engine.render_text_entry(text_entry, &card.region) {
+                    Ok(text_entry) => Ok(text_entry.map(Asset::TextEntry)),
+                    Err(error) => Err(Error::Text(error)),
+                }
+            }
+
             CardType::Slider(_) => todo!("Slider not yet implemented."),
         }
     }
@@ -328,14 +334,13 @@ impl Renderer {
 
     fn cache_text_entry(&mut self, card_key: CardKey, state: &State) -> Result<(), Error> {
         if let CardType::TextEntry(text_entry) = &state.cards[card_key].card_type
-            && let Some(buffers) = self
+            && let Some(text_entry) = self
                 .text_engine
                 .render_text_entry(text_entry, &state.cards[card_key].region)
                 .map_err(Error::Text)?
         {
             // Add the asset.
-            self.assets
-                .insert(card_key, Asset::TextEntry(Box::new(buffers)));
+            self.assets.insert(card_key, Asset::TextEntry(text_entry));
         }
         Ok(())
     }
@@ -376,12 +381,7 @@ impl Renderer {
     fn erase(&mut self, card_keys: &[CardKey]) {
         card_keys
             .iter()
-            .filter_map(|card_key| match &self.assets[*card_key] {
-                Asset::Image(buffer) => Some(buffer.rect()),
-                Asset::Text(text_buffers) => text_buffers.rect(),
-                Asset::Video(video) => Some(video.rgb_buffer.rect),
-                Asset::TextEntry(text_buffers) => Some(text_buffers.rect),
-            })
+            .filter_map(|card_key| self.assets[*card_key].rect())
             .for_each(|rect| self.board.erase(&rect));
     }
 }
