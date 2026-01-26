@@ -1,5 +1,5 @@
 use crate::Error;
-use nine_slice::fast_image_resize::PixelType;
+use nine_slice::fast_image_resize::{PixelType, ResizeAlg};
 use nine_slice::{BorderOffsets, BorderScaling, NineSlicedSprite};
 use nodekit_rs_models::Region;
 use nodekit_rs_models::board::BOARD_SIZE;
@@ -33,6 +33,7 @@ impl TextEntry {
                 .map_err(Error::TextEntryBackground)?;
                 let mut nine_sliced = NineSlicedSprite::new(image, BORDERS, BorderScaling::Stretch)
                     .map_err(Error::TextEntryNineSlice)?;
+                nine_sliced.set_resize_algorithm(ResizeAlg::Nearest);
                 let image = nine_sliced
                     .resize(rect.src_size.w as u32, rect.src_size.h as u32)
                     .map_err(Error::TextEntryNineSlice)?;

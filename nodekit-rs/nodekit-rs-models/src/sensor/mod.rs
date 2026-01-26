@@ -30,10 +30,10 @@ impl Sensor {
     ) -> PyResult<Option<Self>> {
         let sensor_type = obj.getattr("sensor_type")?;
         match sensor_type.cast::<PyString>()?.to_str()? {
-            "MultiSelectSensor" => Ok(Self::extract_multi_select(obj, cards).ok()),
-            "SelectSensor" => Ok(Self::extract_select(obj, cards).ok()),
-            "SliderSensor" => Ok(Self::extract_slider(obj, cards).ok()),
-            "TextEntrySensor" => Ok(Self::extract_text_entry(obj, cards).ok()),
+            "MultiSelectSensor" => Ok(Some(Self::extract_multi_select(obj, cards)?)),
+            "SelectSensor" => Ok(Some(Self::extract_select(obj, cards)?)),
+            "SliderSensor" => Ok(Some(Self::extract_slider(obj, cards)?)),
+            "TextEntrySensor" => Ok(Some(Self::extract_text_entry(obj, cards)?)),
             _ => Ok(None),
         }
     }
@@ -119,7 +119,7 @@ impl Sensor {
     ) -> PyResult<Self> {
         let prompt = sensor.getattr("prompt")?.extract::<String>()?;
         let font_size = sensor.getattr("font_size")?.extract::<i64>()?;
-        let region = Region::extract(sensor)?;
+        let region = Region::extract(sensor.getattr("region")?.as_borrowed())?;
         let card = Card {
             card_type: CardType::TextEntry(TextEntry {
                 prompt,

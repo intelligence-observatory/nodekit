@@ -149,6 +149,19 @@ impl Renderer {
             self.erase(&dirty_cards);
             // Re-render dirty assets.
             for card_key in dirty_cards {
+                // Set text entry text.
+                if let CardType::TextEntry(card) = &state.cards[card_key].card_type
+                    && let Asset::TextEntry(asset) = &mut self.assets[card_key]
+                {
+                    if let Some(text_entry) = self
+                        .text_engine
+                        .render_text_entry(card, &state.cards[card_key].region)
+                        .map_err(Error::Text)?
+                    {
+                        *asset = text_entry;
+                    }
+                }
+
                 // Render.
                 render_asset!(self, &mut self.assets[card_key], state);
 
