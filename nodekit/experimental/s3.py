@@ -1,33 +1,27 @@
-import pydantic
+import mimetypes
+import os
+from pathlib import Path
+from urllib.parse import quote
 
 import boto3
 import botocore.client
 import botocore.exceptions
-from typing import BinaryIO
-import hashlib
-import mimetypes
-
-from nodekit._internal.types.values import SHA256, MediaType
-import os
-from pathlib import Path
-
-from urllib.parse import quote
+import pydantic
 
 
 # %%
-class UploadAssetResult(pydantic.BaseModel):
-    sha256: SHA256
-    mime_type: MediaType
-    asset_url: pydantic.HttpUrl
+class S3Config(pydantic.BaseModel):
+    """
+    Used to validate and store S3 client configuration.
+    """
+
+    bucket_name: str
+    region_name: str
+    aws_access_key_id: str
+    aws_secret_access_key: pydantic.SecretStr
 
 
 class S3Client:
-    class Config(pydantic.BaseModel):
-        bucket_name: str
-        region_name: str
-        aws_access_key_id: str
-        aws_secret_access_key: pydantic.SecretStr
-
     def __init__(
         self,
         bucket_name: str,
@@ -35,7 +29,7 @@ class S3Client:
         aws_access_key_id: str,
         aws_secret_access_key: str,
     ):
-        self.config = self.Config(
+        self.config = S3Config(
             bucket_name=bucket_name,
             region_name=region_name,
             aws_access_key_id=aws_access_key_id,
@@ -47,110 +41,93 @@ class S3Client:
             aws_access_key_id=self.config.aws_access_key_id,
             aws_secret_access_key=self.config.aws_secret_access_key.get_secret_value(),
         )
+        self._client.head_bucket(Bucket=self.config.bucket_name)
 
-    @staticmethod
-    def _derive_s3_key(
-        sha256: SHA256,
-        mime_type: MediaType,
-    ) -> str:
-        ext = mimetypes.guess_extension(mime_type)
-        if ext is None:
-            raise ValueError(f"Could not determine file extension for mime type {mime_type}")
-        return f"assets/{mime_type}/{sha256}{ext}"
-
-    def _assemble_s3_url(self, key: str) -> pydantic.HttpUrl:
-        url = f"https://{self.config.bucket_name}.s3.{self.config.region_name}.amazonaws.com/{key}"
-        return pydantic.HttpUrl(url)
-
-    def maybe_resolve_asset(
+    def sync_directory(
         self,
-        sha256: SHA256,
-        mime_type: MediaType,
-    ) -> UploadAssetResult | None:
-        # Derive S3 key
-        key = self._derive_s3_key(sha256=sha256, mime_type=mime_type)
-
-        # Check if it exists
-        try:
-            self._client.head_object(Bucket=self.config.bucket_name, Key=key)
-        except botocore.exceptions.ClientError as e:
-            if e.response["Error"]["Code"] == "404":
-                return None
-            else:
-                raise RuntimeError(
-                    f"S3 head_object failed: {e.response.get('Error', {}).get('Message', str(e))}"
-                ) from e
-
-        # Return resolved asset ref
-        return UploadAssetResult(
-            mime_type=mime_type,
-            sha256=sha256,
-            asset_url=self._assemble_s3_url(key),
-        )
-
-    def upload_asset(
-        self,
-        claimed_sha256: SHA256,
-        file: BinaryIO,
-        mime_type: MediaType,
-    ) -> UploadAssetResult:
+        local_root: os.PathLike | str,
+        bucket_root: os.PathLike | str,
+        manifest: list[os.PathLike | str],
+        verbose: bool = True,
+    ) -> dict[str, str]:
         """
-        Stream `file` directly to S3 with the given MIME type, and returns it public link.
+        Synchronize a manifest of files to a directory in the S3 bucket.
+
+        Args:
+            local_root: The path to the local directory that contains the manifest entries.
+            bucket_root: The path to the directory in the S3 bucket. For example, if 'foo/' is given, the contents
+                referenced in the manifest will be uploaded under the `foo/` prefix in the bucket.
+            manifest: A list of file paths relative to `local_root` to upload.
+            verbose: If True, print progress messages.
+        Returns:
+            A dictionary mapping local file paths (relative to local_root) to their corresponding S3 URLs.
+
         """
-        # ---- derive a safe S3 key
-        ext = mimetypes.guess_extension(mime_type)
-        if ext is None:
-            raise ValueError(f"Could not determine file extension for mime type {mime_type}")
+        local_root = Path(local_root)
+        if not local_root.is_dir():
+            raise ValueError(f"Local root does not exist or is not a directory: {local_root}")
 
-        # First I/O pass: compute SHA256
-        try:
-            file.seek(0)
-        except Exception:
-            pass
+        bucket_prefix = str(bucket_root).strip("/")
+        endpoint = self._client.meta.endpoint_url.rstrip("/")
+        is_aws = "amazonaws.com" in endpoint
 
-        sha256 = hashlib.sha256()
-        try:
-            file.seek(0)
-        except Exception:
-            pass
-        while True:
-            chunk = file.read(8192)  # 8 MB
-            if not chunk:
-                break
-            sha256.update(chunk)
-        sha256 = sha256.hexdigest()
+        def key_to_url(key: str) -> str:
+            encoded_key = quote(key, safe="/")
+            if is_aws:
+                return f"https://{self.config.bucket_name}.s3.{self.config.region_name}.amazonaws.com/{encoded_key}"
+            return f"{endpoint}/{self.config.bucket_name}/{encoded_key}"
 
-        if not claimed_sha256 == sha256:
-            raise ValueError(f"SHA256 mismatch: claimed {claimed_sha256}, computed {sha256}")
+        files: list[tuple[Path, str, int, str, str]] = []
+        for rel_path in manifest:
+            rel = Path(rel_path)
+            if rel.is_absolute():
+                raise ValueError(f"Manifest path must be relative: {rel}")
+            if ".." in rel.parts:
+                raise ValueError(f"Manifest path must not contain '..': {rel}")
+            abs_path = local_root / rel
+            if not abs_path.is_file() or abs_path.is_symlink():
+                raise ValueError(f"Manifest path is not a regular file: {abs_path}")
+            rel_str = rel.as_posix()
+            key = f"{bucket_prefix}/{rel_str}" if bucket_prefix else rel_str
+            size = abs_path.stat().st_size
+            prefix = f"{key.rsplit('/', 1)[0]}/" if "/" in key else ""
+            files.append((abs_path, key, size, prefix, rel_str))
 
-        # Return immediately if already uploaded:
-        key = self._derive_s3_key(sha256=sha256, mime_type=mime_type)
-        asset_url = self._assemble_s3_url(key)
-
-        # Second I/O pass: upload to S3
-        file.seek(0)
-
-        try:
-            self._client.upload_fileobj(
-                Fileobj=file,
+        prefixes = {p for _, _, _, p, _ in files if p}
+        remote_sizes: dict[str, int] = {}
+        paginator = self._client.get_paginator("list_objects_v2")
+        for prefix in prefixes:
+            for page in paginator.paginate(
                 Bucket=self.config.bucket_name,
-                Key=key,
-                ExtraArgs={
-                    "ContentType": str(mime_type),
-                    "ACL": "public-read",
-                },
-            )
-        except botocore.exceptions.ClientError as e:
-            raise RuntimeError(
-                f"S3 upload failed: {e.response.get('Error', {}).get('Message', str(e))}"
-            ) from e
+                Prefix=prefix,
+            ):
+                for obj in page.get("Contents", []):
+                    remote_sizes[obj["Key"]] = obj["Size"]
 
-        # Package return model
-        return UploadAssetResult(
-            sha256=sha256,
-            asset_url=asset_url,
-            mime_type=mime_type,
-        )
+        uploaded: dict[str, str] = {}
+        for path, key, size, _, rel_str in files:
+            url = key_to_url(key)
+            if remote_sizes.get(key) == size:
+                uploaded[rel_str] = url
+                continue
+
+            mime, _ = mimetypes.guess_type(path.name)
+            extra = {
+                "ContentType": mime or "application/octet-stream",
+                "ACL": "public-read",
+            }
+            with path.open("rb") as f:
+                self._client.upload_fileobj(  # type: ignore
+                    Fileobj=f,
+                    Bucket=self.config.bucket_name,
+                    Key=key,
+                    ExtraArgs=extra,
+                )
+            if verbose:
+                print(f"Uploaded {path.name} to S3")
+            uploaded[rel_str] = url
+
+        return uploaded
 
     def sync_file(
         self,
@@ -187,7 +164,7 @@ class S3Client:
 
         # Skip if already present with same size (unless force)
         try:
-            head = self._client.head_object(Bucket=self.config.bucket_name, Key=key)
+            head = self._client.head_object(Bucket=self.config.bucket_name, Key=key)  # type: ignore
             if head.get("ContentLength") == p.stat().st_size and not force:
                 return url
         except self._client.exceptions.ClientError as e:
@@ -201,7 +178,7 @@ class S3Client:
             "ACL": "public-read",
         }
         with p.open("rb") as f:
-            self._client.upload_fileobj(
+            self._client.upload_fileobj(  # type: ignore
                 Fileobj=f,
                 Bucket=self.config.bucket_name,
                 Key=key,

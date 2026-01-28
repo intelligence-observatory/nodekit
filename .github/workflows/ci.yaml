@@ -8,6 +8,7 @@ on:
       - .github/workflows/ci.yaml
       - pyproject.toml
       - Makefile
+      - uv.lock
 jobs:
   NodeKit-CI:
     runs-on: ubuntu-latest

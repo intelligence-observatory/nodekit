@@ -4,7 +4,7 @@ build-backend = "uv_build"
 
 [project]
 name = "nodekit"
-version = "0.2.3"
+version = "0.2.4"
 authors = [
     { name = "Michael J. Lee", email = "mil@mit.edu" }
 ]
@@ -43,9 +43,7 @@ module-name = "nodekit"
 module-root = ""
 
 [tool.ty.src]
-exclude = [
-    "nodekit/experimental"
-]
+exclude = []
 
 [tool.ruff]
 line-length = 100
