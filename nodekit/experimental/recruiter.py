@@ -216,7 +216,7 @@ class MechanicalTurkRecruiter:
         if not hit_savepath.exists():
             raise ValueError(f"HIT ID {hit_id} not found in local cache at {hit_savepath}")
         hit_json = hit_savepath.read_text()
-        hit = HIT.model_validate_json(hit_json)
+        HIT.model_validate_json(hit_json)
 
         hit = self.mturk_client.get_hit(hit_id=hit_id)
 
