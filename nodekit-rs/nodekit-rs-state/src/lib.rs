@@ -197,4 +197,26 @@ impl State {
             None => Self::invalid_sensor(),
         }
     }
+
+    /// Set the state of a SliderSensor.
+    ///
+    /// - `bin` sets which bin the thumb overlay's position will snap to.
+    /// - `committed` determines the color of the thumb overlay, and corresponds to whether the agent has moved the thumb overlay yet.
+    pub fn set_slider(&mut self, bin: usize, committed: bool) -> PyResult<()> {
+        match self.sensor.as_mut() {
+            Some(sensor) => {
+                if let Sensor::Slider(card_key) = sensor
+                    && let CardType::Slider(slider) = &mut self.cards[*card_key].card_type
+                {
+                    slider.committed = committed;
+                    slider.bin = bin;
+                    self.cards[*card_key].dirty = true;
+                    Ok(())
+                } else {
+                    Err(PyValueError::new_err("Failed to find a SliderSensor."))
+                }
+            }
+            None => Self::invalid_sensor(),
+        }
+    }
 }

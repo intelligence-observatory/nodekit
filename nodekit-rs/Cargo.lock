@@ -2001,8 +2001,10 @@ name = "nodekit-rs-slider"
 version = "0.1.0"
 dependencies = [
  "blittle",
+ "nine-slice",
  "nodekit-rs-models",
  "nodekit-rs-visual",
+ "thiserror 2.0.17",
 ]
 
 [[package]]

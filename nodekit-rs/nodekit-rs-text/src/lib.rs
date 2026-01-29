@@ -260,7 +260,7 @@ impl TextEngine {
 
     /// Colorize the source bitmap of a text card background.
     fn get_colorized(color: RgbaColor) -> Vec<u8> {
-        let background = include_bytes!("../../backgrounds/8x8.raw");
+        let background = include_bytes!("../backgrounds/text.raw");
         let mut buffer = vec![0; background.len() * 4];
         let pixels = cast_slice_mut::<u8, [u8; 4]>(&mut buffer);
         let a = color[3] as f32 / 255.;

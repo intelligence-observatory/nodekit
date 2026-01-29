@@ -3,7 +3,7 @@ mod hover;
 mod select;
 
 use crate::Region;
-use crate::card::{Card, CardKey, CardType, Slider, SliderOrientation, TextEntry, ThumbState};
+use crate::card::{Card, CardKey, CardType, Slider, SliderOrientation, TextEntry};
 use hashbrown::{HashMap, HashSet};
 pub use hover::Hover;
 use pyo3::exceptions::PyValueError;
@@ -105,7 +105,7 @@ impl Sensor {
                 bin: bin_index,
                 show_bin_markers,
                 orientation,
-                thumb_state: ThumbState::Uncommitted
+                committed: false,
             }),
             region,
             dirty: false,
