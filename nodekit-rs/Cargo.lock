@@ -928,9 +928,9 @@ dependencies = [
 
 [[package]]
 name = "fast_image_resize"
-version = "5.6.0"
+version = "6.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6b6e793dfd0ee192d1999c655797ecc956c82d1f6d367be20bf6b81d6a1c87ac"
+checksum = "12dd43e5011e8d8411a3215a0d57a2ec5c68282fb90eb5d7221fab0113442174"
 dependencies = [
  "bytemuck",
  "cfg-if",
@@ -938,18 +938,6 @@ dependencies = [
  "image",
  "num-traits",
  "rayon",
- "thiserror 2.0.17",
-]
-
-[[package]]
-name = "fast_image_resize"
-version = "6.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "12dd43e5011e8d8411a3215a0d57a2ec5c68282fb90eb5d7221fab0113442174"
-dependencies = [
- "cfg-if",
- "document-features",
- "num-traits",
  "thiserror 2.0.17",
 ]
 
@@ -1927,7 +1915,7 @@ dependencies = [
  "blittle",
  "bytemuck",
  "embed-doc-image",
- "fast_image_resize 6.0.0",
+ "fast_image_resize",
  "thiserror 2.0.17",
 ]
 
@@ -2009,6 +1997,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "nodekit-rs-slider"
+version = "0.1.0"
+dependencies = [
+ "blittle",
+ "nodekit-rs-models",
+ "nodekit-rs-visual",
+]
+
+[[package]]
 name = "nodekit-rs-state"
 version = "0.1.0"
 dependencies = [
@@ -2060,7 +2057,7 @@ dependencies = [
  "blittle",
  "bytemuck",
  "criterion",
- "fast_image_resize 5.6.0",
+ "fast_image_resize",
  "hex_color",
  "nodekit-rs-models",
  "nodekit-rs-png",
