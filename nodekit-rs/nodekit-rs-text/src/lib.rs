@@ -1,10 +1,12 @@
 mod error;
 mod md;
-mod text_buffers;
+mod text;
 mod text_entry;
 
 use crate::md::LINE_HEIGHT;
+use blittle::overlay::rgba8_to_rgba32;
 use blittle::{ClippedRect, PositionI};
+use bytemuck::cast_slice_mut;
 use cosmic_text::fontdb::Source;
 use cosmic_text::{
     Align, Attrs, Buffer, Color, Family, FontSystem, Metrics, PlatformFallback, Shaping,
@@ -12,13 +14,13 @@ use cosmic_text::{
 };
 pub use error::Error;
 use md::{FontSize, parse};
+use nine_slice::NineSlicedSprite;
+use nine_slice::{BorderOffsets, BorderScaling, fast_image_resize};
 use nodekit_rs_models::{Region, board::*, card::*};
-use nodekit_rs_visual::{
-    RgbBuffer, RgbaBuffer, UnclippedRect, VisualBuffer, bitmap_rgb, parse_color_rgba,
-};
+use nodekit_rs_visual::{RgbaBuffer, UnclippedRect, parse_color_rgba};
 use pyo3::pyclass;
 use std::sync::Arc;
-pub use text_buffers::TextBuffers;
+pub use text::Text;
 pub use text_entry::TextEntry;
 
 #[pyclass]
@@ -32,7 +34,7 @@ impl TextEngine {
         &mut self,
         text_card: &TextCard,
         region: &Region,
-    ) -> Result<Option<TextBuffers>, Error> {
+    ) -> Result<Option<Text>, Error> {
         // Get the rect.
         match UnclippedRect::new(region).into_clipped_rect(BOARD_SIZE) {
             None => Ok(None),
@@ -49,18 +51,16 @@ impl TextEngine {
                 text_size.w -= font_usize * 2;
                 text_size.h -= font_usize * 2;
 
-                let mut text_buffers = TextBuffers {
-                    background,
-                    foreground: None,
-                };
-
                 // Get the text rect. Draw text.
-                if let Some(rect) =
-                    ClippedRect::new(background_rect.dst_position, BOARD_SIZE, text_size)
-                {
-                    text_buffers.foreground = self.get_text(text_card, font_size, rect)?;
-                }
-                Ok(Some(text_buffers))
+                let foreground =
+                    match ClippedRect::new(background_rect.dst_position, BOARD_SIZE, text_size) {
+                        Some(rect) => self.get_text(text_card, font_size, rect)?,
+                        None => None,
+                    };
+                Ok(Some(Text {
+                    background,
+                    foreground,
+                }))
             }
         }
     }
@@ -101,27 +101,37 @@ impl TextEngine {
     fn get_background(
         rect: ClippedRect,
         text_card: &TextCard,
-    ) -> Result<Option<VisualBuffer>, Error> {
+    ) -> Result<Option<RgbaBuffer>, Error> {
+        // Get the background color.
         let background_color =
             parse_color_rgba(&text_card.background_color).map_err(Error::BackgroundColor)?;
-        Ok(if background_color[3] == 0 {
-            None
-        } else if background_color[3] == 255 {
-            Some(VisualBuffer::Rgb(RgbBuffer::new(
-                bitmap_rgb(
-                    rect.src_size.w,
-                    rect.src_size.h,
-                    [
-                        background_color[0],
-                        background_color[1],
-                        background_color[2],
-                    ],
-                ),
-                rect,
-            )))
+        // Don't blit a background if it would be totally transparent.
+        if background_color[3] == 0 {
+            Ok(None)
         } else {
-            Some(VisualBuffer::Rgba(RgbaBuffer::new(rect, background_color)))
-        })
+            let text_background = Self::get_colorized(background_color);
+            let text_background = fast_image_resize::images::Image::from_vec_u8(
+                17,
+                17,
+                text_background,
+                fast_image_resize::PixelType::U8x4,
+            )
+            .map_err(Error::TextBackground)?;
+            let border_offsets = BorderOffsets {
+                left: 8,
+                top: 8,
+                right: 8,
+                bottom: 8,
+            };
+            let mut sprite =
+                NineSlicedSprite::new(text_background, border_offsets, BorderScaling::Stretch)
+                    .map_err(Error::NineSlice)?;
+            let text_background = sprite
+                .resize(rect.src_size.w as u32, rect.src_size.h as u32)
+                .map_err(Error::NineSlice)?;
+            let buffer = rgba8_to_rgba32(text_background.buffer());
+            Ok(Some(RgbaBuffer { buffer, rect }))
+        }
     }
 
     fn get_text(
@@ -247,10 +257,33 @@ impl TextEngine {
             JustificationHorizontal::Right => Align::Right,
         }
     }
+
+    /// Colorize the source bitmap of a text card background.
+    fn get_colorized(color: RgbaColor) -> Vec<u8> {
+        let background = include_bytes!("../backgrounds/text.raw");
+        let mut buffer = vec![0; background.len() * 4];
+        let pixels = cast_slice_mut::<u8, [u8; 4]>(&mut buffer);
+        let a = color[3] as f32 / 255.;
+        pixels
+            .iter_mut()
+            .zip(background)
+            .for_each(|(pixel, alpha)| {
+                pixel[0] = color[0];
+                pixel[1] = color[1];
+                pixel[2] = color[2];
+                pixel[3] = if color[3] == 255 {
+                    *alpha
+                } else {
+                    (a * (*alpha as f32 / 255.)) as u8
+                };
+            });
+        buffer
+    }
 }
 
 impl Default for TextEngine {
     fn default() -> Self {
+        // Load fonts.
         let locale = "en-US".to_string();
         let mut db = fontdb::Database::new();
         db.load_font_source(Source::Binary(Arc::new(include_bytes!(
@@ -270,6 +303,7 @@ impl Default for TextEngine {
         let font_system =
             FontSystem::new_with_locale_and_db_and_fallback(locale, db, PlatformFallback);
         let swash_cache = SwashCache::new();
+
         Self {
             font_system,
             swash_cache,
@@ -285,7 +319,13 @@ mod tests {
     #[test]
     fn test_text_card_render() {
         let card = lorem();
-        let region = Region::default();
+        let region = Region {
+            x: 0,
+            y: 0,
+            w: 900,
+            h: 900,
+            z_index: None,
+        };
 
         // Render the text.
         let mut text = TextEngine::default();

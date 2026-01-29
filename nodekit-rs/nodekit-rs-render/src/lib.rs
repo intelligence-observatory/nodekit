@@ -152,14 +152,12 @@ impl Renderer {
                 // Set text entry text.
                 if let CardType::TextEntry(card) = &state.cards[card_key].card_type
                     && let Asset::TextEntry(asset) = &mut self.assets[card_key]
-                {
-                    if let Some(text_entry) = self
+                    && let Some(text_entry) = self
                         .text_engine
                         .render_text_entry(card, &state.cards[card_key].region)
                         .map_err(Error::Text)?
-                    {
-                        *asset = text_entry;
-                    }
+                {
+                    *asset = text_entry;
                 }
 
                 // Render.

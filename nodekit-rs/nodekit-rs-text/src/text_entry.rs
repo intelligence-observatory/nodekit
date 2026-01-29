@@ -27,16 +27,16 @@ impl TextEntry {
                 let image = nine_slice::fast_image_resize::images::Image::from_vec_u8(
                     17,
                     40,
-                    include_bytes!("../text-entry/text-entry.raw").to_vec(),
+                    include_bytes!("../backgrounds/text-entry.raw").to_vec(),
                     PixelType::U8x3,
                 )
                 .map_err(Error::TextEntryBackground)?;
                 let mut nine_sliced = NineSlicedSprite::new(image, BORDERS, BorderScaling::Stretch)
-                    .map_err(Error::TextEntryNineSlice)?;
+                    .map_err(Error::NineSlice)?;
                 nine_sliced.set_resize_algorithm(ResizeAlg::Nearest);
                 let image = nine_sliced
                     .resize(rect.src_size.w as u32, rect.src_size.h as u32)
-                    .map_err(Error::TextEntryNineSlice)?;
+                    .map_err(Error::NineSlice)?;
                 let background = RgbBuffer::new(image.into_vec(), rect);
 
                 Ok(Some(Self {
