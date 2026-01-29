@@ -303,7 +303,6 @@ impl Renderer {
                     Err(error) => Err(Error::Text(error)),
                 }
             }
-
             CardType::Slider(_) => todo!("Slider not yet implemented."),
         }
     }
