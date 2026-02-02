@@ -29,6 +29,8 @@ pub struct Slider {
     thumb: Thumb,
     /// The rect defining the total area of the slider (track + thumb). Used for erasing.
     pub rect: ClippedRect,
+    bin: usize,
+    committed: bool,
 }
 
 impl Slider {
@@ -38,13 +40,24 @@ impl Slider {
     ) -> Result<Option<Self>, Error> {
         Ok(Self::get_track(region, slider)?.map(|(track, rect)| {
             let thumb = Thumb::new(region, slider.num_bins, &slider.orientation);
-            Self { track, thumb, rect }
+            Self {
+                track,
+                thumb,
+                rect,
+                bin: slider.bin,
+                committed: slider.committed,
+            }
         }))
     }
 
-    pub fn blit(&self, slider: &nodekit_rs_models::card::Slider, board: &mut Board) {
+    pub fn update(&mut self, slider: &nodekit_rs_models::card::Slider) {
+        self.bin = slider.bin;
+        self.committed = slider.committed;
+    }
+
+    pub fn blit(&self, board: &mut Board) {
         board.overlay_rgba(&self.track);
-        self.thumb.overlay(slider.bin, slider.committed, board);
+        self.thumb.overlay(self.bin, self.committed, board);
     }
 
     fn get_track(
@@ -153,20 +166,20 @@ mod tests {
             z_index: None,
         };
         let slider = Slider::new(&region, &slider_card).unwrap().unwrap();
-        slider.blit(&slider_card, &mut board);
+        slider.blit(&mut board);
 
         // Committed, one tick.
         slider_card.committed = true;
         slider_card.bin = 1;
         region.y = 200;
         let slider = Slider::new(&region, &slider_card).unwrap().unwrap();
-        slider.blit(&slider_card, &mut board);
+        slider.blit(&mut board);
 
         // Final tick.
         slider_card.bin = 5;
         region.y = 100;
         let slider = Slider::new(&region, &slider_card).unwrap().unwrap();
-        slider.blit(&slider_card, &mut board);
+        slider.blit(&mut board);
 
         // Vertical.
         slider_card.orientation = SliderOrientation::Vertical;
@@ -177,27 +190,27 @@ mod tests {
         region.w = 90;
         region.h = 300;
         let slider = Slider::new(&region, &slider_card).unwrap().unwrap();
-        slider.blit(&slider_card, &mut board);
+        slider.blit(&mut board);
 
         // Committed, one tick.
         slider_card.committed = true;
         slider_card.bin = 1;
         region.x = -200;
         let slider = Slider::new(&region, &slider_card).unwrap().unwrap();
-        slider.blit(&slider_card, &mut board);
+        slider.blit(&mut board);
 
         // Final tick.
         slider_card.bin = 5;
         region.x = 0;
         let slider = Slider::new(&region, &slider_card).unwrap().unwrap();
-        slider.blit(&slider_card, &mut board);
+        slider.blit(&mut board);
 
         // One bin.
         slider_card.num_bins = 2;
         slider_card.bin = 0;
         region.x = 200;
         let slider = Slider::new(&region, &slider_card).unwrap().unwrap();
-        slider.blit(&slider_card, &mut board);
+        slider.blit(&mut board);
 
         nodekit_rs_png::board_to_png("0.png", board.get_board_without_cursor());
     }

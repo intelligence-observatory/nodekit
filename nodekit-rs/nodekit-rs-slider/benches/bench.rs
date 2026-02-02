@@ -25,7 +25,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     // Render the text.
     c.bench_function("slider rendering", |b| {
         b.iter(|| {
-            slider.blit(&slider_card, &mut board);
+            slider.blit(&mut board);
         })
     });
 }

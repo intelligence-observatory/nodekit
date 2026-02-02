@@ -26,6 +26,9 @@ macro_rules! render_asset {
             Asset::Image(image) => {
                 $self.board.blit(image);
             }
+            Asset::Slider(slider) => {
+                slider.blit(&mut $self.board);
+            }
             Asset::Text(text) => {
                 text.blit(&mut $self.board);
             }
@@ -149,15 +152,23 @@ impl Renderer {
             self.erase(&dirty_cards);
             // Re-render dirty assets.
             for card_key in dirty_cards {
-                // Set text entry text.
-                if let CardType::TextEntry(card) = &state.cards[card_key].card_type
-                    && let Asset::TextEntry(asset) = &mut self.assets[card_key]
-                    && let Some(text_entry) = self
-                        .text_engine
-                        .render_text_entry(card, &state.cards[card_key].region)
-                        .map_err(Error::Text)?
-                {
-                    *asset = text_entry;
+                // Update sensors.
+                match (&state.cards[card_key].card_type, &mut self.assets[card_key]) {
+                    (CardType::TextEntry(card), Asset::TextEntry(asset)) => {
+                        // Set text entry text.
+                        if let Some(text_entry) = self
+                            .text_engine
+                            .render_text_entry(card, &state.cards[card_key].region)
+                            .map_err(Error::Text)?
+                        {
+                            *asset = text_entry;
+                        }
+                    }
+                    (CardType::Slider(card), Asset::Slider(asset)) => {
+                        // Update the slider state from the card.
+                        asset.update(card);
+                    }
+                    _ => (),
                 }
 
                 // Render.
@@ -303,7 +314,12 @@ impl Renderer {
                     Err(error) => Err(Error::Text(error)),
                 }
             }
-            CardType::Slider(_) => todo!("Slider not yet implemented."),
+            CardType::Slider(slider) => {
+                match nodekit_rs_slider::Slider::new(&card.region, slider) {
+                    Ok(slider) => Ok(slider.map(Asset::Slider)),
+                    Err(error) => Err(Error::Slider(error)),
+                }
+            }
         }
     }
 
@@ -324,8 +340,8 @@ impl Renderer {
     fn cache_sensor(&mut self, state: &State) -> Result<(), Error> {
         match state.sensor.as_ref() {
             Some(sensor) => match sensor {
-                // Cache a TextEntry asset.
-                Sensor::TextEntry(card_key) => self.cache_text_entry(*card_key, state),
+                // Ignore these because they are cached as cards.
+                Sensor::TextEntry(_) | Sensor::Slider(_) => Ok(()),
                 // Cache overlays per hoverable card.
                 Sensor::Hover(hover) => {
                     self.cache_hover_sensor(hover, false);
@@ -336,23 +352,9 @@ impl Renderer {
                     self.cache_hover_sensor(&select.hover, true);
                     Ok(())
                 }
-                Sensor::Slider(_) => todo!("Slider asset caching not yet implemented."),
             },
             None => Ok(()),
         }
-    }
-
-    fn cache_text_entry(&mut self, card_key: CardKey, state: &State) -> Result<(), Error> {
-        if let CardType::TextEntry(text_entry) = &state.cards[card_key].card_type
-            && let Some(text_entry) = self
-                .text_engine
-                .render_text_entry(text_entry, &state.cards[card_key].region)
-                .map_err(Error::Text)?
-        {
-            // Add the asset.
-            self.assets.insert(card_key, Asset::TextEntry(text_entry));
-        }
-        Ok(())
     }
 
     fn cache_hover_sensor(&mut self, hover: &nodekit_rs_models::sensor::Hover, selectable: bool) {
@@ -401,6 +403,7 @@ mod tests {
     use super::*;
     use hashbrown::{HashMap, HashSet};
     use nodekit_rs_models::Region;
+    use nodekit_rs_models::card::SliderOrientation;
     use nodekit_rs_models::sensor::{Hover, Select};
     use slotmap::SlotMap;
     use std::path::PathBuf;
@@ -433,7 +436,7 @@ mod tests {
     }
 
     #[test]
-    fn test_sensor() {
+    fn test_select_render() {
         let mut cards = SlotMap::with_capacity_and_key(3);
         let mut image = image_card();
         image.dirty = true;
@@ -455,7 +458,39 @@ mod tests {
         });
         let mut state = State::new_inner("#AAAAAAFF".to_string(), cards, Some(sensor));
         let mut renderer = Renderer::default();
-        render_image(&mut renderer, &mut state, 0, "sensor.png");
+        render_image(&mut renderer, &mut state, 0, "select.png");
+    }
+
+    #[test]
+    fn test_slider_render() {
+        let mut cards = SlotMap::with_capacity_and_key(3);
+        let mut image = image_card();
+        image.dirty = true;
+        cards.insert(image);
+        let mut video = video_card();
+        video.dirty = true;
+        cards.insert(video);
+        let slider = cards.insert(Card {
+            region: Region {
+                x: 0,
+                y: -400,
+                w: 900,
+                h: 90,
+                z_index: Some(100),
+            },
+            card_type: CardType::Slider(nodekit_rs_models::card::Slider {
+                orientation: SliderOrientation::Horizontal,
+                num_bins: 6,
+                bin: 3,
+                show_bin_markers: true,
+                committed: false,
+            }),
+            dirty: true,
+        });
+        let sensor = Sensor::Slider(slider);
+        let mut state = State::new_inner("#AAAAAAFF".to_string(), cards, Some(sensor));
+        let mut renderer = Renderer::default();
+        render_image(&mut renderer, &mut state, 0, "slider.png");
     }
 
     fn image_card() -> Card {
