@@ -8,6 +8,7 @@ blittle.workspace = true
 itertools.workspace = true
 nodekit-rs-models = { path = "../nodekit-rs-models" }
 nodekit-rs-image = { path = "../nodekit-rs-image" }
+nodekit-rs-slider = { path = "../nodekit-rs-slider" }
 nodekit-rs-state = { path = "../nodekit-rs-state" }
 nodekit-rs-text = { path = "../nodekit-rs-text" }
 nodekit-rs-video = { path = "../nodekit-rs-video" }

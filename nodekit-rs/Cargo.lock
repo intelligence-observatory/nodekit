@@ -1984,6 +1984,7 @@ dependencies = [
  "nodekit-rs-image",
  "nodekit-rs-models",
  "nodekit-rs-png",
+ "nodekit-rs-slider",
  "nodekit-rs-state",
  "nodekit-rs-text",
  "nodekit-rs-video",
