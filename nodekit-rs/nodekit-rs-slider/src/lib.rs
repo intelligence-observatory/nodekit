@@ -89,11 +89,15 @@ impl Slider {
     }
 
     fn draw_ticks(slider: &nodekit_rs_models::card::Slider, size: Size, buffer: &mut [Vec4]) {
-        match &slider.orientation {
-            SliderOrientation::Horizontal => {
-                Self::draw_ticks_horizontal(slider.num_bins, size, buffer)
+        if slider.num_bins > 2 {
+            match &slider.orientation {
+                SliderOrientation::Horizontal => {
+                    Self::draw_ticks_horizontal(slider.num_bins, size, buffer)
+                }
+                SliderOrientation::Vertical => {
+                    Self::draw_ticks_vertical(slider.num_bins, size, buffer)
+                }
             }
-            SliderOrientation::Vertical => Self::draw_ticks_vertical(slider.num_bins, size, buffer),
         }
     }
 
@@ -113,10 +117,9 @@ impl Slider {
     fn draw_ticks_vertical(num_bins: usize, size: Size, buffer: &mut [Vec4]) {
         let w = (size.w as f32 * 0.7) as usize;
         let x = (size.w as f32 * 0.15) as usize;
-        let num_ticks = num_bins - 2;
-        let dy = size.h / num_ticks;
+        let dy = size.h / (num_bins - 1);
         let tick = vec![TICK_COLOR; w];
-        for iy in 0..num_ticks {
+        for iy in 0..num_bins - 2 {
             let y = dy * (iy + 1);
             let i = x + y * size.w;
             buffer[i..i + w].copy_from_slice(&tick);
@@ -162,6 +165,37 @@ mod tests {
         // Final tick.
         slider_card.bin = 5;
         region.y = 100;
+        let slider = Slider::new(&region, &slider_card).unwrap().unwrap();
+        slider.blit(&slider_card, &mut board);
+
+        // Vertical.
+        slider_card.orientation = SliderOrientation::Vertical;
+        slider_card.bin = 0;
+        slider_card.committed = false;
+        region.x = -400;
+        region.y = -100;
+        region.w = 90;
+        region.h = 300;
+        let slider = Slider::new(&region, &slider_card).unwrap().unwrap();
+        slider.blit(&slider_card, &mut board);
+
+        // Committed, one tick.
+        slider_card.committed = true;
+        slider_card.bin = 1;
+        region.x = -200;
+        let slider = Slider::new(&region, &slider_card).unwrap().unwrap();
+        slider.blit(&slider_card, &mut board);
+
+        // Final tick.
+        slider_card.bin = 5;
+        region.x = 0;
+        let slider = Slider::new(&region, &slider_card).unwrap().unwrap();
+        slider.blit(&slider_card, &mut board);
+
+        // One bin.
+        slider_card.num_bins = 2;
+        slider_card.bin = 0;
+        region.x = 200;
         let slider = Slider::new(&region, &slider_card).unwrap().unwrap();
         slider.blit(&slider_card, &mut board);
 

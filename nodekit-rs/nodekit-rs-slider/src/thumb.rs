@@ -113,15 +113,22 @@ impl Thumb {
         size: Size,
     ) -> Vec<Option<ClippedRect>> {
         let region_rect = UnclippedRect::new(region);
-        let dy = (region_rect.size.h / num_bins - num_bins * size.h / 2).cast_signed();
-        (0..num_bins.cast_signed())
+        let num_bins = num_bins.cast_signed();
+        let dy = region_rect.size.h.cast_signed() / (num_bins - 1);
+        let h = size.h.cast_signed();
+        (0..num_bins)
             .map(|b| {
+                let mut y = region_rect.position.y + dy * b;
+                // Offset by the width of the thumb.
+                if b > 0 {
+                    y -= if b == num_bins - 1 { h } else { h / 2 };
+                }
                 ClippedRect::new(
                     PositionI {
                         x: region_rect.position.x,
-                        y: region_rect.position.x - region_rect.size.w.cast_signed() / 2 + dy * b,
+                        y,
                     },
-                    region_rect.size,
+                    BOARD_SIZE,
                     size,
                 )
             })
