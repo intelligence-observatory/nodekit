@@ -1,7 +1,9 @@
+use crate::get_index;
 use crate::thumb_color::{COMMITTED, UNCOMMITTED};
 use blittle::overlay::Vec4;
-use blittle::{ClippedRect, PositionI, Size, get_index};
+use blittle::{ClippedRect, PositionI, Size};
 use nodekit_rs_models::Region;
+use nodekit_rs_models::board::BOARD_SIZE;
 use nodekit_rs_models::card::SliderOrientation;
 use nodekit_rs_visual::{Board, UnclippedRect};
 
@@ -45,20 +47,20 @@ impl Thumb {
         let mut buffer = vec![color.fill; size.w * size.h];
         // Top-left.
         buffer[0] = color.far_corner;
-        buffer[get_index(0, 1, size.w, 4)] = color.near_corner;
-        buffer[get_index(1, 0, size.w, 4)] = color.near_corner;
+        buffer[get_index(0, 1, size.w)] = color.near_corner;
+        buffer[get_index(1, 0, size.w)] = color.near_corner;
         // Top-right.
-        buffer[get_index(size.w - 1, 0, size.w, 4)] = color.far_corner;
-        buffer[get_index(size.w - 2, 0, size.w, 4)] = color.near_corner;
-        buffer[get_index(size.w - 1, 1, size.w, 4)] = color.near_corner;
+        buffer[get_index(size.w - 1, 0, size.w)] = color.far_corner;
+        buffer[get_index(size.w - 2, 0, size.w)] = color.near_corner;
+        buffer[get_index(size.w - 1, 1, size.w)] = color.near_corner;
         // Bottom-right.
-        buffer[get_index(size.w - 1, size.h - 1, size.w, 4)] = color.far_corner;
-        buffer[get_index(size.w - 2, size.h - 1, size.w, 4)] = color.near_corner;
-        buffer[get_index(size.w - 1, size.h - 2, size.w, 4)] = color.near_corner;
+        buffer[get_index(size.w - 1, size.h - 1, size.w)] = color.far_corner;
+        buffer[get_index(size.w - 2, size.h - 1, size.w)] = color.near_corner;
+        buffer[get_index(size.w - 1, size.h - 2, size.w)] = color.near_corner;
         // Bottom-left.
-        buffer[get_index(0, size.h - 1, size.w, 4)] = color.far_corner;
-        buffer[get_index(0, size.h - 1, size.w, 4)] = color.near_corner;
-        buffer[get_index(1, size.h - 2, size.w, 4)] = color.near_corner;
+        buffer[get_index(0, size.h - 1, size.w)] = color.far_corner;
+        buffer[get_index(1, size.h - 1, size.w)] = color.near_corner;
+        buffer[get_index(0, size.h - 2, size.w)] = color.near_corner;
         buffer
     }
 
@@ -83,15 +85,22 @@ impl Thumb {
         size: Size,
     ) -> Vec<Option<ClippedRect>> {
         let region_rect = UnclippedRect::new(region);
-        let dx = (region_rect.size.w / num_bins - num_bins * size.w / 2).cast_signed();
-        (0..num_bins.cast_signed())
+        let num_bins = num_bins.cast_signed();
+        let dx = region_rect.size.w.cast_signed() / (num_bins - 1);
+        let w = size.w.cast_signed();
+        (0..num_bins)
             .map(|b| {
+                let mut x = region_rect.position.x + dx * b;
+                // Offset by the width of the thumb.
+                if b > 0 {
+                    x -= if b == num_bins - 1 { w } else { w / 2 };
+                }
                 ClippedRect::new(
                     PositionI {
-                        x: region_rect.position.x - region_rect.size.w.cast_signed() / 2 + dx * b,
+                        x,
                         y: region_rect.position.y,
                     },
-                    region_rect.size,
+                    BOARD_SIZE,
                     size,
                 )
             })

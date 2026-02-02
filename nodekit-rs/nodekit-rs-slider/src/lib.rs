@@ -100,12 +100,11 @@ impl Slider {
     fn draw_ticks_horizontal(num_bins: usize, size: Size, buffer: &mut [Vec4]) {
         let h = (size.h as f32 * 0.7) as usize;
         let y = (size.h as f32 * 0.15) as usize;
-        let num_ticks = num_bins - 2;
-        let dx = size.w / num_ticks;
-        for ix in 0..num_ticks {
-            let x = dx * ix + 1;
+        let dx = size.w / (num_bins - 1);
+        for ix in 0..num_bins - 2 {
+            let x = dx * (ix + 1);
             for y in y..y + h {
-                let i = x + y * size.w;
+                let i = get_index(x, y, size.w);
                 buffer[i] = TICK_COLOR;
             }
         }
@@ -118,9 +117,54 @@ impl Slider {
         let dy = size.h / num_ticks;
         let tick = vec![TICK_COLOR; w];
         for iy in 0..num_ticks {
-            let y = dy * iy + 1;
+            let y = dy * (iy + 1);
             let i = x + y * size.w;
             buffer[i..i + w].copy_from_slice(&tick);
         }
+    }
+}
+
+const fn get_index(x: usize, y: usize, w: usize) -> usize {
+    x + y * w
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_slider() {
+        let mut board = Board::new([255, 255, 255]);
+        let mut slider_card = nodekit_rs_models::card::Slider {
+            num_bins: 6,
+            bin: 0,
+            show_bin_markers: true,
+            orientation: SliderOrientation::Horizontal,
+            committed: false,
+        };
+        let mut region = Region {
+            x: 0,
+            y: 300,
+            w: 700,
+            h: 90,
+            z_index: None,
+        };
+        let slider = Slider::new(&region, &slider_card).unwrap().unwrap();
+        slider.blit(&slider_card, &mut board);
+
+        // Committed, one tick.
+        slider_card.committed = true;
+        slider_card.bin = 1;
+        region.y = 200;
+        let slider = Slider::new(&region, &slider_card).unwrap().unwrap();
+        slider.blit(&slider_card, &mut board);
+
+        // Final tick.
+        slider_card.bin = 5;
+        region.y = 100;
+        let slider = Slider::new(&region, &slider_card).unwrap().unwrap();
+        slider.blit(&slider_card, &mut board);
+
+        nodekit_rs_png::board_to_png("0.png", board.get_board_without_cursor());
     }
 }

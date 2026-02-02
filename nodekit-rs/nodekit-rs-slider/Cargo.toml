@@ -9,3 +9,7 @@ nine-slice.workspace = true
 nodekit-rs-models = { path = "../nodekit-rs-models" }
 nodekit-rs-visual = { path = "../nodekit-rs-visual" }
 thiserror.workspace = true
+
+[dev-dependencies]
+criterion.workspace = true
+nodekit-rs-png = { path = "../nodekit-rs-png" }

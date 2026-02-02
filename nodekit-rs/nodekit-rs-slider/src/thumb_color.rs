@@ -10,13 +10,13 @@ pub struct ThumbColor {
 }
 
 pub const COMMITTED: ThumbColor = ThumbColor {
-    far_corner: Vec4::new(C, C, C, 0.42),
-    near_corner: Vec4::new(C, C, C, 0.85),
+    far_corner: Vec4::new(C, C, C, 0.1),
+    near_corner: Vec4::new(C, C, C, 0.3),
     fill: Vec4::new(C, C, C, 1.),
 };
 
 pub const UNCOMMITTED: ThumbColor = ThumbColor {
-    far_corner: Vec4::new(U, U, U, 0.172),
-    near_corner: Vec4::new(U, U, U, 0.188),
+    far_corner: Vec4::new(U, U, U, 0.05),
+    near_corner: Vec4::new(U, U, U, 0.1),
     fill: Vec4::new(U, U, U, 0.2),
 };
