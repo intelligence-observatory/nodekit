@@ -1,18 +1,25 @@
 mod error;
+mod slider_rects;
 mod thumb;
 mod thumb_color;
 
-use blittle::Size;
 use blittle::overlay::{Vec4, rgba8_to_rgba32};
+use blittle::{ClippedRect, Size};
 pub use error::Error;
 use nine_slice::{BorderOffsets, BorderScaling, NineSlicedSprite, fast_image_resize};
 use nodekit_rs_models::Region;
-use nodekit_rs_models::board::BOARD_SIZE;
 use nodekit_rs_models::card::SliderOrientation;
-use nodekit_rs_visual::{Board, RgbaBuffer, UnclippedRect};
+use nodekit_rs_visual::{Board, RgbaBuffer};
+use slider_rects::SliderRects;
 use thumb::Thumb;
 
 const TICK_COLOR: Vec4 = Vec4::new(182. / 255., 183. / 255., 184. / 255., 1.);
+const BORDER_OFFSETS: BorderOffsets = BorderOffsets {
+    left: 8,
+    top: 8,
+    right: 8,
+    bottom: 8,
+};
 
 /// The visual representation of a Slider model.
 pub struct Slider {
@@ -20,6 +27,8 @@ pub struct Slider {
     track: RgbaBuffer,
     /// The foreground bitmap that can be moved.
     thumb: Thumb,
+    /// The rect defining the total area of the slider (track + thumb). Used for erasing.
+    pub rect: ClippedRect,
 }
 
 impl Slider {
@@ -27,9 +36,9 @@ impl Slider {
         region: &Region,
         slider: &nodekit_rs_models::card::Slider,
     ) -> Result<Option<Self>, Error> {
-        Ok(Self::get_track(region, slider)?.map(|track| {
+        Ok(Self::get_track(region, slider)?.map(|(track, rect)| {
             let thumb = Thumb::new(region, slider.num_bins, &slider.orientation);
-            Self { track, thumb }
+            Self { track, thumb, rect }
         }))
     }
 
@@ -41,23 +50,10 @@ impl Slider {
     fn get_track(
         region: &Region,
         slider: &nodekit_rs_models::card::Slider,
-    ) -> Result<Option<RgbaBuffer>, Error> {
-        let mut rect = UnclippedRect::new(region);
-        // Shrink.
-        match &slider.orientation {
-            SliderOrientation::Horizontal => {
-                let h = (rect.size.h as f32 * 0.7) as usize;
-                rect.position.y += (rect.size.h - h).cast_signed() / 2;
-                rect.size.h = h;
-            }
-            SliderOrientation::Vertical => {
-                let w = (rect.size.w as f32 * 0.7) as usize;
-                rect.position.x += (rect.size.w - w).cast_signed() / 2;
-                rect.size.w = w;
-            }
-        }
-        match rect.into_clipped_rect(BOARD_SIZE) {
-            Some(rect) => {
+    ) -> Result<Option<(RgbaBuffer, ClippedRect)>, Error> {
+        match SliderRects::new(region, slider) {
+            Some(rects) => {
+                // Load the sliceable track image.
                 let track = fast_image_resize::images::Image::from_vec_u8(
                     17,
                     17,
@@ -65,25 +61,28 @@ impl Slider {
                     fast_image_resize::PixelType::U8x4,
                 )
                 .map_err(Error::RawTrack)?;
-                let border_offsets = BorderOffsets {
-                    left: 8,
-                    top: 8,
-                    right: 8,
-                    bottom: 8,
-                };
+                // Get the sprite.
                 let mut sprite =
-                    NineSlicedSprite::new(track, border_offsets, BorderScaling::Stretch)
+                    NineSlicedSprite::new(track, BORDER_OFFSETS, BorderScaling::Stretch)
                         .map_err(Error::NineSlice)?;
-                let text_background = sprite
-                    .resize(region.w as u32, region.h as u32)
+                // Resize the sprite.
+                let image = sprite
+                    .resize(rects.track.src_size.w as u32, rects.track.src_size.h as u32)
                     .map_err(Error::NineSlice)?;
-                let mut buffer = rgba8_to_rgba32(text_background.buffer());
-
+                // Convert to an overlay.
+                let mut buffer = rgba8_to_rgba32(image.buffer());
+                // Draw tick markers.
                 if slider.show_bin_markers {
-                    Self::draw_ticks(slider, rect.src_size, &mut buffer);
+                    Self::draw_ticks(slider, rects.track.src_size, &mut buffer);
                 }
 
-                Ok(Some(RgbaBuffer { buffer, rect }))
+                Ok(Some((
+                    RgbaBuffer {
+                        buffer,
+                        rect: rects.track,
+                    },
+                    rects.total,
+                )))
             }
             None => Ok(None),
         }
