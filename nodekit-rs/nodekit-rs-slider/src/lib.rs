@@ -14,6 +14,11 @@ use slider_rects::SliderRects;
 use thumb::Thumb;
 
 const TICK_COLOR: Vec4 = Vec4::new(182. / 255., 183. / 255., 184. / 255., 1.);
+/// The scaling factor of a tick marker.
+const TICK_D_FACTOR: f32 = 0.7;
+/// The positional offset factor of a tick marker.
+const TICK_OFFSET_FACTOR: f32 = 0.15;
+/// The border offsets of a nine-sliced slider track sprite.
 const BORDER_OFFSETS: BorderOffsets = BorderOffsets {
     left: 8,
     top: 8,
@@ -29,7 +34,9 @@ pub struct Slider {
     thumb: Thumb,
     /// The rect defining the total area of the slider (track + thumb). Used for erasing.
     pub rect: ClippedRect,
+    /// The current bin. This is updated from the slider model.
     bin: usize,
+    /// Determines the color of the thumb. This is updated from the slider model.
     committed: bool,
 }
 
@@ -50,16 +57,20 @@ impl Slider {
         }))
     }
 
-    pub fn update(&mut self, slider: &nodekit_rs_models::card::Slider) {
+    /// Update stateful information from a slider model.
+    pub const fn update(&mut self, slider: &nodekit_rs_models::card::Slider) {
         self.bin = slider.bin;
         self.committed = slider.committed;
     }
 
     pub fn blit(&self, board: &mut Board) {
+        // Overlay the track.
         board.overlay_rgba(&self.track);
+        // Try to overlay the thumb.
         self.thumb.overlay(self.bin, self.committed, board);
     }
 
+    /// Get a bitmap of the background track.
     fn get_track(
         region: &Region,
         slider: &nodekit_rs_models::card::Slider,
@@ -101,6 +112,7 @@ impl Slider {
         }
     }
 
+    /// Draw tick markers on the background track.
     fn draw_ticks(slider: &nodekit_rs_models::card::Slider, size: Size, buffer: &mut [Vec4]) {
         if slider.num_bins > 2 {
             match &slider.orientation {
@@ -114,9 +126,10 @@ impl Slider {
         }
     }
 
+    /// Draw vertical ticks across a horizontal track.
     fn draw_ticks_horizontal(num_bins: usize, size: Size, buffer: &mut [Vec4]) {
-        let h = (size.h as f32 * 0.7) as usize;
-        let y = (size.h as f32 * 0.15) as usize;
+        let h = (size.h as f32 * TICK_D_FACTOR) as usize;
+        let y = (size.h as f32 * TICK_OFFSET_FACTOR) as usize;
         let dx = size.w / (num_bins - 1);
         for ix in 0..num_bins - 2 {
             let x = dx * (ix + 1);
@@ -127,14 +140,17 @@ impl Slider {
         }
     }
 
+    /// Draw horizontal ticks across a vertical track.
     fn draw_ticks_vertical(num_bins: usize, size: Size, buffer: &mut [Vec4]) {
-        let w = (size.w as f32 * 0.7) as usize;
-        let x = (size.w as f32 * 0.15) as usize;
+        let w = (size.w as f32 * TICK_D_FACTOR) as usize;
+        let x = (size.w as f32 * TICK_OFFSET_FACTOR) as usize;
         let dy = size.h / (num_bins - 1);
+        // A horizontal tick marker.
         let tick = vec![TICK_COLOR; w];
         for iy in 0..num_bins - 2 {
             let y = dy * (iy + 1);
             let i = x + y * size.w;
+            // Copy the tick marker.
             buffer[i..i + w].copy_from_slice(&tick);
         }
     }
