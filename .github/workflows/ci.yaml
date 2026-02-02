@@ -28,7 +28,7 @@ jobs:
           uv sync --group dev --locked
       - name: nodekit-rs
         run: |
-          make build-nodekit-rs
+          make build-rs
       - name: Check
         run: |
           make check
