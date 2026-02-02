@@ -14,8 +14,11 @@ use thumb::Thumb;
 
 const TICK_COLOR: Vec4 = Vec4::new(182. / 255., 183. / 255., 184. / 255., 1.);
 
+/// The visual representation of a Slider model.
 pub struct Slider {
+    /// The background bitmap.
     track: RgbaBuffer,
+    /// The foreground bitmap that can be moved.
     thumb: Thumb,
 }
 

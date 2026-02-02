@@ -202,21 +202,33 @@ impl State {
     ///
     /// - `bin` sets which bin the thumb overlay's position will snap to.
     /// - `committed` determines the color of the thumb overlay, and corresponds to whether the agent has moved the thumb overlay yet.
-    pub fn set_slider(&mut self, bin: usize, committed: bool) -> PyResult<()> {
-        match self.sensor.as_mut() {
-            Some(sensor) => {
-                if let Sensor::Slider(card_key) = sensor
-                    && let CardType::Slider(slider) = &mut self.cards[*card_key].card_type
-                {
-                    slider.committed = committed;
-                    slider.bin = bin;
-                    self.cards[*card_key].dirty = true;
-                    Ok(())
-                } else {
-                    Err(PyValueError::new_err("Failed to find a SliderSensor."))
+    pub fn set_slider(&mut self, bin: i64, committed: bool) -> PyResult<()> {
+        if bin >= 0 {
+            match self.sensor.as_mut() {
+                Some(sensor) => {
+                    if let Sensor::Slider(card_key) = sensor
+                        && let CardType::Slider(slider) = &mut self.cards[*card_key].card_type
+                    {
+                        let bin = bin.cast_unsigned() as usize;
+                        if bin < slider.num_bins {
+                            slider.committed = committed;
+                            slider.bin = bin;
+                            self.cards[*card_key].dirty = true;
+                            Ok(())
+                        } else {
+                            Err(PyValueError::new_err(format!(
+                                "bin is {bin} but it must be less than the slider's total number of bins ({0})",
+                                slider.num_bins
+                            )))
+                        }
+                    } else {
+                        Err(PyValueError::new_err("Failed to find a SliderSensor."))
+                    }
                 }
+                None => Self::invalid_sensor(),
             }
-            None => Self::invalid_sensor(),
+        } else {
+            Err(PyValueError::new_err("bin must be greater than 0."))
         }
     }
 }
