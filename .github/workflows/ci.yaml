@@ -26,6 +26,9 @@ jobs:
       - name: Install nodekit
         run: |
           uv sync --group dev --locked
+      - name: nodekit-rs
+        run: |
+          make build-nodekit-rs
       - name: Check
         run: |
           make check
