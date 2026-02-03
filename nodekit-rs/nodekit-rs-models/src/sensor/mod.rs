@@ -82,6 +82,11 @@ impl Sensor {
         sensor: Borrowed<'_, '_, PyAny>,
         cards: &mut SlotMap<CardKey, Card>,
     ) -> PyResult<Self> {
+        // Try to extract a confirm card.
+        let confirm_button = match sensor.getattr_opt("confirm_button")? {
+            Some(o) => Some(cards.insert(Card::extract(o.as_borrowed())?)),
+            None => None
+        };
         let num_bins = sensor
             .getattr("num_bins")?
             .extract::<i64>()?
@@ -106,6 +111,7 @@ impl Sensor {
                 show_bin_markers,
                 orientation,
                 committed: false,
+                confirm_button
             }),
             region,
             dirty: false,

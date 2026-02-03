@@ -1,3 +1,5 @@
+use crate::card::CardKey;
+
 pub enum SliderOrientation {
     Horizontal,
     Vertical,
@@ -11,4 +13,6 @@ pub struct Slider {
     /// Determines the visual appearance of the thumb.
     /// Not present in the raw Pydantic model.
     pub committed: bool,
+    /// The key to the confirm button.
+    pub confirm_button: Option<CardKey>
 }
