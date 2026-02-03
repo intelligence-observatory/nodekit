@@ -6,7 +6,7 @@ mod thumb_color;
 use blittle::overlay::{Vec4, rgba8_to_rgba32};
 use blittle::{ClippedRect, Size};
 pub use error::Error;
-use nine_slice::{BorderOffsets, BorderScaling, NineSlicedSprite, fast_image_resize};
+use nine_slices::{BorderOffsets, BorderScaling, NineSlicedSprite, fast_image_resize};
 use nodekit_rs_models::Region;
 use nodekit_rs_models::card::SliderOrientation;
 use nodekit_rs_visual::{Board, RgbaBuffer};

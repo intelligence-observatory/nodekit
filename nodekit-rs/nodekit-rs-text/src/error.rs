@@ -22,9 +22,9 @@ pub enum Error {
     #[error("Failed to parse text color: {0}")]
     TextColor(nodekit_rs_visual::Error),
     #[error("Failed to load text background: {0}")]
-    TextBackground(nine_slice::fast_image_resize::ImageBufferError),
+    TextBackground(nine_slices::fast_image_resize::ImageBufferError),
     #[error("Failed to load text entry background: {0}")]
-    TextEntryBackground(nine_slice::fast_image_resize::ImageBufferError),
+    TextEntryBackground(nine_slices::fast_image_resize::ImageBufferError),
     #[error("Nine-slice error: {0}")]
-    NineSlice(nine_slice::Error),
+    NineSlice(nine_slices::Error),
 }

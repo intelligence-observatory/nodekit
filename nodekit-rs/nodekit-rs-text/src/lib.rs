@@ -14,8 +14,8 @@ use cosmic_text::{
 };
 pub use error::Error;
 use md::{FontSize, parse};
-use nine_slice::NineSlicedSprite;
-use nine_slice::{BorderOffsets, BorderScaling, fast_image_resize};
+use nine_slices::NineSlicedSprite;
+use nine_slices::{BorderOffsets, BorderScaling, fast_image_resize};
 use nodekit_rs_models::{Region, board::*, card::*};
 use nodekit_rs_visual::{RgbaBuffer, UnclippedRect, parse_color_rgba};
 use pyo3::pyclass;

@@ -1,6 +1,6 @@
 use crate::Error;
-use nine_slice::fast_image_resize::{PixelType, ResizeAlg};
-use nine_slice::{BorderOffsets, BorderScaling, NineSlicedSprite};
+use nine_slices::fast_image_resize::{PixelType, ResizeAlg};
+use nine_slices::{BorderOffsets, BorderScaling, NineSlicedSprite};
 use nodekit_rs_models::Region;
 use nodekit_rs_models::board::BOARD_SIZE;
 use nodekit_rs_visual::{Board, RgbBuffer, RgbaBuffer, UnclippedRect};
@@ -24,7 +24,7 @@ impl TextEntry {
 
         match UnclippedRect::new(region).into_clipped_rect(BOARD_SIZE) {
             Some(rect) => {
-                let image = nine_slice::fast_image_resize::images::Image::from_vec_u8(
+                let image = nine_slices::fast_image_resize::images::Image::from_vec_u8(
                     17,
                     40,
                     include_bytes!("../backgrounds/text-entry.raw").to_vec(),
