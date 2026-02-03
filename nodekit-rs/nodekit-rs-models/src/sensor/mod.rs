@@ -1,10 +1,13 @@
+mod enable;
 pub(crate) mod error;
+mod graphical;
 mod hover;
 mod select;
 
 use crate::Region;
 use crate::card::{Card, CardKey, CardType, Slider, SliderOrientation, TextEntry};
-use hashbrown::{HashMap, HashSet};
+use enable::Enable;
+pub use graphical::GraphicalSensor;
 pub use hover::Hover;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
@@ -12,81 +15,123 @@ use pyo3::types::{PyDict, PyString};
 pub use select::Select;
 use slotmap::SlotMap;
 
-pub enum Sensor {
-    /// Wrapper for MultiSelectSensor that includes hovering and selecting.
-    Select(Select),
-    /// Wrapper for SelectSensor that includes hovering.
-    Hover(Hover),
-    /// The card key for a Slider.
-    Slider(CardKey),
-    /// The card key for a TextEntry.
-    TextEntry(CardKey),
+const CHOICES: &str = "choices";
+const CONFIRM_BUTTON: &str = "confirm_button";
+
+#[derive(Default)]
+pub struct Sensor {
+    pub enable: Option<Enable>,
+    pub hover: Option<Hover>,
+    pub select: Option<Select>,
+    pub graphical: Option<GraphicalSensor>,
 }
 
 impl Sensor {
     pub fn extract(
         obj: Borrowed<'_, '_, PyAny>,
         cards: &mut SlotMap<CardKey, Card>,
-    ) -> PyResult<Option<Self>> {
+    ) -> PyResult<Self> {
         let sensor_type = obj.getattr("sensor_type")?;
         match sensor_type.cast::<PyString>()?.to_str()? {
-            "MultiSelectSensor" => Ok(Some(Self::extract_multi_select(obj, cards)?)),
-            "SelectSensor" => Ok(Some(Self::extract_select(obj, cards)?)),
-            "SliderSensor" => Ok(Some(Self::extract_slider(obj, cards)?)),
-            "TextEntrySensor" => Ok(Some(Self::extract_text_entry(obj, cards)?)),
-            _ => Ok(None),
+            "MultiSelectSensor" => Ok(Self::extract_multi_select(obj, cards)?),
+            "SelectSensor" => Ok(Self::extract_select(obj, cards)?),
+            "SliderSensor" => Ok(Self::extract_slider(obj, cards)?),
+            "TextEntrySensor" => Ok(Self::extract_text_entry(obj, cards)?),
+            _ => Ok(Self::default()),
         }
     }
 
     /// Returns the keys of cards that are being hovered over,
     /// or none if there isn't a hovering listener.
     pub fn get_hovering_over(&self) -> Option<&Vec<CardKey>> {
-        match self {
-            Self::Hover(hover) => hover.get_hovering_over(),
-            Self::Select(select) => select.hover.get_hovering_over(),
-            _ => None,
-        }
+        self.hover
+            .as_ref()
+            .and_then(|hover| hover.get_hovering_over())
     }
 
     /// Returns the keys of cards that are selected,
     /// or none if there isn't a selection listener.
     pub fn get_selected(&self) -> Option<Vec<CardKey>> {
-        match self {
-            Self::Select(select) => Some(select.get_selected()),
-            _ => None,
-        }
+        self.select.as_ref().map(|select| select.get_selected())
+    }
+
+    fn extract_cards(
+        card: Bound<'_, PyAny>,
+        cards: &mut SlotMap<CardKey, Card>,
+    ) -> PyResult<Vec<CardKey>> {
+        let current_keys = cards.keys().collect::<Vec<CardKey>>();
+        // Extract new cards.
+        Card::extract_cards(card, cards)?;
+        // Get the keys of the cards that we just added.
+        Ok(cards
+            .keys()
+            .filter(|k| !current_keys.contains(k))
+            .collect::<Vec<CardKey>>())
     }
 
     fn extract_multi_select(
         sensor: Borrowed<'_, '_, PyAny>,
         cards: &mut SlotMap<CardKey, Card>,
     ) -> PyResult<Self> {
+        let mut hover = Hover::default();
+        let mut select = Select::default();
+
         // Extract the cards constituting the confirm button.
-        Card::extract_cards(sensor.getattr("confirm_button")?, cards)?;
-        // Extract hoverables.
-        let hover = Self::extract_hover(sensor, cards)?;
-        Ok(Self::Select(Select {
-            hover,
-            selected: HashSet::default(),
-        }))
+        hover
+            .cards
+            .insert(Self::extract_cards(sensor.getattr(CONFIRM_BUTTON)?, cards)?);
+
+        let choices = sensor.getattr(CHOICES)?;
+        let choices: &Bound<PyDict> = choices.cast::<PyDict>()?;
+        for (choice, card) in choices {
+            // The child key.
+            let choice = choice.extract::<String>()?;
+            let card_keys = Self::extract_cards(card, cards)?;
+            // Store these as selectable and hoverable.
+            select.choices.insert(choice.clone(), card_keys.clone());
+            let hover_key = hover.cards.insert(card_keys);
+            hover.choices.insert(choice.clone(), hover_key);
+        }
+
+        Ok(Self {
+            enable: None,
+            graphical: None,
+            hover: Some(hover),
+            select: Some(select),
+        })
     }
 
     fn extract_select(
         sensor: Borrowed<'_, '_, PyAny>,
         cards: &mut SlotMap<CardKey, Card>,
     ) -> PyResult<Self> {
-        Ok(Self::Hover(Self::extract_hover(sensor, cards)?))
+        let mut hover = Hover::default();
+
+        let choices = sensor.getattr(CHOICES)?;
+        let choices: &Bound<PyDict> = choices.cast::<PyDict>()?;
+        for (choice, card) in choices {
+            // The child key.
+            let choice = choice.extract::<String>()?;
+            let card_keys = Self::extract_cards(card, cards)?;
+            // Store these as selectable and hoverable.
+            let hover_key = hover.cards.insert(card_keys);
+            hover.choices.insert(choice.clone(), hover_key);
+        }
+
+        Ok(Self {
+            enable: None,
+            graphical: None,
+            hover: Some(hover),
+            select: None,
+        })
     }
 
     fn extract_slider(
         sensor: Borrowed<'_, '_, PyAny>,
         cards: &mut SlotMap<CardKey, Card>,
     ) -> PyResult<Self> {
-        // Try to extract a confirm card.
-        let confirm_button = match sensor.getattr_opt("confirm_button")? {
-            Some(o) => Some(cards.insert(Card::extract(o.as_borrowed())?)),
-            None => None
-        };
+        let mut s = Self::default();
+        // Extract the sensor.
         let num_bins = sensor
             .getattr("num_bins")?
             .extract::<i64>()?
@@ -111,13 +156,31 @@ impl Sensor {
                 show_bin_markers,
                 orientation,
                 committed: false,
-                confirm_button
             }),
             region,
             dirty: false,
         };
-        let slider = cards.insert(card);
-        Ok(Self::Slider(slider))
+
+        // Try to extract a confirm card.
+        let enable = match sensor.getattr_opt(CONFIRM_BUTTON)? {
+            Some(card) => {
+                let confirm_button = Self::extract_cards(card, cards)?;
+                let mut hover = Hover::default();
+                hover.cards.insert(confirm_button.clone());
+                let mut enable = Enable::default();
+                let enable_key = enable.insert(confirm_button);
+                s.hover = Some(hover);
+                s.enable = Some(enable);
+                Some(enable_key)
+            }
+            None => None,
+        };
+
+        s.graphical = Some(GraphicalSensor::Slider {
+            card: cards.insert(card),
+            enable,
+        });
+        Ok(s)
     }
 
     fn extract_text_entry(
@@ -136,38 +199,11 @@ impl Sensor {
             region,
             dirty: false,
         };
-        // Add a text entry card.
-        let text_entry = cards.insert(card);
-        Ok(Self::TextEntry(text_entry))
-    }
-
-    fn extract_hover(
-        sensor: Borrowed<'_, '_, PyAny>,
-        cards: &mut SlotMap<CardKey, Card>,
-    ) -> PyResult<Hover> {
-        let mut hoverable = HashMap::default();
-
-        let choices = sensor.getattr("choices")?;
-        let choices: &Bound<PyDict> = choices.cast::<PyDict>()?;
-        for (choice, card) in choices {
-            let current_keys = cards.keys().collect::<Vec<CardKey>>();
-
-            // The child key.
-            let choice = choice.extract::<String>()?;
-            // Extract new cards.
-            Card::extract_cards(card, cards)?;
-            // Get the keys of the cards that we just added.
-            let new_keys = cards
-                .keys()
-                .filter(|k| !current_keys.contains(k))
-                .collect::<Vec<CardKey>>();
-            // Store these as hoverable.
-            hoverable.insert(choice, new_keys);
-        }
-
-        Ok(Hover {
-            hoverables: hoverable,
-            hovering: None,
+        Ok(Self {
+            enable: None,
+            graphical: Some(GraphicalSensor::TextEntry(cards.insert(card))),
+            hover: None,
+            select: None,
         })
     }
 }

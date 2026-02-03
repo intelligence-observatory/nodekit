@@ -1,69 +1,57 @@
 use crate::card::{Card, CardKey};
 use crate::sensor::error::ChoiceKeyError;
 use hashbrown::HashMap;
-use slotmap::SlotMap;
+use slotmap::{SlotMap, new_key_type};
+
+new_key_type! { pub struct HoverKey; }
 
 /// Listen for mouse hovering.
+#[derive(Default)]
 pub struct Hover {
-    /// The cards that can receive hover overlays.
-    /// Key: The choices key, from the raw nodekit model.
-    /// Value: The keys to the flattened card value from the raw nodekit model.
-    pub hoverables: HashMap<String, Vec<CardKey>>,
-    /// The choice key of the card(s) that receive hovering overlays.
-    pub hovering: Option<String>,
+    pub(crate) cards: SlotMap<HoverKey, Vec<CardKey>>,
+    /// String IDs from raw model data.
+    pub(crate) choices: HashMap<String, HoverKey>,
+    /// The key of the card(s) that receive hovering overlays.
+    hovering: Option<HoverKey>,
 }
 
 impl Hover {
     pub fn set(
         &mut self,
-        hovering: Option<String>,
+        choice: Option<String>,
         cards: &mut SlotMap<CardKey, Card>,
     ) -> Result<(), ChoiceKeyError> {
-        // Only update if something changed.
-        if hovering != self.hovering {
-            match (self.hovering.as_ref(), hovering) {
-                (Some(old), Some(new)) => {
-                    self.set_dirty_cards(old, cards)?;
-                    self.set_dirty_cards(&new, cards)?;
-                    self.hovering = Some(new);
+        match choice.as_ref() {
+            Some(choice) => match self.choices.get(choice) {
+                Some(key) => {
+                    // Deselect.
+                    if let Some(hovering) = self.hovering {
+                        self.cards[hovering]
+                            .iter()
+                            .for_each(|k| cards[*k].dirty = true);
+                    }
+                    // Select.
+                    self.cards[*key].iter().for_each(|k| cards[*k].dirty = true);
+                    self.hovering = Some(*key);
                     Ok(())
                 }
-                (Some(old), None) => {
-                    self.set_dirty_cards(old, cards)?;
+                None => Err(ChoiceKeyError(choice.clone())),
+            },
+            None => {
+                // Deselect.
+                if let Some(hovering) = self.hovering {
+                    self.cards[hovering]
+                        .iter()
+                        .for_each(|k| cards[*k].dirty = true);
                     self.hovering = None;
-                    Ok(())
                 }
-                (None, Some(new)) => {
-                    self.set_dirty_cards(&new, cards)?;
-                    self.hovering = Some(new);
-                    Ok(())
-                }
-                (None, None) => Ok(()),
+                Ok(())
             }
-        } else {
-            Ok(())
         }
     }
 
     pub fn get_hovering_over(&self) -> Option<&Vec<CardKey>> {
-        self.hovering
-            .as_ref()
-            .and_then(|hovering| self.hoverables.get(hovering))
-    }
-
-    pub(super) fn set_dirty_cards(
-        &self,
-        choice: &str,
-        cards: &mut SlotMap<CardKey, Card>,
-    ) -> Result<(), ChoiceKeyError> {
-        for card_key in self
-            .hoverables
-            .get(choice)
-            .ok_or(ChoiceKeyError(choice.to_string()))?
-        {
-            cards[*card_key].dirty = true;
-        }
-        Ok(())
+        self.hovering.map(|k| &self.cards[k])
     }
 }
 
@@ -79,13 +67,17 @@ mod tests {
         let a = cards.insert(get_card(0, 0));
         let b = cards.insert(get_card(100, 100));
         let c = cards.insert(get_card(-40, -40));
-        let mut hoverables = HashMap::<String, Vec<CardKey>>::default();
+        let mut hover_cards = SlotMap::<HoverKey, Vec<CardKey>>::default();
+        let hover_a = hover_cards.insert(vec![a]);
+        let hover_b = hover_cards.insert(vec![b, c]);
         let choice_a = "a".to_string();
         let choice_b = "b".to_string();
-        hoverables.insert(choice_a.clone(), vec![a]);
-        hoverables.insert(choice_b.clone(), vec![b]);
+        let mut choices = HashMap::new();
+        choices.insert(choice_a.clone(), hover_a);
+        choices.insert(choice_b.clone(), hover_b);
         let mut hover = Hover {
-            hoverables,
+            cards: hover_cards,
+            choices,
             hovering: None,
         };
 
@@ -95,31 +87,27 @@ mod tests {
         assert!(!cards.values().any(|c| c.dirty));
 
         // Select.
-        hover.set(Some(choice_a.clone()), &mut cards).unwrap();
-        assert_eq!(hover.hovering.as_ref().unwrap(), &choice_a);
+        hover.set(Some(choice_a), &mut cards).unwrap();
+        assert_eq!(hover.hovering.unwrap(), hover_a);
         assert!(cards[a].dirty);
         assert!(!cards[b].dirty);
 
         // Select something else.
-        hover.set(Some(choice_b.clone()), &mut cards).unwrap();
-        assert_eq!(hover.hovering.as_ref().unwrap(), &choice_b);
+        hover.set(Some(choice_b), &mut cards).unwrap();
+        assert_eq!(hover.hovering.unwrap(), hover_b);
         assert!(cards[a].dirty);
         assert!(cards[b].dirty);
-        assert!(!cards[c].dirty);
+        assert!(cards[c].dirty);
 
-        // Invalid key.
-        assert!(hover.set(Some("c".to_string()), &mut cards).is_err());
-        // Nothing changed.
-        assert_eq!(hover.hovering.as_ref().unwrap(), &choice_b);
-        assert!(cards[a].dirty);
-        assert!(cards[b].dirty);
-        assert!(!cards[c].dirty);
+        cards[a].dirty = false;
+        cards[b].dirty = false;
+        cards[c].dirty = false;
 
         // Deselect.
         hover.set(None, &mut cards).unwrap();
         assert!(hover.hovering.is_none());
-        assert!(cards[a].dirty);
+        assert!(!cards[a].dirty);
         assert!(cards[b].dirty);
-        assert!(!cards[c].dirty);
+        assert!(cards[c].dirty);
     }
 }

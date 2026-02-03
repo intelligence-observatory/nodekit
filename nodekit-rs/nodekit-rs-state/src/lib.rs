@@ -1,7 +1,7 @@
 mod pointer;
 
 use nodekit_rs_models::card::{Card, CardKey, CardType, VideoCard};
-use nodekit_rs_models::sensor::Sensor;
+use nodekit_rs_models::sensor::{GraphicalSensor, Sensor};
 use pointer::Pointer;
 use pyo3::exceptions::{PyKeyError, PyValueError};
 use pyo3::prelude::*;
@@ -16,7 +16,7 @@ pub struct State {
     /// The node's cards.
     pub cards: SlotMap<CardKey, Card>,
     /// The sensor. May be None if the sensor is non-graphical.
-    pub sensor: Option<Sensor>,
+    pub sensor: Sensor,
     /// The time elapsed from the start of the node.
     #[pyo3(get)]
     pub t_msec: u64,
@@ -29,11 +29,7 @@ pub struct State {
 }
 
 impl State {
-    pub fn new_inner(
-        board_color: String,
-        cards: SlotMap<CardKey, Card>,
-        sensor: Option<Sensor>,
-    ) -> Self {
+    pub fn new_inner(board_color: String, cards: SlotMap<CardKey, Card>, sensor: Sensor) -> Self {
         let mut s = Self {
             cards,
             sensor,
@@ -47,7 +43,7 @@ impl State {
     }
 
     pub fn get_hovering_over(&self) -> Vec<CardKey> {
-        match self.sensor.as_ref() {
+        match self.sensor.hover.as_ref() {
             Some(sensor) => match sensor.get_hovering_over() {
                 Some(hovering) => hovering.clone(),
                 None => Vec::default(),
@@ -57,8 +53,8 @@ impl State {
     }
 
     pub fn get_selected(&self) -> Vec<CardKey> {
-        match self.sensor.as_ref() {
-            Some(sensor) => sensor.get_selected().unwrap_or_else(Vec::default),
+        match self.sensor.select.as_ref() {
+            Some(sensor) => sensor.get_selected(),
             None => Vec::default(),
         }
     }
@@ -122,58 +118,31 @@ impl State {
 
     /// Set which card has a hovered state.
     ///
-    /// If id is a string, then it's a key in SelectSensor.choices or MultiSelectSensor.choices
-    /// If id is None, then no card will have a hovered state.
+    /// If `choice` is a string, then it's a key in SelectSensor.choices or MultiSelectSensor.choices
+    /// If `choice` is None, then no card will have a hovered state.
     ///
     /// Throws an exception if there is no sensor,
     /// or if the sensor isn't a SelectSensor or MultiSelectSensor.
     pub fn hover(&mut self, choice: Option<String>) -> PyResult<()> {
-        // Set the hovering state.
-        match self.sensor.as_mut() {
-            Some(sensor) => match sensor {
-                Sensor::Select(select) => {
-                    // Set the hover state and mark cards as dirty.
-                    select
-                        .hover
-                        .set(choice, &mut self.cards)
-                        .map_err(|e| PyKeyError::new_err(e.to_string()))?;
-                    Ok(())
-                }
-                Sensor::Hover(hover) => {
-                    // Set the hover state and mark cards as dirty.
-                    hover
-                        .set(choice, &mut self.cards)
-                        .map_err(|e| PyKeyError::new_err(e.to_string()))?;
-                    // Set the sensor as dirty.
-                    Ok(())
-                }
-                _ => Err(PyValueError::new_err(
-                    "Failed to find a SelectSensor or MultiSelectSensor.",
-                )),
-            },
+        match self.sensor.hover.as_mut() {
+            Some(hover) => hover
+                .set(choice, &mut self.cards)
+                .map_err(|e| PyKeyError::new_err(e.to_string())),
             None => Self::invalid_sensor(),
         }
     }
 
     /// Select or deselect a MultiSelectSensor's card.
     ///
+    /// If `choice` is a key in MultiSelectSensor.choices
+    ///
     /// For SelectSensor, this fails silently because the render state wouldn't change.
     /// For MultiSelectSensor, this adds `choice` the sensor isn't a SelectSensor or MultiSelectSensor.
     pub fn select(&mut self, choice: String, select: bool) -> PyResult<()> {
-        match self.sensor.as_mut() {
-            Some(sensor) => match sensor {
-                // No need to render anything.
-                Sensor::Hover(_) => Ok(()),
-                Sensor::Select(select_sensor) => {
-                    select_sensor
-                        .select(choice, select, &mut self.cards)
-                        .map_err(|e| PyKeyError::new_err(e.to_string()))?;
-                    Ok(())
-                }
-                _ => Err(PyValueError::new_err(
-                    "Failed to find a SelectSensor or MultiSelectSensor.",
-                )),
-            },
+        match self.sensor.select.as_mut() {
+            Some(s) => s
+                .select(choice, select, &mut self.cards)
+                .map_err(|e| PyKeyError::new_err(e.to_string())),
             None => Self::invalid_sensor(),
         }
     }
@@ -182,13 +151,12 @@ impl State {
     ///
     /// Throws an exception if the sensor isn't a TextEntrySensor.
     pub fn set_text_entry(&mut self, text: String) -> PyResult<()> {
-        match self.sensor.as_mut() {
-            Some(sensor) => {
-                if let Sensor::TextEntry(card_key) = sensor
-                    && let CardType::TextEntry(text_entry) = &mut self.cards[*card_key].card_type
-                {
+        match &self.sensor.graphical {
+            Some(graphical) => {
+                let card_key = graphical.card();
+                if let CardType::TextEntry(text_entry) = &mut self.cards[card_key].card_type {
                     text_entry.text = text;
-                    self.cards[*card_key].dirty = true;
+                    self.cards[card_key].dirty = true;
                     Ok(())
                 } else {
                     Err(PyValueError::new_err("Failed to find a TextEntrySensor."))
@@ -202,32 +170,35 @@ impl State {
     ///
     /// - `bin` sets which bin the thumb overlay's position will snap to.
     /// - `committed` determines the color of the thumb overlay, and corresponds to whether the agent has moved the thumb overlay yet.
+    /// - `enable_button` sets the enabled/disabled state of the confirm button, if there is one.
     ///
     /// Throws an exception if the sensor isn't a TextEntrySensor.
-    pub fn set_slider(&mut self, bin: i64, committed: bool) -> PyResult<()> {
+    pub fn set_slider(&mut self, bin: i64, committed: bool, enable_button: bool) -> PyResult<()> {
         if bin >= 0 {
-            match self.sensor.as_mut() {
-                Some(sensor) => {
-                    if let Sensor::Slider(card_key) = sensor
-                        && let CardType::Slider(slider) = &mut self.cards[*card_key].card_type
+            if let Some(GraphicalSensor::Slider { card, enable }) = &self.sensor.graphical
+                && let CardType::Slider(slider) = &mut self.cards[*card].card_type
+            {
+                let bin = bin.cast_unsigned() as usize;
+                if bin < slider.num_bins {
+                    slider.committed = committed;
+                    slider.bin = bin;
+                    self.cards[*card].dirty = true;
+
+                    // Enable or disable the confirm button.
+                    if let Some(enable_key) = enable
+                        && let Some(e) = self.sensor.enable.as_mut()
                     {
-                        let bin = bin.cast_unsigned() as usize;
-                        if bin < slider.num_bins {
-                            slider.committed = committed;
-                            slider.bin = bin;
-                            self.cards[*card_key].dirty = true;
-                            Ok(())
-                        } else {
-                            Err(PyValueError::new_err(format!(
-                                "bin is {bin} but it must be less than the slider's total number of bins ({0})",
-                                slider.num_bins
-                            )))
-                        }
-                    } else {
-                        Err(PyValueError::new_err("Failed to find a SliderSensor."))
+                        e.set(*enable_key, enable_button, &mut self.cards);
                     }
+                    Ok(())
+                } else {
+                    Err(PyValueError::new_err(format!(
+                        "bin is {bin} but it must be less than the slider's total number of bins ({0})",
+                        slider.num_bins
+                    )))
                 }
-                None => Self::invalid_sensor(),
+            } else {
+                Self::invalid_sensor()
             }
         } else {
             Err(PyValueError::new_err("bin must be greater than 0."))

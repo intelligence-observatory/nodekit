@@ -1,15 +1,15 @@
-use super::hover::Hover;
 use crate::card::{Card, CardKey};
 use crate::sensor::error::ChoiceKeyError;
-use hashbrown::HashSet;
+use hashbrown::{HashMap, HashSet};
 use slotmap::SlotMap;
 
 /// Listen for mouse selection and hovering.
+#[derive(Default)]
 pub struct Select {
     /// Listener for hovering.
-    pub hover: Hover,
+    pub(crate) choices: HashMap<String, Vec<CardKey>>,
     /// A set of choice keys of selected groups of cards.
-    pub selected: HashSet<String>,
+    selected: HashSet<String>,
 }
 
 impl Select {
@@ -24,14 +24,14 @@ impl Select {
         if select {
             // Only update if something changed.
             if self.selected.insert(choice.clone()) {
-                self.hover.set_dirty_cards(&choice, cards)
+                self.set_dirty_cards(&choice, cards)
             } else {
                 Ok(())
             }
         } else {
             // Only update if something changed.
             if self.selected.remove(&choice) {
-                self.hover.set_dirty_cards(&choice, cards)
+                self.set_dirty_cards(&choice, cards)
             } else {
                 Ok(())
             }
@@ -41,10 +41,24 @@ impl Select {
     pub fn get_selected(&self) -> Vec<CardKey> {
         self.selected
             .iter()
-            .flat_map(|s| self.hover.hoverables.get(s))
+            .flat_map(|s| self.choices.get(s))
             .flatten()
             .copied()
             .collect()
+    }
+
+    fn set_dirty_cards(
+        &self,
+        choice: &str,
+        cards: &mut SlotMap<CardKey, Card>,
+    ) -> Result<(), ChoiceKeyError> {
+        match self.choices.get(choice) {
+            Some(keys) => {
+                keys.iter().for_each(|key| cards[*key].dirty = true);
+                Ok(())
+            }
+            None => Err(ChoiceKeyError(choice.to_string())),
+        }
     }
 }
 
@@ -60,18 +74,14 @@ mod tests {
         let a = cards.insert(get_card(0, 0));
         let b = cards.insert(get_card(100, 100));
         let c = cards.insert(get_card(-40, -40));
-        let mut hoverables = HashMap::<String, Vec<CardKey>>::default();
+        let mut choices = HashMap::<String, Vec<CardKey>>::default();
         let choice_a = "a".to_string();
         let choice_b = "b".to_string();
-        hoverables.insert(choice_a.clone(), vec![a]);
-        hoverables.insert(choice_b.clone(), vec![b]);
-        let hover = Hover {
-            hoverables,
-            hovering: None,
-        };
+        choices.insert(choice_a.clone(), vec![a]);
+        choices.insert(choice_b.clone(), vec![b]);
         let mut select = Select {
-            hover,
-            selected: HashSet::default(),
+            choices,
+            selected: HashSet::new(),
         };
 
         // Select.
