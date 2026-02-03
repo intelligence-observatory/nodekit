@@ -4,9 +4,9 @@ mod text;
 mod text_entry;
 
 use crate::md::LINE_HEIGHT;
-use blittle::overlay::rgba8_to_rgba32;
+use blittle::overlay::Vec4;
 use blittle::{ClippedRect, PositionI};
-use bytemuck::cast_slice_mut;
+use bytemuck::{cast_slice, cast_slice_mut};
 use cosmic_text::fontdb::Source;
 use cosmic_text::{
     Align, Attrs, Buffer, Color, Family, FontSystem, Metrics, PlatformFallback, Shaping,
@@ -115,7 +115,7 @@ impl TextEngine {
                 17,
                 17,
                 text_background,
-                fast_image_resize::PixelType::U8x4,
+                fast_image_resize::PixelType::F32x4,
             )
             .map_err(Error::TextBackground)?;
             let border_offsets = BorderOffsets {
@@ -131,7 +131,10 @@ impl TextEngine {
             let text_background = sprite
                 .resize(rect.src_size.w as u32, rect.src_size.h as u32)
                 .map_err(Error::NineSlice)?;
-            let buffer = rgba8_to_rgba32(text_background.buffer());
+            let buffer = cast_slice::<u8, [f32; 4]>(text_background.buffer())
+                .iter()
+                .map(|pixel| Vec4::from_array(*pixel))
+                .collect();
             Ok(Some(RgbaBuffer { buffer, rect }))
         }
     }
@@ -263,9 +266,16 @@ impl TextEngine {
     /// Colorize the source bitmap of a text card background.
     fn get_colorized(color: RgbaColor) -> Vec<u8> {
         let background = include_bytes!("../backgrounds/text.raw");
-        let mut buffer = vec![0; background.len() * 4];
-        let pixels = cast_slice_mut::<u8, [u8; 4]>(&mut buffer);
-        let a = color[3] as f32 / 255.;
+        let mut buffer = vec![0; background.len() * 16];
+        let pixels = cast_slice_mut::<u8, [f32; 4]>(&mut buffer);
+        let a8 = color[3];
+        let a32 = a8 as f32 / 255.;
+        let color = Vec4::new(
+            color[0] as f32 / 255.,
+            color[1] as f32 / 255.,
+            color[2] as f32 / 255.,
+            color[3] as f32 / 255.,
+        );
         pixels
             .iter_mut()
             .zip(background)
@@ -273,10 +283,10 @@ impl TextEngine {
                 pixel[0] = color[0];
                 pixel[1] = color[1];
                 pixel[2] = color[2];
-                pixel[3] = if color[3] == 255 {
-                    *alpha
+                pixel[3] = if a8 == 255 {
+                    a32
                 } else {
-                    (a * (*alpha as f32 / 255.)) as u8
+                    color[3] * (*alpha as f32 / 255.)
                 };
             });
         buffer
