@@ -103,5 +103,7 @@ class State:
         
         - `bin` sets which bin the thumb overlay's position will snap to.
         - `committed` determines the color of the thumb overlay, and corresponds to whether the agent has moved the thumb overlay yet.
+        
+        Throws an exception if the sensor isn't a TextEntrySensor.
         """
 

@@ -202,6 +202,8 @@ impl State {
     ///
     /// - `bin` sets which bin the thumb overlay's position will snap to.
     /// - `committed` determines the color of the thumb overlay, and corresponds to whether the agent has moved the thumb overlay yet.
+    ///
+    /// Throws an exception if the sensor isn't a TextEntrySensor.
     pub fn set_slider(&mut self, bin: i64, committed: bool) -> PyResult<()> {
         if bin >= 0 {
             match self.sensor.as_mut() {
