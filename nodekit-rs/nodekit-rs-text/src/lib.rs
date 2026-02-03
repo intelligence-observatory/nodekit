@@ -15,6 +15,7 @@ use cosmic_text::{
 pub use error::Error;
 use md::{FontSize, parse};
 use nine_slices::NineSlicedSprite;
+use nine_slices::fast_image_resize::ResizeAlg;
 use nine_slices::{BorderOffsets, BorderScaling, fast_image_resize};
 use nodekit_rs_models::{Region, board::*, card::*};
 use nodekit_rs_visual::{RgbaBuffer, UnclippedRect, parse_color_rgba};
@@ -126,6 +127,7 @@ impl TextEngine {
             let mut sprite =
                 NineSlicedSprite::new(text_background, border_offsets, BorderScaling::Stretch)
                     .map_err(Error::NineSlice)?;
+            sprite.set_resize_algorithm(ResizeAlg::Nearest);
             let text_background = sprite
                 .resize(rect.src_size.w as u32, rect.src_size.h as u32)
                 .map_err(Error::NineSlice)?;

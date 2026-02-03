@@ -70,6 +70,22 @@ impl Slider {
         self.thumb.overlay(self.bin, self.committed, board);
     }
 
+    pub fn get_clones_of_overlays(&self) -> Vec<RgbaBuffer> {
+        let mut buffers = vec![self.track.clone()];
+        if let Some(rect) = self.thumb.rects[self.bin] {
+            let thumb_buffer = if self.committed {
+                self.thumb.committed.clone()
+            } else {
+                self.thumb.uncommitted.clone()
+            };
+            buffers.push(RgbaBuffer {
+                buffer: thumb_buffer,
+                rect,
+            })
+        }
+        buffers
+    }
+
     /// Get a bitmap of the background track.
     fn get_track(
         region: &Region,

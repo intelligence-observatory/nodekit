@@ -12,7 +12,7 @@ use scuffle_ffmpeg::{
 use std::io::Cursor;
 
 pub struct Video {
-    pub buffer: Vec<u8>,
+    buffer: Vec<u8>,
     pub rgb_buffer: RgbBuffer,
     framerate: f64,
 }

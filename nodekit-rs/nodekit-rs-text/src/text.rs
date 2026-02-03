@@ -26,4 +26,15 @@ impl Text {
             },
         }
     }
+
+    pub fn get_clones_of_overlays(&self) -> Vec<RgbaBuffer> {
+        let mut buffers = Vec::new();
+        if let Some(background) = self.background.clone() {
+            buffers.push(background);
+        }
+        if let Some(foreground) = self.foreground.clone() {
+            buffers.push(foreground);
+        }
+        buffers
+    }
 }

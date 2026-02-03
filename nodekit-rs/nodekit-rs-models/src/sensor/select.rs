@@ -1,18 +1,30 @@
 use crate::card::{Card, CardKey};
 use crate::sensor::error::ChoiceKeyError;
 use hashbrown::{HashMap, HashSet};
-use slotmap::SlotMap;
+use slotmap::{SecondaryMap, SlotMap};
 
 /// Listen for mouse selection and hovering.
 #[derive(Default)]
 pub struct Select {
+    cards: SecondaryMap<CardKey, String>,
     /// Listener for hovering.
-    pub(crate) choices: HashMap<String, Vec<CardKey>>,
+    choices: HashMap<String, Vec<CardKey>>,
     /// A set of choice keys of selected groups of cards.
     selected: HashSet<String>,
 }
 
 impl Select {
+    pub fn insert(&mut self, choice: String, cards: Vec<CardKey>) {
+        self.choices.insert(choice.clone(), cards.clone());
+        for card in cards {
+            self.cards.insert(card, choice.clone());
+        }
+    }
+
+    pub fn get_cards(&self) -> Vec<CardKey> {
+        self.cards.keys().collect()
+    }
+
     /// Select the card(s) mapped to `choice`.
     /// Returns an error if `choice` is an invalid key.
     pub fn select(
@@ -38,13 +50,13 @@ impl Select {
         }
     }
 
-    pub fn get_selected(&self) -> Vec<CardKey> {
-        self.selected
-            .iter()
-            .flat_map(|s| self.choices.get(s))
-            .flatten()
-            .copied()
-            .collect()
+    /// Returns true if the card mapped to `card_key` is selected.
+    pub fn is_selected(&self, card_key: CardKey) -> bool {
+        // Try to get the choice key mapped to the card.
+        match self.cards.get(card_key) {
+            Some(choice) => self.selected.contains(choice),
+            None => false,
+        }
     }
 
     fn set_dirty_cards(
@@ -79,7 +91,11 @@ mod tests {
         let choice_b = "b".to_string();
         choices.insert(choice_a.clone(), vec![a]);
         choices.insert(choice_b.clone(), vec![b]);
+        let mut cards_map = SecondaryMap::new();
+        cards_map.insert(a, choice_a.clone());
+        cards_map.insert(b, choice_b.clone());
         let mut select = Select {
+            cards: cards_map,
             choices,
             selected: HashSet::new(),
         };

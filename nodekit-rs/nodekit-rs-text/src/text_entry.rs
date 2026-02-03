@@ -54,4 +54,12 @@ impl TextEntry {
             board.overlay_rgba(text);
         }
     }
+
+    pub fn get_clones_of_overlays(&self) -> Vec<RgbaBuffer> {
+        let mut buffers = vec![self.background.as_rgba()];
+        if let Some(text) = self.text.clone() {
+            buffers.push(text);
+        }
+        buffers
+    }
 }

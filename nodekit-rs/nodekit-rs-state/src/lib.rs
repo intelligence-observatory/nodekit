@@ -42,20 +42,24 @@ impl State {
         s
     }
 
-    pub fn get_hovering_over(&self) -> Vec<CardKey> {
+    pub fn is_hovering(&self, card_key: CardKey) -> bool {
         match self.sensor.hover.as_ref() {
-            Some(sensor) => match sensor.get_hovering_over() {
-                Some(hovering) => hovering.clone(),
-                None => Vec::default(),
-            },
-            None => Vec::default(),
+            Some(sensor) => sensor.is_hovering(card_key),
+            None => false,
         }
     }
 
-    pub fn get_selected(&self) -> Vec<CardKey> {
+    pub fn is_selected(&self, card_key: CardKey) -> bool {
         match self.sensor.select.as_ref() {
-            Some(sensor) => sensor.get_selected(),
-            None => Vec::default(),
+            Some(select) => select.is_selected(card_key),
+            None => false,
+        }
+    }
+
+    pub fn is_enabled(&self, card_key: CardKey) -> bool {
+        match self.sensor.enable.as_ref() {
+            Some(enable) => enable.is_enabled(card_key),
+            None => false,
         }
     }
 

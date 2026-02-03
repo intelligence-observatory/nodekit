@@ -41,20 +41,6 @@ impl Sensor {
         }
     }
 
-    /// Returns the keys of cards that are being hovered over,
-    /// or none if there isn't a hovering listener.
-    pub fn get_hovering_over(&self) -> Option<&Vec<CardKey>> {
-        self.hover
-            .as_ref()
-            .and_then(|hover| hover.get_hovering_over())
-    }
-
-    /// Returns the keys of cards that are selected,
-    /// or none if there isn't a selection listener.
-    pub fn get_selected(&self) -> Option<Vec<CardKey>> {
-        self.select.as_ref().map(|select| select.get_selected())
-    }
-
     fn extract_cards(
         card: Bound<'_, PyAny>,
         cards: &mut SlotMap<CardKey, Card>,
@@ -77,9 +63,10 @@ impl Sensor {
         let mut select = Select::default();
 
         // Extract the cards constituting the confirm button.
-        hover
-            .cards
-            .insert(Self::extract_cards(sensor.getattr(CONFIRM_BUTTON)?, cards)?);
+        hover.insert(
+            None,
+            Self::extract_cards(sensor.getattr(CONFIRM_BUTTON)?, cards)?,
+        );
 
         let choices = sensor.getattr(CHOICES)?;
         let choices: &Bound<PyDict> = choices.cast::<PyDict>()?;
@@ -88,9 +75,8 @@ impl Sensor {
             let choice = choice.extract::<String>()?;
             let card_keys = Self::extract_cards(card, cards)?;
             // Store these as selectable and hoverable.
-            select.choices.insert(choice.clone(), card_keys.clone());
-            let hover_key = hover.cards.insert(card_keys);
-            hover.choices.insert(choice.clone(), hover_key);
+            select.insert(choice.clone(), card_keys.clone());
+            hover.insert(Some(choice), card_keys);
         }
 
         Ok(Self {
@@ -114,8 +100,7 @@ impl Sensor {
             let choice = choice.extract::<String>()?;
             let card_keys = Self::extract_cards(card, cards)?;
             // Store these as selectable and hoverable.
-            let hover_key = hover.cards.insert(card_keys);
-            hover.choices.insert(choice.clone(), hover_key);
+            hover.insert(Some(choice), card_keys);
         }
 
         Ok(Self {
@@ -166,7 +151,7 @@ impl Sensor {
             Some(card) => {
                 let confirm_button = Self::extract_cards(card, cards)?;
                 let mut hover = Hover::default();
-                hover.cards.insert(confirm_button.clone());
+                hover.insert(None, confirm_button.clone());
                 let mut enable = Enable::default();
                 let enable_key = enable.insert(confirm_button);
                 s.hover = Some(hover);

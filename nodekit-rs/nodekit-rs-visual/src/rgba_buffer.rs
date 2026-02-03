@@ -7,6 +7,7 @@ use fast_image_resize::PixelType;
 use nodekit_rs_models::Region;
 use nodekit_rs_models::board::*;
 
+#[derive(Clone)]
 pub struct RgbaBuffer {
     pub buffer: Vec<Vec4>,
     pub rect: ClippedRect,

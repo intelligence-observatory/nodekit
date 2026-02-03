@@ -9,7 +9,6 @@ use itertools::Itertools;
 use nodekit_rs_image::*;
 use nodekit_rs_models::board::{HORIZONTAL, STRIDE, VERTICAL};
 use nodekit_rs_models::card::{Card, CardKey, CardType, VideoCard};
-use nodekit_rs_models::sensor::Sensor;
 use nodekit_rs_state::*;
 use nodekit_rs_visual::*;
 use numpy::{PyArray3, PyArrayMethods, PyUntypedArrayMethods};
@@ -19,29 +18,6 @@ use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use slotmap::SecondaryMap;
 use std::ops::DerefMut;
 use uuid::Uuid;
-
-macro_rules! render_asset {
-    ($self:ident, $asset:expr, $state:ident) => {{
-        match $asset {
-            Asset::Image(image) => {
-                $self.board.blit(image);
-            }
-            Asset::Slider(slider) => {
-                slider.blit(&mut $self.board);
-            }
-            Asset::Text(text) => {
-                text.blit(&mut $self.board);
-            }
-            Asset::TextEntry(text) => {
-                text.blit(&mut $self.board);
-            }
-            Asset::Video(video) => {
-                video.get_frame($state.t_msec).map_err(Error::Video)?;
-                $self.board.blit_rgb(&video.rgb_buffer);
-            }
-        }
-    }};
-}
 
 /// Render a `State` while storing an internal cache of loaded data (fonts, video buffers, etc.)
 #[pyclass]
@@ -142,10 +118,6 @@ impl Renderer {
             // New state.
             self.start(state)?;
         } else {
-            // Get all assets that are being hovered over.
-            let hovering_over = state.get_hovering_over();
-            // Get all selected states.
-            let selected = state.get_selected();
             // Get dirty cards.
             let dirty_cards = self.get_dirty(state);
             // Erase.
@@ -172,21 +144,7 @@ impl Renderer {
                 }
 
                 // Render.
-                render_asset!(self, &mut self.assets[card_key], state);
-
-                // Blit the hovering overlay.
-                if hovering_over.contains(&card_key)
-                    && let Some(overlay) = self.sensor.get_hover_overlay(card_key)
-                {
-                    self.board.overlay_rgba(overlay);
-                }
-
-                // Blit the selection border.
-                if selected.contains(&card_key)
-                    && let Some(overlay) = self.sensor.get_select_border(card_key)
-                {
-                    self.board.overlay_rgba(overlay);
-                }
+                self.render_asset(card_key, state)?;
 
                 // Mark as not dirty.
                 state.cards[card_key].dirty = false;
@@ -227,28 +185,10 @@ impl Renderer {
             }
         }
 
-        // Get all assets that are being hovered over.
-        let hovering_over = state.get_hovering_over();
-        // Get all selected states.
-        let selected = state.get_selected();
-
         // Initial blit.
-        for (card_key, asset) in self.assets.iter_mut() {
-            render_asset!(self, asset, state);
-
-            // Blit the hovering overlay.
-            if hovering_over.contains(&card_key)
-                && let Some(overlay) = self.sensor.get_hover_overlay(card_key)
-            {
-                self.board.overlay_rgba(overlay);
-            }
-
-            // Blit the selection border.
-            if selected.contains(&card_key)
-                && let Some(overlay) = self.sensor.get_select_border(card_key)
-            {
-                self.board.overlay_rgba(overlay);
-            }
+        let card_keys = self.assets.keys().collect::<Vec<CardKey>>();
+        for card_key in card_keys {
+            self.render_asset(card_key, state)?;
         }
 
         Ok(())
@@ -260,7 +200,7 @@ impl Renderer {
         self.sensor.clear();
         // Cache assets.
         self.cache_cards(state)?;
-        self.cache_sensor(state)?;
+        self.cache_sensor(state);
 
         // Set overlaps.
         let rects = self
@@ -337,31 +277,24 @@ impl Renderer {
         Ok(())
     }
 
-    fn cache_sensor(&mut self, state: &State) -> Result<(), Error> {
-        match state.sensor.as_ref() {
-            Some(sensor) => match sensor {
-                // Ignore these because they are cached as cards.
-                Sensor::TextEntry(_) | Sensor::Slider(_) => Ok(()),
-                // Cache overlays per hoverable card.
-                Sensor::Hover(hover) => {
-                    self.cache_hover_sensor(hover, false);
-                    Ok(())
+    fn cache_sensor(&mut self, state: &State) {
+        if let Some(hover) = state.sensor.hover.as_ref() {
+            for card_key in hover.get_cards() {
+                if let Some(rect) = &self.assets[card_key].rect() {
+                    self.sensor.insert_hoverable(card_key, *rect);
                 }
-                // Cache border overlays per selectable card.
-                Sensor::Select(select) => {
-                    self.cache_hover_sensor(&select.hover, true);
-                    Ok(())
-                }
-            },
-            None => Ok(()),
+            }
         }
-    }
-
-    fn cache_hover_sensor(&mut self, hover: &nodekit_rs_models::sensor::Hover, selectable: bool) {
-        for card_key in hover.hoverables.values().flatten() {
-            let card_key = *card_key;
-            if let Some(rect) = &self.assets[card_key].rect() {
-                self.sensor.insert_hoverable(card_key, *rect, selectable);
+        if let Some(select) = state.sensor.select.as_ref() {
+            for card_key in select.get_cards() {
+                if let Some(rect) = &self.assets[card_key].rect() {
+                    self.sensor.insert_selectable(card_key, *rect);
+                }
+            }
+        }
+        if let Some(enable) = state.sensor.enable.as_ref() {
+            for card_key in enable.get_cards() {
+                self.sensor.insert_disabled(card_key, &mut self.assets);
             }
         }
     }
@@ -390,6 +323,45 @@ impl Renderer {
             .collect()
     }
 
+    fn render_asset(&mut self, card_key: CardKey, state: &State) -> Result<(), Error> {
+        if let Some(asset) = self.assets.get_mut(card_key) {
+            match self.sensor.get_disabled(card_key) {
+                // Render the card in its disabled state.
+                Some(disabled) => {
+                    for d in disabled.iter() {
+                        self.board.overlay_rgba(d);
+                    }
+                }
+                None => {
+                    match asset {
+                        Asset::Image(image) => self.board.blit(image),
+                        Asset::Slider(slider) => slider.blit(&mut self.board),
+                        Asset::Text(text) => text.blit(&mut self.board),
+                        Asset::TextEntry(text) => text.blit(&mut self.board),
+                        Asset::Video(video) => {
+                            video.get_frame(state.t_msec).map_err(Error::Video)?;
+                            self.board.blit_rgb(&video.rgb_buffer);
+                        }
+                    }
+                    // Blit the hovering overlay.
+                    if state.is_hovering(card_key)
+                        && let Some(overlay) = self.sensor.get_hover_overlay(card_key)
+                    {
+                        self.board.overlay_rgba(overlay);
+                    }
+
+                    // Blit the selection border.
+                    if state.is_selected(card_key)
+                        && let Some(overlay) = self.sensor.get_select_border(card_key)
+                    {
+                        self.board.overlay_rgba(overlay);
+                    }
+                }
+            }
+        }
+        Ok(())
+    }
+
     fn erase(&mut self, card_keys: &[CardKey]) {
         card_keys
             .iter()
@@ -401,10 +373,9 @@ impl Renderer {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use hashbrown::{HashMap, HashSet};
     use nodekit_rs_models::Region;
     use nodekit_rs_models::card::SliderOrientation;
-    use nodekit_rs_models::sensor::{Hover, Select};
+    use nodekit_rs_models::sensor::{GraphicalSensor, Select, Sensor};
     use slotmap::SlotMap;
     use std::path::PathBuf;
 
@@ -415,7 +386,7 @@ mod tests {
         cards.insert(video_card());
         cards.insert(text_card());
 
-        let mut state = State::new_inner("#AAAAAAFF".to_string(), cards, None);
+        let mut state = State::new_inner("#AAAAAAFF".to_string(), cards, Sensor::default());
         let mut renderer = Renderer::default();
         render_image(&mut renderer, &mut state, 0, "000.png");
         render_image(&mut renderer, &mut state, 100, "100.png");
@@ -430,8 +401,9 @@ mod tests {
         cards.insert(video_card());
         cards.insert(text_card());
 
-        let mut state = State::new_inner("#AAAAAAFF".to_string(), cards, None);
+        let mut state = State::new_inner("#AAAAAAFF".to_string(), cards, Sensor::default());
         let mut renderer = Renderer::default();
+        renderer.hide_pointer = true;
         render_image(&mut renderer, &mut state, 0, "no_cursor.png");
     }
 
@@ -444,19 +416,14 @@ mod tests {
         let mut video = video_card();
         video.dirty = true;
         let video = cards.insert(video);
-        let mut hoverables = HashMap::default();
         let a = "a".to_string();
         let b = "b".to_string();
-        hoverables.insert(a.clone(), vec![image]);
-        hoverables.insert(b.clone(), vec![video]);
-        let sensor = Sensor::Select(Select {
-            hover: Hover {
-                hoverables,
-                hovering: Some(a),
-            },
-            selected: HashSet::from([b]),
-        });
-        let mut state = State::new_inner("#AAAAAAFF".to_string(), cards, Some(sensor));
+        let mut sensor = Sensor::default();
+        let mut select = Select::default();
+        select.insert(a.clone(), vec![image]);
+        select.insert(b.clone(), vec![video]);
+        sensor.select = Some(select);
+        let mut state = State::new_inner("#AAAAAAFF".to_string(), cards, sensor);
         let mut renderer = Renderer::default();
         render_image(&mut renderer, &mut state, 0, "select.png");
     }
@@ -487,8 +454,12 @@ mod tests {
             }),
             dirty: true,
         });
-        let sensor = Sensor::Slider(slider);
-        let mut state = State::new_inner("#AAAAAAFF".to_string(), cards, Some(sensor));
+        let mut sensor = Sensor::default();
+        sensor.graphical = Some(GraphicalSensor::Slider {
+            card: slider,
+            enable: None,
+        });
+        let mut state = State::new_inner("#AAAAAAFF".to_string(), cards, sensor);
         let mut renderer = Renderer::default();
         render_image(&mut renderer, &mut state, 0, "slider.png");
     }
@@ -559,7 +530,7 @@ mod tests {
         let mut renderer = Renderer::new();
         let mut cards = SlotMap::default();
         cards.insert(image_card());
-        let state = State::new_inner("#AAAAAAFF".to_string(), cards, None);
+        let state = State::new_inner("#AAAAAAFF".to_string(), cards, Sensor::default());
         renderer.start(&state).unwrap();
         // No need to re-blit.
         assert_eq!(renderer.overlaps.len(), 1);
@@ -568,7 +539,7 @@ mod tests {
 
         let mut cards = SlotMap::default();
         cards.insert(text_card());
-        let state = State::new_inner("#AAAAAAFF".to_string(), cards, None);
+        let state = State::new_inner("#AAAAAAFF".to_string(), cards, Sensor::default());
         renderer.start(&state).unwrap();
         // No need to re-blit.
         assert_eq!(renderer.overlaps.len(), 1);
@@ -578,7 +549,7 @@ mod tests {
         let mut cards = SlotMap::default();
         cards.insert(image_card());
         cards.insert(text_card());
-        let state = State::new_inner("#AAAAAAFF".to_string(), cards, None);
+        let state = State::new_inner("#AAAAAAFF".to_string(), cards, Sensor::default());
         renderer.start(&state).unwrap();
         // No need to re-blit.
         assert_eq!(renderer.overlaps.len(), 2);
@@ -589,7 +560,7 @@ mod tests {
 
         let mut cards = SlotMap::default();
         cards.insert(video_card());
-        let mut state = State::new_inner("#AAAAAAFF".to_string(), cards, None);
+        let mut state = State::new_inner("#AAAAAAFF".to_string(), cards, Sensor::default());
         renderer.start(&state).unwrap();
         // Always re-blit a video.
         assert_eq!(renderer.overlaps.len(), 1);
@@ -602,7 +573,7 @@ mod tests {
         cards.insert(image_card());
         cards.insert(text_card());
         cards.insert(video_card());
-        let state = State::new_inner("#AAAAAAFF".to_string(), cards, None);
+        let state = State::new_inner("#AAAAAAFF".to_string(), cards, Sensor::default());
         renderer.start(&state).unwrap();
         // Always re-blit a video.
         assert_eq!(renderer.overlaps.len(), 3);

@@ -1,4 +1,5 @@
-use crate::{BOARD_SIZE, Error, resize};
+use crate::{BOARD_SIZE, Error, RgbaBuffer, resize};
+use blittle::overlay::rgb8_to_rgba32;
 use blittle::{ClippedRect, Size};
 use fast_image_resize::PixelType;
 use nodekit_rs_models::Region;
@@ -35,6 +36,13 @@ impl RgbBuffer {
 
     pub fn buffer_mut(&mut self) -> &mut [u8] {
         &mut self.buffer
+    }
+
+    pub fn as_rgba(&self) -> RgbaBuffer {
+        RgbaBuffer {
+            buffer: rgb8_to_rgba32(&self.buffer),
+            rect: self.rect,
+        }
     }
 }
 
