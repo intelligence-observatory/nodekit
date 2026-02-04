@@ -8,4 +8,5 @@ nodekit-rs-models = { path = "../nodekit-rs-models" }
 pyo3.workspace = true
 pyo3-stub-gen.workspace = true
 slotmap.workspace = true
+thiserror.workspace = true
 uuid.workspace = true

@@ -471,14 +471,13 @@ mod tests {
         render_image(&mut renderer, &mut state, 0, "slider_0.png");
 
         // Enable the confirm button.
-        state.set_slider(3, true).unwrap();
-        state.set_confirm_button(true, false).unwrap();
+        state.set_slider_inner(3, true).unwrap();
+        state.set_confirm_button_inner(true, false).unwrap();
         render_image(&mut renderer, &mut state, 0, "slider_1.png");
 
         // Set the pointer.
-        state.set_pointer(50, -350);
         // Set the hover.
-        state.set_confirm_button(true, true).unwrap();
+        state.set_confirm_button_inner(true, true).unwrap();
         render_image(&mut renderer, &mut state, 0, "slider_2.png");
     }
 
