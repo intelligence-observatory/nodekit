@@ -443,10 +443,10 @@ mod tests {
         let slider = cards.insert(Card {
             region: Region {
                 x: 0,
-                y: -200,
-                w: 900,
-                h: 90,
-                z_index: Some(100),
+                y: 100,
+                w: 500,
+                h: 100,
+                z_index: None,
             },
             card_type: CardType::Slider(nodekit_rs_models::card::Slider {
                 orientation: SliderOrientation::Horizontal,

@@ -5,7 +5,12 @@ import nodekit as nk
 ASSETS_DIRECTORY = Path(__file__).parent.joinpath("assets").resolve()
 
 
-def render(card: nk.cards.Card, board_color: str, filename: str) -> None:
+def render(
+    card: nk.cards.Card,
+    board_color: str,
+    filename: str,
+    sensor: nk.sensors.Sensor = nk.sensors.WaitSensor(duration_msec=10000),
+) -> None:
     """
     Render using nodekit-rs
     """
@@ -14,8 +19,6 @@ def render(card: nk.cards.Card, board_color: str, filename: str) -> None:
     renderer = nk.experimental.renderer.Renderer()
     renderer.set_pointer_visibility(False)
     board = renderer.render(
-        nk.experimental.renderer.State(
-            card=card, board_color=board_color, sensor=nk.sensors.WaitSensor(duration_msec=10000)
-        )
+        nk.experimental.renderer.State(card=card, board_color=board_color, sensor=sensor)
     )
     Image.fromarray(board).save(path)

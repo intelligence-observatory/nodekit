@@ -16,6 +16,7 @@ pub use select::Select;
 pub use sensor::error::CardKeyError;
 use slotmap::SlotMap;
 
+const REGION: &str = "region";
 const CHOICES: &str = "choices";
 const CONFIRM_BUTTON: &str = "confirm_button";
 
@@ -138,7 +139,7 @@ impl Sensor {
                 "Invalid slider orientation: {other}"
             ))),
         }?;
-        let region = Region::extract(sensor)?;
+        let region = Region::extract(sensor.getattr(REGION)?.as_borrowed())?;
         let card = Card {
             card_type: CardType::Slider(Slider {
                 num_bins,
@@ -148,7 +149,7 @@ impl Sensor {
                 committed: false,
             }),
             region,
-            dirty: false,
+            dirty: true,
         };
 
         // Try to extract a confirm card.
@@ -179,7 +180,7 @@ impl Sensor {
     ) -> PyResult<Self> {
         let prompt = sensor.getattr("prompt")?.extract::<String>()?;
         let font_size = sensor.getattr("font_size")?.extract::<i64>()?;
-        let region = Region::extract(sensor.getattr("region")?.as_borrowed())?;
+        let region = Region::extract(sensor.getattr(REGION)?.as_borrowed())?;
         let card = Card {
             card_type: CardType::TextEntry(TextEntry {
                 prompt,
