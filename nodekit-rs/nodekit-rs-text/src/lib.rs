@@ -110,13 +110,11 @@ impl TextEngine {
             // Get the background buffer.
             let color = rgba8_to_rgba32_color(&background_color);
             let mut buffer = vec![color; rect.src_size.w * rect.src_size.h];
-            let src = include_bytes!("../backgrounds/text.raw");
 
             // Round the corners.
             // Top-left.
             Self::round_corner(
                 PositionU::default(),
-                src,
                 PositionU::default(),
                 rect.src_size.w,
                 &mut buffer,
@@ -127,7 +125,6 @@ impl TextEngine {
                     x: CORNER_SRC_W - CORNER_D,
                     y: 0,
                 },
-                src,
                 PositionU {
                     x: rect.src_size.w - CORNER_D,
                     y: 0,
@@ -141,7 +138,6 @@ impl TextEngine {
                     x: CORNER_SRC_W - CORNER_D,
                     y: CORNER_SRC_W - CORNER_D,
                 },
-                src,
                 PositionU {
                     x: rect.src_size.w - CORNER_D,
                     y: rect.src_size.h - CORNER_D,
@@ -155,7 +151,6 @@ impl TextEngine {
                     x: 0,
                     y: CORNER_SRC_W - CORNER_D,
                 },
-                src,
                 PositionU {
                     x: 0,
                     y: rect.src_size.h - CORNER_D,
@@ -163,10 +158,7 @@ impl TextEngine {
                 rect.src_size.w,
                 &mut buffer,
             );
-            Some(RgbaBuffer {
-                buffer,
-                rect
-            })
+            Some(RgbaBuffer { buffer, rect })
         })
     }
 
@@ -297,11 +289,12 @@ impl TextEngine {
     /// Colorize the source bitmap of a text card background.
     fn round_corner(
         src_position: PositionU,
-        src: &[u8],
         dst_position: PositionU,
         dst_width: usize,
         dst: &mut [Vec4],
     ) {
+        const CORNER_ALPHAS: &[u8] = include_bytes!("../backgrounds/text.raw");
+
         for y in 0..CORNER_D {
             let src_y = src_position.y + y;
             let dst_y = dst_position.y + y;
@@ -309,7 +302,7 @@ impl TextEngine {
                 // Get the alpha from the source bitmap.
                 let src_x = src_position.x + x;
                 let src_i = src_x + src_y * CORNER_SRC_W;
-                let src_a = src[src_i] as f32 / 255.;
+                let src_a = CORNER_ALPHAS[src_i] as f32 / 255.;
 
                 // Set the alpha.
                 let dst_x = dst_position.x + x;
