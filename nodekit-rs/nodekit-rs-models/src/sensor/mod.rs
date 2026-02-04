@@ -6,7 +6,7 @@ mod select;
 
 use crate::Region;
 use crate::card::{Card, CardKey, CardType, Slider, SliderOrientation, TextEntry};
-use enable::Enable;
+pub use enable::{Enable, EnableKey};
 pub use graphical::GraphicalSensor;
 pub use hover::Hover;
 use pyo3::exceptions::PyValueError;
@@ -60,13 +60,17 @@ impl Sensor {
         cards: &mut SlotMap<CardKey, Card>,
     ) -> PyResult<Self> {
         let mut hover = Hover::default();
-        let mut select = Select::default();
+        let mut enable = Enable::default();
+
+        // Extract the confirm button.
+        let confirm_button = Self::extract_cards(sensor.getattr(CONFIRM_BUTTON)?, cards)?;
+        // Disable the confirm button.
+        let enable_key = enable.insert(confirm_button.clone());
+        // Create the select sensor.
+        let mut select = Select::new(enable_key);
 
         // Extract the cards constituting the confirm button.
-        hover.insert(
-            None,
-            Self::extract_cards(sensor.getattr(CONFIRM_BUTTON)?, cards)?,
-        );
+        hover.insert(None, confirm_button);
 
         let choices = sensor.getattr(CHOICES)?;
         let choices: &Bound<PyDict> = choices.cast::<PyDict>()?;
@@ -80,7 +84,7 @@ impl Sensor {
         }
 
         Ok(Self {
-            enable: None,
+            enable: Some(enable),
             graphical: None,
             hover: Some(hover),
             select: Some(select),

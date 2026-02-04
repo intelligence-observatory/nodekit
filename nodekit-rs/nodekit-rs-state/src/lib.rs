@@ -1,9 +1,9 @@
 mod pointer;
 
 use nodekit_rs_models::card::{Card, CardKey, CardType, VideoCard};
-use nodekit_rs_models::sensor::{GraphicalSensor, Sensor};
+use nodekit_rs_models::sensor::{Enable, EnableKey, GraphicalSensor, Hover, Sensor};
 use pointer::Pointer;
-use pyo3::exceptions::{PyKeyError, PyValueError};
+use pyo3::exceptions::{PyKeyError, PyRuntimeError, PyValueError};
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use slotmap::SlotMap;
@@ -125,7 +125,7 @@ impl State {
     /// If `choice` is a string, then it's a key in SelectSensor.choices or MultiSelectSensor.choices
     /// If `choice` is None, then no card will have a hovered state.
     ///
-    /// Throws an exception if there is no sensor,
+    /// Raises an exception if there is no sensor,
     /// or if the sensor isn't a SelectSensor or MultiSelectSensor.
     pub fn hover(&mut self, choice: Option<String>) -> PyResult<()> {
         match self.sensor.hover.as_mut() {
@@ -153,7 +153,7 @@ impl State {
 
     /// Set the text of a TextEntrySensor.
     ///
-    /// Throws an exception if the sensor isn't a TextEntrySensor.
+    /// Raises an exception if the sensor isn't a TextEntrySensor.
     pub fn set_text_entry(&mut self, text: String) -> PyResult<()> {
         match &self.sensor.graphical {
             Some(graphical) => {
@@ -174,12 +174,11 @@ impl State {
     ///
     /// - `bin` sets which bin the thumb overlay's position will snap to.
     /// - `committed` determines the color of the thumb overlay, and corresponds to whether the agent has moved the thumb overlay yet.
-    /// - `enable_button` sets the enabled/disabled state of the confirm button, if there is one.
     ///
-    /// Throws an exception if the sensor isn't a TextEntrySensor.
-    pub fn set_slider(&mut self, bin: i64, committed: bool, enable_button: bool) -> PyResult<()> {
+    /// Raises an exception if the sensor isn't a TextEntrySensor.
+    pub fn set_slider(&mut self, bin: i64, committed: bool) -> PyResult<()> {
         if bin >= 0 {
-            if let Some(GraphicalSensor::Slider { card, enable }) = &self.sensor.graphical
+            if let Some(GraphicalSensor::Slider { card, enable: _ }) = &self.sensor.graphical
                 && let CardType::Slider(slider) = &mut self.cards[*card].card_type
             {
                 let bin = bin.cast_unsigned() as usize;
@@ -187,13 +186,6 @@ impl State {
                     slider.committed = committed;
                     slider.bin = bin;
                     self.cards[*card].dirty = true;
-
-                    // Enable or disable the confirm button.
-                    if let Some(enable_key) = enable
-                        && let Some(e) = self.sensor.enable.as_mut()
-                    {
-                        e.set(*enable_key, enable_button, &mut self.cards);
-                    }
                     Ok(())
                 } else {
                     Err(PyValueError::new_err(format!(
@@ -206,6 +198,71 @@ impl State {
             }
         } else {
             Err(PyValueError::new_err("bin must be greater than 0."))
+        }
+    }
+
+    /// Set the state of the confirm button.
+    ///
+    /// - enabled sets whether the button is enabled or disabled.
+    /// - hovered sets whether there is a hover overlay on top of the button.
+    ///
+    /// Raises an exception if there isn't a confirm button.
+    pub fn set_confirm_button(&mut self, enabled: bool, hovering: bool) -> PyResult<()> {
+        fn set(
+            enabled: bool,
+            enable_key: EnableKey,
+            enable: &mut Enable,
+            hovering: bool,
+            hover: &mut Hover,
+            cards: &mut SlotMap<CardKey, Card>,
+        ) -> PyResult<()> {
+            enable.set(enable_key, enabled, cards);
+            for card_key in enable.get_cards(enable_key).iter().copied() {
+                // Mark the card as dirty.
+                cards[card_key].dirty = true;
+                // Set hovering.
+                let card_key = if hovering { Some(card_key) } else { None };
+                hover
+                    .set_from_card_key(card_key, cards)
+                    .map_err(|e| PyRuntimeError::new_err(e.to_string()))?;
+            }
+            Ok(())
+        }
+
+        if let Some(enable) = self.sensor.enable.as_mut()
+            && let Some(hover) = self.sensor.hover.as_mut()
+        {
+            if let Some(GraphicalSensor::Slider {
+                card: _,
+                enable: enable_key,
+            }) = &self.sensor.graphical
+                && let Some(enable_key) = enable_key
+            {
+                set(
+                    enabled,
+                    *enable_key,
+                    enable,
+                    hovering,
+                    hover,
+                    &mut self.cards,
+                )?;
+                enable.set(*enable_key, enabled, &mut self.cards);
+                Ok(())
+            } else if let Some(select) = self.sensor.select.as_mut() {
+                set(
+                    enabled,
+                    select.confirm_button,
+                    enable,
+                    hovering,
+                    hover,
+                    &mut self.cards,
+                )?;
+                Ok(())
+            } else {
+                Ok(())
+            }
+        } else {
+            Err(PyRuntimeError::new_err("Confirm button not found."))
         }
     }
 }

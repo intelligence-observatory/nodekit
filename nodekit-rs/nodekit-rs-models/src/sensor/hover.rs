@@ -1,5 +1,5 @@
 use crate::card::{Card, CardKey};
-use crate::sensor::error::ChoiceKeyError;
+use crate::sensor::error::{CardKeyError, ChoiceKeyError};
 use hashbrown::HashMap;
 use slotmap::{SecondaryMap, SlotMap, new_key_type};
 
@@ -37,15 +37,16 @@ impl Hover {
         choice: Option<String>,
         cards: &mut SlotMap<CardKey, Card>,
     ) -> Result<(), ChoiceKeyError> {
+        // Deselect.
+        if let Some(hovering) = self.hovering {
+            self.hovers[hovering]
+                .iter()
+                .for_each(|k| cards[*k].dirty = true);
+        }
+
         match choice.as_ref() {
             Some(choice) => match self.choices.get(choice) {
                 Some(key) => {
-                    // Deselect.
-                    if let Some(hovering) = self.hovering {
-                        self.hovers[hovering]
-                            .iter()
-                            .for_each(|k| cards[*k].dirty = true);
-                    }
                     // Select.
                     self.hovers[*key]
                         .iter()
@@ -56,16 +57,40 @@ impl Hover {
                 None => Err(ChoiceKeyError(choice.clone())),
             },
             None => {
-                // Deselect.
-                if let Some(hovering) = self.hovering {
-                    self.hovers[hovering]
-                        .iter()
-                        .for_each(|k| cards[*k].dirty = true);
-                    self.hovering = None;
-                }
+                self.hovering = None;
                 Ok(())
             }
         }
+    }
+
+    pub fn set_from_card_key(
+        &mut self,
+        card_key: Option<CardKey>,
+        cards: &mut SlotMap<CardKey, Card>,
+    ) -> Result<(), CardKeyError> {
+        let hover_key = match card_key {
+            Some(card_key) => Some(*self.cards.get(card_key).ok_or(CardKeyError(card_key))?),
+            None => None,
+        };
+
+        // Deselect.
+        if let Some(h) = self.hovering {
+            self.hovers[h].iter().for_each(|k| cards[*k].dirty = true);
+        }
+
+        match hover_key {
+            Some(hover_key) => {
+                // Select.
+                self.hovers[hover_key]
+                    .iter()
+                    .for_each(|k| cards[*k].dirty = true);
+                self.hovering = Some(hover_key);
+            }
+            None => {
+                self.hovering = None;
+            }
+        }
+        Ok(())
     }
 
     pub fn get_cards(&self) -> Vec<CardKey> {

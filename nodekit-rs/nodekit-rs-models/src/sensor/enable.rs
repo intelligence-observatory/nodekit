@@ -41,8 +41,11 @@ impl Enable {
     }
 
     pub fn set(&mut self, key: EnableKey, enabled: bool, cards: &mut SlotMap<CardKey, Card>) {
+        // Only do something if the enabled state changed.
         if self.enabled[key].enabled != enabled {
+            // Set the enabled state.
             self.enabled[key].enabled = enabled;
+            // Mark all relevant cards as dirty.
             self.enabled[key]
                 .cards
                 .iter()
@@ -50,7 +53,11 @@ impl Enable {
         }
     }
 
-    pub fn get_cards(&self) -> Vec<CardKey> {
+    pub fn get_cards(&self, enable_key: EnableKey) -> &Vec<CardKey> {
+        &self.enabled[enable_key].cards
+    }
+
+    pub fn get_all_cards(&self) -> Vec<CardKey> {
         self.cards.keys().collect()
     }
 }

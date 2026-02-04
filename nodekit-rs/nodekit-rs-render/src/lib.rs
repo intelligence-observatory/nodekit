@@ -293,7 +293,7 @@ impl Renderer {
             }
         }
         if let Some(enable) = state.sensor.enable.as_ref() {
-            for card_key in enable.get_cards() {
+            for card_key in enable.get_all_cards() {
                 self.sensor.insert_disabled(card_key, &mut self.assets);
             }
         }
@@ -374,8 +374,10 @@ impl Renderer {
 mod tests {
     use super::*;
     use nodekit_rs_models::Region;
-    use nodekit_rs_models::card::SliderOrientation;
-    use nodekit_rs_models::sensor::{GraphicalSensor, Select, Sensor};
+    use nodekit_rs_models::card::{
+        JustificationHorizontal, JustificationVertical, SliderOrientation, TextCard,
+    };
+    use nodekit_rs_models::sensor::{Enable, GraphicalSensor, Select, Sensor};
     use slotmap::SlotMap;
     use std::path::PathBuf;
 
@@ -409,17 +411,24 @@ mod tests {
 
     #[test]
     fn test_select_render() {
-        let mut cards = SlotMap::with_capacity_and_key(3);
+        let mut cards = SlotMap::<CardKey, Card>::default();
         let mut image = image_card();
         image.dirty = true;
         let image = cards.insert(image);
         let mut video = video_card();
         video.dirty = true;
         let video = cards.insert(video);
+        let confirm = cards.insert(confirm_button());
         let a = "a".to_string();
         let b = "b".to_string();
+
         let mut sensor = Sensor::default();
-        let mut select = Select::default();
+
+        let mut enable = Enable::default();
+        let enable_key = enable.insert(vec![confirm]);
+        sensor.enable = Some(enable);
+
+        let mut select = Select::new(enable_key);
         select.insert(a.clone(), vec![image]);
         select.insert(b.clone(), vec![video]);
         sensor.select = Some(select);
@@ -431,16 +440,11 @@ mod tests {
     #[test]
     fn test_slider_render() {
         let mut cards = SlotMap::with_capacity_and_key(3);
-        let mut image = image_card();
-        image.dirty = true;
-        cards.insert(image);
-        let mut video = video_card();
-        video.dirty = true;
-        cards.insert(video);
+        let confirm = cards.insert(confirm_button());
         let slider = cards.insert(Card {
             region: Region {
                 x: 0,
-                y: -400,
+                y: -200,
                 w: 900,
                 h: 90,
                 z_index: Some(100),
@@ -455,13 +459,27 @@ mod tests {
             dirty: true,
         });
         let mut sensor = Sensor::default();
+        let mut enable = Enable::default();
+        let e = enable.insert(vec![confirm]);
+        sensor.enable = Some(enable);
         sensor.graphical = Some(GraphicalSensor::Slider {
             card: slider,
-            enable: None,
+            enable: Some(e),
         });
         let mut state = State::new_inner("#AAAAAAFF".to_string(), cards, sensor);
         let mut renderer = Renderer::default();
-        render_image(&mut renderer, &mut state, 0, "slider.png");
+        render_image(&mut renderer, &mut state, 0, "slider_0.png");
+
+        // Enable the confirm button.
+        state.set_slider(3, true).unwrap();
+        state.set_confirm_button(true, false).unwrap();
+        render_image(&mut renderer, &mut state, 0, "slider_1.png");
+
+        // Set the pointer.
+        state.set_pointer(50, -350);
+        // Set the hover.
+        state.set_confirm_button(true, true).unwrap();
+        render_image(&mut renderer, &mut state, 0, "slider_2.png");
     }
 
     fn image_card() -> Card {
@@ -507,15 +525,36 @@ mod tests {
                 h: VERTICAL.i_64,
                 z_index: Some(5),
             },
-            card_type: CardType::Text(nodekit_rs_models::card::TextCard {
+            card_type: CardType::Text(TextCard {
                 text: include_str!("../../nodekit-rs-text/lorem.txt").to_string(),
                 font_size: 20,
-                justification_horizontal: nodekit_rs_models::card::JustificationHorizontal::Left,
-                justification_vertical: nodekit_rs_models::card::JustificationVertical::Center,
+                justification_horizontal: JustificationHorizontal::Left,
+                justification_vertical: JustificationVertical::Center,
                 text_color: "#003300FF".to_string(),
                 background_color: "#EE00EE11".to_string(),
             }),
             dirty: false,
+        }
+    }
+
+    fn confirm_button() -> Card {
+        Card {
+            region: Region {
+                x: 0,
+                y: -300,
+                w: 150,
+                h: 90,
+                z_index: Some(0),
+            },
+            card_type: CardType::Text(TextCard {
+                text: "Confirm".to_string(),
+                font_size: 20,
+                justification_horizontal: JustificationHorizontal::Center,
+                justification_vertical: JustificationVertical::Center,
+                text_color: "#DDDDDDFF".to_string(),
+                background_color: "#1212121299".to_string(),
+            }),
+            dirty: true,
         }
     }
 
