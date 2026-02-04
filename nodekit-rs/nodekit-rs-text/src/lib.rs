@@ -261,17 +261,16 @@ impl TextEngine {
             &mut self.swash_cache,
             text_color,
             |x, y, w, h, color| {
-                let x = if x < 0 { 0 } else { x.cast_unsigned() };
-                let y = if y < 0 { 0 } else { y.cast_unsigned() };
-                let x1 = ((x + w) as usize).min(dst.rect.src_size_clipped.w);
-                let y1 = ((y + h) as usize + y_offset).min(dst.rect.src_size_clipped.h);
-                let alpha = color.a();
-                if alpha > 0 {
+                if color.a() > 0 {
+                    let x = if x < 0 { 0 } else { x.cast_unsigned() };
+                    let y = if y < 0 { 0 } else { y.cast_unsigned() };
+                    let x1 = ((x + w) as usize).min(dst.rect.src_size_clipped.w);
+                    let y1 = ((y + h) as usize + y_offset).min(dst.rect.src_size_clipped.h);
                     (x as usize..x1)
                         .zip(y as usize + y_offset..y1)
                         .for_each(|(x, y)| {
                             let index = x + y * dst.rect.src_size.w;
-                            dst.overlay_pixel_rgba(&color.as_rgba(), index);
+                            dst.buffer[index] = rgba8_to_rgba32_color(&color.as_rgba());
                         });
                 }
             },
