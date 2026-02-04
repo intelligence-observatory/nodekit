@@ -306,7 +306,7 @@ impl TextEngine {
                 // Set the alpha.
                 let dst_x = dst_position.x + x;
                 let dst_i = dst_x + dst_y * dst_width;
-                dst[dst_i].w = src_a;
+                dst[dst_i].w *= src_a;
             }
         }
     }
