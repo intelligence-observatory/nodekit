@@ -78,15 +78,17 @@ class State:
         r"""
         Set which card has a hovered state.
         
-        If id is a string, then it's a key in SelectSensor.choices or MultiSelectSensor.choices
-        If id is None, then no card will have a hovered state.
+        If `choice` is a string, then it's a key in SelectSensor.choices or MultiSelectSensor.choices
+        If `choice` is None, then no card will have a hovered state.
         
-        Throws an exception if there is no sensor,
+        Raises an exception if there is no sensor,
         or if the sensor isn't a SelectSensor or MultiSelectSensor.
         """
     def select(self, choice: builtins.str, select: builtins.bool) -> None:
         r"""
         Select or deselect a MultiSelectSensor's card.
+        
+        If `choice` is a key in MultiSelectSensor.choices
         
         For SelectSensor, this fails silently because the render state wouldn't change.
         For MultiSelectSensor, this adds `choice` the sensor isn't a SelectSensor or MultiSelectSensor.
@@ -95,7 +97,7 @@ class State:
         r"""
         Set the text of a TextEntrySensor.
         
-        Throws an exception if the sensor isn't a TextEntrySensor.
+        Raises an exception if the sensor isn't a TextEntrySensor.
         """
     def set_slider(self, bin: builtins.int, committed: builtins.bool) -> None:
         r"""
@@ -104,6 +106,15 @@ class State:
         - `bin` sets which bin the thumb overlay's position will snap to.
         - `committed` determines the color of the thumb overlay, and corresponds to whether the agent has moved the thumb overlay yet.
         
-        Throws an exception if the sensor isn't a TextEntrySensor.
+        Raises an exception if the sensor isn't a TextEntrySensor.
+        """
+    def set_confirm_button(self, enabled: builtins.bool, hovering: builtins.bool) -> None:
+        r"""
+        Set the state of the confirm button.
+        
+        - enabled sets whether the button is enabled or disabled.
+        - hovered sets whether there is a hover overlay on top of the button.
+        
+        Raises an exception if there isn't a confirm button.
         """
 

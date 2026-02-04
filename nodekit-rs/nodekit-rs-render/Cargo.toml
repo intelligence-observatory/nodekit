@@ -21,5 +21,4 @@ thiserror.workspace = true
 uuid.workspace = true
 
 [dev-dependencies]
-hashbrown.workspace = true
 nodekit-rs-png = { path = "../nodekit-rs-png" }

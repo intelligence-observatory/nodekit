@@ -1974,7 +1974,6 @@ name = "nodekit-rs-render"
 version = "0.1.0"
 dependencies = [
  "blittle",
- "hashbrown",
  "itertools 0.14.0",
  "nodekit-rs-image",
  "nodekit-rs-models",
@@ -2578,9 +2577,9 @@ dependencies = [
 
 [[package]]
 name = "pyo3-stub-gen"
-version = "0.18.0"
+version = "0.17.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f1717379220ce6c010c40fae05068533c462a13d0baeb88aea1a5c37644e1acb"
+checksum = "398b833826a83ca72c1e26d1b2c7c71f9ca7c3bfc74eacc663901895c362ae33"
 dependencies = [
  "anyhow",
  "chrono",
@@ -2601,9 +2600,9 @@ dependencies = [
 
 [[package]]
 name = "pyo3-stub-gen-derive"
-version = "0.18.0"
+version = "0.17.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fd473be763f962ba62f7cd6835282e7ea1b3e56918629cc14e4a661bf089b40d"
+checksum = "2426ba759d848787239d80f9fdb1f223786976f87fb6c3da8188ca7c17744b28"
 dependencies = [
  "heck",
  "indexmap",
