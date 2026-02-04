@@ -1,6 +1,7 @@
-mod pointer;
 mod error;
+mod pointer;
 
+pub use error::Error;
 use nodekit_rs_models::card::{Card, CardKey, CardType, VideoCard};
 use nodekit_rs_models::sensor::{Enable, EnableKey, GraphicalSensor, Hover, Sensor};
 use pointer::Pointer;
@@ -9,7 +10,6 @@ use pyo3::prelude::*;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use slotmap::SlotMap;
 use uuid::Uuid;
-pub use error::Error;
 
 /// Describes the state of the simulator.
 #[gen_stub_pyclass]
@@ -87,7 +87,8 @@ impl State {
                 // Set hovering.
                 let card_key = if hovering { Some(card_key) } else { None };
                 hover
-                    .set_from_card_key(card_key, cards).map_err(Error::CardKey)?;
+                    .set_from_card_key(card_key, cards)
+                    .map_err(Error::CardKey)?;
             }
             Ok(())
         }
@@ -96,9 +97,9 @@ impl State {
             && let Some(hover) = self.sensor.hover.as_mut()
         {
             if let Some(GraphicalSensor::Slider {
-                            card: _,
-                            enable: enable_key,
-                        }) = &self.sensor.graphical
+                card: _,
+                enable: enable_key,
+            }) = &self.sensor.graphical
                 && let Some(enable_key) = enable_key
             {
                 set(
@@ -140,7 +141,7 @@ impl State {
                 } else {
                     Err(Error::Bin {
                         bin,
-                        num_bins: slider.num_bins
+                        num_bins: slider.num_bins,
                     })
                 }
             } else {
@@ -265,7 +266,8 @@ impl State {
     ///
     /// Raises an exception if the sensor isn't a TextEntrySensor.
     pub fn set_slider(&mut self, bin: i64, committed: bool) -> PyResult<()> {
-        self.set_slider_inner(bin, committed).map_err(|e| PyValueError::new_err(e.to_string()))
+        self.set_slider_inner(bin, committed)
+            .map_err(|e| PyValueError::new_err(e.to_string()))
     }
 
     /// Set the state of the confirm button.
@@ -275,6 +277,7 @@ impl State {
     ///
     /// Raises an exception if there isn't a confirm button.
     pub fn set_confirm_button(&mut self, enabled: bool, hovering: bool) -> PyResult<()> {
-        self.set_confirm_button_inner(enabled, hovering).map_err(|e| PyRuntimeError::new_err(e.to_string()))
+        self.set_confirm_button_inner(enabled, hovering)
+            .map_err(|e| PyRuntimeError::new_err(e.to_string()))
     }
 }

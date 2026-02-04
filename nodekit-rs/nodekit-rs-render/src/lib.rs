@@ -325,37 +325,36 @@ impl Renderer {
 
     fn render_asset(&mut self, card_key: CardKey, state: &State) -> Result<(), Error> {
         if let Some(asset) = self.assets.get_mut(card_key) {
-            match self.sensor.get_disabled(card_key) {
+            if !state.is_enabled(card_key)
+                && let Some(disabled) = self.sensor.get_disabled(card_key)
+            {
                 // Render the card in its disabled state.
-                Some(disabled) => {
-                    for d in disabled.iter() {
-                        self.board.overlay_rgba(d);
+                for d in disabled.iter() {
+                    self.board.overlay_rgba(d);
+                }
+            } else {
+                match asset {
+                    Asset::Image(image) => self.board.blit(image),
+                    Asset::Slider(slider) => slider.blit(&mut self.board),
+                    Asset::Text(text) => text.blit(&mut self.board),
+                    Asset::TextEntry(text) => text.blit(&mut self.board),
+                    Asset::Video(video) => {
+                        video.get_frame(state.t_msec).map_err(Error::Video)?;
+                        self.board.blit_rgb(&video.rgb_buffer);
                     }
                 }
-                None => {
-                    match asset {
-                        Asset::Image(image) => self.board.blit(image),
-                        Asset::Slider(slider) => slider.blit(&mut self.board),
-                        Asset::Text(text) => text.blit(&mut self.board),
-                        Asset::TextEntry(text) => text.blit(&mut self.board),
-                        Asset::Video(video) => {
-                            video.get_frame(state.t_msec).map_err(Error::Video)?;
-                            self.board.blit_rgb(&video.rgb_buffer);
-                        }
-                    }
-                    // Blit the hovering overlay.
-                    if state.is_hovering(card_key)
-                        && let Some(overlay) = self.sensor.get_hover_overlay(card_key)
-                    {
-                        self.board.overlay_rgba(overlay);
-                    }
+                // Blit the hovering overlay.
+                if state.is_hovering(card_key)
+                    && let Some(overlay) = self.sensor.get_hover_overlay(card_key)
+                {
+                    self.board.overlay_rgba(overlay);
+                }
 
-                    // Blit the selection border.
-                    if state.is_selected(card_key)
-                        && let Some(overlay) = self.sensor.get_select_border(card_key)
-                    {
-                        self.board.overlay_rgba(overlay);
-                    }
+                // Blit the selection border.
+                if state.is_selected(card_key)
+                    && let Some(overlay) = self.sensor.get_select_border(card_key)
+                {
+                    self.board.overlay_rgba(overlay);
                 }
             }
         }
@@ -469,7 +468,7 @@ mod tests {
         let mut hover = Hover::default();
         hover.insert(None, vec![confirm]);
         sensor.hover = Some(hover);
-        
+
         let mut state = State::new_inner("#AAAAAAFF".to_string(), cards, sensor);
         let mut renderer = Renderer::default();
         render_image(&mut renderer, &mut state, 0, "slider_0.png");
@@ -479,7 +478,6 @@ mod tests {
         state.set_confirm_button_inner(true, false).unwrap();
         render_image(&mut renderer, &mut state, 0, "slider_1.png");
 
-        // Set the pointer.
         // Set the hover.
         state.set_confirm_button_inner(true, true).unwrap();
         render_image(&mut renderer, &mut state, 0, "slider_2.png");
@@ -562,6 +560,7 @@ mod tests {
     }
 
     fn render_image(renderer: &mut Renderer, state: &mut State, t_msec: u64, filename: &str) {
+        renderer.board.clear();
         state.t_msec = t_msec;
         renderer.start(&state).unwrap();
         nodekit_rs_png::board_to_png(filename, renderer.blit(state).unwrap());

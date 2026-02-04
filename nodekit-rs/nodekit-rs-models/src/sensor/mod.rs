@@ -4,8 +4,8 @@ mod graphical;
 mod hover;
 mod select;
 
-use crate::{sensor, Region};
 use crate::card::{Card, CardKey, CardType, Slider, SliderOrientation, TextEntry};
+use crate::{Region, sensor};
 pub use enable::{Enable, EnableKey};
 pub use graphical::GraphicalSensor;
 pub use hover::Hover;
@@ -13,8 +13,8 @@ use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyString};
 pub use select::Select;
-use slotmap::SlotMap;
 pub use sensor::error::CardKeyError;
+use slotmap::SlotMap;
 
 const CHOICES: &str = "choices";
 const CONFIRM_BUTTON: &str = "confirm_button";
