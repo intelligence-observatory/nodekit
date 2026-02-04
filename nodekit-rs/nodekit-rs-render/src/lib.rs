@@ -377,7 +377,7 @@ mod tests {
     use nodekit_rs_models::card::{
         JustificationHorizontal, JustificationVertical, SliderOrientation, TextCard,
     };
-    use nodekit_rs_models::sensor::{Enable, GraphicalSensor, Select, Sensor};
+    use nodekit_rs_models::sensor::{Enable, GraphicalSensor, Hover, Select, Sensor};
     use slotmap::SlotMap;
     use std::path::PathBuf;
 
@@ -466,6 +466,10 @@ mod tests {
             card: slider,
             enable: Some(e),
         });
+        let mut hover = Hover::default();
+        hover.insert(None, vec![confirm]);
+        sensor.hover = Some(hover);
+        
         let mut state = State::new_inner("#AAAAAAFF".to_string(), cards, sensor);
         let mut renderer = Renderer::default();
         render_image(&mut renderer, &mut state, 0, "slider_0.png");
@@ -551,7 +555,7 @@ mod tests {
                 justification_horizontal: JustificationHorizontal::Center,
                 justification_vertical: JustificationVertical::Center,
                 text_color: "#DDDDDDFF".to_string(),
-                background_color: "#1212121299".to_string(),
+                background_color: "#12121299".to_string(),
             }),
             dirty: true,
         }
