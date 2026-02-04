@@ -4,9 +4,8 @@ mod text;
 mod text_entry;
 
 use crate::md::LINE_HEIGHT;
-use blittle::overlay::Vec4;
-use blittle::{ClippedRect, PositionI};
-use bytemuck::{cast_slice, cast_slice_mut};
+use blittle::overlay::{Vec4, rgba8_to_rgba32_color};
+use blittle::{ClippedRect, PositionI, PositionU};
 use cosmic_text::fontdb::Source;
 use cosmic_text::{
     Align, Attrs, Buffer, Color, Family, FontSystem, Metrics, PlatformFallback, Shaping,
@@ -14,15 +13,15 @@ use cosmic_text::{
 };
 pub use error::Error;
 use md::{FontSize, parse};
-use nine_slices::NineSlicedSprite;
-use nine_slices::fast_image_resize::ResizeAlg;
-use nine_slices::{BorderOffsets, BorderScaling, fast_image_resize};
 use nodekit_rs_models::{Region, board::*, card::*};
 use nodekit_rs_visual::{RgbaBuffer, UnclippedRect, parse_color_rgba};
 use pyo3::pyclass;
 use std::sync::Arc;
 pub use text::Text;
 pub use text_entry::TextEntry;
+
+const CORNER_SRC_W: usize = 17;
+const CORNER_D: usize = 8;
 
 #[pyclass]
 pub struct TextEngine {
@@ -103,40 +102,72 @@ impl TextEngine {
         rect: ClippedRect,
         text_card: &TextCard,
     ) -> Result<Option<RgbaBuffer>, Error> {
-        // Get the background color.
         let background_color =
             parse_color_rgba(&text_card.background_color).map_err(Error::BackgroundColor)?;
-        // Don't blit a background if it would be totally transparent.
-        if background_color[3] == 0 {
-            Ok(None)
+        Ok(if background_color[3] == 0 {
+            None
         } else {
-            let text_background = Self::get_colorized(background_color);
-            let text_background = fast_image_resize::images::Image::from_vec_u8(
-                17,
-                17,
-                text_background,
-                fast_image_resize::PixelType::F32x4,
-            )
-            .map_err(Error::TextBackground)?;
-            let border_offsets = BorderOffsets {
-                left: 8,
-                top: 8,
-                right: 8,
-                bottom: 8,
-            };
-            let mut sprite =
-                NineSlicedSprite::new(text_background, border_offsets, BorderScaling::Stretch)
-                    .map_err(Error::NineSlice)?;
-            sprite.set_resize_algorithm(ResizeAlg::Nearest);
-            let text_background = sprite
-                .resize(rect.src_size.w as u32, rect.src_size.h as u32)
-                .map_err(Error::NineSlice)?;
-            let buffer = cast_slice::<u8, [f32; 4]>(text_background.buffer())
-                .iter()
-                .map(|pixel| Vec4::from_array(*pixel))
-                .collect();
-            Ok(Some(RgbaBuffer { buffer, rect }))
-        }
+            // Get the background buffer.
+            let color = rgba8_to_rgba32_color(&background_color);
+            let mut buffer = vec![color; rect.src_size.w * rect.src_size.h];
+            let src = include_bytes!("../backgrounds/text.raw");
+
+            // Round the corners.
+            // Top-left.
+            Self::round_corner(
+                PositionU::default(),
+                src,
+                PositionU::default(),
+                rect.src_size.w,
+                &mut buffer,
+            );
+            // Top-right.
+            Self::round_corner(
+                PositionU {
+                    x: CORNER_SRC_W - CORNER_D,
+                    y: 0,
+                },
+                src,
+                PositionU {
+                    x: rect.src_size.w - CORNER_D,
+                    y: 0,
+                },
+                rect.src_size.w,
+                &mut buffer,
+            );
+            // Bottom-right.
+            Self::round_corner(
+                PositionU {
+                    x: CORNER_SRC_W - CORNER_D,
+                    y: CORNER_SRC_W - CORNER_D,
+                },
+                src,
+                PositionU {
+                    x: rect.src_size.w - CORNER_D,
+                    y: rect.src_size.h - CORNER_D,
+                },
+                rect.src_size.w,
+                &mut buffer,
+            );
+            // Bottom-left.
+            Self::round_corner(
+                PositionU {
+                    x: 0,
+                    y: CORNER_SRC_W - CORNER_D,
+                },
+                src,
+                PositionU {
+                    x: 0,
+                    y: rect.src_size.h - CORNER_D,
+                },
+                rect.src_size.w,
+                &mut buffer,
+            );
+            Some(RgbaBuffer {
+                buffer,
+                rect
+            })
+        })
     }
 
     fn get_text(
@@ -264,32 +295,28 @@ impl TextEngine {
     }
 
     /// Colorize the source bitmap of a text card background.
-    fn get_colorized(color: RgbaColor) -> Vec<u8> {
-        let background = include_bytes!("../backgrounds/text.raw");
-        let mut buffer = vec![0; background.len() * 16];
-        let pixels = cast_slice_mut::<u8, [f32; 4]>(&mut buffer);
-        let a8 = color[3];
-        let a32 = a8 as f32 / 255.;
-        let color = Vec4::new(
-            color[0] as f32 / 255.,
-            color[1] as f32 / 255.,
-            color[2] as f32 / 255.,
-            color[3] as f32 / 255.,
-        );
-        pixels
-            .iter_mut()
-            .zip(background)
-            .for_each(|(pixel, alpha)| {
-                pixel[0] = color[0];
-                pixel[1] = color[1];
-                pixel[2] = color[2];
-                pixel[3] = if a8 == 255 {
-                    a32
-                } else {
-                    color[3] * (*alpha as f32 / 255.)
-                };
-            });
-        buffer
+    fn round_corner(
+        src_position: PositionU,
+        src: &[u8],
+        dst_position: PositionU,
+        dst_width: usize,
+        dst: &mut [Vec4],
+    ) {
+        for y in 0..CORNER_D {
+            let src_y = src_position.y + y;
+            let dst_y = dst_position.y + y;
+            for x in 0..CORNER_D {
+                // Get the alpha from the source bitmap.
+                let src_x = src_position.x + x;
+                let src_i = src_x + src_y * CORNER_SRC_W;
+                let src_a = src[src_i] as f32 / 255.;
+
+                // Set the alpha.
+                let dst_x = dst_position.x + x;
+                let dst_i = dst_x + dst_y * dst_width;
+                dst[dst_i].w = src_a;
+            }
+        }
     }
 }
 
