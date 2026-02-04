@@ -245,9 +245,7 @@ impl State {
                     hovering,
                     hover,
                     &mut self.cards,
-                )?;
-                enable.set(*enable_key, enabled, &mut self.cards);
-                Ok(())
+                )
             } else if let Some(select) = self.sensor.select.as_mut() {
                 set(
                     enabled,
@@ -256,8 +254,7 @@ impl State {
                     hovering,
                     hover,
                     &mut self.cards,
-                )?;
-                Ok(())
+                )
             } else {
                 Ok(())
             }
