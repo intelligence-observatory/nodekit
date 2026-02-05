@@ -57,11 +57,14 @@ class State:
         `cards` must be of type `nodekit.cards.Card`
         `sensor` must be of type `nodekit.sensors.Sensor`.
         
-        Note that only some sensors are supported in nodekit-rs:
-        - SelectSensor
-        - MultiSelectSensor
+        Note that only some sensors are implemented in nodekit-rs:
         
-        All other sensor types are permitted, but will fail silently.
+        - MultiSelectSensor
+        - SelectSensor
+        - SliderSensor
+        - TextEntrySensor
+        
+        All other sensor types are permitted in this constructor, but won't do anything.
         """
     def set_pointer(self, x: builtins.int, y: builtins.int) -> None:
         r"""
@@ -77,8 +80,7 @@ class State:
         If `choice` is a string, then it's a key in SelectSensor.choices or MultiSelectSensor.choices
         If `choice` is None, then no card will have a hovered state.
         
-        Raises an exception if there is no sensor,
-        or if the sensor isn't a SelectSensor or MultiSelectSensor.
+        Raises an exception if the sensor isn't a SelectSensor or MultiSelectSensor.
         """
     def select(self, choice: builtins.str, select: builtins.bool) -> None:
         r"""
@@ -88,6 +90,8 @@ class State:
         
         For SelectSensor, this fails silently because the render state wouldn't change.
         For MultiSelectSensor, this adds `choice` the sensor isn't a SelectSensor or MultiSelectSensor.
+        
+        Raises an exception if sensor isn't a SelectSensor or MultiSelectSensor.
         """
     def set_text_entry(self, text: builtins.str) -> None:
         r"""
@@ -108,8 +112,8 @@ class State:
         r"""
         Set the state of the confirm button.
         
-        - enabled sets whether the button is enabled or disabled.
-        - hovered sets whether there is a hover overlay on top of the button.
+        - `enabled` sets whether the button is enabled or disabled.
+        - `hovered` sets whether there is a hover overlay on top of the button.
         
         Raises an exception if there isn't a confirm button.
         """

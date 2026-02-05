@@ -67,8 +67,10 @@ impl State {
 
     /// Set the state of the confirm button.
     ///
-    /// - enabled sets whether the button is enabled or disabled.
-    /// - hovered sets whether there is a hover overlay on top of the button.
+    /// For tests, call this instead of `set_confirm_button` or there will be a cc link failure.
+    ///
+    /// - `enabled` sets whether the button is enabled or disabled.
+    /// - `hovered` sets whether there is a hover overlay on top of the button.
     ///
     /// Raises an exception if there isn't a confirm button.
     pub fn set_confirm_button_inner(&mut self, enabled: bool, hovering: bool) -> Result<(), Error> {
@@ -127,6 +129,14 @@ impl State {
         }
     }
 
+    /// Set the state of a SliderSensor.
+    ///
+    /// For tests, call this instead of `set_slider` or there will be a cc link failure.
+    ///
+    /// - `bin` sets which bin the thumb overlay's position will snap to.
+    /// - `committed` determines the color of the thumb overlay, and corresponds to whether the agent has moved the thumb overlay yet.
+    ///
+    /// Raises an exception if the sensor isn't a TextEntrySensor.
     pub fn set_slider_inner(&mut self, bin: i64, committed: bool) -> Result<(), Error> {
         if bin >= 0 {
             if let Some(GraphicalSensor::Slider {
@@ -167,11 +177,14 @@ impl State {
     /// `cards` must be of type `nodekit.cards.Card`
     /// `sensor` must be of type `nodekit.sensors.Sensor`.
     ///
-    /// Note that only some sensors are supported in nodekit-rs:
-    /// - SelectSensor
-    /// - MultiSelectSensor
+    /// Note that only some sensors are implemented in nodekit-rs:
     ///
-    /// All other sensor types are permitted, but will fail silently.
+    /// - MultiSelectSensor
+    /// - SelectSensor
+    /// - SliderSensor
+    /// - TextEntrySensor
+    ///
+    /// All other sensor types are permitted in this constructor, but won't do anything.
     #[new]
     pub fn new(
         board_color: String,
@@ -217,8 +230,7 @@ impl State {
     /// If `choice` is a string, then it's a key in SelectSensor.choices or MultiSelectSensor.choices
     /// If `choice` is None, then no card will have a hovered state.
     ///
-    /// Raises an exception if there is no sensor,
-    /// or if the sensor isn't a SelectSensor or MultiSelectSensor.
+    /// Raises an exception if the sensor isn't a SelectSensor or MultiSelectSensor.
     pub fn hover(&mut self, choice: Option<String>) -> PyResult<()> {
         match self.sensor.hover.as_mut() {
             Some(hover) => hover
@@ -234,6 +246,8 @@ impl State {
     ///
     /// For SelectSensor, this fails silently because the render state wouldn't change.
     /// For MultiSelectSensor, this adds `choice` the sensor isn't a SelectSensor or MultiSelectSensor.
+    ///
+    /// Raises an exception if sensor isn't a SelectSensor or MultiSelectSensor.
     pub fn select(&mut self, choice: String, select: bool) -> PyResult<()> {
         match self.sensor.select.as_mut() {
             Some(s) => s
@@ -275,8 +289,8 @@ impl State {
 
     /// Set the state of the confirm button.
     ///
-    /// - enabled sets whether the button is enabled or disabled.
-    /// - hovered sets whether there is a hover overlay on top of the button.
+    /// - `enabled` sets whether the button is enabled or disabled.
+    /// - `hovered` sets whether there is a hover overlay on top of the button.
     ///
     /// Raises an exception if there isn't a confirm button.
     pub fn set_confirm_button(&mut self, enabled: bool, hovering: bool) -> PyResult<()> {
