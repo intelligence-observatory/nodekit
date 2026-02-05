@@ -1,8 +1,8 @@
 //! Visual buffer functionality that is shared by images, text, and video.
 
 mod board;
-mod cursor;
 mod error;
+mod pointer;
 mod rgb_buffer;
 mod rgba_buffer;
 mod unclipped_rect;
@@ -10,12 +10,12 @@ mod visual_buffer;
 
 use blittle::Size;
 pub use board::*;
-pub use cursor::Cursor;
 pub use error::Error;
 use fast_image_resize::{FilterType, PixelType, ResizeAlg, ResizeOptions, Resizer, SrcCropping};
 use hex_color::HexColor;
 use nodekit_rs_models::Region;
 use nodekit_rs_models::board::*;
+pub use pointer::Pointer;
 pub use rgb_buffer::RgbBuffer;
 pub use rgba_buffer::RgbaBuffer;
 pub use unclipped_rect::UnclippedRect;

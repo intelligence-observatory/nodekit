@@ -16,8 +16,8 @@ pub fn bitmap_rgb(width: usize, height: usize, color: RgbColor) -> Vec<u8> {
 /// Bitmaps used to render to the board.
 pub struct Board {
     /// Render all cards to this bitmap.
-    board8_without_cursor: Vec<u8>,
-    /// The final bitmap: `board8_without_cursor` + `board32` overlays + the cursor.
+    board8_without_pointer: Vec<u8>,
+    /// The final bitmap: `board8_without_pointer` + `board32` overlays + the pointer.
     board8_final: Vec<u8>,
     /// This is used to erase the board.
     board8_empty: Vec<u8>,
@@ -35,7 +35,7 @@ impl Board {
         let board8 = bitmap_rgb(HORIZONTAL.u_size, VERTICAL.u_size, color);
         let board32 = rgb8_to_rgba32(&board8);
         Self {
-            board8_without_cursor: board8.clone(),
+            board8_without_pointer: board8.clone(),
             board8_empty: board8.clone(),
             board8_final: board8,
             board32,
@@ -50,9 +50,9 @@ impl Board {
     }
 
     pub fn clear(&mut self) {
-        cast_slice_mut::<u8, RgbColor>(&mut self.board8_without_cursor).fill(self.color);
+        cast_slice_mut::<u8, RgbColor>(&mut self.board8_without_pointer).fill(self.color);
         self.board8_empty
-            .copy_from_slice(&self.board8_without_cursor);
+            .copy_from_slice(&self.board8_without_pointer);
     }
 
     pub fn blit(&mut self, buffer: &VisualBuffer) {
@@ -69,7 +69,7 @@ impl Board {
         // Then blit on top of them.
         blit(
             &buffer.buffer,
-            &mut self.board8_without_cursor,
+            &mut self.board8_without_pointer,
             &buffer.rect,
             &PIXEL_TYPE,
         );
@@ -84,22 +84,22 @@ impl Board {
         if !self.dirty {
             self.dirty = true;
             // Convert RGB8 data into RGBA32 data.
-            rgb8_to_rgba32_in_place(&self.board8_without_cursor, &mut self.board32);
+            rgb8_to_rgba32_in_place(&self.board8_without_pointer, &mut self.board32);
         }
         // Overlay.
         overlay_rgba32(buffer, &mut self.board32, rect);
     }
 
-    pub fn blit_cursor(&mut self, buffer: &[Vec4], rect: &Option<ClippedRect>) -> &[u8] {
+    pub fn render(&mut self, buffer: &[Vec4], rect: &Option<ClippedRect>) -> &[u8] {
         // Apply remaining overlays.
         self.apply_overlays();
 
-        // Overlay cursor.
+        // Overlay pointer.
         if let Some(rect) = rect {
             // Copy to the final board.
             self.board8_final
-                .copy_from_slice(&self.board8_without_cursor);
-            // Overlay the cursor.
+                .copy_from_slice(&self.board8_without_pointer);
+            // Draw the pointer.
             let dst = cast_slice_mut::<u8, [u8; STRIDE]>(&mut self.board8_final);
             (0..rect.src_size_clipped.h).for_each(|src_y| {
                 let src_index = Self::get_index32(0, src_y, rect.src_size.w);
@@ -119,16 +119,16 @@ impl Board {
         &self.board8_final
     }
 
-    pub fn get_board_without_cursor(&mut self) -> &[u8] {
+    pub fn render_without_pointer(&mut self) -> &[u8] {
         // Apply remaining overlays.
         self.apply_overlays();
-        &self.board8_without_cursor
+        &self.board8_without_pointer
     }
 
     pub fn erase(&mut self, rect: &ClippedRect) {
         blit(
             &self.board8_empty,
-            &mut self.board8_without_cursor,
+            &mut self.board8_without_pointer,
             rect,
             &PIXEL_TYPE,
         );
@@ -137,7 +137,7 @@ impl Board {
     fn apply_overlays(&mut self) {
         if self.dirty {
             // Apply overlays.
-            rgba32_to_rgb8_in_place(&self.board32, &mut self.board8_without_cursor);
+            rgba32_to_rgb8_in_place(&self.board32, &mut self.board8_without_pointer);
             // Clear overlays.
             self.board32.fill(Vec4::ZERO);
             // Clean.
@@ -182,15 +182,15 @@ impl Default for Board {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::Cursor;
+    use crate::Pointer;
 
     #[test]
-    fn test_blit_cursor() {
+    fn test_render_pointer() {
         let mut board = Board::new([200, 200, 200]);
-        let cursor = Cursor::default();
+        let pointer = Pointer::default();
         nodekit_rs_png::board_to_png(
-            "cursor.png",
-            &board.blit_cursor(&cursor.0, &Cursor::rect(0, 0)),
+            "pointer.png",
+            &board.render(&pointer.0, &Pointer::rect(0, 0)),
         );
     }
 }

@@ -8,7 +8,7 @@ pub use error::Error;
 use itertools::Itertools;
 use nodekit_rs_image::*;
 use nodekit_rs_models::board::{HORIZONTAL, STRIDE, VERTICAL};
-use nodekit_rs_models::card::{Card, CardKey, CardType, VideoCard};
+use nodekit_rs_models::card::{CardKey, CardType, VideoCard};
 use nodekit_rs_state::*;
 use nodekit_rs_visual::*;
 use numpy::{PyArray3, PyArrayMethods, PyUntypedArrayMethods};
@@ -36,7 +36,9 @@ pub struct Renderer {
     sensor: sensor::Sensor,
     /// The known state ID.
     id: Option<Uuid>,
-    cursor: Cursor,
+    /// A bitmap of the pointer.
+    pointer: Pointer,
+    /// If true, don't render the pointer.
     hide_pointer: bool,
 }
 
@@ -114,13 +116,13 @@ impl Renderer {
 
 impl Renderer {
     fn blit(&mut self, state: &mut State) -> Result<&[u8], Error> {
-        if self.is_new_state(state) {
+        if self.id.is_none_or(|id| id != state.id) {
             // New state.
             self.start(state)?;
         } else {
             // Get dirty cards.
             let dirty_cards = self.get_dirty(state);
-            // Erase.
+            // Erase regions defined by dirty cards.
             self.erase(&dirty_cards);
             // Re-render dirty assets.
             for card_key in dirty_cards {
@@ -152,20 +154,16 @@ impl Renderer {
         }
 
         if self.hide_pointer {
-            Ok(self.board.get_board_without_cursor())
+            Ok(self.board.render_without_pointer())
         } else {
-            // Copy to the final blit.
-            Ok(self.board.blit_cursor(
-                &self.cursor.0,
-                &Cursor::rect(state.pointer.x, state.pointer.y),
+            Ok(self.board.render(
+                &self.pointer.0,
+                &Pointer::rect(state.pointer.x, state.pointer.y),
             ))
         }
     }
 
-    fn is_new_state(&self, state: &State) -> bool {
-        self.id.is_none_or(|id| id != state.id)
-    }
-
+    /// Start a new state.
     fn start(&mut self, state: &State) -> Result<(), Error> {
         match self.id.as_mut() {
             Some(id) => {
@@ -175,13 +173,13 @@ impl Renderer {
                 } else {
                     // Clear the board and re-cache.
                     *id = state.id;
-                    self.fill_and_cache(state)?;
+                    self.cache(state)?;
                 }
             }
             None => {
                 // Start the first run and cache.
                 self.id = Some(state.id);
-                self.fill_and_cache(state)?;
+                self.cache(state)?;
             }
         }
 
@@ -194,7 +192,12 @@ impl Renderer {
         Ok(())
     }
 
-    fn fill_and_cache(&mut self, state: &State) -> Result<(), Error> {
+    /// Fill the board with the background color and cache assets.
+    fn cache(&mut self, state: &State) -> Result<(), Error> {
+        // Fill the board.
+        self.board
+            .fill(parse_color_rgb(&state.board_color).map_err(Error::ParseColor)?);
+
         // Clear the asset caches.
         self.assets.clear();
         self.sensor.clear();
@@ -226,41 +229,7 @@ impl Renderer {
                 )
             })
             .collect();
-
-        // Fill the board.
-        self.board
-            .fill(parse_color_rgb(&state.board_color).map_err(Error::ParseColor)?);
         Ok(())
-    }
-
-    fn get_asset(&mut self, card: &Card) -> Result<Option<Asset>, Error> {
-        match &card.card_type {
-            CardType::Image(image) => Ok(load_image(image, &card.region)
-                .map_err(Error::Image)?
-                .map(Asset::Image)),
-            CardType::Text(text_card) => Ok(self
-                .text_engine
-                .render_text_card(text_card, &card.region)
-                .map_err(Error::Text)?
-                .map(Asset::Text)),
-            CardType::Video(VideoCard { asset, looped: _ }) => {
-                Ok(nodekit_rs_video::Video::new(asset, &card.region)
-                    .map_err(Error::Video)?
-                    .map(Asset::Video))
-            }
-            CardType::TextEntry(text_entry) => {
-                match self.text_engine.render_text_entry(text_entry, &card.region) {
-                    Ok(text_entry) => Ok(text_entry.map(Asset::TextEntry)),
-                    Err(error) => Err(Error::Text(error)),
-                }
-            }
-            CardType::Slider(slider) => {
-                match nodekit_rs_slider::Slider::new(&card.region, slider) {
-                    Ok(slider) => Ok(slider.map(Asset::Slider)),
-                    Err(error) => Err(Error::Slider(error)),
-                }
-            }
-        }
     }
 
     fn cache_cards(&mut self, state: &State) -> Result<(), Error> {
@@ -270,14 +239,45 @@ impl Renderer {
             .iter()
             .sorted_by(|(_, a), (_, b)| a.region.z_index.cmp(&b.region.z_index))
         {
-            if let Some(asset) = self.get_asset(card)? {
+            // Try to load the asset.
+            // Assets are None if their rects are beyond the board area.
+            let asset = match &card.card_type {
+                CardType::Image(image) => Ok(load_image(image, &card.region)
+                    .map_err(Error::Image)?
+                    .map(Asset::Image)),
+                CardType::Text(text_card) => Ok(self
+                    .text_engine
+                    .render_text_card(text_card, &card.region)
+                    .map_err(Error::Text)?
+                    .map(Asset::Text)),
+                CardType::Video(VideoCard { asset, looped: _ }) => {
+                    Ok(nodekit_rs_video::Video::new(asset, &card.region)
+                        .map_err(Error::Video)?
+                        .map(Asset::Video))
+                }
+                CardType::TextEntry(text_entry) => {
+                    match self.text_engine.render_text_entry(text_entry, &card.region) {
+                        Ok(text_entry) => Ok(text_entry.map(Asset::TextEntry)),
+                        Err(error) => Err(Error::Text(error)),
+                    }
+                }
+                CardType::Slider(slider) => {
+                    match nodekit_rs_slider::Slider::new(&card.region, slider) {
+                        Ok(slider) => Ok(slider.map(Asset::Slider)),
+                        Err(error) => Err(Error::Slider(error)),
+                    }
+                }
+            }?;
+            if let Some(asset) = asset {
                 self.assets.insert(card_key, asset);
             }
         }
         Ok(())
     }
 
+    /// Cache the state's sensor.
     fn cache_sensor(&mut self, state: &State) {
+        // Create hover overlays.
         if let Some(hover) = state.sensor.hover.as_ref() {
             for card_key in hover.get_cards() {
                 if let Some(rect) = &self.assets[card_key].rect() {
@@ -285,6 +285,7 @@ impl Renderer {
                 }
             }
         }
+        // Create select borders.
         if let Some(select) = state.sensor.select.as_ref() {
             for card_key in select.get_cards() {
                 if let Some(rect) = &self.assets[card_key].rect() {
@@ -292,6 +293,7 @@ impl Renderer {
                 }
             }
         }
+        // Create disabled bitmaps.
         if let Some(enable) = state.sensor.enable.as_ref() {
             for card_key in enable.get_all_cards() {
                 self.sensor.insert_disabled(card_key, &mut self.assets);
@@ -299,6 +301,7 @@ impl Renderer {
         }
     }
 
+    /// Returns all dirty cards.
     fn get_dirty(&self, state: &State) -> Vec<CardKey> {
         state
             .cards
@@ -323,8 +326,10 @@ impl Renderer {
             .collect()
     }
 
+    /// Render an asset mapped to `card_key`.
     fn render_asset(&mut self, card_key: CardKey, state: &State) -> Result<(), Error> {
         if let Some(asset) = self.assets.get_mut(card_key) {
+            // If the asset is disabled, render its disabled bitmap instead.
             if !state.is_enabled(card_key)
                 && let Some(disabled) = self.sensor.get_disabled(card_key)
             {
@@ -343,14 +348,14 @@ impl Renderer {
                         self.board.blit_rgb(&video.rgb_buffer);
                     }
                 }
-                // Blit the hovering overlay.
+                // Apply the hovering overlay.
                 if state.is_hovering(card_key)
                     && let Some(overlay) = self.sensor.get_hover_overlay(card_key)
                 {
                     self.board.overlay_rgba(overlay);
                 }
 
-                // Blit the selection border.
+                // Apply the selection border.
                 if state.is_selected(card_key)
                     && let Some(overlay) = self.sensor.get_select_border(card_key)
                 {
@@ -361,6 +366,8 @@ impl Renderer {
         Ok(())
     }
 
+    /// For each rect associated with a key in `card_keys`,
+    /// fill that region of the board with the background color.
     fn erase(&mut self, card_keys: &[CardKey]) {
         card_keys
             .iter()
@@ -374,7 +381,7 @@ mod tests {
     use super::*;
     use nodekit_rs_models::Region;
     use nodekit_rs_models::card::{
-        JustificationHorizontal, JustificationVertical, SliderOrientation, TextCard,
+        Card, JustificationHorizontal, JustificationVertical, SliderOrientation, TextCard,
     };
     use nodekit_rs_models::sensor::{Enable, GraphicalSensor, Hover, Select, Sensor};
     use slotmap::SlotMap;
@@ -396,7 +403,7 @@ mod tests {
     }
 
     #[test]
-    fn test_no_cursor() {
+    fn test_no_pointer() {
         let mut cards = SlotMap::with_capacity_and_key(3);
         cards.insert(image_card());
         cards.insert(video_card());
@@ -405,7 +412,7 @@ mod tests {
         let mut state = State::new_inner("#AAAAAAFF".to_string(), cards, Sensor::default());
         let mut renderer = Renderer::default();
         renderer.hide_pointer = true;
-        render_image(&mut renderer, &mut state, 0, "no_cursor.png");
+        render_image(&mut renderer, &mut state, 0, "no_pointer.png");
     }
 
     #[test]

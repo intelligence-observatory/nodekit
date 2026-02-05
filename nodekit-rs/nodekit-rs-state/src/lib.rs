@@ -24,7 +24,7 @@ pub struct State {
     pub t_msec: u64,
     /// The background color.
     pub board_color: String,
-    /// The position of the cursor.
+    /// The position of the pointer.
     pub pointer: Pointer,
     /// A unique ID.
     pub id: Uuid,

@@ -32,9 +32,10 @@ impl Sensor {
     /// Add a selection borders overlay mapped to `card_key` with shape `rect`.
     pub fn insert_selectable(&mut self, card_key: CardKey, rect: ClippedRect) {
         self.select_borders
-            .insert(card_key, Self::selectable_border(rect));
+            .insert(card_key, Self::create_select_border(rect));
     }
 
+    /// Add a more-transparent clone of an asset that will be used to render the asset as disabled.
     pub fn insert_disabled(
         &mut self,
         card_key: CardKey,
@@ -78,7 +79,10 @@ impl Sensor {
         self.select_borders.clear();
     }
 
-    fn selectable_border(rect: ClippedRect) -> RgbaBuffer {
+    /// Create a border for a selectable card.
+    ///
+    /// This is handled manually because we know that the border has a thickness of 2 pixels.
+    fn create_select_border(rect: ClippedRect) -> RgbaBuffer {
         // An empty buffer.
         let mut buffer = vec![Vec4::ZERO; rect.src_size.w * rect.src_size.h];
         // Horizontal.

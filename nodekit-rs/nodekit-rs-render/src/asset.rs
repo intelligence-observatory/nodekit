@@ -4,6 +4,7 @@ use nodekit_rs_text::{Text, TextEntry};
 use nodekit_rs_video::Video;
 use nodekit_rs_visual::VisualBuffer;
 
+/// A renderable asset.
 pub enum Asset {
     Image(VisualBuffer),
     Slider(Slider),

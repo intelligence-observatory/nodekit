@@ -73,7 +73,7 @@ mod tests {
     fn test_rgb_buffer_blit() {
         let mut board = Board::new([255, 0, 255]);
         board.blit_rgb(&get_rgb_buffer());
-        nodekit_rs_png::board_to_png("rgb_blit.png", board.get_board_without_cursor());
+        nodekit_rs_png::board_to_png("rgb_blit.png", board.render_without_pointer());
     }
 
     #[test]

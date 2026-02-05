@@ -244,6 +244,6 @@ mod tests {
         let slider = Slider::new(&region, &slider_card).unwrap().unwrap();
         slider.blit(&mut board);
 
-        nodekit_rs_png::board_to_png("0.png", board.get_board_without_cursor());
+        nodekit_rs_png::board_to_png("0.png", board.render_without_pointer());
     }
 }

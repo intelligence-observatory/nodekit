@@ -364,7 +364,7 @@ mod tests {
         let text_buffer = text.render_text_card(&card, &region).unwrap().unwrap();
         text_buffer.blit(&mut board);
         // Write the result as a .png file.
-        nodekit_rs_png::board_to_png("out.png", board.get_board_without_cursor());
+        nodekit_rs_png::board_to_png("out.png", board.render_without_pointer());
     }
 
     #[test]
@@ -391,7 +391,7 @@ mod tests {
         let text_buffer = text.render_text_card(&card, &region).unwrap().unwrap();
         text_buffer.blit(&mut board);
         // Write the result as a .png file.
-        nodekit_rs_png::board_to_png("rect.png", board.get_board_without_cursor());
+        nodekit_rs_png::board_to_png("rect.png", board.render_without_pointer());
     }
 
     #[test]
@@ -409,7 +409,7 @@ mod tests {
         let text_buffer = text.render_text_entry(&card, &region).unwrap().unwrap();
         text_buffer.blit(&mut board);
         // Write the result as a .png file.
-        nodekit_rs_png::board_to_png("text_entry.png", board.get_board_without_cursor());
+        nodekit_rs_png::board_to_png("text_entry.png", board.render_without_pointer());
 
         let card = nodekit_rs_models::card::TextEntry {
             prompt: "This is a prompt".to_string(),
@@ -422,7 +422,7 @@ mod tests {
         let text_buffer = text.render_text_entry(&card, &region).unwrap().unwrap();
         text_buffer.blit(&mut board);
         // Write the result as a .png file.
-        nodekit_rs_png::board_to_png("text_entry_prompt.png", board.get_board_without_cursor());
+        nodekit_rs_png::board_to_png("text_entry_prompt.png", board.render_without_pointer());
     }
 
     fn lorem() -> TextCard {

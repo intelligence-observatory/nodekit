@@ -150,6 +150,6 @@ mod tests {
 
         let mut board = Board::new([255, 255, 255]);
         board.blit_rgb(&video.rgb_buffer);
-        nodekit_rs_png::board_to_png("board.png", board.get_board_without_cursor());
+        nodekit_rs_png::board_to_png("board.png", board.render_without_pointer());
     }
 }
