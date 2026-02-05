@@ -19,7 +19,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         z_index: None,
     };
     // Create the slider.
-    c.bench_function("slider rendering", |b| {
+    c.bench_function("slider creation", |b| {
         b.iter(|| {
             nodekit_rs_slider::Slider::new(&region, &slider_card)
                 .unwrap()
