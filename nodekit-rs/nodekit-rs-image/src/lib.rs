@@ -1,10 +1,4 @@
-//! Convert .png files into raw RGB24 bitmaps.
-//!
-//! Image formats currently supported:
-//! - RGB24
-//! - RGBA32
-//! - Grayscale
-//! - Grayscale Alpha
+//! Convert .png files into raw bitmaps.
 
 mod error;
 
@@ -16,8 +10,7 @@ use nodekit_rs_models::{Region, board::*, card::Asset};
 use nodekit_rs_visual::*;
 use png::{ColorType, Decoder};
 
-/// Load an image into memory.
-/// Resize the image as needed.
+/// Load an image `asset` into memory. Resize the image to fit within `region`.
 pub fn load_image(asset: &Asset, region: &Region) -> Result<Option<VisualBuffer>, Error> {
     let decoder = Decoder::new(std::io::Cursor::new(
         load_asset(asset).map_err(Error::Asset)?,

@@ -1941,7 +1941,6 @@ version = "0.1.0"
 dependencies = [
  "blittle",
  "bytemuck",
- "criterion",
  "nodekit-rs-asset",
  "nodekit-rs-models",
  "nodekit-rs-visual",
