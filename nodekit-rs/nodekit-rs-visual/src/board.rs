@@ -16,13 +16,13 @@ pub fn bitmap_rgb(width: usize, height: usize, color: RgbColor) -> Vec<u8> {
 /// Bitmaps used to render to the board.
 pub struct Board {
     /// Render all cards to this bitmap.
-    board8_without_pointer: Vec<u8>,
+    board_without_pointer: Vec<u8>,
     /// The final bitmap: `board8_without_pointer` + `board32` overlays + the pointer.
-    board8_final: Vec<u8>,
+    board_final: Vec<u8>,
     /// This is used to erase the board.
-    board8_empty: Vec<u8>,
+    board_empty: Vec<u8>,
     /// This is used to apply overlays.
-    board32: Vec<Vec4>,
+    overlay: Vec<Vec4>,
     /// If true, the board has been updated.
     dirty: bool,
     /// The background color.
@@ -32,13 +32,13 @@ pub struct Board {
 impl Board {
     pub fn new(color: RgbColor) -> Self {
         // Create the boards.
-        let board8 = bitmap_rgb(HORIZONTAL.u_size, VERTICAL.u_size, color);
-        let board32 = rgb8_to_rgba32(&board8);
+        let board = bitmap_rgb(HORIZONTAL.u_size, VERTICAL.u_size, color);
+        let overlay = rgb8_to_rgba32(&board);
         Self {
-            board8_without_pointer: board8.clone(),
-            board8_empty: board8.clone(),
-            board8_final: board8,
-            board32,
+            board_without_pointer: board.clone(),
+            board_empty: board.clone(),
+            board_final: board,
+            overlay,
             dirty: false,
             color,
         }
@@ -50,9 +50,9 @@ impl Board {
     }
 
     pub fn clear(&mut self) {
-        cast_slice_mut::<u8, RgbColor>(&mut self.board8_without_pointer).fill(self.color);
-        self.board8_empty
-            .copy_from_slice(&self.board8_without_pointer);
+        cast_slice_mut::<u8, RgbColor>(&mut self.board_without_pointer).fill(self.color);
+        self.board_empty
+            .copy_from_slice(&self.board_without_pointer);
     }
 
     pub fn blit(&mut self, buffer: &VisualBuffer) {
@@ -69,7 +69,7 @@ impl Board {
         // Then blit on top of them.
         blit(
             &buffer.buffer,
-            &mut self.board8_without_pointer,
+            &mut self.board_without_pointer,
             &buffer.rect,
             &PIXEL_TYPE,
         );
@@ -79,28 +79,30 @@ impl Board {
         self.overlay_rgba_raw(&buffer.buffer, &buffer.rect);
     }
 
+    /// Render an RgbaBuffer without actually needing to create one.
+    /// This is useful if you don't want to move `buffer`.
     pub fn overlay_rgba_raw(&mut self, buffer: &[Vec4], rect: &ClippedRect) {
         // Mark as dirty.
         if !self.dirty {
             self.dirty = true;
             // Convert RGB8 data into RGBA32 data.
-            rgb8_to_rgba32_in_place(&self.board8_without_pointer, &mut self.board32);
+            rgb8_to_rgba32_in_place(&self.board_without_pointer, &mut self.overlay);
         }
         // Overlay.
-        overlay_rgba32(buffer, &mut self.board32, rect);
+        overlay_rgba32(buffer, &mut self.overlay, rect);
     }
 
-    pub fn render(&mut self, buffer: &[Vec4], rect: &Option<ClippedRect>) -> &[u8] {
+    pub fn render(&mut self, pointer_buffer: &[Vec4], pointer_rect: &Option<ClippedRect>) -> &[u8] {
         // Apply remaining overlays.
         self.apply_overlays();
 
         // Overlay pointer.
-        if let Some(rect) = rect {
+        if let Some(rect) = pointer_rect {
             // Copy to the final board.
-            self.board8_final
-                .copy_from_slice(&self.board8_without_pointer);
+            self.board_final
+                .copy_from_slice(&self.board_without_pointer);
             // Draw the pointer.
-            let dst = cast_slice_mut::<u8, [u8; STRIDE]>(&mut self.board8_final);
+            let dst = cast_slice_mut::<u8, [u8; STRIDE]>(&mut self.board_final);
             (0..rect.src_size_clipped.h).for_each(|src_y| {
                 let src_index = Self::get_index32(0, src_y, rect.src_size.w);
                 let dst_index = Self::get_index32(
@@ -108,7 +110,7 @@ impl Board {
                     rect.dst_position_clipped.y + src_y,
                     rect.dst_size.w,
                 );
-                buffer[src_index..src_index + rect.src_size_clipped.w]
+                pointer_buffer[src_index..src_index + rect.src_size_clipped.w]
                     .iter()
                     .zip(dst[dst_index..dst_index + rect.src_size_clipped.w].iter_mut())
                     .for_each(|(src, dst)| {
@@ -116,19 +118,19 @@ impl Board {
                     });
             });
         }
-        &self.board8_final
+        &self.board_final
     }
 
     pub fn render_without_pointer(&mut self) -> &[u8] {
         // Apply remaining overlays.
         self.apply_overlays();
-        &self.board8_without_pointer
+        &self.board_without_pointer
     }
 
     pub fn erase(&mut self, rect: &ClippedRect) {
         blit(
-            &self.board8_empty,
-            &mut self.board8_without_pointer,
+            &self.board_empty,
+            &mut self.board_without_pointer,
             rect,
             &PIXEL_TYPE,
         );
@@ -137,35 +139,37 @@ impl Board {
     fn apply_overlays(&mut self) {
         if self.dirty {
             // Apply overlays.
-            rgba32_to_rgb8_in_place(&self.board32, &mut self.board8_without_pointer);
+            rgba32_to_rgb8_in_place(&self.overlay, &mut self.board_without_pointer);
             // Clear overlays.
-            self.board32.fill(Vec4::ZERO);
+            self.overlay.fill(Vec4::ZERO);
             // Clean.
             self.dirty = false;
         }
     }
 
     /// Overlay a `src` pixel onto a `dst` pixel.
-    fn overlay_pixel_rgb(src: &Vec4, dst: &mut [u8; STRIDE]) {
-        // https://github.com/aiueo13/image-overlay/blob/master/src/blend/fns.rs
-        let one_minus_src_a = 1. - src.w;
-        let alpha_final = src.w + one_minus_src_a;
-        if alpha_final > 0. {
-            dst[0] = Self::overlay_c(src.x, dst[0], src.w, one_minus_src_a, alpha_final);
-            dst[1] = Self::overlay_c(src.y, dst[1], src.w, one_minus_src_a, alpha_final);
-            dst[2] = Self::overlay_c(src.z, dst[2], src.w, one_minus_src_a, alpha_final);
+    const fn overlay_pixel_rgb(src: &Vec4, dst: &mut [u8; STRIDE]) {
+        /// Source: https://www.reddit.com/r/rust/comments/mvbn2g/compositing_colors
+        const fn overlay_c(
+            src: f32,
+            dst: u8,
+            src_alpha: f32,
+            one_minus_src_a: f32,
+            alpha_final: f32,
+        ) -> u8 {
+            (((src * src_alpha + (dst as f32 / 255.) * one_minus_src_a) / alpha_final) * 255.) as u8
         }
-    }
 
-    /// Source: https://www.reddit.com/r/rust/comments/mvbn2g/compositing_colors
-    const fn overlay_c(
-        src: f32,
-        dst: u8,
-        src_alpha: f32,
-        one_minus_src_a: f32,
-        alpha_final: f32,
-    ) -> u8 {
-        (((src * src_alpha + (dst as f32 / 255.) * one_minus_src_a) / alpha_final) * 255.) as u8
+        // This lets the function be constant.
+        let src = src.to_array();
+        // https://github.com/aiueo13/image-overlay/blob/master/src/blend/fns.rs
+        let one_minus_src_a = 1. - src[3];
+        let alpha_final = src[3] + one_minus_src_a;
+        if alpha_final > 0. {
+            dst[0] = overlay_c(src[0], dst[0], src[3], one_minus_src_a, alpha_final);
+            dst[1] = overlay_c(src[1], dst[1], src[3], one_minus_src_a, alpha_final);
+            dst[2] = overlay_c(src[2], dst[2], src[3], one_minus_src_a, alpha_final);
+        }
     }
 
     const fn get_index32(x: usize, y: usize, w: usize) -> usize {

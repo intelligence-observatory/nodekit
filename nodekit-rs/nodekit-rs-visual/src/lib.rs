@@ -21,13 +21,6 @@ pub use rgba_buffer::RgbaBuffer;
 pub use unclipped_rect::UnclippedRect;
 pub use visual_buffer::*;
 
-pub const fn to_blittle_size(region: &Region) -> Size {
-    Size {
-        w: region.w.cast_unsigned() as usize,
-        h: region.h.cast_unsigned() as usize,
-    }
-}
-
 /// Convert a hex string e.g. `"#FF0000FF"` to an RGB24 color.
 pub fn parse_color_rgb(color: &str) -> Result<RgbColor, Error> {
     let color = HexColor::parse_rgba(color).map_err(|e| Error::HexColor(color.to_string(), e))?;
