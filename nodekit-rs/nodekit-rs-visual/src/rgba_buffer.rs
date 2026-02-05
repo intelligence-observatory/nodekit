@@ -1,7 +1,5 @@
-use crate::{BOARD_SIZE, Error, STRIDE, resize, overlay_c};
-use blittle::overlay::{
-    Vec4, rgba8_to_rgba32, rgba8_to_rgba32_color,
-};
+use crate::{BOARD_SIZE, Error, STRIDE, overlay_c, resize};
+use blittle::overlay::{Vec4, rgba8_to_rgba32, rgba8_to_rgba32_color};
 use blittle::{ClippedRect, Size};
 use fast_image_resize::PixelType;
 use nodekit_rs_models::Region;
@@ -47,9 +45,27 @@ impl RgbaBuffer {
             let one_minus_src_a = 1. - src_alpha;
             let alpha_final = src_alpha + one_minus_src_a;
             if alpha_final > 0. {
-                dst[0] = overlay_c(src[0] as f32 / 255., dst[0], src_alpha, one_minus_src_a, alpha_final);
-                dst[1] = overlay_c(src[1] as f32 / 255., dst[1], src_alpha, one_minus_src_a, alpha_final);
-                dst[2] = overlay_c(src[2] as f32 / 255., dst[2], src_alpha, one_minus_src_a, alpha_final);
+                dst[0] = overlay_c(
+                    src[0] as f32 / 255.,
+                    dst[0],
+                    src_alpha,
+                    one_minus_src_a,
+                    alpha_final,
+                );
+                dst[1] = overlay_c(
+                    src[1] as f32 / 255.,
+                    dst[1],
+                    src_alpha,
+                    one_minus_src_a,
+                    alpha_final,
+                );
+                dst[2] = overlay_c(
+                    src[2] as f32 / 255.,
+                    dst[2],
+                    src_alpha,
+                    one_minus_src_a,
+                    alpha_final,
+                );
             }
         }
     }

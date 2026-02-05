@@ -1,6 +1,6 @@
-use crate::{overlay_c, VisualBuffer};
 use crate::rgb_buffer::RgbBuffer;
 use crate::rgba_buffer::RgbaBuffer;
+use crate::{Pointer, VisualBuffer, overlay_c};
 use blittle::overlay::*;
 use blittle::*;
 use bytemuck::cast_slice_mut;
@@ -27,6 +27,10 @@ pub struct Board {
     dirty: bool,
     /// The background color.
     color: RgbColor,
+    /// The pointer.
+    pointer: Pointer,
+    /// If true, hide the pointer.
+    pub hide_pointer: bool,
 }
 
 impl Board {
@@ -41,6 +45,8 @@ impl Board {
             overlay,
             dirty: false,
             color,
+            pointer: Pointer::default(),
+            hide_pointer: false,
         }
     }
 
@@ -92,12 +98,18 @@ impl Board {
         overlay_rgba32(buffer, &mut self.overlay, rect);
     }
 
-    pub fn render(&mut self, pointer_buffer: &[Vec4], pointer_rect: &Option<ClippedRect>) -> &[u8] {
+    pub fn set_pointer(&mut self, x: i64, y: i64) {
+        self.pointer.set_rect(x, y);
+    }
+
+    pub fn render(&mut self) -> &[u8] {
         // Apply remaining overlays.
         self.apply_overlays();
 
         // Overlay pointer.
-        if let Some(rect) = pointer_rect {
+        if !self.hide_pointer
+            && let Some(rect) = self.pointer.rect.as_ref()
+        {
             // Copy to the final board.
             self.board_final
                 .copy_from_slice(&self.board_without_pointer);
@@ -110,21 +122,17 @@ impl Board {
                     rect.dst_position_clipped.y + src_y,
                     rect.dst_size.w,
                 );
-                pointer_buffer[src_index..src_index + rect.src_size_clipped.w]
+                self.pointer.buffer[src_index..src_index + rect.src_size_clipped.w]
                     .iter()
                     .zip(dst[dst_index..dst_index + rect.src_size_clipped.w].iter_mut())
                     .for_each(|(src, dst)| {
                         Self::overlay_pixel_rgb(src, dst);
                     });
             });
+            &self.board_final
+        } else {
+            &self.board_without_pointer
         }
-        &self.board_final
-    }
-
-    pub fn render_without_pointer(&mut self) -> &[u8] {
-        // Apply remaining overlays.
-        self.apply_overlays();
-        &self.board_without_pointer
     }
 
     pub fn erase(&mut self, rect: &ClippedRect) {
@@ -175,15 +183,10 @@ impl Default for Board {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::Pointer;
 
     #[test]
     fn test_render_pointer() {
         let mut board = Board::new([200, 200, 200]);
-        let pointer = Pointer::default();
-        nodekit_rs_png::board_to_png(
-            "pointer.png",
-            &board.render(&pointer.0, &Pointer::rect(0, 0)),
-        );
+        nodekit_rs_png::board_to_png("pointer.png", &board.render());
     }
 }

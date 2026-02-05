@@ -1,7 +1,7 @@
 //! Create and modify raw bitmaps.
-//! 
+//!
 //! In nodekit-rs, there are two types of bitmaps:
-//! 
+//!
 //! - An [`RgbBuffer`], a bitmap with RGB8 values that can be blitted onto the board.
 //! - An [`RgbaBuffer`], a bitmap with RGBA32 values that can be overlaid onto the board.
 
@@ -20,7 +20,7 @@ use fast_image_resize::{FilterType, PixelType, ResizeAlg, ResizeOptions, Resizer
 use hex_color::HexColor;
 use nodekit_rs_models::Region;
 use nodekit_rs_models::board::*;
-pub use pointer::Pointer;
+use pointer::Pointer;
 pub use rgb_buffer::RgbBuffer;
 pub use rgba_buffer::RgbaBuffer;
 pub use unclipped_rect::UnclippedRect;

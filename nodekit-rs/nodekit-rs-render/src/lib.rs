@@ -36,10 +36,6 @@ pub struct Renderer {
     sensor: sensor::Sensor,
     /// The known state ID.
     id: Option<Uuid>,
-    /// A bitmap of the pointer.
-    pointer: Pointer,
-    /// If true, don't render the pointer.
-    hide_pointer: bool,
 }
 
 #[pymethods]
@@ -110,7 +106,7 @@ impl Renderer {
 
     /// Set whether the pointer is visible.
     pub fn set_pointer_visibility(&mut self, visible: bool) {
-        self.hide_pointer = !visible;
+        self.board.hide_pointer = !visible;
     }
 }
 
@@ -153,14 +149,11 @@ impl Renderer {
             }
         }
 
-        if self.hide_pointer {
-            Ok(self.board.render_without_pointer())
-        } else {
-            Ok(self.board.render(
-                &self.pointer.0,
-                &Pointer::rect(state.pointer.x, state.pointer.y),
-            ))
+        if !self.board.hide_pointer {
+            self.board.set_pointer(state.pointer.x, state.pointer.y);
         }
+
+        Ok(self.board.render())
     }
 
     /// Start a new state.
@@ -411,7 +404,7 @@ mod tests {
 
         let mut state = State::new_inner("#AAAAAAFF".to_string(), cards, Sensor::default());
         let mut renderer = Renderer::default();
-        renderer.hide_pointer = true;
+        renderer.board.hide_pointer = true;
         render_image(&mut renderer, &mut state, 0, "no_pointer.png");
     }
 
@@ -487,6 +480,7 @@ mod tests {
 
         // Set the hover.
         state.set_confirm_button_inner(true, true).unwrap();
+        state.set_pointer(-30, -400);
         render_image(&mut renderer, &mut state, 0, "slider_2.png");
     }
 
@@ -529,8 +523,8 @@ mod tests {
             region: Region {
                 x: 0,
                 y: 0,
-                w: HORIZONTAL.i_64,
-                h: VERTICAL.i_64,
+                w: HORIZONTAL.u_size.cast_signed() as i64,
+                h: VERTICAL.u_size.cast_signed() as i64,
                 z_index: Some(5),
             },
             card_type: CardType::Text(TextCard {

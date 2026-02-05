@@ -37,8 +37,8 @@ impl Default for Region {
         Self {
             x: 0,
             y: 0,
-            w: HORIZONTAL.i_64,
-            h: VERTICAL.i_64,
+            w: HORIZONTAL.u_size.cast_signed() as i64,
+            h: VERTICAL.u_size.cast_signed() as i64,
             z_index: None,
         }
     }
@@ -61,16 +61,24 @@ impl<'py> FromPyObject<'_, 'py> for Region {
 #[cfg(test)]
 mod tests {
     use crate::Region;
-    use crate::board::HORIZONTAL;
+    use crate::board::{HORIZONTAL, VERTICAL};
     use blittle::PositionI;
 
     #[test]
     fn test_position() {
-        let position = Region::position(-HORIZONTAL.i_64_half, HORIZONTAL.i_64_half);
+        let x1 = HORIZONTAL.u_size.cast_signed() as i64 / 2;
+        let y1 = VERTICAL.u_size.cast_signed() as i64 / 2;
+        let position = Region::position(-x1, y1);
         assert_eq!(position, PositionI::default());
         let position = Region::position(0, 0);
-        assert_eq!(position, PositionI { x: 512, y: 512 });
-        let position = Region::position(HORIZONTAL.i_64_half, -HORIZONTAL.i_64_half);
+        assert_eq!(
+            position,
+            PositionI {
+                x: x1 as isize,
+                y: y1 as isize
+            }
+        );
+        let position = Region::position(x1, -y1);
         assert_eq!(position, PositionI { x: 1024, y: 1024 });
     }
 }

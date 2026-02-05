@@ -164,6 +164,6 @@ mod tests {
 
         let mut board = Board::new([255, 255, 255]);
         board.blit_rgb(&video.frame);
-        nodekit_rs_png::board_to_png("board.png", board.render_without_pointer());
+        nodekit_rs_png::board_to_png("board.png", board.render());
     }
 }
