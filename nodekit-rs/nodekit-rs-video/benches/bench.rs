@@ -6,7 +6,7 @@ use std::path::PathBuf;
 
 pub fn criterion_benchmark(c: &mut Criterion) {
     let region = Region {
-        x: -HORIZONTAL.i_size_half as i64,
+        x: -HORIZONTAL.cast_signed() as i64 / 2,
         y: -200,
         w: 410,
         h: 614,

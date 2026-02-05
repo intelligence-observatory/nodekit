@@ -26,8 +26,8 @@ impl Region {
 
     pub const fn position(x: i64, y: i64) -> PositionI {
         PositionI {
-            x: HORIZONTAL.i_size_half + x as isize,
-            y: VERTICAL.i_size_half - y as isize,
+            x: (HORIZONTAL.cast_signed() / 2) + x as isize,
+            y: (VERTICAL.cast_signed() / 2) - y as isize,
         }
     }
 }
@@ -37,8 +37,8 @@ impl Default for Region {
         Self {
             x: 0,
             y: 0,
-            w: HORIZONTAL.u_size.cast_signed() as i64,
-            h: VERTICAL.u_size.cast_signed() as i64,
+            w: HORIZONTAL.cast_signed() as i64,
+            h: VERTICAL.cast_signed() as i64,
             z_index: None,
         }
     }
@@ -66,8 +66,8 @@ mod tests {
 
     #[test]
     fn test_position() {
-        let x1 = HORIZONTAL.u_size.cast_signed() as i64 / 2;
-        let y1 = VERTICAL.u_size.cast_signed() as i64 / 2;
+        let x1 = HORIZONTAL.cast_signed() as i64 / 2;
+        let y1 = VERTICAL.cast_signed() as i64 / 2;
         let position = Region::position(-x1, y1);
         assert_eq!(position, PositionI::default());
         let position = Region::position(0, 0);

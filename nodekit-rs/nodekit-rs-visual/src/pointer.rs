@@ -40,12 +40,12 @@ impl Default for Pointer {
         rect.src_size_clipped = POINTER_SIZE;
         rect.src_size = POINTER_SIZE;
         rect.dst_position = PositionI {
-            x: HORIZONTAL.i_size_half,
-            y: HORIZONTAL.i_size_half,
+            x: HORIZONTAL.cast_signed() / 2,
+            y: VERTICAL.cast_signed() / 2,
         };
         rect.dst_position_clipped = PositionU {
-            x: HORIZONTAL.u_size / 2,
-            y: HORIZONTAL.u_size / 2,
+            x: HORIZONTAL / 2,
+            y: VERTICAL / 2,
         };
         rect.dst_size = BOARD_SIZE;
         Self {

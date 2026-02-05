@@ -36,7 +36,7 @@ pub struct Board {
 impl Board {
     pub fn new(color: RgbColor) -> Self {
         // Create the boards.
-        let board = bitmap_rgb(HORIZONTAL.u_size, VERTICAL.u_size, color);
+        let board = bitmap_rgb(HORIZONTAL, VERTICAL, color);
         let overlay = rgb8_to_rgba32(&board);
         Self {
             board_without_pointer: board.clone(),

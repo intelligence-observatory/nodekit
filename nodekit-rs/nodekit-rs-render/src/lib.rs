@@ -50,7 +50,7 @@ impl Renderer {
     /// The shape of the returned array is: `(768, 1024, 3)`.
     #[staticmethod]
     pub fn empty_board<'py>(py: Python<'py>) -> Bound<'py, PyArray3<u8>> {
-        PyArray3::zeros(py, (VERTICAL.u_size, HORIZONTAL.u_size, STRIDE), false)
+        PyArray3::zeros(py, (VERTICAL, HORIZONTAL, STRIDE), false)
     }
 
     /// Render `state` and copy the rendered bitmap into `board`.
@@ -65,10 +65,7 @@ impl Renderer {
         board: Bound<'py, PyArray3<u8>>,
     ) -> PyResult<()> {
         let shape = board.shape();
-        if shape.len() == 3
-            && shape[0] == VERTICAL.u_size
-            && shape[1] == HORIZONTAL.u_size
-            && shape[2] == STRIDE
+        if shape.len() == 3 && shape[0] == VERTICAL && shape[1] == HORIZONTAL && shape[2] == STRIDE
         {
             let bitmap = self
                 .blit(state.borrow_mut().deref_mut())
@@ -80,7 +77,7 @@ impl Renderer {
         } else {
             Err(PyRuntimeError::new_err(format!(
                 "Expected a numpy array of shape [{}, {}, {STRIDE}] but got: {:?}",
-                VERTICAL.u_size, HORIZONTAL.u_size, shape
+                VERTICAL, HORIZONTAL, shape
             )))
         }
     }
@@ -523,8 +520,8 @@ mod tests {
             region: Region {
                 x: 0,
                 y: 0,
-                w: HORIZONTAL.u_size.cast_signed() as i64,
-                h: VERTICAL.u_size.cast_signed() as i64,
+                w: HORIZONTAL.cast_signed() as i64,
+                h: VERTICAL.cast_signed() as i64,
                 z_index: Some(5),
             },
             card_type: CardType::Text(TextCard {

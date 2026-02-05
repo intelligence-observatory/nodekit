@@ -9,8 +9,8 @@ pub fn board_to_png(filename: &str, board: &[u8]) {
     to_png(
         filename,
         board,
-        HORIZONTAL.u_size as u32,
-        VERTICAL.u_size as u32,
+        HORIZONTAL as u32,
+        VERTICAL as u32,
         ColorType::Rgb,
     );
 }

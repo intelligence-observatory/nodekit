@@ -87,7 +87,7 @@ mod tests {
         assert_eq!(resized.rect.dst_position_clipped.x, 256);
         assert_eq!(resized.rect.dst_position_clipped.y, 0);
         assert_eq!(resized.rect.src_size_clipped.w, 512);
-        assert_eq!(resized.rect.src_size_clipped.h, VERTICAL.u_size);
+        assert_eq!(resized.rect.src_size_clipped.h, VERTICAL);
         nodekit_rs_png::rgb_to_png(
             "rgb_resize.png",
             &resized.buffer,
