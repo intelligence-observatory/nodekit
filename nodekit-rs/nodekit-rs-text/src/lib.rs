@@ -20,7 +20,11 @@ use std::sync::Arc;
 pub use text::Text;
 pub use text_entry::TextEntry;
 
-const CORNER_SRC_W: usize = 17;
+/// The alpha values of corners are stored in a binary file.
+/// They are expressed in a 2D array where each axis is of this length.
+const CORNER_SRC_W: usize = 16;
+/// Within the corners array,
+/// this is the length of the side of a square defining the alpha values of a corner.
 const CORNER_D: usize = 8;
 
 #[pyclass]
@@ -90,8 +94,8 @@ impl TextEngine {
                     background_color: "#00000000".to_string(),
                 };
                 // Render.
-                text_entry_buffers.text =
-                    self.get_text(&text_card, font_size, text_entry_buffers.background.rect)?;
+                text_entry_buffers.foreground =
+                    self.get_text(&text_card, font_size, text_entry_buffers.rect())?;
                 Ok(Some(text_entry_buffers))
             }
             None => Ok(None),
@@ -285,13 +289,22 @@ impl TextEngine {
         }
     }
 
-    /// Colorize the source bitmap of a text card background.
+    /// Set the alpha values of a corner such that it becomes a rounded corner.
+    ///
+    /// - `src_position` is the top-left position of the corner in the corner alpha values bitmap.
+    /// - `dst_position` is the top-left position at which the alpha values will be applied.
+    /// - `dst_width` is the width of `dst`.
+    /// - `dst` is the destination bitmap.
     fn round_corner(
         src_position: PositionU,
         dst_position: PositionU,
         dst_width: usize,
         dst: &mut [Vec4],
     ) {
+        // This is a 16x16 array of u8 values where each 8x8 quadrant is a corner's alpha values.
+        // We are manually setting these values rather than 9-slice scaling a sprite
+        // because this is *much* faster.
+        // We can get away with it because we know that the background is always a uniform color.
         const CORNER_ALPHAS: &[u8] = include_bytes!("../backgrounds/text.raw");
 
         for y in 0..CORNER_D {
@@ -316,6 +329,7 @@ impl Default for TextEngine {
     fn default() -> Self {
         // Load fonts.
         let locale = "en-US".to_string();
+        // Load the database manually to avoid loading default fonts.
         let mut db = fontdb::Database::new();
         db.load_font_source(Source::Binary(Arc::new(include_bytes!(
             "../fonts/Inter-Medium.otf"

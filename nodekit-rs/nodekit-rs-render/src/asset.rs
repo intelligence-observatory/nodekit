@@ -19,7 +19,7 @@ impl Asset {
             Self::Image(buffer) => Some(buffer.rect()),
             Self::Slider(slider) => Some(slider.rect),
             Self::Text(text) => text.rect(),
-            Self::TextEntry(buffers) => Some(buffers.background.rect),
+            Self::TextEntry(buffers) => Some(buffers.rect()),
             Self::Video(video) => Some(video.rgb_buffer.rect),
         }
     }

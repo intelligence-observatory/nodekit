@@ -15,9 +15,22 @@ pub fn criterion_benchmark(c: &mut Criterion) {
 
     // Render the text.
     let mut text = TextEngine::default();
-    c.bench_function("text rendering", |b| {
+    c.bench_function("text card", |b| {
         b.iter(|| {
             text.render_text_card(&card, &region).unwrap();
+        })
+    });
+
+    // Text entry.
+    let card = nodekit_rs_models::card::TextEntry {
+        text: include_str!("../lorem.txt").to_string(),
+        font_size: 20,
+        prompt: String::default(),
+    };
+
+    c.bench_function("text entry", |b| {
+        b.iter(|| {
+            text.render_text_entry(&card, &region).unwrap();
         })
     });
 }
