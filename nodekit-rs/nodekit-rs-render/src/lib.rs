@@ -345,7 +345,7 @@ impl Renderer {
                     Asset::TextEntry(text) => text.blit(&mut self.board),
                     Asset::Video(video) => {
                         video.get_frame(state.t_msec).map_err(Error::Video)?;
-                        self.board.blit_rgb(&video.rgb_buffer);
+                        self.board.blit_rgb(&video.frame);
                     }
                 }
                 // Apply the hovering overlay.

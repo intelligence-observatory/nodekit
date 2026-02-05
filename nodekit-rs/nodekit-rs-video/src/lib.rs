@@ -11,9 +11,13 @@ use scuffle_ffmpeg::{
 };
 use std::io::Cursor;
 
+/// A video asset.
 pub struct Video {
-    buffer: Vec<u8>,
-    pub rgb_buffer: RgbBuffer,
+    /// The entire video.
+    video: Vec<u8>,
+    /// A rendered frame bitmap.
+    pub frame: RgbBuffer,
+    /// The video's framerate.
     framerate: f64,
 }
 
@@ -21,16 +25,17 @@ impl Video {
     pub fn new(asset: &Asset, region: &Region) -> Result<Option<Self>, Error> {
         // Load the video.
         let buffer = load_asset(asset).map_err(Error::Asset)?;
-
-        // Get metadata.
         let cursor = Cursor::new(&buffer);
         let input = Input::seekable(cursor).map_err(Error::Ffmpeg)?;
-        // Get the streams.
+
+        // Get the video stream.
         let streams = input.streams();
         let video = streams
             .best(AVMediaType::Video)
             .ok_or(Error::NoVideoTrack)?;
+        // Get the framerate.
         let framerate = video.r_frame_rate().as_f64();
+        // Get the size of the video.
         let video_decoder = Decoder::new(&video)
             .map_err(Error::Ffmpeg)?
             .video()
@@ -39,6 +44,9 @@ impl Video {
             w: video_decoder.width().cast_unsigned() as usize,
             h: video_decoder.height().cast_unsigned() as usize,
         };
+
+        // We can't use input or video_decoder again because ffmpeg can't move between threads,
+        // which is how pyo3 works.
         drop(input);
 
         // Get the rect, resized to fit within the card.
@@ -48,17 +56,19 @@ impl Video {
         rect.resize(&card_size);
         // Get the clipping rect.
         Ok(rect.into_clipped_rect(BOARD_SIZE).map(|rect| Self {
-            buffer,
-            rgb_buffer: RgbBuffer::from(rect),
+            video: buffer,
+            // An empty frame.
+            frame: RgbBuffer::from(rect),
             framerate,
         }))
     }
 
+    /// Returns the frame at t_msec.
     pub fn get_frame(&mut self, t_msec: u64) -> Result<(), Error> {
         // Open the buffer.
-        let cursor = Cursor::new(&self.buffer);
+        let cursor = Cursor::new(&self.video);
         let mut input = Input::seekable(cursor).map_err(Error::Ffmpeg)?;
-        // Get the streams.
+        // Get the video stream.
         let streams = input.streams();
         let video = streams
             .best(AVMediaType::Video)
@@ -66,6 +76,7 @@ impl Video {
         let video_index = streams
             .best_index(AVMediaType::Video)
             .ok_or(Error::NoVideoTrack)? as i32;
+        // Get the decoder.
         let mut video_decoder = Decoder::with_options(
             &video,
             DecoderOptions {
@@ -76,6 +87,7 @@ impl Video {
         .map_err(Error::Ffmpeg)?
         .video()
         .map_err(|_| Error::NotVideoDecoder)?;
+        let pixel_format = video_decoder.pixel_format();
         let mut frame_index = 0;
         let target_frame_index = (t_msec as f64 / 1000. * self.framerate) as usize;
         let mut frame: Option<VideoFrame> = None;
@@ -98,22 +110,24 @@ impl Video {
             }
         }
         let frame = frame.ok_or(Error::NoFrame(t_msec))?;
+        // Resize the frame and convert to RGB8.
         let mut scaler = VideoScaler::new(
             frame.width() as i32,
             frame.height() as i32,
-            AVPixelFormat::Yuv420p,
-            self.rgb_buffer.rect.src_size.w.cast_signed() as i32,
-            self.rgb_buffer.rect.src_size.h.cast_signed() as i32,
+            pixel_format,
+            self.frame.rect.src_size.w.cast_signed() as i32,
+            self.frame.rect.src_size.h.cast_signed() as i32,
             AVPixelFormat::Rgb24,
         )
         .map_err(Error::Ffmpeg)?;
         let frame = scaler.process(&frame).map_err(Error::Ffmpeg)?;
         let data = frame.data(0).ok_or(Error::NoData)?;
+        // Copy the frame's data into `self.frame`.
         let width_3 = frame.width() * STRIDE;
-        for y in 0..self.rgb_buffer.rect.src_size.h {
+        for y in 0..self.frame.rect.src_size.h {
             let row = data.get_row(y).ok_or(Error::NotEnoughRows(y))?;
             let index = y * width_3;
-            self.rgb_buffer.buffer_mut()[index..index + width_3].copy_from_slice(&row[0..width_3]);
+            self.frame.buffer_mut()[index..index + width_3].copy_from_slice(&row[0..width_3]);
         }
         Ok(())
     }
@@ -143,13 +157,13 @@ mod tests {
         // Write the frame.
         nodekit_rs_png::rgb_to_png(
             "frame.png",
-            video.rgb_buffer.buffer_ref(),
-            video.rgb_buffer.rect.src_size.w as u32,
-            video.rgb_buffer.rect.src_size.h as u32,
+            video.frame.buffer_ref(),
+            video.frame.rect.src_size.w as u32,
+            video.frame.rect.src_size.h as u32,
         );
 
         let mut board = Board::new([255, 255, 255]);
-        board.blit_rgb(&video.rgb_buffer);
+        board.blit_rgb(&video.frame);
         nodekit_rs_png::board_to_png("board.png", board.render_without_pointer());
     }
 }

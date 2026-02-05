@@ -51,7 +51,7 @@ impl Sensor {
                 Asset::Slider(slider) => slider.get_clones_of_overlays(),
                 Asset::Text(text) => text.get_clones_of_overlays(),
                 Asset::TextEntry(text_entry) => text_entry.get_clones_of_overlays(),
-                Asset::Video(video) => vec![video.rgb_buffer.as_rgba()],
+                Asset::Video(video) => vec![video.frame.as_rgba()],
             };
             // Drop the opacity.
             buffers
