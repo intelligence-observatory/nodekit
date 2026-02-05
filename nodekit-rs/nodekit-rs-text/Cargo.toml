@@ -5,10 +5,8 @@ edition = "2024"
 
 [dependencies]
 blittle.workspace = true
-bytemuck.workspace = true
 cosmic-text.workspace = true
 hex_color.workspace = true
-lazy_static.workspace = true
 markdown.workspace = true
 nine-slices.workspace = true
 nodekit-rs-models = { path = "../nodekit-rs-models" }
