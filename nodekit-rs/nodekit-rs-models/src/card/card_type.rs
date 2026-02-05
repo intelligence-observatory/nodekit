@@ -26,6 +26,7 @@ impl CardType {
                 let looped = obj.getattr("loop")?.extract::<bool>()?;
                 Ok(Self::Video(VideoCard { asset, looped }))
             }
+            // CompositeCards are handled in `Card` and the sensor cards are handled in `Sensor`.
             other => Err(PyValueError::new_err(format!("Invalid card type: {other}"))),
         }
     }

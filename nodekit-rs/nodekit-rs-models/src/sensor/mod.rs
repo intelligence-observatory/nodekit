@@ -20,6 +20,9 @@ const REGION: &str = "region";
 const CHOICES: &str = "choices";
 const CONFIRM_BUTTON: &str = "confirm_button";
 
+/// Sensors in nodekit-rs are described differently than in nodekit.
+/// Here, there is only one sensor that can have 0-n listeners.
+/// Most sensors in nodekit, e.g. ClickSensor, aren't represented in nodekit-rs.
 #[derive(Default)]
 pub struct Sensor {
     pub enable: Option<Enable>,
@@ -43,6 +46,7 @@ impl Sensor {
         }
     }
 
+    /// Extract any cards associated with the sensor.
     fn extract_cards(
         card: Bound<'_, PyAny>,
         cards: &mut SlotMap<CardKey, Card>,
@@ -57,28 +61,36 @@ impl Sensor {
             .collect::<Vec<CardKey>>())
     }
 
+    /// A multi-select sensor:
+    ///
+    /// - Has cards that can be hovered over and selected
+    /// - Has cards comprising a confirm button, which can be hovered over and enabled/disabled.
     fn extract_multi_select(
         sensor: Borrowed<'_, '_, PyAny>,
         cards: &mut SlotMap<CardKey, Card>,
     ) -> PyResult<Self> {
+        // Selectable cards, and the confirm button, can be hovered over.
         let mut hover = Hover::default();
+        // The confirm button is initially disabled.
         let mut enable = Enable::default();
 
         // Extract the confirm button.
         let confirm_button = Self::extract_cards(sensor.getattr(CONFIRM_BUTTON)?, cards)?;
+        // Extract the cards constituting the confirm button.
+        hover.insert(None, confirm_button.clone());
         // Disable the confirm button.
-        let enable_key = enable.insert(confirm_button.clone());
+        let enable_key = enable.insert(confirm_button);
+
         // Create the select sensor.
         let mut select = Select::new(enable_key);
 
-        // Extract the cards constituting the confirm button.
-        hover.insert(None, confirm_button);
-
+        // Get the choices.
         let choices = sensor.getattr(CHOICES)?;
         let choices: &Bound<PyDict> = choices.cast::<PyDict>()?;
         for (choice, card) in choices {
-            // The child key.
+            // The choice key.
             let choice = choice.extract::<String>()?;
+            // Extract the cards associated with `choice`.
             let card_keys = Self::extract_cards(card, cards)?;
             // Store these as selectable and hoverable.
             select.insert(choice.clone(), card_keys.clone());
@@ -93,6 +105,7 @@ impl Sensor {
         })
     }
 
+    /// A select sensor has cards that can hovered over.
     fn extract_select(
         sensor: Borrowed<'_, '_, PyAny>,
         cards: &mut SlotMap<CardKey, Card>,
@@ -102,10 +115,11 @@ impl Sensor {
         let choices = sensor.getattr(CHOICES)?;
         let choices: &Bound<PyDict> = choices.cast::<PyDict>()?;
         for (choice, card) in choices {
-            // The child key.
+            // The choice key.
             let choice = choice.extract::<String>()?;
+            // Extract the cards associated with `choice`.
             let card_keys = Self::extract_cards(card, cards)?;
-            // Store these as selectable and hoverable.
+            // Store these as hoverable.
             hover.insert(Some(choice), card_keys);
         }
 
@@ -117,12 +131,16 @@ impl Sensor {
         })
     }
 
+    /// A slider has:
+    ///
+    /// - A renderable that is stored as a `Card` and a `GraphicalSensor`.
+    /// - Optionally, a confirm button that can be hovered over and enabled/disabled.
     fn extract_slider(
         sensor: Borrowed<'_, '_, PyAny>,
         cards: &mut SlotMap<CardKey, Card>,
     ) -> PyResult<Self> {
         let mut s = Self::default();
-        // Extract the sensor.
+        // Extract the slider.
         let num_bins = sensor
             .getattr("num_bins")?
             .extract::<i64>()?
@@ -156,11 +174,13 @@ impl Sensor {
         let enable = match sensor.getattr_opt(CONFIRM_BUTTON)? {
             Some(card) => {
                 let confirm_button = Self::extract_cards(card, cards)?;
+
                 let mut hover = Hover::default();
                 hover.insert(None, confirm_button.clone());
+                s.hover = Some(hover);
+
                 let mut enable = Enable::default();
                 let enable_key = enable.insert(confirm_button);
-                s.hover = Some(hover);
                 s.enable = Some(enable);
                 Some(enable_key)
             }
@@ -174,6 +194,7 @@ impl Sensor {
         Ok(s)
     }
 
+    /// A text entry sensor has a renderable that is stored as a `Card` and a `GraphicalSensor`.
     fn extract_text_entry(
         sensor: Borrowed<'_, '_, PyAny>,
         cards: &mut SlotMap<CardKey, Card>,
