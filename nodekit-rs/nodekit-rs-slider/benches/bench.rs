@@ -18,11 +18,20 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         h: 90,
         z_index: None,
     };
+    // Create the slider.
+    c.bench_function("slider rendering", |b| {
+        b.iter(|| {
+            nodekit_rs_slider::Slider::new(&region, &slider_card)
+                .unwrap()
+                .unwrap();
+        })
+    });
+
     let slider = nodekit_rs_slider::Slider::new(&region, &slider_card)
         .unwrap()
         .unwrap();
 
-    // Render the text.
+    // Blit the slider.
     c.bench_function("slider rendering", |b| {
         b.iter(|| {
             slider.blit(&mut board);
