@@ -1,6 +1,7 @@
 use blittle::{ClippedRect, PositionI, Size};
 use nodekit_rs_models::Region;
 
+/// A position and size that can be converted into a `ClippedRect`.
 #[derive(Clone, Debug)]
 pub struct UnclippedRect {
     pub position: PositionI,

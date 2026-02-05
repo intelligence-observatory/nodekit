@@ -1,4 +1,4 @@
-use crate::VisualBuffer;
+use crate::{overlay_c, VisualBuffer};
 use crate::rgb_buffer::RgbBuffer;
 use crate::rgba_buffer::RgbaBuffer;
 use blittle::overlay::*;
@@ -149,17 +149,6 @@ impl Board {
 
     /// Overlay a `src` pixel onto a `dst` pixel.
     const fn overlay_pixel_rgb(src: &Vec4, dst: &mut [u8; STRIDE]) {
-        /// Source: https://www.reddit.com/r/rust/comments/mvbn2g/compositing_colors
-        const fn overlay_c(
-            src: f32,
-            dst: u8,
-            src_alpha: f32,
-            one_minus_src_a: f32,
-            alpha_final: f32,
-        ) -> u8 {
-            (((src * src_alpha + (dst as f32 / 255.) * one_minus_src_a) / alpha_final) * 255.) as u8
-        }
-
         // This lets the function be constant.
         let src = src.to_array();
         // https://github.com/aiueo13/image-overlay/blob/master/src/blend/fns.rs

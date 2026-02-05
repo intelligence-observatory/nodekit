@@ -1,4 +1,9 @@
-//! Visual buffer functionality that is shared by images, text, and video.
+//! Create and modify raw bitmaps.
+//! 
+//! In nodekit-rs, there are two types of bitmaps:
+//! 
+//! - An [`RgbBuffer`], a bitmap with RGB8 values that can be blitted onto the board.
+//! - An [`RgbaBuffer`], a bitmap with RGBA32 values that can be overlaid onto the board.
 
 mod board;
 mod error;
@@ -87,4 +92,15 @@ fn resize(
 
         Ok((dst.buffer().to_vec(), rect))
     }
+}
+
+/// Source: https://www.reddit.com/r/rust/comments/mvbn2g/compositing_colors
+const fn overlay_c(
+    src: f32,
+    dst: u8,
+    src_alpha: f32,
+    one_minus_src_a: f32,
+    alpha_final: f32,
+) -> u8 {
+    (((src * src_alpha + (dst as f32 / 255.) * one_minus_src_a) / alpha_final) * 255.) as u8
 }
