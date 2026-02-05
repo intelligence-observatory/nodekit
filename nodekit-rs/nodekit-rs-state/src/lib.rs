@@ -98,7 +98,7 @@ impl State {
         {
             if let Some(GraphicalSensor::Slider {
                 card: _,
-                enable: enable_key,
+                confirm_button: enable_key,
             }) = &self.sensor.graphical
                 && let Some(enable_key) = enable_key
             {
@@ -129,7 +129,10 @@ impl State {
 
     pub fn set_slider_inner(&mut self, bin: i64, committed: bool) -> Result<(), Error> {
         if bin >= 0 {
-            if let Some(GraphicalSensor::Slider { card, enable: _ }) = &self.sensor.graphical
+            if let Some(GraphicalSensor::Slider {
+                card,
+                confirm_button: _,
+            }) = &self.sensor.graphical
                 && let CardType::Slider(slider) = &mut self.cards[*card].card_type
             {
                 let bin = bin.cast_unsigned() as usize;
@@ -219,7 +222,7 @@ impl State {
     pub fn hover(&mut self, choice: Option<String>) -> PyResult<()> {
         match self.sensor.hover.as_mut() {
             Some(hover) => hover
-                .set(choice, &mut self.cards)
+                .set_from_choice(choice, &mut self.cards)
                 .map_err(|e| PyKeyError::new_err(e.to_string())),
             None => Self::invalid_sensor(),
         }

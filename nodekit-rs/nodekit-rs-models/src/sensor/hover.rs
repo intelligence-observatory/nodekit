@@ -18,6 +18,9 @@ pub struct Hover {
 }
 
 impl Hover {
+    /// Insert a new `choice` with associated `cards`.
+    ///
+    /// If `choice` is None, the cards aren't mapped to a string. This is how confirm buttons work.
     pub fn insert(&mut self, choice: Option<String>, cards: Vec<CardKey>) -> HoverKey {
         // Mark these cards as hoverable.
         let hover_key = self.hovers.insert(cards.clone());
@@ -32,12 +35,15 @@ impl Hover {
         hover_key
     }
 
-    pub fn set(
+    /// Set the hover state.
+    ///
+    /// If `choice` is None, nothing is hovered.
+    pub fn set_from_choice(
         &mut self,
         choice: Option<String>,
         cards: &mut SlotMap<CardKey, Card>,
     ) -> Result<(), ChoiceKeyError> {
-        // Deselect.
+        // Stop hovering.
         if let Some(hovering) = self.hovering {
             self.hovers[hovering]
                 .iter()
@@ -47,7 +53,7 @@ impl Hover {
         match choice.as_ref() {
             Some(choice) => match self.choices.get(choice) {
                 Some(key) => {
-                    // Select.
+                    // Hover.
                     self.hovers[*key]
                         .iter()
                         .for_each(|k| cards[*k].dirty = true);
@@ -63,6 +69,9 @@ impl Hover {
         }
     }
 
+    /// Given a card key, find an associated hover key and set all associated cards as hovering.
+    ///
+    /// If `card_key` is None, nothing is hovered.
     pub fn set_from_card_key(
         &mut self,
         card_key: Option<CardKey>,
@@ -73,14 +82,14 @@ impl Hover {
             None => None,
         };
 
-        // Deselect.
+        // Stop hovering.
         if let Some(h) = self.hovering {
             self.hovers[h].iter().for_each(|k| cards[*k].dirty = true);
         }
 
         match hover_key {
             Some(hover_key) => {
-                // Select.
+                // Hover.
                 self.hovers[hover_key]
                     .iter()
                     .for_each(|k| cards[*k].dirty = true);
@@ -130,18 +139,18 @@ mod tests {
         let hover_b = hover.insert(Some(choice_b.clone()), vec![b, c]);
 
         // Do nothing.
-        hover.set(None, &mut cards).unwrap();
+        hover.set_from_choice(None, &mut cards).unwrap();
         assert!(hover.hovering.is_none());
         assert!(!cards.values().any(|c| c.dirty));
 
         // Select.
-        hover.set(Some(choice_a), &mut cards).unwrap();
+        hover.set_from_choice(Some(choice_a), &mut cards).unwrap();
         assert_eq!(hover.hovering.unwrap(), hover_a);
         assert!(cards[a].dirty);
         assert!(!cards[b].dirty);
 
         // Select something else.
-        hover.set(Some(choice_b), &mut cards).unwrap();
+        hover.set_from_choice(Some(choice_b), &mut cards).unwrap();
         assert_eq!(hover.hovering.unwrap(), hover_b);
         assert!(cards[a].dirty);
         assert!(cards[b].dirty);
@@ -152,7 +161,7 @@ mod tests {
         cards[c].dirty = false;
 
         // Deselect.
-        hover.set(None, &mut cards).unwrap();
+        hover.set_from_choice(None, &mut cards).unwrap();
         assert!(hover.hovering.is_none());
         assert!(!cards[a].dirty);
         assert!(cards[b].dirty);

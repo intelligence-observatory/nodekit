@@ -13,6 +13,9 @@ pub struct Region {
 }
 
 impl Region {
+    /// Convert x and y to a nodekit-rs position.
+    /// In nodekit-rs, the top-left corner of the board is (0, 0),
+    /// and assets pivot on their top-left corner rather than their center point.
     pub const fn get_position(&self) -> PositionI {
         let mut position = Self::position(self.x, self.y);
         // Adjust so that the position maps to the center point.

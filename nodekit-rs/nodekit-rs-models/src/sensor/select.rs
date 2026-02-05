@@ -6,6 +6,7 @@ use slotmap::{SecondaryMap, SlotMap};
 
 /// Listen for mouse selection and hovering.
 pub struct Select {
+    /// Cards mapped to choices.
     cards: SecondaryMap<CardKey, String>,
     /// Listener for hovering.
     choices: HashMap<String, Vec<CardKey>>,
@@ -70,6 +71,7 @@ impl Select {
         }
     }
 
+    /// Set all cards mapped to `choice` as dirty.
     fn set_dirty_cards(
         &self,
         choice: &str,

@@ -463,7 +463,7 @@ mod tests {
         sensor.enable = Some(enable);
         sensor.graphical = Some(GraphicalSensor::Slider {
             card: slider,
-            enable: Some(e),
+            confirm_button: Some(e),
         });
         let mut hover = Hover::default();
         hover.insert(None, vec![confirm]);

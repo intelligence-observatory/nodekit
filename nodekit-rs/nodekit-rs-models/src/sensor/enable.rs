@@ -18,9 +18,12 @@ impl EnabledCards {
     }
 }
 
+/// Enable or disable groups of cards.
 #[derive(Default)]
 pub struct Enable {
+    /// Groups of enable-able cards.
     enabled: SlotMap<EnableKey, EnabledCards>,
+    /// Cards mapped back to their keys.
     cards: SecondaryMap<CardKey, EnableKey>,
 }
 
@@ -40,6 +43,7 @@ impl Enable {
         }
     }
 
+    /// Set the enabled state of a group of cards defined by `key`.
     pub fn set(&mut self, key: EnableKey, enabled: bool, cards: &mut SlotMap<CardKey, Card>) {
         // Only do something if the enabled state changed.
         if self.enabled[key].enabled != enabled {
@@ -53,10 +57,12 @@ impl Enable {
         }
     }
 
+    /// Returns all cards mapped to the key.
     pub fn get_cards(&self, enable_key: EnableKey) -> &Vec<CardKey> {
         &self.enabled[enable_key].cards
     }
 
+    /// Returns all enable-able cards.
     pub fn get_all_cards(&self) -> Vec<CardKey> {
         self.cards.keys().collect()
     }

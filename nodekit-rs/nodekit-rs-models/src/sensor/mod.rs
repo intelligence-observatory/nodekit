@@ -189,7 +189,7 @@ impl Sensor {
 
         s.graphical = Some(GraphicalSensor::Slider {
             card: cards.insert(card),
-            enable,
+            confirm_button: enable,
         });
         Ok(s)
     }
