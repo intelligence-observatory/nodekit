@@ -240,8 +240,8 @@ impl Renderer {
                     .render_text_card(text_card, &card.region)
                     .map_err(Error::Text)?
                     .map(Asset::Text)),
-                CardType::Video(VideoCard { asset, looped: _ }) => {
-                    Ok(nodekit_rs_video::Video::new(asset, &card.region)
+                CardType::Video(VideoCard { asset, looped }) => {
+                    Ok(nodekit_rs_video::Video::new(asset, &card.region, *looped)
                         .map_err(Error::Video)?
                         .map(Asset::Video))
                 }

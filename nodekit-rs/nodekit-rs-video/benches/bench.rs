@@ -12,9 +12,13 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         h: 614,
         z_index: None,
     };
-    let mut video = Video::new(&Asset::Path(PathBuf::from("test-video.mp4")), &region)
-        .unwrap()
-        .unwrap();
+    let mut video = Video::new(
+        &Asset::Path(PathBuf::from("test-video.mp4")),
+        &region,
+        false,
+    )
+    .unwrap()
+    .unwrap();
 
     c.bench_function("video frame extraction", |b| {
         b.iter(|| {

@@ -20,11 +20,15 @@ pub struct Video {
     /// The video's framerate.
     framerate: f64,
     /// The duration of the video in milliseconds.
-    duration: f64,
+    duration: u64,
+    /// The total number of frames.
+    num_frames: usize,
+    /// If true, this video loops back to start.
+    looped: bool,
 }
 
 impl Video {
-    pub fn new(asset: &Asset, region: &Region) -> Result<Option<Self>, Error> {
+    pub fn new(asset: &Asset, region: &Region, looped: bool) -> Result<Option<Self>, Error> {
         // Load the video.
         let buffer = load_asset(asset).map_err(Error::Asset)?;
         let cursor = Cursor::new(&buffer);
@@ -49,14 +53,13 @@ impl Video {
             h: video_decoder.height().cast_unsigned() as usize,
         };
 
-        // We can't use input or video_decoder again because ffmpeg can't move between threads,
-        // which is how pyo3 works.
+        // Drop input so that we can access buffer again.
         drop(input);
 
         // Get the number of frames.
         let num_frames = Self::get_num_frames(&buffer)?;
         // Get the duration in milliseconds.
-        let duration = (num_frames as f64 / framerate) * 1000.;
+        let duration = ((num_frames as f64 / framerate) * 1000.) as u64;
 
         // Get the rect, resized to fit within the card.
         let mut rect = UnclippedRect::new(region);
@@ -70,12 +73,13 @@ impl Video {
             frame: RgbBuffer::from(rect),
             framerate,
             duration,
+            num_frames: num_frames.cast_unsigned() as usize,
+            looped,
         }))
     }
 
     /// Returns the frame at t_msec.
     pub fn get_frame(&mut self, t_msec: u64) -> Result<(), Error> {
-        self.check_duration(t_msec)?;
         // Open the buffer.
         let cursor = Cursor::new(&self.video);
         let mut input = Input::seekable(cursor).map_err(Error::Ffmpeg)?;
@@ -100,7 +104,18 @@ impl Video {
         .map_err(|_| Error::NotVideoDecoder)?;
         let pixel_format = video_decoder.pixel_format();
         let mut frame_index = 0;
-        let target_frame_index = (t_msec as f64 / 1000. * self.framerate) as usize;
+
+        let target_frame_index = if t_msec < self.duration {
+            // Convert the timestamp to a frame number.
+            (t_msec as f64 / 1000. * self.framerate) as usize
+        } else if self.looped {
+            // Convert the timestamp to a frame number, looping over the duration.
+            ((t_msec % self.duration) as f64 / 1000. * self.framerate) as usize
+        } else {
+            // If the timestamp is past the duration, set it to the last frame.
+            self.num_frames - 1
+        };
+
         let mut frame: Option<VideoFrame> = None;
         let mut got_frame = false;
         for packet in input.packets() {
@@ -118,6 +133,17 @@ impl Video {
             }
             if got_frame {
                 break;
+            }
+        }
+        // Try to get one of the last frames.
+        if !got_frame {
+            video_decoder.send_eof().map_err(Error::Ffmpeg)?;
+            while let Ok(Some(f)) = video_decoder.receive_frame() {
+                frame_index += 1;
+                if frame_index >= target_frame_index {
+                    frame = Some(f);
+                    break;
+                }
             }
         }
         let frame = frame.ok_or(Error::NoFrame(t_msec))?;
@@ -143,17 +169,6 @@ impl Video {
         Ok(())
     }
 
-    const fn check_duration(&self, t_msec: u64) -> Result<(), Error> {
-        if t_msec as f64 <= self.duration {
-            Ok(())
-        } else {
-            Err(Error::EndOfVideo {
-                t_msec,
-                duration: self.duration,
-            })
-        }
-    }
-
     fn get_num_frames(buffer: &[u8]) -> Result<i64, Error> {
         let cursor = Cursor::new(&buffer);
         let mut input = Input::seekable(cursor).map_err(Error::Ffmpeg)?;
@@ -165,11 +180,12 @@ impl Video {
 
         match stream.nb_frames() {
             Some(num_frames) => Ok(num_frames),
+            // Some videos might not have the number of frames,
+            // in which case we need to calculate it manually.
             None => {
                 let index = streams
                     .best_index(AVMediaType::Video)
                     .ok_or(Error::NoVideoTrack)? as i32;
-                // Get the decoder.
                 let mut decoder = Decoder::with_options(
                     &stream,
                     DecoderOptions {
@@ -189,6 +205,10 @@ impl Video {
                             num_frames += 1;
                         }
                     }
+                }
+                decoder.send_eof().map_err(Error::Ffmpeg)?;
+                while let Ok(Some(_)) = decoder.receive_frame() {
+                    num_frames += 1;
                 }
                 Ok(num_frames)
             }
@@ -211,9 +231,13 @@ mod tests {
             h: 614,
             z_index: None,
         };
-        let mut video = Video::new(&Asset::Path(PathBuf::from("test-video.mp4")), &region)
-            .unwrap()
-            .unwrap();
+        let mut video = Video::new(
+            &Asset::Path(PathBuf::from("test-video.mp4")),
+            &region,
+            false,
+        )
+        .unwrap()
+        .unwrap();
 
         video.get_frame(300).unwrap();
 
@@ -239,12 +263,30 @@ mod tests {
             h: 614,
             z_index: None,
         };
-        let mut video = Video::new(&Asset::Path(PathBuf::from("test-video.mp4")), &region)
-            .unwrap()
-            .unwrap();
+        let mut video = Video::new(
+            &Asset::Path(PathBuf::from("test-video.mp4")),
+            &region,
+            false,
+        )
+        .unwrap()
+        .unwrap();
 
-        assert_eq!(video.duration as u64, 2000);
+        assert_eq!(video.duration, 2000);
 
-        assert!(video.get_frame(3000).is_err());
+        // Get the last frame.
+        video.get_frame(1990).unwrap();
+        let a = video.frame.buffer_ref().to_vec();
+        // Test whether a timestamp greater than the duration clamps to the last frame.
+        video.get_frame(3000).unwrap();
+        let b = video.frame.buffer_ref().to_vec();
+        assert_eq!(a, b);
+
+        // Test looping.
+        video.looped = true;
+        video.get_frame(120).unwrap();
+        let a = video.frame.buffer_ref().to_vec();
+        video.get_frame(2126).unwrap();
+        let b = video.frame.buffer_ref().to_vec();
+        assert_eq!(a, b);
     }
 }
