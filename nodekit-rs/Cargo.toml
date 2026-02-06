@@ -34,7 +34,7 @@ blittle = { version = "0.4.3", features = ["overlay"] }
 bytemuck = "1.25.0"
 cosmic-text = "0.17.1"
 criterion = "0.8.1"
-fast_image_resize = { version = "6.0.0", features = ["rayon"] }
+fast_image_resize = "6.0.0"
 hashbrown = "0.16.1"
 hex_color = "3.0.0"
 itertools = "0.14.0"
