@@ -19,6 +19,8 @@ pub struct Video {
     pub frame: RgbBuffer,
     /// The video's framerate.
     framerate: f64,
+    /// The duration of the video in milliseconds.
+    duration: f64,
 }
 
 impl Video {
@@ -35,11 +37,13 @@ impl Video {
             .ok_or(Error::NoVideoTrack)?;
         // Get the framerate.
         let framerate = video.r_frame_rate().as_f64();
+
         // Get the size of the video.
         let video_decoder = Decoder::new(&video)
             .map_err(Error::Ffmpeg)?
             .video()
             .map_err(|_| Error::NotVideoDecoder)?;
+
         let video_size = Size {
             w: video_decoder.width().cast_unsigned() as usize,
             h: video_decoder.height().cast_unsigned() as usize,
@@ -48,6 +52,11 @@ impl Video {
         // We can't use input or video_decoder again because ffmpeg can't move between threads,
         // which is how pyo3 works.
         drop(input);
+
+        // Get the number of frames.
+        let num_frames = Self::get_num_frames(&buffer)?;
+        // Get the duration in milliseconds.
+        let duration = (num_frames as f64 / framerate) * 1000.;
 
         // Get the rect, resized to fit within the card.
         let mut rect = UnclippedRect::new(region);
@@ -60,11 +69,13 @@ impl Video {
             // An empty frame.
             frame: RgbBuffer::from(rect),
             framerate,
+            duration,
         }))
     }
 
     /// Returns the frame at t_msec.
     pub fn get_frame(&mut self, t_msec: u64) -> Result<(), Error> {
+        self.check_duration(t_msec)?;
         // Open the buffer.
         let cursor = Cursor::new(&self.video);
         let mut input = Input::seekable(cursor).map_err(Error::Ffmpeg)?;
@@ -131,6 +142,58 @@ impl Video {
         }
         Ok(())
     }
+
+    const fn check_duration(&self, t_msec: u64) -> Result<(), Error> {
+        if t_msec as f64 <= self.duration {
+            Ok(())
+        } else {
+            Err(Error::EndOfVideo {
+                t_msec,
+                duration: self.duration,
+            })
+        }
+    }
+
+    fn get_num_frames(buffer: &[u8]) -> Result<i64, Error> {
+        let cursor = Cursor::new(&buffer);
+        let mut input = Input::seekable(cursor).map_err(Error::Ffmpeg)?;
+        // Get the video stream.
+        let streams = input.streams();
+        let stream = streams
+            .best(AVMediaType::Video)
+            .ok_or(Error::NoVideoTrack)?;
+
+        match stream.nb_frames() {
+            Some(num_frames) => Ok(num_frames),
+            None => {
+                let index = streams
+                    .best_index(AVMediaType::Video)
+                    .ok_or(Error::NoVideoTrack)? as i32;
+                // Get the decoder.
+                let mut decoder = Decoder::with_options(
+                    &stream,
+                    DecoderOptions {
+                        codec: None,
+                        thread_count: 2,
+                    },
+                )
+                .map_err(Error::Ffmpeg)?
+                .video()
+                .map_err(|_| Error::NotVideoDecoder)?;
+                let mut num_frames = 0;
+                for packet in input.packets() {
+                    let packet = packet.map_err(Error::Ffmpeg)?;
+                    if packet.stream_index() == index {
+                        decoder.send_packet(&packet).map_err(Error::Ffmpeg)?;
+                        while let Ok(Some(_)) = decoder.receive_frame() {
+                            num_frames += 1;
+                        }
+                    }
+                }
+                Ok(num_frames)
+            }
+        }
+    }
 }
 
 #[cfg(test)]
@@ -165,5 +228,23 @@ mod tests {
         let mut board = Board::new([255, 255, 255]);
         board.blit_rgb(&video.frame);
         nodekit_rs_png::board_to_png("board.png", board.render());
+    }
+
+    #[test]
+    fn test_end_of_video() {
+        let region = Region {
+            x: -200,
+            y: -400,
+            w: 410,
+            h: 614,
+            z_index: None,
+        };
+        let mut video = Video::new(&Asset::Path(PathBuf::from("test-video.mp4")), &region)
+            .unwrap()
+            .unwrap();
+
+        assert_eq!(video.duration as u64, 2000);
+
+        assert!(video.get_frame(3000).is_err());
     }
 }

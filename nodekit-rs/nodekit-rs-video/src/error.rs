@@ -11,12 +11,12 @@ pub enum Error {
     NoVideoTrack,
     #[error("Decoder is not a video decoder")]
     NotVideoDecoder,
-    #[error("Failed to find x264 codec")]
-    X264,
     #[error("Failed to find a frame at t={0}")]
     NoFrame(u64),
     #[error("Got an empty frame")]
     NoData,
     #[error("Frame row {0} doesn't exist")]
     NotEnoughRows(usize),
+    #[error("Timestamp {t_msec}ms exceeds video duration: {duration}ms")]
+    EndOfVideo { t_msec: u64, duration: f64 },
 }
