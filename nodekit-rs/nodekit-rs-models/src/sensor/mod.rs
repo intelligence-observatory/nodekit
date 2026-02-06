@@ -53,7 +53,7 @@ impl Sensor {
     ) -> PyResult<Vec<CardKey>> {
         let current_keys = cards.keys().collect::<Vec<CardKey>>();
         // Extract new cards.
-        Card::extract_cards(card, cards)?;
+        Card::extract_cards(Some(card), cards)?;
         // Get the keys of the cards that we just added.
         Ok(cards
             .keys()

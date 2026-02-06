@@ -45,18 +45,20 @@ impl FromPyObject<'_, '_> for Card {
 impl Card {
     /// Extract `obj` into a flat vec of `Card`s.
     pub fn extract_cards(
-        card: Bound<'_, PyAny>,
+        card: Option<Bound<'_, PyAny>>,
         cards: &mut SlotMap<CardKey, Card>,
     ) -> PyResult<()> {
-        // Extract a composite card's children.
-        if card.getattr(CARD_TYPE)?.cast::<PyString>()? == "CompositeCard" {
-            // Recurse until we get single cards.
-            for (_, c) in card.getattr("children")?.cast::<PyDict>()?.iter() {
-                Self::extract_cards(c, cards)?;
+        if let Some(card) = card {
+            // Extract a composite card's children.
+            if card.getattr(CARD_TYPE)?.cast::<PyString>()? == "CompositeCard" {
+                // Recurse until we get single cards.
+                for (_, c) in card.getattr("children")?.cast::<PyDict>()?.iter() {
+                    Self::extract_cards(Some(c), cards)?;
+                }
+            } else {
+                // Extract a single card.
+                cards.insert(Card::extract(card.as_borrowed())?);
             }
-        } else {
-            // Extract a single card.
-            cards.insert(Card::extract(card.as_borrowed())?);
         }
         Ok(())
     }

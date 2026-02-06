@@ -188,7 +188,7 @@ impl State {
     #[new]
     pub fn new(
         board_color: String,
-        card: Bound<'_, PyAny>,
+        card: Option<Bound<'_, PyAny>>,
         sensor: Bound<'_, PyAny>,
     ) -> PyResult<Self> {
         let mut cards = SlotMap::default();
