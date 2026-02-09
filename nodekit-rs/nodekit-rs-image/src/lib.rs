@@ -9,7 +9,7 @@ mod svg;
 use crate::jpg::load_jpg;
 use crate::png::load_png;
 use crate::svg::load_svg;
-pub use error::{Error, JpgError, PngError};
+pub use error::Error;
 use nodekit_rs_asset::load_asset;
 use nodekit_rs_models::{Region, card::Asset};
 use nodekit_rs_visual::*;

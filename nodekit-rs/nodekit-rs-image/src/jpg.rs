@@ -1,4 +1,4 @@
-use crate::{Error, JpgError, convert::*};
+use crate::{Error, convert::*, error::JpgError};
 use blittle::Size;
 use jpeg_decoder::{Decoder, PixelFormat};
 use nodekit_rs_models::Region;
