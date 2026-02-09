@@ -22,6 +22,15 @@ impl Asset {
     fn path(locator: &Bound<PyAny>, path: &str) -> PyResult<PathBuf> {
         locator.getattr(path)?.extract::<PathBuf>()
     }
+
+    /// Returns the file extension, e.g. "png"
+    pub fn extension(&self) -> Option<String> {
+        match self {
+            Self::Path(path) => Some(path.extension()?.to_str()?.to_string()),
+            Self::ZipArchiveInnerPath { zip_archive_path: _, inner_path} => Some(inner_path.extension()?.to_str()?.to_string()),
+            Self::Url(url) => Some(PathBuf::from(url.path_segments()?.last()?).extension()?.to_str()?.to_string())
+        }
+    }
 }
 
 impl Display for Asset {

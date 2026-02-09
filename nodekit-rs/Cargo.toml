@@ -38,6 +38,7 @@ fast_image_resize = "6.0.0"
 hashbrown = "0.16.1"
 hex_color = "3.0.0"
 itertools = "0.14.0"
+jpeg-decoder = "0.3.2"
 markdown = "1.0.0"
 nine-slices = { path = "../../nine-slices", default-features = false }
 numpy = "0.27.1"
