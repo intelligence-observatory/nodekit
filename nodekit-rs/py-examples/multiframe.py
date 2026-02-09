@@ -14,7 +14,7 @@ board_height = 1024
 width = board_width * 2 + title_height * 2
 height = board_height * 2 + title_height * 2
 image = Image.new("RGB", (width, height))
-font_path = Path("../nodekit-rs-text/fonts/Inter/Inter-VariableFont_opsz,wght.ttf").resolve()
+font_path = Path("../nodekit-rs-text/fonts/Inter-Medium.otf").resolve()
 font = ImageFont.truetype(font_path.as_posix(), font_size)
 draw = ImageDraw.Draw(image)
 # Define the header positions.

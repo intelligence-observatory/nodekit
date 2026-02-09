@@ -2,7 +2,7 @@ from pathlib import Path
 from PIL import Image
 import nodekit as nk
 
-d = Path(__file__).parent.joinpath('slider')
+d = Path(__file__).parent.joinpath("slider")
 d.mkdir(parents=True, exist_ok=True)
 
 card = nk.cards.TextCard(
@@ -24,17 +24,17 @@ state = nk.experimental.renderer.State(board_color=board_color, card=card, senso
 state.set_pointer(0, 300)
 renderer = nk.experimental.renderer.Renderer()
 board = renderer.render(state=state)
-Image.fromarray(board).save(d.joinpath('0.png').as_posix())
+Image.fromarray(board).save(d.joinpath("0.png").as_posix())
 
 # Move the thumb and set the slider as committed.
 state.set_slider(bin=3, committed=True)
 # Enable the confirm button.
 state.set_confirm_button(enabled=True, hovering=False)
 board = renderer.render(state=state)
-Image.fromarray(board).save(d.joinpath('1.png').as_posix())
+Image.fromarray(board).save(d.joinpath("1.png").as_posix())
 
 # Move the pointer and hover over the confirm button.
 state.set_pointer(0, 0)
 state.set_confirm_button(enabled=True, hovering=True)
 board = renderer.render(state=state)
-Image.fromarray(board).save(d.joinpath('2.png').as_posix())
+Image.fromarray(board).save(d.joinpath("2.png").as_posix())

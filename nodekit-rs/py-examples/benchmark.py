@@ -4,21 +4,18 @@ from state import get_state
 import nodekit as nk
 
 d = Path(__file__).parent.parent
+test_image = d.joinpath("nodekit-rs-image/test_images/test_image.png").resolve()
 
 
 def rgb() -> nk.experimental.renderer.State:
     cards = {
         "image_0": nk.cards.ImageCard(
             region=nk.Region(x=-256, y=-256, w=256, h=512, z_index=0),
-            image=nk.assets.Image.from_path(
-                d.joinpath("nodekit-rs-image/test_image.png").resolve()
-            ),
+            image=nk.assets.Image.from_path(test_image),
         ),
         "image_1": nk.cards.ImageCard(
             region=nk.Region(x=0, y=0, w=170, h=256, z_index=1),
-            image=nk.assets.Image.from_path(
-                d.joinpath("nodekit-rs-image/test_image.png").resolve()
-            ),
+            image=nk.assets.Image.from_path(test_image),
         ),
         "text": nk.cards.TextCard(
             region=nk.Region(x=-512, y=-512, w=500, h=51, z_index=2),
@@ -38,15 +35,11 @@ def rgba() -> nk.experimental.renderer.State:
     cards = {
         "image_0": nk.cards.ImageCard(
             region=nk.Region(x=-256, y=-256, w=256, h=512, z_index=0),
-            image=nk.assets.Image.from_path(
-                d.joinpath("nodekit-rs-image/test_image.png").resolve()
-            ),
+            image=nk.assets.Image.from_path(test_image),
         ),
         "image_1": nk.cards.ImageCard(
             region=nk.Region(x=0, y=0, w=170, h=256, z_index=1),
-            image=nk.assets.Image.from_path(
-                d.joinpath("nodekit-rs-image/test_image.png").resolve()
-            ),
+            image=nk.assets.Image.from_path(test_image),
         ),
         "text": nk.cards.TextCard(
             region=nk.Region(x=-512, y=-512, w=1000, h=51, z_index=2),

@@ -8,7 +8,7 @@ def get_state() -> nk.experimental.renderer.State:
         "image": nk.cards.ImageCard(
             region=nk.Region(x=-256, y=-256, w=256, h=512, z_index=0),
             image=nk.assets.Image.from_path(
-                d.joinpath("nodekit-rs-image/test_image.png").resolve()
+                d.joinpath("nodekit-rs-image/test_images/test_image.png").resolve()
             ),
         ),
         "video": nk.cards.VideoCard(
