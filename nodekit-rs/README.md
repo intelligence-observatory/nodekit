@@ -179,15 +179,10 @@ If you call `state.select(choice, select)` and the sensor is a `SelectSensor`, t
 
 ## What works, what doesn't
 
-**`nodekit-rs` is in alpha.** The goal is to faithfully replicate `nodekit-browser`. In some cases, the replication isn't exact. In other cases, features are missing.
+**`nodekit-rs` is in alpha.** The goal is to faithfully replicate `nodekit-browser`. In some cases, the replication isn't exact. In other cases, features are missing. Notable examples:
 
-ImageCard, VideoCard, and CompositeCard card should always look the same as they would in a browser.
-
-TextCard is WIP. Markdown formatting is supported. Colorized words are supported (but not in `nodekit-browser`). There are minor kerning problems with list items.
-
-Pointer rendering is supported but might not be the same as in the browser.
-
-Most sensors are not yet implemented.
+- ProductSensor
+- SumSensor
 
 ## Test
 
@@ -219,3 +214,27 @@ python benchmark.py
 ## Architecture
 
 ![](images/nodekit-rs.png)
+
+`nodekit-rs` has been organized according to best practices when developing in Rust:
+
+- Use multiple crates to utilize Rust's scoping protections and to reduce compile time
+- Isolate the portions of the code that are callable from Python or that extract Python data
+
+As shown in the vertical columns of the diagram, there are four "levels" of `nodekit-rs`.
+
+- "Low-level" crates, used throughout `nodekit-rs`:
+  - `nodekit-rs-models` extracts `nodekit` Python models into `nodekit-rs` structs
+  - `nodekit-rs-visual` stores and converts raw bitmap data
+  - `nodekit-rs-asset` loads assets from a paths or URLs
+- "Asset-level" crates:
+  - `nodekit-rs-image` renders ImageCard
+  - `nodekit-rs-slider` renders SliderSensor
+  - `nodekit-rs-text` renders TextCard and TextEntrySensor
+  - `nodekit-rs-video` renders VideoCard
+- "Render-level" crates:
+  - `nodekit-rs-render` renders all cards and sensors, and stores cached asset data
+  - `nodekit-rs-state` stores all information extracted from `nodekit` models as stateful, modifiable, data
+- "Python-level" crate that defines the Rust-Python interface:
+  - `nodekit-rs` re-exports `Renderer` and `State`
+
+An additional crate, `nodekit-rs-png`, can write png files from bitmaps. It is only used when running `cargo test`
