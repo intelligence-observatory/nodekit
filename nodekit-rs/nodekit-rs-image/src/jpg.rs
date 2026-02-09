@@ -28,7 +28,7 @@ pub fn load_jpg(
         other => Err(Error::Jpg(JpgError::PixelFormat(*other, asset.to_string()))),
     }?;
     match RgbBuffer::new_resized(&mut buffer, size, region) {
-        Ok(buffer) => Ok(buffer.map(|buffer| VisualBuffer::Rgb(buffer))),
+        Ok(buffer) => Ok(buffer.map(VisualBuffer::Rgb)),
         Err(error) => Err(Error::Visual(error)),
     }
 }
@@ -42,7 +42,7 @@ mod tests {
 
     #[test]
     fn test_load_jpg() {
-        let asset = Asset::Path(PathBuf::from("test_image.jpg"));
+        let asset = Asset::Path(PathBuf::from("test_images/test_image.jpg"));
         let buffer = load_asset(&asset).unwrap();
         load_jpg(&asset.to_string(), &Region::default(), buffer)
             .unwrap()

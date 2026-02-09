@@ -17,17 +17,13 @@ impl Region {
     /// In nodekit-rs, the top-left corner of the board is (0, 0),
     /// and assets pivot on their top-left corner rather than their center point.
     pub const fn get_position(&self) -> PositionI {
-        let mut position = Self::position(self.x, self.y);
-        // Adjust so that the position maps to the center point.
-        position.x -= self.w as isize / 2;
-        position.y -= self.h as isize / 2;
-        position
+        Self::position(self.x, self.y, self.w as isize, self.h as isize)
     }
 
-    pub const fn position(x: i64, y: i64) -> PositionI {
+    pub const fn position(x: i64, y: i64, w: isize, h: isize) -> PositionI {
         PositionI {
-            x: (HORIZONTAL.cast_signed() / 2) + x as isize,
-            y: (VERTICAL.cast_signed() / 2) - y as isize,
+            x: (HORIZONTAL.cast_signed() / 2) + x as isize - w / 2,
+            y: (VERTICAL.cast_signed() / 2) - y as isize - h / 2,
         }
     }
 }
@@ -68,9 +64,9 @@ mod tests {
     fn test_position() {
         let x1 = HORIZONTAL.cast_signed() as i64 / 2;
         let y1 = VERTICAL.cast_signed() as i64 / 2;
-        let position = Region::position(-x1, y1);
+        let position = Region::position(-x1, y1, 0, 0);
         assert_eq!(position, PositionI::default());
-        let position = Region::position(0, 0);
+        let position = Region::position(0, 0, 0, 0);
         assert_eq!(
             position,
             PositionI {
@@ -78,7 +74,10 @@ mod tests {
                 y: y1 as isize
             }
         );
-        let position = Region::position(x1, -y1);
+        let position = Region::position(x1, -y1, 0, 0);
         assert_eq!(position, PositionI { x: 1024, y: 1024 });
+
+        let position = Region::position(x1, -y1, 400, 300);
+        assert_eq!(position, PositionI { x: 824, y: 874 });
     }
 }

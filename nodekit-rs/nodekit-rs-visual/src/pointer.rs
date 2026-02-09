@@ -20,10 +20,12 @@ pub struct Pointer {
 impl Pointer {
     /// Set the position of the rect, where `x` and `y` are in nodekit's coordinate space
     pub const fn set_rect(&mut self, x: i64, y: i64) {
-        let mut position = Region::position(x, y);
-        // Change the position from the center to the top-left.
-        position.x -= POINTER_SIZE.w as isize / 2;
-        position.y -= POINTER_SIZE.h as isize / 2;
+        let position = Region::position(
+            x,
+            y,
+            POINTER_SIZE.w.cast_signed(),
+            POINTER_SIZE.h.cast_signed(),
+        );
         let size = POINTER_SIZE;
         self.rect = ClippedRect::new(position, BOARD_SIZE, size);
     }

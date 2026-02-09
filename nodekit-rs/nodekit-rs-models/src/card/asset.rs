@@ -32,7 +32,7 @@ impl Asset {
                 inner_path,
             } => Some(inner_path.extension()?.to_str()?.to_lowercase()),
             Self::Url(url) => Some(
-                PathBuf::from(url.path_segments()?.last()?)
+                PathBuf::from(url.path_segments()?.next_back()?)
                     .extension()?
                     .to_str()?
                     .to_lowercase(),

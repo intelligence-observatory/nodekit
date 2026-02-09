@@ -482,7 +482,7 @@ mod tests {
     }
 
     fn image_card() -> Card {
-        let image_path = PathBuf::from("../nodekit-rs-image/test_image.png");
+        let image_path = PathBuf::from("../nodekit-rs-image/test_images/test_image.png");
         assert!(image_path.exists());
         Card {
             region: Region {

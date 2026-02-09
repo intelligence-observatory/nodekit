@@ -11,4 +11,8 @@ nodekit-rs-asset = { path = "../nodekit-rs-asset" }
 nodekit-rs-models = { path = "../nodekit-rs-models" }
 nodekit-rs-visual = { path = "../nodekit-rs-visual" }
 png.workspace = true
+resvg.workspace = true
 thiserror.workspace = true
+
+[dev-dependencies]
+nodekit-rs-png = { path = "../nodekit-rs-png" }

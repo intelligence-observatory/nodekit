@@ -47,30 +47,25 @@ pub fn parse_color_rgba(color: &str) -> Result<RgbaColor, Error> {
 
 fn resize(
     buffer: &mut [u8],
-    bitmap_size: Size,
+    size: Size,
     region: &Region,
     pixel_type: PixelType,
 ) -> Result<(Vec<u8>, UnclippedRect), Error> {
     // Resize to fit within `dst_size`.
-    let mut rect = UnclippedRect::new(region);
+    let (rect, resized) = get_resized_rect(size, region);
 
-    // No need to resize.
-    if rect.size.w == bitmap_size.w && rect.size.h == bitmap_size.h {
+    if !resized {
+        // No need to resize.
         Ok((buffer.to_vec(), rect))
     } else {
-        // Create an image view.
+        // Resize the image.
         let src = fast_image_resize::images::ImageRef::new(
-            bitmap_size.w as u32,
-            bitmap_size.h as u32,
+            size.w as u32,
+            size.h as u32,
             buffer,
             pixel_type,
         )
         .map_err(Error::ImageResizeBuffer)?;
-
-        let card_size = rect.size;
-        rect.size = bitmap_size;
-        rect.resize(&card_size);
-        // Resize the image.
         let width = rect.size.w as u32;
         let height = rect.size.h as u32;
         let mut dst = fast_image_resize::images::Image::new(width, height, pixel_type);
@@ -84,13 +79,29 @@ fn resize(
             .resize(&src, &mut dst, Some(&options))
             .map_err(Error::ImageResize)?;
 
-        // Shift the position.
-        let mut region = region.clone();
-        region.w = rect.size.w.cast_signed() as i64;
-        region.h = rect.size.h.cast_signed() as i64;
-        rect.position = region.get_position();
-
         Ok((dst.buffer().to_vec(), rect))
+    }
+}
+
+pub const fn get_resized_rect(size: Size, region: &Region) -> (UnclippedRect, bool) {
+    // Resize to fit within `dst_size`.
+    let mut rect = UnclippedRect::new(region);
+
+    if rect.size.w == size.w && rect.size.h == size.h {
+        (rect, false)
+    } else {
+        let card_size = rect.size;
+        rect.size = size;
+        // Resize to fit within the card.
+        rect.resize(&card_size);
+        // Shift the position.
+        rect.position = Region::position(
+            region.x,
+            region.y,
+            rect.size.w.cast_signed(),
+            rect.size.h.cast_signed(),
+        );
+        (rect, true)
     }
 }
 

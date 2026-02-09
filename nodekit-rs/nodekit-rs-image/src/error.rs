@@ -12,6 +12,8 @@ pub enum Error {
     Png(PngError),
     #[error("jpg error: {0}")]
     Jpg(JpgError),
+    #[error("svg error: {0}")]
+    Svg(SvgError),
     #[error("{0}")]
     Visual(nodekit_rs_visual::Error),
 }
@@ -34,4 +36,12 @@ pub enum JpgError {
     Metadata(String),
     #[error("jpg {} has an unsupported pixel format: {:?}", 1, 0)]
     PixelFormat(jpeg_decoder::PixelFormat, String),
+}
+
+#[derive(Debug, Error)]
+pub enum SvgError {
+    #[error("Failed to parse svg file {1}: {0}")]
+    Parse(resvg::usvg::Error, String),
+    #[error("Failed to create Pixmap for svg file: {0}")]
+    Pixmap(String),
 }

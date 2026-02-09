@@ -79,7 +79,7 @@ mod tests {
 
     #[test]
     fn test_load_png() {
-        let asset = Asset::Path(PathBuf::from("test_image.png"));
+        let asset = Asset::Path(PathBuf::from("test_images/test_image.png"));
         let buffer = load_asset(&asset).unwrap();
         let image = load_png(&asset.to_string(), &Region::default(), buffer)
             .unwrap()
