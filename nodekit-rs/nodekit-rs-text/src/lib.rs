@@ -6,7 +6,7 @@ mod text_entry;
 
 use crate::md::LINE_HEIGHT;
 use blittle::overlay::{rgba8_to_rgba32, rgba8_to_rgba32_color, Vec4};
-use blittle::{ClippedRect, PositionI};
+use blittle::{ClippedRect, PositionI, PositionU};
 use cosmic_text::fontdb::Source;
 use cosmic_text::{
     Align, Attrs, Buffer, Color, Family, FontSystem, Metrics, PlatformFallback, Shaping,
@@ -87,9 +87,15 @@ impl TextEngine {
                     text_color: text_color.to_string(),
                     background_color: "#00000000".to_string(),
                 };
-                // Render.
+                // Get the size of the foreground..
+                let mut rect = text_entry_buffers.rect();
+                let offset = font_size.font_size as usize * 2;
+                rect.src_size.w -= offset;
+                rect.src_size.h -= offset;
+                rect.set_src_rect(PositionU::default(), rect.src_size);
+                // Get the foreground.
                 text_entry_buffers.foreground =
-                    self.get_text(&text_card, font_size, text_entry_buffers.rect())?;
+                    self.get_text(&text_card, font_size, rect)?;
                 Ok(Some(text_entry_buffers))
             }
             None => Ok(None),
@@ -335,13 +341,20 @@ mod tests {
             text: include_str!("../lorem.txt").to_string(),
             font_size: 20,
         };
-        let region = Region::default();
+        let region = Region {
+            x: 0,
+            y: 0,
+            w: 500,
+            h: 300,
+            z_index: None
+        };
 
         // Render the text.
         let mut text = TextEngine::default();
         let mut board = Board::new([200, 200, 200]);
-        let text_buffer = text.render_text_entry(&card, &region).unwrap().unwrap();
-        text_buffer.blit(&mut board);
+        let mut text_entry = text.render_text_entry(&card, &region).unwrap().unwrap();
+        text_entry.set_gutter_state(GutterState::Enabled);
+        text_entry.blit(&mut board);
         // Write the result as a .png file.
         nodekit_rs_png::board_to_png("text_entry.png", board.render());
 
@@ -353,8 +366,7 @@ mod tests {
 
         // Render the text.
         let mut board = Board::new([200, 200, 200]);
-        let mut text_entry = text.render_text_entry(&card, &region).unwrap().unwrap();
-        text_entry.set_gutter_state(GutterState::Enabled);
+        let text_entry = text.render_text_entry(&card, &region).unwrap().unwrap();
         text_entry.blit(&mut board);
         // Write the result as a .png file.
         nodekit_rs_png::board_to_png("text_entry_prompt.png", board.render());

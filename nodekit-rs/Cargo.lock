@@ -1873,7 +1873,6 @@ dependencies = [
  "criterion",
  "hex_color",
  "markdown",
- "nine-slices",
  "nodekit-rs-models",
  "nodekit-rs-png",
  "nodekit-rs-visual",

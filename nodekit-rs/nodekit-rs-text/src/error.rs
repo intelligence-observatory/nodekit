@@ -1,3 +1,4 @@
+use blittle::Size;
 use markdown::message::Message;
 use thiserror::Error;
 
@@ -21,10 +22,6 @@ pub enum Error {
     BackgroundColor(nodekit_rs_visual::Error),
     #[error("Failed to parse text color: {0}")]
     TextColor(nodekit_rs_visual::Error),
-    #[error("Failed to load text background: {0}")]
-    TextBackground(nine_slices::fast_image_resize::ImageBufferError),
-    #[error("Failed to load text entry background: {0}")]
-    TextEntryBackground(nine_slices::fast_image_resize::ImageBufferError),
-    #[error("Nine-slice error: {0}")]
-    NineSlice(nine_slices::Error),
+    #[error("TextEntryCard is size {0} (must be at least 17x17")]
+    TextEntrySize(Size)
 }
