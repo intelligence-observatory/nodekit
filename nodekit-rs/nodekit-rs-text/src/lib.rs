@@ -284,7 +284,6 @@ impl Default for TextEngine {
 mod tests {
     use super::*;
     use nodekit_rs_visual::Board;
-    use crate::gutter::GutterState;
 
     #[test]
     fn test_text_card_render() {
@@ -340,6 +339,7 @@ mod tests {
             prompt: String::default(),
             text: include_str!("../lorem.txt").to_string(),
             font_size: 20,
+            state: TextEntryGutterState::Enabled
         };
         let region = Region {
             x: 0,
@@ -352,9 +352,8 @@ mod tests {
         // Render the text.
         let mut text = TextEngine::default();
         let mut board = Board::new([200, 200, 200]);
-        let mut text_entry = text.render_text_entry(&card, &region).unwrap().unwrap();
-        text_entry.set_gutter_state(GutterState::Enabled);
-        text_entry.blit(&mut board);
+        let text_entry = text.render_text_entry(&card, &region).unwrap().unwrap();
+        text_entry.blit(&mut board, card.state);
         // Write the result as a .png file.
         nodekit_rs_png::board_to_png("text_entry.png", board.render());
 
@@ -362,12 +361,13 @@ mod tests {
             prompt: "This is a prompt".to_string(),
             text: String::default(),
             font_size: 20,
+            state: TextEntryGutterState::Disabled
         };
 
         // Render the text.
         let mut board = Board::new([200, 200, 200]);
         let text_entry = text.render_text_entry(&card, &region).unwrap().unwrap();
-        text_entry.blit(&mut board);
+        text_entry.blit(&mut board, card.state);
         // Write the result as a .png file.
         nodekit_rs_png::board_to_png("text_entry_prompt.png", board.render());
     }

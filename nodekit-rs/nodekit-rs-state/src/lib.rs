@@ -2,7 +2,7 @@ mod error;
 mod pointer;
 
 pub use error::Error;
-use nodekit_rs_models::card::{Card, CardKey, CardType, VideoCard};
+use nodekit_rs_models::card::{Card, CardKey, CardType, TextEntryGutterState, VideoCard};
 use nodekit_rs_models::sensor::{Enable, EnableKey, GraphicalSensor, Hover, Sensor};
 use pointer::Pointer;
 use pyo3::exceptions::{PyKeyError, PyRuntimeError, PyValueError};
@@ -10,7 +10,6 @@ use pyo3::prelude::*;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use slotmap::SlotMap;
 use uuid::Uuid;
-use nodekit_rs_models::ButtonState;
 
 /// Describes the state of the simulator.
 #[gen_stub_pyclass]
@@ -66,48 +65,82 @@ impl State {
         }
     }
 
-    fn set_button(&mut self, button_state: ButtonState,
-                          enable_key: EnableKey,
-                          enable: &mut Enable,
-                          hover: &mut Hover,
-                          cards: &mut SlotMap<CardKey, Card>,) -> Result<(), Error> {
-        let (enabled, hovering) = match button_state {
-            ButtonState::Disabled => (false, false),
-            ButtonState::Enabled => (true, false),
-            ButtonState::Hovering => (true, true)
-        };
-        enable.set(enable_key, enabled, cards);
-        for card_key in enable.get_cards(enable_key).iter().copied() {
-            // Mark the card as dirty.
-            cards[card_key].dirty = true;
-            // Set hovering.
-            let card_key = if hovering { Some(card_key) } else { None };
-            hover
-                .set_from_card_key(card_key, cards)
-                .map_err(Error::CardKey)?;
-        }
-        Ok(())
-    }
-
-    fn enable(&mut self, key: &Option<EnableKey>, enabled: bool) {
-        if let Some(enable) = self.sensor.enable.as_mut() && let Some(key) = key {
-            enable.set(*key, enabled, &mut self.cards);
-        }
-    }
-
-    fn set_hover<I: Iterator<Item = CardKey>>(&mut self, cards: I, hovering: bool) -> Result<(), Error> {
-        if let Some(hover) = self.sensor.hover.as_mut() {
-            for card_key in cards {
+    /// Set the state of the confirm button.
+    ///
+    /// For tests, call this instead of `set_confirm_button` or there will be a cc link failure.
+    ///
+    /// - `enabled` sets whether the button is enabled or disabled.
+    /// - `hovered` sets whether there is a hover overlay on top of the button.
+    ///
+    /// Raises an exception if there isn't a confirm button.
+    pub fn set_confirm_button_inner(&mut self, enabled: bool, hovering: bool) -> Result<(), Error> {
+        fn set(
+            enabled: bool,
+            enable_key: EnableKey,
+            enable: &mut Enable,
+            hovering: bool,
+            hover: &mut Hover,
+            cards: &mut SlotMap<CardKey, Card>,
+        ) -> Result<(), Error> {
+            enable.set(enable_key, enabled, cards);
+            for card_key in enable.get_cards(enable_key).iter().copied() {
                 // Mark the card as dirty.
-                self.cards[card_key].dirty = true;
+                cards[card_key].dirty = true;
                 // Set hovering.
                 let card_key = if hovering { Some(card_key) } else { None };
                 hover
-                    .set_from_card_key(card_key, &mut self.cards)
+                    .set_from_card_key(card_key, cards)
                     .map_err(Error::CardKey)?;
             }
+            Ok(())
         }
-        Ok(())
+
+        if let Some(enable) = self.sensor.enable.as_mut()
+            && let Some(hover) = self.sensor.hover.as_mut()
+        {
+            if let Some(GraphicalSensor::Slider {
+                card: _,
+                confirm_button: enable_key,
+            }) = &self.sensor.graphical
+                && let Some(enable_key) = enable_key
+            {
+                set(
+                    enabled,
+                    *enable_key,
+                    enable,
+                    hovering,
+                    hover,
+                    &mut self.cards,
+                )
+            } else if let Some(select) = self.sensor.select.as_mut() {
+                set(
+                    enabled,
+                    select.confirm_button,
+                    enable,
+                    hovering,
+                    hover,
+                    &mut self.cards,
+                )
+            }
+            else if let Some(GraphicalSensor::TextEntry(card_key)) = self.sensor.graphical && let CardType::TextEntry(text_entry) = &mut self.cards[card_key].card_type {
+                // Set the gutter state.
+                text_entry.state = if hovering {
+                    TextEntryGutterState::Hovering
+                }
+                else if enabled {
+                    TextEntryGutterState::Enabled
+                }
+                else {
+                    TextEntryGutterState::Disabled
+                };
+                Ok(())
+            }
+            else {
+                Ok(())
+            }
+        } else {
+            Err(Error::ConfirmButton)
+        }
     }
 
     /// Set the state of a SliderSensor.
@@ -116,73 +149,28 @@ impl State {
     ///
     /// - `bin` sets which bin the thumb overlay's position will snap to.
     /// - `committed` determines the color of the thumb overlay, and corresponds to whether the agent has moved the thumb overlay yet.
-    /// - `button_state` determines the state of the confirm button.
     ///
     /// Raises an exception if the sensor isn't a TextEntrySensor.
-    pub fn set_slider_inner(&mut self, bin: i64, committed: bool, button_state: Option<ButtonState>) -> Result<(), Error> {
+    pub fn set_slider_inner(&mut self, bin: i64, committed: bool) -> Result<(), Error> {
         if bin >= 0 {
-            let (card_key, confirm_button, slider) = match self.sensor.graphical.as_ref() {
-                Some(GraphicalSensor::Slider { card, confirm_button }) => match &mut self.cards[*card].card_type {
-                    CardType::Slider(slider) => Ok((*card, *confirm_button, slider)),
-                    _ => Err(Error::NoSlider)
-                }
-                _ => Err(Error::NoSlider)
-            }?;
-
-            // TODO
-            let confirm_button = match (confirm_button, button_state) {
-                (Some(confirm_button), Some(_)) => Ok(confirm_button),
-                _ => Err(Error::NoSlider)
-            }?;
-
-            // Set the slider.
-            let bin = bin.cast_unsigned() as usize;
-            if bin < slider.num_bins {
-                slider.committed = committed;
-                slider.bin = bin;
-                self.cards[card_key].dirty = true;
-
-                // Set the confirm button.
-                match button_state {
-                    ButtonState::Enabled => {
-
-                    }
-                }
-
-                Ok(())
-            } else {
-                Err(Error::Bin {
-                    bin,
-                    num_bins: slider.num_bins,
-                })
-            }
-
             if let Some(GraphicalSensor::Slider {
                 card,
-                confirm_button,
+                confirm_button: _,
             }) = &self.sensor.graphical
                 && let CardType::Slider(slider) = &mut self.cards[*card].card_type
-                && let Some(enable) = self.sensor.enable.as_mut()
             {
-                // Enable, disable, hover.
-                match button_state {
-                    ButtonState::Enabled => {
-                        if let Some(confirm_button) = confirm_button {
-                            enable.set(*confirm_button, true, &mut self.cards);
-                        }
-                    }
-                    ButtonState::Hovering => {
-                        self.enable(confirm_button, true);
-                        if let Some(enable) = self.sensor.enable.as_ref() {
-                            // TODO
-                        }
-                    }
-                    ButtonState::Disabled => {
-                        self.enable(confirm_button, false);
-                    }
+                let bin = bin.cast_unsigned() as usize;
+                if bin < slider.num_bins {
+                    slider.committed = committed;
+                    slider.bin = bin;
+                    self.cards[*card].dirty = true;
+                    Ok(())
+                } else {
+                    Err(Error::Bin {
+                        bin,
+                        num_bins: slider.num_bins,
+                    })
                 }
-
-
             } else {
                 Err(Error::NoSlider)
             }

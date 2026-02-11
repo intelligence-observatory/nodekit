@@ -1,23 +1,18 @@
 use blittle::{ClippedRect, PositionI, Size};
 use blittle::overlay::{overlay_rgba32, rgba8_to_rgba32_color, Vec4};
 use nodekit_rs_models::board::{RgbaColor, BOARD_SIZE};
+use nodekit_rs_models::card::TextEntryGutterState;
 use nodekit_rs_visual::{Board, Corner, UnclippedRect};
 
 const GUTTER_TEXT_SIZE: Size = Size { w: 33, h: 12 };
 
-#[derive(Copy, Clone)]
-pub enum GutterState {
-    Disabled,
-    Enabled,
-    Hovering
-}
+
 
 pub struct Gutter {
     disabled: Vec<Vec4>,
     enabled: Vec<Vec4>,
     hovering: Vec<Vec4>,
     pub rect: ClippedRect,
-    state: GutterState
 }
 
 impl Gutter {
@@ -36,19 +31,14 @@ impl Gutter {
             enabled,
             hovering,
             rect,
-            state: GutterState::Disabled
         })
     }
-
-    pub const fn set_state(&mut self, state: GutterState) {
-        self.state = state;
-    }
-
-    pub fn blit(&self, board: &mut Board) {
-        let buffer = match &self.state {
-            GutterState::Disabled => &self.disabled,
-            GutterState::Enabled => &self.enabled,
-            GutterState::Hovering => &self.hovering,
+    
+    pub fn blit(&self, board: &mut Board, state: TextEntryGutterState) {
+        let buffer = match state {
+            TextEntryGutterState::Disabled => &self.disabled,
+            TextEntryGutterState::Enabled => &self.enabled,
+            TextEntryGutterState::Hovering => &self.hovering,
         };
         board.overlay_rgba_raw(buffer, &self.rect);
     }

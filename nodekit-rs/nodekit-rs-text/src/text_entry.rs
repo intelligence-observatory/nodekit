@@ -3,8 +3,9 @@ use blittle::{ClippedRect, PositionI};
 use blittle::overlay::{rgba8_to_rgba32, Vec4};
 use nodekit_rs_models::Region;
 use nodekit_rs_models::board::BOARD_SIZE;
+use nodekit_rs_models::card::TextEntryGutterState;
 use nodekit_rs_visual::{Board, RgbaBuffer, UnclippedRect};
-use crate::gutter::{Gutter, GutterState};
+use crate::gutter::Gutter;
 
 const BORDER_COLOR_LEFT_0: Vec4 = Vec4::new(92.5, 92.5, 92.5, 1.);
 const BORDER_COLOR_LEFT_1: Vec4 = Vec4::new(96.9, 96.9, 96.9, 1.);
@@ -92,19 +93,13 @@ impl TextEntry {
         }
     }
 
-    pub const fn set_gutter_state(&mut self, gutter_state: GutterState) {
-        if let Some(gutter) = self.gutter.as_mut() {
-            gutter.set_state(gutter_state);
-        }
-    }
-
-    pub fn blit(&self, board: &mut Board) {
+    pub fn blit(&self, board: &mut Board, gutter_state: TextEntryGutterState) {
         board.overlay_rgba(&self.background);
         if let Some(text) = self.foreground.as_ref() {
             board.overlay_rgba(text);
         }
         if let Some(gutter) = self.gutter.as_ref() {
-            gutter.blit(board);
+            gutter.blit(board, gutter_state);
         }
     }
 

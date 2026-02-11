@@ -26,6 +26,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         text: include_str!("../lorem.txt").to_string(),
         font_size: 20,
         prompt: String::default(),
+        state: TextEntryGutterState::Enabled,
     };
 
     c.bench_function("text entry", |b| {

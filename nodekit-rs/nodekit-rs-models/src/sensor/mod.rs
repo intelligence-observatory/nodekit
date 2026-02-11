@@ -4,7 +4,7 @@ mod graphical;
 mod hover;
 mod select;
 
-use crate::card::{Card, CardKey, CardType, Slider, SliderOrientation, TextEntry};
+use crate::card::{Card, CardKey, CardType, Slider, SliderOrientation, TextEntry, TextEntryGutterState};
 use crate::{Region, sensor};
 pub use enable::{Enable, EnableKey};
 pub use graphical::GraphicalSensor;
@@ -207,6 +207,7 @@ impl Sensor {
                 prompt,
                 font_size,
                 text: String::default(),
+                state: TextEntryGutterState::Disabled,
             }),
             region,
             dirty: false,
