@@ -1,4 +1,3 @@
-use std::ops::SubAssign;
 use crate::Error;
 use blittle::{ClippedRect, PositionI};
 use blittle::overlay::{rgba8_to_rgba32, Vec4};
@@ -25,7 +24,7 @@ impl TextEntry {
     pub fn new(region: &Region, gutter_confirm_button_text: &[Vec4]) -> Result<Option<Self>, Error> {
         const CORNER_D: usize = 8;
         const CORNERS_W: usize = 17;
-        
+
         const fn resize_rect(rect: &mut UnclippedRect) -> Result<(), Error> {
             if rect.size.w >= CORNERS_W && rect.size.h >= CORNERS_W {
                 // Resize the rect to make room for the gutter.
@@ -36,7 +35,7 @@ impl TextEntry {
                 Err(Error::TextEntrySize(rect.size))
             }
         }
-        
+
         let mut rect = UnclippedRect::new(region);
         resize_rect(&mut rect)?;
 
