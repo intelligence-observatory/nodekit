@@ -1,11 +1,12 @@
 mod error;
+mod gutter;
 mod md;
 mod text;
 mod text_entry;
 
 use crate::md::LINE_HEIGHT;
-use blittle::overlay::{Vec4, rgba8_to_rgba32_color};
-use blittle::{ClippedRect, PositionI, PositionU};
+use blittle::overlay::{rgba8_to_rgba32, rgba8_to_rgba32_color, Vec4};
+use blittle::{ClippedRect, PositionI, Size};
 use cosmic_text::fontdb::Source;
 use cosmic_text::{
     Align, Attrs, Buffer, Color, Family, FontSystem, Metrics, PlatformFallback, Shaping,
@@ -14,11 +15,12 @@ use cosmic_text::{
 pub use error::Error;
 use md::{FontSize, parse};
 use nodekit_rs_models::{Region, board::*, card::*};
-use nodekit_rs_visual::{RgbaBuffer, UnclippedRect, parse_color_rgba};
+use nodekit_rs_visual::{RgbaBuffer, UnclippedRect, parse_color_rgba, Corner};
 use pyo3::pyclass;
 use std::sync::Arc;
 pub use text::Text;
 pub use text_entry::TextEntry;
+use crate::gutter::Gutter;
 
 /// The alpha values of corners are stored in a binary file.
 /// They are expressed in a 2D array where each axis is of this length.
@@ -31,6 +33,7 @@ const CORNER_D: usize = 8;
 pub struct TextEngine {
     font_system: FontSystem,
     swash_cache: SwashCache,
+    gutter_confirm_button_text: Vec<Vec4>,
 }
 
 impl TextEngine {
@@ -116,52 +119,10 @@ impl TextEngine {
             let mut buffer = vec![color; rect.src_size.w * rect.src_size.h];
 
             // Round the corners.
-            // Top-left.
-            Self::round_corner(
-                PositionU::default(),
-                PositionU::default(),
-                rect.src_size.w,
-                &mut buffer,
-            );
-            // Top-right.
-            Self::round_corner(
-                PositionU {
-                    x: CORNER_SRC_W - CORNER_D,
-                    y: 0,
-                },
-                PositionU {
-                    x: rect.src_size.w - CORNER_D,
-                    y: 0,
-                },
-                rect.src_size.w,
-                &mut buffer,
-            );
-            // Bottom-right.
-            Self::round_corner(
-                PositionU {
-                    x: CORNER_SRC_W - CORNER_D,
-                    y: CORNER_SRC_W - CORNER_D,
-                },
-                PositionU {
-                    x: rect.src_size.w - CORNER_D,
-                    y: rect.src_size.h - CORNER_D,
-                },
-                rect.src_size.w,
-                &mut buffer,
-            );
-            // Bottom-left.
-            Self::round_corner(
-                PositionU {
-                    x: 0,
-                    y: CORNER_SRC_W - CORNER_D,
-                },
-                PositionU {
-                    x: 0,
-                    y: rect.src_size.h - CORNER_D,
-                },
-                rect.src_size.w,
-                &mut buffer,
-            );
+            Corner::TopLeft.round_corner(rect.src_size, &mut buffer);
+            Corner::TopRight.round_corner(rect.src_size, &mut buffer);
+            Corner::BottomLeft.round_corner(rect.src_size, &mut buffer);
+            Corner::BottomRight.round_corner(rect.src_size, &mut buffer);
             Some(RgbaBuffer { buffer, rect })
         })
     }
@@ -252,6 +213,10 @@ impl TextEngine {
             text_surface
         }))
     }
+    
+    fn get_text_entry_gutter(&mut self, position: PositionI, width: usize) -> Option<Gutter> {
+        Gutter::new(position, width, &self.gutter_confirm_button_text)
+    }
 
     fn draw(
         &mut self,
@@ -288,41 +253,6 @@ impl TextEngine {
             JustificationHorizontal::Right => Align::Right,
         }
     }
-
-    /// Set the alpha values of a corner such that it becomes a rounded corner.
-    ///
-    /// - `src_position` is the top-left position of the corner in the corner alpha values bitmap.
-    /// - `dst_position` is the top-left position at which the alpha values will be applied.
-    /// - `dst_width` is the width of `dst`.
-    /// - `dst` is the destination bitmap.
-    fn round_corner(
-        src_position: PositionU,
-        dst_position: PositionU,
-        dst_width: usize,
-        dst: &mut [Vec4],
-    ) {
-        // This is a 16x16 array of u8 values where each 8x8 quadrant is a corner's alpha values.
-        // We are manually setting these values rather than 9-slice scaling a sprite
-        // because this is *much* faster.
-        // We can get away with it because we know that the background is always a uniform color.
-        const CORNER_ALPHAS: &[u8] = include_bytes!("../backgrounds/text.raw");
-
-        for y in 0..CORNER_D {
-            let src_y = src_position.y + y;
-            let dst_y = dst_position.y + y;
-            for x in 0..CORNER_D {
-                // Get the alpha from the source bitmap.
-                let src_x = src_position.x + x;
-                let src_i = src_x + src_y * CORNER_SRC_W;
-                let src_a = CORNER_ALPHAS[src_i] as f32 / 255.;
-
-                // Set the alpha.
-                let dst_x = dst_position.x + x;
-                let dst_i = dst_x + dst_y * dst_width;
-                dst[dst_i].w *= src_a;
-            }
-        }
-    }
 }
 
 impl Default for TextEngine {
@@ -352,6 +282,7 @@ impl Default for TextEngine {
         Self {
             font_system,
             swash_cache,
+            gutter_confirm_button_text: rgba8_to_rgba32(include_bytes!("../done_text.raw")),
         }
     }
 }

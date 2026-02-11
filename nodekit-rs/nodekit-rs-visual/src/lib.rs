@@ -10,6 +10,7 @@ mod error;
 mod pointer;
 mod rgb_buffer;
 mod rgba_buffer;
+mod rounded_corners;
 mod unclipped_rect;
 mod visual_buffer;
 
@@ -23,6 +24,7 @@ use nodekit_rs_models::board::*;
 use pointer::Pointer;
 pub use rgb_buffer::RgbBuffer;
 pub use rgba_buffer::RgbaBuffer;
+pub use rounded_corners::Corner;
 pub use unclipped_rect::UnclippedRect;
 pub use visual_buffer::*;
 

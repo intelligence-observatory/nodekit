@@ -31,7 +31,7 @@ impl TextEntry {
                 let image = nine_slices::fast_image_resize::images::Image::from_vec_u8(
                     17,
                     40,
-                    include_bytes!("../backgrounds/text-entry.raw").to_vec(),
+                    include_bytes!("../backgrounds/text_entry.raw").to_vec(),
                     PixelType::U8x3,
                 )
                 .map_err(Error::TextEntryBackground)?;
