@@ -6,7 +6,7 @@ mod text_entry;
 
 use crate::md::LINE_HEIGHT;
 use blittle::overlay::{rgba8_to_rgba32, rgba8_to_rgba32_color, Vec4};
-use blittle::{ClippedRect, PositionI, Size};
+use blittle::{ClippedRect, PositionI};
 use cosmic_text::fontdb::Source;
 use cosmic_text::{
     Align, Attrs, Buffer, Color, Family, FontSystem, Metrics, PlatformFallback, Shaping,
@@ -20,14 +20,6 @@ use pyo3::pyclass;
 use std::sync::Arc;
 pub use text::Text;
 pub use text_entry::TextEntry;
-use crate::gutter::Gutter;
-
-/// The alpha values of corners are stored in a binary file.
-/// They are expressed in a 2D array where each axis is of this length.
-const CORNER_SRC_W: usize = 16;
-/// Within the corners array,
-/// this is the length of the side of a square defining the alpha values of a corner.
-const CORNER_D: usize = 8;
 
 #[pyclass]
 pub struct TextEngine {
@@ -79,8 +71,7 @@ impl TextEngine {
     ) -> Result<Option<TextEntry>, Error> {
         // Get the font sizes.
         let font_size = FontSize::new(text_entry.font_size as u16);
-
-        match TextEntry::new(region)? {
+        match TextEntry::new(region, &self.gutter_confirm_button_text)? {
             Some(mut text_entry_buffers) => {
                 // Create a text card.
                 let (text, text_color) = if text_entry.text.is_empty() {
@@ -213,10 +204,6 @@ impl TextEngine {
             text_surface
         }))
     }
-    
-    fn get_text_entry_gutter(&mut self, position: PositionI, width: usize) -> Option<Gutter> {
-        Gutter::new(position, width, &self.gutter_confirm_button_text)
-    }
 
     fn draw(
         &mut self,
@@ -291,6 +278,7 @@ impl Default for TextEngine {
 mod tests {
     use super::*;
     use nodekit_rs_visual::Board;
+    use crate::gutter::GutterState;
 
     #[test]
     fn test_text_card_render() {
@@ -365,8 +353,9 @@ mod tests {
 
         // Render the text.
         let mut board = Board::new([200, 200, 200]);
-        let text_buffer = text.render_text_entry(&card, &region).unwrap().unwrap();
-        text_buffer.blit(&mut board);
+        let mut text_entry = text.render_text_entry(&card, &region).unwrap().unwrap();
+        text_entry.set_gutter_state(GutterState::Enabled);
+        text_entry.blit(&mut board);
         // Write the result as a .png file.
         nodekit_rs_png::board_to_png("text_entry_prompt.png", board.render());
     }
