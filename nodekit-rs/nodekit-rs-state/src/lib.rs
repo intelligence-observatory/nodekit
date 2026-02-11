@@ -65,7 +65,7 @@ impl State {
             None => false,
         }
     }
-    
+
     fn set_button(&mut self, button_state: ButtonState,
                           enable_key: EnableKey,
                           enable: &mut Enable,
@@ -88,13 +88,13 @@ impl State {
         }
         Ok(())
     }
-    
+
     fn enable(&mut self, key: &Option<EnableKey>, enabled: bool) {
         if let Some(enable) = self.sensor.enable.as_mut() && let Some(key) = key {
             enable.set(*key, enabled, &mut self.cards);
         }
     }
-    
+
     fn set_hover<I: Iterator<Item = CardKey>>(&mut self, cards: I, hovering: bool) -> Result<(), Error> {
         if let Some(hover) = self.sensor.hover.as_mut() {
             for card_key in cards {
@@ -119,18 +119,57 @@ impl State {
     /// - `button_state` determines the state of the confirm button.
     ///
     /// Raises an exception if the sensor isn't a TextEntrySensor.
-    pub fn set_slider_inner(&mut self, bin: i64, committed: bool, button_state: ButtonState) -> Result<(), Error> {
+    pub fn set_slider_inner(&mut self, bin: i64, committed: bool, button_state: Option<ButtonState>) -> Result<(), Error> {
         if bin >= 0 {
+            let (card_key, confirm_button, slider) = match self.sensor.graphical.as_ref() {
+                Some(GraphicalSensor::Slider { card, confirm_button }) => match &mut self.cards[*card].card_type {
+                    CardType::Slider(slider) => Ok((*card, *confirm_button, slider)),
+                    _ => Err(Error::NoSlider)
+                }
+                _ => Err(Error::NoSlider)
+            }?;
+
+            // TODO
+            let confirm_button = match (confirm_button, button_state) {
+                (Some(confirm_button), Some(_)) => Ok(confirm_button),
+                _ => Err(Error::NoSlider)
+            }?;
+
+            // Set the slider.
+            let bin = bin.cast_unsigned() as usize;
+            if bin < slider.num_bins {
+                slider.committed = committed;
+                slider.bin = bin;
+                self.cards[card_key].dirty = true;
+
+                // Set the confirm button.
+                match button_state {
+                    ButtonState::Enabled => {
+
+                    }
+                }
+
+                Ok(())
+            } else {
+                Err(Error::Bin {
+                    bin,
+                    num_bins: slider.num_bins,
+                })
+            }
+
             if let Some(GraphicalSensor::Slider {
                 card,
                 confirm_button,
             }) = &self.sensor.graphical
                 && let CardType::Slider(slider) = &mut self.cards[*card].card_type
+                && let Some(enable) = self.sensor.enable.as_mut()
             {
                 // Enable, disable, hover.
                 match button_state {
                     ButtonState::Enabled => {
-                        self.enable(confirm_button, true);
+                        if let Some(confirm_button) = confirm_button {
+                            enable.set(*confirm_button, true, &mut self.cards);
+                        }
                     }
                     ButtonState::Hovering => {
                         self.enable(confirm_button, true);
@@ -142,19 +181,8 @@ impl State {
                         self.enable(confirm_button, false);
                     }
                 }
-                
-                let bin = bin.cast_unsigned() as usize;
-                if bin < slider.num_bins {
-                    slider.committed = committed;
-                    slider.bin = bin;
-                    self.cards[*card].dirty = true;
-                    Ok(())
-                } else {
-                    Err(Error::Bin {
-                        bin,
-                        num_bins: slider.num_bins,
-                    })
-                }
+
+
             } else {
                 Err(Error::NoSlider)
             }
