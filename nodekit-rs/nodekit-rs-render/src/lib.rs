@@ -253,10 +253,7 @@ impl Renderer {
                     }
                 }
                 CardType::Slider(slider) => {
-                    match nodekit_rs_slider::Slider::new(&card.region, slider) {
-                        Ok(slider) => Ok(slider.map(Asset::Slider)),
-                        Err(error) => Err(Error::Slider(error)),
-                    }
+                    Ok(nodekit_rs_slider::Slider::new(&card.region, slider).map(Asset::Slider))
                 }
             }?;
             if let Some(asset) = asset {

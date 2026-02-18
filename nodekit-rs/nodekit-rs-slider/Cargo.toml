@@ -5,7 +5,6 @@ edition = "2024"
 
 [dependencies]
 blittle.workspace = true
-nine-slices.workspace = true
 nodekit-rs-models = { path = "../nodekit-rs-models" }
 nodekit-rs-visual = { path = "../nodekit-rs-visual" }
 thiserror.workspace = true

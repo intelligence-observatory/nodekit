@@ -5,8 +5,6 @@ pub enum Error {
     #[error("{0}")]
     Image(nodekit_rs_image::Error),
     #[error("{0}")]
-    Slider(nodekit_rs_slider::Error),
-    #[error("{0}")]
     Text(nodekit_rs_text::Error),
     #[error("{0}")]
     Video(nodekit_rs_video::Error),

@@ -1,31 +1,21 @@
-mod error;
 mod slider_rects;
 mod thumb;
 mod thumb_color;
 
-use blittle::overlay::{Vec4, rgba8_to_rgba32};
+use blittle::overlay::Vec4;
 use blittle::{ClippedRect, Size};
-pub use error::Error;
-use nine_slices::fast_image_resize::ResizeAlg;
-use nine_slices::{BorderOffsets, BorderScaling, NineSlicedSprite, fast_image_resize};
 use nodekit_rs_models::Region;
 use nodekit_rs_models::card::SliderOrientation;
-use nodekit_rs_visual::{Board, RgbaBuffer};
+use nodekit_rs_visual::{Board, Corner, RgbaBuffer};
 use slider_rects::SliderRects;
 use thumb::Thumb;
 
 const TICK_COLOR: Vec4 = Vec4::new(182. / 255., 183. / 255., 184. / 255., 1.);
+const TRACK_COLOR: Vec4 = Vec4::new(214. / 255., 216. / 255., 219. / 255., 1.);
 /// The scaling factor of a tick marker.
 const TICK_D_FACTOR: f32 = 0.7;
 /// The positional offset factor of a tick marker.
 const TICK_OFFSET_FACTOR: f32 = 0.15;
-/// The border offsets of a nine-sliced slider track sprite.
-const BORDER_OFFSETS: BorderOffsets = BorderOffsets {
-    left: 8,
-    top: 8,
-    right: 8,
-    bottom: 8,
-};
 
 /// The visual representation of a Slider model.
 pub struct Slider {
@@ -42,20 +32,16 @@ pub struct Slider {
 }
 
 impl Slider {
-    pub fn new(
-        region: &Region,
-        slider: &nodekit_rs_models::card::Slider,
-    ) -> Result<Option<Self>, Error> {
-        Ok(Self::get_track(region, slider)?.map(|(track, rect)| {
-            let thumb = Thumb::new(region, slider.num_bins, &slider.orientation);
-            Self {
-                track,
-                thumb,
-                rect,
-                bin: slider.bin,
-                committed: slider.committed,
-            }
-        }))
+    pub fn new(region: &Region, slider: &nodekit_rs_models::card::Slider) -> Option<Self> {
+        let (track, rect) = Self::get_track(region, slider)?;
+        let thumb = Thumb::new(region, slider.num_bins, &slider.orientation);
+        Some(Self {
+            track,
+            thumb,
+            rect,
+            bin: slider.bin,
+            committed: slider.committed,
+        })
     }
 
     /// Update stateful information from a slider model.
@@ -91,43 +77,27 @@ impl Slider {
     fn get_track(
         region: &Region,
         slider: &nodekit_rs_models::card::Slider,
-    ) -> Result<Option<(RgbaBuffer, ClippedRect)>, Error> {
-        match SliderRects::new(region, slider) {
-            Some(rects) => {
-                // Load the sliceable track image.
-                let track = fast_image_resize::images::Image::from_vec_u8(
-                    17,
-                    17,
-                    include_bytes!("../track.raw").to_vec(),
-                    fast_image_resize::PixelType::U8x4,
-                )
-                .map_err(Error::RawTrack)?;
-                // Get the sprite.
-                let mut sprite =
-                    NineSlicedSprite::new(track, BORDER_OFFSETS, BorderScaling::Stretch)
-                        .map_err(Error::NineSlice)?;
-                sprite.set_resize_algorithm(ResizeAlg::Nearest);
-                // Resize the sprite.
-                let image = sprite
-                    .resize(rects.track.src_size.w as u32, rects.track.src_size.h as u32)
-                    .map_err(Error::NineSlice)?;
-                // Convert to an overlay.
-                let mut buffer = rgba8_to_rgba32(image.buffer());
-                // Draw tick markers.
-                if slider.show_bin_markers {
-                    Self::draw_ticks(slider, rects.track.src_size, &mut buffer);
-                }
-
-                Ok(Some((
-                    RgbaBuffer {
-                        buffer,
-                        rect: rects.track,
-                    },
-                    rects.total,
-                )))
-            }
-            None => Ok(None),
+    ) -> Option<(RgbaBuffer, ClippedRect)> {
+        let rects = SliderRects::new(region, slider)?;
+        // Get the raw track buffer, filled in with the color.
+        let mut track = vec![TRACK_COLOR; rects.track.src_size.w * rects.track.src_size.h];
+        // Set its corners.
+        Corner::TopLeft.round_corner(rects.track.src_size, &mut track);
+        Corner::TopRight.round_corner(rects.track.src_size, &mut track);
+        Corner::BottomRight.round_corner(rects.track.src_size, &mut track);
+        Corner::BottomLeft.round_corner(rects.track.src_size, &mut track);
+        // Draw tick markers.
+        if slider.show_bin_markers {
+            Self::draw_ticks(slider, rects.track.src_size, &mut track);
         }
+
+        Some((
+            RgbaBuffer {
+                buffer: track,
+                rect: rects.track,
+            },
+            rects.total,
+        ))
     }
 
     /// Draw tick markers on the background track.
@@ -199,20 +169,20 @@ mod tests {
             h: 90,
             z_index: None,
         };
-        let slider = Slider::new(&region, &slider_card).unwrap().unwrap();
+        let slider = Slider::new(&region, &slider_card).unwrap();
         slider.blit(&mut board);
 
         // Committed, one tick.
         slider_card.committed = true;
         slider_card.bin = 1;
         region.y = 200;
-        let slider = Slider::new(&region, &slider_card).unwrap().unwrap();
+        let slider = Slider::new(&region, &slider_card).unwrap();
         slider.blit(&mut board);
 
         // Final tick.
         slider_card.bin = 5;
         region.y = 100;
-        let slider = Slider::new(&region, &slider_card).unwrap().unwrap();
+        let slider = Slider::new(&region, &slider_card).unwrap();
         slider.blit(&mut board);
 
         // Vertical.
@@ -223,27 +193,27 @@ mod tests {
         region.y = -100;
         region.w = 90;
         region.h = 300;
-        let slider = Slider::new(&region, &slider_card).unwrap().unwrap();
+        let slider = Slider::new(&region, &slider_card).unwrap();
         slider.blit(&mut board);
 
         // Committed, one tick.
         slider_card.committed = true;
         slider_card.bin = 1;
         region.x = -200;
-        let slider = Slider::new(&region, &slider_card).unwrap().unwrap();
+        let slider = Slider::new(&region, &slider_card).unwrap();
         slider.blit(&mut board);
 
         // Final tick.
         slider_card.bin = 5;
         region.x = 0;
-        let slider = Slider::new(&region, &slider_card).unwrap().unwrap();
+        let slider = Slider::new(&region, &slider_card).unwrap();
         slider.blit(&mut board);
 
         // One bin.
         slider_card.num_bins = 2;
         slider_card.bin = 0;
         region.x = 200;
-        let slider = Slider::new(&region, &slider_card).unwrap().unwrap();
+        let slider = Slider::new(&region, &slider_card).unwrap();
         slider.blit(&mut board);
 
         board.hide_pointer = true;

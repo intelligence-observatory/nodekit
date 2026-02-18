@@ -21,15 +21,11 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     // Create the slider.
     c.bench_function("slider creation", |b| {
         b.iter(|| {
-            nodekit_rs_slider::Slider::new(&region, &slider_card)
-                .unwrap()
-                .unwrap();
+            nodekit_rs_slider::Slider::new(&region, &slider_card).unwrap();
         })
     });
 
-    let slider = nodekit_rs_slider::Slider::new(&region, &slider_card)
-        .unwrap()
-        .unwrap();
+    let slider = nodekit_rs_slider::Slider::new(&region, &slider_card).unwrap();
 
     // Blit the slider.
     c.bench_function("slider rendering", |b| {

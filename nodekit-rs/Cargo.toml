@@ -40,7 +40,6 @@ hex_color = "3.0.0"
 itertools = "0.14.0"
 jpeg-decoder = "0.3.2"
 markdown = "1.0.0"
-nine-slices = { path = "../../nine-slices", default-features = false }
 numpy = "0.27.1"
 png = "0.18.0"
 pyo3 = { version = "0.27.1", features = ["experimental-inspect", "extension-module"] }
