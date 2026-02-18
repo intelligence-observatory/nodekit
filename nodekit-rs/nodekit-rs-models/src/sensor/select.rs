@@ -1,10 +1,10 @@
 use crate::card::{Card, CardKey};
-use crate::sensor::enable::EnableKey;
 use crate::sensor::error::ChoiceKeyError;
 use hashbrown::{HashMap, HashSet};
 use slotmap::{SecondaryMap, SlotMap};
 
 /// Listen for mouse selection and hovering.
+#[derive(Default)]
 pub struct Select {
     /// Cards mapped to choices.
     cards: SecondaryMap<CardKey, String>,
@@ -12,20 +12,9 @@ pub struct Select {
     choices: HashMap<String, Vec<CardKey>>,
     /// A set of choice keys of selected groups of cards.
     selected: HashSet<String>,
-    /// The key to the confirm button.
-    pub confirm_button: EnableKey,
 }
 
 impl Select {
-    pub fn new(confirm_button: EnableKey) -> Self {
-        Self {
-            cards: SecondaryMap::default(),
-            choices: HashMap::default(),
-            selected: HashSet::default(),
-            confirm_button,
-        }
-    }
-
     pub fn insert(&mut self, choice: String, cards: Vec<CardKey>) {
         self.choices.insert(choice.clone(), cards.clone());
         for card in cards {
@@ -90,7 +79,6 @@ impl Select {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::sensor::Enable;
     use crate::sensor::tests::get_card;
     use hashbrown::HashMap;
 
@@ -100,11 +88,6 @@ mod tests {
         let a = cards.insert(get_card(0, 0));
         let b = cards.insert(get_card(100, 100));
         let c = cards.insert(get_card(-40, -40));
-
-        let confirm = cards.insert(get_card(-40, -40));
-
-        let mut enable = Enable::default();
-        let confirm_button = enable.insert(vec![confirm]);
 
         let mut choices = HashMap::<String, Vec<CardKey>>::default();
         let choice_a = "a".to_string();
@@ -118,7 +101,6 @@ mod tests {
             cards: cards_map,
             choices,
             selected: HashSet::new(),
-            confirm_button,
         };
 
         // Select.

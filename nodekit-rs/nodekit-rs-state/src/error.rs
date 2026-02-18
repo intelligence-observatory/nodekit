@@ -3,6 +3,8 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum Error {
+    #[error("Invalid button state: {0}. Options are: enabled, disabled, hovering.")]
+    ButtonState(String),
     #[error("{0}")]
     CardKey(CardKeyError),
     #[error("Confirm button not found.")]

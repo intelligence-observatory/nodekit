@@ -18,3 +18,12 @@ impl Display for CardKeyError {
         write!(f, "Invalid card key for select sensor: {:?}", &self.0)
     }
 }
+
+#[derive(Debug)]
+pub struct ButtonStateError(pub String);
+
+impl Display for ButtonStateError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Invalid button state: {}", &self.0)
+    }
+}

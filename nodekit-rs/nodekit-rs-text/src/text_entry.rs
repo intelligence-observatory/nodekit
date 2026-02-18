@@ -1,11 +1,11 @@
 use crate::Error;
+use crate::gutter::Gutter;
+use blittle::overlay::{Vec4, rgba8_to_rgba32};
 use blittle::{ClippedRect, PositionI};
-use blittle::overlay::{rgba8_to_rgba32, Vec4};
 use nodekit_rs_models::Region;
 use nodekit_rs_models::board::BOARD_SIZE;
-use nodekit_rs_models::card::TextEntryGutterState;
+use nodekit_rs_models::sensor::ButtonState;
 use nodekit_rs_visual::{Board, RgbaBuffer, UnclippedRect};
-use crate::gutter::Gutter;
 
 const BORDER_COLOR_LEFT_0: Vec4 = Vec4::new(92.5, 92.5, 92.5, 1.);
 const BORDER_COLOR_LEFT_1: Vec4 = Vec4::new(96.9, 96.9, 96.9, 1.);
@@ -18,11 +18,14 @@ pub struct TextEntry {
     /// This is initially None, and gets set by TextEngine.
     pub(crate) foreground: Option<RgbaBuffer>,
     /// Render the gutter.
-    gutter: Option<Gutter>
+    gutter: Option<Gutter>,
 }
 
 impl TextEntry {
-    pub fn new(region: &Region, gutter_confirm_button_text: &[Vec4]) -> Result<Option<Self>, Error> {
+    pub fn new(
+        region: &Region,
+        gutter_confirm_button_text: &[Vec4],
+    ) -> Result<Option<Self>, Error> {
         const CORNER_D: usize = 8;
         const CORNERS_W: usize = 17;
 
@@ -31,8 +34,7 @@ impl TextEntry {
                 // Resize the rect to make room for the gutter.
                 rect.size.h -= CORNER_D + 1;
                 Ok(())
-            }
-            else {
+            } else {
                 Err(Error::TextEntrySize(rect.size))
             }
         }
@@ -74,26 +76,27 @@ impl TextEntry {
 
                 let background = RgbaBuffer {
                     buffer: background,
-                    rect
+                    rect,
                 };
 
                 let gutter_position = PositionI {
                     x: rect.dst_position.x,
-                    y: rect.dst_position.y + rect.src_size.h.cast_signed() + 1
+                    y: rect.dst_position.y + rect.src_size.h.cast_signed() + 1,
                 };
-                let gutter = Gutter::new(gutter_position, rect.src_size.w, &gutter_confirm_button_text);
+                let gutter =
+                    Gutter::new(gutter_position, rect.src_size.w, gutter_confirm_button_text);
 
                 Ok(Some(Self {
                     background,
                     foreground: None,
-                    gutter
+                    gutter,
                 }))
             }
             None => Ok(None),
         }
     }
 
-    pub fn blit(&self, board: &mut Board, gutter_state: TextEntryGutterState) {
+    pub fn blit(&self, board: &mut Board, gutter_state: &ButtonState) {
         board.overlay_rgba(&self.background);
         if let Some(text) = self.foreground.as_ref() {
             board.overlay_rgba(text);

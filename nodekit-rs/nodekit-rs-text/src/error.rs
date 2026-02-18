@@ -23,5 +23,5 @@ pub enum Error {
     #[error("Failed to parse text color: {0}")]
     TextColor(nodekit_rs_visual::Error),
     #[error("TextEntryCard is size {0} (must be at least 17x17")]
-    TextEntrySize(Size)
+    TextEntrySize(Size),
 }

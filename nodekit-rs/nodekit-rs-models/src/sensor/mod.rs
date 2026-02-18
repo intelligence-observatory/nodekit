@@ -1,13 +1,11 @@
-mod enable;
+mod button;
 pub(crate) mod error;
-mod graphical;
 mod hover;
 mod select;
 
-use crate::card::{Card, CardKey, CardType, Slider, SliderOrientation, TextEntry, TextEntryGutterState};
+use crate::card::{Card, CardKey, CardType, Slider, SliderOrientation, TextEntry};
 use crate::{Region, sensor};
-pub use enable::{Enable, EnableKey};
-pub use graphical::GraphicalSensor;
+pub use button::*;
 pub use hover::Hover;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
@@ -25,10 +23,14 @@ const CONFIRM_BUTTON: &str = "confirm_button";
 /// Most sensors in nodekit, e.g. ClickSensor, aren't represented in nodekit-rs.
 #[derive(Default)]
 pub struct Sensor {
-    pub enable: Option<Enable>,
+    /// A clickable button.
+    pub button: Option<Button>,
+    /// A graphical card.
+    pub card: Option<CardKey>,
+    /// Some cards can be hovered over.
     pub hover: Option<Hover>,
+    /// Some cards can be selected.
     pub select: Option<Select>,
-    pub graphical: Option<GraphicalSensor>,
 }
 
 impl Sensor {
@@ -71,18 +73,14 @@ impl Sensor {
     ) -> PyResult<Self> {
         // Selectable cards, and the confirm button, can be hovered over.
         let mut hover = Hover::default();
-        // The confirm button is initially disabled.
-        let mut enable = Enable::default();
 
         // Extract the confirm button.
         let confirm_button = Self::extract_cards(sensor.getattr(CONFIRM_BUTTON)?, cards)?;
-        // Extract the cards constituting the confirm button.
-        hover.insert(None, confirm_button.clone());
-        // Disable the confirm button.
-        let enable_key = enable.insert(confirm_button);
+        // Store the button.
+        let button = Button::new(confirm_button);
 
         // Create the select sensor.
-        let mut select = Select::new(enable_key);
+        let mut select = Select::default();
 
         // Get the choices.
         let choices = sensor.getattr(CHOICES)?;
@@ -98,8 +96,8 @@ impl Sensor {
         }
 
         Ok(Self {
-            enable: Some(enable),
-            graphical: None,
+            button: Some(button),
+            card: None,
             hover: Some(hover),
             select: Some(select),
         })
@@ -124,8 +122,8 @@ impl Sensor {
         }
 
         Ok(Self {
-            enable: None,
-            graphical: None,
+            button: None,
+            card: None,
             hover: Some(hover),
             select: None,
         })
@@ -171,26 +169,12 @@ impl Sensor {
         };
 
         // Try to extract a confirm card.
-        let enable = match sensor.getattr_opt(CONFIRM_BUTTON)? {
-            Some(card) => {
-                let confirm_button = Self::extract_cards(card, cards)?;
+        if let Some(card) = sensor.getattr_opt(CONFIRM_BUTTON)? {
+            s.button = Some(Button::new(Self::extract_cards(card, cards)?));
+        }
 
-                let mut hover = Hover::default();
-                hover.insert(None, confirm_button.clone());
-                s.hover = Some(hover);
-
-                let mut enable = Enable::default();
-                let enable_key = enable.insert(confirm_button);
-                s.enable = Some(enable);
-                Some(enable_key)
-            }
-            None => None,
-        };
-
-        s.graphical = Some(GraphicalSensor::Slider {
-            card: cards.insert(card),
-            confirm_button: enable,
-        });
+        // Remember the slider card.
+        s.card = Some(cards.insert(card));
         Ok(s)
     }
 
@@ -207,14 +191,14 @@ impl Sensor {
                 prompt,
                 font_size,
                 text: String::default(),
-                state: TextEntryGutterState::Disabled,
             }),
             region,
             dirty: false,
         };
+        let card_key = cards.insert(card);
         Ok(Self {
-            enable: None,
-            graphical: Some(GraphicalSensor::TextEntry(cards.insert(card))),
+            button: Some(Button::new(Vec::new())),
+            card: Some(card_key),
             hover: None,
             select: None,
         })

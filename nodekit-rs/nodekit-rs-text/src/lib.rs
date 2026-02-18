@@ -5,7 +5,7 @@ mod text;
 mod text_entry;
 
 use crate::md::LINE_HEIGHT;
-use blittle::overlay::{rgba8_to_rgba32, rgba8_to_rgba32_color, Vec4};
+use blittle::overlay::{Vec4, rgba8_to_rgba32, rgba8_to_rgba32_color};
 use blittle::{ClippedRect, PositionI, PositionU};
 use cosmic_text::fontdb::Source;
 use cosmic_text::{
@@ -15,7 +15,7 @@ use cosmic_text::{
 pub use error::Error;
 use md::{FontSize, parse};
 use nodekit_rs_models::{Region, board::*, card::*};
-use nodekit_rs_visual::{RgbaBuffer, UnclippedRect, parse_color_rgba, Corner};
+use nodekit_rs_visual::{Corner, RgbaBuffer, UnclippedRect, parse_color_rgba};
 use pyo3::pyclass;
 use std::sync::Arc;
 pub use text::Text;
@@ -94,8 +94,7 @@ impl TextEngine {
                 rect.src_size.h -= offset;
                 rect.set_src_rect(PositionU::default(), rect.src_size);
                 // Get the foreground.
-                text_entry_buffers.foreground =
-                    self.get_text(&text_card, font_size, rect)?;
+                text_entry_buffers.foreground = self.get_text(&text_card, font_size, rect)?;
                 Ok(Some(text_entry_buffers))
             }
             None => Ok(None),
@@ -283,6 +282,7 @@ impl Default for TextEngine {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use nodekit_rs_models::sensor::ButtonState;
     use nodekit_rs_visual::Board;
 
     #[test]
@@ -339,21 +339,20 @@ mod tests {
             prompt: String::default(),
             text: include_str!("../lorem.txt").to_string(),
             font_size: 20,
-            state: TextEntryGutterState::Enabled
         };
         let region = Region {
             x: 0,
             y: 0,
             w: 500,
             h: 300,
-            z_index: None
+            z_index: None,
         };
 
         // Render the text.
         let mut text = TextEngine::default();
         let mut board = Board::new([200, 200, 200]);
         let text_entry = text.render_text_entry(&card, &region).unwrap().unwrap();
-        text_entry.blit(&mut board, card.state);
+        text_entry.blit(&mut board, &ButtonState::Enabled);
         // Write the result as a .png file.
         nodekit_rs_png::board_to_png("text_entry.png", board.render());
 
@@ -361,13 +360,12 @@ mod tests {
             prompt: "This is a prompt".to_string(),
             text: String::default(),
             font_size: 20,
-            state: TextEntryGutterState::Disabled
         };
 
         // Render the text.
         let mut board = Board::new([200, 200, 200]);
         let text_entry = text.render_text_entry(&card, &region).unwrap().unwrap();
-        text_entry.blit(&mut board, card.state);
+        text_entry.blit(&mut board, &ButtonState::Disabled);
         // Write the result as a .png file.
         nodekit_rs_png::board_to_png("text_entry_prompt.png", board.render());
     }

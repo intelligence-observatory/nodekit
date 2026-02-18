@@ -2,13 +2,14 @@ mod error;
 mod pointer;
 
 pub use error::Error;
-use nodekit_rs_models::card::{Card, CardKey, CardType, TextEntryGutterState, VideoCard};
-use nodekit_rs_models::sensor::{Enable, EnableKey, GraphicalSensor, Hover, Sensor};
+use nodekit_rs_models::card::{Card, CardKey, CardType, VideoCard};
+use nodekit_rs_models::sensor::{ButtonState, Sensor};
 use pointer::Pointer;
 use pyo3::exceptions::{PyKeyError, PyRuntimeError, PyValueError};
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use slotmap::SlotMap;
+use std::str::FromStr;
 use uuid::Uuid;
 
 /// Describes the state of the simulator.
@@ -58,88 +59,19 @@ impl State {
         }
     }
 
-    pub fn is_enabled(&self, card_key: CardKey) -> bool {
-        match self.sensor.enable.as_ref() {
-            Some(enable) => enable.is_enabled(card_key),
-            None => false,
-        }
-    }
-
-    /// Set the state of the confirm button.
-    ///
-    /// For tests, call this instead of `set_confirm_button` or there will be a cc link failure.
-    ///
-    /// - `enabled` sets whether the button is enabled or disabled.
-    /// - `hovered` sets whether there is a hover overlay on top of the button.
-    ///
-    /// Raises an exception if there isn't a confirm button.
-    pub fn set_confirm_button_inner(&mut self, enabled: bool, hovering: bool) -> Result<(), Error> {
-        fn set(
-            enabled: bool,
-            enable_key: EnableKey,
-            enable: &mut Enable,
-            hovering: bool,
-            hover: &mut Hover,
-            cards: &mut SlotMap<CardKey, Card>,
-        ) -> Result<(), Error> {
-            enable.set(enable_key, enabled, cards);
-            for card_key in enable.get_cards(enable_key).iter().copied() {
-                // Mark the card as dirty.
-                cards[card_key].dirty = true;
-                // Set hovering.
-                let card_key = if hovering { Some(card_key) } else { None };
-                hover
-                    .set_from_card_key(card_key, cards)
-                    .map_err(Error::CardKey)?;
-            }
-            Ok(())
-        }
-
-        if let Some(enable) = self.sensor.enable.as_mut()
-            && let Some(hover) = self.sensor.hover.as_mut()
-        {
-            if let Some(GraphicalSensor::Slider {
-                card: _,
-                confirm_button: enable_key,
-            }) = &self.sensor.graphical
-                && let Some(enable_key) = enable_key
-            {
-                set(
-                    enabled,
-                    *enable_key,
-                    enable,
-                    hovering,
-                    hover,
-                    &mut self.cards,
-                )
-            } else if let Some(select) = self.sensor.select.as_mut() {
-                set(
-                    enabled,
-                    select.confirm_button,
-                    enable,
-                    hovering,
-                    hover,
-                    &mut self.cards,
-                )
-            }
-            else if let Some(GraphicalSensor::TextEntry(card_key)) = self.sensor.graphical && let CardType::TextEntry(text_entry) = &mut self.cards[card_key].card_type {
-                // Set the gutter state.
-                text_entry.state = if hovering {
-                    TextEntryGutterState::Hovering
-                }
-                else if enabled {
-                    TextEntryGutterState::Enabled
-                }
-                else {
-                    TextEntryGutterState::Disabled
-                };
+    fn set_button(&mut self, state: ButtonState) -> Result<(), Error> {
+        match self.sensor.button.as_mut() {
+            Some(button) => {
+                // Set the state.
+                button.state = state;
+                // Mark the cards as dirty.
+                button
+                    .cards
+                    .iter()
+                    .for_each(|card_key| self.cards[*card_key].dirty = true);
                 Ok(())
             }
-            else {
-                Ok(())
-            }
-        } else {
-            Err(Error::ConfirmButton)
+            None => Err(Error::ConfirmButton),
         }
     }
 
@@ -148,22 +80,31 @@ impl State {
     /// For tests, call this instead of `set_slider` or there will be a cc link failure.
     ///
     /// - `bin` sets which bin the thumb overlay's position will snap to.
-    /// - `committed` determines the color of the thumb overlay, and corresponds to whether the agent has moved the thumb overlay yet.
+    /// - `committed` sets the color of the thumb overlay, and corresponds to whether the agent has moved the thumb overlay yet.
+    /// - `confirm_button_state` sets the state of the confirm button. Fails silently if there is no confirm button.
     ///
     /// Raises an exception if the sensor isn't a TextEntrySensor.
-    pub fn set_slider_inner(&mut self, bin: i64, committed: bool) -> Result<(), Error> {
+    pub fn set_slider_inner(
+        &mut self,
+        bin: i64,
+        committed: bool,
+        confirm_button_state: ButtonState,
+    ) -> Result<(), Error> {
         if bin >= 0 {
-            if let Some(GraphicalSensor::Slider {
-                card,
-                confirm_button: _,
-            }) = &self.sensor.graphical
-                && let CardType::Slider(slider) = &mut self.cards[*card].card_type
+            if let Some(card_key) = self.sensor.card
+                && let CardType::Slider(slider) = &mut self.cards[card_key].card_type
             {
+                // Set the slider.
                 let bin = bin.cast_unsigned() as usize;
                 if bin < slider.num_bins {
                     slider.committed = committed;
                     slider.bin = bin;
-                    self.cards[*card].dirty = true;
+                    self.cards[card_key].dirty = true;
+
+                    // Set the confirm button.
+                    // Fail silently if there is no confirm button.
+                    let _ = self.set_button(confirm_button_state);
+
                     Ok(())
                 } else {
                     Err(Error::Bin {
@@ -256,13 +197,24 @@ impl State {
 
     /// Select or deselect a MultiSelectSensor's card.
     ///
-    /// If `choice` is a key in MultiSelectSensor.choices
+    /// - `choice` is a key in the sensor's choices.
+    /// - `select` sets whether the choice is selected.
+    /// - `confirm_button_state` sets the state of the confirm button. Fails silently if there is no confirm button. Options: enabled, disabled, hovering.
     ///
     /// For SelectSensor, this fails silently because the render state wouldn't change.
     /// For MultiSelectSensor, this adds `choice` the sensor isn't a SelectSensor or MultiSelectSensor.
     ///
     /// Raises an exception if sensor isn't a SelectSensor or MultiSelectSensor.
-    pub fn select(&mut self, choice: String, select: bool) -> PyResult<()> {
+    pub fn select(
+        &mut self,
+        choice: String,
+        select: bool,
+        confirm_button_state: String,
+    ) -> PyResult<()> {
+        let confirm_button_state = ButtonState::from_str(&confirm_button_state)
+            .map_err(|e| PyValueError::new_err(e.to_string()))?;
+        self.set_button(confirm_button_state)
+            .map_err(|e| PyRuntimeError::new_err(e.to_string()))?;
         match self.sensor.select.as_mut() {
             Some(s) => s
                 .select(choice, select, &mut self.cards)
@@ -273,42 +225,49 @@ impl State {
 
     /// Set the text of a TextEntrySensor.
     ///
+    /// - `text` is the new text. If empty, the prompt will automatically be shown.
+    /// - `gutter_state` sets the state of the gutter. Options: disabled, enabled, hovering.
+    ///
     /// Raises an exception if the sensor isn't a TextEntrySensor.
-    pub fn set_text_entry(&mut self, text: String) -> PyResult<()> {
-        match &self.sensor.graphical {
-            Some(graphical) => {
-                let card_key = graphical.card();
-                if let CardType::TextEntry(text_entry) = &mut self.cards[card_key].card_type {
-                    text_entry.text = text;
-                    self.cards[card_key].dirty = true;
-                    Ok(())
-                } else {
-                    Err(PyValueError::new_err("Failed to find a TextEntrySensor."))
-                }
-            }
-            None => Self::invalid_sensor(),
+    pub fn set_text_entry(&mut self, text: String, gutter_state: String) -> PyResult<()> {
+        if let Some(card_key) = self.sensor.card
+            && let CardType::TextEntry(text_entry) = &mut self.cards[card_key].card_type
+        {
+            // Set the text.
+            text_entry.text = text;
+            self.cards[card_key].dirty = true;
+            let button_state = ButtonState::from_str(&gutter_state)
+                .map_err(|e| PyValueError::new_err(e.to_string()))?;
+
+            // Set the gutter.
+            self.set_button(button_state)
+                .map_err(|e| PyRuntimeError::new_err(e.to_string()))?;
+            Ok(())
+        } else {
+            Err(PyValueError::new_err("Failed to find a TextEntrySensor."))
         }
     }
 
     /// Set the state of a SliderSensor.
     ///
     /// - `bin` sets which bin the thumb overlay's position will snap to.
-    /// - `committed` determines the color of the thumb overlay, and corresponds to whether the agent has moved the thumb overlay yet.
+    /// - `committed` sets the color of the thumb overlay, and corresponds to whether the agent has moved the thumb overlay yet.
+    /// - `confirm_button_state` sets the state of the confirm button. Fails silently if there is no confirm button. Options: enabled, disabled, hovering.
     ///
     /// Raises an exception if the sensor isn't a TextEntrySensor.
-    pub fn set_slider(&mut self, bin: i64, committed: bool) -> PyResult<()> {
-        self.set_slider_inner(bin, committed)
-            .map_err(|e| PyValueError::new_err(e.to_string()))
-    }
-
-    /// Set the state of the confirm button.
-    ///
-    /// - `enabled` sets whether the button is enabled or disabled.
-    /// - `hovered` sets whether there is a hover overlay on top of the button.
-    ///
-    /// Raises an exception if there isn't a confirm button.
-    pub fn set_confirm_button(&mut self, enabled: bool, hovering: bool) -> PyResult<()> {
-        self.set_confirm_button_inner(enabled, hovering)
+    pub fn set_slider(
+        &mut self,
+        bin: i64,
+        committed: bool,
+        confirm_button_state: String,
+    ) -> PyResult<()> {
+        let confirm_button_state = if self.sensor.button.is_some() {
+            ButtonState::from_str(&confirm_button_state)
+                .map_err(|e| PyValueError::new_err(e.to_string()))
+        } else {
+            Ok(ButtonState::Enabled)
+        }?;
+        self.set_slider_inner(bin, committed, confirm_button_state)
             .map_err(|e| PyRuntimeError::new_err(e.to_string()))
     }
 }

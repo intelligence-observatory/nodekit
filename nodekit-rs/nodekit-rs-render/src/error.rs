@@ -12,4 +12,6 @@ pub enum Error {
     Video(nodekit_rs_video::Error),
     #[error("{0}")]
     ParseColor(nodekit_rs_visual::Error),
+    #[error("Failed to find the text entry gutter")]
+    TextEntryGutter,
 }

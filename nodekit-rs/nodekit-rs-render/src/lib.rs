@@ -9,6 +9,7 @@ use itertools::Itertools;
 use nodekit_rs_image::*;
 use nodekit_rs_models::board::{HORIZONTAL, STRIDE, VERTICAL};
 use nodekit_rs_models::card::{CardKey, CardType, VideoCard};
+use nodekit_rs_models::sensor::ButtonState;
 use nodekit_rs_state::*;
 use nodekit_rs_visual::*;
 use numpy::{PyArray3, PyArrayMethods, PyUntypedArrayMethods};
@@ -283,10 +284,14 @@ impl Renderer {
                 }
             }
         }
-        // Create disabled bitmaps.
-        if let Some(enable) = state.sensor.enable.as_ref() {
-            for card_key in enable.get_all_cards() {
-                self.sensor.insert_disabled(card_key, &mut self.assets);
+        // Cache the button.
+        if let Some(button) = state.sensor.button.as_ref() {
+            for card_key in button.cards.iter() {
+                let card_key = *card_key;
+                if let Some(rect) = self.assets[card_key].rect() {
+                    self.sensor.insert_disabled(card_key, &mut self.assets);
+                    self.sensor.insert_hoverable(card_key, rect);
+                }
             }
         }
     }
@@ -320,10 +325,11 @@ impl Renderer {
     fn render_asset(&mut self, card_key: CardKey, state: &State) -> Result<(), Error> {
         if let Some(asset) = self.assets.get_mut(card_key) {
             // If the asset is disabled, render its disabled bitmap instead.
-            if !state.is_enabled(card_key)
+            if let Some(button) = state.sensor.button.as_ref()
+                && button.cards.contains(&card_key)
+                && matches!(&button.state, ButtonState::Disabled)
                 && let Some(disabled) = self.sensor.get_disabled(card_key)
             {
-                // Render the card in its disabled state.
                 for d in disabled.iter() {
                     self.board.overlay_rgba(d);
                 }
@@ -332,7 +338,13 @@ impl Renderer {
                     Asset::Image(image) => self.board.blit(image),
                     Asset::Slider(slider) => slider.blit(&mut self.board),
                     Asset::Text(text) => text.blit(&mut self.board),
-                    Asset::TextEntry(text) => text.blit(&mut self.board),
+                    Asset::TextEntry(text) => {
+                        let button_state = match state.sensor.button.as_ref() {
+                            Some(button) => Ok(&button.state),
+                            None => Err(Error::TextEntryGutter),
+                        }?;
+                        text.blit(&mut self.board, button_state)
+                    }
                     Asset::Video(video) => {
                         video.get_frame(state.t_msec).map_err(Error::Video)?;
                         self.board.blit_rgb(&video.frame);
@@ -340,6 +352,15 @@ impl Renderer {
                 }
                 // Apply the hovering overlay.
                 if state.is_hovering(card_key)
+                    && let Some(overlay) = self.sensor.get_hover_overlay(card_key)
+                {
+                    self.board.overlay_rgba(overlay);
+                }
+
+                // Set the hovering state for the button.
+                if let Some(button) = state.sensor.button.as_ref()
+                    && button.cards.contains(&card_key)
+                    && matches!(&button.state, ButtonState::Hovering)
                     && let Some(overlay) = self.sensor.get_hover_overlay(card_key)
                 {
                     self.board.overlay_rgba(overlay);
@@ -373,7 +394,7 @@ mod tests {
     use nodekit_rs_models::card::{
         Card, JustificationHorizontal, JustificationVertical, SliderOrientation, TextCard,
     };
-    use nodekit_rs_models::sensor::{Enable, GraphicalSensor, Hover, Select, Sensor};
+    use nodekit_rs_models::sensor::{Button, Hover, Select, Sensor};
     use slotmap::SlotMap;
     use std::path::PathBuf;
 
@@ -419,12 +440,9 @@ mod tests {
         let b = "b".to_string();
 
         let mut sensor = Sensor::default();
+        sensor.button = Some(Button::new(vec![confirm]));
 
-        let mut enable = Enable::default();
-        let enable_key = enable.insert(vec![confirm]);
-        sensor.enable = Some(enable);
-
-        let mut select = Select::new(enable_key);
+        let mut select = Select::default();
         select.insert(a.clone(), vec![image]);
         select.insert(b.clone(), vec![video]);
         sensor.select = Some(select);
@@ -455,13 +473,8 @@ mod tests {
             dirty: true,
         });
         let mut sensor = Sensor::default();
-        let mut enable = Enable::default();
-        let e = enable.insert(vec![confirm]);
-        sensor.enable = Some(enable);
-        sensor.graphical = Some(GraphicalSensor::Slider {
-            card: slider,
-            confirm_button: Some(e),
-        });
+        sensor.button = Some(Button::new(vec![confirm]));
+        sensor.card = Some(slider);
         let mut hover = Hover::default();
         hover.insert(None, vec![confirm]);
         sensor.hover = Some(hover);
@@ -471,13 +484,16 @@ mod tests {
         render_image(&mut renderer, &mut state, 0, "slider_0.png");
 
         // Enable the confirm button.
-        state.set_slider_inner(3, true).unwrap();
-        state.set_confirm_button_inner(true, false).unwrap();
+        state
+            .set_slider_inner(3, true, ButtonState::Enabled)
+            .unwrap();
         render_image(&mut renderer, &mut state, 0, "slider_1.png");
 
         // Set the hover.
-        state.set_confirm_button_inner(true, true).unwrap();
-        state.set_pointer(-30, -400);
+        state
+            .set_slider_inner(3, true, ButtonState::Hovering)
+            .unwrap();
+        state.set_pointer(-30, -300);
         render_image(&mut renderer, &mut state, 0, "slider_2.png");
     }
 

@@ -13,15 +13,9 @@ pub enum Corner {
 }
 
 impl Corner {
-    const fn get_positions(&self, size: Size) -> (PositionU, PositionU){
+    const fn get_positions(&self, size: Size) -> (PositionU, PositionU) {
         match self {
-            Corner::TopLeft => (PositionU {
-                x: 0,
-                y: 0
-            }, PositionU {
-                x: 0,
-                y: 0
-            }),
+            Corner::TopLeft => (PositionU { x: 0, y: 0 }, PositionU { x: 0, y: 0 }),
             Corner::TopRight => (
                 PositionU {
                     x: CORNER_SRC_W - CORNER_D,

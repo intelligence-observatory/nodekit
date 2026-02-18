@@ -13,7 +13,7 @@ use pyo3::types::{PyDict, PyString};
 pub use slider::*;
 use slotmap::{SlotMap, new_key_type};
 pub use text::*;
-pub use text_entry::{TextEntry, TextEntryGutterState};
+pub use text_entry::TextEntry;
 pub use video::VideoCard;
 
 new_key_type! { pub struct CardKey; }
