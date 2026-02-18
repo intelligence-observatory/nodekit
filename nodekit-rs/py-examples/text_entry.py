@@ -31,6 +31,6 @@ out = Path(__file__).parent.joinpath("text_entry").resolve()
 Image.fromarray(board).save(out.joinpath("0.png").as_posix())
 
 state.set_pointer(x=-50, y=-160)
-state.set_text_entry(text='A black letter "A" on a white background')
+state.set_text_entry(text='A black letter "A" on a white background', gutter_state='enabled')
 board = renderer.render(state=state)
 Image.fromarray(board).save(out.joinpath("1.png").as_posix())

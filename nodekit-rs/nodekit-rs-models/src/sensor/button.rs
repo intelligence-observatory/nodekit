@@ -2,6 +2,7 @@ use crate::card::CardKey;
 use crate::sensor::error::ButtonStateError;
 use std::str::FromStr;
 
+#[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ButtonState {
     Disabled,
     Enabled,

@@ -327,7 +327,7 @@ impl Renderer {
             // If the asset is disabled, render its disabled bitmap instead.
             if let Some(button) = state.sensor.button.as_ref()
                 && button.cards.contains(&card_key)
-                && matches!(&button.state, ButtonState::Disabled)
+                && button.state == ButtonState::Disabled
                 && let Some(disabled) = self.sensor.get_disabled(card_key)
             {
                 for d in disabled.iter() {
@@ -360,7 +360,7 @@ impl Renderer {
                 // Set the hovering state for the button.
                 if let Some(button) = state.sensor.button.as_ref()
                     && button.cards.contains(&card_key)
-                    && matches!(&button.state, ButtonState::Hovering)
+                    && button.state == ButtonState::Hovering
                     && let Some(overlay) = self.sensor.get_hover_overlay(card_key)
                 {
                     self.board.overlay_rgba(overlay);

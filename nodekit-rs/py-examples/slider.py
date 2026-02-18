@@ -27,14 +27,12 @@ board = renderer.render(state=state)
 Image.fromarray(board).save(d.joinpath("0.png").as_posix())
 
 # Move the thumb and set the slider as committed.
-state.set_slider(bin=3, committed=True)
-# Enable the confirm button.
-state.set_confirm_button(enabled=True, hovering=False)
+state.set_slider(bin=3, committed=True, confirm_button_state='enabled')
 board = renderer.render(state=state)
 Image.fromarray(board).save(d.joinpath("1.png").as_posix())
 
 # Move the pointer and hover over the confirm button.
 state.set_pointer(0, 0)
-state.set_confirm_button(enabled=True, hovering=True)
+state.set_slider(bin=3, committed=True, confirm_button_state='hovering')
 board = renderer.render(state=state)
 Image.fromarray(board).save(d.joinpath("2.png").as_posix())

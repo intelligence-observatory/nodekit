@@ -82,39 +82,36 @@ class State:
         
         Raises an exception if the sensor isn't a SelectSensor or MultiSelectSensor.
         """
-    def select(self, choice: builtins.str, select: builtins.bool) -> None:
+    def select(self, choice: builtins.str, select: builtins.bool, confirm_button_state: builtins.str) -> None:
         r"""
         Select or deselect a MultiSelectSensor's card.
         
-        If `choice` is a key in MultiSelectSensor.choices
+        - `choice` is a key in the sensor's choices.
+        - `select` sets whether the choice is selected.
+        - `confirm_button_state` sets the state of the confirm button. Fails silently if there is no confirm button. Options: enabled, disabled, hovering.
         
         For SelectSensor, this fails silently because the render state wouldn't change.
         For MultiSelectSensor, this adds `choice` the sensor isn't a SelectSensor or MultiSelectSensor.
         
         Raises an exception if sensor isn't a SelectSensor or MultiSelectSensor.
         """
-    def set_text_entry(self, text: builtins.str) -> None:
+    def set_text_entry(self, text: builtins.str, gutter_state: builtins.str) -> None:
         r"""
         Set the text of a TextEntrySensor.
         
+        - `text` is the new text. If empty, the prompt will automatically be shown.
+        - `gutter_state` sets the state of the gutter. Options: disabled, enabled, hovering.
+        
         Raises an exception if the sensor isn't a TextEntrySensor.
         """
-    def set_slider(self, bin: builtins.int, committed: builtins.bool) -> None:
+    def set_slider(self, bin: builtins.int, committed: builtins.bool, confirm_button_state: builtins.str) -> None:
         r"""
         Set the state of a SliderSensor.
         
         - `bin` sets which bin the thumb overlay's position will snap to.
-        - `committed` determines the color of the thumb overlay, and corresponds to whether the agent has moved the thumb overlay yet.
+        - `committed` sets the color of the thumb overlay, and corresponds to whether the agent has moved the thumb overlay yet.
+        - `confirm_button_state` sets the state of the confirm button. Fails silently if there is no confirm button. Options: enabled, disabled, hovering.
         
         Raises an exception if the sensor isn't a TextEntrySensor.
-        """
-    def set_confirm_button(self, enabled: builtins.bool, hovering: builtins.bool) -> None:
-        r"""
-        Set the state of the confirm button.
-        
-        - `enabled` sets whether the button is enabled or disabled.
-        - `hovered` sets whether there is a hover overlay on top of the button.
-        
-        Raises an exception if there isn't a confirm button.
         """
 

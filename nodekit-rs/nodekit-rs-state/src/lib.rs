@@ -63,12 +63,14 @@ impl State {
         match self.sensor.button.as_mut() {
             Some(button) => {
                 // Set the state.
-                button.state = state;
-                // Mark the cards as dirty.
-                button
-                    .cards
-                    .iter()
-                    .for_each(|card_key| self.cards[*card_key].dirty = true);
+                if button.state != state {
+                    button.state = state;
+                    // Mark the cards as dirty.
+                    button
+                        .cards
+                        .iter()
+                        .for_each(|card_key| self.cards[*card_key].dirty = true);
+                }
                 Ok(())
             }
             None => Err(Error::ConfirmButton),
@@ -97,9 +99,12 @@ impl State {
                 // Set the slider.
                 let bin = bin.cast_unsigned() as usize;
                 if bin < slider.num_bins {
-                    slider.committed = committed;
-                    slider.bin = bin;
-                    self.cards[card_key].dirty = true;
+                    // Mark the card as dirty only if something changed.
+                    if bin != slider.num_bins || committed != slider.committed {
+                        slider.committed = committed;
+                        slider.bin = bin;
+                        self.cards[card_key].dirty = true;
+                    }
 
                     // Set the confirm button.
                     // Fail silently if there is no confirm button.
