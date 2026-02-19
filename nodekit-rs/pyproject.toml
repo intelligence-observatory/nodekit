@@ -9,9 +9,17 @@ version = "0.1.0"
 authors = [
     { name = "Esther Alter", email = "alters@mit.edu" },
 ]
+license = "Apache-2.0"
+classifiers = [
+    "Development Status :: 3 - Alpha"
+]
+
+[project.urls]
+Homepage = "https://github.com/intelligence-observatory/nodekit/"
+Documentation = "https://github.com/intelligence-observatory/nodekit/tree/nodekit-rs-alpha-3/nodekit-rs"
 
 [tool.maturin]
-features = ["pyo3/extension-module", "pyo3/experimental-inspect"]
+features = ["pyo3/extension-module"]
 profile = "release"
 
 [tool.uv]
