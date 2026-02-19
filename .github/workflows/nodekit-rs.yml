@@ -40,7 +40,7 @@ jobs:
         working-directory: nodekit-rs/nodekit-rs-video
         run: |
           cargo install cargo-vcpkg
-          cargo-vcpkg build -v
+          cargo-vcpkg -v build
           cargo build --release
       - name: Build wheels
         uses: PyO3/maturin-action@v1
