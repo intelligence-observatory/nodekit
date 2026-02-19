@@ -39,6 +39,8 @@ jobs:
       - name: Build ffmpeg
         working-directory: nodekit-rs/nodekit-rs-video
         run: |
+          cargo install cargo-vcpkg
+          cargo-vcpkg build
           cargo build --release
       - name: Build wheels
         uses: PyO3/maturin-action@v1
