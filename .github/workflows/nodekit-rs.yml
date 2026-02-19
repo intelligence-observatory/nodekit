@@ -9,6 +9,7 @@ on:
   push:
     branches:
       - main
+      - nodekit-rs-alpha-3
     paths:
       - nodekit-rs/**/*.rs
       - .github/workflows/nodekit-rs.yml
