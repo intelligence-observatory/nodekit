@@ -39,6 +39,7 @@ jobs:
       - name: Build ffmpeg
         working-directory: nodekit-rs/nodekit-rs-video
         run: |
+          sudo apt install nasm
           cargo install cargo-vcpkg
           cargo-vcpkg -v build
           cargo build --release
