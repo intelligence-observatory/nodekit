@@ -33,6 +33,7 @@ Traditional psych tasks are implemented as bespoke spaghetti code: ad-hoc state 
 - `make check`: type-check (`ty`), Ruff lint, and formatting verification.
 - After code changes, run `make check` to verify type-checking and lint compliance.
 - `uv run pytest`: run tests in `tests/`; add `-k <pattern>` to scope.
+- `make set-version VERSION=x.y.z`: updates the Python and browser package versions together. This is a human release workflow command and should not be run automatically by the Agent.
 
 ## Coding Style, Schemas & Naming
 - Python >=3.12, PEP 8 (4-space indent, snake_case identifiers, PascalCase classes). Modules stay lower_snake.
