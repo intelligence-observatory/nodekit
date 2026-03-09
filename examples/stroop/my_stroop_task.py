@@ -173,5 +173,5 @@ if __name__ == "__main__":
             for _ in range(50)
         ],
     )
-    nk.build_site(stroop_task, savedir='test')
+    nk.build_site(stroop_task, savedir="test")
     trace = nk.play(stroop_task)
