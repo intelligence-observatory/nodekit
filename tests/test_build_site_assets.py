@@ -49,3 +49,17 @@ def test_build_site_entrypoint_renders_visible_load_error(
     assert "Unable to load this NodeKit site" in html
     assert "renderLoadError(message);" in html
     assert 'throw new Error("DecompressionStream is not available in this browser.")' in html
+
+
+def test_build_site_is_deterministic_for_same_graph(tmp_path: Path, graph_with_assets: nk.Graph):
+    first_dir = tmp_path / "site-1"
+    second_dir = tmp_path / "site-2"
+
+    first_result = nk.build_site(graph=graph_with_assets, savedir=first_dir)
+    second_result = nk.build_site(graph=graph_with_assets, savedir=second_dir)
+
+    first_entrypoint = (first_result.site_root / first_result.entrypoint).read_text()
+    second_entrypoint = (second_result.site_root / second_result.entrypoint).read_text()
+
+    assert first_result.entrypoint == second_result.entrypoint
+    assert first_entrypoint == second_entrypoint

@@ -110,7 +110,7 @@ def build_site(
     # Save the graph site:
     graph_serialized = graph.model_dump_json()
     graph_digest = hash_string(s=graph_serialized)
-    graph_gz_bytes = gzip.compress(graph_serialized.encode("utf-8"))
+    graph_gz_bytes = gzip.compress(graph_serialized.encode("utf-8"), mtime=0)
     graph_gz_b64 = base64.b64encode(graph_gz_bytes).decode("ascii")
     graph_gz_b64_wrapped = "\n".join(
         graph_gz_b64[i : i + 120] for i in range(0, len(graph_gz_b64), 120)
