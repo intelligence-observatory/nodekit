@@ -10,6 +10,17 @@
     <link href="{{ css_path }}" rel="stylesheet">
     <script>
         const graphGzB64 = `{{ graph_gz_b64 }}`;
+        function renderLoadError(message) {
+            document.body.innerHTML = `
+                <main style="font-family: sans-serif; max-width: 48rem; margin: 4rem auto; padding: 0 1.5rem; line-height: 1.5;">
+                    <h1 style="font-size: 1.5rem; margin-bottom: 1rem;">Unable to load this NodeKit site</h1>
+                    <p style="margin-bottom: 0.75rem;">
+                        This browser could not decode the embedded Graph payload required to start the task.
+                    </p>
+                    <pre style="white-space: pre-wrap; word-break: break-word; background: #f5f5f5; padding: 1rem; border-radius: 0.5rem;">${message}</pre>
+                </main>
+            `;
+        }
         async function loadGraph() {
             if (typeof DecompressionStream === "undefined") {
                 throw new Error("DecompressionStream is not available in this browser.");
@@ -21,7 +32,15 @@
             const graph = JSON.parse(graphJson);
             await NodeKit.play(graph);
         }
-        window.onload = async () => { await loadGraph(); };
+        window.onload = async () => {
+            try {
+                await loadGraph();
+            } catch (error) {
+                const message = error instanceof Error ? error.message : String(error);
+                renderLoadError(message);
+                console.error(error);
+            }
+        };
     </script>
 </head>
 <body></body>

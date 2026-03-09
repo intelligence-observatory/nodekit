@@ -34,3 +34,18 @@ def test_build_site_outputs_site_with_assets(tmp_path: Path, graph_with_assets: 
         asset_abs = entrypoint_path.parent / asset.locator.relative_path
         assert asset_abs.exists()
         assert asset.locator.relative_path.parts[0:3] == ("..", "..", "assets")
+
+
+def test_build_site_entrypoint_renders_visible_load_error(
+    tmp_path: Path, graph_with_assets: nk.Graph
+):
+    site_dir = tmp_path / "site"
+
+    result = nk.build_site(graph=graph_with_assets, savedir=site_dir)
+
+    entrypoint_path = result.site_root / result.entrypoint
+    html = entrypoint_path.read_text()
+
+    assert "Unable to load this NodeKit site" in html
+    assert "renderLoadError(message);" in html
+    assert 'throw new Error("DecompressionStream is not available in this browser.")' in html
