@@ -29,7 +29,7 @@ class Node(pydantic.BaseModel):
         description="Whether to hide the mouse pointer during this Node.",
     )
 
-    annotation: str = pydantic.Field(
-        default="",
+    annotation: str | None = pydantic.Field(
+        default=None,
         description="An optional, user-defined annotation for the Node that may be useful for debugging or analysis purposes.",
     )
