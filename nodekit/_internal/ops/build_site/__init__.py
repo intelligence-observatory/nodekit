@@ -1,3 +1,5 @@
+import base64
+import gzip
 import os
 from pathlib import Path
 
@@ -54,7 +56,6 @@ def build_site(
         graphs/
             {graph_digest}/
                 index.html
-                graph.json
         ```
     """
     savedir = Path(savedir)
@@ -106,16 +107,21 @@ def build_site(
     jinja2_location = Path(__file__).parent / "harness.j2"
     jinja2_loader = jinja2.FileSystemLoader(searchpath=jinja2_location.parent)
     jinja2_env = jinja2.Environment(loader=jinja2_loader)
-    template = jinja2_env.get_template(jinja2_location.name)
-    rendered_html = template.render(
-        graph=graph.model_dump(mode="json"),
-        css_path=Path("../..") / css_relative_path,
-        js_path=Path("../..") / js_relative_path,
-    )
-
     # Save the graph site:
     graph_serialized = graph.model_dump_json()
     graph_digest = hash_string(s=graph_serialized)
+    graph_gz_bytes = gzip.compress(graph_serialized.encode("utf-8"))
+    graph_gz_b64 = base64.b64encode(graph_gz_bytes).decode("ascii")
+    graph_gz_b64_wrapped = "\n".join(
+        graph_gz_b64[i : i + 120] for i in range(0, len(graph_gz_b64), 120)
+    )
+
+    template = jinja2_env.get_template(jinja2_location.name)
+    rendered_html = template.render(
+        graph_gz_b64=graph_gz_b64_wrapped,
+        css_path=Path("../..") / css_relative_path,
+        js_path=Path("../..") / js_relative_path,
+    )
     graph_dir = savedir / "graphs" / graph_digest
     graph_dir.mkdir(parents=True, exist_ok=True)
     graph_html_path = graph_dir / "index.html"
