@@ -11,7 +11,7 @@ from nodekit._internal.types.values import NodeId, RegisterId, LeafValue
 # %%
 class Graph(pydantic.BaseModel):
     type: Literal["Graph"] = "Graph"
-    nodekit_version: Literal["0.2.3"] = pydantic.Field(default=VERSION, validate_default=True)
+    nodekit_version: str = pydantic.Field(default=VERSION, validate_default=True)
 
     nodes: dict[NodeId, Union[Node, "Graph"]] = pydantic.Field(
         description="The set of Nodes in the Graph, by NodeId. Note that a Graph can contain other Graphs as Nodes.",
@@ -27,6 +27,13 @@ class Graph(pydantic.BaseModel):
         default_factory=dict,
         description="The initial register values. ",
     )
+
+    @pydantic.field_validator("nodekit_version")
+    @classmethod
+    def validate_nodekit_version(cls, value: str) -> str:
+        if value != VERSION:
+            raise ValueError(f"Incompatible NodeKit version: expected {VERSION}, got {value}")
+        return value
 
     @pydantic.model_validator(mode="after")
     def check_graph_is_valid(
