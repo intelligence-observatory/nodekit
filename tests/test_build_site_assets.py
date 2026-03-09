@@ -1,3 +1,6 @@
+import base64
+import gzip
+import re
 from pathlib import Path
 
 import nodekit as nk
@@ -19,7 +22,11 @@ def test_build_site_outputs_site_with_assets(tmp_path: Path, graph_with_assets: 
         assert dep_path.exists()
 
     html = entrypoint_path.read_text()
-    graph_json = html.split("const graph = ", 1)[1].split(";\n", 1)[0]
+    graph_gz_b64 = re.search(r"const graphGzB64 = `(?P<graph>.*?)`;", html, re.DOTALL)
+    assert graph_gz_b64 is not None
+    graph_json = gzip.decompress(
+        base64.b64decode("".join(graph_gz_b64.group("graph").split()))
+    ).decode("utf-8")
     built_graph = nk.Graph.model_validate_json(graph_json)
 
     for asset in iter_assets(graph=built_graph):
