@@ -10,6 +10,10 @@ check:
 test:
 	uv run pytest tests
 
+set-version:
+	@test -n "$(VERSION)" || (echo "Usage: make set-version VERSION=x.y.z" && exit 1)
+	uv run python scripts/set_version.py "$(VERSION)"
+
 build-browser:
 	cd nodekit-browser && \
 	npm run build && \
