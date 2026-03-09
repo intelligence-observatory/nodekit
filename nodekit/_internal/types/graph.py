@@ -28,6 +28,11 @@ class Graph(pydantic.BaseModel):
         description="The initial register values. ",
     )
 
+    annotation: str | None = pydantic.Field(
+        default=None,
+        description="An optional, user-defined annotation for the Graph that may be useful for debugging or analysis purposes.",
+    )
+
     @pydantic.field_validator("nodekit_version")
     @classmethod
     def validate_nodekit_version(cls, value: str) -> str:

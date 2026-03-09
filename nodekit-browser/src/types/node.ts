@@ -10,7 +10,7 @@ export interface Node {
     sensor: Sensor;
     board_color: ColorHexString;
     hide_pointer: boolean
-    annotation: string
+    annotation: string | null
 }
 
 export interface Graph {
@@ -20,6 +20,7 @@ export interface Graph {
     transitions: Readonly<Record<NodeId, Transition>>;
     start: NodeId;
     registers: Readonly<Record<RegisterId, Value>>
+    annotation: string | null
 }
 
 export interface Trace {
