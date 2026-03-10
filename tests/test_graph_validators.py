@@ -2,6 +2,7 @@ import pydantic
 import pytest
 
 import nodekit as nk
+from nodekit._internal.version import VERSION
 
 
 def wait_node() -> nk.Node:
@@ -158,3 +159,50 @@ def test_valid_graph_passes():
     )
 
     assert graph.start == "start"
+
+
+def test_accepts_older_compatible_nodekit_version():
+    graph = nk.Graph(
+        nodekit_version="0.2.5",
+        nodes={"start": wait_node()},
+        transitions={"start": nk.transitions.End()},
+        start="start",
+    )
+
+    assert graph.nodekit_version == "0.2.5"
+
+
+def test_rejects_newer_nodekit_version():
+    with pytest.raises(
+        pydantic.ValidationError,
+        match=rf"Serialized NodeKit version 0\\.2\\.7 is newer than runtime version {VERSION}",
+    ):
+        nk.Graph(
+            nodekit_version="0.2.7",
+            nodes={"start": wait_node()},
+            transitions={"start": nk.transitions.End()},
+            start="start",
+        )
+
+
+def test_rejects_incompatible_major_nodekit_version():
+    with pytest.raises(
+        pydantic.ValidationError,
+        match=r"Incompatible NodeKit major version: expected 0\.x, got 1\.0\.0",
+    ):
+        nk.Graph(
+            nodekit_version="1.0.0",
+            nodes={"start": wait_node()},
+            transitions={"start": nk.transitions.End()},
+            start="start",
+        )
+
+
+def test_rejects_invalid_nodekit_version_string():
+    with pytest.raises(pydantic.ValidationError, match="Invalid NodeKit version: not-a-version"):
+        nk.Graph(
+            nodekit_version="not-a-version",
+            nodes={"start": wait_node()},
+            transitions={"start": nk.transitions.End()},
+            start="start",
+        )
