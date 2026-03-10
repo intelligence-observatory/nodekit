@@ -8,6 +8,11 @@ VERSION = "0.2.6.dev1"
 
 # %%
 def validate_compatible_nodekit_version(value: str) -> str:
+    """Accept NodeKit versions on the same major release line that are not newer than runtime.
+
+    This allows older serialized Graphs and Traces from the current major series to load,
+    while rejecting cross-major formats and artifacts produced by a newer runtime.
+    """
     try:
         got = Version(value)
         current = Version(VERSION)
