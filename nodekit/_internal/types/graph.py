@@ -3,6 +3,7 @@ from typing import Literal, Self, Union
 import pydantic
 
 from nodekit import VERSION, Node
+from nodekit._internal.version import validate_compatible_nodekit_version
 from nodekit._internal.types import expressions as expressions
 from nodekit._internal.types.transitions import Transition, Go, IfThenElse, End
 from nodekit._internal.types.values import NodeId, RegisterId, LeafValue
@@ -36,9 +37,7 @@ class Graph(pydantic.BaseModel):
     @pydantic.field_validator("nodekit_version")
     @classmethod
     def validate_nodekit_version(cls, value: str) -> str:
-        if value != VERSION:
-            raise ValueError(f"Incompatible NodeKit version: expected {VERSION}, got {value}")
-        return value
+        return validate_compatible_nodekit_version(value)
 
     @pydantic.model_validator(mode="after")
     def check_graph_is_valid(

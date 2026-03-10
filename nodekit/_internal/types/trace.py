@@ -1,6 +1,7 @@
 import pydantic
 
 from nodekit import VERSION
+from nodekit._internal.version import validate_compatible_nodekit_version
 from nodekit._internal.types.events import Event
 
 
@@ -12,9 +13,7 @@ class Trace(pydantic.BaseModel):
     @pydantic.field_validator("nodekit_version")
     @classmethod
     def validate_nodekit_version(cls, value: str) -> str:
-        if value != VERSION:
-            raise ValueError(f"Incompatible NodeKit version: expected {VERSION}, got {value}")
-        return value
+        return validate_compatible_nodekit_version(value)
 
     @pydantic.field_validator("events")
     def order_events(cls, events: list[Event]) -> list[Event]:
