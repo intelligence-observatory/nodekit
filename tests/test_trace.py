@@ -18,6 +18,18 @@ def newer_same_major_version() -> str:
     return f"{current.major}.{current.minor}.{current.micro + 1}"
 
 
+def final_release_version() -> str:
+    return Version(VERSION).base_version
+
+
+def prerelease_runtime_version() -> str:
+    return f"{final_release_version()}.dev1"
+
+
+def newer_prerelease_version() -> str:
+    return f"{final_release_version()}.dev2"
+
+
 def test_accepts_older_compatible_nodekit_version():
     older = compatible_older_version()
     trace = nk.Trace(
@@ -61,40 +73,57 @@ def test_rejects_invalid_nodekit_version_string():
         )
 
 
-def test_accepts_older_prerelease_when_runtime_is_final():
+def test_accepts_older_prerelease_when_runtime_is_final(monkeypatch: pytest.MonkeyPatch):
+    final_runtime = final_release_version()
+    older_prerelease = prerelease_runtime_version()
+
+    assert Version(older_prerelease) < Version(final_runtime)
+
+    monkeypatch.setattr("nodekit._internal.version.VERSION", final_runtime)
+
     trace = nk.Trace(
-        nodekit_version="0.2.6.dev1",
+        nodekit_version=older_prerelease,
         events=[nk.events.TraceStartedEvent(t=0)],
     )
 
-    assert trace.nodekit_version == "0.2.6.dev1"
+    assert trace.nodekit_version == older_prerelease
 
 
 def test_rejects_final_release_when_runtime_is_prerelease(monkeypatch: pytest.MonkeyPatch):
-    monkeypatch.setattr("nodekit._internal.version.VERSION", "0.2.6.dev1")
+    prerelease_runtime = prerelease_runtime_version()
+    final_release = final_release_version()
+
+    assert Version(final_release) > Version(prerelease_runtime)
+
+    monkeypatch.setattr("nodekit._internal.version.VERSION", prerelease_runtime)
 
     with pytest.raises(
         pydantic.ValidationError,
         match=re.escape(
-            "Serialized NodeKit version 0.2.6 is newer than runtime version 0.2.6.dev1"
+            f"Serialized NodeKit version {final_release} is newer than runtime version {prerelease_runtime}"
         ),
     ):
         nk.Trace(
-            nodekit_version="0.2.6",
+            nodekit_version=final_release,
             events=[nk.events.TraceStartedEvent(t=0)],
         )
 
 
 def test_rejects_newer_prerelease_when_runtime_is_prerelease(monkeypatch: pytest.MonkeyPatch):
-    monkeypatch.setattr("nodekit._internal.version.VERSION", "0.2.6.dev1")
+    prerelease_runtime = prerelease_runtime_version()
+    newer_prerelease = newer_prerelease_version()
+
+    assert Version(newer_prerelease) > Version(prerelease_runtime)
+
+    monkeypatch.setattr("nodekit._internal.version.VERSION", prerelease_runtime)
 
     with pytest.raises(
         pydantic.ValidationError,
         match=re.escape(
-            "Serialized NodeKit version 0.2.6.dev2 is newer than runtime version 0.2.6.dev1"
+            f"Serialized NodeKit version {newer_prerelease} is newer than runtime version {prerelease_runtime}"
         ),
     ):
         nk.Trace(
-            nodekit_version="0.2.6.dev2",
+            nodekit_version=newer_prerelease,
             events=[nk.events.TraceStartedEvent(t=0)],
         )
