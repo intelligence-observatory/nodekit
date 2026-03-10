@@ -1,3 +1,5 @@
+import re
+
 import pydantic
 import pytest
 
@@ -175,7 +177,9 @@ def test_accepts_older_compatible_nodekit_version():
 def test_rejects_newer_nodekit_version():
     with pytest.raises(
         pydantic.ValidationError,
-        match=rf"Serialized NodeKit version 0\\.2\\.7 is newer than runtime version {VERSION}",
+        match=re.escape(
+            f"Serialized NodeKit version 0.2.7 is newer than runtime version {VERSION}"
+        ),
     ):
         nk.Graph(
             nodekit_version="0.2.7",
