@@ -26,9 +26,6 @@ jobs:
           pip3 install uv
           uv venv
           source .venv/bin/activate
-      - name: Compile nodekit-rs
-        run: |
-          make build-rs
       - name: Install nodekit
         run: |
           uv sync --group dev --locked
