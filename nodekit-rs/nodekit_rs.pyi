@@ -21,9 +21,9 @@ class Renderer:
     def render_to(self, state: State, board: numpy.typing.NDArray[numpy.uint8]) -> None:
         r"""
         Render `state` and copy the rendered bitmap into `board`.
-        
+
         This is faster than `self.render(state) because it doesn't allocate a new array.
-        
+
         `board`'s data type MUST be `numpy.unit8` and its shape MUST be `(768, 1024, 3)`.
         See: `Renderer.empty_board()`.
         """
@@ -31,7 +31,7 @@ class Renderer:
         r"""
         Render `state`.
         Returns a numpy array with shape: `(768, 1024, 3)`.
-        
+
         This is slower than `self.render_to(state, board)` because it needs to allocate a new array.
         """
     def set_pointer_visibility(self, visible: builtins.bool) -> None:
@@ -51,67 +51,72 @@ class State:
         """
     @t_msec.setter
     def t_msec(self, value: builtins.int) -> None: ...
-    def __new__(cls, board_color: builtins.str, card: typing.Optional[typing.Any], sensor: typing.Any) -> State:
+    def __new__(
+        cls, board_color: builtins.str, card: typing.Optional[typing.Any], sensor: typing.Any
+    ) -> State:
         r"""
         `board_color` must be a valid RGBA hex string e.g. "#808080ff"
         `cards` must be of type `nodekit.cards.Card`
         `sensor` must be of type `nodekit.sensors.Sensor`.
-        
+
         Note that only some sensors are implemented in nodekit-rs:
-        
+
         - MultiSelectSensor
         - SelectSensor
         - SliderSensor
         - TextEntrySensor
-        
+
         All other sensor types are permitted in this constructor, but won't do anything.
         """
     def set_pointer(self, x: builtins.int, y: builtins.int) -> None:
         r"""
         Set the coordinates of the pointer.
         The coordinates must be between -512 and 512.
-        
+
         If the sensor is a SelectSensor or MultiSelectSensor, this will automatically set the hovering state of the cards, if applicable.
         """
     def hover(self, choice: typing.Optional[builtins.str]) -> None:
         r"""
         Set which card has a hovered state.
-        
+
         If `choice` is a string, then it's a key in SelectSensor.choices or MultiSelectSensor.choices
         If `choice` is None, then no card will have a hovered state.
-        
+
         Raises an exception if the sensor isn't a SelectSensor or MultiSelectSensor.
         """
-    def select(self, choice: builtins.str, select: builtins.bool, confirm_button_state: builtins.str) -> None:
+    def select(
+        self, choice: builtins.str, select: builtins.bool, confirm_button_state: builtins.str
+    ) -> None:
         r"""
         Select or deselect a MultiSelectSensor's card.
-        
+
         - `choice` is a key in the sensor's choices.
         - `select` sets whether the choice is selected.
         - `confirm_button_state` sets the state of the confirm button. Fails silently if there is no confirm button. Options: enabled, disabled, hovering.
-        
+
         For SelectSensor, this fails silently because the render state wouldn't change.
         For MultiSelectSensor, this adds `choice` the sensor isn't a SelectSensor or MultiSelectSensor.
-        
+
         Raises an exception if sensor isn't a SelectSensor or MultiSelectSensor.
         """
     def set_text_entry(self, text: builtins.str, gutter_state: builtins.str) -> None:
         r"""
         Set the text of a TextEntrySensor.
-        
+
         - `text` is the new text. If empty, the prompt will automatically be shown.
         - `gutter_state` sets the state of the gutter. Options: disabled, enabled, hovering.
-        
+
         Raises an exception if the sensor isn't a TextEntrySensor.
         """
-    def set_slider(self, bin: builtins.int, committed: builtins.bool, confirm_button_state: builtins.str) -> None:
+    def set_slider(
+        self, bin: builtins.int, committed: builtins.bool, confirm_button_state: builtins.str
+    ) -> None:
         r"""
         Set the state of a SliderSensor.
-        
+
         - `bin` sets which bin the thumb overlay's position will snap to.
         - `committed` sets the color of the thumb overlay, and corresponds to whether the agent has moved the thumb overlay yet.
         - `confirm_button_state` sets the state of the confirm button. Fails silently if there is no confirm button. Options: enabled, disabled, hovering.
-        
+
         Raises an exception if the sensor isn't a TextEntrySensor.
         """
-
