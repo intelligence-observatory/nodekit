@@ -27,10 +27,13 @@ install-maturin:
 	uv tool install maturin
 
 build-rs: install-maturin
-	maturin develop --manifest-path nodekit-rs/Cargo.toml --release --uv
+	cd nodekit-rs && \
+    ./build_video.sh && \
+	maturin develop --release --uv
 
 nodekit-rs-stub-gen:
 	cd nodekit-rs && \
+	./build_video.sh && \
 	cargo run --example stub_gen && \
 	python3 fix_pyi.py
 
