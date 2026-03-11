@@ -10,6 +10,10 @@ check:
 test:
 	uv run pytest tests
 
+set-version:
+	@test -n "$(VERSION)" || (echo "Usage: make set-version VERSION=x.y.z" && exit 1)
+	uv run python scripts/set_version.py "$(VERSION)"
+
 build-browser:
 	cd nodekit-browser && \
 	npm run build && \
@@ -37,3 +41,20 @@ build: lint check test build-browser build-docs build-rs
 view-docs: build-docs
 	cd docs && \
 	uv run mkdocs serve --livereload
+
+
+publish:
+	@version="$$(uv version --short)"; \
+	case "$$version" in \
+		*.dev*) ;; \
+		*) \
+			printf "Version %s does not include .dev. Continue? [y/N] " "$$version"; \
+			read -r answer; \
+			case "$$answer" in \
+				y|Y) ;; \
+				*) echo "Aborted."; exit 1 ;; \
+			esac ;; \
+	esac; \
+	rm -rf dist && \
+	uv build && \
+	uv publish

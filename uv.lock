@@ -992,7 +992,7 @@ wheels = [
 
 [[package]]
 name = "nodekit"
-version = "0.2.3"
+version = "0.2.7"
 source = { editable = "." }
 dependencies = [
     { name = "boto3" },
@@ -1000,6 +1000,7 @@ dependencies = [
     { name = "fastapi", extra = ["standard"] },
     { name = "jinja2" },
     { name = "matplotlib" },
+    { name = "packaging" },
     { name = "pandas" },
     { name = "pillow" },
     { name = "pydantic" },
@@ -1024,6 +1025,7 @@ requires-dist = [
     { name = "fastapi", extras = ["standard"], specifier = ">=0.116.1" },
     { name = "jinja2", specifier = ">=3.1.4" },
     { name = "matplotlib", specifier = ">=3.10.8" },
+    { name = "packaging", specifier = ">=25.0" },
     { name = "pandas", specifier = ">=2.3.3" },
     { name = "pillow", specifier = ">=10.4" },
     { name = "pydantic", specifier = ">=2.9.2" },

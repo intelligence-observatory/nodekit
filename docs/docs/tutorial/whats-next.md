@@ -1,5 +1,5 @@
 
-These tutorials showcased the core workflow of NodeKit. To recap, one uses NodeKit by"
+These tutorials showcased the core workflow of NodeKit. To recap, one uses NodeKit by:
 
 1. Defining a set of **Nodes**, each of which consists of a Cards and a Sensor.
 2. Wiring those Nodes together into a **Graph**, using Transitions.

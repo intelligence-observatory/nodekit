@@ -1,64 +1,94 @@
 import os
 from pathlib import Path
-from typing import Tuple, List
 
 import matplotlib
 import numpy as np
 
-from nodekit.events import PointerSampledEvent
+from nodekit.events import Event, PointerSampledEvent
 
-# import matplotlib
 matplotlib.use("Agg")  # safe for headless render
 import matplotlib.pyplot as plt
 from matplotlib import animation
 from matplotlib.colors import to_rgba
 
 
+# %%
+Color = tuple[float, float, float, float]
+ColorSpec = Color | dict[str, Color]
+
+
+# %%
 def make_animation(
-    events: dict[str, List[PointerSampledEvent]],  # trace_id -> event stream
+    events: dict[str, list[Event]],  # trace_id -> event stream
     savepath: os.PathLike | str,
-    accent_rgba: Tuple[float, float, float, float]
-    | dict[str, Tuple[float, float, float, float]] = (
+    accent_rgba: ColorSpec = (
         49 / 255,
         124 / 255,
         245 / 255,
         0.9,
     ),
-    neutral_rgba: Tuple[float, float, float, float]
-    | dict[str, Tuple[float, float, float, float]] = (0.1, 0.1, 0.1, 0.3),
+    neutral_rgba: ColorSpec = (0.1, 0.1, 0.1, 0.3),
+    background_color_rgba: Color = (0.0, 0.0, 0.0, 0.0),
     movie_size_px: int = 500,
     movie_time_sec: int = 10,
+    time_scale: float = 1.0,
 ):
     """
-    Render multiple pointer streams in a single transparent .mov.
+    Render multiple pointer streams into a .mov.
 
     Visual semantics (per trace):
-      - MOVE: no dots (only influences trails).
       - DOWN/UP: accent-colored dots; alpha and (UP) size decay over time.
-      - Persistent trail: single path from start → 'now'; ALWAYS neutral color; no fade; 1/2 width.
-      - Following trail: single segment from previous sample → time-interpolated point toward next sample;
-        ALWAYS neutral color; fades with the move tau.
+      - Other kinds (e.g., MOVE): no dots, but still drive trails.
+      - Persistent trail: path from start to current time, neutral color, no fade, 1/4 width.
+      - Following trail: segment from previous sample to the time-interpolated point toward next sample,
+        neutral color, fades with the move tau.
 
     Z-index:
       - Traces are layered by insertion order of `events` (earlier keys are below later keys),
-        and this order is fixed for the whole movie. Within each trace: persistent trail (lowest),
-        then following trail, then DOWN/UP dots (highest).
+        and this order is fixed for the whole movie. Within each trace: persistent (lowest),
+        then following, then DOWN/UP dots (highest).
 
     Coordinates:
       - Input x,y in pixels, origin at board center; board extent is 1024 x 1024,
         so x,y are in [-512, 512]. Output is a square of size movie_size_px.
 
     Timing:
-      - 60 fps, length = movie_time_sec. Samples outside [0, movie_time_sec*1000) ms are ignored.
+      - 60 fps; frames are spaced at 1000/fps ms. Samples outside
+        [0, movie_time_sec*1000) ms are ignored after time scaling.
+      - Movie time = physical time / time_scale.
+
+    Args:
+        events: Mapping from trace id to event sequences. Non-pointer events are ignored.
+            Pointer events are sorted by time and filtered to the movie time window.
+        savepath: Destination path for the rendered .mov (suffix forced to .mov).
+        accent_rgba: RGBA color used for DOWN/UP dots, or a per-trace mapping.
+        neutral_rgba: RGBA color used for trails, or a per-trace mapping.
+        background_color_rgba: RGBA background color for the output (alpha=0 is transparent).
+        movie_size_px: Output movie size in pixels (square).
+        movie_time_sec: Output movie length in seconds.
+        time_scale: Playback speed multiplier (movie time = physical time / time_scale).
+
+    Raises:
+        ValueError: If accent_rgba or neutral_rgba are dicts that do not enumerate all trace ids.
+        ValueError: If time_scale is not positive.
+
+    Returns:
+        None. Writes a .mov to savepath.
     """
 
     # ----------------------------
     # Params & scaling
     # ----------------------------
-    scale = movie_size_px / 1024.0  # baseline-normalized scaling
+    if time_scale <= 0:
+        raise ValueError("time_scale must be > 0")
+
+    board_size_px = 1024.0
+    half_board_px = board_size_px / 2.0
+    scale = movie_size_px / board_size_px  # baseline-normalized scaling
 
     fps = 60
-    T_ms = int(movie_time_sec * 1000)
+    movie_time_ms = int(movie_time_sec * 1000)
+    frame_interval_ms = 1000.0 / fps
 
     # Decays (alpha ~ exp(-dt / tau))
     tau_alpha_ms_move = 500.0
@@ -82,7 +112,7 @@ def make_animation(
     # ----------------------------
     trace_ids = list(events.keys())  # insertion order retained
 
-    def _normalize_color_spec(spec, name: str) -> dict[str, Tuple[float, float, float, float]]:
+    def _normalize_color_spec(spec: ColorSpec, name: str) -> dict[str, Color]:
         if isinstance(spec, dict):
             missing = set(trace_ids) - set(spec.keys())
             extra = set(spec.keys()) - set(trace_ids)
@@ -98,14 +128,16 @@ def make_animation(
 
     per_trace_accent = _normalize_color_spec(accent_rgba, "accent_rgba")
     per_trace_neutral = _normalize_color_spec(neutral_rgba, "neutral_rgba")
+    background_rgba = to_rgba(background_color_rgba)
+    transparent = background_rgba[3] == 0.0
 
     # ----------------------------
-    # Preprocess per-trace arrays (sorted, filtered to movie window)
+    # Preprocess per-trace arrays (pointer events only, sorted, filtered to movie window)
     # ----------------------------
     streams = []  # list of dicts, in z-order
     for tid in trace_ids:
-        ev = [e for e in events[tid] if 0 <= e.t < T_ms]
-        if not ev:
+        pointer_events = [e for e in events[tid] if isinstance(e, PointerSampledEvent)]
+        if not pointer_events:
             # still create an empty stream so z-ordering remains consistent
             streams.append(
                 dict(
@@ -113,24 +145,39 @@ def make_animation(
                     kinds=np.array([], dtype=object),
                     xs=np.array([], dtype=float),
                     ys=np.array([], dtype=float),
-                    ts=np.array([], dtype=int),
-                    is_down=np.array([], dtype=bool),
-                    is_up=np.array([], dtype=bool),
+                    ts=np.array([], dtype=float),
                     accent=per_trace_accent[tid],
                     neutral=per_trace_neutral[tid],
                 )
             )
             continue
 
-        ev.sort(key=lambda e: e.t)
+        pointer_events.sort(key=lambda e: e.t)
 
-        kinds = np.array([e.kind for e in ev], dtype=object)
-        xs = np.array([e.x for e in ev], dtype=float)
-        ys = np.array([e.y for e in ev], dtype=float)
-        ts = np.array([e.t for e in ev], dtype=int)
+        kinds = np.array([e.kind for e in pointer_events], dtype=object)
+        xs = np.array([e.x for e in pointer_events], dtype=float)
+        ys = np.array([e.y for e in pointer_events], dtype=float)
+        ts = np.array([e.t for e in pointer_events], dtype=float) / time_scale
 
-        is_down = kinds == "down"
-        is_up = kinds == "up"
+        in_window = (ts >= 0) & (ts < movie_time_ms)
+        if not np.any(in_window):
+            streams.append(
+                dict(
+                    trace_id=tid,
+                    kinds=np.array([], dtype=object),
+                    xs=np.array([], dtype=float),
+                    ys=np.array([], dtype=float),
+                    ts=np.array([], dtype=float),
+                    accent=per_trace_accent[tid],
+                    neutral=per_trace_neutral[tid],
+                )
+            )
+            continue
+
+        kinds = kinds[in_window]
+        xs = xs[in_window]
+        ys = ys[in_window]
+        ts = ts[in_window]
 
         streams.append(
             dict(
@@ -139,8 +186,6 @@ def make_animation(
                 xs=xs,
                 ys=ys,
                 ts=ts,
-                is_down=is_down,
-                is_up=is_up,
                 accent=per_trace_accent[tid],
                 neutral=per_trace_neutral[tid],
             )
@@ -153,12 +198,12 @@ def make_animation(
     fig_inch = movie_size_px / dpi
     fig = plt.figure(figsize=(fig_inch, fig_inch), dpi=dpi)
     ax = plt.axes((0, 0, 1, 1))
-    ax.set_xlim(-512, 512)
-    ax.set_ylim(-512, 512)
+    ax.set_xlim(-half_board_px, half_board_px)
+    ax.set_ylim(-half_board_px, half_board_px)
     ax.set_aspect("equal", adjustable="box")
 
-    fig.patch.set_alpha(0.0)
-    ax.set_facecolor((0, 0, 0, 0))
+    fig.patch.set_facecolor(background_rgba)
+    ax.set_facecolor(background_rgba)
     for spine in ax.spines.values():
         spine.set_visible(False)
     ax.set_xticks([])
@@ -169,7 +214,7 @@ def make_animation(
     # ----------------------------
     # Within each trace: persistent (lowest), following, points (highest)
     trace_artists = []
-    for z, S in enumerate(streams):
+    for z, stream in enumerate(streams):
         base_z = z * 3  # reserve 3 zorders per trace
         # persistent neutral path
         (persist_line,) = ax.plot(
@@ -180,7 +225,7 @@ def make_animation(
             solid_joinstyle="round",
             zorder=base_z + 0,
         )
-        persist_line.set_color(S["neutral"])
+        persist_line.set_color(stream["neutral"])
 
         # following neutral segment (fading)
         (follow_line,) = ax.plot(
@@ -191,156 +236,151 @@ def make_animation(
             solid_joinstyle="round",
             zorder=base_z + 1,
         )
-        follow_line.set_color((S["neutral"][0], S["neutral"][1], S["neutral"][2], 0.0))
+        follow_line.set_color(
+            (stream["neutral"][0], stream["neutral"][1], stream["neutral"][2], 0.0)
+        )
 
         # DOWN/UP scatter only
         scatter = ax.scatter([], [], s=[], facecolors=[], edgecolors="none", zorder=base_z + 2)
 
         trace_artists.append(
-            dict(scatter=scatter, persist=persist_line, follow=follow_line, stream=S)
+            dict(scatter=scatter, persist=persist_line, follow=follow_line, stream=stream)
         )
 
     # ----------------------------
     # Frames
     # ----------------------------
     num_frames = fps * movie_time_sec
-    frame_times = np.arange(num_frames, dtype=int) * int(1000 / fps)
+    frame_times_ms = np.arange(num_frames, dtype=float) * frame_interval_ms
+
+    empty_offsets = np.empty((0, 2))
+    empty_sizes = np.empty((0,))
+    empty_colors = np.empty((0, 4))
+
+    def _clear_scatter(scatter_artist):
+        scatter_artist.set_offsets(empty_offsets)
+        scatter_artist.set_sizes(empty_sizes)
+        scatter_artist.set_facecolors(empty_colors)
+
+    def _clear_follow(line_artist, neutral: Color):
+        line_artist.set_data([], [])
+        line_artist.set_color((neutral[0], neutral[1], neutral[2], 0.0))
 
     def init():
-        for A in trace_artists:
-            A["scatter"].set_offsets(np.empty((0, 2)))
-            A["scatter"].set_sizes(np.empty((0,)))
-            A["scatter"].set_facecolors(np.empty((0, 4)))
-
-            A["persist"].set_data([], [])
-            # persist color already set per trace
-
-            A["follow"].set_data([], [])
-            n = A["stream"]["neutral"]
-            A["follow"].set_color((n[0], n[1], n[2], 0.0))
+        for trace in trace_artists:
+            _clear_scatter(trace["scatter"])
+            trace["persist"].set_data([], [])
+            _clear_follow(trace["follow"], trace["stream"]["neutral"])
 
         # return a flat tuple of all artists for blitting
         out = []
-        for A in trace_artists:
-            out.extend([A["scatter"], A["persist"], A["follow"]])
+        for trace in trace_artists:
+            out.extend([trace["scatter"], trace["persist"], trace["follow"]])
         return tuple(out)
 
     def update(frame_idx: int):
-        t_now = int(frame_times[frame_idx])
+        t_now = float(frame_times_ms[frame_idx])
 
         drawn = []
-        for A in trace_artists:
-            S = A["stream"]
-            kinds, xs, ys, ts = S["kinds"], S["xs"], S["ys"], S["ts"]
-            accent, neutral = S["accent"], S["neutral"]
+        for trace in trace_artists:
+            stream = trace["stream"]
+            kinds, xs, ys, ts = stream["kinds"], stream["xs"], stream["ys"], stream["ts"]
+            accent, neutral = stream["accent"], stream["neutral"]
 
             # --- DOWN/UP points within tail window ---
             if ts.size == 0:
-                A["scatter"].set_offsets(np.empty((0, 2)))
-                A["scatter"].set_sizes(np.empty((0,)))
-                A["scatter"].set_facecolors(np.empty((0, 4)))
+                _clear_scatter(trace["scatter"])
+                trace["persist"].set_data([], [])
+                _clear_follow(trace["follow"], neutral)
+                drawn.extend([trace["scatter"], trace["persist"], trace["follow"]])
+                continue
             else:
-                t_min = max(0, t_now - tail_window_ms)
-                m = (ts >= t_min) & (ts <= t_now)
-                if not np.any(m):
-                    A["scatter"].set_offsets(np.empty((0, 2)))
-                    A["scatter"].set_sizes(np.empty((0,)))
-                    A["scatter"].set_facecolors(np.empty((0, 4)))
+                idx_next = np.searchsorted(ts, t_now, side="right")
+                idx_prev = idx_next - 1
+
+                t_min = max(0.0, t_now - tail_window_ms)
+                idx_tail_start = np.searchsorted(ts, t_min, side="left")
+                idx_tail_end = idx_next
+
+                if idx_tail_end <= idx_tail_start:
+                    _clear_scatter(trace["scatter"])
                 else:
-                    dt = (t_now - ts[m]).astype(float)
-                    k = kinds[m]
-                    xm = xs[m]
-                    ym = ys[m]
+                    tail_slice = slice(idx_tail_start, idx_tail_end)
+                    dt = t_now - ts[tail_slice]
+                    k = kinds[tail_slice]
+                    xm = xs[tail_slice]
+                    ym = ys[tail_slice]
 
                     down_mask = k == "down"
                     up_mask = k == "up"
-
-                    alpha = np.zeros_like(dt, dtype=float)
-                    alpha[down_mask] = np.exp(-dt[down_mask] / tau_alpha_ms_down)
-                    alpha[up_mask] = np.exp(-dt[up_mask] / tau_alpha_ms_up)
-
-                    size = np.zeros_like(dt, dtype=float)
-                    size[down_mask] = down_size0
-                    size[up_mask] = up_size0 * np.exp(-dt[up_mask] / tau_size_ms_up)
-                    size = np.clip(size, 0.1, None)
-
                     keep = down_mask | up_mask
-                    xm, ym, size, alpha_keep = (
-                        xm[keep],
-                        ym[keep],
-                        size[keep],
-                        alpha[keep],
-                    )
 
-                    colors = np.tile(accent, (len(alpha_keep), 1)).astype(float)
-                    colors[:, 3] = np.clip(colors[:, 3] * alpha_keep, 0.0, 1.0)
-
-                    if xm.size == 0:
-                        A["scatter"].set_offsets(np.empty((0, 2)))
-                        A["scatter"].set_sizes(np.empty((0,)))
-                        A["scatter"].set_facecolors(np.empty((0, 4)))
+                    if not np.any(keep):
+                        _clear_scatter(trace["scatter"])
                     else:
-                        A["scatter"].set_offsets(np.column_stack([xm, ym]))
-                        A["scatter"].set_sizes(size)
-                        A["scatter"].set_facecolors(colors)
+                        dt_keep = dt[keep]
+                        down_keep = down_mask[keep]
+                        up_keep = up_mask[keep]
+
+                        alpha = np.zeros_like(dt_keep, dtype=float)
+                        alpha[down_keep] = np.exp(-dt_keep[down_keep] / tau_alpha_ms_down)
+                        alpha[up_keep] = np.exp(-dt_keep[up_keep] / tau_alpha_ms_up)
+
+                        size = np.zeros_like(dt_keep, dtype=float)
+                        size[down_keep] = down_size0
+                        size[up_keep] = up_size0 * np.exp(-dt_keep[up_keep] / tau_size_ms_up)
+                        size = np.clip(size, 0.1, None)
+
+                        colors = np.tile(accent, (len(alpha), 1)).astype(float)
+                        colors[:, 3] = np.clip(colors[:, 3] * alpha, 0.0, 1.0)
+
+                        trace["scatter"].set_offsets(np.column_stack([xm[keep], ym[keep]]))
+                        trace["scatter"].set_sizes(size)
+                        trace["scatter"].set_facecolors(colors)
 
             # --- Persistent trail: single path up to now (neutral, no fade) ---
-            if ts.size >= 1:
-                vx, vy = [], []
-                for i in range(ts.size):
-                    if ts[i] > t_now:
-                        break
-                    if i == ts.size - 1:
-                        vx.append(xs[i])
-                        vy.append(ys[i])
-                    else:
-                        t0, t1 = ts[i], ts[i + 1]
-                        x0, y0 = xs[i], ys[i]
-                        x1, y1 = xs[i + 1], ys[i + 1]
-                        vx.append(x0)
-                        vy.append(y0)
-                        if t0 <= t_now < t1:
-                            frac = (t_now - t0) / (t1 - t0)
-                            vx.append(x0 + frac * (x1 - x0))
-                            vy.append(y0 + frac * (y1 - y0))
-                            break
-                        else:
-                            vx.append(x1)
-                            vy.append(y1)
-
-                if len(vx) >= 2:
-                    A["persist"].set_data(vx, vy)
-                    A["persist"].set_color(neutral)
-                else:
-                    A["persist"].set_data([], [])
+            if idx_next == 0:
+                trace["persist"].set_data([], [])
             else:
-                A["persist"].set_data([], [])
+                path_x = xs[:idx_next]
+                path_y = ys[:idx_next]
+                if idx_next < ts.size:
+                    t0 = ts[idx_prev]
+                    t1 = ts[idx_next]
+                    if t1 > t0:
+                        frac = (t_now - t0) / (t1 - t0)
+                        x_star = xs[idx_prev] + frac * (xs[idx_next] - xs[idx_prev])
+                        y_star = ys[idx_prev] + frac * (ys[idx_next] - ys[idx_prev])
+                        path_x = np.concatenate([path_x, [x_star]])
+                        path_y = np.concatenate([path_y, [y_star]])
+
+                if path_x.size >= 2:
+                    trace["persist"].set_data(path_x, path_y)
+                else:
+                    trace["persist"].set_data([], [])
 
             # --- Following trail: single segment prev -> interpolated now (neutral, fades) ---
-            A["follow"].set_data([], [])
-            A["follow"].set_color((neutral[0], neutral[1], neutral[2], 0.0))
-            if ts.size >= 2:
-                idx_prev = np.searchsorted(ts, t_now, side="right") - 1
-                if 0 <= idx_prev < ts.size - 1 and ts[idx_prev] <= t_now < ts[idx_prev + 1]:
-                    t0, t1 = ts[idx_prev], ts[idx_prev + 1]
-                    x0, y0 = xs[idx_prev], ys[idx_prev]
-                    x1, y1 = xs[idx_prev + 1], ys[idx_prev + 1]
-                    frac = (t_now - t0) / (t1 - t0)
-                    x_star = x0 + frac * (x1 - x0)
-                    y_star = y0 + frac * (y1 - y0)
+            _clear_follow(trace["follow"], neutral)
+            if idx_prev >= 0 and idx_next < ts.size and idx_next == idx_prev + 1:
+                t0, t1 = ts[idx_prev], ts[idx_next]
+                x0, y0 = xs[idx_prev], ys[idx_prev]
+                x1, y1 = xs[idx_next], ys[idx_next]
+                frac = (t_now - t0) / (t1 - t0)
+                x_star = x0 + frac * (x1 - x0)
+                y_star = y0 + frac * (y1 - y0)
 
-                    alpha_line = float(np.exp(-(t_now - t0) / float(tau_alpha_ms_move)))
-                    rgba = (
-                        neutral[0],
-                        neutral[1],
-                        neutral[2],
-                        np.clip(neutral[3] * alpha_line, 0.0, 1.0),
-                    )
+                alpha_line = float(np.exp(-(t_now - t0) / float(tau_alpha_ms_move)))
+                rgba = (
+                    neutral[0],
+                    neutral[1],
+                    neutral[2],
+                    np.clip(neutral[3] * alpha_line, 0.0, 1.0),
+                )
 
-                    A["follow"].set_data([x0, x_star], [y0, y_star])
-                    A["follow"].set_color(rgba)
+                trace["follow"].set_data([x0, x_star], [y0, y_star])
+                trace["follow"].set_color(rgba)
 
-            drawn.extend([A["scatter"], A["persist"], A["follow"]])
+            drawn.extend([trace["scatter"], trace["persist"], trace["follow"]])
 
         return tuple(drawn)
 
@@ -348,13 +388,13 @@ def make_animation(
         fig,
         update,
         init_func=init,
-        frames=fps * movie_time_sec,
-        interval=1000 / fps,
+        frames=num_frames,
+        interval=frame_interval_ms,
         blit=True,
     )
 
     # ----------------------------
-    # Save with transparent background
+    # Save with requested background
     # ----------------------------
     savepath = Path(savepath)
     savepath.parent.mkdir(parents=True, exist_ok=True)
@@ -362,42 +402,43 @@ def make_animation(
         savepath = savepath.with_suffix(".mov")
 
     try:
-        writer = animation.FFMpegWriter(
-            fps=fps,
-            codec="prores_ks",
-            extra_args=[
-                "-pix_fmt",
-                "yuva444p10le",
-                "-profile:v",
-                "4444",
-                "-vendor",
-                "ap10",
-                "-bits_per_mb",
-                "8000",
-            ],
-            bitrate=-1,
-        )
-        anim.save(
-            str(savepath),
-            writer=writer,
-            dpi=dpi,
-            savefig_kwargs={"transparent": True, "facecolor": (0, 0, 0, 0)},
-        )
-    except Exception:
-        writer = animation.FFMpegWriter(
-            fps=fps,
-            codec="png",
-            extra_args=["-pix_fmt", "rgba"],
-            bitrate=-1,
-        )
-        anim.save(
-            str(savepath),
-            writer=writer,
-            dpi=dpi,
-            savefig_kwargs={"transparent": True, "facecolor": (0, 0, 0, 0)},
-        )
-
-    plt.close(fig)
+        try:
+            writer = animation.FFMpegWriter(
+                fps=fps,
+                codec="prores_ks",
+                extra_args=[
+                    "-pix_fmt",
+                    "yuva444p10le",
+                    "-profile:v",
+                    "4444",
+                    "-vendor",
+                    "ap10",
+                    "-bits_per_mb",
+                    "8000",
+                ],
+                bitrate=-1,
+            )
+            anim.save(
+                str(savepath),
+                writer=writer,
+                dpi=dpi,
+                savefig_kwargs={"transparent": transparent, "facecolor": background_rgba},
+            )
+        except Exception:
+            writer = animation.FFMpegWriter(
+                fps=fps,
+                codec="png",
+                extra_args=["-pix_fmt", "rgba"],
+                bitrate=-1,
+            )
+            anim.save(
+                str(savepath),
+                writer=writer,
+                dpi=dpi,
+                savefig_kwargs={"transparent": transparent, "facecolor": background_rgba},
+            )
+    finally:
+        plt.close(fig)
 
 
 # %%

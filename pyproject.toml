@@ -4,7 +4,7 @@ build-backend = "uv_build"
 
 [project]
 name = "nodekit"
-version = "0.2.3"
+version = "0.2.7"
 authors = [
     { name = "Michael J. Lee", email = "mil@mit.edu" }
 ]
@@ -15,6 +15,7 @@ requires-python = ">=3.12"
 dependencies = [
     "pillow>=10.4",
     "pydantic>=2.9.2",
+    "packaging>=25.0",
     "Jinja2>=3.1.4",
     "fastapi[standard]>=0.116.1",
     "boto3>=1.40.55",
@@ -43,9 +44,7 @@ module-name = "nodekit"
 module-root = ""
 
 [tool.ty.src]
-exclude = [
-    "nodekit/experimental"
-]
+exclude = []
 
 [tool.ruff]
 line-length = 100
