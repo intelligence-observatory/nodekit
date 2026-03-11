@@ -1,10 +1,10 @@
 from PIL import Image
 
 from state import get_state
-import nodekit as nk
+from nodekit_rs import Renderer
 
 state = get_state()
-renderer = nk.experimental.renderer.Renderer()
+renderer = Renderer()
 state.t_msec = 300
 board = renderer.render(state)
 

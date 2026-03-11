@@ -1,6 +1,7 @@
 from pathlib import Path
 from PIL import Image
 import nodekit as nk
+from nodekit_rs import Renderer, State
 
 ASSETS_DIRECTORY = Path(__file__).parent.joinpath("assets").resolve()
 
@@ -16,9 +17,7 @@ def render(
     """
 
     path = Path(__file__).parent.joinpath(f"output/{filename}.png").resolve()
-    renderer = nk.experimental.renderer.Renderer()
+    renderer = Renderer()
     renderer.set_pointer_visibility(False)
-    board = renderer.render(
-        nk.experimental.renderer.State(card=card, board_color=board_color, sensor=sensor)
-    )
+    board = renderer.render(State(card=card, board_color=board_color, sensor=sensor))
     Image.fromarray(board).save(path)

@@ -2,12 +2,13 @@ from pathlib import Path
 from time import time
 from state import get_state
 import nodekit as nk
+from nodekit_rs import Renderer, State
 
 d = Path(__file__).parent.parent
 test_image = d.joinpath("nodekit-rs-image/test_images/test_image.png").resolve()
 
 
-def rgb() -> nk.experimental.renderer.State:
+def rgb() -> State:
     cards = {
         "image_0": nk.cards.ImageCard(
             region=nk.Region(x=-256, y=-256, w=256, h=512, z_index=0),
@@ -26,12 +27,12 @@ def rgb() -> nk.experimental.renderer.State:
         ),
     }
     card = nk.cards.CompositeCard(children=cards)
-    return nk.experimental.renderer.State(
+    return State(
         board_color="#AAAAAAFF", card=card, sensor=nk.sensors.WaitSensor(duration_msec=10000)
     )
 
 
-def rgba() -> nk.experimental.renderer.State:
+def rgba() -> State:
     cards = {
         "image_0": nk.cards.ImageCard(
             region=nk.Region(x=-256, y=-256, w=256, h=512, z_index=0),
@@ -50,15 +51,15 @@ def rgba() -> nk.experimental.renderer.State:
         ),
     }
     card = nk.cards.CompositeCard(children=cards)
-    return nk.experimental.renderer.State(
+    return State(
         board_color="#AAAAAAFF", card=card, sensor=nk.sensors.WaitSensor(duration_msec=10000)
     )
 
 
-renderer = nk.experimental.renderer.Renderer()
+renderer = Renderer()
 
 
-def benchmark(state: nk.experimental.renderer.State, message: str) -> str:
+def benchmark(state: State, message: str) -> str:
     print(message)
     its = 1000
     # Ignore the first frame because that's when assets are cached.
@@ -78,8 +79,8 @@ def benchmark(state: nk.experimental.renderer.State, message: str) -> str:
     return f"{message} {fps}"
 
 
-def benchmark_to(state: nk.experimental.renderer.State, message: str) -> str:
-    board = nk.experimental.renderer.Renderer.empty_board()
+def benchmark_to(state: State, message: str) -> str:
+    board = Renderer.empty_board()
     print(message)
     its = 1000
     t0 = time()

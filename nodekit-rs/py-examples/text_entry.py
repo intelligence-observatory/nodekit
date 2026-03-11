@@ -2,6 +2,7 @@ from pathlib import Path
 from PIL import Image
 
 import nodekit as nk
+from nodekit_rs import Renderer, State
 
 
 cards = {
@@ -22,9 +23,9 @@ sensor = nk.sensors.TextEntrySensor(
     duration_msec=10000, prompt="Enter text here", region=nk.Region(x=0, y=-100, w=400, h=300)
 )
 
-state = nk.experimental.renderer.State(card=card, sensor=sensor, board_color="#ffffffff")
+state = State(card=card, sensor=sensor, board_color="#ffffffff")
 state.set_pointer(x=-300, y=400)
-renderer = nk.experimental.renderer.Renderer()
+renderer = Renderer()
 board = renderer.render(state=state)
 
 out = Path(__file__).parent.joinpath("text_entry").resolve()

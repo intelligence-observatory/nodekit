@@ -1,6 +1,7 @@
 from pathlib import Path
 from PIL import Image
 import nodekit as nk
+from nodekit_rs import Renderer, State
 
 d = Path(__file__).parent.joinpath("slider")
 d.mkdir(parents=True, exist_ok=True)
@@ -20,9 +21,9 @@ sensor = nk.sensors.SliderSensor(
     ),
 )
 board_color = "#ffffffff"
-state = nk.experimental.renderer.State(board_color=board_color, card=card, sensor=sensor)
+state = State(board_color=board_color, card=card, sensor=sensor)
 state.set_pointer(0, 300)
-renderer = nk.experimental.renderer.Renderer()
+renderer = Renderer()
 board = renderer.render(state=state)
 Image.fromarray(board).save(d.joinpath("0.png").as_posix())
 

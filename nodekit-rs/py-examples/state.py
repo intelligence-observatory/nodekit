@@ -1,8 +1,9 @@
 from pathlib import Path
 import nodekit as nk
+from nodekit_rs import State
 
 
-def get_state() -> nk.experimental.renderer.State:
+def get_state() -> State:
     d = Path(__file__).parent.parent
     cards = {
         "image": nk.cards.ImageCard(
@@ -26,6 +27,6 @@ def get_state() -> nk.experimental.renderer.State:
         ),
     }
     card = nk.cards.CompositeCard(children=cards)
-    return nk.experimental.renderer.State(
+    return State(
         board_color="#AAAAAAFF", card=card, sensor=nk.sensors.WaitSensor(duration_msec=10000)
     )

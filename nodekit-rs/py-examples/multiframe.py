@@ -2,8 +2,8 @@ from pathlib import Path
 
 import numpy as np
 from PIL import Image, ImageFont, ImageDraw
-import nodekit as nk
 from state import get_state
+from nodekit_rs import Renderer
 
 # Use this image for the final render.
 font_size = 20
@@ -37,7 +37,7 @@ def paste(arr: np.ndarray, index: int) -> None:
 
 state = get_state()
 # Create the renderer.
-renderer = nk.experimental.renderer.Renderer()
+renderer = Renderer()
 # t=0
 board = renderer.render(state)
 paste(board, 0)
