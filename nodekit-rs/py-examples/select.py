@@ -37,7 +37,7 @@ sensor = nk.sensors.MultiSelectSensor(
     confirm_button=confirm_button,
 )
 state = nk.experimental.renderer.State(board_color="#DDDDDDFF", card=card, sensor=sensor)
-state.select(choice="b", select=True, confirm_button_state='enabled')
+state.select(choice="b", select=True, confirm_button_state="enabled")
 state.hover(choice="c")
 state.set_pointer(x=245, y=20)
 renderer = nk.experimental.renderer.Renderer()
