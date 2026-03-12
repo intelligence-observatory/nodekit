@@ -16,6 +16,19 @@
    make build-rs
    ```
    
+### Compatability
+
+`nodekit-rs` has been tested on:
+
+- Mint 22.04 (x86_64)
+- Ubuntu 22.04 (x86_64)
+- MacOS (M3)
+
+If `nodekit-rs` fails to build and outputs a long and confusing error message, the most likely culprit is that it has failed to link to ffmpeg. To attempt to fix the problem:
+
+- In `nodekit-rs-video/Cargo.toml`, under `[package.metadata.vcpkg]`, set `rev` to a different commit ID. `nodekit-rs` requires ffmpeg version 7.
+- `cd nodekit-rs-video && cargo build` If this succeeds, then the rest of `nodekit-rs` will build as well.
+   
 ### Why `make build-rs` is so slow
 
 The first time you install `nodekit-rs`, it will take a long time (a few minutes on MacOS and Linux, longer on Windows) and generate approximately 5.5 GB of cached build artifacts in the `target/` directory. Subsequent reinstalls of `nodekit-rs` will be much faster.
