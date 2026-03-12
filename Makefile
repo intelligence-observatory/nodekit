@@ -37,7 +37,7 @@ nodekit-rs-stub-gen:
 	cargo run --example stub_gen && \
 	python3 fix_pyi.py
 
-build: lint check test build-browser build-docs build-rs
+build: lint check test build-browser build-docs
 	rm -rf dist && \
 	uv build
 
