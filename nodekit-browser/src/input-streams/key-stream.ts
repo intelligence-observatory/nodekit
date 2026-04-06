@@ -50,6 +50,10 @@ export class KeyStream {
     }
 
     private handleKeyDown = (event: KeyboardEvent) => {
+        // Prevent default behavior for spacebar to avoid unwanted scrolling
+        if (this.shouldPreventDefault(event)) {
+            event.preventDefault();
+        }
 
         // Short circuit if clock has not started
         if (!this.clock.checkClockStarted()) {
@@ -60,10 +64,6 @@ export class KeyStream {
         // Short circuit if it's a repeat event and we already have a keydown for this key:
         if (this.holdingKeys.has(event.key as PressableKey) && event.repeat) {
             return;
-        }
-
-        if (this.shouldPreventDefault(event)) {
-            event.preventDefault();
         }
 
         // Mark this key as being held down:
