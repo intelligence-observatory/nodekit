@@ -29,6 +29,23 @@ export class KeyStream {
         this.clock = clock;
     }
 
+    private shouldPreventDefault(event: KeyboardEvent): boolean {
+        const isSpacebar = event.code === 'Space' || event.key === ' ' || event.key === 'Spacebar';
+        if (!isSpacebar) {
+            return false;
+        }
+
+        if (!(event.target instanceof Element)) {
+            return true;
+        }
+
+        if (event.target.closest('input, textarea, [contenteditable=""], [contenteditable="true"]')) {
+            return false;
+        }
+
+        return true;
+    }
+
     private handleKeyDown = (event: KeyboardEvent) => {
 
         // Short circuit if clock has not started
@@ -40,6 +57,10 @@ export class KeyStream {
         // Short circuit if it's a repeat event and we already have a keydown for this key:
         if (this.holdingKeys.has(event.key as PressableKey) && event.repeat) {
             return;
+        }
+
+        if (this.shouldPreventDefault(event)) {
+            event.preventDefault();
         }
 
         // Mark this key as being held down:
