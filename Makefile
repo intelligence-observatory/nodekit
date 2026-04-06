@@ -35,7 +35,7 @@ view-docs: build-docs
 	uv run mkdocs serve --livereload
 
 
-publish:
+publish: build
 	@version="$$(uv version --short)"; \
 	case "$$version" in \
 		*.dev*) ;; \
@@ -47,6 +47,4 @@ publish:
 				*) echo "Aborted."; exit 1 ;; \
 			esac ;; \
 	esac; \
-	rm -rf dist && \
-	uv build && \
 	uv publish
