@@ -1,3 +1,4 @@
+import re
 import base64
 import gzip
 import os
@@ -23,28 +24,52 @@ class BuildSiteResult(pydantic.BaseModel):
         description="The absolute path to the folder containing the site."
     )
     entrypoint: Path = pydantic.Field(
-        description="The path of the index html (relative to the root)."
+        description="The path of the entrypoint HTML file, relative to the root."
     )
     dependencies: list[Path] = pydantic.Field(
-        description="List of paths to all files needed by the index html, relative to the root."
+        description="List of paths to all files needed by the entrypoint HTML, relative to the root."
     )
+
+
+# %%
+_SLUG_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+
+
+def _get_entrypoint_relative_path(
+    graph_serialized: str,
+    slug: str | None,
+) -> Path:
+    if slug is None:
+        entrypoint_stem = hash_string(s=graph_serialized)
+    else:
+        if not _SLUG_PATTERN.fullmatch(slug):
+            raise ValueError(
+                "Slug must contain only lowercase letters, digits, and single hyphens "
+                "between alphanumeric groups."
+            )
+        entrypoint_stem = slug
+
+    return Path("graphs") / f"{entrypoint_stem}.html"
 
 
 def build_site(
     graph: Graph,
     savedir: os.PathLike | str,
+    slug: str | None = None,
 ) -> BuildSiteResult:
     """Build a static website for a Graph and save it to disk.
 
     Args:
         graph: Graph to serialize and render into a site.
         savedir: Directory to write the site into.
+        slug: Optional human-readable URL slug for the entrypoint HTML file.
 
     Returns:
         BuildSiteResult with the site root, entrypoint, and dependency list.
 
     Raises:
         ValueError: If savedir is not a directory.
+        ValueError: If slug is invalid or collides with a different built Graph.
 
     Site layout:
         ```
@@ -54,8 +79,8 @@ def build_site(
             nodekit.{js-digest}.js
             nodekit.{css-digest}.css
         graphs/
-            {graph_digest}/
-                index.html
+            {graph_digest}.html (if slug is None)
+            {slug}.html (if slug is provided)
         ```
     """
     savedir = Path(savedir)
@@ -100,8 +125,8 @@ def build_site(
                 path=asset_abs_path,
             )
 
-        # Mutate the asset locator in the graph to be a RelativePath - relative to the graph!:
-        asset.locator = RelativePath(relative_path=Path("../..") / asset_relative_path)
+        # Mutate the asset locator in the Graph to be relative to the entrypoint HTML.
+        asset.locator = RelativePath(relative_path=Path("..") / asset_relative_path)
 
     # Render the HTML site using the Jinja2 template:
     jinja2_location = Path(__file__).parent / "harness.j2"
@@ -109,26 +134,29 @@ def build_site(
     jinja2_env = jinja2.Environment(loader=jinja2_loader)
     # Save the graph site:
     graph_serialized = graph.model_dump_json()
-    graph_digest = hash_string(s=graph_serialized)
     graph_gz_bytes = gzip.compress(graph_serialized.encode("utf-8"), mtime=0)
     graph_gz_b64 = base64.b64encode(graph_gz_bytes).decode("ascii")
     graph_gz_b64_wrapped = "\n".join(
         graph_gz_b64[i : i + 120] for i in range(0, len(graph_gz_b64), 120)
     )
+    entrypoint_relative_path = _get_entrypoint_relative_path(
+        graph_serialized=graph_serialized, slug=slug
+    )
 
     template = jinja2_env.get_template(jinja2_location.name)
     rendered_html = template.render(
         graph_gz_b64=graph_gz_b64_wrapped,
-        css_path=Path("../..") / css_relative_path,
-        js_path=Path("../..") / js_relative_path,
+        css_path=Path("..") / css_relative_path,
+        js_path=Path("..") / js_relative_path,
     )
-    graph_dir = savedir / "graphs" / graph_digest
-    graph_dir.mkdir(parents=True, exist_ok=True)
-    graph_html_path = graph_dir / "index.html"
+    graph_html_path = savedir / entrypoint_relative_path
+    graph_html_path.parent.mkdir(parents=True, exist_ok=True)
+    if graph_html_path.exists() and graph_html_path.read_text() != rendered_html:
+        raise ValueError(f"Slug collision at {entrypoint_relative_path}")
     graph_html_path.write_text(rendered_html)
 
     return BuildSiteResult(
         site_root=savedir.resolve(),
-        entrypoint=graph_html_path.relative_to(savedir),
+        entrypoint=entrypoint_relative_path,
         dependencies=dependencies,
     )

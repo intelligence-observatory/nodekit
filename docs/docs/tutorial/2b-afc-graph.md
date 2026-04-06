@@ -253,7 +253,7 @@ Notice that we use a `SelectSensor` for both the fixation and choice Nodes. The 
 Notice here that, for the first time, we are customizing the location of a Card by setting the `region` property. 
 
 ???+ info "The NodeKit Board coordinate system"
-    In NodeKit, a 1024 x 768 pixel display is used, which is referred to as the **Board**. 
+    In NodeKit, a 1024 x 1024 pixel display is used, which is referred to as the **Board**.
     Locations on the Board are described using a standardized coordinate system where `(0, 0)` is the center of the screen, positive `x` moves right, and positive `y` moves up.
 
     A Board unit of 1 means 1 CSS pixel.
@@ -427,4 +427,3 @@ Up until now, you have been "deploying" Graphs to your local system by using the
 2. Building deployable static websites for Mechanical Turk or Prolific
 
 These are covered in the next, and final, tutorial.
-
