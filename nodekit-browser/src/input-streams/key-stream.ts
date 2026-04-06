@@ -39,10 +39,13 @@ export class KeyStream {
             return true;
         }
 
-        if (event.target.closest('input, textarea, [contenteditable=""], [contenteditable="true"]')) {
+        if (event.target instanceof HTMLElement && event.target.isContentEditable) {
             return false;
         }
 
+        if (event.target.closest('input, textarea, button, select, option, [contenteditable]:not([contenteditable="false"])')) {
+            return false;
+        }
         return true;
     }
 
