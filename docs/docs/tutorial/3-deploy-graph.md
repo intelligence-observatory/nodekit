@@ -77,7 +77,7 @@ result = nk.build_site(graph, savedir='my-built-site')
 print(result.entrypoint)
 ```
 
-If you'd like, you can open up the directory and launch the `index.html` file in your web browser. 
+If you'd like, you can open up the directory and launch the entrypoint HTML file in your web browser. 
 
 
 ??? question "How is `nk.build_site` different from `nk.play`?"
