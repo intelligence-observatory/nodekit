@@ -1,10 +1,15 @@
-import nodekit as nk
 import math
+from pathlib import Path
+
+import nodekit as nk
 
 
 # %%
 def RGB_to_hex(RGB: tuple[int, int, int]):
     return "#%02x%02x%02x" % RGB
+
+
+EXAMPLE_DIR = Path(__file__).resolve().parent
 
 
 def make_mts_trial(
@@ -17,7 +22,7 @@ def make_mts_trial(
 
     # Fixation node
     fixation_cross = nk.cards.ImageCard(
-        image=nk.assets.Image.from_path("fixation-cross.svg"),
+        image=nk.assets.Image.from_path(EXAMPLE_DIR / "fixation-cross.svg"),
         region=nk.Region(x=0, y=0, w=50, h=50, mask="ellipse"),
     )
 
@@ -144,16 +149,16 @@ def make_mts_trial(
 
 
 # %%
-if __name__ == "__main__":
+def build_graph() -> nk.Graph:
     import glob
-    from pathlib import Path
 
-    token_imagepaths = glob.glob("./token-images/*.png")
+    token_imagepaths = glob.glob(str(EXAMPLE_DIR / "token-images" / "*.png"))
     class_to_token = {Path(path).stem: nk.assets.Image.from_path(path) for path in token_imagepaths}
     class_to_stims = {}
     for c in class_to_token.keys():
         class_to_stims[c] = [
-            nk.assets.Image.from_path(p) for p in glob.glob(f"./stimulus-images/{c}/*.png")
+            nk.assets.Image.from_path(p)
+            for p in glob.glob(str(EXAMPLE_DIR / "stimulus-images" / c / "*.png"))
         ]
 
     # Make trials
@@ -185,6 +190,12 @@ if __name__ == "__main__":
 
         trials.append(trial)
 
-    graph = nk.concat(trials)
-    sim = nk.simulate(graph)
-    nk.play(graph)
+    return nk.concat(trials)
+
+
+# %%
+if __name__ == "__main__":
+    graph = build_graph()
+    trace = nk.play(graph)
+    print("Trace:")
+    print(trace.model_dump_json(indent=2))

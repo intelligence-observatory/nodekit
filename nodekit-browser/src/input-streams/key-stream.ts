@@ -29,7 +29,31 @@ export class KeyStream {
         this.clock = clock;
     }
 
+    private shouldPreventDefault(event: KeyboardEvent): boolean {
+        const isSpacebar = event.code === 'Space' || event.key === ' ' || event.key === 'Spacebar';
+        if (!isSpacebar) {
+            return false;
+        }
+
+        if (!(event.target instanceof Element)) {
+            return true;
+        }
+
+        if (event.target instanceof HTMLElement && event.target.isContentEditable) {
+            return false;
+        }
+
+        if (event.target.closest('input, textarea, button, select, option, [contenteditable]:not([contenteditable="false"])')) {
+            return false;
+        }
+        return true;
+    }
+
     private handleKeyDown = (event: KeyboardEvent) => {
+        // Prevent default behavior for spacebar to avoid unwanted scrolling
+        if (this.shouldPreventDefault(event)) {
+            event.preventDefault();
+        }
 
         // Short circuit if clock has not started
         if (!this.clock.checkClockStarted()) {

@@ -10,6 +10,9 @@ check:
 test:
 	uv run pytest tests
 
+run-example:
+	uv run python examples/cor-task/my_cor_task.py
+
 set-version:
 	@test -n "$(VERSION)" || (echo "Usage: make set-version VERSION=x.y.z" && exit 1)
 	uv run python scripts/set_version.py "$(VERSION)"
