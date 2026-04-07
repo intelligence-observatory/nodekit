@@ -1,0 +1,29 @@
+
+[build-system]
+requires = ["maturin>=1.1,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "nodekit_rs"
+version = "0.1.0"
+authors = [
+    { name = "Esther Alter", email = "alters@mit.edu" },
+]
+license = "Apache-2.0"
+classifiers = [
+    "Development Status :: 3 - Alpha"
+]
+
+[project.urls]
+Homepage = "https://github.com/intelligence-observatory/nodekit/"
+Documentation = "https://github.com/intelligence-observatory/nodekit/tree/nodekit-rs-alpha-3/nodekit-rs"
+
+[tool.maturin]
+features = ["pyo3/extension-module"]
+profile = "release"
+
+[tool.uv]
+cache-keys = [{ file = "pyproject.toml" }, { file = "src/*.rs" }]
+
+[tool.pyright]
+ignore = ["**/type_error_cases/*.py"]

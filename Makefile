@@ -26,6 +26,20 @@ build-docs:
 	cd docs && \
 	uv run mkdocs build --strict
 
+install-maturin:
+	uv tool install maturin
+
+build-rs: install-maturin
+	cd nodekit-rs && \
+    ./build_video.sh && \
+	maturin develop --release --uv
+
+nodekit-rs-stub-gen:
+	cd nodekit-rs && \
+	./build_video.sh && \
+	cargo run --example stub_gen && \
+	python3 fix_pyi.py
+
 build: lint check test build-browser build-docs
 	rm -rf dist && \
 	uv build
