@@ -1,9 +1,9 @@
-import type {NodeId, PixelSize, PressableKey, PixelPoint, TimeElapsedMsec} from "../values.ts";
+import type {GraphAddress, NodeAddress, PixelSize, PressableKey, PixelPoint, TimeElapsedMsec} from "../values.ts";
 import type {Action} from "../actions.ts";
-import type {Node} from "../node.ts";
 
 export interface BaseEvent<T extends string> {
     event_type: T,
+    event_index: number,
     t: TimeElapsedMsec, // The time the Event was emitted, relative to the start of the Trace
 }
 
@@ -32,8 +32,7 @@ export interface BrowserContextSampledEvent extends BaseEvent<'BrowserContextSam
 
 // Graph events:
 interface BaseGraphEvent<T extends string> extends BaseEvent<T>{
-    graph_address: NodeId[]
-    annotation: string | null
+    graph_address: GraphAddress
 }
 
 export interface GraphStartedEvent extends BaseGraphEvent<'GraphStartedEvent'> {}
@@ -42,12 +41,10 @@ export interface GraphEndedEvent extends BaseGraphEvent<'GraphEndedEvent'> {}
 
 // Node events:
 interface BaseNodeEvent<T extends string> extends BaseEvent<T>{
-    node_address: NodeId[]
+    node_address: NodeAddress
 }
 
-export interface NodeStartedEvent extends BaseNodeEvent<'NodeStartedEvent'>{
-    node: Node
-}
+export interface NodeStartedEvent extends BaseNodeEvent<'NodeStartedEvent'>{}
 
 export interface ActionTakenEvent extends BaseNodeEvent<'ActionTakenEvent'>{
     action: Action
@@ -81,3 +78,9 @@ export type Event =
     | NodeEndedEvent
     | TraceStartedEvent
     | TraceEndedEvent
+
+export type UnindexedEvent = Event extends infer E
+    ? E extends Event
+        ? Omit<E, 'event_index'>
+        : never
+    : never

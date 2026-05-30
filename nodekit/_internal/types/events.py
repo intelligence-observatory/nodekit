@@ -5,11 +5,11 @@ from typing import Literal, Annotated, Union
 import pydantic
 
 from nodekit._internal.types.actions import Action
-from nodekit._internal.types.node import Node
 from nodekit._internal.types.values import (
     TimeElapsedMsec,
     PixelPoint,
     NodeAddress,
+    GraphAddress,
 )
 
 
@@ -36,8 +36,12 @@ class EventTypeEnum(str, enum.Enum):
 # %%
 class BaseEvent(pydantic.BaseModel):
     event_type: EventTypeEnum
+    event_index: int = pydantic.Field(
+        ge=0,
+        description="The zero-based index of this Event within its Trace.",
+    )
     t: TimeElapsedMsec = pydantic.Field(
-        description="The number of elapsed milliseconds since StartedEvent."
+        description="The number of elapsed milliseconds since TraceStartedEvent."
     )
 
 
@@ -90,8 +94,7 @@ class BrowserContextSampledEvent(BaseEvent):
 
 # %% Graph events
 class BaseGraphEvent(BaseEvent):
-    graph_address: NodeAddress
-    annotation: str | None = None
+    graph_address: GraphAddress
 
 
 class GraphStartedEvent(BaseGraphEvent):
@@ -123,7 +126,6 @@ class BaseNodeEvent(BaseEvent):
 
 class NodeStartedEvent(BaseNodeEvent):
     event_type: Literal[EventTypeEnum.NodeStartedEvent] = EventTypeEnum.NodeStartedEvent
-    node: Node
 
 
 class ActionTakenEvent(BaseNodeEvent):

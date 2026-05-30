@@ -15,6 +15,7 @@
 ::: nodekit.values.MediaType
 ::: nodekit.values.NodeId
 ::: nodekit.values.NodeAddress
+::: nodekit.values.GraphAddress
 ::: nodekit.values.RegisterId
 
 ::: nodekit.Region

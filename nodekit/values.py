@@ -25,6 +25,7 @@ __all__ = [
     "NodeId",
     "RegisterId",
     "NodeAddress",
+    "GraphAddress",
 ]
 
 from nodekit._internal.types.values import (
@@ -52,4 +53,5 @@ from nodekit._internal.types.values import (
     NodeId,
     RegisterId,
     NodeAddress,
+    GraphAddress,
 )

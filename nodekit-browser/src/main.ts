@@ -1,11 +1,6 @@
 import type {
     Event,
-    GraphEndedEvent,
-    GraphStartedEvent,
-    PageResumedEvent,
-    PageSuspendedEvent,
-    TraceEndedEvent,
-    TraceStartedEvent,
+    UnindexedEvent,
 } from "./types/events";
 import {Clock} from "./clock.ts";
 import type {Graph, Trace} from "./types/node.ts";
@@ -87,7 +82,7 @@ export async function play(
             await shellUI.playStartScreen()
         }
 
-        const startEvent: TraceStartedEvent = {
+        const startEvent: UnindexedEvent = {
             event_type: "TraceStartedEvent",
             t: 0 as TimeElapsedMsec,
         }
@@ -97,14 +92,14 @@ export async function play(
         function onVisibilityChange() {
             if (document.visibilityState === "hidden") {
                 // Triggered when the document becomes hidden (e.g., user switches tabs or minimizes the window)
-                const leaveEvent: PageSuspendedEvent = {
+                const leaveEvent: UnindexedEvent = {
                     event_type: "PageSuspendedEvent",
                     t: clock.now(),
                 };
                 eventArray.push(leaveEvent);
             } else if (document.visibilityState === "visible") {
                 // Triggered when the document becomes visible again
-                const returnEvent: PageResumedEvent = {
+                const returnEvent: UnindexedEvent = {
                     event_type: "PageResumedEvent",
                     t: clock.now(),
                 };
@@ -131,7 +126,7 @@ export async function play(
         )
 
         // Generate the EndEvent:
-        const endEvent: TraceEndedEvent = {
+        const endEvent: UnindexedEvent = {
             event_type: "TraceEndedEvent",
             t: clock.now(),
         }
@@ -143,6 +138,7 @@ export async function play(
         // Assemble trace:
         const trace: Trace = {
             nodekit_version: NODEKIT_VERSION,
+            graph: graph,
             events: eventArray.events,
         }
 
@@ -199,11 +195,10 @@ async function playGraph(
     context: PlayGraphContext,
 ): Promise<RegisterFile> {
 
-    const graphStartEvent: GraphStartedEvent = {
+    const graphStartEvent: UnindexedEvent = {
         event_type: "GraphStartedEvent",
         t: context.clock.now(),
         graph_address: parentAddress,
-        annotation: graph.annotation ?? null,
     }
     context.eventArray.push(graphStartEvent);
 
@@ -287,11 +282,10 @@ async function playGraph(
         lastAction = null;
     }
 
-    const graphEndEvent: GraphEndedEvent = {
+    const graphEndEvent: UnindexedEvent = {
         event_type: "GraphEndedEvent",
         t: context.clock.now(),
         graph_address: parentAddress,
-        annotation: graph.annotation ?? null,
     }
     context.eventArray.push(graphEndEvent);
 

@@ -25,5 +25,6 @@ export interface Graph {
 
 export interface Trace {
     nodekit_version: string;
+    graph: Graph;
     events: Event[]
 }

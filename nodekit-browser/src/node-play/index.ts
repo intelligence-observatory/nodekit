@@ -9,7 +9,7 @@ import type {Clock} from "../clock.ts";
 import {Deferred} from "../utils.ts";
 import type {NodeAddress} from "../types/values.ts";
 import type {EventArray} from "../event-array.ts";
-import type {ActionTakenEvent, KeySampledEvent, NodeEndedEvent, NodeStartedEvent, PointerSampledEvent} from "../types/events";
+import type {UnindexedEvent} from "../types/events";
 
 
 export class NodePlay {
@@ -47,7 +47,7 @@ export class NodePlay {
         // Have the input streams push to the event stream: todo despaghetti
         const unsubscribePointer = this.boardView.pointerStream.subscribe(
             (pointerSample) => {
-                const e: PointerSampledEvent = {
+                const e: UnindexedEvent = {
                     event_type: 'PointerSampledEvent',
                     t: pointerSample.t,
                     x: pointerSample.x,
@@ -59,7 +59,7 @@ export class NodePlay {
         )
         const unsubscribeKey = this.boardView.keyStream.subscribe(
             (keySample) => {
-                const e: KeySampledEvent = {
+                const e: UnindexedEvent = {
                     event_type: 'KeySampledEvent',
                     t: keySample.t,
                     key: keySample.key,
@@ -141,11 +141,10 @@ export class NodePlay {
         this.boardView.setBoardState(true, true);
 
         // Emit start event:
-        const eStart: NodeStartedEvent = {
+        const eStart: UnindexedEvent = {
             event_type: 'NodeStartedEvent',
             t: this.boardView.clock.now(),
             node_address: this.nodeAddress,
-            node: this.node,
         }
         this.eventArray.push(eStart)
 
@@ -158,7 +157,7 @@ export class NodePlay {
         const action = await this.deferredAction.promise;
 
         // Emit action event:
-        const eAction: ActionTakenEvent = {
+        const eAction: UnindexedEvent = {
             event_type: 'ActionTakenEvent',
             node_address: this.nodeAddress,
             action: action,
@@ -171,7 +170,7 @@ export class NodePlay {
         const tEnd = this.boardView.clock.now()
 
         // Emit end event:
-        const eEnd: NodeEndedEvent = {
+        const eEnd: UnindexedEvent = {
             event_type: 'NodeEndedEvent',
             t: tEnd,
             node_address: this.nodeAddress,
@@ -181,4 +180,3 @@ export class NodePlay {
         return action
     }
 }
-

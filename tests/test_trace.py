@@ -30,11 +30,24 @@ def newer_prerelease_version() -> str:
     return f"{final_release_version()}.dev2"
 
 
+def minimal_graph() -> nk.Graph:
+    return nk.Graph(
+        start="start",
+        nodes={
+            "start": nk.Node(sensor=nk.sensors.WaitSensor(duration_msec=1)),
+        },
+        transitions={
+            "start": nk.transitions.End(),
+        },
+    )
+
+
 def test_accepts_older_compatible_nodekit_version():
     older = compatible_older_version()
     trace = nk.Trace(
         nodekit_version=older,
-        events=[nk.events.TraceStartedEvent(t=0)],
+        graph=minimal_graph(),
+        events=[nk.events.TraceStartedEvent(event_index=0, t=0)],
     )
 
     assert trace.nodekit_version == older
@@ -50,7 +63,8 @@ def test_rejects_newer_nodekit_version():
     ):
         nk.Trace(
             nodekit_version=newer,
-            events=[nk.events.TraceStartedEvent(t=0)],
+            graph=minimal_graph(),
+            events=[nk.events.TraceStartedEvent(event_index=0, t=0)],
         )
 
 
@@ -61,7 +75,8 @@ def test_rejects_incompatible_major_nodekit_version():
     ):
         nk.Trace(
             nodekit_version="1.0.0",
-            events=[nk.events.TraceStartedEvent(t=0)],
+            graph=minimal_graph(),
+            events=[nk.events.TraceStartedEvent(event_index=0, t=0)],
         )
 
 
@@ -69,7 +84,8 @@ def test_rejects_invalid_nodekit_version_string():
     with pytest.raises(pydantic.ValidationError, match="Invalid NodeKit version: not-a-version"):
         nk.Trace(
             nodekit_version="not-a-version",
-            events=[nk.events.TraceStartedEvent(t=0)],
+            graph=minimal_graph(),
+            events=[nk.events.TraceStartedEvent(event_index=0, t=0)],
         )
 
 
@@ -83,7 +99,8 @@ def test_accepts_older_prerelease_when_runtime_is_final(monkeypatch: pytest.Monk
 
     trace = nk.Trace(
         nodekit_version=older_prerelease,
-        events=[nk.events.TraceStartedEvent(t=0)],
+        graph=minimal_graph(),
+        events=[nk.events.TraceStartedEvent(event_index=0, t=0)],
     )
 
     assert trace.nodekit_version == older_prerelease
@@ -105,7 +122,8 @@ def test_rejects_final_release_when_runtime_is_prerelease(monkeypatch: pytest.Mo
     ):
         nk.Trace(
             nodekit_version=final_release,
-            events=[nk.events.TraceStartedEvent(t=0)],
+            graph=minimal_graph(),
+            events=[nk.events.TraceStartedEvent(event_index=0, t=0)],
         )
 
 
@@ -125,8 +143,53 @@ def test_rejects_newer_prerelease_when_runtime_is_prerelease(monkeypatch: pytest
     ):
         nk.Trace(
             nodekit_version=newer_prerelease,
-            events=[nk.events.TraceStartedEvent(t=0)],
+            graph=minimal_graph(),
+            events=[nk.events.TraceStartedEvent(event_index=0, t=0)],
         )
+
+
+def test_requires_graph():
+    with pytest.raises(pydantic.ValidationError, match="graph"):
+        nk.Trace.model_validate(
+            {
+                "events": [
+                    {
+                        "event_type": "TraceStartedEvent",
+                        "event_index": 0,
+                        "t": 0,
+                    }
+                ],
+            }
+        )
+
+
+def test_rejects_non_contiguous_event_indexes():
+    with pytest.raises(
+        pydantic.ValidationError,
+        match="Expected 1, got 2",
+    ):
+        nk.Trace(
+            graph=minimal_graph(),
+            events=[
+                nk.events.TraceStartedEvent(event_index=0, t=0),
+                nk.events.TraceEndedEvent(event_index=2, t=1),
+            ],
+        )
+
+
+def test_preserves_event_order_instead_of_sorting_by_time():
+    trace = nk.Trace(
+        graph=minimal_graph(),
+        events=[
+            nk.events.TraceStartedEvent(event_index=0, t=1),
+            nk.events.TraceEndedEvent(event_index=1, t=0),
+        ],
+    )
+
+    assert [event.event_type for event in trace.events] == [
+        nk.events.EventTypeEnum.TraceStartedEvent,
+        nk.events.EventTypeEnum.TraceEndedEvent,
+    ]
 
 
 def test_graph_events_validate_and_roundtrip():
@@ -135,17 +198,17 @@ def test_graph_events_validate_and_roundtrip():
     started = event_adapter.validate_python(
         {
             "event_type": "GraphStartedEvent",
+            "event_index": 1,
             "t": 1,
             "graph_address": [],
-            "annotation": "root graph",
         }
     )
     ended = event_adapter.validate_python(
         {
             "event_type": "GraphEndedEvent",
+            "event_index": 2,
             "t": 2,
             "graph_address": ["trial"],
-            "annotation": None,
         }
     )
 
@@ -153,11 +216,12 @@ def test_graph_events_validate_and_roundtrip():
     assert isinstance(ended, nk.events.GraphEndedEvent)
 
     trace = nk.Trace(
+        graph=minimal_graph(),
         events=[
-            nk.events.TraceStartedEvent(t=0),
+            nk.events.TraceStartedEvent(event_index=0, t=0),
             started,
             ended,
-            nk.events.TraceEndedEvent(t=3),
+            nk.events.TraceEndedEvent(event_index=3, t=3),
         ],
     )
 

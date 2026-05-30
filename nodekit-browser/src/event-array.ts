@@ -1,4 +1,4 @@
-import type {Event} from "./types/events";
+import type {Event, UnindexedEvent} from "./types/events";
 
 export class EventArray {
     public events: Event[];
@@ -11,8 +11,12 @@ export class EventArray {
         this.events = [];
     }
 
-    push(event: Event) {
-        this.events.push(event);
-        this.onEventCallback(event);
+    push(event: UnindexedEvent) {
+        const indexedEvent = {
+            ...event,
+            event_index: this.events.length,
+        } as Event;
+        this.events.push(indexedEvent);
+        this.onEventCallback(indexedEvent);
     }
 }
