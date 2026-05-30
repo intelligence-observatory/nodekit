@@ -4,7 +4,7 @@ import pydantic
 
 from nodekit._internal.types.cards import Card
 from nodekit._internal.types.sensors import Sensor
-from nodekit._internal.types.values import ColorHexString
+from nodekit._internal.types.values import ColorHexString, JsonValue
 
 
 # %%
@@ -29,7 +29,7 @@ class Node(pydantic.BaseModel):
         description="Whether to hide the mouse pointer during this Node.",
     )
 
-    annotation: str | None = pydantic.Field(
+    annotation: JsonValue = pydantic.Field(
         default=None,
         description="An optional, user-defined annotation for the Node that may be useful for debugging or analysis purposes.",
     )

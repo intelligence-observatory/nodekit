@@ -6,7 +6,7 @@ from nodekit import VERSION, Node
 from nodekit._internal.version import validate_compatible_nodekit_version
 from nodekit._internal.types import expressions as expressions
 from nodekit._internal.types.transitions import Transition, Go, IfThenElse, End
-from nodekit._internal.types.values import NodeId, RegisterId, LeafValue
+from nodekit._internal.types.values import NodeId, RegisterId, LeafValue, JsonValue
 
 
 # %%
@@ -29,7 +29,7 @@ class Graph(pydantic.BaseModel):
         description="The initial register values. ",
     )
 
-    annotation: str | None = pydantic.Field(
+    annotation: JsonValue = pydantic.Field(
         default=None,
         description="An optional, user-defined annotation for the Graph that may be useful for debugging or analysis purposes.",
     )

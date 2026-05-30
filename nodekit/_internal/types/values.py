@@ -1,4 +1,5 @@
-from typing import Literal, Annotated
+import math
+from typing import Any, Literal, Annotated
 
 import pydantic
 
@@ -8,6 +9,36 @@ type List = list["Value"]
 type Dict = dict[str, "Value"]
 type LeafValue = bool | int | float | str
 type Value = LeafValue | List | Dict | None
+
+
+def _validate_json_value(value: Any) -> Any:
+    if value is None or isinstance(value, (bool, int, str)):
+        return value
+
+    if isinstance(value, float):
+        if not math.isfinite(value):
+            raise ValueError("JSON numbers must be finite.")
+        return value
+
+    if isinstance(value, list):
+        for item in value:
+            _validate_json_value(item)
+        return value
+
+    if isinstance(value, dict):
+        for key, item in value.items():
+            if not isinstance(key, str):
+                raise ValueError("JSON object keys must be strings.")
+            _validate_json_value(item)
+        return value
+
+    raise ValueError(f"Value must be valid JSON, got {type(value).__name__}.")
+
+
+type JsonValue = Annotated[
+    pydantic.JsonValue,
+    pydantic.BeforeValidator(_validate_json_value),
+]
 
 
 # %% Spatial

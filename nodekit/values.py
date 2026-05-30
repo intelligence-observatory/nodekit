@@ -2,6 +2,7 @@
 
 __all__ = [
     "Value",
+    "JsonValue",
     "List",
     "Dict",
     "LeafValue",
@@ -30,6 +31,7 @@ __all__ = [
 
 from nodekit._internal.types.values import (
     Value,
+    JsonValue,
     List,
     Dict,
     LeafValue,

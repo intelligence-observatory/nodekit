@@ -206,6 +206,16 @@ def test_simulate_child_register_branching() -> None:
 
 
 def test_simulate_emits_nested_graph_lifecycle_events() -> None:
+    child_annotation = {
+        "kind": "child",
+        "trial": 1,
+        "tags": ["nested", "practice"],
+    }
+    root_annotation = {
+        "kind": "root",
+        "version": 2,
+        "metadata": {"counterbalanced": True},
+    }
     child = nk.Graph(
         start="inner",
         nodes={
@@ -217,7 +227,7 @@ def test_simulate_emits_nested_graph_lifecycle_events() -> None:
         transitions={
             "inner": nk.transitions.End(),
         },
-        annotation="child graph",
+        annotation=child_annotation,
     )
 
     graph = nk.Graph(
@@ -228,7 +238,7 @@ def test_simulate_emits_nested_graph_lifecycle_events() -> None:
         transitions={
             "trial": nk.transitions.End(),
         },
-        annotation="root graph",
+        annotation=root_annotation,
     )
 
     trace = nk.simulate(graph)
@@ -245,10 +255,10 @@ def test_simulate_emits_nested_graph_lifecycle_events() -> None:
         ("GraphEndedEvent", ["trial"]),
         ("GraphEndedEvent", []),
     ]
-    assert trace.graph.annotation == "root graph"
+    assert trace.graph.annotation == root_annotation
     child_graph = trace.graph.nodes["trial"]
     assert isinstance(child_graph, nk.Graph)
-    assert child_graph.annotation == "child graph"
+    assert child_graph.annotation == child_annotation
 
     nested_node_index = _event_type_names(trace).index("NodeEndedEvent")
     nested_graph_end_index = next(
