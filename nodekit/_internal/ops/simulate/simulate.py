@@ -85,14 +85,20 @@ def _simulate_core(
     nodes = graph.nodes
     registers: dict[RegisterId, Value] = {**graph.registers}
 
-    events: list[e.Event] = []
-
-    current_node_id = graph.start
-
     def _tick() -> int:
         nonlocal time_elapsed_msec
         time_elapsed_msec += 1
         return time_elapsed_msec
+
+    events: list[e.Event] = [
+        e.GraphStartedEvent(
+            t=_tick(),
+            graph_address=address,
+            annotation=graph.annotation,
+        )
+    ]
+
+    current_node_id = graph.start
 
     while True:
         node_or_graph = nodes[current_node_id]
@@ -164,6 +170,14 @@ def _simulate_core(
             break
 
         current_node_id = next_node_id
+
+    events.append(
+        e.GraphEndedEvent(
+            t=_tick(),
+            graph_address=address,
+            annotation=graph.annotation,
+        )
+    )
 
     return events, registers, time_elapsed_msec
 

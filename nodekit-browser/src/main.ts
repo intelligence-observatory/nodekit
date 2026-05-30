@@ -1,4 +1,12 @@
-import type {Event, PageResumedEvent, PageSuspendedEvent, TraceEndedEvent, TraceStartedEvent} from "./types/events";
+import type {
+    Event,
+    GraphEndedEvent,
+    GraphStartedEvent,
+    PageResumedEvent,
+    PageSuspendedEvent,
+    TraceEndedEvent,
+    TraceStartedEvent,
+} from "./types/events";
 import {Clock} from "./clock.ts";
 import type {Graph, Trace} from "./types/node.ts";
 import {sampleBrowserContext} from "./user-gates/browser-context.ts";
@@ -191,6 +199,14 @@ async function playGraph(
     context: PlayGraphContext,
 ): Promise<RegisterFile> {
 
+    const graphStartEvent: GraphStartedEvent = {
+        event_type: "GraphStartedEvent",
+        t: context.clock.now(),
+        graph_address: parentAddress,
+        annotation: graph.annotation ?? null,
+    }
+    context.eventArray.push(graphStartEvent);
+
     const nodes = graph.nodes;
     const registers = { ...graph.registers };
 
@@ -255,21 +271,29 @@ async function playGraph(
         )
         // Set next Node:
         nextNodeId = res.nextNodeId;
-        if (nextNodeId === null) {
-            break
-        }
-        currentNodeId = nextNodeId;
-
 
         // Update Graph registers
         for (const [registerId, updateValue] of Object.entries(res.registerUpdates)) {
             registers[registerId as RegisterId] = updateValue
         }
 
+        if (nextNodeId === null) {
+            break
+        }
+        currentNodeId = nextNodeId;
+
         // Reset last:
         lastSubgraphRegisters = null;
         lastAction = null;
     }
+
+    const graphEndEvent: GraphEndedEvent = {
+        event_type: "GraphEndedEvent",
+        t: context.clock.now(),
+        graph_address: parentAddress,
+        annotation: graph.annotation ?? null,
+    }
+    context.eventArray.push(graphEndEvent);
 
     return registers;
 }

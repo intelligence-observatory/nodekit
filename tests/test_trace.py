@@ -127,3 +127,40 @@ def test_rejects_newer_prerelease_when_runtime_is_prerelease(monkeypatch: pytest
             nodekit_version=newer_prerelease,
             events=[nk.events.TraceStartedEvent(t=0)],
         )
+
+
+def test_graph_events_validate_and_roundtrip():
+    event_adapter = pydantic.TypeAdapter(nk.events.Event)
+
+    started = event_adapter.validate_python(
+        {
+            "event_type": "GraphStartedEvent",
+            "t": 1,
+            "graph_address": [],
+            "annotation": "root graph",
+        }
+    )
+    ended = event_adapter.validate_python(
+        {
+            "event_type": "GraphEndedEvent",
+            "t": 2,
+            "graph_address": ["trial"],
+            "annotation": None,
+        }
+    )
+
+    assert isinstance(started, nk.events.GraphStartedEvent)
+    assert isinstance(ended, nk.events.GraphEndedEvent)
+
+    trace = nk.Trace(
+        events=[
+            nk.events.TraceStartedEvent(t=0),
+            started,
+            ended,
+            nk.events.TraceEndedEvent(t=3),
+        ],
+    )
+
+    roundtripped = nk.Trace.model_validate_json(trace.model_dump_json())
+
+    assert roundtripped.events == trace.events

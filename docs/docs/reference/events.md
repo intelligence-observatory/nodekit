@@ -5,6 +5,8 @@
 
 ::: nodekit.events.TraceStartedEvent
 ::: nodekit.events.TraceEndedEvent
+::: nodekit.events.GraphStartedEvent
+::: nodekit.events.GraphEndedEvent
 ::: nodekit.events.NodeStartedEvent
 ::: nodekit.events.ActionTakenEvent
 ::: nodekit.events.NodeEndedEvent
