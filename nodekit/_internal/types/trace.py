@@ -19,4 +19,3 @@ class Trace(pydantic.BaseModel):
     @pydantic.field_validator("events")
     def order_events(cls, events: list[Event]) -> list[Event]:
         return sorted(events, key=lambda e: e.t)
-
