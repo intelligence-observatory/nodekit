@@ -47,19 +47,29 @@ def simulate(
 
     time_elapsed_msec = 0
 
-    events: list[e.Event] = [e.TraceStartedEvent(t=time_elapsed_msec)]
+    events: list[e.Event] = []
+    events.append(
+        e.TraceStartedEvent(
+            t=time_elapsed_msec,
+        )
+    )
 
-    simulated_events, _, time_elapsed_msec = _simulate_core(
+    _, time_elapsed_msec = _simulate_core(
         graph=graph,
         agent=agent,
         address=[],
         time_elapsed_msec=time_elapsed_msec,
+        events=events,
     )
-    events.extend(simulated_events)
 
-    events.append(e.TraceEndedEvent(t=time_elapsed_msec))
+    events.append(
+        e.TraceEndedEvent(
+            t=time_elapsed_msec,
+        )
+    )
 
     return Trace(
+        graph=graph,
         events=events,
     )
 
@@ -76,7 +86,8 @@ def _simulate_core(
     agent: BaseAgent,
     address: list[str],
     time_elapsed_msec: int,
-) -> tuple[list[e.Event], dict[RegisterId, Value], int]:
+    events: list[e.Event],
+) -> tuple[dict[RegisterId, Value], int]:
     """
     Deterministically simulates a Graph using the provided Agent.
     Pointer and keyboard sample events are omitted; only Node start/action/end events
@@ -90,13 +101,12 @@ def _simulate_core(
         time_elapsed_msec += 1
         return time_elapsed_msec
 
-    events: list[e.Event] = [
+    events.append(
         e.GraphStartedEvent(
             t=_tick(),
             graph_address=address,
-            annotation=graph.annotation,
         )
-    ]
+    )
 
     current_node_id = graph.start
 
@@ -106,13 +116,13 @@ def _simulate_core(
 
         if isinstance(node_or_graph, Graph):
             child_graph = node_or_graph
-            child_events, child_registers, time_elapsed_msec = _simulate_core(
+            child_registers, time_elapsed_msec = _simulate_core(
                 graph=child_graph,
                 agent=agent,
                 address=current_address,
                 time_elapsed_msec=time_elapsed_msec,
+                events=events,
             )
-            events.extend(child_events)
             last_subgraph_registers = child_registers
             last_action = None
         elif isinstance(node_or_graph, Node):
@@ -121,7 +131,6 @@ def _simulate_core(
                 e.NodeStartedEvent(
                     t=_tick(),
                     node_address=current_address,
-                    node=node,
                 )
             )
 
@@ -175,11 +184,10 @@ def _simulate_core(
         e.GraphEndedEvent(
             t=_tick(),
             graph_address=address,
-            annotation=graph.annotation,
         )
     )
 
-    return events, registers, time_elapsed_msec
+    return registers, time_elapsed_msec
 
 
 def _eval_transition(

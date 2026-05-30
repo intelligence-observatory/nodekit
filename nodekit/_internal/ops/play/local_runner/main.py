@@ -306,7 +306,7 @@ def play(
                 break
             time.sleep(0.1)
 
-        return Trace(events=events)
+        return Trace(graph=graph, events=events)
     finally:
         # Shut down the server no matter how we exit
         runner.shutdown()

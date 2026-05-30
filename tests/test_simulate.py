@@ -74,6 +74,7 @@ def test_simulate_register_update_and_branch() -> None:
 
     trace = nk.simulate(graph)
 
+    assert trace.graph == graph
     assert _node_addresses(trace) == [["start"], ["next"]]
 
 
@@ -143,11 +144,10 @@ def test_simulate_emits_root_graph_lifecycle_events() -> None:
     ]
     assert isinstance(trace.events[1], nk.events.GraphStartedEvent)
     assert trace.events[1].graph_address == []
-    assert trace.events[1].annotation == "root graph"
     root_graph_end = trace.events[-2]
     assert isinstance(root_graph_end, nk.events.GraphEndedEvent)
     assert root_graph_end.graph_address == []
-    assert root_graph_end.annotation == "root graph"
+    assert trace.graph.annotation == "root graph"
 
 
 def test_simulate_child_register_branching() -> None:
@@ -239,14 +239,16 @@ def test_simulate_emits_nested_graph_lifecycle_events() -> None:
         if isinstance(event, (nk.events.GraphStartedEvent, nk.events.GraphEndedEvent))
     ]
 
-    assert [
-        (event.event_type.value, event.graph_address, event.annotation) for event in graph_events
-    ] == [
-        ("GraphStartedEvent", [], "root graph"),
-        ("GraphStartedEvent", ["trial"], "child graph"),
-        ("GraphEndedEvent", ["trial"], "child graph"),
-        ("GraphEndedEvent", [], "root graph"),
+    assert [(event.event_type.value, event.graph_address) for event in graph_events] == [
+        ("GraphStartedEvent", []),
+        ("GraphStartedEvent", ["trial"]),
+        ("GraphEndedEvent", ["trial"]),
+        ("GraphEndedEvent", []),
     ]
+    assert trace.graph.annotation == "root graph"
+    child_graph = trace.graph.nodes["trial"]
+    assert isinstance(child_graph, nk.Graph)
+    assert child_graph.annotation == "child graph"
 
     nested_node_index = _event_type_names(trace).index("NodeEndedEvent")
     nested_graph_end_index = next(

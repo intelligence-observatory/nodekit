@@ -145,7 +145,6 @@ export class NodePlay {
             event_type: 'NodeStartedEvent',
             t: this.boardView.clock.now(),
             node_address: this.nodeAddress,
-            node: this.node,
         }
         this.eventArray.push(eStart)
 
@@ -181,4 +180,3 @@ export class NodePlay {
         return action
     }
 }
-

@@ -143,6 +143,7 @@ export async function play(
         // Assemble trace:
         const trace: Trace = {
             nodekit_version: NODEKIT_VERSION,
+            graph: graph,
             events: eventArray.events,
         }
 
@@ -203,7 +204,6 @@ async function playGraph(
         event_type: "GraphStartedEvent",
         t: context.clock.now(),
         graph_address: parentAddress,
-        annotation: graph.annotation ?? null,
     }
     context.eventArray.push(graphStartEvent);
 
@@ -291,7 +291,6 @@ async function playGraph(
         event_type: "GraphEndedEvent",
         t: context.clock.now(),
         graph_address: parentAddress,
-        annotation: graph.annotation ?? null,
     }
     context.eventArray.push(graphEndEvent);
 

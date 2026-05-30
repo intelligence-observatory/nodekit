@@ -44,6 +44,9 @@ graph = nk.load_graph("my-task.nkg")
 - You have a path where you want to save the JSON Trace.
 - If you plan to load a Trace, you have the JSON file on disk.
 
+???+ tip "Traces are self-describing"
+    A Trace stores the canonical Graph that was run plus the ordered Events observed while running it. That means a saved Trace JSON file is enough to inspect both the task structure and the behavioral record later.
+
 ## 3. Save a Trace to JSON
 
 Traces are Pydantic models, so you can serialize them with `model_dump_json`:
