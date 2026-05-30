@@ -236,7 +236,7 @@ def test_simulate_emits_nested_graph_lifecycle_events() -> None:
     graph_events = [
         event
         for event in trace.events
-        if isinstance(event, nk.events.GraphStartedEvent | nk.events.GraphEndedEvent)
+        if isinstance(event, (nk.events.GraphStartedEvent, nk.events.GraphEndedEvent))
     ]
 
     assert [
