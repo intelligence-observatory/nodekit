@@ -12,18 +12,20 @@
     <script>
         const graph = {{ graph | tojson(indent=4) | indent(8, first=False) }};
         const eventSubmitUrl = "{{ submit_event_url }}";
+        let eventSubmitQueue = Promise.resolve();
 
-        async function sendEvent(ev) {
+        function sendEvent(ev) {
             console.log(ev)
-            try {
+            eventSubmitQueue = eventSubmitQueue.then(async () => {
                 await fetch(eventSubmitUrl, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(ev),
                 });
-            } catch (err) {
+            }).catch((err) => {
                 console.error("Failed to send event", err);
-            }
+            });
+            return eventSubmitQueue;
         }
 
         window.onload = async () => {

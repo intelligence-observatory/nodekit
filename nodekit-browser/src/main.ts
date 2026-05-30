@@ -1,6 +1,11 @@
 import type {
     Event,
-    UnindexedEvent,
+    GraphEndedEvent,
+    GraphStartedEvent,
+    PageResumedEvent,
+    PageSuspendedEvent,
+    TraceEndedEvent,
+    TraceStartedEvent,
 } from "./types/events";
 import {Clock} from "./clock.ts";
 import type {Graph, Trace} from "./types/node.ts";
@@ -82,7 +87,7 @@ export async function play(
             await shellUI.playStartScreen()
         }
 
-        const startEvent: UnindexedEvent = {
+        const startEvent: TraceStartedEvent = {
             event_type: "TraceStartedEvent",
             t: 0 as TimeElapsedMsec,
         }
@@ -92,14 +97,14 @@ export async function play(
         function onVisibilityChange() {
             if (document.visibilityState === "hidden") {
                 // Triggered when the document becomes hidden (e.g., user switches tabs or minimizes the window)
-                const leaveEvent: UnindexedEvent = {
+                const leaveEvent: PageSuspendedEvent = {
                     event_type: "PageSuspendedEvent",
                     t: clock.now(),
                 };
                 eventArray.push(leaveEvent);
             } else if (document.visibilityState === "visible") {
                 // Triggered when the document becomes visible again
-                const returnEvent: UnindexedEvent = {
+                const returnEvent: PageResumedEvent = {
                     event_type: "PageResumedEvent",
                     t: clock.now(),
                 };
@@ -126,7 +131,7 @@ export async function play(
         )
 
         // Generate the EndEvent:
-        const endEvent: UnindexedEvent = {
+        const endEvent: TraceEndedEvent = {
             event_type: "TraceEndedEvent",
             t: clock.now(),
         }
@@ -195,7 +200,7 @@ async function playGraph(
     context: PlayGraphContext,
 ): Promise<RegisterFile> {
 
-    const graphStartEvent: UnindexedEvent = {
+    const graphStartEvent: GraphStartedEvent = {
         event_type: "GraphStartedEvent",
         t: context.clock.now(),
         graph_address: parentAddress,
@@ -282,7 +287,7 @@ async function playGraph(
         lastAction = null;
     }
 
-    const graphEndEvent: UnindexedEvent = {
+    const graphEndEvent: GraphEndedEvent = {
         event_type: "GraphEndedEvent",
         t: context.clock.now(),
         graph_address: parentAddress,

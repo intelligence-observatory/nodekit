@@ -32,10 +32,6 @@ def _event_type_names(trace: nk.Trace) -> list[str]:
     return [event.event_type.value for event in trace.events]
 
 
-def _event_indexes(trace: nk.Trace) -> list[int]:
-    return [event.event_index for event in trace.events]
-
-
 def test_simulate_register_update_and_branch() -> None:
     graph = nk.Graph(
         start="start",
@@ -137,7 +133,6 @@ def test_simulate_emits_root_graph_lifecycle_events() -> None:
 
     trace = nk.simulate(graph)
 
-    assert _event_indexes(trace) == list(range(len(trace.events)))
     assert _event_type_names(trace) == [
         "TraceStartedEvent",
         "GraphStartedEvent",

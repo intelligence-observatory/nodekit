@@ -50,7 +50,6 @@ def simulate(
     events: list[e.Event] = []
     events.append(
         e.TraceStartedEvent(
-            event_index=_next_event_index(events),
             t=time_elapsed_msec,
         )
     )
@@ -65,7 +64,6 @@ def simulate(
 
     events.append(
         e.TraceEndedEvent(
-            event_index=_next_event_index(events),
             t=time_elapsed_msec,
         )
     )
@@ -105,7 +103,6 @@ def _simulate_core(
 
     events.append(
         e.GraphStartedEvent(
-            event_index=_next_event_index(events),
             t=_tick(),
             graph_address=address,
         )
@@ -132,7 +129,6 @@ def _simulate_core(
             node = node_or_graph
             events.append(
                 e.NodeStartedEvent(
-                    event_index=_next_event_index(events),
                     t=_tick(),
                     node_address=current_address,
                 )
@@ -146,7 +142,6 @@ def _simulate_core(
 
             events.append(
                 e.ActionTakenEvent(
-                    event_index=_next_event_index(events),
                     t=_tick(),
                     node_address=current_address,
                     action=action,
@@ -154,7 +149,6 @@ def _simulate_core(
             )
             events.append(
                 e.NodeEndedEvent(
-                    event_index=_next_event_index(events),
                     t=_tick(),
                     node_address=current_address,
                 )
@@ -188,17 +182,12 @@ def _simulate_core(
 
     events.append(
         e.GraphEndedEvent(
-            event_index=_next_event_index(events),
             t=_tick(),
             graph_address=address,
         )
     )
 
     return registers, time_elapsed_msec
-
-
-def _next_event_index(events: list[e.Event]) -> int:
-    return len(events)
 
 
 def _eval_transition(

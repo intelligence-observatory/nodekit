@@ -47,7 +47,7 @@ def test_accepts_older_compatible_nodekit_version():
     trace = nk.Trace(
         nodekit_version=older,
         graph=minimal_graph(),
-        events=[nk.events.TraceStartedEvent(event_index=0, t=0)],
+        events=[nk.events.TraceStartedEvent(t=0)],
     )
 
     assert trace.nodekit_version == older
@@ -64,7 +64,7 @@ def test_rejects_newer_nodekit_version():
         nk.Trace(
             nodekit_version=newer,
             graph=minimal_graph(),
-            events=[nk.events.TraceStartedEvent(event_index=0, t=0)],
+            events=[nk.events.TraceStartedEvent(t=0)],
         )
 
 
@@ -76,7 +76,7 @@ def test_rejects_incompatible_major_nodekit_version():
         nk.Trace(
             nodekit_version="1.0.0",
             graph=minimal_graph(),
-            events=[nk.events.TraceStartedEvent(event_index=0, t=0)],
+            events=[nk.events.TraceStartedEvent(t=0)],
         )
 
 
@@ -85,7 +85,7 @@ def test_rejects_invalid_nodekit_version_string():
         nk.Trace(
             nodekit_version="not-a-version",
             graph=minimal_graph(),
-            events=[nk.events.TraceStartedEvent(event_index=0, t=0)],
+            events=[nk.events.TraceStartedEvent(t=0)],
         )
 
 
@@ -100,7 +100,7 @@ def test_accepts_older_prerelease_when_runtime_is_final(monkeypatch: pytest.Monk
     trace = nk.Trace(
         nodekit_version=older_prerelease,
         graph=minimal_graph(),
-        events=[nk.events.TraceStartedEvent(event_index=0, t=0)],
+        events=[nk.events.TraceStartedEvent(t=0)],
     )
 
     assert trace.nodekit_version == older_prerelease
@@ -123,7 +123,7 @@ def test_rejects_final_release_when_runtime_is_prerelease(monkeypatch: pytest.Mo
         nk.Trace(
             nodekit_version=final_release,
             graph=minimal_graph(),
-            events=[nk.events.TraceStartedEvent(event_index=0, t=0)],
+            events=[nk.events.TraceStartedEvent(t=0)],
         )
 
 
@@ -144,7 +144,7 @@ def test_rejects_newer_prerelease_when_runtime_is_prerelease(monkeypatch: pytest
         nk.Trace(
             nodekit_version=newer_prerelease,
             graph=minimal_graph(),
-            events=[nk.events.TraceStartedEvent(event_index=0, t=0)],
+            events=[nk.events.TraceStartedEvent(t=0)],
         )
 
 
@@ -155,7 +155,6 @@ def test_requires_graph():
                 "events": [
                     {
                         "event_type": "TraceStartedEvent",
-                        "event_index": 0,
                         "t": 0,
                     }
                 ],
@@ -163,26 +162,12 @@ def test_requires_graph():
         )
 
 
-def test_rejects_non_contiguous_event_indexes():
-    with pytest.raises(
-        pydantic.ValidationError,
-        match="Expected 1, got 2",
-    ):
-        nk.Trace(
-            graph=minimal_graph(),
-            events=[
-                nk.events.TraceStartedEvent(event_index=0, t=0),
-                nk.events.TraceEndedEvent(event_index=2, t=1),
-            ],
-        )
-
-
 def test_preserves_event_order_instead_of_sorting_by_time():
     trace = nk.Trace(
         graph=minimal_graph(),
         events=[
-            nk.events.TraceStartedEvent(event_index=0, t=1),
-            nk.events.TraceEndedEvent(event_index=1, t=0),
+            nk.events.TraceStartedEvent(t=1),
+            nk.events.TraceEndedEvent(t=0),
         ],
     )
 
@@ -198,7 +183,6 @@ def test_graph_events_validate_and_roundtrip():
     started = event_adapter.validate_python(
         {
             "event_type": "GraphStartedEvent",
-            "event_index": 1,
             "t": 1,
             "graph_address": [],
         }
@@ -206,7 +190,6 @@ def test_graph_events_validate_and_roundtrip():
     ended = event_adapter.validate_python(
         {
             "event_type": "GraphEndedEvent",
-            "event_index": 2,
             "t": 2,
             "graph_address": ["trial"],
         }
@@ -218,10 +201,10 @@ def test_graph_events_validate_and_roundtrip():
     trace = nk.Trace(
         graph=minimal_graph(),
         events=[
-            nk.events.TraceStartedEvent(event_index=0, t=0),
+            nk.events.TraceStartedEvent(t=0),
             started,
             ended,
-            nk.events.TraceEndedEvent(event_index=3, t=3),
+            nk.events.TraceEndedEvent(t=3),
         ],
     )
 

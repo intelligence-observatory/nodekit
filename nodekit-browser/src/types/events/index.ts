@@ -3,7 +3,6 @@ import type {Action} from "../actions.ts";
 
 export interface BaseEvent<T extends string> {
     event_type: T,
-    event_index: number,
     t: TimeElapsedMsec, // The time the Event was emitted, relative to the start of the Trace
 }
 
@@ -17,7 +16,7 @@ export interface PageSuspendedEvent extends BaseEvent<'PageSuspendedEvent'>{}
 
 export interface PageResumedEvent extends BaseEvent<'PageResumedEvent'>{}
 
-interface RegionSizePx {
+export interface RegionSizePx {
     width_px: PixelSize,
     height_px: PixelSize
 }
@@ -78,9 +77,3 @@ export type Event =
     | NodeEndedEvent
     | TraceStartedEvent
     | TraceEndedEvent
-
-export type UnindexedEvent = Event extends infer E
-    ? E extends Event
-        ? Omit<E, 'event_index'>
-        : never
-    : never

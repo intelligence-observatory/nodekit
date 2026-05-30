@@ -17,13 +17,3 @@ class Trace(pydantic.BaseModel):
     @classmethod
     def validate_nodekit_version(cls, value: str) -> str:
         return validate_compatible_nodekit_version(value)
-
-    @pydantic.model_validator(mode="after")
-    def validate_event_indexes(self) -> "Trace":
-        for expected_index, event in enumerate(self.events):
-            if event.event_index != expected_index:
-                raise ValueError(
-                    "Trace events must have zero-based, contiguous event_index values "
-                    f"in list order. Expected {expected_index}, got {event.event_index}."
-                )
-        return self

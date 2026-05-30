@@ -36,10 +36,6 @@ class EventTypeEnum(str, enum.Enum):
 # %%
 class BaseEvent(pydantic.BaseModel):
     event_type: EventTypeEnum
-    event_index: int = pydantic.Field(
-        ge=0,
-        description="The zero-based index of this Event within its Trace.",
-    )
     t: TimeElapsedMsec = pydantic.Field(
         description="The number of elapsed milliseconds since TraceStartedEvent."
     )
