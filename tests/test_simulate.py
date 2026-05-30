@@ -28,6 +28,10 @@ def _actions(trace: nk.Trace) -> list[nk.actions.Action]:
     return [event.action for event in trace.events if isinstance(event, nk.events.ActionTakenEvent)]
 
 
+def _event_type_names(trace: nk.Trace) -> list[str]:
+    return [event.event_type.value for event in trace.events]
+
+
 def test_simulate_register_update_and_branch() -> None:
     graph = nk.Graph(
         start="start",
@@ -111,6 +115,41 @@ def test_simulate_uses_last_action_in_transition() -> None:
     assert _node_addresses(trace) == [["choose"], ["left"]]
 
 
+def test_simulate_emits_root_graph_lifecycle_events() -> None:
+    graph = nk.Graph(
+        start="start",
+        nodes={
+            "start": nk.Node(
+                card=nk.cards.TextCard(text="start"),
+                sensor=nk.sensors.WaitSensor(duration_msec=1),
+            )
+        },
+        transitions={
+            "start": nk.transitions.End(),
+        },
+        annotation="root graph",
+    )
+
+    trace = nk.simulate(graph)
+
+    assert _event_type_names(trace) == [
+        "TraceStartedEvent",
+        "GraphStartedEvent",
+        "NodeStartedEvent",
+        "ActionTakenEvent",
+        "NodeEndedEvent",
+        "GraphEndedEvent",
+        "TraceEndedEvent",
+    ]
+    assert isinstance(trace.events[1], nk.events.GraphStartedEvent)
+    assert trace.events[1].graph_address == []
+    assert trace.events[1].annotation == "root graph"
+    root_graph_end = trace.events[-2]
+    assert isinstance(root_graph_end, nk.events.GraphEndedEvent)
+    assert root_graph_end.graph_address == []
+    assert root_graph_end.annotation == "root graph"
+
+
 def test_simulate_child_register_branching() -> None:
     child = nk.Graph(
         start="inner",
@@ -164,6 +203,59 @@ def test_simulate_child_register_branching() -> None:
     trace = nk.simulate(graph)
 
     assert _node_addresses(trace) == [["child", "inner"], ["after"]]
+
+
+def test_simulate_emits_nested_graph_lifecycle_events() -> None:
+    child = nk.Graph(
+        start="inner",
+        nodes={
+            "inner": nk.Node(
+                card=nk.cards.TextCard(text="inner"),
+                sensor=nk.sensors.WaitSensor(duration_msec=1),
+            )
+        },
+        transitions={
+            "inner": nk.transitions.End(),
+        },
+        annotation="child graph",
+    )
+
+    graph = nk.Graph(
+        start="trial",
+        nodes={
+            "trial": child,
+        },
+        transitions={
+            "trial": nk.transitions.End(),
+        },
+        annotation="root graph",
+    )
+
+    trace = nk.simulate(graph)
+
+    graph_events = [
+        event
+        for event in trace.events
+        if isinstance(event, (nk.events.GraphStartedEvent, nk.events.GraphEndedEvent))
+    ]
+
+    assert [
+        (event.event_type.value, event.graph_address, event.annotation) for event in graph_events
+    ] == [
+        ("GraphStartedEvent", [], "root graph"),
+        ("GraphStartedEvent", ["trial"], "child graph"),
+        ("GraphEndedEvent", ["trial"], "child graph"),
+        ("GraphEndedEvent", [], "root graph"),
+    ]
+
+    nested_node_index = _event_type_names(trace).index("NodeEndedEvent")
+    nested_graph_end_index = next(
+        i
+        for i, event in enumerate(trace.events)
+        if isinstance(event, nk.events.GraphEndedEvent) and event.graph_address == ["trial"]
+    )
+
+    assert nested_graph_end_index > nested_node_index
 
 
 def test_simulate_dict_lookup_in_register_update() -> None:

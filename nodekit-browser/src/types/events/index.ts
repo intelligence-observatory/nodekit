@@ -30,6 +30,16 @@ export interface BrowserContextSampledEvent extends BaseEvent<'BrowserContextSam
     viewport: RegionSizePx,
 }
 
+// Graph events:
+interface BaseGraphEvent<T extends string> extends BaseEvent<T>{
+    graph_address: NodeId[]
+    annotation: string | null
+}
+
+export interface GraphStartedEvent extends BaseGraphEvent<'GraphStartedEvent'> {}
+
+export interface GraphEndedEvent extends BaseGraphEvent<'GraphEndedEvent'> {}
+
 // Node events:
 interface BaseNodeEvent<T extends string> extends BaseEvent<T>{
     node_address: NodeId[]
@@ -64,6 +74,8 @@ export type Event =
     | PageResumedEvent
     | KeySampledEvent
     | PointerSampledEvent
+    | GraphStartedEvent
+    | GraphEndedEvent
     | NodeStartedEvent
     | ActionTakenEvent
     | NodeEndedEvent

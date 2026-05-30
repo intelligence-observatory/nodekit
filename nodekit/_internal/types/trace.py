@@ -1,10 +1,11 @@
 import pydantic
 
 from nodekit import VERSION
-from nodekit._internal.version import validate_compatible_nodekit_version
 from nodekit._internal.types.events import Event
+from nodekit._internal.version import validate_compatible_nodekit_version
 
 
+# %%
 class Trace(pydantic.BaseModel):
     nodekit_version: str = pydantic.Field(default=VERSION, validate_default=True)
 

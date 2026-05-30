@@ -18,6 +18,9 @@ class EventTypeEnum(str, enum.Enum):
     TraceStartedEvent = "TraceStartedEvent"
     TraceEndedEvent = "TraceEndedEvent"
 
+    GraphStartedEvent = "GraphStartedEvent"
+    GraphEndedEvent = "GraphEndedEvent"
+
     NodeStartedEvent = "NodeStartedEvent"
     ActionTakenEvent = "ActionTakenEvent"
     NodeEndedEvent = "NodeEndedEvent"
@@ -85,6 +88,20 @@ class BrowserContextSampledEvent(BaseEvent):
     viewport: RegionSizePx
 
 
+# %% Graph events
+class BaseGraphEvent(BaseEvent):
+    graph_address: NodeAddress
+    annotation: str | None = None
+
+
+class GraphStartedEvent(BaseGraphEvent):
+    event_type: Literal[EventTypeEnum.GraphStartedEvent] = EventTypeEnum.GraphStartedEvent
+
+
+class GraphEndedEvent(BaseGraphEvent):
+    event_type: Literal[EventTypeEnum.GraphEndedEvent] = EventTypeEnum.GraphEndedEvent
+
+
 # %%
 class PointerSampledEvent(BaseEvent):
     event_type: Literal[EventTypeEnum.PointerSampledEvent] = EventTypeEnum.PointerSampledEvent
@@ -127,6 +144,9 @@ type Event = Annotated[
         PageSuspendedEvent,
         PageResumedEvent,
         BrowserContextSampledEvent,
+        # Graph events:
+        GraphStartedEvent,
+        GraphEndedEvent,
         # Node events:
         NodeStartedEvent,
         ActionTakenEvent,
