@@ -45,7 +45,7 @@ dev = [
 repository = "https://github.com/intelligence-observatory/nodekit"
 
 [tool.uv.build-backend]
-module-name = "nodekit"
+module-name = ["nodekit", "nodekit_server"]
 module-root = ""
 
 [tool.ty.src]

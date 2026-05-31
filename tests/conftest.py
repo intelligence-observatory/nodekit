@@ -12,7 +12,6 @@ from sqlmodel import SQLModel
 import nodekit as nk
 
 ASSET_DIR = Path(__file__).parent / "assets"
-SERVER_ROOT = Path(__file__).parents[1] / "nodekit-server"
 
 
 @pytest.fixture(scope="session")
@@ -27,7 +26,6 @@ def server_main(tmp_path_factory: pytest.TempPathFactory) -> Iterator[ModuleType
     os.environ["NODEKIT_SERVER_DATABASE_URL"] = f"sqlite:///{tmp_path / 'server.db'}"
     os.environ["NODEKIT_SERVER_ASSET_STORE_DIR"] = str(tmp_path / "asset-store")
     os.environ["NODEKIT_SERVER_BOOTSTRAP_ADMIN_API_TOKEN"] = "test-token"
-    sys.path.insert(0, str(SERVER_ROOT))
 
     for module_name in list(sys.modules):
         if module_name == "nodekit_server" or module_name.startswith("nodekit_server."):
@@ -41,10 +39,6 @@ def server_main(tmp_path_factory: pytest.TempPathFactory) -> Iterator[ModuleType
         if module_name == "nodekit_server" or module_name.startswith("nodekit_server."):
             del sys.modules[module_name]
     SQLModel.metadata.clear()
-    try:
-        sys.path.remove(str(SERVER_ROOT))
-    except ValueError:
-        pass
     for key, value in previous_env.items():
         if value is None:
             os.environ.pop(key, None)
