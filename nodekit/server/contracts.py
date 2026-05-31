@@ -245,9 +245,7 @@ class ArchiveRunResponse(ContractModel):
 
 
 # %% SubmitRun
-class SubmitRunRequest(ContractModel):
-    site_id: SiteId
-    site_submission: SiteSubmission
+SubmitRunRequest = SiteSubmission
 
 
 class SubmitRunResponse(ContractModel):

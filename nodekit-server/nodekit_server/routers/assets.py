@@ -7,6 +7,7 @@ from typing import Annotated
 import fastapi
 import hashlib
 import sqlmodel
+from fastapi.responses import FileResponse
 
 import nodekit.server.contracts as contracts
 from nodekit.values import MediaType, SHA256
@@ -38,6 +39,16 @@ def _get_asset_record(
     statement = statement.where(AssetRecord.sha256 == identifier.sha256)
     statement = statement.where(AssetRecord.media_type == identifier.media_type)
     return session.exec(statement).one_or_none()
+
+
+def _get_asset_record_by_sha256(
+    session: sqlmodel.Session,
+    sha256: SHA256,
+) -> AssetRecord | None:
+    statement = sqlmodel.select(AssetRecord)
+    statement = statement.where(sqlmodel.col(AssetRecord.sha256) == sha256)
+    statement = statement.order_by(sqlmodel.col(AssetRecord.media_type))
+    return session.exec(statement).first()
 
 
 async def _stage_uploaded_file(
@@ -137,3 +148,25 @@ async def upload_asset(
     session.refresh(asset_record)
 
     return contracts.UploadAssetResponse(asset=_asset_record_to_item(asset_record))
+
+
+# %% Resolve Asset
+@router.get("/assets/{sha256}", include_in_schema=False)
+def resolve_asset(
+    sha256: SHA256,
+    session: SessionDep,
+    asset_store: AssetStoreDep,
+) -> FileResponse:
+    """Resolve participant-facing Asset bytes through the configured storage backend."""
+
+    asset_record = _get_asset_record_by_sha256(session=session, sha256=sha256)
+    if asset_record is None or not asset_store.exists(asset_record.storage_key):
+        raise fastapi.HTTPException(
+            status_code=fastapi.status.HTTP_404_NOT_FOUND,
+            detail="Asset not found.",
+        )
+
+    return FileResponse(
+        path=asset_store.path_for_key(asset_record.storage_key),
+        media_type=asset_record.media_type,
+    )
