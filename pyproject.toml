@@ -4,7 +4,7 @@ build-backend = "uv_build"
 
 [project]
 name = "nodekit"
-version = "0.2.9.dev3"
+version = "0.3.0.dev1"
 authors = [
     { name = "Michael J. Lee", email = "mil@mit.edu" }
 ]
@@ -21,6 +21,7 @@ dependencies = [
     "boto3>=1.40.55",
     "matplotlib>=3.10.8",
     "pandas>=2.3.3",
+    "psycopg[binary]>=3",
     "sqlmodel>=0.0.38",
     "pydantic-settings>=2.14.1",
     "httpx>=0.28.1",
