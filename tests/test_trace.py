@@ -211,3 +211,110 @@ def test_graph_events_validate_and_roundtrip():
     roundtripped = nk.Trace.model_validate_json(trace.model_dump_json())
 
     assert roundtripped.events == trace.events
+
+
+def test_list_action_records_pairs_node_lifecycle_events():
+    graph = minimal_graph()
+    first_action = nk.actions.WaitAction()
+    second_action = nk.actions.WaitAction()
+
+    trace = nk.Trace(
+        graph=graph,
+        events=[
+            nk.events.TraceStartedEvent(t=0),
+            nk.events.NodeStartedEvent(t=1, node_address=["start"]),
+            nk.events.PointerSampledEvent(t=2, x=0, y=0, kind="move"),
+            nk.events.ActionTakenEvent(t=3, node_address=["start"], action=first_action),
+            nk.events.NodeEndedEvent(t=4, node_address=["start"]),
+            nk.events.NodeStartedEvent(t=5, node_address=["start"]),
+            nk.events.ActionTakenEvent(t=6, node_address=["start"], action=second_action),
+            nk.events.NodeEndedEvent(t=7, node_address=["start"]),
+            nk.events.TraceEndedEvent(t=8),
+        ],
+    )
+
+    assert trace.list_action_records() == [
+        {
+            "node_address": ["start"],
+            "t_start": 1,
+            "action_type": "WaitAction",
+            "action_value": None,
+            "t_action": 3,
+            "t_end": 4,
+        },
+        {
+            "node_address": ["start"],
+            "t_start": 5,
+            "action_type": "WaitAction",
+            "action_value": None,
+            "t_action": 6,
+            "t_end": 7,
+        },
+    ]
+
+
+def test_list_action_records_rejects_node_start_before_action():
+    trace = nk.Trace(
+        graph=minimal_graph(),
+        events=[
+            nk.events.TraceStartedEvent(t=0),
+            nk.events.NodeStartedEvent(t=1, node_address=["start"]),
+            nk.events.NodeStartedEvent(t=2, node_address=["start"]),
+            nk.events.TraceEndedEvent(t=3),
+        ],
+    )
+
+    with pytest.raises(ValueError, match="NodeStartedEvent before the active Node ended"):
+        trace.list_action_records()
+
+
+def test_list_action_records_rejects_action_without_node_start():
+    trace = nk.Trace(
+        graph=minimal_graph(),
+        events=[
+            nk.events.TraceStartedEvent(t=0),
+            nk.events.ActionTakenEvent(
+                t=1,
+                node_address=["start"],
+                action=nk.actions.WaitAction(),
+            ),
+            nk.events.TraceEndedEvent(t=2),
+        ],
+    )
+
+    with pytest.raises(ValueError, match="ActionTakenEvent without an active Node"):
+        trace.list_action_records()
+
+
+def test_list_action_records_rejects_node_end_before_action():
+    trace = nk.Trace(
+        graph=minimal_graph(),
+        events=[
+            nk.events.TraceStartedEvent(t=0),
+            nk.events.NodeStartedEvent(t=1, node_address=["start"]),
+            nk.events.NodeEndedEvent(t=2, node_address=["start"]),
+            nk.events.TraceEndedEvent(t=3),
+        ],
+    )
+
+    with pytest.raises(ValueError, match="NodeEndedEvent before ActionTakenEvent"):
+        trace.list_action_records()
+
+
+def test_list_action_records_rejects_mismatched_node_address():
+    trace = nk.Trace(
+        graph=minimal_graph(),
+        events=[
+            nk.events.TraceStartedEvent(t=0),
+            nk.events.NodeStartedEvent(t=1, node_address=["start"]),
+            nk.events.ActionTakenEvent(
+                t=2,
+                node_address=["other"],
+                action=nk.actions.WaitAction(),
+            ),
+            nk.events.TraceEndedEvent(t=3),
+        ],
+    )
+
+    with pytest.raises(ValueError, match="different Node than the active Node"):
+        trace.list_action_records()
