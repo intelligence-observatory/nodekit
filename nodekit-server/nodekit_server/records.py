@@ -56,7 +56,7 @@ class GraphLinkTagRecord(pydantic.BaseModel):
 
 
 # %%
-class StoredAssetRecord(pydantic.BaseModel):
+class AssetRecord(pydantic.BaseModel):
     """Server-side record for Asset bytes stored outside the Graph."""
 
     sha256: SHA256

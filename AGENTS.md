@@ -20,8 +20,20 @@ Traditional psych tasks are implemented as bespoke spaghetti code: ad-hoc state 
 ## Project Structure & Module Organization
 - Core Python package lives in `nodekit/` (Pydantic models for cards/sensors/actions/events/expressions, ops such as play/build, kernel evaluator). Generated browser assets land in `nodekit/_static`.
 - `nodekit-browser/` (npm) builds the front-end bundle feeding `_static`.
+- `nodekit-server/` is the optional backend service for turning Graphs into hosted participant-facing links, storing submissions/runs, and managing Assets. It may depend on `nodekit`, but `nodekit/` must not depend on server concepts.
 - `examples/` holds runnable tasks; `docs/` contains EFSM and board notes; `tests/` stores pytest; `dist/` is build output. Config roots: `pyproject.toml`, `uv.lock`, `Makefile`.
 - The `_static` directory contains builds of `nodekit-browser`; these should not be inspected by the Agent.
+
+## NodeKit Server Principles
+- `nodekit-server` exists to support deploying Graphs to participants, collecting `SiteSubmission` payloads, storing Runs, and serving or locating Assets. It should be boring, explicit infrastructure around NodeKit rather than a new task ontology.
+- Use the term **GraphLink** for a frozen, hosted, shareable URL for running a Graph. Use **Run** for one participant attempt through a GraphLink.
+- Use normalized Tags for low-semantics grouping/filtering of GraphLinks. Avoid committing early to semantic grouping nouns such as Project or Study.
+- Keep platform recruitment orchestration (polling Prolific/MTurk, approvals, payouts, quota management) adjacent to the core service. The core service should store validated facts about GraphLinks, Runs, submissions, and Assets; platform workers can consume those facts later.
+- Prefer a Python-client-first auth model based on API tokens. Browser participant flows are separate from researcher/admin auth and should align with current `nk.build_site` semantics, especially the `nodekitSubmitTo` query parameter and existing `SiteSubmission` model.
+- The server should own Asset ingestion during GraphLink creation. A client can upload a `.nkg`; the server should load the Graph, verify Asset bytes, store missing Assets, rewrite Asset locators to server-owned URLs, and store the frozen Graph snapshot.
+- Asset bytes should sit behind a storage boundary. Filesystem storage should work for local/simple installs; S3 or S3-compatible storage can be used for production. FastAPI routes may stream bytes, redirect to storage/CDN URLs, or write direct CDN URLs into the frozen Graph.
+- Distinguish core records/contracts from eventual DB implementation. Pydantic record sketches belong in `nodekit-server/nodekit_server/`; DB-specific models and storage code should stay server-local and must not leak into `nodekit/`.
+- This repo should carry the canonical current `nodekit-server` schema and tooling compatible with the current NodeKit version, not a long historical migration chain. Long-lived personal or production deployments may keep their own migration history in a separate ops/deployment repo, then use server schema checks/export/import tools to reconcile with the canonical app schema.
 
 ## Build, Test, and Development Commands
 - `uv sync --dev` installs Python deps with lock enforcement.
