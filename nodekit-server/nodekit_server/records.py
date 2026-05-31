@@ -8,6 +8,8 @@ from sqlmodel import Field, SQLModel
 
 from nodekit.values import MediaType, SHA256
 
+from nodekit_server.enums import RunStatus
+
 
 # %%
 class UserRecord(SQLModel, table=True):
@@ -18,6 +20,7 @@ class UserRecord(SQLModel, table=True):
     user_id: UUID = Field(primary_key=True)
     username: str = Field(description="A display username. It does not need to be unique.")
     is_admin: bool = False
+    is_archived: bool = False
 
 
 # %%
@@ -84,6 +87,19 @@ class AssetRecord(SQLModel, table=True):
 
 
 # %%
+class ApiTokenRecord(SQLModel, table=True):
+    """A hashed API token for Python client authentication."""
+
+    __tablename__: ClassVar[str] = "api_tokens"
+
+    api_token_id: UUID = Field(primary_key=True)
+    user_id: UUID = Field(foreign_key="users.user_id")
+    name: str = Field(min_length=1)
+    token_hash: str = Field(min_length=1)
+    is_revoked: bool = False
+
+
+# %%
 class RunRecord(SQLModel, table=True):
     """One participant attempt against a GraphLink."""
 
@@ -91,6 +107,7 @@ class RunRecord(SQLModel, table=True):
 
     run_id: UUID = Field(primary_key=True)
     graph_link_id: UUID = Field(foreign_key="graph_links.graph_link_id")
+    status: RunStatus = Field(default=RunStatus.STARTED)
     site_submission_json_gzip: bytes | None = Field(
         default=None,
         sa_column=Column(LargeBinary, nullable=True),
