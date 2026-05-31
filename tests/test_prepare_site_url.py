@@ -32,22 +32,12 @@ def test_prepare_site_url_updates_existing_nodekit_submit_to() -> None:
     assert _query(url)["nodekitSubmitTo"] == ["https://new.example/submit"]
 
 
-def test_prepare_site_url_infers_submit_url_for_absolute_nodekit_server_site_url() -> None:
-    site_id = "00000000-0000-0000-0000-000000000001"
-
-    url = nk.prepare_site_url(site_url=f"https://nodekit.example/s/{site_id}?cohort=a")
+def test_prepare_site_url_without_submit_url_leaves_nodekit_submit_to_absent() -> None:
+    url = nk.prepare_site_url(site_url="https://nodekit.example/task?cohort=a")
 
     query = _query(url)
     assert query["cohort"] == ["a"]
-    assert query["nodekitSubmitTo"] == [f"https://nodekit.example/s/{site_id}/submit"]
-
-
-def test_prepare_site_url_infers_submit_url_for_relative_nodekit_server_site_url() -> None:
-    site_id = "00000000-0000-0000-0000-000000000001"
-
-    url = nk.prepare_site_url(site_url=f"/prefix/s/{site_id}")
-
-    assert _query(url)["nodekitSubmitTo"] == [f"/prefix/s/{site_id}/submit"]
+    assert "nodekitSubmitTo" not in query
 
 
 def test_prepare_site_url_prepares_prolific_url() -> None:
@@ -67,16 +57,14 @@ def test_prepare_site_url_prepares_prolific_url() -> None:
     assert query["prolificCompletionCode"] == ["complete-123"]
 
 
-def test_prepare_site_url_infers_submit_url_for_prolific_nodekit_server_site_url() -> None:
-    site_id = "00000000-0000-0000-0000-000000000001"
-
+def test_prepare_site_url_uses_existing_submit_url_for_prolific() -> None:
     url = nk.prepare_site_url(
-        site_url=f"https://nodekit.example/s/{site_id}",
+        site_url="https://nodekit.example/task?nodekitSubmitTo=https%3A%2F%2Fnodekit.example%2Fsubmit",
         platform="prolific",
         prolific_completion_code="complete-123",
     )
 
-    assert _query(url)["nodekitSubmitTo"] == [f"https://nodekit.example/s/{site_id}/submit"]
+    assert _query(url)["nodekitSubmitTo"] == ["https://nodekit.example/submit"]
 
 
 def test_prepare_site_url_rejects_prolific_without_submit_url() -> None:

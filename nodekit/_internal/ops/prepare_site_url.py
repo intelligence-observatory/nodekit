@@ -2,7 +2,6 @@
 
 from typing import Literal
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
-from uuid import UUID
 
 
 # %% Constants
@@ -50,20 +49,13 @@ def prepare_site_url(
         query=existing_query,
         key=NODEKIT_SUBMIT_TO_PARAM,
     )
-    resolved_nodekit_submit_to = (
-        nodekit_submit_to
-        or _infer_nodekit_server_submit_url(site_url=site_url)
-        or existing_nodekit_submit_to
-    )
+    resolved_nodekit_submit_to = nodekit_submit_to or existing_nodekit_submit_to
 
     if platform == "prolific":
         if prolific_completion_code is None:
             raise ValueError("prolific_completion_code is required for platform='prolific'.")
         if resolved_nodekit_submit_to is None:
-            raise ValueError(
-                "nodekit_submit_to is required for platform='prolific' unless it can be "
-                "inferred from a nodekit-server Site URL."
-            )
+            raise ValueError("nodekit_submit_to is required for platform='prolific'.")
 
     stripped_query = _strip_owned_query_params(query=existing_query, platform=platform)
     prepared_query = list(stripped_query)
@@ -106,27 +98,3 @@ def _strip_owned_query_params(
         owned_params.update(PROLIFIC_PARAMS)
         owned_params.update(MTURK_PARAMS)
     return [(key, value) for key, value in query if key not in owned_params]
-
-
-def _infer_nodekit_server_submit_url(site_url: str) -> str | None:
-    split_url = urlsplit(site_url)
-    site_path = split_url.path.rstrip("/")
-    path_parts = site_path.split("/")
-
-    if len(path_parts) < 3 or path_parts[-2] != "s":
-        return None
-
-    try:
-        UUID(path_parts[-1])
-    except ValueError:
-        return None
-
-    return urlunsplit(
-        (
-            split_url.scheme,
-            split_url.netloc,
-            f"{site_path}/submit",
-            "",
-            "",
-        )
-    )
