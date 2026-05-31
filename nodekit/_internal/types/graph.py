@@ -1,4 +1,6 @@
-from typing import Literal, Self, Union
+from __future__ import annotations
+
+from typing import Literal, Self
 
 import pydantic
 
@@ -6,7 +8,7 @@ from nodekit import VERSION, Node
 from nodekit._internal.version import validate_compatible_nodekit_version
 from nodekit._internal.types import expressions as expressions
 from nodekit._internal.types.transitions import Transition, Go, IfThenElse, End
-from nodekit._internal.types.values import NodeId, RegisterId, LeafValue, JsonValue
+from nodekit._internal.types.values import NodeAddress, NodeId, RegisterId, LeafValue, JsonValue
 
 
 # %%
@@ -14,7 +16,7 @@ class Graph(pydantic.BaseModel):
     type: Literal["Graph"] = "Graph"
     nodekit_version: str = pydantic.Field(default=VERSION, validate_default=True)
 
-    nodes: dict[NodeId, Union[Node, "Graph"]] = pydantic.Field(
+    nodes: dict[NodeId, Node | Graph] = pydantic.Field(
         description="The set of Nodes in the Graph, by NodeId. Note that a Graph can contain other Graphs as Nodes.",
     )
 
@@ -38,6 +40,47 @@ class Graph(pydantic.BaseModel):
     @classmethod
     def validate_nodekit_version(cls, value: str) -> str:
         return validate_compatible_nodekit_version(value)
+
+    def get_node_at(self, node_address: NodeAddress) -> Node | Graph:
+        """Return the Node or nested Graph at a NodeAddress.
+
+        Args:
+            node_address: The address to resolve from this Graph.
+
+        Returns:
+            The Node or nested Graph at the given address.
+
+        Raises:
+            ValueError: If the NodeAddress is empty, or if the NodeAddress
+                tries to descend through a Node instead of a nested Graph.
+            KeyError: If any NodeId in the NodeAddress does not exist.
+        """
+        if len(node_address) == 0:
+            raise ValueError("NodeAddress must contain at least one NodeId.")
+
+        current_graph = self
+        current_node: Node | Graph
+        for depth, node_id in enumerate(node_address):
+            try:
+                current_node = current_graph.nodes[node_id]
+            except KeyError:
+                raise KeyError(
+                    f"NodeAddress {node_address} could not be resolved. "
+                    f"Missing NodeId {node_id!r} at position {depth}."
+                ) from None
+
+            if depth == len(node_address) - 1:
+                return current_node
+
+            if not isinstance(current_node, Graph):
+                raise ValueError(
+                    f"NodeAddress {node_address} cannot descend through "
+                    f"non-Graph Node {node_id!r} at position {depth}."
+                )
+
+            current_graph = current_node
+
+        raise RuntimeError("Unhandled empty NodeAddress.")
 
     @pydantic.model_validator(mode="after")
     def check_graph_is_valid(
