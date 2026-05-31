@@ -2,16 +2,19 @@
 
 import gzip
 from collections.abc import Iterable
-from uuid import uuid4
+from typing import Annotated
+from uuid import UUID, uuid4
 
 import fastapi
 import sqlmodel
+from sqlalchemy import and_, or_
 
 from nodekit import Graph
 from nodekit._internal.ops.transform_asset_locators import transform_asset_locators
 from nodekit._internal.types.assets import URL
 from nodekit._internal.utils.iter_assets import iter_assets
 import nodekit.server.contracts as contracts
+from nodekit.server.pagination import decode_timestamp_id_cursor, encode_timestamp_id_cursor
 from nodekit.server.values import SiteId, UserId
 from nodekit.values import MediaType, SHA256
 from nodekit_server.auth import UserDep
@@ -96,6 +99,10 @@ def _gzip_graph_json(graph: Graph) -> bytes:
     return gzip.compress(graph.model_dump_json().encode("utf-8"), mtime=0)
 
 
+def _gunzip_graph_json(payload: bytes) -> Graph:
+    return Graph.model_validate_json(gzip.decompress(payload).decode("utf-8"))
+
+
 def _get_or_create_tag(
     session: sqlmodel.Session,
     user_id: UserId,
@@ -129,6 +136,167 @@ def _dedupe_tags(tags: Iterable[str]) -> tuple[str, ...]:
         seen.add(tag)
         deduped.append(tag)
     return tuple(deduped)
+
+
+def _get_site_record_for_user(
+    session: sqlmodel.Session,
+    user_id: UserId,
+    site_id: SiteId,
+) -> SiteRecord:
+    site_record = session.get(SiteRecord, site_id)
+    if site_record is None or site_record.user_id != user_id:
+        raise fastapi.HTTPException(
+            status_code=fastapi.status.HTTP_404_NOT_FOUND,
+            detail="Site not found.",
+        )
+    return site_record
+
+
+def _ensure_path_body_site_match(path_site_id: SiteId, body_site_id: SiteId) -> None:
+    if path_site_id != body_site_id:
+        raise fastapi.HTTPException(
+            status_code=fastapi.status.HTTP_400_BAD_REQUEST,
+            detail="Path site_id does not match request body site_id.",
+        )
+
+
+def _get_site_tags(
+    session: sqlmodel.Session,
+    user_id: UserId,
+    site_id: SiteId,
+) -> tuple[str, ...]:
+    statement = sqlmodel.select(TagRecord.name)
+    statement = statement.join(
+        SiteTagRecord,
+        sqlmodel.col(TagRecord.tag_id) == sqlmodel.col(SiteTagRecord.tag_id),
+    )
+    statement = statement.where(sqlmodel.col(SiteTagRecord.site_id) == site_id)
+    statement = statement.where(sqlmodel.col(TagRecord.user_id) == user_id)
+    statement = statement.where(sqlmodel.col(TagRecord.is_archived) == False)  # noqa: E712
+    statement = statement.order_by(
+        sqlmodel.col(SiteTagRecord.timestamp_created),
+        sqlmodel.col(TagRecord.name),
+    )
+    return tuple(session.exec(statement).all())
+
+
+def _get_site_asset_items(
+    session: sqlmodel.Session,
+    site_id: SiteId,
+) -> tuple[contracts.SiteAssetItem, ...]:
+    statement = sqlmodel.select(SiteAssetDependencyRecord)
+    statement = statement.where(sqlmodel.col(SiteAssetDependencyRecord.site_id) == site_id)
+    statement = statement.order_by(
+        sqlmodel.col(SiteAssetDependencyRecord.timestamp_created),
+        sqlmodel.col(SiteAssetDependencyRecord.sha256),
+        sqlmodel.col(SiteAssetDependencyRecord.media_type),
+    )
+    dependency_records = session.exec(statement).all()
+
+    items: list[contracts.SiteAssetItem] = []
+    for dependency_record in dependency_records:
+        identifier = contracts.AssetIdentifier(
+            sha256=dependency_record.sha256,
+            media_type=dependency_record.media_type,
+        )
+        asset_records = _select_asset_records(session=session, identifiers=(identifier,))
+        asset_record = asset_records.get(_asset_key(identifier))
+        if asset_record is not None:
+            items.append(_asset_record_to_item(asset_record))
+    return tuple(items)
+
+
+def _site_list_item(
+    request: fastapi.Request,
+    settings: ServerSettings,
+    session: sqlmodel.Session,
+    user_id: UserId,
+    site_record: SiteRecord,
+) -> contracts.ListSitesItem:
+    return contracts.ListSitesItem(
+        site_id=site_record.site_id,
+        user_id=site_record.user_id,
+        url=_site_url(request=request, settings=settings, site_id=site_record.site_id),
+        tags=_get_site_tags(session=session, user_id=user_id, site_id=site_record.site_id),
+        is_archived=site_record.is_archived,
+        timestamp_created=as_utc(site_record.timestamp_created),
+    )
+
+
+def _site_detail_response(
+    request: fastapi.Request,
+    settings: ServerSettings,
+    session: sqlmodel.Session,
+    user_id: UserId,
+    site_record: SiteRecord,
+) -> contracts.GetSiteResponse:
+    return contracts.GetSiteResponse(
+        site_id=site_record.site_id,
+        user_id=site_record.user_id,
+        url=_site_url(request=request, settings=settings, site_id=site_record.site_id),
+        tags=_get_site_tags(session=session, user_id=user_id, site_id=site_record.site_id),
+        is_archived=site_record.is_archived,
+        timestamp_created=as_utc(site_record.timestamp_created),
+        graph=_gunzip_graph_json(site_record.graph_json_gzip),
+        assets=_get_site_asset_items(session=session, site_id=site_record.site_id),
+    )
+
+
+def _site_mutation_response(
+    request: fastapi.Request,
+    settings: ServerSettings,
+    session: sqlmodel.Session,
+    user_id: UserId,
+    site_record: SiteRecord,
+) -> dict[str, object]:
+    return {
+        "site_id": site_record.site_id,
+        "user_id": site_record.user_id,
+        "url": _site_url(request=request, settings=settings, site_id=site_record.site_id),
+        "tags": _get_site_tags(session=session, user_id=user_id, site_id=site_record.site_id),
+        "is_archived": site_record.is_archived,
+        "timestamp_created": as_utc(site_record.timestamp_created),
+    }
+
+
+def _tag_site_id_subquery(
+    user_id: UserId,
+    tag_name: str,
+):
+    statement = sqlmodel.select(SiteTagRecord.site_id)
+    statement = statement.join(
+        TagRecord,
+        sqlmodel.col(SiteTagRecord.tag_id) == sqlmodel.col(TagRecord.tag_id),
+    )
+    statement = statement.where(sqlmodel.col(TagRecord.user_id) == user_id)
+    statement = statement.where(sqlmodel.col(TagRecord.name) == tag_name)
+    statement = statement.where(sqlmodel.col(TagRecord.is_archived) == False)  # noqa: E712
+    return statement
+
+
+def _apply_page_cursor(
+    statement,
+    page_cursor: str,
+):
+    try:
+        cursor = decode_timestamp_id_cursor(page_cursor)
+        cursor_site_id = UUID(cursor.id)
+    except ValueError as exc:
+        raise fastapi.HTTPException(
+            status_code=fastapi.status.HTTP_400_BAD_REQUEST,
+            detail="Invalid page cursor.",
+        ) from exc
+
+    cursor_timestamp = cursor.timestamp_created.replace(tzinfo=None)
+    return statement.where(
+        or_(
+            sqlmodel.col(SiteRecord.timestamp_created) < cursor_timestamp,
+            and_(
+                sqlmodel.col(SiteRecord.timestamp_created) == cursor_timestamp,
+                sqlmodel.col(SiteRecord.site_id) < cursor_site_id,
+            ),
+        )
+    )
 
 
 # %% Create Site
@@ -209,4 +377,216 @@ def create_site(
         timestamp_created=as_utc(site_record.timestamp_created),
         graph=normalized_graph,
         assets=asset_items,
+    )
+
+
+# %% List Sites
+@router.get("/sites")
+def list_sites(
+    request: fastapi.Request,
+    query: Annotated[contracts.ListSitesQuery, fastapi.Query()],
+    session: SessionDep,
+    user: UserDep,
+    settings: SettingsDep,
+) -> contracts.ListSitesResponse:
+    """List Sites owned by the current user."""
+
+    statement = sqlmodel.select(SiteRecord)
+    statement = statement.where(SiteRecord.user_id == user.user_id)
+
+    if query.site_ids is not None:
+        statement = statement.where(sqlmodel.col(SiteRecord.site_id).in_(query.site_ids))
+    if not query.include_archived:
+        statement = statement.where(SiteRecord.is_archived == False)  # noqa: E712
+
+    for tag_name in _dedupe_tags(query.tags or ()):
+        statement = statement.where(
+            sqlmodel.col(SiteRecord.site_id).in_(_tag_site_id_subquery(user.user_id, tag_name))
+        )
+
+    if query.page_cursor is not None:
+        statement = _apply_page_cursor(statement=statement, page_cursor=query.page_cursor)
+
+    statement = statement.order_by(
+        sqlmodel.col(SiteRecord.timestamp_created).desc(),
+        sqlmodel.col(SiteRecord.site_id).desc(),
+    )
+    statement = statement.limit(query.max_items + 1)
+    site_records = session.exec(statement).all()
+    page_records = site_records[: query.max_items]
+
+    items = [
+        _site_list_item(
+            request=request,
+            settings=settings,
+            session=session,
+            user_id=user.user_id,
+            site_record=site_record,
+        )
+        for site_record in page_records
+    ]
+
+    next_page_cursor = None
+    if len(site_records) > query.max_items and page_records:
+        last_record = page_records[-1]
+        next_page_cursor = encode_timestamp_id_cursor(
+            timestamp_created=as_utc(last_record.timestamp_created),
+            id=last_record.site_id,
+        )
+
+    return contracts.ListSitesResponse(
+        items=items,
+        next_page_cursor=next_page_cursor,
+    )
+
+
+# %% Get Site
+@router.get("/sites/{site_id}")
+def get_site(
+    request: fastapi.Request,
+    site_id: SiteId,
+    session: SessionDep,
+    user: UserDep,
+    settings: SettingsDep,
+) -> contracts.GetSiteResponse:
+    """Return one Site owned by the current user."""
+
+    site_record = _get_site_record_for_user(
+        session=session,
+        user_id=user.user_id,
+        site_id=site_id,
+    )
+    return _site_detail_response(
+        request=request,
+        settings=settings,
+        session=session,
+        user_id=user.user_id,
+        site_record=site_record,
+    )
+
+
+# %% Archive Site
+@router.post("/sites/{site_id}/archive")
+def archive_site(
+    request: fastapi.Request,
+    site_id: SiteId,
+    archive_site_request: contracts.ArchiveSiteRequest,
+    session: SessionDep,
+    user: UserDep,
+    settings: SettingsDep,
+) -> contracts.ArchiveSiteResponse:
+    """Archive one Site owned by the current user."""
+
+    _ensure_path_body_site_match(
+        path_site_id=site_id,
+        body_site_id=archive_site_request.site_id,
+    )
+    site_record = _get_site_record_for_user(
+        session=session,
+        user_id=user.user_id,
+        site_id=site_id,
+    )
+    site_record.is_archived = True
+    session.add(site_record)
+    session.commit()
+    session.refresh(site_record)
+    return contracts.ArchiveSiteResponse.model_validate(
+        _site_mutation_response(
+            request=request,
+            settings=settings,
+            session=session,
+            user_id=user.user_id,
+            site_record=site_record,
+        )
+    )
+
+
+# %% Add Site Tags
+@router.post("/sites/{site_id}/tags")
+def add_site_tags(
+    request: fastapi.Request,
+    site_id: SiteId,
+    add_site_tags_request: contracts.AddSiteTagsRequest,
+    session: SessionDep,
+    user: UserDep,
+    settings: SettingsDep,
+) -> contracts.AddSiteTagsResponse:
+    """Attach user-scoped Tags to a Site."""
+
+    _ensure_path_body_site_match(
+        path_site_id=site_id,
+        body_site_id=add_site_tags_request.site_id,
+    )
+    site_record = _get_site_record_for_user(
+        session=session,
+        user_id=user.user_id,
+        site_id=site_id,
+    )
+
+    for tag in _dedupe_tags(add_site_tags_request.tags):
+        tag_record = _get_or_create_tag(session=session, user_id=user.user_id, name=tag)
+        existing_statement = sqlmodel.select(SiteTagRecord)
+        existing_statement = existing_statement.where(SiteTagRecord.site_id == site_id)
+        existing_statement = existing_statement.where(SiteTagRecord.tag_id == tag_record.tag_id)
+        if session.exec(existing_statement).one_or_none() is None:
+            session.add(SiteTagRecord(site_id=site_id, tag_id=tag_record.tag_id))
+
+    session.commit()
+    session.refresh(site_record)
+    return contracts.AddSiteTagsResponse.model_validate(
+        _site_mutation_response(
+            request=request,
+            settings=settings,
+            session=session,
+            user_id=user.user_id,
+            site_record=site_record,
+        )
+    )
+
+
+# %% Remove Site Tags
+@router.post("/sites/{site_id}/tags/remove")
+def remove_site_tags(
+    request: fastapi.Request,
+    site_id: SiteId,
+    remove_site_tags_request: contracts.RemoveSiteTagsRequest,
+    session: SessionDep,
+    user: UserDep,
+    settings: SettingsDep,
+) -> contracts.RemoveSiteTagsResponse:
+    """Detach user-scoped Tags from a Site."""
+
+    _ensure_path_body_site_match(
+        path_site_id=site_id,
+        body_site_id=remove_site_tags_request.site_id,
+    )
+    site_record = _get_site_record_for_user(
+        session=session,
+        user_id=user.user_id,
+        site_id=site_id,
+    )
+
+    for tag in _dedupe_tags(remove_site_tags_request.tags):
+        statement = sqlmodel.select(SiteTagRecord)
+        statement = statement.join(
+            TagRecord,
+            sqlmodel.col(SiteTagRecord.tag_id) == sqlmodel.col(TagRecord.tag_id),
+        )
+        statement = statement.where(sqlmodel.col(SiteTagRecord.site_id) == site_id)
+        statement = statement.where(sqlmodel.col(TagRecord.user_id) == user.user_id)
+        statement = statement.where(sqlmodel.col(TagRecord.name) == tag)
+        site_tag_record = session.exec(statement).one_or_none()
+        if site_tag_record is not None:
+            session.delete(site_tag_record)
+
+    session.commit()
+    session.refresh(site_record)
+    return contracts.RemoveSiteTagsResponse.model_validate(
+        _site_mutation_response(
+            request=request,
+            settings=settings,
+            session=session,
+            user_id=user.user_id,
+            site_record=site_record,
+        )
     )

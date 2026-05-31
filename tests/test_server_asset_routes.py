@@ -287,3 +287,179 @@ def test_create_site_persists_normalized_graph(
         )
         assert len(session.exec(dependency_statement).all()) == 3
         assert len(session.exec(tag_statement).all()) == 2
+
+
+# %%
+def _upload_graph_assets(
+    authenticated_client: TestClient,
+    graph: nk.Graph,
+) -> None:
+    for asset in iter_assets(graph=graph):
+        assert isinstance(asset.locator, FileSystemPath)
+        asset_path = asset.locator.path
+        authenticated_client.post(
+            "/assets",
+            data={
+                "sha256": asset.sha256,
+                "media_type": asset.media_type,
+            },
+            files={
+                "file": (
+                    asset_path.name,
+                    asset_path.read_bytes(),
+                    asset.media_type,
+                )
+            },
+        ).raise_for_status()
+
+
+def _create_site(
+    authenticated_client: TestClient,
+    graph: nk.Graph,
+    tags: list[str],
+) -> dict[str, Any]:
+    response = authenticated_client.post(
+        "/sites",
+        json={
+            "graph": graph.model_dump(mode="json"),
+            "tags": tags,
+        },
+    )
+    response.raise_for_status()
+    return response.json()
+
+
+# %%
+def test_site_management_routes(
+    authenticated_client: TestClient,
+    graph_with_assets: nk.Graph,
+) -> None:
+    _upload_graph_assets(authenticated_client, graph_with_assets)
+    first_site = _create_site(
+        authenticated_client=authenticated_client,
+        graph=graph_with_assets,
+        tags=["shared", "route-a"],
+    )
+    second_site = _create_site(
+        authenticated_client=authenticated_client,
+        graph=graph_with_assets,
+        tags=["shared", "route-b"],
+    )
+
+    get_response = authenticated_client.get(f"/sites/{first_site['site_id']}")
+    assert get_response.status_code == 200
+    get_body = get_response.json()
+    assert get_body["site_id"] == first_site["site_id"]
+    assert get_body["tags"] == ["shared", "route-a"]
+    assert len(get_body["assets"]) == 3
+    assert nk.Graph.model_validate(get_body["graph"])
+
+    filtered_response = authenticated_client.get(
+        "/sites",
+        params=[("tags", "route-a")],
+    )
+    assert filtered_response.status_code == 200
+    filtered_body = filtered_response.json()
+    assert [item["site_id"] for item in filtered_body["items"]] == [first_site["site_id"]]
+    assert filtered_body["next_page_cursor"] is None
+
+    first_page_response = authenticated_client.get(
+        "/sites",
+        params=[("tags", "shared"), ("max_items", "1")],
+    )
+    assert first_page_response.status_code == 200
+    first_page = first_page_response.json()
+    assert len(first_page["items"]) == 1
+    assert first_page["items"][0]["site_id"] in {
+        first_site["site_id"],
+        second_site["site_id"],
+    }
+    assert first_page["next_page_cursor"] is not None
+
+    second_page_response = authenticated_client.get(
+        "/sites",
+        params=[
+            ("tags", "shared"),
+            ("max_items", "1"),
+            ("page_cursor", first_page["next_page_cursor"]),
+        ],
+    )
+    assert second_page_response.status_code == 200
+    second_page = second_page_response.json()
+    assert len(second_page["items"]) == 1
+    paged_site_ids = {
+        first_page["items"][0]["site_id"],
+        second_page["items"][0]["site_id"],
+    }
+    assert paged_site_ids == {first_site["site_id"], second_site["site_id"]}
+    assert second_page["next_page_cursor"] is None
+
+    add_tags_response = authenticated_client.post(
+        f"/sites/{first_site['site_id']}/tags",
+        json={
+            "site_id": first_site["site_id"],
+            "tags": ["extra", "shared"],
+        },
+    )
+    assert add_tags_response.status_code == 200
+    assert add_tags_response.json()["tags"] == ["shared", "route-a", "extra"]
+
+    remove_tags_response = authenticated_client.post(
+        f"/sites/{first_site['site_id']}/tags/remove",
+        json={
+            "site_id": first_site["site_id"],
+            "tags": ["shared"],
+        },
+    )
+    assert remove_tags_response.status_code == 200
+    assert remove_tags_response.json()["tags"] == ["route-a", "extra"]
+
+    archive_response = authenticated_client.post(
+        f"/sites/{first_site['site_id']}/archive",
+        json={"site_id": first_site["site_id"]},
+    )
+    assert archive_response.status_code == 200
+    assert archive_response.json()["is_archived"] is True
+
+    default_list_response = authenticated_client.get(
+        "/sites",
+        params=[("site_ids", first_site["site_id"])],
+    )
+    assert default_list_response.status_code == 200
+    assert default_list_response.json()["items"] == []
+
+    archived_list_response = authenticated_client.get(
+        "/sites",
+        params=[
+            ("site_ids", first_site["site_id"]),
+            ("include_archived", "true"),
+        ],
+    )
+    assert archived_list_response.status_code == 200
+    archived_items = archived_list_response.json()["items"]
+    assert len(archived_items) == 1
+    assert archived_items[0]["site_id"] == first_site["site_id"]
+    assert archived_items[0]["is_archived"] is True
+
+
+# %%
+def test_site_mutation_routes_reject_path_body_mismatch(
+    authenticated_client: TestClient,
+    graph_with_assets: nk.Graph,
+) -> None:
+    _upload_graph_assets(authenticated_client, graph_with_assets)
+    site = _create_site(
+        authenticated_client=authenticated_client,
+        graph=graph_with_assets,
+        tags=[],
+    )
+
+    response = authenticated_client.post(
+        f"/sites/{site['site_id']}/archive",
+        json={"site_id": "00000000-0000-0000-0000-000000000000"},
+    )
+
+    assert response.status_code == 400
+    assert response.json() == {
+        "detail": "Path site_id does not match request body site_id.",
+    }
