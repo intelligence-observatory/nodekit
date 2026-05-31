@@ -20,20 +20,26 @@ class Trace(pydantic.BaseModel):
         return validate_compatible_nodekit_version(value)
 
     def list_action_records(self) -> list[dict[str, object]]:
-        """Project the Trace to one action record per completed Node.
+        """Project the [Trace][nodekit.Trace] to one action record per completed [Node][nodekit.Node].
 
-        Each record pairs one NodeStartedEvent, one ActionTakenEvent, and one
-        NodeEndedEvent with the same Node address. Non-Node lifecycle Events, such as
+        Each record pairs one [NodeStartedEvent][nodekit.events.NodeStartedEvent],
+        one [ActionTakenEvent][nodekit.events.ActionTakenEvent], and one
+        [NodeEndedEvent][nodekit.events.NodeEndedEvent] with the same
+        [NodeAddress][nodekit.values.NodeAddress]. Non-Node lifecycle Events, such as
         pointer and key samples, are ignored.
 
+        Each record contains the following keys:
+
+        - ``step_index``: The zero-based index of the action record in the Trace.
+        - ``node_address``: The [NodeAddress][nodekit.values.NodeAddress] of the Node.
+        - ``action_type``: The [Action][nodekit.actions.Action] type.
+        - ``action_value``: The Action value.
+        - ``t_start``: The timestamp of the [NodeStartedEvent][nodekit.events.NodeStartedEvent].
+        - ``t_action``: The timestamp of the [ActionTakenEvent][nodekit.events.ActionTakenEvent].
+        - ``t_end``: The timestamp of the [NodeEndedEvent][nodekit.events.NodeEndedEvent].
+
         Returns:
-            A list of action records in Trace order. Each record contains:
-                - ``node_address``: The NodeAddress of the Node.
-                - ``t_start``: The timestamp of the NodeStartedEvent.
-                - ``action_type``: The Action discriminator.
-                - ``action_value``: The Action value.
-                - ``t_action``: The timestamp of the ActionTakenEvent.
-                - ``t_end``: The timestamp of the NodeEndedEvent.
+            A list of action records in Trace order.
 
         Raises:
             ValueError: If Node lifecycle Events do not appear in strict
@@ -96,6 +102,7 @@ class Trace(pydantic.BaseModel):
 
                 action_records.append(
                     {
+                        "step_index": len(action_records),
                         "node_address": active_node_address,
                         "t_start": active_t_start,
                         "action_type": active_action.action_type,
