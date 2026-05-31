@@ -21,6 +21,7 @@ dependencies = [
     "boto3>=1.40.55",
     "matplotlib>=3.10.8",
     "pandas>=2.3.3",
+    "sqlmodel>=0.0.38",
 ]
 
 [dependency-groups]

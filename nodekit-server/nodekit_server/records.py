@@ -1,80 +1,99 @@
-"""Pydantic record models for the NodeKit deployment service."""
+"""SQLModel record models for the NodeKit deployment service."""
 
+from typing import ClassVar
 from uuid import UUID
 
-import pydantic
+from sqlalchemy import Column, LargeBinary, String
+from sqlmodel import Field, SQLModel
 
-from nodekit import Graph, SiteSubmission
 from nodekit.values import MediaType, SHA256
 
 
 # %%
-class UserRecord(pydantic.BaseModel):
+class UserRecord(SQLModel, table=True):
     """A user who can own GraphLinks."""
 
-    user_id: UUID
-    username: str = pydantic.Field(description="A display username. It does not need to be unique.")
+    __tablename__: ClassVar[str] = "users"
+
+    user_id: UUID = Field(primary_key=True)
+    username: str = Field(description="A display username. It does not need to be unique.")
     is_admin: bool = False
 
 
 # %%
-class TagRecord(pydantic.BaseModel):
+class TagRecord(SQLModel, table=True):
     """A user-owned label for finding related GraphLinks."""
 
-    tag_id: UUID
-    user: UserRecord
-    name: str = pydantic.Field(min_length=1)
+    __tablename__: ClassVar[str] = "tags"
+
+    tag_id: UUID = Field(primary_key=True)
+    user_id: UUID = Field(foreign_key="users.user_id")
+    name: str = Field(min_length=1)
     is_archived: bool = False
 
 
 # %%
-class GraphLinkRecord(pydantic.BaseModel):
+class GraphLinkRecord(SQLModel, table=True):
     """A frozen, participant-facing link for running a Graph."""
 
-    graph_link_id: UUID
-    user: UserRecord
-    graph: Graph = pydantic.Field(
-        description="The frozen Graph for this GraphLink, with server-owned Asset locators."
+    __tablename__: ClassVar[str] = "graph_links"
+
+    graph_link_id: UUID = Field(primary_key=True)
+    user_id: UUID = Field(foreign_key="users.user_id")
+    graph_json_gzip: bytes = Field(
+        sa_column=Column(LargeBinary, nullable=False),
+        description="Gzipped JSON bytes for the frozen Graph with server-owned Asset locators.",
     )
+    is_archived: bool = False
 
 
 # %%
-class GraphLinkAssetDependencyRecord(pydantic.BaseModel):
+class GraphLinkAssetDependencyRecord(SQLModel, table=True):
     """Association between a GraphLink and one of its stored Assets."""
 
-    graph_link_id: UUID
-    sha256: SHA256
-    media_type: MediaType
+    __tablename__: ClassVar[str] = "graph_link_asset_dependencies"
+
+    graph_link_id: UUID = Field(foreign_key="graph_links.graph_link_id", primary_key=True)
+    sha256: SHA256 = Field(sa_column=Column(String(64), primary_key=True))
+    media_type: MediaType = Field(sa_column=Column(String, primary_key=True))
 
 
 # %%
-class GraphLinkTagRecord(pydantic.BaseModel):
+class GraphLinkTagRecord(SQLModel, table=True):
     """Association between a GraphLink and one of its Tags."""
 
-    graph_link_id: UUID
-    tag_id: UUID
+    __tablename__: ClassVar[str] = "graph_link_tags"
+
+    graph_link_id: UUID = Field(foreign_key="graph_links.graph_link_id", primary_key=True)
+    tag_id: UUID = Field(foreign_key="tags.tag_id", primary_key=True)
 
 
 # %%
-class AssetRecord(pydantic.BaseModel):
+class AssetRecord(SQLModel, table=True):
     """Server-side record for Asset bytes stored outside the Graph."""
 
-    sha256: SHA256
-    media_type: MediaType
-    size_bytes: int = pydantic.Field(ge=0)
-    storage_key: str = pydantic.Field(
+    __tablename__: ClassVar[str] = "assets"
+
+    sha256: SHA256 = Field(sa_column=Column(String(64), primary_key=True))
+    media_type: MediaType = Field(sa_column=Column(String, primary_key=True))
+    size_bytes: int = Field(ge=0)
+    storage_key: str = Field(
         min_length=1,
         description="Storage-provider key for the Asset bytes, such as an S3 key or file path.",
     )
 
 
 # %%
-class RunRecord(pydantic.BaseModel):
+class RunRecord(SQLModel, table=True):
     """One participant attempt against a GraphLink."""
 
-    run_id: UUID
-    graph_link_id: UUID
-    site_submission: SiteSubmission | None = pydantic.Field(
+    __tablename__: ClassVar[str] = "runs"
+
+    run_id: UUID = Field(primary_key=True)
+    graph_link_id: UUID = Field(foreign_key="graph_links.graph_link_id")
+    site_submission_json_gzip: bytes | None = Field(
         default=None,
-        description="The submitted site payload, if the Run has completed.",
+        sa_column=Column(LargeBinary, nullable=True),
+        description="Gzipped JSON bytes for the submitted site payload, if the Run has completed.",
     )
+    is_archived: bool = False
