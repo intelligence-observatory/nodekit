@@ -22,6 +22,7 @@ dependencies = [
     "matplotlib>=3.10.8",
     "pandas>=2.3.3",
     "sqlmodel>=0.0.38",
+    "pydantic-settings>=2.14.1",
 ]
 
 [dependency-groups]
