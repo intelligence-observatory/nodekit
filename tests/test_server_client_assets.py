@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 from typing import Any
+from uuid import uuid4
 
 import httpx
 
@@ -99,3 +100,66 @@ def test_upload_asset_sends_multipart_asset_bytes() -> None:
     assert asset_path.read_bytes() in captured["body"]
     assert response.asset.sha256 == asset.sha256
     assert response.asset.media_type == asset.media_type
+
+
+# %%
+def test_create_site_preflights_and_uploads_missing_assets(graph_with_assets: nk.Graph) -> None:
+    site_id = uuid4()
+    user_id = uuid4()
+    captured: dict[str, Any] = {"paths": [], "uploads": []}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        captured["paths"].append(request.url.path)
+        if request.url.path == "/assets/check":
+            body = json.loads(request.content)
+            captured["check_body"] = body
+            missing = body["assets"][:1]
+            captured["missing"] = missing
+            return httpx.Response(200, json={"missing": missing})
+
+        if request.url.path == "/assets":
+            captured["uploads"].append(request.content)
+            missing = captured["missing"][0]
+            return httpx.Response(
+                200,
+                json={
+                    "asset": {
+                        "sha256": missing["sha256"],
+                        "media_type": missing["media_type"],
+                        "size_bytes": len(request.content),
+                        "url": f"https://nodekit.example/assets/{missing['sha256']}",
+                    }
+                },
+            )
+
+        if request.url.path == "/sites":
+            body = json.loads(request.content)
+            captured["site_body"] = body
+            return httpx.Response(
+                200,
+                json={
+                    "site_id": str(site_id),
+                    "user_id": str(user_id),
+                    "url": f"https://nodekit.example/s/{site_id}",
+                    "tags": body["tags"],
+                    "is_archived": False,
+                    "graph": body["graph"],
+                    "assets": [],
+                },
+            )
+
+        raise AssertionError(request.url)
+
+    client = nk_server.Client(
+        api_url="https://nodekit.example",
+        api_token="secret",
+        transport=httpx.MockTransport(handler),
+    )
+
+    response = client.create_site(graph=graph_with_assets, tags=("pilot",))
+
+    assert captured["paths"] == ["/assets/check", "/assets", "/sites"]
+    assert len(captured["check_body"]["assets"]) == 3
+    assert len(captured["uploads"]) == 1
+    assert captured["site_body"]["tags"] == ["pilot"]
+    assert response.site_id == site_id

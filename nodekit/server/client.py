@@ -9,6 +9,7 @@ import pydantic
 from nodekit import Graph
 from nodekit.assets import Asset
 from nodekit._internal.ops.open_asset_save_asset import open_asset
+from nodekit._internal.utils.iter_assets import iter_assets
 import nodekit.server.contracts as contracts
 from nodekit.server.pagination import PageResponse
 from nodekit.server.values import ApiTokenId, RunId, RunStatus, SiteId, UserId
@@ -105,6 +106,23 @@ class Client:
         graph: Graph,
         tags: Iterable[str] = (),
     ) -> contracts.CreateSiteResponse:
+        graph_assets = tuple(iter_assets(graph=graph))
+        if graph_assets:
+            check_assets_response = self.check_assets(assets=graph_assets)
+            missing_asset_keys = {
+                (identifier.sha256, identifier.media_type)
+                for identifier in check_assets_response.missing
+            }
+            uploaded_asset_keys: set[tuple[str, str]] = set()
+            for asset in graph_assets:
+                asset_key = (asset.sha256, asset.media_type)
+                if asset_key not in missing_asset_keys:
+                    continue
+                if asset_key in uploaded_asset_keys:
+                    continue
+                self.upload_asset(asset=asset)
+                uploaded_asset_keys.add(asset_key)
+
         request = contracts.CreateSiteRequest(graph=graph, tags=tuple(tags))
         return self._request("POST", "/sites", contracts.CreateSiteResponse, request=request)
 

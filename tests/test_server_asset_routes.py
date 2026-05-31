@@ -2,15 +2,21 @@ import hashlib
 import importlib
 import os
 import sys
+import gzip
 from collections.abc import Iterator
 from pathlib import Path
 from types import ModuleType
+from typing import Any
+from uuid import UUID
 
 import pytest
+import sqlmodel
 from fastapi.testclient import TestClient
 from sqlmodel import SQLModel
 
 import nodekit as nk
+from nodekit._internal.types.assets import FileSystemPath, URL
+from nodekit._internal.utils.iter_assets import iter_assets
 
 
 SERVER_ROOT = Path(__file__).parents[1] / "nodekit-server"
@@ -170,3 +176,106 @@ def test_asset_routes_require_auth(server_main: ModuleType) -> None:
         )
 
     assert response.status_code == 401
+
+
+# %%
+def test_create_site_rejects_missing_assets(authenticated_client: TestClient) -> None:
+    missing_asset = nk.assets.Image(
+        sha256="0" * 64,
+        media_type="image/png",
+        locator=FileSystemPath(path=ASSET_DIR / "fixation-cross.svg"),
+    )
+    graph = nk.Graph(
+        nodes={
+            "start": nk.Node(
+                card=nk.cards.ImageCard(image=missing_asset),
+                sensor=nk.sensors.WaitSensor(duration_msec=1),
+            )
+        },
+        transitions={"start": nk.transitions.End()},
+        start="start",
+    )
+
+    response = authenticated_client.post(
+        "/sites",
+        json={"graph": graph.model_dump(mode="json"), "tags": []},
+    )
+
+    assert response.status_code == 400
+    assert response.json() == {
+        "detail": {
+            "missing": [
+                {
+                    "sha256": "0" * 64,
+                    "media_type": "image/png",
+                }
+            ]
+        }
+    }
+
+
+# %%
+def test_create_site_persists_normalized_graph(
+    authenticated_client: TestClient,
+    graph_with_assets: nk.Graph,
+    server_main: ModuleType,
+) -> None:
+    for asset in iter_assets(graph=graph_with_assets):
+        assert isinstance(asset.locator, FileSystemPath)
+        asset_path = asset.locator.path
+        authenticated_client.post(
+            "/assets",
+            data={
+                "sha256": asset.sha256,
+                "media_type": asset.media_type,
+            },
+            files={
+                "file": (
+                    asset_path.name,
+                    asset_path.read_bytes(),
+                    asset.media_type,
+                )
+            },
+        ).raise_for_status()
+
+    response = authenticated_client.post(
+        "/sites",
+        json={
+            "graph": graph_with_assets.model_dump(mode="json"),
+            "tags": ["pilot", "pilot", "main"],
+        },
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["url"] == f"http://testserver/s/{body['site_id']}"
+    assert body["tags"] == ["pilot", "main"]
+    assert len(body["assets"]) == 3
+
+    response_graph = nk.Graph.model_validate(body["graph"])
+    for asset in iter_assets(graph=response_graph):
+        assert isinstance(asset.locator, URL)
+        assert asset.locator.url == f"/assets/{asset.sha256}"
+
+    for asset in iter_assets(graph=graph_with_assets):
+        assert isinstance(asset.locator, FileSystemPath)
+
+    engine = sys.modules["nodekit_server.deps"].engine
+    records: Any = sys.modules["nodekit_server.records"]
+
+    with sqlmodel.Session(engine) as session:
+        site_id = UUID(body["site_id"])
+        site_record = session.get(records.SiteRecord, site_id)
+        assert site_record is not None
+        stored_graph_json = gzip.decompress(site_record.graph_json_gzip).decode("utf-8")
+        stored_graph = nk.Graph.model_validate_json(stored_graph_json)
+        assert all(isinstance(asset.locator, URL) for asset in iter_assets(stored_graph))
+
+        dependency_statement = sqlmodel.select(records.SiteAssetDependencyRecord).where(
+            records.SiteAssetDependencyRecord.site_id == site_id
+        )
+        tag_statement = sqlmodel.select(records.SiteTagRecord).where(
+            records.SiteTagRecord.site_id == site_id
+        )
+        assert len(session.exec(dependency_statement).all()) == 3
+        assert len(session.exec(tag_statement).all()) == 2
