@@ -8,6 +8,7 @@ from nodekit import Graph, SiteSubmission, Trace
 from nodekit.values import MediaType, SHA256
 
 from nodekit_server.enums import ExportFormat, RunStatus
+from nodekit_server.pagination import PageQuery, PageResponse
 
 
 # %% Base
@@ -34,12 +35,19 @@ class CreateTagResponse(ContractModel):
 
 
 # %% ListTags
-class ListTagsRequest(ContractModel):
+class ListTagsFilters(ContractModel):
+    tag_ids: list[UUID] | None = None
+    names: list[str] | None = None
     include_archived: bool = False
 
 
-class ListTagsResponse(ContractModel):
-    tags: tuple[TagPayload, ...]
+class ListTagsItem(TagPayload): ...
+
+
+ListTagsResponse = PageResponse[ListTagsItem]
+
+
+class ListTagsQuery(PageQuery, ListTagsFilters): ...
 
 
 # %% RenameTag
@@ -92,13 +100,19 @@ class CreateGraphLinkResponse(ContractModel):
 
 
 # %% ListGraphLinks
-class ListGraphLinksRequest(ContractModel):
-    tags: tuple[str, ...] = ()
+class ListGraphLinksFilters(ContractModel):
+    graph_link_ids: list[UUID] | None = None
+    tags: list[str] | None = None
     include_archived: bool = False
 
 
-class ListGraphLinksResponse(ContractModel):
-    graph_links: tuple[GraphLinkPayload, ...]
+class ListGraphLinksItem(GraphLinkPayload): ...
+
+
+ListGraphLinksResponse = PageResponse[ListGraphLinksItem]
+
+
+class ListGraphLinksQuery(PageQuery, ListGraphLinksFilters): ...
 
 
 # %% GetGraphLink
@@ -147,14 +161,20 @@ class RunPayload(ContractModel):
     is_archived: bool
 
 
-class ListRunsRequest(ContractModel):
+class ListRunsFilters(ContractModel):
+    run_ids: list[UUID] | None = None
     graph_link_id: UUID | None = None
-    status: RunStatus | None = None
+    statuses: list[RunStatus] | None = None
     include_archived: bool = False
 
 
-class ListRunsResponse(ContractModel):
-    runs: tuple[RunPayload, ...]
+class ListRunsItem(RunPayload): ...
+
+
+ListRunsResponse = PageResponse[ListRunsItem]
+
+
+class ListRunsQuery(PageQuery, ListRunsFilters): ...
 
 
 # %% GetRun
@@ -231,12 +251,19 @@ class CreateUserResponse(ContractModel):
 
 
 # %% ListUsers
-class ListUsersRequest(ContractModel):
+class ListUsersFilters(ContractModel):
+    user_ids: list[UUID] | None = None
+    usernames: list[str] | None = None
     include_archived: bool = False
 
 
-class ListUsersResponse(ContractModel):
-    users: tuple[UserPayload, ...]
+class ListUsersItem(UserPayload): ...
+
+
+ListUsersResponse = PageResponse[ListUsersItem]
+
+
+class ListUsersQuery(PageQuery, ListUsersFilters): ...
 
 
 # %% GetUser
@@ -287,13 +314,19 @@ class CreateApiTokenResponse(ContractModel):
 
 
 # %% ListApiTokens
-class ListApiTokensRequest(ContractModel):
+class ListApiTokensFilters(ContractModel):
+    api_token_ids: list[UUID] | None = None
     user_id: UUID | None = None
     include_revoked: bool = False
 
 
-class ListApiTokensResponse(ContractModel):
-    api_tokens: tuple[ApiTokenPayload, ...]
+class ListApiTokensItem(ApiTokenPayload): ...
+
+
+ListApiTokensResponse = PageResponse[ListApiTokensItem]
+
+
+class ListApiTokensQuery(PageQuery, ListApiTokensFilters): ...
 
 
 # %% RevokeApiToken
