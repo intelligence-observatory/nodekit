@@ -235,6 +235,7 @@ def test_list_action_records_pairs_node_lifecycle_events():
 
     assert trace.list_action_records() == [
         {
+            "step_index": 0,
             "node_address": ["start"],
             "t_start": 1,
             "action_type": "WaitAction",
@@ -243,6 +244,7 @@ def test_list_action_records_pairs_node_lifecycle_events():
             "t_end": 4,
         },
         {
+            "step_index": 1,
             "node_address": ["start"],
             "t_start": 5,
             "action_type": "WaitAction",
