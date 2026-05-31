@@ -7,6 +7,8 @@ import httpx
 import pydantic
 
 from nodekit import Graph
+from nodekit.assets import Asset
+from nodekit._internal.ops.open_asset_save_asset import open_asset
 import nodekit.server.contracts as contracts
 from nodekit.server.pagination import PageResponse
 from nodekit.server.values import ApiTokenId, RunId, RunStatus, SiteId, UserId
@@ -192,6 +194,62 @@ class Client:
             contracts.ArchiveTagResponse,
             request=request,
         )
+
+    # %% Assets
+    def check_assets(
+        self,
+        assets: Iterable[Asset | contracts.AssetIdentifier],
+    ) -> contracts.CheckAssetsResponse:
+        identifiers = self._deduplicate_asset_identifiers(assets=assets)
+        request = contracts.CheckAssetsRequest(assets=identifiers)
+        return self._request(
+            "POST",
+            "/assets/check",
+            contracts.CheckAssetsResponse,
+            request=request,
+        )
+
+    def upload_asset(self, asset: Asset) -> contracts.UploadAssetResponse:
+        headers = self._auth_headers()
+        data = {
+            "sha256": asset.sha256,
+            "media_type": asset.media_type,
+        }
+        with open_asset(asset) as file:
+            files = {
+                "file": (
+                    str(asset.sha256),
+                    file,
+                    str(asset.media_type),
+                )
+            }
+            with httpx.Client(timeout=self.timeout, transport=self.transport) as client:
+                response = client.post(
+                    url=self._url("/assets"),
+                    headers=headers,
+                    data=data,
+                    files=files,
+                )
+                response.raise_for_status()
+                return contracts.UploadAssetResponse.model_validate(response.json())
+
+    def _deduplicate_asset_identifiers(
+        self,
+        assets: Iterable[Asset | contracts.AssetIdentifier],
+    ) -> tuple[contracts.AssetIdentifier, ...]:
+        identifiers: list[contracts.AssetIdentifier] = []
+        seen: set[tuple[str, str]] = set()
+        for asset in assets:
+            identifier = contracts.AssetIdentifier(
+                sha256=asset.sha256,
+                media_type=asset.media_type,
+            )
+            key = (str(identifier.sha256), str(identifier.media_type))
+            if key in seen:
+                continue
+            seen.add(key)
+            identifiers.append(identifier)
+        return tuple(identifiers)
 
     # %% Runs
     def iter_runs(

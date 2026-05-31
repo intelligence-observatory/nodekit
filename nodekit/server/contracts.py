@@ -77,6 +77,25 @@ class SiteAssetItem(ContractModel):
     url: str | None = None
 
 
+# %% CheckAssets
+class AssetIdentifier(ContractModel):
+    sha256: SHA256
+    media_type: MediaType
+
+
+class CheckAssetsRequest(ContractModel):
+    assets: tuple[AssetIdentifier, ...]
+
+
+class CheckAssetsResponse(ContractModel):
+    missing: tuple[AssetIdentifier, ...]
+
+
+# %% UploadAsset
+class UploadAssetResponse(ContractModel):
+    asset: SiteAssetItem
+
+
 class CreateSiteResponse(ContractModel):
     site_id: SiteId
     user_id: UserId
