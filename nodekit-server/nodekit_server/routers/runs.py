@@ -6,14 +6,13 @@ from uuid import UUID
 
 import fastapi
 import sqlmodel
-from sqlalchemy import and_, or_
 
 from nodekit import SiteSubmission
 import nodekit.server.contracts as contracts
-from nodekit.server.pagination import decode_timestamp_id_cursor, encode_timestamp_id_cursor
 from nodekit.server.values import RunId
 from nodekit_server.auth import UserDep
 from nodekit_server.deps import SessionDep
+from nodekit_server.pagination import apply_timestamp_id_page_cursor, page_records
 from nodekit_server.records import RunRecord, SiteRecord, as_utc
 
 
@@ -93,31 +92,6 @@ def _get_run_record_for_user(
     return run_record
 
 
-def _apply_page_cursor(
-    statement,
-    page_cursor: str,
-):
-    try:
-        cursor = decode_timestamp_id_cursor(page_cursor)
-        cursor_run_id = UUID(cursor.id)
-    except ValueError as exc:
-        raise fastapi.HTTPException(
-            status_code=fastapi.status.HTTP_400_BAD_REQUEST,
-            detail="Invalid page cursor.",
-        ) from exc
-
-    cursor_timestamp = cursor.timestamp_created.replace(tzinfo=None)
-    return statement.where(
-        or_(
-            sqlmodel.col(RunRecord.timestamp_created) < cursor_timestamp,
-            and_(
-                sqlmodel.col(RunRecord.timestamp_created) == cursor_timestamp,
-                sqlmodel.col(RunRecord.run_id) < cursor_run_id,
-            ),
-        )
-    )
-
-
 # %% List Runs
 @router.get("/runs")
 def list_runs(
@@ -144,7 +118,12 @@ def list_runs(
         statement = statement.where(sqlmodel.col(RunRecord.is_archived) == False)  # noqa: E712
 
     if query.page_cursor is not None:
-        statement = _apply_page_cursor(statement=statement, page_cursor=query.page_cursor)
+        statement = apply_timestamp_id_page_cursor(
+            statement=statement,
+            page_cursor=query.page_cursor,
+            timestamp_column=RunRecord.timestamp_created,
+            id_column=RunRecord.run_id,
+        )
 
     statement = statement.order_by(
         sqlmodel.col(RunRecord.timestamp_created).desc(),
@@ -152,18 +131,15 @@ def list_runs(
     )
     statement = statement.limit(query.max_items + 1)
     run_records = session.exec(statement).all()
-    page_records = run_records[: query.max_items]
-
-    next_page_cursor = None
-    if len(run_records) > query.max_items and page_records:
-        last_record = page_records[-1]
-        next_page_cursor = encode_timestamp_id_cursor(
-            timestamp_created=as_utc(last_record.timestamp_created),
-            id=last_record.run_id,
-        )
+    records_page, next_page_cursor = page_records(
+        records=list(run_records),
+        max_items=query.max_items,
+        timestamp_attr="timestamp_created",
+        id_attr="run_id",
+    )
 
     return contracts.ListRunsResponse(
-        items=[_run_item(run_record) for run_record in page_records],
+        items=[_run_item(run_record) for run_record in records_page],
         next_page_cursor=next_page_cursor,
     )
 

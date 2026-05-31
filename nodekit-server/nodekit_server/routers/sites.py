@@ -3,22 +3,21 @@
 import gzip
 from collections.abc import Iterable
 from typing import Annotated
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 import fastapi
 import sqlmodel
-from sqlalchemy import and_, or_
 
 from nodekit import Graph
 from nodekit._internal.ops.transform_asset_locators import transform_asset_locators
 from nodekit._internal.types.assets import URL
 from nodekit._internal.utils.iter_assets import iter_assets
 import nodekit.server.contracts as contracts
-from nodekit.server.pagination import decode_timestamp_id_cursor, encode_timestamp_id_cursor
 from nodekit.server.values import SiteId, UserId
 from nodekit.values import MediaType, SHA256
 from nodekit_server.auth import UserDep
 from nodekit_server.deps import SessionDep, SettingsDep
+from nodekit_server.pagination import apply_timestamp_id_page_cursor, page_records
 from nodekit_server.records import (
     AssetRecord,
     SiteAssetDependencyRecord,
@@ -274,31 +273,6 @@ def _tag_site_id_subquery(
     return statement
 
 
-def _apply_page_cursor(
-    statement,
-    page_cursor: str,
-):
-    try:
-        cursor = decode_timestamp_id_cursor(page_cursor)
-        cursor_site_id = UUID(cursor.id)
-    except ValueError as exc:
-        raise fastapi.HTTPException(
-            status_code=fastapi.status.HTTP_400_BAD_REQUEST,
-            detail="Invalid page cursor.",
-        ) from exc
-
-    cursor_timestamp = cursor.timestamp_created.replace(tzinfo=None)
-    return statement.where(
-        or_(
-            sqlmodel.col(SiteRecord.timestamp_created) < cursor_timestamp,
-            and_(
-                sqlmodel.col(SiteRecord.timestamp_created) == cursor_timestamp,
-                sqlmodel.col(SiteRecord.site_id) < cursor_site_id,
-            ),
-        )
-    )
-
-
 # %% Create Site
 @router.post("/sites")
 def create_site(
@@ -405,7 +379,12 @@ def list_sites(
         )
 
     if query.page_cursor is not None:
-        statement = _apply_page_cursor(statement=statement, page_cursor=query.page_cursor)
+        statement = apply_timestamp_id_page_cursor(
+            statement=statement,
+            page_cursor=query.page_cursor,
+            timestamp_column=SiteRecord.timestamp_created,
+            id_column=SiteRecord.site_id,
+        )
 
     statement = statement.order_by(
         sqlmodel.col(SiteRecord.timestamp_created).desc(),
@@ -413,7 +392,12 @@ def list_sites(
     )
     statement = statement.limit(query.max_items + 1)
     site_records = session.exec(statement).all()
-    page_records = site_records[: query.max_items]
+    records_page, next_page_cursor = page_records(
+        records=list(site_records),
+        max_items=query.max_items,
+        timestamp_attr="timestamp_created",
+        id_attr="site_id",
+    )
 
     items = [
         _site_list_item(
@@ -423,16 +407,8 @@ def list_sites(
             user_id=user.user_id,
             site_record=site_record,
         )
-        for site_record in page_records
+        for site_record in records_page
     ]
-
-    next_page_cursor = None
-    if len(site_records) > query.max_items and page_records:
-        last_record = page_records[-1]
-        next_page_cursor = encode_timestamp_id_cursor(
-            timestamp_created=as_utc(last_record.timestamp_created),
-            id=last_record.site_id,
-        )
 
     return contracts.ListSitesResponse(
         items=items,

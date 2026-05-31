@@ -1,76 +1,23 @@
 import base64
 import datetime
 import gzip
-import importlib
-import os
 import sys
-from collections.abc import Iterator
-from pathlib import Path
 from types import ModuleType
 from typing import Any
 from uuid import uuid4
 
-import pytest
 import sqlmodel
 from fastapi.testclient import TestClient
-from sqlmodel import SQLModel
 
 import nodekit as nk
 from nodekit._internal.ops.build_site.types import NoPlatformContext
 from nodekit.server.values import RunStatus
 
 
-SERVER_ROOT = Path(__file__).parents[1] / "nodekit-server"
-
-
 # %%
 def _assert_utc_timestamp(value: str) -> None:
     parsed = datetime.datetime.fromisoformat(value.replace("Z", "+00:00"))
     assert parsed.utcoffset() == datetime.timedelta(0)
-
-
-@pytest.fixture(scope="module")
-def server_main(tmp_path_factory: pytest.TempPathFactory) -> Iterator[ModuleType]:
-    tmp_path = tmp_path_factory.mktemp("nodekit-server-runs")
-    env_keys = [
-        "NODEKIT_SERVER_DATABASE_URL",
-        "NODEKIT_SERVER_ASSET_STORE_DIR",
-        "NODEKIT_SERVER_BOOTSTRAP_ADMIN_API_TOKEN",
-    ]
-    previous_env = {key: os.environ.get(key) for key in env_keys}
-    os.environ["NODEKIT_SERVER_DATABASE_URL"] = f"sqlite:///{tmp_path / 'server.db'}"
-    os.environ["NODEKIT_SERVER_ASSET_STORE_DIR"] = str(tmp_path / "asset-store")
-    os.environ["NODEKIT_SERVER_BOOTSTRAP_ADMIN_API_TOKEN"] = "test-token"
-    sys.path.insert(0, str(SERVER_ROOT))
-
-    for module_name in list(sys.modules):
-        if module_name == "nodekit_server" or module_name.startswith("nodekit_server."):
-            del sys.modules[module_name]
-    SQLModel.metadata.clear()
-
-    module = importlib.import_module("nodekit_server.main")
-    yield module
-
-    for module_name in list(sys.modules):
-        if module_name == "nodekit_server" or module_name.startswith("nodekit_server."):
-            del sys.modules[module_name]
-    SQLModel.metadata.clear()
-    try:
-        sys.path.remove(str(SERVER_ROOT))
-    except ValueError:
-        pass
-    for key, value in previous_env.items():
-        if value is None:
-            os.environ.pop(key, None)
-        else:
-            os.environ[key] = value
-
-
-@pytest.fixture
-def authenticated_client(server_main: ModuleType) -> Iterator[TestClient]:
-    with TestClient(server_main.app) as client:
-        client.headers.update({"Authorization": "Bearer test-token"})
-        yield client
 
 
 # %%

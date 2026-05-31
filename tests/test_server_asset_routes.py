@@ -1,26 +1,20 @@
 import hashlib
-import importlib
-import os
-import sys
 import gzip
 import datetime
-from collections.abc import Iterator
 from pathlib import Path
+import sys
 from types import ModuleType
 from typing import Any
 from uuid import UUID
 
-import pytest
 import sqlmodel
 from fastapi.testclient import TestClient
-from sqlmodel import SQLModel
 
 import nodekit as nk
 from nodekit._internal.types.assets import FileSystemPath, URL
 from nodekit._internal.utils.iter_assets import iter_assets
 
 
-SERVER_ROOT = Path(__file__).parents[1] / "nodekit-server"
 ASSET_DIR = Path(__file__).parent / "assets"
 
 
@@ -28,51 +22,6 @@ ASSET_DIR = Path(__file__).parent / "assets"
 def _assert_utc_timestamp(value: str) -> None:
     parsed = datetime.datetime.fromisoformat(value.replace("Z", "+00:00"))
     assert parsed.utcoffset() == datetime.timedelta(0)
-
-
-# %%
-@pytest.fixture(scope="module")
-def server_main(tmp_path_factory: pytest.TempPathFactory) -> Iterator[ModuleType]:
-    tmp_path = tmp_path_factory.mktemp("nodekit-server")
-    env_keys = [
-        "NODEKIT_SERVER_DATABASE_URL",
-        "NODEKIT_SERVER_ASSET_STORE_DIR",
-        "NODEKIT_SERVER_BOOTSTRAP_ADMIN_API_TOKEN",
-    ]
-    previous_env = {key: os.environ.get(key) for key in env_keys}
-    os.environ["NODEKIT_SERVER_DATABASE_URL"] = f"sqlite:///{tmp_path / 'server.db'}"
-    os.environ["NODEKIT_SERVER_ASSET_STORE_DIR"] = str(tmp_path / "asset-store")
-    os.environ["NODEKIT_SERVER_BOOTSTRAP_ADMIN_API_TOKEN"] = "test-token"
-    sys.path.insert(0, str(SERVER_ROOT))
-
-    for module_name in list(sys.modules):
-        if module_name == "nodekit_server" or module_name.startswith("nodekit_server."):
-            del sys.modules[module_name]
-    SQLModel.metadata.clear()
-
-    module = importlib.import_module("nodekit_server.main")
-    yield module
-
-    for module_name in list(sys.modules):
-        if module_name == "nodekit_server" or module_name.startswith("nodekit_server."):
-            del sys.modules[module_name]
-    SQLModel.metadata.clear()
-    try:
-        sys.path.remove(str(SERVER_ROOT))
-    except ValueError:
-        pass
-    for key, value in previous_env.items():
-        if value is None:
-            os.environ.pop(key, None)
-        else:
-            os.environ[key] = value
-
-
-@pytest.fixture
-def authenticated_client(server_main: ModuleType) -> Iterator[TestClient]:
-    with TestClient(server_main.app) as client:
-        client.headers.update({"Authorization": "Bearer test-token"})
-        yield client
 
 
 # %%
@@ -123,9 +72,9 @@ def test_upload_asset_persists_and_check_assets_finds_it(
     _assert_utc_timestamp(upload_body["asset"]["timestamp_created"])
 
     asset_store_dir = server_main.settings.asset_store_dir
-    stored_files = [path for path in asset_store_dir.glob("assets/**/*") if path.is_file()]
-    assert len(stored_files) == 1
-    assert stored_files[0].read_bytes() == asset_path.read_bytes()
+    stored_file = asset_store_dir / "assets" / asset.sha256[:2] / asset.sha256
+    assert stored_file.is_file()
+    assert stored_file.read_bytes() == asset_path.read_bytes()
 
     check_response = authenticated_client.post(
         "/assets/check",
