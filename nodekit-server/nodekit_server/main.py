@@ -7,7 +7,17 @@ import sqlmodel
 
 from nodekit_server.auth import ensure_bootstrap_admin
 from nodekit_server.deps import engine, settings
-from nodekit_server.routers import admin, assets, health, participant, runtime, runs, sites, tags
+from nodekit_server.routers import (
+    admin,
+    assets,
+    health,
+    home,
+    participant,
+    runtime,
+    runs,
+    sites,
+    tags,
+)
 
 
 # %% Lifespan
@@ -26,6 +36,7 @@ async def lifespan(app: fastapi.FastAPI):
 
 # %% App
 app = fastapi.FastAPI(title="NodeKit Server", lifespan=lifespan)
+app.include_router(home.router)
 app.include_router(health.router)
 app.include_router(runtime.router)
 app.include_router(admin.router)
