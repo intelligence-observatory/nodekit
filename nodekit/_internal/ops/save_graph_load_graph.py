@@ -4,6 +4,7 @@ import zipfile
 from pathlib import Path
 
 from nodekit._internal.ops.open_asset_save_asset import open_asset
+from nodekit._internal.ops.transform_asset_locators import transform_asset_locators
 from nodekit._internal.types.assets import (
     ZipArchiveInnerPath,
     RelativePath,
@@ -47,25 +48,21 @@ def save_graph(
     if not path.parent.exists():
         raise ValueError(f"Parent directory does not exist: {path.parent}")
 
-    # Deep copy the Graph, as we will be modifying it so that all AssetLocators are RelativePathAssetLocators:
-    graph = graph.model_copy(deep=True)
-
-    # Mutate all AssetLocators in the Graph to be RelativePathAssetLocators:
     supplied_assets: dict[tuple[MediaType, SHA256], Asset] = {}
-    relative_asset_locators: dict[tuple[MediaType, SHA256], RelativePath] = {}
     for asset in iter_assets(graph=graph):
-        # Log the asset locator if we haven't seen it before:
         asset_key = (asset.media_type, asset.sha256)
         if asset_key not in supplied_assets:
             supplied_assets[asset_key] = asset.model_copy()
-            relative_asset_locators[asset_key] = RelativePath(
-                relative_path=_get_archive_relative_path(
-                    media_type=asset.media_type, sha256=asset.sha256
-                )
-            )
 
-        # Mutate the AssetLocator to be a RelativePathAssetLocator:
-        asset.locator = relative_asset_locators[asset_key]
+    graph = transform_asset_locators(
+        graph=graph,
+        transform=lambda asset: RelativePath(
+            relative_path=_get_archive_relative_path(
+                media_type=asset.media_type,
+                sha256=asset.sha256,
+            )
+        ),
+    )
 
     # Open a temporary zip file for writing:
     temp_path = path.with_suffix(".nkg.tmp")

@@ -8,8 +8,10 @@ import jinja2
 import pydantic
 
 from nodekit._internal.ops.open_asset_save_asset import save_asset
+from nodekit._internal.ops.transform_asset_locators import transform_asset_locators
 from nodekit._internal.types.assets import RelativePath
 from nodekit._internal.types.graph import Graph
+from nodekit._internal.types.values import MediaType, SHA256
 from nodekit._internal.utils.get_browser_bundle import get_browser_bundle
 from nodekit._internal.utils.get_extension_from_media_type import (
     get_extension_from_media_type,
@@ -50,6 +52,14 @@ def _get_entrypoint_relative_path(
         entrypoint_stem = slug
 
     return Path("graphs") / f"{entrypoint_stem}.html"
+
+
+def _get_asset_relative_path(asset_media_type: MediaType, asset_sha256: SHA256) -> Path:
+    return (
+        Path("assets")
+        / asset_media_type
+        / f"{asset_sha256}.{get_extension_from_media_type(asset_media_type)}"
+    )
 
 
 def build_site(
@@ -108,12 +118,10 @@ def build_site(
         js_abs_path.write_text(browser_bundle.js)
 
     # Ensure all assets saved to the appropriate location:
-    graph = graph.model_copy(deep=True)
     for asset in iter_assets(graph=graph):
-        asset_relative_path = (
-            Path("assets")
-            / asset.media_type
-            / f"{asset.sha256}.{get_extension_from_media_type(asset.media_type)}"
+        asset_relative_path = _get_asset_relative_path(
+            asset_media_type=asset.media_type,
+            asset_sha256=asset.sha256,
         )
         asset_abs_path = savedir / asset_relative_path
         dependencies.append(asset_relative_path)
@@ -125,8 +133,16 @@ def build_site(
                 path=asset_abs_path,
             )
 
-        # Mutate the asset locator in the Graph to be relative to the entrypoint HTML.
-        asset.locator = RelativePath(relative_path=Path("..") / asset_relative_path)
+    graph = transform_asset_locators(
+        graph=graph,
+        transform=lambda asset: RelativePath(
+            relative_path=Path("..")
+            / _get_asset_relative_path(
+                asset_media_type=asset.media_type,
+                asset_sha256=asset.sha256,
+            )
+        ),
+    )
 
     # Render the HTML site using the Jinja2 template:
     jinja2_location = Path(__file__).parent / "harness.j2"
