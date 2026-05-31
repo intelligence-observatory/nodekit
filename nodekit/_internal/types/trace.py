@@ -1,10 +1,11 @@
 import pydantic
 
 from nodekit import VERSION
+from nodekit._internal.types.actions import Action
 from nodekit._internal.types.events import Event
 import nodekit._internal.types.events as event_types
 from nodekit._internal.types.graph import Graph
-from nodekit._internal.types.actions import Action
+from nodekit._internal.types.values import NodeAddress, TimeElapsedMsec
 from nodekit._internal.version import validate_compatible_nodekit_version
 
 
@@ -20,8 +21,8 @@ class Trace(pydantic.BaseModel):
     def validate_nodekit_version(cls, value: str) -> str:
         return validate_compatible_nodekit_version(value)
 
-    def list_action_records(self) -> list[dict[str, object]]:
-        """Project the [Trace][nodekit.Trace] to one action record per completed [Node][nodekit.Node].
+    def list_steps(self) -> list[StepRecord]:
+        """Project the [Trace][nodekit.Trace] to one StepRecord per completed [Node][nodekit.Node].
 
         Each record pairs one [NodeStartedEvent][nodekit.events.NodeStartedEvent],
         one [ActionTakenEvent][nodekit.events.ActionTakenEvent], and one
@@ -31,24 +32,23 @@ class Trace(pydantic.BaseModel):
 
         Each record contains the following keys:
 
-        - ``step_index``: The zero-based index of the action record in the Trace.
+        - ``step_index``: The zero-based index of the StepRecord in the Trace.
         - ``node_address``: The [NodeAddress][nodekit.values.NodeAddress] of the Node.
-        - ``action_type``: The [Action][nodekit.actions.Action] type.
-        - ``action_value``: The Action value.
+        - ``action``: The [Action][nodekit.actions.Action] taken at the Node.
         - ``t_start``: The timestamp of the [NodeStartedEvent][nodekit.events.NodeStartedEvent].
         - ``t_action``: The timestamp of the [ActionTakenEvent][nodekit.events.ActionTakenEvent].
         - ``t_end``: The timestamp of the [NodeEndedEvent][nodekit.events.NodeEndedEvent].
 
         Returns:
-            A list of action records in Trace order.
+            A list of StepRecords in Trace order.
 
         Raises:
             ValueError: If Node lifecycle Events do not appear in strict
                 NodeStartedEvent, ActionTakenEvent, NodeEndedEvent order, or if paired
                 lifecycle Events have different Node addresses.
         """
-        action_records: list[dict[str, object]] = []
-        active_node_address: list[str] | None = None
+        step_records: list[StepRecord] = []
+        active_node_address: NodeAddress | None = None
         active_t_start: int | None = None
         active_action: Action | None = None
         active_t_action: int | None = None
@@ -100,17 +100,20 @@ class Trace(pydantic.BaseModel):
                     raise ValueError(
                         f"Encountered NodeEndedEvent before ActionTakenEvent for Node: {node_address}."
                     )
+                if active_t_start is None or active_t_action is None:
+                    raise ValueError(
+                        f"Trace is missing lifecycle timestamps for Node: {node_address}."
+                    )
 
-                action_records.append(
-                    {
-                        "step_index": len(action_records),
-                        "node_address": active_node_address,
-                        "t_start": active_t_start,
-                        "action_type": active_action.action_type,
-                        "action_value": active_action.action_value,
-                        "t_action": active_t_action,
-                        "t_end": event.t,
-                    }
+                step_records.append(
+                    StepRecord(
+                        step_index=len(step_records),
+                        node_address=active_node_address,
+                        action=active_action,
+                        t_start=active_t_start,
+                        t_action=active_t_action,
+                        t_end=event.t,
+                    )
                 )
                 active_node_address = None
                 active_t_start = None
@@ -120,4 +123,26 @@ class Trace(pydantic.BaseModel):
         if active_node_address is not None:
             raise ValueError(f"Trace ended before active Node completed: {active_node_address}.")
 
-        return action_records
+        return step_records
+
+
+# %%
+class StepRecord(pydantic.BaseModel):
+    """A realized `(Node, Action)` step in a [Trace][nodekit.Trace].
+
+    A StepRecord is a canonical projection of one completed Node visit in a
+    Trace. It pairs the Node address with the Action taken there, plus the
+    timestamps for when the Node started, when the Action was taken, and when
+    the Node ended.
+    """
+
+    step_index: int = pydantic.Field(
+        ge=0,
+        description="The zero-based index of the StepRecord in the Trace.",
+    )
+    node_address: NodeAddress = pydantic.Field(description="The address of the completed Node.")
+    action: Action = pydantic.Field(description="The Action taken at the Node.")
+    t_start: TimeElapsedMsec = pydantic.Field(description="The timestamp of the NodeStartedEvent.")
+    t_action: TimeElapsedMsec = pydantic.Field(description="The timestamp of the ActionTakenEvent.")
+    t_end: TimeElapsedMsec = pydantic.Field(description="The timestamp of the NodeEndedEvent.")
+

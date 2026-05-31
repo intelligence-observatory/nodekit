@@ -4,6 +4,7 @@ __all__ = [
     "Node",
     "Graph",
     "Trace",
+    "StepRecord",
     # One-off top-level types:
     "Region",
     "BaseAgent",
@@ -33,7 +34,7 @@ from nodekit._internal.version import VERSION
 
 # Incoming models:
 from nodekit._internal.types.node import Node
-from nodekit._internal.types.trace import Trace
+from nodekit._internal.types.trace import StepRecord, Trace
 from nodekit._internal.types.graph import Graph
 
 # One-off top-level types:
