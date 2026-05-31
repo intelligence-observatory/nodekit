@@ -30,3 +30,24 @@ make server-build
 ```
 
 The Dockerfile lives at `nodekit-server/Dockerfile`, but the build context is still the repository root so the image can include the local `nodekit` package and root lockfile.
+
+## Asset Storage
+
+The local Docker server uses filesystem Asset storage by default:
+
+```bash
+NODEKIT_SERVER_ASSET_STORE_BACKEND=filesystem
+NODEKIT_SERVER_ASSET_STORE_DIR=/asset-store
+```
+
+For S3-backed storage, configure the backend and a public base URL:
+
+```bash
+NODEKIT_SERVER_ASSET_STORE_BACKEND=s3
+NODEKIT_SERVER_S3_BUCKET_NAME=my-nodekit-assets
+NODEKIT_SERVER_S3_REGION_NAME=us-east-1
+NODEKIT_SERVER_S3_PREFIX=assets
+NODEKIT_SERVER_S3_PUBLIC_BASE_URL=https://my-nodekit-assets.s3.us-east-1.amazonaws.com
+```
+
+Uploaded Assets are stored under content-addressed S3 keys such as `assets/<sha256>`. Participant requests to `/assets/<sha256>` redirect to the configured public URL. Bucket permissions, CORS, and public-read or CDN configuration are deployment responsibilities.

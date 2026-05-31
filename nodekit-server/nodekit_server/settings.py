@@ -30,10 +30,10 @@ class ServerSettings(BaseSettings):
         description="Create the current canonical SQLModel schema when the app starts.",
     )
 
-    asset_store_backend: Literal["filesystem"] = pydantic.Field(
+    asset_store_backend: Literal["filesystem", "s3"] = pydantic.Field(
         default="filesystem",
         alias="NODEKIT_SERVER_ASSET_STORE_BACKEND",
-        description="Asset storage backend. Only filesystem storage is supported for now.",
+        description="Asset storage backend.",
     )
     asset_store_dir: Path = pydantic.Field(
         default=Path("./nodekit-server-assets"),
@@ -44,6 +44,32 @@ class ServerSettings(BaseSettings):
         default=None,
         alias="NODEKIT_SERVER_PUBLIC_BASE_URL",
         description="Externally visible base URL, if different from request.base_url.",
+    )
+
+    s3_bucket_name: str | None = pydantic.Field(
+        default=None,
+        alias="NODEKIT_SERVER_S3_BUCKET_NAME",
+        description="S3 bucket name for S3-backed Asset storage.",
+    )
+    s3_region_name: str = pydantic.Field(
+        default="us-east-1",
+        alias="NODEKIT_SERVER_S3_REGION_NAME",
+        description="AWS region for S3-backed Asset storage.",
+    )
+    s3_prefix: str = pydantic.Field(
+        default="assets",
+        alias="NODEKIT_SERVER_S3_PREFIX",
+        description="S3 object key prefix for Asset objects.",
+    )
+    s3_public_base_url: str | None = pydantic.Field(
+        default=None,
+        alias="NODEKIT_SERVER_S3_PUBLIC_BASE_URL",
+        description="Public base URL used to redirect participant Asset requests.",
+    )
+    s3_endpoint_url: str | None = pydantic.Field(
+        default=None,
+        alias="NODEKIT_SERVER_S3_ENDPOINT_URL",
+        description="Optional custom S3 endpoint URL for S3-compatible storage.",
     )
 
     bootstrap_admin_username: str = pydantic.Field(

@@ -7,7 +7,7 @@ import fastapi
 import sqlmodel
 
 from nodekit_server.settings import ServerSettings, get_server_settings
-from nodekit_server.storage import FileSystemAssetStore
+from nodekit_server.storage import AssetStore, FileSystemAssetStore, S3AssetStore
 
 
 # %% Settings
@@ -47,15 +47,35 @@ SessionDep = Annotated[sqlmodel.Session, fastapi.Depends(get_session)]
 
 
 # %% Asset storage
-def get_asset_store(settings: SettingsDep) -> FileSystemAssetStore:
+def get_asset_store(settings: SettingsDep) -> AssetStore:
     """Return the configured Asset storage backend."""
 
-    if settings.asset_store_backend != "filesystem":
-        raise fastapi.HTTPException(
-            status_code=fastapi.status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Unsupported Asset storage backend.",
+    if settings.asset_store_backend == "filesystem":
+        return FileSystemAssetStore(root=settings.asset_store_dir)
+
+    if settings.asset_store_backend == "s3":
+        if settings.s3_bucket_name is None:
+            raise fastapi.HTTPException(
+                status_code=fastapi.status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="NODEKIT_SERVER_S3_BUCKET_NAME is required for S3 Asset storage.",
+            )
+        if settings.s3_public_base_url is None:
+            raise fastapi.HTTPException(
+                status_code=fastapi.status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="NODEKIT_SERVER_S3_PUBLIC_BASE_URL is required for S3 Asset storage.",
+            )
+        return S3AssetStore(
+            bucket_name=settings.s3_bucket_name,
+            public_base_url=settings.s3_public_base_url,
+            region_name=settings.s3_region_name,
+            prefix=settings.s3_prefix,
+            endpoint_url=settings.s3_endpoint_url,
         )
-    return FileSystemAssetStore(root=settings.asset_store_dir)
+
+    raise fastapi.HTTPException(
+        status_code=fastapi.status.HTTP_500_INTERNAL_SERVER_ERROR,
+        detail="Unsupported Asset storage backend.",
+    )
 
 
-AssetStoreDep = Annotated[FileSystemAssetStore, fastapi.Depends(get_asset_store)]
+AssetStoreDep = Annotated[AssetStore, fastapi.Depends(get_asset_store)]

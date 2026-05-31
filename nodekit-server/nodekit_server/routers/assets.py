@@ -7,7 +7,7 @@ from typing import Annotated
 import fastapi
 import hashlib
 import sqlmodel
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, RedirectResponse, Response
 
 import nodekit.server.contracts as contracts
 from nodekit.values import MediaType, SHA256
@@ -115,39 +115,49 @@ async def upload_asset(
     """Upload one Asset, verifying its content hash before storage."""
 
     _ = user
-    temp_path, computed_sha256, size_bytes = await _stage_uploaded_file(
-        upload_file=file,
-        temp_dir=asset_store.root / ".tmp",
-    )
-    if computed_sha256 != sha256:
-        temp_path.unlink(missing_ok=True)
-        raise fastapi.HTTPException(
-            status_code=fastapi.status.HTTP_400_BAD_REQUEST,
-            detail="Uploaded Asset bytes do not match claimed SHA-256.",
+    with tempfile.TemporaryDirectory(prefix="nodekit-asset-upload.") as temp_dir_string:
+        temp_path, computed_sha256, size_bytes = await _stage_uploaded_file(
+            upload_file=file,
+            temp_dir=Path(temp_dir_string),
         )
-
-    identifier = contracts.AssetIdentifier(sha256=sha256, media_type=media_type)
-    asset_record = _get_asset_record(session=session, identifier=identifier)
-    if asset_record is not None:
-        if not asset_store.exists(asset_record.storage_key):
-            asset_store.put_file(storage_key=asset_record.storage_key, source_path=temp_path)
-        else:
+        if computed_sha256 != sha256:
             temp_path.unlink(missing_ok=True)
+            raise fastapi.HTTPException(
+                status_code=fastapi.status.HTTP_400_BAD_REQUEST,
+                detail="Uploaded Asset bytes do not match claimed SHA-256.",
+            )
+
+        identifier = contracts.AssetIdentifier(sha256=sha256, media_type=media_type)
+        asset_record = _get_asset_record(session=session, identifier=identifier)
+        if asset_record is not None:
+            if not asset_store.exists(asset_record.storage_key):
+                asset_store.put_file(
+                    storage_key=asset_record.storage_key,
+                    source_path=temp_path,
+                    media_type=media_type,
+                )
+            else:
+                temp_path.unlink(missing_ok=True)
+            return contracts.UploadAssetResponse(asset=_asset_record_to_item(asset_record))
+
+        storage_key = asset_store.storage_key_for_sha256(sha256=sha256)
+        asset_store.put_file(storage_key=storage_key, source_path=temp_path, media_type=media_type)
+        asset_record = AssetRecord(
+            sha256=sha256,
+            media_type=media_type,
+            size_bytes=size_bytes,
+            storage_key=storage_key,
+        )
+        session.add(asset_record)
+        session.commit()
+        session.refresh(asset_record)
+
         return contracts.UploadAssetResponse(asset=_asset_record_to_item(asset_record))
 
-    storage_key = asset_store.storage_key_for_sha256(sha256=sha256)
-    asset_store.put_file(storage_key=storage_key, source_path=temp_path)
-    asset_record = AssetRecord(
-        sha256=sha256,
-        media_type=media_type,
-        size_bytes=size_bytes,
-        storage_key=storage_key,
+    raise fastapi.HTTPException(
+        status_code=fastapi.status.HTTP_500_INTERNAL_SERVER_ERROR,
+        detail="Asset upload failed.",
     )
-    session.add(asset_record)
-    session.commit()
-    session.refresh(asset_record)
-
-    return contracts.UploadAssetResponse(asset=_asset_record_to_item(asset_record))
 
 
 # %% Resolve Asset
@@ -156,17 +166,28 @@ def resolve_asset(
     sha256: SHA256,
     session: SessionDep,
     asset_store: AssetStoreDep,
-) -> FileResponse:
+) -> Response:
     """Resolve participant-facing Asset bytes through the configured storage backend."""
 
     asset_record = _get_asset_record_by_sha256(session=session, sha256=sha256)
-    if asset_record is None or not asset_store.exists(asset_record.storage_key):
+    if asset_record is None:
         raise fastapi.HTTPException(
             status_code=fastapi.status.HTTP_404_NOT_FOUND,
             detail="Asset not found.",
         )
 
-    return FileResponse(
-        path=asset_store.path_for_key(asset_record.storage_key),
-        media_type=asset_record.media_type,
+    resolution = asset_store.resolve(asset_record.storage_key)
+    if resolution is None:
+        raise fastapi.HTTPException(
+            status_code=fastapi.status.HTTP_404_NOT_FOUND,
+            detail="Asset not found.",
+        )
+    if resolution.redirect_url is not None:
+        return RedirectResponse(url=resolution.redirect_url)
+    if resolution.file_path is not None:
+        return FileResponse(path=resolution.file_path, media_type=asset_record.media_type)
+
+    raise fastapi.HTTPException(
+        status_code=fastapi.status.HTTP_500_INTERNAL_SERVER_ERROR,
+        detail="Asset storage backend returned an invalid resolution.",
     )

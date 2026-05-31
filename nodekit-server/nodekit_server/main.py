@@ -15,7 +15,8 @@ from nodekit_server.routers import admin, assets, health, participant, runtime, 
 async def lifespan(app: fastapi.FastAPI):
     """Initialize the current canonical schema and local storage on startup."""
 
-    settings.asset_store_dir.mkdir(parents=True, exist_ok=True)
+    if settings.asset_store_backend == "filesystem":
+        settings.asset_store_dir.mkdir(parents=True, exist_ok=True)
     if settings.create_schema_on_startup:
         sqlmodel.SQLModel.metadata.create_all(engine)
     with sqlmodel.Session(engine) as session:
