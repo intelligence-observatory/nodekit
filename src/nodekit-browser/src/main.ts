@@ -18,13 +18,13 @@ import {ShellUI} from "./ui/shell-ui/shell-ui.ts";
 import {type BoardViewsContainerDiv, getBoardViewsContainerDiv} from "./ui/board-views-ui/board-views-ui.ts";
 import {NodePlay} from "./node-play";
 import {version as NODEKIT_VERSION} from '../package.json'
-import {gt, major} from 'semver';
 import {EventArray} from "./event-array.ts";
 import {formatErrorReport} from "./error-reporting/format-error-report.ts";
 
 import {evalTransition} from "./node-play/eval-transition.ts";
 import {getSubmissionTarget} from "./submission/get-submission-target.ts";
 import {submit} from "./submission/submit.ts";
+import {validateCompatibleNodeKitVersion} from "./version-compat.ts";
 
 /**
  * Plays a Graph.
@@ -69,9 +69,7 @@ export async function play(
         const eventArray = new EventArray(onEventCallback);
 
         // Version gate:
-        if (gt(graph.nodekit_version, NODEKIT_VERSION) || major(graph.nodekit_version) !== major(NODEKIT_VERSION)) {
-            throw new Error(`Incompatible NodeKit version requested: ${graph.nodekit_version}, Runtime version: ${NODEKIT_VERSION}`);
-        }
+        validateCompatibleNodeKitVersion(graph.nodekit_version, NODEKIT_VERSION);
 
         // Device gate:
         if (!userDeviceIsValid()) {
