@@ -8,6 +8,7 @@ from uuid import uuid4
 import fastapi
 import sqlmodel
 
+from nodekit import prepare_site_url
 import nodekit.server.contracts as contracts
 from nodekit._internal.utils.get_browser_bundle import get_browser_bundle
 from nodekit.server.values import RunStatus, SiteId
@@ -137,11 +138,13 @@ def serve_site(
 
     site_record = _get_public_site_record(session=session, site_id=site_id)
     if "nodekitSubmitTo" not in request.query_params:
-        redirect_url = request.url.include_query_params(
-            nodekitSubmitTo=_submit_url(request=request, settings=settings, site_id=site_id)
+        redirect_url = prepare_site_url(
+            site_url=str(request.url),
+            platform="none",
+            nodekit_submit_to=_submit_url(request=request, settings=settings, site_id=site_id),
         )
         return fastapi.responses.RedirectResponse(
-            url=str(redirect_url),
+            url=redirect_url,
             status_code=fastapi.status.HTTP_307_TEMPORARY_REDIRECT,
         )
 

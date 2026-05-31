@@ -1,18 +1,17 @@
 """Admin routes for nodekit-server."""
 
 from typing import Annotated
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 import fastapi
 import secrets
 import sqlmodel
-from sqlalchemy import and_, or_
 
 import nodekit.server.contracts as contracts
-from nodekit.server.pagination import decode_timestamp_id_cursor, encode_timestamp_id_cursor
 from nodekit.server.values import ApiTokenId, UserId
 from nodekit_server.auth import AdminDep, hash_api_token
 from nodekit_server.deps import SessionDep
+from nodekit_server.pagination import apply_timestamp_id_page_cursor, page_records
 from nodekit_server.records import ApiTokenRecord, UserRecord, as_utc
 
 
@@ -107,56 +106,6 @@ def _ensure_path_body_api_token_match(
         )
 
 
-def _apply_user_page_cursor(
-    statement,
-    page_cursor: str,
-):
-    try:
-        cursor = decode_timestamp_id_cursor(page_cursor)
-        cursor_user_id = UUID(cursor.id)
-    except ValueError as exc:
-        raise fastapi.HTTPException(
-            status_code=fastapi.status.HTTP_400_BAD_REQUEST,
-            detail="Invalid page cursor.",
-        ) from exc
-
-    cursor_timestamp = cursor.timestamp_created.replace(tzinfo=None)
-    return statement.where(
-        or_(
-            sqlmodel.col(UserRecord.timestamp_created) < cursor_timestamp,
-            and_(
-                sqlmodel.col(UserRecord.timestamp_created) == cursor_timestamp,
-                sqlmodel.col(UserRecord.user_id) < cursor_user_id,
-            ),
-        )
-    )
-
-
-def _apply_api_token_page_cursor(
-    statement,
-    page_cursor: str,
-):
-    try:
-        cursor = decode_timestamp_id_cursor(page_cursor)
-        cursor_api_token_id = UUID(cursor.id)
-    except ValueError as exc:
-        raise fastapi.HTTPException(
-            status_code=fastapi.status.HTTP_400_BAD_REQUEST,
-            detail="Invalid page cursor.",
-        ) from exc
-
-    cursor_timestamp = cursor.timestamp_created.replace(tzinfo=None)
-    return statement.where(
-        or_(
-            sqlmodel.col(ApiTokenRecord.timestamp_created) < cursor_timestamp,
-            and_(
-                sqlmodel.col(ApiTokenRecord.timestamp_created) == cursor_timestamp,
-                sqlmodel.col(ApiTokenRecord.api_token_id) < cursor_api_token_id,
-            ),
-        )
-    )
-
-
 def _generate_api_token() -> str:
     return secrets.token_urlsafe(32)
 
@@ -202,7 +151,12 @@ def list_users(
         statement = statement.where(sqlmodel.col(UserRecord.is_archived) == False)  # noqa: E712
 
     if query.page_cursor is not None:
-        statement = _apply_user_page_cursor(statement=statement, page_cursor=query.page_cursor)
+        statement = apply_timestamp_id_page_cursor(
+            statement=statement,
+            page_cursor=query.page_cursor,
+            timestamp_column=UserRecord.timestamp_created,
+            id_column=UserRecord.user_id,
+        )
 
     statement = statement.order_by(
         sqlmodel.col(UserRecord.timestamp_created).desc(),
@@ -210,18 +164,15 @@ def list_users(
     )
     statement = statement.limit(query.max_items + 1)
     user_records = session.exec(statement).all()
-    page_records = user_records[: query.max_items]
-
-    next_page_cursor = None
-    if len(user_records) > query.max_items and page_records:
-        last_record = page_records[-1]
-        next_page_cursor = encode_timestamp_id_cursor(
-            timestamp_created=as_utc(last_record.timestamp_created),
-            id=last_record.user_id,
-        )
+    records_page, next_page_cursor = page_records(
+        records=list(user_records),
+        max_items=query.max_items,
+        timestamp_attr="timestamp_created",
+        id_attr="user_id",
+    )
 
     return contracts.ListUsersResponse(
-        items=[_user_item(user_record) for user_record in page_records],
+        items=[_user_item(user_record) for user_record in records_page],
         next_page_cursor=next_page_cursor,
     )
 
@@ -348,9 +299,11 @@ def list_api_tokens(
         statement = statement.where(sqlmodel.col(ApiTokenRecord.is_revoked) == False)  # noqa: E712
 
     if query.page_cursor is not None:
-        statement = _apply_api_token_page_cursor(
+        statement = apply_timestamp_id_page_cursor(
             statement=statement,
             page_cursor=query.page_cursor,
+            timestamp_column=ApiTokenRecord.timestamp_created,
+            id_column=ApiTokenRecord.api_token_id,
         )
 
     statement = statement.order_by(
@@ -359,18 +312,15 @@ def list_api_tokens(
     )
     statement = statement.limit(query.max_items + 1)
     api_token_records = session.exec(statement).all()
-    page_records = api_token_records[: query.max_items]
-
-    next_page_cursor = None
-    if len(api_token_records) > query.max_items and page_records:
-        last_record = page_records[-1]
-        next_page_cursor = encode_timestamp_id_cursor(
-            timestamp_created=as_utc(last_record.timestamp_created),
-            id=last_record.api_token_id,
-        )
+    records_page, next_page_cursor = page_records(
+        records=list(api_token_records),
+        max_items=query.max_items,
+        timestamp_attr="timestamp_created",
+        id_attr="api_token_id",
+    )
 
     return contracts.ListApiTokensResponse(
-        items=[_api_token_item(api_token_record) for api_token_record in page_records],
+        items=[_api_token_item(api_token_record) for api_token_record in records_page],
         next_page_cursor=next_page_cursor,
     )
 
