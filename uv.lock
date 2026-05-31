@@ -1064,6 +1064,7 @@ source = { editable = "." }
 dependencies = [
     { name = "boto3" },
     { name = "fastapi", extra = ["standard"] },
+    { name = "httpx" },
     { name = "jinja2" },
     { name = "matplotlib" },
     { name = "packaging" },
@@ -1092,6 +1093,7 @@ dev = [
 requires-dist = [
     { name = "boto3", specifier = ">=1.40.55" },
     { name = "fastapi", extras = ["standard"], specifier = ">=0.116.1" },
+    { name = "httpx", specifier = ">=0.28.1" },
     { name = "jinja2", specifier = ">=3.1.4" },
     { name = "matplotlib", specifier = ">=3.10.8" },
     { name = "packaging", specifier = ">=25.0" },

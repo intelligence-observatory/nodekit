@@ -1,6 +1,16 @@
 """Shared values for the NodeKit server/client API."""
 
 import enum
+from typing import TypeAlias
+from uuid import UUID
+
+
+# %% Identifiers
+ApiTokenId: TypeAlias = UUID
+RunId: TypeAlias = UUID
+SiteId: TypeAlias = UUID
+TagId: TypeAlias = UUID
+UserId: TypeAlias = UUID
 
 
 # %% Runs

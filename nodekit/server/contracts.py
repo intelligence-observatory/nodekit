@@ -1,14 +1,12 @@
 """Public request and response contracts for the NodeKit server/client API."""
 
-from uuid import UUID
-
 import pydantic
 
 from nodekit import Graph, SiteSubmission, Trace
 from nodekit.values import MediaType, SHA256
 
 from nodekit.server.pagination import PageQuery, PageResponse
-from nodekit.server.values import RunStatus
+from nodekit.server.values import ApiTokenId, RunId, RunStatus, SiteId, UserId
 
 
 # %% Base
@@ -24,22 +22,17 @@ class CreateTagRequest(ContractModel):
 
 
 class CreateTagResponse(ContractModel):
-    tag_id: UUID
-    user_id: UUID
     name: str
     is_archived: bool
 
 
 # %% ListTags
 class ListTagsFilters(ContractModel):
-    tag_ids: list[UUID] | None = None
     names: list[str] | None = None
     include_archived: bool = False
 
 
 class ListTagsItem(ContractModel):
-    tag_id: UUID
-    user_id: UUID
     name: str
     is_archived: bool
 
@@ -52,25 +45,21 @@ class ListTagsQuery(PageQuery, ListTagsFilters): ...
 
 # %% RenameTag
 class RenameTagRequest(ContractModel):
-    tag_id: UUID
     name: str = pydantic.Field(min_length=1)
+    new_name: str = pydantic.Field(min_length=1)
 
 
 class RenameTagResponse(ContractModel):
-    tag_id: UUID
-    user_id: UUID
     name: str
     is_archived: bool
 
 
 # %% ArchiveTag
 class ArchiveTagRequest(ContractModel):
-    tag_id: UUID
+    name: str = pydantic.Field(min_length=1)
 
 
 class ArchiveTagResponse(ContractModel):
-    tag_id: UUID
-    user_id: UUID
     name: str
     is_archived: bool
 
@@ -89,10 +78,10 @@ class SiteAssetItem(ContractModel):
 
 
 class CreateSiteResponse(ContractModel):
-    site_id: UUID
-    user_id: UUID
+    site_id: SiteId
+    user_id: UserId
     url: str
-    tags: tuple[ListTagsItem, ...] = ()
+    tags: tuple[str, ...] = ()
     is_archived: bool
     graph: Graph
     assets: tuple[SiteAssetItem, ...] = ()
@@ -100,16 +89,16 @@ class CreateSiteResponse(ContractModel):
 
 # %% ListSites
 class ListSitesFilters(ContractModel):
-    site_ids: list[UUID] | None = None
+    site_ids: list[SiteId] | None = None
     tags: list[str] | None = None
     include_archived: bool = False
 
 
 class ListSitesItem(ContractModel):
-    site_id: UUID
-    user_id: UUID
+    site_id: SiteId
+    user_id: UserId
     url: str
-    tags: tuple[ListTagsItem, ...] = ()
+    tags: tuple[str, ...] = ()
     is_archived: bool
 
 
@@ -121,14 +110,14 @@ class ListSitesQuery(PageQuery, ListSitesFilters): ...
 
 # %% GetSite
 class GetSiteRequest(ContractModel):
-    site_id: UUID
+    site_id: SiteId
 
 
 class GetSiteResponse(ContractModel):
-    site_id: UUID
-    user_id: UUID
+    site_id: SiteId
+    user_id: UserId
     url: str
-    tags: tuple[ListTagsItem, ...] = ()
+    tags: tuple[str, ...] = ()
     is_archived: bool
     graph: Graph
     assets: tuple[SiteAssetItem, ...] = ()
@@ -136,56 +125,56 @@ class GetSiteResponse(ContractModel):
 
 # %% ArchiveSite
 class ArchiveSiteRequest(ContractModel):
-    site_id: UUID
+    site_id: SiteId
 
 
 class ArchiveSiteResponse(ContractModel):
-    site_id: UUID
-    user_id: UUID
+    site_id: SiteId
+    user_id: UserId
     url: str
-    tags: tuple[ListTagsItem, ...] = ()
+    tags: tuple[str, ...] = ()
     is_archived: bool
 
 
 # %% AddSiteTags
 class AddSiteTagsRequest(ContractModel):
-    site_id: UUID
+    site_id: SiteId
     tags: tuple[str, ...]
 
 
 class AddSiteTagsResponse(ContractModel):
-    site_id: UUID
-    user_id: UUID
+    site_id: SiteId
+    user_id: UserId
     url: str
-    tags: tuple[ListTagsItem, ...] = ()
+    tags: tuple[str, ...] = ()
     is_archived: bool
 
 
 # %% RemoveSiteTags
 class RemoveSiteTagsRequest(ContractModel):
-    site_id: UUID
+    site_id: SiteId
     tags: tuple[str, ...]
 
 
 class RemoveSiteTagsResponse(ContractModel):
-    site_id: UUID
-    user_id: UUID
+    site_id: SiteId
+    user_id: UserId
     url: str
-    tags: tuple[ListTagsItem, ...] = ()
+    tags: tuple[str, ...] = ()
     is_archived: bool
 
 
 # %% ListRuns
 class ListRunsFilters(ContractModel):
-    run_ids: list[UUID] | None = None
-    site_id: UUID | None = None
+    run_ids: list[RunId] | None = None
+    site_id: SiteId | None = None
     statuses: list[RunStatus] | None = None
     include_archived: bool = False
 
 
 class ListRunsItem(ContractModel):
-    run_id: UUID
-    site_id: UUID
+    run_id: RunId
+    site_id: SiteId
     status: RunStatus
     is_archived: bool
 
@@ -198,12 +187,12 @@ class ListRunsQuery(PageQuery, ListRunsFilters): ...
 
 # %% GetRun
 class GetRunRequest(ContractModel):
-    run_id: UUID
+    run_id: RunId
 
 
 class GetRunResponse(ContractModel):
-    run_id: UUID
-    site_id: UUID
+    run_id: RunId
+    site_id: SiteId
     status: RunStatus
     is_archived: bool
     site_submission: SiteSubmission | None = None
@@ -212,25 +201,25 @@ class GetRunResponse(ContractModel):
 
 # %% ArchiveRun
 class ArchiveRunRequest(ContractModel):
-    run_id: UUID
+    run_id: RunId
 
 
 class ArchiveRunResponse(ContractModel):
-    run_id: UUID
-    site_id: UUID
+    run_id: RunId
+    site_id: SiteId
     status: RunStatus
     is_archived: bool
 
 
 # %% SubmitRun
 class SubmitRunRequest(ContractModel):
-    site_id: UUID
+    site_id: SiteId
     site_submission: SiteSubmission
 
 
 class SubmitRunResponse(ContractModel):
-    run_id: UUID
-    site_id: UUID
+    run_id: RunId
+    site_id: SiteId
     status: RunStatus
     is_archived: bool
 
@@ -242,7 +231,7 @@ class CreateUserRequest(ContractModel):
 
 
 class CreateUserResponse(ContractModel):
-    user_id: UUID
+    user_id: UserId
     username: str
     is_admin: bool
     is_archived: bool
@@ -250,13 +239,13 @@ class CreateUserResponse(ContractModel):
 
 # %% ListUsers
 class ListUsersFilters(ContractModel):
-    user_ids: list[UUID] | None = None
+    user_ids: list[UserId] | None = None
     usernames: list[str] | None = None
     include_archived: bool = False
 
 
 class ListUsersItem(ContractModel):
-    user_id: UUID
+    user_id: UserId
     username: str
     is_admin: bool
     is_archived: bool
@@ -270,11 +259,11 @@ class ListUsersQuery(PageQuery, ListUsersFilters): ...
 
 # %% GetUser
 class GetUserRequest(ContractModel):
-    user_id: UUID
+    user_id: UserId
 
 
 class GetUserResponse(ContractModel):
-    user_id: UUID
+    user_id: UserId
     username: str
     is_admin: bool
     is_archived: bool
@@ -282,13 +271,13 @@ class GetUserResponse(ContractModel):
 
 # %% UpdateUser
 class UpdateUserRequest(ContractModel):
-    user_id: UUID
+    user_id: UserId
     username: str | None = pydantic.Field(default=None, min_length=1)
     is_admin: bool | None = None
 
 
 class UpdateUserResponse(ContractModel):
-    user_id: UUID
+    user_id: UserId
     username: str
     is_admin: bool
     is_archived: bool
@@ -296,11 +285,11 @@ class UpdateUserResponse(ContractModel):
 
 # %% ArchiveUser
 class ArchiveUserRequest(ContractModel):
-    user_id: UUID
+    user_id: UserId
 
 
 class ArchiveUserResponse(ContractModel):
-    user_id: UUID
+    user_id: UserId
     username: str
     is_admin: bool
     is_archived: bool
@@ -309,12 +298,12 @@ class ArchiveUserResponse(ContractModel):
 # %% CreateApiToken
 class CreateApiTokenRequest(ContractModel):
     name: str = pydantic.Field(min_length=1)
-    user_id: UUID | None = None
+    user_id: UserId | None = None
 
 
 class CreateApiTokenResponse(ContractModel):
-    api_token_id: UUID
-    user_id: UUID
+    api_token_id: ApiTokenId
+    user_id: UserId
     name: str
     is_revoked: bool
     token: str
@@ -322,14 +311,14 @@ class CreateApiTokenResponse(ContractModel):
 
 # %% ListApiTokens
 class ListApiTokensFilters(ContractModel):
-    api_token_ids: list[UUID] | None = None
-    user_id: UUID | None = None
+    api_token_ids: list[ApiTokenId] | None = None
+    user_id: UserId | None = None
     include_revoked: bool = False
 
 
 class ListApiTokensItem(ContractModel):
-    api_token_id: UUID
-    user_id: UUID
+    api_token_id: ApiTokenId
+    user_id: UserId
     name: str
     is_revoked: bool
 
@@ -342,11 +331,11 @@ class ListApiTokensQuery(PageQuery, ListApiTokensFilters): ...
 
 # %% RevokeApiToken
 class RevokeApiTokenRequest(ContractModel):
-    api_token_id: UUID
+    api_token_id: ApiTokenId
 
 
 class RevokeApiTokenResponse(ContractModel):
-    api_token_id: UUID
-    user_id: UUID
+    api_token_id: ApiTokenId
+    user_id: UserId
     name: str
     is_revoked: bool

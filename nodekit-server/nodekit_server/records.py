@@ -1,14 +1,13 @@
 """SQLModel record models for the NodeKit deployment service."""
 
 from typing import ClassVar
-from uuid import UUID
 
 from sqlalchemy import Column, LargeBinary, String
 from sqlmodel import Field, SQLModel
 
 from nodekit.values import MediaType, SHA256
 
-from nodekit.server.values import RunStatus
+from nodekit.server.values import ApiTokenId, RunId, RunStatus, SiteId, TagId, UserId
 
 
 # %%
@@ -17,7 +16,7 @@ class UserRecord(SQLModel, table=True):
 
     __tablename__: ClassVar[str] = "users"
 
-    user_id: UUID = Field(primary_key=True)
+    user_id: UserId = Field(primary_key=True)
     username: str = Field(description="A display username. It does not need to be unique.")
     is_admin: bool = False
     is_archived: bool = False
@@ -29,8 +28,8 @@ class TagRecord(SQLModel, table=True):
 
     __tablename__: ClassVar[str] = "tags"
 
-    tag_id: UUID = Field(primary_key=True)
-    user_id: UUID = Field(foreign_key="users.user_id")
+    tag_id: TagId = Field(primary_key=True)
+    user_id: UserId = Field(foreign_key="users.user_id")
     name: str = Field(min_length=1)
     is_archived: bool = False
 
@@ -41,8 +40,8 @@ class SiteRecord(SQLModel, table=True):
 
     __tablename__: ClassVar[str] = "sites"
 
-    site_id: UUID = Field(primary_key=True)
-    user_id: UUID = Field(foreign_key="users.user_id")
+    site_id: SiteId = Field(primary_key=True)
+    user_id: UserId = Field(foreign_key="users.user_id")
     graph_json_gzip: bytes = Field(
         sa_column=Column(LargeBinary, nullable=False),
         description="Gzipped JSON bytes for the frozen Graph with server-owned Asset locators.",
@@ -56,7 +55,7 @@ class SiteAssetDependencyRecord(SQLModel, table=True):
 
     __tablename__: ClassVar[str] = "site_asset_dependencies"
 
-    site_id: UUID = Field(foreign_key="sites.site_id", primary_key=True)
+    site_id: SiteId = Field(foreign_key="sites.site_id", primary_key=True)
     sha256: SHA256 = Field(sa_column=Column(String(64), primary_key=True))
     media_type: MediaType = Field(sa_column=Column(String, primary_key=True))
 
@@ -67,8 +66,8 @@ class SiteTagRecord(SQLModel, table=True):
 
     __tablename__: ClassVar[str] = "site_tags"
 
-    site_id: UUID = Field(foreign_key="sites.site_id", primary_key=True)
-    tag_id: UUID = Field(foreign_key="tags.tag_id", primary_key=True)
+    site_id: SiteId = Field(foreign_key="sites.site_id", primary_key=True)
+    tag_id: TagId = Field(foreign_key="tags.tag_id", primary_key=True)
 
 
 # %%
@@ -92,8 +91,8 @@ class ApiTokenRecord(SQLModel, table=True):
 
     __tablename__: ClassVar[str] = "api_tokens"
 
-    api_token_id: UUID = Field(primary_key=True)
-    user_id: UUID = Field(foreign_key="users.user_id")
+    api_token_id: ApiTokenId = Field(primary_key=True)
+    user_id: UserId = Field(foreign_key="users.user_id")
     name: str = Field(min_length=1)
     token_hash: str = Field(min_length=1)
     is_revoked: bool = False
@@ -105,8 +104,8 @@ class RunRecord(SQLModel, table=True):
 
     __tablename__: ClassVar[str] = "runs"
 
-    run_id: UUID = Field(primary_key=True)
-    site_id: UUID = Field(foreign_key="sites.site_id")
+    run_id: RunId = Field(primary_key=True)
+    site_id: SiteId = Field(foreign_key="sites.site_id")
     status: RunStatus = Field(default=RunStatus.STARTED)
     site_submission_json_gzip: bytes | None = Field(
         default=None,
