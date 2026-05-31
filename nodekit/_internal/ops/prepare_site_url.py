@@ -35,7 +35,27 @@ def prepare_site_url(
     nodekit_submit_to: str | None = None,
     prolific_completion_code: str | None = None,
 ) -> str:
-    """Return a Site URL with NodeKit/platform query parameters prepared."""
+    """Prepare a Site URL for NodeKit submission behavior.
+
+    Args:
+        site_url: The participant-facing Site URL to prepare.
+        platform: The recruitment platform that will open the Site URL. Use
+            `"none"` for ordinary web links, `"prolific"` for Prolific Studies,
+            and `"mturk"` for Mechanical Turk ExternalQuestion HITs.
+        nodekit_submit_to: An optional side-channel URL where NodeKit should
+            POST the completed `SiteSubmission`. If omitted, an existing
+            `nodekitSubmitTo` query parameter on `site_url` is preserved.
+        prolific_completion_code: The Prolific completion code to include when
+            `platform` is `"prolific"`.
+
+    Returns:
+        The prepared Site URL.
+
+    Raises:
+        ValueError: If `platform` is unsupported, if Prolific is selected
+            without a completion code or submission URL, or if a Prolific
+            completion code is supplied for another platform.
+    """
 
     if platform not in ("none", "prolific", "mturk"):
         raise ValueError(f"Unsupported platform: {platform!r}.")
