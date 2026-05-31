@@ -186,6 +186,73 @@ def test_valid_graph_passes():
     assert graph.start == "start"
 
 
+def test_get_node_at_returns_root_node():
+    node = wait_node()
+    graph = nk.Graph(
+        nodes={"start": node},
+        transitions={"start": nk.transitions.End()},
+        start="start",
+    )
+
+    assert graph.get_node_at(["start"]) == node
+
+
+def test_get_node_at_returns_nested_graph_and_node():
+    inner_node = wait_node()
+    child_graph = nk.Graph(
+        nodes={"inner": inner_node},
+        transitions={"inner": nk.transitions.End()},
+        start="inner",
+    )
+    parent_graph = nk.Graph(
+        nodes={
+            "child": child_graph,
+            "after": wait_node(),
+        },
+        transitions={
+            "child": nk.transitions.Go(to="after"),
+            "after": nk.transitions.End(),
+        },
+        start="child",
+    )
+
+    assert parent_graph.get_node_at(["child"]) == child_graph
+    assert parent_graph.get_node_at(["child", "inner"]) == inner_node
+
+
+def test_get_node_at_rejects_empty_node_address():
+    graph = nk.Graph(
+        nodes={"start": wait_node()},
+        transitions={"start": nk.transitions.End()},
+        start="start",
+    )
+
+    with pytest.raises(ValueError, match="NodeAddress must contain at least one NodeId"):
+        graph.get_node_at([])
+
+
+def test_get_node_at_rejects_missing_node_id():
+    graph = nk.Graph(
+        nodes={"start": wait_node()},
+        transitions={"start": nk.transitions.End()},
+        start="start",
+    )
+
+    with pytest.raises(KeyError, match="Missing NodeId 'missing' at position 0"):
+        graph.get_node_at(["missing"])
+
+
+def test_get_node_at_rejects_descent_through_node():
+    graph = nk.Graph(
+        nodes={"start": wait_node()},
+        transitions={"start": nk.transitions.End()},
+        start="start",
+    )
+
+    with pytest.raises(ValueError, match="cannot descend through non-Graph Node 'start'"):
+        graph.get_node_at(["start", "missing"])
+
+
 def test_accepts_older_compatible_nodekit_version():
     older = compatible_older_version()
     graph = nk.Graph(
