@@ -21,7 +21,7 @@ class Trace(pydantic.BaseModel):
     def validate_nodekit_version(cls, value: str) -> str:
         return validate_compatible_nodekit_version(value)
 
-    def list_steps(self) -> list[StepRecord]:
+    def list_steps(self) -> list['StepRecord']:
         """Project the [Trace][nodekit.Trace] to one StepRecord per completed [Node][nodekit.Node].
 
         Each record pairs one [NodeStartedEvent][nodekit.events.NodeStartedEvent],
