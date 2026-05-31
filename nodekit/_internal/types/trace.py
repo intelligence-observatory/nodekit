@@ -4,6 +4,7 @@ from nodekit import VERSION
 from nodekit._internal.types.events import Event
 import nodekit._internal.types.events as event_types
 from nodekit._internal.types.graph import Graph
+from nodekit._internal.types.actions import Action
 from nodekit._internal.version import validate_compatible_nodekit_version
 
 
@@ -49,7 +50,7 @@ class Trace(pydantic.BaseModel):
         action_records: list[dict[str, object]] = []
         active_node_address: list[str] | None = None
         active_t_start: int | None = None
-        active_action: object | None = None
+        active_action: Action | None = None
         active_t_action: int | None = None
 
         for event in self.events:
