@@ -1,4 +1,4 @@
-"""Shared enums for the NodeKit deployment service."""
+"""Shared values for the NodeKit server/client API."""
 
 import enum
 
@@ -11,11 +11,3 @@ class RunStatus(str, enum.Enum):
     SUBMITTED = "submitted"
     COMPLETED = "completed"
     INVALID = "invalid"
-
-
-# %% Exports
-class ExportFormat(str, enum.Enum):
-    """Supported Run export formats."""
-
-    JSONL = "jsonl"
-    CSV = "csv"

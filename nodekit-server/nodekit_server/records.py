@@ -8,12 +8,12 @@ from sqlmodel import Field, SQLModel
 
 from nodekit.values import MediaType, SHA256
 
-from nodekit_server.enums import RunStatus
+from nodekit.server.values import RunStatus
 
 
 # %%
 class UserRecord(SQLModel, table=True):
-    """A user who can own GraphLinks."""
+    """A user who can own Sites."""
 
     __tablename__: ClassVar[str] = "users"
 
@@ -25,7 +25,7 @@ class UserRecord(SQLModel, table=True):
 
 # %%
 class TagRecord(SQLModel, table=True):
-    """A user-owned label for finding related GraphLinks."""
+    """A user-owned label for finding related Sites."""
 
     __tablename__: ClassVar[str] = "tags"
 
@@ -36,12 +36,12 @@ class TagRecord(SQLModel, table=True):
 
 
 # %%
-class GraphLinkRecord(SQLModel, table=True):
-    """A frozen, participant-facing link for running a Graph."""
+class SiteRecord(SQLModel, table=True):
+    """A frozen, participant-facing Site for running a Graph."""
 
-    __tablename__: ClassVar[str] = "graph_links"
+    __tablename__: ClassVar[str] = "sites"
 
-    graph_link_id: UUID = Field(primary_key=True)
+    site_id: UUID = Field(primary_key=True)
     user_id: UUID = Field(foreign_key="users.user_id")
     graph_json_gzip: bytes = Field(
         sa_column=Column(LargeBinary, nullable=False),
@@ -51,23 +51,23 @@ class GraphLinkRecord(SQLModel, table=True):
 
 
 # %%
-class GraphLinkAssetDependencyRecord(SQLModel, table=True):
-    """Association between a GraphLink and one of its stored Assets."""
+class SiteAssetDependencyRecord(SQLModel, table=True):
+    """Association between a Site and one of its stored Assets."""
 
-    __tablename__: ClassVar[str] = "graph_link_asset_dependencies"
+    __tablename__: ClassVar[str] = "site_asset_dependencies"
 
-    graph_link_id: UUID = Field(foreign_key="graph_links.graph_link_id", primary_key=True)
+    site_id: UUID = Field(foreign_key="sites.site_id", primary_key=True)
     sha256: SHA256 = Field(sa_column=Column(String(64), primary_key=True))
     media_type: MediaType = Field(sa_column=Column(String, primary_key=True))
 
 
 # %%
-class GraphLinkTagRecord(SQLModel, table=True):
-    """Association between a GraphLink and one of its Tags."""
+class SiteTagRecord(SQLModel, table=True):
+    """Association between a Site and one of its Tags."""
 
-    __tablename__: ClassVar[str] = "graph_link_tags"
+    __tablename__: ClassVar[str] = "site_tags"
 
-    graph_link_id: UUID = Field(foreign_key="graph_links.graph_link_id", primary_key=True)
+    site_id: UUID = Field(foreign_key="sites.site_id", primary_key=True)
     tag_id: UUID = Field(foreign_key="tags.tag_id", primary_key=True)
 
 
@@ -101,12 +101,12 @@ class ApiTokenRecord(SQLModel, table=True):
 
 # %%
 class RunRecord(SQLModel, table=True):
-    """One participant attempt against a GraphLink."""
+    """One participant attempt against a Site."""
 
     __tablename__: ClassVar[str] = "runs"
 
     run_id: UUID = Field(primary_key=True)
-    graph_link_id: UUID = Field(foreign_key="graph_links.graph_link_id")
+    site_id: UUID = Field(foreign_key="sites.site_id")
     status: RunStatus = Field(default=RunStatus.STARTED)
     site_submission_json_gzip: bytes | None = Field(
         default=None,

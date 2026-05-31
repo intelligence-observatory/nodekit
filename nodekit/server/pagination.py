@@ -1,4 +1,4 @@
-"""Pagination contracts for the NodeKit deployment service."""
+"""Pagination contracts for the NodeKit server/client API."""
 
 from typing import Generic, TypeVar
 

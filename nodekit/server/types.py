@@ -1,4 +1,4 @@
-"""Public request and response contracts for the NodeKit deployment service."""
+"""Public request and response contracts for the NodeKit server/client API."""
 
 from uuid import UUID
 
@@ -7,8 +7,8 @@ import pydantic
 from nodekit import Graph, SiteSubmission, Trace
 from nodekit.values import MediaType, SHA256
 
-from nodekit_server.enums import ExportFormat, RunStatus
-from nodekit_server.pagination import PageQuery, PageResponse
+from nodekit.server.pagination import PageQuery, PageResponse
+from nodekit.server.values import RunStatus
 
 
 # %% Base
@@ -19,19 +19,15 @@ class ContractModel(pydantic.BaseModel):
 
 
 # %% CreateTag
-class TagPayload(ContractModel):
-    tag_id: UUID
-    user_id: UUID
-    name: str
-    is_archived: bool
-
-
 class CreateTagRequest(ContractModel):
     name: str = pydantic.Field(min_length=1)
 
 
 class CreateTagResponse(ContractModel):
-    tag: TagPayload
+    tag_id: UUID
+    user_id: UUID
+    name: str
+    is_archived: bool
 
 
 # %% ListTags
@@ -41,7 +37,11 @@ class ListTagsFilters(ContractModel):
     include_archived: bool = False
 
 
-class ListTagsItem(TagPayload): ...
+class ListTagsItem(ContractModel):
+    tag_id: UUID
+    user_id: UUID
+    name: str
+    is_archived: bool
 
 
 ListTagsResponse = PageResponse[ListTagsItem]
@@ -57,7 +57,10 @@ class RenameTagRequest(ContractModel):
 
 
 class RenameTagResponse(ContractModel):
-    tag: TagPayload
+    tag_id: UUID
+    user_id: UUID
+    name: str
+    is_archived: bool
 
 
 # %% ArchiveTag
@@ -66,109 +69,125 @@ class ArchiveTagRequest(ContractModel):
 
 
 class ArchiveTagResponse(ContractModel):
-    tag: TagPayload
+    tag_id: UUID
+    user_id: UUID
+    name: str
+    is_archived: bool
 
 
-# %% CreateGraphLink
-class AssetPayload(ContractModel):
+# %% CreateSite
+class CreateSiteRequest(ContractModel):
+    graph: Graph
+    tags: tuple[str, ...] = ()
+
+
+class SiteAssetItem(ContractModel):
     sha256: SHA256
     media_type: MediaType
     size_bytes: int
     url: str | None = None
 
 
-class GraphLinkPayload(ContractModel):
-    graph_link_id: UUID
+class CreateSiteResponse(ContractModel):
+    site_id: UUID
     user_id: UUID
     url: str
-    tags: tuple[TagPayload, ...] = ()
+    tags: tuple[ListTagsItem, ...] = ()
     is_archived: bool
-
-
-class GraphLinkDetailPayload(GraphLinkPayload):
     graph: Graph
-    assets: tuple[AssetPayload, ...] = ()
+    assets: tuple[SiteAssetItem, ...] = ()
 
 
-class CreateGraphLinkRequest(ContractModel):
-    graph: Graph
-    tags: tuple[str, ...] = ()
-
-
-class CreateGraphLinkResponse(ContractModel):
-    graph_link: GraphLinkDetailPayload
-
-
-# %% ListGraphLinks
-class ListGraphLinksFilters(ContractModel):
-    graph_link_ids: list[UUID] | None = None
+# %% ListSites
+class ListSitesFilters(ContractModel):
+    site_ids: list[UUID] | None = None
     tags: list[str] | None = None
     include_archived: bool = False
 
 
-class ListGraphLinksItem(GraphLinkPayload): ...
-
-
-ListGraphLinksResponse = PageResponse[ListGraphLinksItem]
-
-
-class ListGraphLinksQuery(PageQuery, ListGraphLinksFilters): ...
-
-
-# %% GetGraphLink
-class GetGraphLinkRequest(ContractModel):
-    graph_link_id: UUID
-
-
-class GetGraphLinkResponse(ContractModel):
-    graph_link: GraphLinkDetailPayload
-
-
-# %% ArchiveGraphLink
-class ArchiveGraphLinkRequest(ContractModel):
-    graph_link_id: UUID
-
-
-class ArchiveGraphLinkResponse(ContractModel):
-    graph_link: GraphLinkPayload
-
-
-# %% AddGraphLinkTags
-class AddGraphLinkTagsRequest(ContractModel):
-    graph_link_id: UUID
-    tags: tuple[str, ...]
-
-
-class AddGraphLinkTagsResponse(ContractModel):
-    graph_link: GraphLinkPayload
-
-
-# %% RemoveGraphLinkTags
-class RemoveGraphLinkTagsRequest(ContractModel):
-    graph_link_id: UUID
-    tags: tuple[str, ...]
-
-
-class RemoveGraphLinkTagsResponse(ContractModel):
-    graph_link: GraphLinkPayload
-
-
-# %% ListRuns
-class RunPayload(ContractModel):
-    run_id: UUID
-    graph_link_id: UUID
-    status: RunStatus
+class ListSitesItem(ContractModel):
+    site_id: UUID
+    user_id: UUID
+    url: str
+    tags: tuple[ListTagsItem, ...] = ()
     is_archived: bool
 
 
+ListSitesResponse = PageResponse[ListSitesItem]
+
+
+class ListSitesQuery(PageQuery, ListSitesFilters): ...
+
+
+# %% GetSite
+class GetSiteRequest(ContractModel):
+    site_id: UUID
+
+
+class GetSiteResponse(ContractModel):
+    site_id: UUID
+    user_id: UUID
+    url: str
+    tags: tuple[ListTagsItem, ...] = ()
+    is_archived: bool
+    graph: Graph
+    assets: tuple[SiteAssetItem, ...] = ()
+
+
+# %% ArchiveSite
+class ArchiveSiteRequest(ContractModel):
+    site_id: UUID
+
+
+class ArchiveSiteResponse(ContractModel):
+    site_id: UUID
+    user_id: UUID
+    url: str
+    tags: tuple[ListTagsItem, ...] = ()
+    is_archived: bool
+
+
+# %% AddSiteTags
+class AddSiteTagsRequest(ContractModel):
+    site_id: UUID
+    tags: tuple[str, ...]
+
+
+class AddSiteTagsResponse(ContractModel):
+    site_id: UUID
+    user_id: UUID
+    url: str
+    tags: tuple[ListTagsItem, ...] = ()
+    is_archived: bool
+
+
+# %% RemoveSiteTags
+class RemoveSiteTagsRequest(ContractModel):
+    site_id: UUID
+    tags: tuple[str, ...]
+
+
+class RemoveSiteTagsResponse(ContractModel):
+    site_id: UUID
+    user_id: UUID
+    url: str
+    tags: tuple[ListTagsItem, ...] = ()
+    is_archived: bool
+
+
+# %% ListRuns
 class ListRunsFilters(ContractModel):
     run_ids: list[UUID] | None = None
-    graph_link_id: UUID | None = None
+    site_id: UUID | None = None
     statuses: list[RunStatus] | None = None
     include_archived: bool = False
 
 
-class ListRunsItem(RunPayload): ...
+class ListRunsItem(ContractModel):
+    run_id: UUID
+    site_id: UUID
+    status: RunStatus
+    is_archived: bool
 
 
 ListRunsResponse = PageResponse[ListRunsItem]
@@ -178,26 +197,17 @@ class ListRunsQuery(PageQuery, ListRunsFilters): ...
 
 
 # %% GetRun
-class RunDetailPayload(RunPayload):
-    site_submission: SiteSubmission | None = None
-
-
 class GetRunRequest(ContractModel):
     run_id: UUID
 
 
 class GetRunResponse(ContractModel):
-    run: RunDetailPayload
-
-
-# %% GetRunTrace
-class GetRunTraceRequest(ContractModel):
     run_id: UUID
-
-
-class GetRunTraceResponse(ContractModel):
-    run_id: UUID
-    trace: Trace
+    site_id: UUID
+    status: RunStatus
+    is_archived: bool
+    site_submission: SiteSubmission | None = None
+    trace: Trace | None = None
 
 
 # %% ArchiveRun
@@ -206,48 +216,36 @@ class ArchiveRunRequest(ContractModel):
 
 
 class ArchiveRunResponse(ContractModel):
-    run: RunPayload
+    run_id: UUID
+    site_id: UUID
+    status: RunStatus
+    is_archived: bool
 
 
 # %% SubmitRun
 class SubmitRunRequest(ContractModel):
-    graph_link_id: UUID
+    site_id: UUID
     site_submission: SiteSubmission
 
 
 class SubmitRunResponse(ContractModel):
-    run: RunPayload
-
-
-# %% ExportRuns
-class ExportRunsRequest(ContractModel):
-    graph_link_id: UUID | None = None
-    tags: tuple[str, ...] = ()
-    status: RunStatus | None = None
-    format: ExportFormat = ExportFormat.JSONL
-
-
-class ExportRunsResponse(ContractModel):
-    export_id: UUID
-    format: ExportFormat
-    url: str
-
-
-# %% CreateUser
-class UserPayload(ContractModel):
-    user_id: UUID
-    username: str
-    is_admin: bool
+    run_id: UUID
+    site_id: UUID
+    status: RunStatus
     is_archived: bool
 
 
+# %% CreateUser
 class CreateUserRequest(ContractModel):
     username: str = pydantic.Field(min_length=1)
     is_admin: bool = False
 
 
 class CreateUserResponse(ContractModel):
-    user: UserPayload
+    user_id: UUID
+    username: str
+    is_admin: bool
+    is_archived: bool
 
 
 # %% ListUsers
@@ -257,7 +255,11 @@ class ListUsersFilters(ContractModel):
     include_archived: bool = False
 
 
-class ListUsersItem(UserPayload): ...
+class ListUsersItem(ContractModel):
+    user_id: UUID
+    username: str
+    is_admin: bool
+    is_archived: bool
 
 
 ListUsersResponse = PageResponse[ListUsersItem]
@@ -272,7 +274,10 @@ class GetUserRequest(ContractModel):
 
 
 class GetUserResponse(ContractModel):
-    user: UserPayload
+    user_id: UUID
+    username: str
+    is_admin: bool
+    is_archived: bool
 
 
 # %% UpdateUser
@@ -283,7 +288,10 @@ class UpdateUserRequest(ContractModel):
 
 
 class UpdateUserResponse(ContractModel):
-    user: UserPayload
+    user_id: UUID
+    username: str
+    is_admin: bool
+    is_archived: bool
 
 
 # %% ArchiveUser
@@ -292,24 +300,23 @@ class ArchiveUserRequest(ContractModel):
 
 
 class ArchiveUserResponse(ContractModel):
-    user: UserPayload
+    user_id: UUID
+    username: str
+    is_admin: bool
+    is_archived: bool
 
 
 # %% CreateApiToken
-class ApiTokenPayload(ContractModel):
-    api_token_id: UUID
-    user_id: UUID
-    name: str
-    is_revoked: bool
-
-
 class CreateApiTokenRequest(ContractModel):
     name: str = pydantic.Field(min_length=1)
     user_id: UUID | None = None
 
 
 class CreateApiTokenResponse(ContractModel):
-    api_token: ApiTokenPayload
+    api_token_id: UUID
+    user_id: UUID
+    name: str
+    is_revoked: bool
     token: str
 
 
@@ -320,7 +327,11 @@ class ListApiTokensFilters(ContractModel):
     include_revoked: bool = False
 
 
-class ListApiTokensItem(ApiTokenPayload): ...
+class ListApiTokensItem(ContractModel):
+    api_token_id: UUID
+    user_id: UUID
+    name: str
+    is_revoked: bool
 
 
 ListApiTokensResponse = PageResponse[ListApiTokensItem]
@@ -335,4 +346,7 @@ class RevokeApiTokenRequest(ContractModel):
 
 
 class RevokeApiTokenResponse(ContractModel):
-    api_token: ApiTokenPayload
+    api_token_id: UUID
+    user_id: UUID
+    name: str
+    is_revoked: bool
