@@ -1,8 +1,6 @@
 .idea/
 *.egg-info/
 .DS_Store
-.env.nodekit-server
-.nodekit-server/
 
 src/nodekit-browser/node_modules/
 src/nodekit-browser/dist/

@@ -22,7 +22,7 @@ Traditional psych tasks are implemented as bespoke spaghetti code: ad-hoc state 
 - Core Python package lives in `src/nodekit/` (Pydantic models for cards/sensors/actions/events/expressions, ops such as play/build, kernel evaluator). Generated browser assets land in `src/nodekit/_static`.
 - `src/nodekit-browser/` (npm) builds the front-end bundle feeding `_static`.
 - `src/nodekit/server/` contains shared public server/client API types, values, and pagination contracts. These are importable by the Python client and by `nodekit-server`.
-- `src/nodekit_server/` is the optional packaged backend service for turning Graphs into hosted participant-facing Sites, storing submissions/runs, and managing Assets. Top-level `Dockerfile.server`, `.env.nodekit-server.example`, and `NODEKIT_SERVER.md` support local server deployment. The server may depend on `nodekit`, but DB, storage, FastAPI, and deployment concerns must not leak into the core NodeKit ontology.
+- `src/nodekit_server/` is the optional packaged backend service for turning Graphs into hosted participant-facing Sites, storing submissions/runs, and managing Assets. Top-level `Dockerfile.server` and `NODEKIT_SERVER.md` support local server deployment. The server may depend on `nodekit`, but DB, storage, FastAPI, and deployment concerns must not leak into the core NodeKit ontology.
 - `examples/` holds runnable tasks; `docs/` contains EFSM and board notes; `tests/` stores pytest; `dist/` is build output. Config roots: `pyproject.toml`, `uv.lock`, `Makefile`.
 - The `_static` directory contains builds of `nodekit-browser`; these should not be inspected by the Agent.
 

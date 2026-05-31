@@ -1,7 +1,6 @@
 .git
 .idea
 .mypy_cache
-.nodekit-server
 .pytest_cache
 .ruff_cache
 .venv

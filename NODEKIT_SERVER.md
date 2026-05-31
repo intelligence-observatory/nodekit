@@ -2,7 +2,7 @@
 
 `nodekit-server` is the optional FastAPI backend for hosting NodeKit Sites, storing Assets, and collecting participant Runs.
 
-The packaged server source lives in `src/nodekit_server/`. Local Docker support lives at the repository root in `Dockerfile.server` and `.env.nodekit-server.example`.
+The packaged server source lives in `src/nodekit_server/`. Local Docker support lives at the repository root in `Dockerfile.server`.
 
 ## Local Docker Server
 
@@ -12,17 +12,19 @@ Start the local server from the repository root:
 make server-run
 ```
 
-The first run creates `.env.nodekit-server` from `.env.nodekit-server.example`, builds the `nodekit-server:local` Docker image, and starts the API on <http://localhost:8000>.
+This builds the `nodekit-server:local` Docker image and starts an ephemeral API on <http://localhost:8000>.
 
-Local state is persisted under `.nodekit-server/`:
+Local state is stored inside the container:
 
-- `.nodekit-server/data`: SQLite database
-- `.nodekit-server/assets`: filesystem Asset store
+- `/tmp/nodekit-server.db`: SQLite database
+- `/tmp/nodekit-server-assets`: filesystem Asset store
 
-The default development API token is `dev-token`. Override settings by editing `.env.nodekit-server` or by passing Make variables:
+Because `docker run --rm` is used and no repository volume is mounted, stopping the container deletes this local state.
+
+The default development API token is `dev-token`. Override local run settings with Make variables:
 
 ```bash
-make server-run SERVER_PORT=8010 SERVER_ENV_FILE=.env.nodekit-server
+make server-run SERVER_PORT=8010 SERVER_API_TOKEN=my-token
 ```
 
 ## Build Only
@@ -32,6 +34,8 @@ make server-build
 ```
 
 The Dockerfile lives at `Dockerfile.server`, and the build context is the repository root so the image can include the local `src/nodekit` and `src/nodekit_server` packages plus the root lockfile.
+
+Persistent local deployments and production deployments should provide environment variables through their own Docker invocation, compose file, deployment repo, or host-level service manager.
 
 ## Asset Storage
 
