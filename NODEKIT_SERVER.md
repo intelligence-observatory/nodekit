@@ -2,7 +2,7 @@
 
 `nodekit-server` is the optional FastAPI backend for hosting NodeKit Sites, storing Assets, and collecting participant Runs.
 
-The packaged server source lives in `../nodekit_server`. This directory contains Docker, environment, and deployment support files for running that server.
+The packaged server source lives in `src/nodekit_server/`. Local Docker support lives at the repository root in `Dockerfile.server` and `.env.nodekit-server.example`.
 
 ## Local Docker Server
 
@@ -12,7 +12,7 @@ Start the local server from the repository root:
 make server-run
 ```
 
-The first run creates `.env.nodekit-server` from `nodekit-server/.env.example`, builds the `nodekit-server:local` Docker image, and starts the API on <http://localhost:8000>.
+The first run creates `.env.nodekit-server` from `.env.nodekit-server.example`, builds the `nodekit-server:local` Docker image, and starts the API on <http://localhost:8000>.
 
 Local state is persisted under `.nodekit-server/`:
 
@@ -31,7 +31,7 @@ make server-run SERVER_PORT=8010 SERVER_ENV_FILE=.env.nodekit-server
 make server-build
 ```
 
-The Dockerfile lives at `nodekit-server/Dockerfile`, but the build context is still the repository root so the image can include the local `nodekit` and `nodekit_server` packages plus the root lockfile.
+The Dockerfile lives at `Dockerfile.server`, and the build context is the repository root so the image can include the local `src/nodekit` and `src/nodekit_server` packages plus the root lockfile.
 
 ## Asset Storage
 

@@ -4,8 +4,8 @@
 .env.nodekit-server
 .nodekit-server/
 
-nodekit-browser/node_modules/
-nodekit-browser/dist/
+src/nodekit-browser/node_modules/
+src/nodekit-browser/dist/
 *.pyc
 
 examples/**.nkg

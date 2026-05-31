@@ -46,7 +46,7 @@ repository = "https://github.com/intelligence-observatory/nodekit"
 
 [tool.uv.build-backend]
 module-name = ["nodekit", "nodekit_server"]
-module-root = ""
+module-root = "src"
 
 [tool.ty.src]
 exclude = []
@@ -56,5 +56,5 @@ line-length = 100
 
 
 [tool.pytest.ini_options]
-pythonpath = ["."]
+pythonpath = ["src"]
 testpaths = ["tests"]

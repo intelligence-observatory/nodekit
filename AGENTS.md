@@ -18,10 +18,11 @@ Traditional psych tasks are implemented as bespoke spaghetti code: ad-hoc state 
 - an object model suitable for AI agents to interact with
 
 ## Project Structure & Module Organization
-- Core Python package lives in `nodekit/` (Pydantic models for cards/sensors/actions/events/expressions, ops such as play/build, kernel evaluator). Generated browser assets land in `nodekit/_static`.
-- `nodekit-browser/` (npm) builds the front-end bundle feeding `_static`.
-- `nodekit/server/` contains shared public server/client API types, values, and pagination contracts. These are importable by the Python client and by `nodekit-server`.
-- `nodekit_server/` is the optional packaged backend service for turning Graphs into hosted participant-facing Sites, storing submissions/runs, and managing Assets. `nodekit-server/` contains support files such as Docker, env examples, and deployment notes. The server may depend on `nodekit`, but DB, storage, FastAPI, and deployment concerns must not leak into the core NodeKit ontology.
+- Product source lives under `src/`.
+- Core Python package lives in `src/nodekit/` (Pydantic models for cards/sensors/actions/events/expressions, ops such as play/build, kernel evaluator). Generated browser assets land in `src/nodekit/_static`.
+- `src/nodekit-browser/` (npm) builds the front-end bundle feeding `_static`.
+- `src/nodekit/server/` contains shared public server/client API types, values, and pagination contracts. These are importable by the Python client and by `nodekit-server`.
+- `src/nodekit_server/` is the optional packaged backend service for turning Graphs into hosted participant-facing Sites, storing submissions/runs, and managing Assets. Top-level `Dockerfile.server`, `.env.nodekit-server.example`, and `NODEKIT_SERVER.md` support local server deployment. The server may depend on `nodekit`, but DB, storage, FastAPI, and deployment concerns must not leak into the core NodeKit ontology.
 - `examples/` holds runnable tasks; `docs/` contains EFSM and board notes; `tests/` stores pytest; `dist/` is build output. Config roots: `pyproject.toml`, `uv.lock`, `Makefile`.
 - The `_static` directory contains builds of `nodekit-browser`; these should not be inspected by the Agent.
 
@@ -35,12 +36,12 @@ Traditional psych tasks are implemented as bespoke spaghetti code: ad-hoc state 
 - Asset bytes should sit behind a storage boundary. Filesystem storage should work for local/simple installs; S3 or S3-compatible storage can be used for production. FastAPI routes may stream bytes, redirect to storage/CDN URLs, or write direct CDN URLs into the frozen Graph.
 - Deferred nice-to-have: support client-side materialization of Run Traces for local analysis. The server may return Traces whose Graph Asset locators point at server URLs; a later Python client helper can download missing Assets into a local content-addressed cache and return a copied Trace whose Graph Asset locators point at local filesystem paths. Asset identity should remain content-based (`sha256`, `media_type`); locators are contextual.
 - Prefer the FastAPI + SQLModel stack for the server. Use `SQLModel.metadata.create_all(...)` and schema check/export/import tooling for the canonical current schema rather than Alembic migration history in this repo.
-- Public server/client API contracts belong under `nodekit.server` (`types.py`, `values.py`, `pagination.py`) because both the Python client and backend service need them. SQLModel records belong in `nodekit_server/`; DB, storage, and FastAPI concerns should stay server-local and must not leak into the core NodeKit ontology.
+- Public server/client API contracts belong under `nodekit.server` (`types.py`, `values.py`, `pagination.py`) because both the Python client and backend service need them. SQLModel records belong in `src/nodekit_server/`; DB, storage, and FastAPI concerns should stay server-local and must not leak into the core NodeKit ontology.
 - This repo should carry the canonical current `nodekit-server` schema and tooling compatible with the current NodeKit version, not a long historical migration chain. Long-lived personal or production deployments may keep their own Alembic migrations or equivalent upgrade history in a separate ops/deployment repo, then use server schema checks/export/import tools to reconcile with the canonical app schema.
 
 ## Build, Test, and Development Commands
 - `uv sync --dev` installs Python deps with lock enforcement.
-- `make build-browser`: build `nodekit-browser/` and copy bundle to `_static`.
+- `make build-browser`: build `src/nodekit-browser/` and copy bundle to `_static`.
 - `make build`: rebuild browser assets and run `uv build` for the package.
 - `make lint`: Ruff lint/format with fixes.
 - Use `make lint` to autofix lint/format issues instead of manual formatting.
@@ -56,7 +57,7 @@ Traditional psych tasks are implemented as bespoke spaghetti code: ad-hoc state 
 - Python docstrings use Google style.
 - Public Python functions and ops must have Google-style docstrings, especially functions exported from `nodekit.__init__`.
 - Prefer PEP 604 union syntax (`Foo | Bar`) over `typing.Union`.
-- Do not hand-edit `_static` outputs—modify `nodekit-browser/` and rebuild.
+- Do not hand-edit `_static` outputs—modify `src/nodekit-browser/` and rebuild.
 - Schema guards: coordinate/size fields are bounded (-0.5–0.5 points, 0–1 sizes), hex colors normalized to `#rrggbbaa`, assets require valid MIME and SHA-256, multi-select `max_selections >= min_selections`, waits > 0, sliders `num_bins > 1`. Expression evaluator enforces operand types, container types, bounds, and division-by-zero checks.
 - In Python, use # %% delimeters to block out sections of modules. 
 - In Python examples, the recommended import style is: `import nodekit as nk`, not `from nodekit import ...`. Python examples should also never reference the `nodekit._internal` namespace.

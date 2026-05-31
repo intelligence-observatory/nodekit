@@ -4,11 +4,11 @@ Findings from a wide-ranging Python API review. TypeScript, CSS, and JS issues a
 
 ## P1: Correctness
 
-- [ ] Fix `save_asset()` fallback behavior in `nodekit/_internal/ops/open_asset_save_asset.py`.
+- [ ] Fix `save_asset()` fallback behavior in `src/nodekit/_internal/ops/open_asset_save_asset.py`.
   - `os.link()` failures are caught, but the function returns before the streamed-copy fallback runs.
   - This can silently omit assets when source and destination are on different filesystems.
 
-- [ ] Fix `ProductSensor` sampling in `nodekit/_internal/ops/simulate/sample_action.py`.
+- [ ] Fix `ProductSensor` sampling in `src/nodekit/_internal/ops/simulate/sample_action.py`.
   - Current code uses `sensor[child_id]`, but `ProductSensor` is not subscriptable.
   - Use `sensor.children[child_id]` and add regression coverage.
 

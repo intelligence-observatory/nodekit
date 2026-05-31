@@ -22,7 +22,7 @@ set-version:
 	uv run python scripts/set_version.py "$(VERSION)"
 
 build-browser:
-	cd nodekit-browser && \
+	cd src/nodekit-browser && \
 	npm run build && \
 	cp dist/nodekit.js dist/nodekit.css ../nodekit/_static
 
@@ -39,10 +39,10 @@ view-docs: build-docs
 	uv run mkdocs serve --livereload
 
 server-build:
-	docker build -f nodekit-server/Dockerfile -t $(SERVER_IMAGE_NAME):local .
+	docker build -f Dockerfile.server -t $(SERVER_IMAGE_NAME):local .
 
 server-env:
-	@test -f "$(SERVER_ENV_FILE)" || cp nodekit-server/.env.example "$(SERVER_ENV_FILE)"
+	@test -f "$(SERVER_ENV_FILE)" || cp .env.nodekit-server.example "$(SERVER_ENV_FILE)"
 
 server-run: server-build server-env
 	mkdir -p .nodekit-server/data .nodekit-server/assets
