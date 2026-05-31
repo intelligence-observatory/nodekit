@@ -110,12 +110,11 @@ class Client:
         if graph_assets:
             check_assets_response = self.check_assets(assets=graph_assets)
             missing_asset_keys = {
-                (identifier.sha256, identifier.media_type)
-                for identifier in check_assets_response.missing
+                _asset_key(identifier) for identifier in check_assets_response.missing
             }
-            uploaded_asset_keys: set[tuple[str, str]] = set()
+            uploaded_asset_keys: set[AssetKey] = set()
             for asset in graph_assets:
-                asset_key = (asset.sha256, asset.media_type)
+                asset_key = _asset_key(asset)
                 if asset_key not in missing_asset_keys:
                     continue
                 if asset_key in uploaded_asset_keys:
@@ -262,7 +261,7 @@ class Client:
                 sha256=asset.sha256,
                 media_type=asset.media_type,
             )
-            key = (str(identifier.sha256), str(identifier.media_type))
+            key = _asset_key(identifier)
             if key in seen:
                 continue
             seen.add(key)
@@ -395,3 +394,11 @@ class AdminClient(Client):
             contracts.RevokeApiTokenResponse,
             request=request,
         )
+
+
+# %% Helpers
+AssetKey = tuple[str, str]
+
+
+def _asset_key(asset: Asset | contracts.AssetIdentifier) -> AssetKey:
+    return (str(asset.sha256), str(asset.media_type))

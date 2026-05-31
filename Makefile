@@ -1,3 +1,7 @@
+SERVER_IMAGE_NAME ?= nodekit-server
+SERVER_PORT ?= 8000
+SERVER_ENV_FILE ?= .env.nodekit-server
+
 lint:
 	uv run ruff check --fix && \
 	uv run ruff format
@@ -34,6 +38,22 @@ view-docs: build-docs
 	cd docs && \
 	uv run mkdocs serve --livereload
 
+server-build:
+	docker build -f nodekit-server/Dockerfile -t $(SERVER_IMAGE_NAME):local .
+
+server-env:
+	@test -f "$(SERVER_ENV_FILE)" || cp nodekit-server/.env.example "$(SERVER_ENV_FILE)"
+
+server-run: server-build server-env
+	mkdir -p .nodekit-server/data .nodekit-server/assets
+	docker run --rm \
+		-p $(SERVER_PORT):8000 \
+		--env-file $(SERVER_ENV_FILE) \
+		-e NODEKIT_SERVER_DATABASE_URL=sqlite:////data/nodekit-server.db \
+		-e NODEKIT_SERVER_ASSET_STORE_DIR=/asset-store \
+		-v $(CURDIR)/.nodekit-server/data:/data \
+		-v $(CURDIR)/.nodekit-server/assets:/asset-store \
+		$(SERVER_IMAGE_NAME):local
 
 publish: build
 	@version="$$(uv version --short)"; \
