@@ -30,7 +30,11 @@ def newer_prerelease_version() -> str:
     return f"{final_release_version()}.dev2"
 
 
-def minimal_graph() -> nk.Graph:
+def minimal_graph(nodekit_version: str | None = None) -> nk.Graph:
+    kwargs = {}
+    if nodekit_version is not None:
+        kwargs["nodekit_version"] = nodekit_version
+
     return nk.Graph(
         start="start",
         nodes={
@@ -39,6 +43,7 @@ def minimal_graph() -> nk.Graph:
         transitions={
             "start": nk.transitions.End(),
         },
+        **kwargs,
     )
 
 
@@ -122,7 +127,7 @@ def test_rejects_final_release_when_runtime_is_prerelease(monkeypatch: pytest.Mo
     ):
         nk.Trace(
             nodekit_version=final_release,
-            graph=minimal_graph(),
+            graph=minimal_graph(nodekit_version=prerelease_runtime),
             events=[nk.events.TraceStartedEvent(t=0)],
         )
 
@@ -143,7 +148,7 @@ def test_rejects_newer_prerelease_when_runtime_is_prerelease(monkeypatch: pytest
     ):
         nk.Trace(
             nodekit_version=newer_prerelease,
-            graph=minimal_graph(),
+            graph=minimal_graph(nodekit_version=prerelease_runtime),
             events=[nk.events.TraceStartedEvent(t=0)],
         )
 
