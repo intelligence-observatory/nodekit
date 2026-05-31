@@ -1,5 +1,6 @@
 """SQLModel record models for the NodeKit deployment service."""
 
+import datetime
 from typing import ClassVar
 
 from sqlalchemy import Column, LargeBinary, String
@@ -8,6 +9,24 @@ from sqlmodel import Field, SQLModel
 from nodekit.values import MediaType, SHA256
 
 from nodekit.server.values import ApiTokenId, RunId, RunStatus, SiteId, TagId, UserId
+
+
+# %% Timestamps
+def utc_now() -> datetime.datetime:
+    """Return the current time as a timezone-aware UTC datetime."""
+
+    return datetime.datetime.now(datetime.UTC)
+
+
+def as_utc(timestamp: datetime.datetime) -> datetime.datetime:
+    """Return a datetime as timezone-aware UTC.
+
+    SQLite may return naive datetimes; nodekit-server treats stored datetimes as UTC.
+    """
+
+    if timestamp.tzinfo is None:
+        return timestamp.replace(tzinfo=datetime.UTC)
+    return timestamp.astimezone(datetime.UTC)
 
 
 # %%
@@ -20,6 +39,7 @@ class UserRecord(SQLModel, table=True):
     username: str = Field(description="A display username. It does not need to be unique.")
     is_admin: bool = False
     is_archived: bool = False
+    timestamp_created: datetime.datetime = Field(default_factory=utc_now, index=True)
 
 
 # %%
@@ -32,6 +52,7 @@ class TagRecord(SQLModel, table=True):
     user_id: UserId = Field(foreign_key="users.user_id")
     name: str = Field(min_length=1)
     is_archived: bool = False
+    timestamp_created: datetime.datetime = Field(default_factory=utc_now, index=True)
 
 
 # %%
@@ -47,6 +68,7 @@ class SiteRecord(SQLModel, table=True):
         description="Gzipped JSON bytes for the frozen Graph with server-owned Asset locators.",
     )
     is_archived: bool = False
+    timestamp_created: datetime.datetime = Field(default_factory=utc_now, index=True)
 
 
 # %%
@@ -58,6 +80,7 @@ class SiteAssetDependencyRecord(SQLModel, table=True):
     site_id: SiteId = Field(foreign_key="sites.site_id", primary_key=True)
     sha256: SHA256 = Field(sa_column=Column(String(64), primary_key=True))
     media_type: MediaType = Field(sa_column=Column(String, primary_key=True))
+    timestamp_created: datetime.datetime = Field(default_factory=utc_now, index=True)
 
 
 # %%
@@ -68,6 +91,7 @@ class SiteTagRecord(SQLModel, table=True):
 
     site_id: SiteId = Field(foreign_key="sites.site_id", primary_key=True)
     tag_id: TagId = Field(foreign_key="tags.tag_id", primary_key=True)
+    timestamp_created: datetime.datetime = Field(default_factory=utc_now, index=True)
 
 
 # %%
@@ -83,6 +107,7 @@ class AssetRecord(SQLModel, table=True):
         min_length=1,
         description="Storage-provider key for the Asset bytes, such as an S3 key or file path.",
     )
+    timestamp_created: datetime.datetime = Field(default_factory=utc_now, index=True)
 
 
 # %%
@@ -96,6 +121,7 @@ class ApiTokenRecord(SQLModel, table=True):
     name: str = Field(min_length=1)
     token_hash: str = Field(min_length=1)
     is_revoked: bool = False
+    timestamp_created: datetime.datetime = Field(default_factory=utc_now, index=True)
 
 
 # %%
@@ -113,3 +139,4 @@ class RunRecord(SQLModel, table=True):
         description="Gzipped JSON bytes for the submitted site payload, if the Run has completed.",
     )
     is_archived: bool = False
+    timestamp_created: datetime.datetime = Field(default_factory=utc_now, index=True)

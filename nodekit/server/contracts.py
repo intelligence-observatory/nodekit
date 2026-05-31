@@ -6,7 +6,7 @@ from nodekit import Graph, SiteSubmission, Trace
 from nodekit.values import MediaType, SHA256
 
 from nodekit.server.pagination import PageQuery, PageResponse
-from nodekit.server.values import ApiTokenId, RunId, RunStatus, SiteId, UserId
+from nodekit.server.values import ApiTokenId, DatetimeUTC, RunId, RunStatus, SiteId, UserId
 
 
 # %% Base
@@ -24,6 +24,7 @@ class CreateTagRequest(ContractModel):
 class CreateTagResponse(ContractModel):
     name: str
     is_archived: bool
+    timestamp_created: DatetimeUTC
 
 
 # %% ListTags
@@ -35,6 +36,7 @@ class ListTagsFilters(ContractModel):
 class ListTagsItem(ContractModel):
     name: str
     is_archived: bool
+    timestamp_created: DatetimeUTC
 
 
 ListTagsResponse = PageResponse[ListTagsItem]
@@ -52,6 +54,7 @@ class RenameTagRequest(ContractModel):
 class RenameTagResponse(ContractModel):
     name: str
     is_archived: bool
+    timestamp_created: DatetimeUTC
 
 
 # %% ArchiveTag
@@ -62,6 +65,7 @@ class ArchiveTagRequest(ContractModel):
 class ArchiveTagResponse(ContractModel):
     name: str
     is_archived: bool
+    timestamp_created: DatetimeUTC
 
 
 # %% CreateSite
@@ -75,6 +79,7 @@ class SiteAssetItem(ContractModel):
     media_type: MediaType
     size_bytes: int
     url: str | None = None
+    timestamp_created: DatetimeUTC
 
 
 # %% CheckAssets
@@ -102,6 +107,7 @@ class CreateSiteResponse(ContractModel):
     url: str
     tags: tuple[str, ...] = ()
     is_archived: bool
+    timestamp_created: DatetimeUTC
     graph: Graph
     assets: tuple[SiteAssetItem, ...] = ()
 
@@ -119,6 +125,7 @@ class ListSitesItem(ContractModel):
     url: str
     tags: tuple[str, ...] = ()
     is_archived: bool
+    timestamp_created: DatetimeUTC
 
 
 ListSitesResponse = PageResponse[ListSitesItem]
@@ -138,6 +145,7 @@ class GetSiteResponse(ContractModel):
     url: str
     tags: tuple[str, ...] = ()
     is_archived: bool
+    timestamp_created: DatetimeUTC
     graph: Graph
     assets: tuple[SiteAssetItem, ...] = ()
 
@@ -153,6 +161,7 @@ class ArchiveSiteResponse(ContractModel):
     url: str
     tags: tuple[str, ...] = ()
     is_archived: bool
+    timestamp_created: DatetimeUTC
 
 
 # %% AddSiteTags
@@ -167,6 +176,7 @@ class AddSiteTagsResponse(ContractModel):
     url: str
     tags: tuple[str, ...] = ()
     is_archived: bool
+    timestamp_created: DatetimeUTC
 
 
 # %% RemoveSiteTags
@@ -181,6 +191,7 @@ class RemoveSiteTagsResponse(ContractModel):
     url: str
     tags: tuple[str, ...] = ()
     is_archived: bool
+    timestamp_created: DatetimeUTC
 
 
 # %% ListRuns
@@ -196,6 +207,7 @@ class ListRunsItem(ContractModel):
     site_id: SiteId
     status: RunStatus
     is_archived: bool
+    timestamp_created: DatetimeUTC
 
 
 ListRunsResponse = PageResponse[ListRunsItem]
@@ -214,6 +226,7 @@ class GetRunResponse(ContractModel):
     site_id: SiteId
     status: RunStatus
     is_archived: bool
+    timestamp_created: DatetimeUTC
     site_submission: SiteSubmission | None = None
     trace: Trace | None = None
 
@@ -228,6 +241,7 @@ class ArchiveRunResponse(ContractModel):
     site_id: SiteId
     status: RunStatus
     is_archived: bool
+    timestamp_created: DatetimeUTC
 
 
 # %% SubmitRun
@@ -241,6 +255,7 @@ class SubmitRunResponse(ContractModel):
     site_id: SiteId
     status: RunStatus
     is_archived: bool
+    timestamp_created: DatetimeUTC
 
 
 # %% CreateUser
@@ -254,6 +269,7 @@ class CreateUserResponse(ContractModel):
     username: str
     is_admin: bool
     is_archived: bool
+    timestamp_created: DatetimeUTC
 
 
 # %% ListUsers
@@ -268,6 +284,7 @@ class ListUsersItem(ContractModel):
     username: str
     is_admin: bool
     is_archived: bool
+    timestamp_created: DatetimeUTC
 
 
 ListUsersResponse = PageResponse[ListUsersItem]
@@ -286,6 +303,7 @@ class GetUserResponse(ContractModel):
     username: str
     is_admin: bool
     is_archived: bool
+    timestamp_created: DatetimeUTC
 
 
 # %% UpdateUser
@@ -300,6 +318,7 @@ class UpdateUserResponse(ContractModel):
     username: str
     is_admin: bool
     is_archived: bool
+    timestamp_created: DatetimeUTC
 
 
 # %% ArchiveUser
@@ -312,6 +331,7 @@ class ArchiveUserResponse(ContractModel):
     username: str
     is_admin: bool
     is_archived: bool
+    timestamp_created: DatetimeUTC
 
 
 # %% CreateApiToken
@@ -325,6 +345,7 @@ class CreateApiTokenResponse(ContractModel):
     user_id: UserId
     name: str
     is_revoked: bool
+    timestamp_created: DatetimeUTC
     token: str
 
 
@@ -340,6 +361,7 @@ class ListApiTokensItem(ContractModel):
     user_id: UserId
     name: str
     is_revoked: bool
+    timestamp_created: DatetimeUTC
 
 
 ListApiTokensResponse = PageResponse[ListApiTokensItem]
@@ -358,3 +380,4 @@ class RevokeApiTokenResponse(ContractModel):
     user_id: UserId
     name: str
     is_revoked: bool
+    timestamp_created: DatetimeUTC

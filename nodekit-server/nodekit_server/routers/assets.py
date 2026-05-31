@@ -12,7 +12,7 @@ import nodekit.server.contracts as contracts
 from nodekit.values import MediaType, SHA256
 from nodekit_server.auth import UserDep
 from nodekit_server.deps import AssetStoreDep, SessionDep
-from nodekit_server.records import AssetRecord
+from nodekit_server.records import AssetRecord, as_utc
 
 
 # %% Router
@@ -26,6 +26,7 @@ def _asset_record_to_item(asset_record: AssetRecord) -> contracts.SiteAssetItem:
         media_type=asset_record.media_type,
         size_bytes=asset_record.size_bytes,
         url=None,
+        timestamp_created=as_utc(asset_record.timestamp_created),
     )
 
 

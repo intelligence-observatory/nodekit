@@ -1,4 +1,5 @@
 import json
+import datetime
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
@@ -11,6 +12,7 @@ import nodekit.server.contracts as contracts
 
 
 ASSET_DIR = Path(__file__).parent / "assets"
+TIMESTAMP_CREATED = datetime.datetime(2026, 5, 31, tzinfo=datetime.UTC).isoformat()
 
 
 # %%
@@ -80,6 +82,7 @@ def test_upload_asset_sends_multipart_asset_bytes() -> None:
                     "media_type": asset.media_type,
                     "size_bytes": asset_path.stat().st_size,
                     "url": f"https://nodekit.example/assets/{asset.sha256}",
+                    "timestamp_created": TIMESTAMP_CREATED,
                 }
             },
         )
@@ -128,6 +131,7 @@ def test_create_site_preflights_and_uploads_missing_assets(graph_with_assets: nk
                         "media_type": missing["media_type"],
                         "size_bytes": len(request.content),
                         "url": f"https://nodekit.example/assets/{missing['sha256']}",
+                        "timestamp_created": TIMESTAMP_CREATED,
                     }
                 },
             )
@@ -143,6 +147,7 @@ def test_create_site_preflights_and_uploads_missing_assets(graph_with_assets: nk
                     "url": f"https://nodekit.example/s/{site_id}",
                     "tags": body["tags"],
                     "is_archived": False,
+                    "timestamp_created": TIMESTAMP_CREATED,
                     "graph": body["graph"],
                     "assets": [],
                 },

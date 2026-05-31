@@ -22,6 +22,7 @@ from nodekit_server.records import (
     SiteRecord,
     SiteTagRecord,
     TagRecord,
+    as_utc,
 )
 from nodekit_server.settings import ServerSettings
 
@@ -74,6 +75,7 @@ def _asset_record_to_item(asset_record: AssetRecord) -> contracts.SiteAssetItem:
         media_type=asset_record.media_type,
         size_bytes=asset_record.size_bytes,
         url=_asset_url(sha256=asset_record.sha256),
+        timestamp_created=as_utc(asset_record.timestamp_created),
     )
 
 
@@ -204,6 +206,7 @@ def create_site(
         url=_site_url(request=request, settings=settings, site_id=site_record.site_id),
         tags=tags,
         is_archived=site_record.is_archived,
+        timestamp_created=as_utc(site_record.timestamp_created),
         graph=normalized_graph,
         assets=asset_items,
     )

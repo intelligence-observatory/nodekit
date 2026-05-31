@@ -3,6 +3,7 @@ import importlib
 import os
 import sys
 import gzip
+import datetime
 from collections.abc import Iterator
 from pathlib import Path
 from types import ModuleType
@@ -21,6 +22,12 @@ from nodekit._internal.utils.iter_assets import iter_assets
 
 SERVER_ROOT = Path(__file__).parents[1] / "nodekit-server"
 ASSET_DIR = Path(__file__).parent / "assets"
+
+
+# %%
+def _assert_utc_timestamp(value: str) -> None:
+    parsed = datetime.datetime.fromisoformat(value.replace("Z", "+00:00"))
+    assert parsed.utcoffset() == datetime.timedelta(0)
 
 
 # %%
@@ -108,14 +115,12 @@ def test_upload_asset_persists_and_check_assets_finds_it(
     )
 
     assert upload_response.status_code == 200
-    assert upload_response.json() == {
-        "asset": {
-            "sha256": asset.sha256,
-            "media_type": asset.media_type,
-            "size_bytes": asset_path.stat().st_size,
-            "url": None,
-        }
-    }
+    upload_body = upload_response.json()
+    assert upload_body["asset"]["sha256"] == asset.sha256
+    assert upload_body["asset"]["media_type"] == asset.media_type
+    assert upload_body["asset"]["size_bytes"] == asset_path.stat().st_size
+    assert upload_body["asset"]["url"] is None
+    _assert_utc_timestamp(upload_body["asset"]["timestamp_created"])
 
     asset_store_dir = server_main.settings.asset_store_dir
     stored_files = [path for path in asset_store_dir.glob("assets/**/*") if path.is_file()]
@@ -146,7 +151,7 @@ def test_upload_asset_persists_and_check_assets_finds_it(
     )
 
     assert second_upload_response.status_code == 200
-    assert second_upload_response.json() == upload_response.json()
+    assert second_upload_response.json() == upload_body
 
 
 # %%
@@ -250,7 +255,10 @@ def test_create_site_persists_normalized_graph(
     body = response.json()
     assert body["url"] == f"http://testserver/s/{body['site_id']}"
     assert body["tags"] == ["pilot", "main"]
+    _assert_utc_timestamp(body["timestamp_created"])
     assert len(body["assets"]) == 3
+    for asset in body["assets"]:
+        _assert_utc_timestamp(asset["timestamp_created"])
 
     response_graph = nk.Graph.model_validate(body["graph"])
     for asset in iter_assets(graph=response_graph):
