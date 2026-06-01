@@ -10,8 +10,14 @@ import { pageInfo, pageRows, rowsInTimeRange, SITES_PAGE_SIZE } from "./paginati
 import { matchesRunSearch, matchesSiteSearch } from "./search";
 import "./styles.css";
 import { createRunsTable, createSitesTable } from "./table";
-import { bucketRuns, lookbackRanges, visibleRange } from "./time-buckets";
+import {
+  bucketRuns,
+  lookbackRanges,
+  selectedBucketTimeRange,
+  visibleRange,
+} from "./time-buckets";
 import type {
+  BucketRangeSelection,
   CachedRunItem,
   CachedSiteItem,
   CacheStatus,
@@ -38,6 +44,7 @@ interface AppState {
   pageIndex: number;
   sitePageIndex: number;
   selectedSiteIds: Set<string>;
+  selectedBucketRange: BucketRangeSelection | null;
   hasInitializedSiteSelection: boolean;
   error: string | null;
   loading: boolean;
@@ -60,6 +67,7 @@ const state: AppState = {
   pageIndex: 0,
   sitePageIndex: 0,
   selectedSiteIds: new Set(),
+  selectedBucketRange: null,
   hasInitializedSiteSelection: false,
   error: null,
   loading: false,
@@ -67,6 +75,7 @@ const state: AppState = {
 
 let chartController: RunChartController | null = null;
 let lastChartWidth = 0;
+let chartInteractionEpoch = 0;
 
 const app = document.querySelector<HTMLDivElement>("#app");
 if (!app) throw new Error("Missing #app mount point.");
@@ -83,6 +92,7 @@ app.innerHTML = `
       </div>
       <div class="topbar-actions">
         <div id="cache-line" class="cache-line"></div>
+        <button id="reset-view" class="quiet-text-button" type="button">Reset view</button>
         <button
           id="refresh"
           class="quiet-icon-button"
@@ -148,6 +158,7 @@ void loadHealth();
 window.setInterval(() => void loadHealth(), HEALTH_POLL_INTERVAL_MS);
 
 function bindStaticControls(): void {
+  byId("reset-view").addEventListener("click", resetView);
   byId("refresh").addEventListener("click", () => void manualRefresh());
   input("search-filter").addEventListener("input", (event) => {
     state.search = (event.target as HTMLInputElement).value;
@@ -169,12 +180,15 @@ function bindChartResize(): void {
     const width = Math.round(host.clientWidth);
     if (width <= 0 || width === lastChartWidth) return;
     lastChartWidth = width;
-    const chartRows = chartWindowRows();
-    const sites = filteredSiteRows(buildSiteRows(state.sites, chartRows));
+    const fullRange = visibleRange(state.lookback);
+    const activeRange = selectedBucketTimeRange(fullRange, state.selectedBucketRange);
+    const chartRows = rowsInTimeRange(state.rows, fullRange);
+    const activeRows = rowsInTimeRange(state.rows, activeRange);
+    const sites = filteredSiteRows(buildSiteRows(state.sites, activeRows));
     const selectedSiteIds = visibleSelectedSiteIds(sites);
     renderChart(
       chartRows,
-      selectedSiteIds.size === 0 ? [] : filterRowsBySiteIds(chartRows, selectedSiteIds),
+      selectedSiteIds.size === 0 ? [] : filterRowsBySiteIds(activeRows, selectedSiteIds),
       sites.length > 0,
     );
   });
@@ -239,15 +253,18 @@ async function manualRefresh(): Promise<void> {
 }
 
 function render(): void {
-  const range = visibleRange(state.lookback);
-  const chartRows = rowsInTimeRange(state.rows, range);
-  const sites = filteredSiteRows(buildSiteRows(state.sites, chartRows));
+  const fullRange = visibleRange(state.lookback);
+  const activeRange = selectedBucketTimeRange(fullRange, state.selectedBucketRange);
+  const chartRows = rowsInTimeRange(state.rows, fullRange);
+  const activeRows = rowsInTimeRange(state.rows, activeRange);
+  const activeSites = buildSiteRows(state.sites, activeRows);
+  const sites = filteredSiteRows(activeSites);
   const selectedSiteIds = visibleSelectedSiteIds(sites);
   const selectedRows =
-    selectedSiteIds.size === 0 ? [] : filterRowsBySiteIds(chartRows, selectedSiteIds);
-  const rows = filteredRows(filterRowsBySiteIds(chartRows, selectedSiteIds));
+    selectedSiteIds.size === 0 ? [] : filterRowsBySiteIds(activeRows, selectedSiteIds);
+  const rows = filteredRows(filterRowsBySiteIds(activeRows, selectedSiteIds));
   renderTopbar();
-  renderTitleMetadata(chartRows.length, sites.length, rows.length);
+  renderTitleMetadata(activeRows.length, activeSites.length, activeRange);
   renderRangePills();
   renderChart(chartRows, selectedRows, sites.length > 0);
   renderSitesTable(sites);
@@ -255,11 +272,15 @@ function render(): void {
   byId("error").textContent = state.error ?? "";
 }
 
-function renderTitleMetadata(runCount: number, siteCount: number, visibleRunCount: number): void {
-  const label = currentWindowLabel();
-  byId("run-volume-title-meta").textContent = `(n=${runCount} in last ${label})`;
-  byId("sites-title-meta").textContent = `(n=${siteCount} in last ${label})`;
-  byId("runs-title-meta").textContent = `(n=${visibleRunCount} in last ${label})`;
+function renderTitleMetadata(
+  runCount: number,
+  siteCount: number,
+  activeRange: ReturnType<typeof visibleRange>,
+): void {
+  const label = activeWindowLabel(activeRange);
+  byId("run-volume-title-meta").textContent = `(n=${runCount} in ${label})`;
+  byId("sites-title-meta").textContent = `(n=${siteCount} active in ${label})`;
+  byId("runs-title-meta").textContent = `(n=${runCount} in ${label})`;
 }
 
 function renderTopbar(): void {
@@ -287,10 +308,7 @@ function renderRangePills(): void {
     button.className = `range-pill ${state.lookback === range ? "selected" : ""}`;
     button.textContent = range;
     button.addEventListener("click", () => {
-      state.lookback = range;
-      state.pageIndex = 0;
-      state.sitePageIndex = 0;
-      render();
+      changeLookback(range);
     });
     host.append(button);
   }
@@ -301,11 +319,32 @@ function renderChart(
   selectedRows: RunTableRow[],
   siteLensVisible: boolean,
 ): void {
+  const epoch = ++chartInteractionEpoch;
   chartController?.destroy();
   const range = visibleRange(state.lookback);
   const buckets = bucketRuns(rows, range, selectedRows);
-  chartController = renderRunChart(byId("chart"), buckets, range, siteLensVisible);
+  chartController = renderRunChart(byId("chart"), buckets, range, siteLensVisible, {
+    selectedBucketRange: state.selectedBucketRange,
+    onBucketSelect(selection) {
+      if (epoch !== chartInteractionEpoch) return;
+      state.selectedBucketRange = selection;
+      selectAllActiveSitesInCurrentView();
+      state.pageIndex = 0;
+      state.sitePageIndex = 0;
+      render();
+    },
+  });
   lastChartWidth = Math.round(byId("chart").clientWidth);
+}
+
+function changeLookback(range: LookbackRange): void {
+  chartInteractionEpoch += 1;
+  state.lookback = range;
+  state.selectedBucketRange = null;
+  selectAllSitesInRange(visibleRange(range));
+  state.pageIndex = 0;
+  state.sitePageIndex = 0;
+  render();
 }
 
 function renderSitesTable(rows: SiteTableRow[]): void {
@@ -419,15 +458,14 @@ function renderRunsTable(rows: RunTableRow[]): void {
 
 function renderSitesPager(info: ReturnType<typeof pageInfo>, rows: SiteTableRow[]): void {
   const host = byId("sites-pager");
-  const rangeLabel = state.lookback;
   host.replaceChildren();
 
   const summary = document.createElement("div");
   summary.className = "pager-summary";
   summary.textContent =
     info.total === 0
-      ? `Showing 0 of 0 Sites in last ${rangeLabel}`
-      : `Showing ${info.start}-${info.end} of ${info.total} Sites in last ${rangeLabel}`;
+      ? "Showing 0 of 0 selected"
+      : `Showing ${info.start}-${info.end} of ${info.total} selected`;
 
   const controls = document.createElement("div");
   controls.className = "pager-controls";
@@ -451,15 +489,14 @@ function renderSitesPager(info: ReturnType<typeof pageInfo>, rows: SiteTableRow[
 
 function renderPager(info: ReturnType<typeof pageInfo>): void {
   const host = byId("runs-pager");
-  const rangeLabel = state.lookback;
   host.replaceChildren();
 
   const summary = document.createElement("div");
   summary.className = "pager-summary";
   summary.textContent =
     info.total === 0
-      ? `Showing 0 of 0 Runs in last ${rangeLabel}`
-      : `Showing ${info.start}-${info.end} of ${info.total} Runs in last ${rangeLabel}`;
+      ? "Showing 0 of 0 selected"
+      : `Showing ${info.start}-${info.end} of ${info.total} selected`;
 
   const controls = document.createElement("div");
   controls.className = "pager-controls";
@@ -487,6 +524,34 @@ function pagerButton(label: string, disabled: boolean, onClick: () => void): HTM
   return button;
 }
 
+function resetView(): void {
+  state.selectedBucketRange = null;
+  state.search = "";
+  state.siteSearch = "";
+  input("search-filter").value = "";
+  input("site-search-filter").value = "";
+  state.sorting = [{ id: "createdAtMs", desc: true }];
+  state.siteSorting = [
+    { id: "runCount", desc: true },
+    { id: "latestRunAtMs", desc: true },
+  ];
+  state.pageIndex = 0;
+  state.sitePageIndex = 0;
+  selectAllActiveSitesInCurrentView();
+  render();
+}
+
+function selectAllActiveSitesInCurrentView(): void {
+  const fullRange = visibleRange(state.lookback);
+  const activeRange = selectedBucketTimeRange(fullRange, state.selectedBucketRange);
+  selectAllSitesInRange(activeRange);
+}
+
+function selectAllSitesInRange(range: ReturnType<typeof visibleRange>): void {
+  const activeRows = rowsInTimeRange(state.rows, range);
+  state.selectedSiteIds = new Set(buildSiteRows(state.sites, activeRows).map((site) => site.siteId));
+}
+
 function appendSortHeader<T>(th: HTMLTableCellElement, header: Header<T, unknown>): void {
   const label = document.createElement("span");
   const sortState = header.column.getIsSorted();
@@ -509,10 +574,6 @@ function appendSortHeader<T>(th: HTMLTableCellElement, header: Header<T, unknown
       : sortState === "desc"
         ? "Sorted descending. Click to clear sorting."
         : "Not sorted. Click to sort ascending.";
-}
-
-function chartWindowRows(): RunTableRow[] {
-  return rowsInTimeRange(state.rows, visibleRange(state.lookback));
 }
 
 function filteredRows(rows: RunTableRow[]): RunTableRow[] {
@@ -630,6 +691,21 @@ function currentWindowLabel(): string {
   if (state.lookback === "1d") return "day";
   if (state.lookback === "7d") return "week";
   return "month";
+}
+
+function activeWindowLabel(range: ReturnType<typeof visibleRange>): string {
+  if (state.selectedBucketRange === null) return `last ${currentWindowLabel()}`;
+  return formatActiveRange(range);
+}
+
+function formatActiveRange(range: ReturnType<typeof visibleRange>): string {
+  const options: Intl.DateTimeFormatOptions =
+    range.labelUnit === "hour"
+      ? { hour: "numeric", minute: "2-digit" }
+      : { month: "short", day: "numeric", hour: "numeric" };
+  return `${new Date(range.startMs).toLocaleString([], options)}-${new Date(
+    range.endMs,
+  ).toLocaleString([], options)}`;
 }
 
 function errorMessage(error: unknown): string {

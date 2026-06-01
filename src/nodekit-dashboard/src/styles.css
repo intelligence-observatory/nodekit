@@ -51,8 +51,17 @@ button.quiet-icon-button {
   padding: 0;
 }
 
+button.quiet-text-button {
+  border-color: transparent;
+  background: transparent;
+  color: var(--muted);
+  padding: 6px 8px;
+}
+
 button.quiet-icon-button:hover,
-button.quiet-icon-button:focus-visible {
+button.quiet-icon-button:focus-visible,
+button.quiet-text-button:hover,
+button.quiet-text-button:focus-visible {
   border-color: color-mix(in srgb, var(--accent-dark) 42%, var(--line));
   background: color-mix(in srgb, var(--accent) 20%, white);
   color: var(--accent-dark);
@@ -193,7 +202,23 @@ h2 {
 .chart-wrap {
   position: relative;
   margin-top: 12px;
-  min-height: 220px;
+  min-height: 246px;
+}
+
+.chart-wrap .u-over {
+  cursor: default;
+}
+
+.chart-wrap .u-select {
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent-dark) 38%, transparent);
+}
+
+.chart-readout {
+  min-height: 18px;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 12px;
 }
 
 .chart-empty {

@@ -16,7 +16,13 @@ import {
   searchableRunText,
   searchableSiteText,
 } from "../src/search";
-import { bucketRuns, integerTicks, relativeTickLabel, visibleRange } from "../src/time-buckets";
+import {
+  bucketRuns,
+  integerTicks,
+  relativeTickLabel,
+  selectedBucketTimeRange,
+  visibleRange,
+} from "../src/time-buckets";
 import type { CachedRunItem, RunTableRow } from "../src/types";
 
 const nowMs = Date.parse("2026-05-31T12:30:00Z");
@@ -115,6 +121,23 @@ describe("run bucketing", () => {
     expect(buckets.reduce((sum, bucket) => sum + bucket.total, 0)).toBe(2);
     expect(buckets.reduce((sum, bucket) => sum + bucket.selectedTotal, 0)).toBe(2);
     expect(bucketRuns(rows, range).every((bucket) => bucket.selectedTotal === 0)).toBe(true);
+  });
+
+  it("converts selected bucket indices to an active time range", () => {
+    const range = visibleRange("1h", nowMs);
+    const selected = selectedBucketTimeRange(range, { startIndex: 10, endIndex: 12 });
+
+    expect(selected.startMs).toBe(range.startMs + 10 * range.bucketMs);
+    expect(selected.endMs).toBe(range.startMs + 13 * range.bucketMs);
+    expect(selected.bucketMs).toBe(range.bucketMs);
+  });
+
+  it("normalizes reversed selected bucket indices", () => {
+    const range = visibleRange("1h", nowMs);
+    const selected = selectedBucketTimeRange(range, { startIndex: 12, endIndex: 10 });
+
+    expect(selected.startMs).toBe(range.startMs + 10 * range.bucketMs);
+    expect(selected.endMs).toBe(range.startMs + 13 * range.bucketMs);
   });
 
   it("creates discrete bucket counts from the configured chunk size", () => {

@@ -1,4 +1,11 @@
-import type { LookbackRange, RelativeLabelUnit, RunBucket, RunTableRow, TimeRange } from "./types";
+import type {
+  BucketRangeSelection,
+  LookbackRange,
+  RelativeLabelUnit,
+  RunBucket,
+  RunTableRow,
+  TimeRange,
+} from "./types";
 
 const MINUTE_MS = 60 * 1000;
 const HOUR_MS = 60 * 60 * 1000;
@@ -56,6 +63,20 @@ export function relativeTickLabel(timestampMs: number, range: TimeRange): string
   }
   const days = Math.round(diffMs / DAY_MS);
   return days === 0 ? "today" : `${days}d ago`;
+}
+
+export function selectedBucketTimeRange(
+  range: TimeRange,
+  selection: BucketRangeSelection | null,
+): TimeRange {
+  if (selection === null) return range;
+  const startIndex = Math.min(selection.startIndex, selection.endIndex);
+  const endIndex = Math.max(selection.startIndex, selection.endIndex);
+  return {
+    ...range,
+    startMs: range.startMs + startIndex * range.bucketMs,
+    endMs: Math.min(range.endMs, range.startMs + (endIndex + 1) * range.bucketMs),
+  };
 }
 
 export function integerTicks(max: number): number[] {
