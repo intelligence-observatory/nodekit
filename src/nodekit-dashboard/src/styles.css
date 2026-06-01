@@ -170,6 +170,12 @@ h2 {
   font-size: 16px;
 }
 
+.title-meta {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 500;
+}
+
 .range-pills {
   display: flex;
   gap: 6px;

@@ -65,7 +65,7 @@ describe("run bucketing", () => {
     expect(new Date(oneHourBuckets.at(-1)!.startMs).getSeconds()).toBe(0);
     expect(oneHourBuckets.at(-1)!.endMs).toBe(unalignedNowMs);
 
-    const dayBuckets = bucketRuns([], visibleRange("24h", unalignedNowMs));
+    const dayBuckets = bucketRuns([], visibleRange("1d", unalignedNowMs));
     expect(dayBuckets).toHaveLength(96);
     expect(new Date(dayBuckets.at(-1)!.startMs).getMinutes() % 15).toBe(0);
     expect(new Date(dayBuckets.at(-1)!.startMs).getSeconds()).toBe(0);
@@ -81,7 +81,7 @@ describe("run bucketing", () => {
   });
 
   it("uses the requested fixed bucket sizes for each lookback", () => {
-    expect(visibleRange("24h", nowMs).bucketMs).toBe(15 * 60 * 1000);
+    expect(visibleRange("1d", nowMs).bucketMs).toBe(15 * 60 * 1000);
     expect(visibleRange("7d", nowMs).bucketMs).toBe(60 * 60 * 1000);
     expect(visibleRange("30d", nowMs).bucketMs).toBe(24 * 60 * 60 * 1000);
     expect(visibleRange("7d", nowMs).labelUnit).toBe("day");
@@ -99,7 +99,7 @@ describe("run bucketing", () => {
 
   it("counts total runs without status splitting", () => {
     const rows = buildRunRows(runs, []);
-    const range = visibleRange("24h", nowMs);
+    const range = visibleRange("1d", nowMs);
     const buckets = bucketRuns(rows, range);
     const nonEmpty = buckets.filter((bucket) => bucket.total > 0);
 
@@ -108,7 +108,7 @@ describe("run bucketing", () => {
 
   it("counts selected site runs without changing global bucket counts", () => {
     const rows = buildRunRows(runs, []);
-    const range = visibleRange("24h", nowMs);
+    const range = visibleRange("1d", nowMs);
     const selectedRows = filterRowsBySiteIds(rows, new Set(["site-1"]));
     const buckets = bucketRuns(rows, range, selectedRows);
 
@@ -119,7 +119,7 @@ describe("run bucketing", () => {
 
   it("creates discrete bucket counts from the configured chunk size", () => {
     expect(bucketRuns([], visibleRange("1h", nowMs))).toHaveLength(60);
-    expect(bucketRuns([], visibleRange("24h", nowMs))).toHaveLength((24 * 60) / 15);
+    expect(bucketRuns([], visibleRange("1d", nowMs))).toHaveLength((24 * 60) / 15);
     expect(bucketRuns([], visibleRange("7d", nowMs))).toHaveLength(7 * 24);
     expect(bucketRuns([], visibleRange("30d", nowMs))).toHaveLength(30);
   });
@@ -161,7 +161,7 @@ describe("site table lens", () => {
         timestamp_created: "2026-05-29T09:00:00Z",
       },
     ]);
-    const range = visibleRange("24h", nowMs);
+    const range = visibleRange("1d", nowMs);
     const siteRows = buildSiteRows(
       [
         {

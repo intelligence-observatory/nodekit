@@ -95,7 +95,7 @@ app.innerHTML = `
     <main class="content">
       <section class="panel">
         <div class="panel-header">
-          <h2>Run Volume</h2>
+          <h2>Run Volume <span id="run-volume-title-meta" class="title-meta"></span></h2>
           <div id="range-pills" class="range-pills" aria-label="Histogram range"></div>
         </div>
         <div id="chart" class="chart-wrap"></div>
@@ -103,7 +103,7 @@ app.innerHTML = `
 
       <section class="panel">
         <div class="panel-header">
-          <h2>Sites</h2>
+          <h2>Sites <span id="sites-title-meta" class="title-meta"></span></h2>
           <label class="search-field">
             ${icon("search")}
             <input
@@ -121,7 +121,7 @@ app.innerHTML = `
 
       <section class="panel">
         <div class="panel-header">
-          <h2>Runs</h2>
+          <h2>Runs <span id="runs-title-meta" class="title-meta"></span></h2>
           <label class="search-field">
             ${icon("search")}
             <input
@@ -247,11 +247,19 @@ function render(): void {
     selectedSiteIds.size === 0 ? [] : filterRowsBySiteIds(chartRows, selectedSiteIds);
   const rows = filteredRows(filterRowsBySiteIds(chartRows, selectedSiteIds));
   renderTopbar();
+  renderTitleMetadata(chartRows.length, sites.length, rows.length);
   renderRangePills();
   renderChart(chartRows, selectedRows, sites.length > 0);
   renderSitesTable(sites);
   renderRunsTable(rows);
   byId("error").textContent = state.error ?? "";
+}
+
+function renderTitleMetadata(runCount: number, siteCount: number, visibleRunCount: number): void {
+  const label = currentWindowLabel();
+  byId("run-volume-title-meta").textContent = `(n=${runCount} in last ${label})`;
+  byId("sites-title-meta").textContent = `(n=${siteCount} in last ${label})`;
+  byId("runs-title-meta").textContent = `(n=${visibleRunCount} in last ${label})`;
 }
 
 function renderTopbar(): void {
@@ -615,6 +623,13 @@ function formatUrl(value: string): string {
   } catch {
     return value;
   }
+}
+
+function currentWindowLabel(): string {
+  if (state.lookback === "1h") return "hour";
+  if (state.lookback === "1d") return "day";
+  if (state.lookback === "7d") return "week";
+  return "month";
 }
 
 function errorMessage(error: unknown): string {

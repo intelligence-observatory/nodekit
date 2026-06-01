@@ -4,7 +4,7 @@ const MINUTE_MS = 60 * 1000;
 const HOUR_MS = 60 * 60 * 1000;
 const DAY_MS = 24 * HOUR_MS;
 
-export const lookbackRanges: LookbackRange[] = ["1h", "24h", "7d", "30d"];
+export const lookbackRanges: LookbackRange[] = ["1h", "1d", "7d", "30d"];
 
 export function visibleRange(lookback: LookbackRange, nowMs = Date.now()): TimeRange {
   const durationMs = lookbackDurationMs(lookback);
@@ -100,14 +100,14 @@ function rowBucketStart(timestampMs: number, range: TimeRange, bucketCount: numb
 
 function lookbackDurationMs(lookback: LookbackRange): number {
   if (lookback === "1h") return HOUR_MS;
-  if (lookback === "24h") return 24 * HOUR_MS;
+  if (lookback === "1d") return DAY_MS;
   if (lookback === "7d") return 7 * DAY_MS;
   return 30 * DAY_MS;
 }
 
 function bucketDurationMs(lookback: LookbackRange): number {
   if (lookback === "1h") return MINUTE_MS;
-  if (lookback === "24h") return 15 * MINUTE_MS;
+  if (lookback === "1d") return 15 * MINUTE_MS;
   if (lookback === "7d") return HOUR_MS;
   return DAY_MS;
 }
@@ -116,7 +116,7 @@ function currentWallClockBucketStartMs(lookback: LookbackRange, nowMs: number): 
   const date = new Date(nowMs);
   if (lookback === "1h") {
     date.setSeconds(0, 0);
-  } else if (lookback === "24h") {
+  } else if (lookback === "1d") {
     date.setMinutes(Math.floor(date.getMinutes() / 15) * 15, 0, 0);
   } else if (lookback === "7d") {
     date.setMinutes(0, 0, 0);

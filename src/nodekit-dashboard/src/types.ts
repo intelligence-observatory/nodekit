@@ -121,7 +121,7 @@ export interface DashboardData {
   runs: CachedRunItem[];
 }
 
-export type LookbackRange = "1h" | "24h" | "7d" | "30d";
+export type LookbackRange = "1h" | "1d" | "7d" | "30d";
 export type RelativeLabelUnit = "hour" | "day";
 
 export interface TimeRange {
