@@ -1059,7 +1059,7 @@ wheels = [
 
 [[package]]
 name = "nodekit"
-version = "0.3.0.dev2"
+version = "0.3.0.dev4"
 source = { editable = "." }
 dependencies = [
     { name = "boto3" },
