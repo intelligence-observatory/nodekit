@@ -4,6 +4,7 @@
 
 src/nodekit-browser/node_modules/
 src/nodekit-browser/dist/
+src/nodekit-dashboard/node_modules/
 *.pyc
 
 examples/**.nkg

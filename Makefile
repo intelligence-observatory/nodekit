@@ -26,11 +26,15 @@ build-browser:
 	npm run build && \
 	cp dist/nodekit.js dist/nodekit.css ../nodekit/_static
 
+build-dashboard:
+	cd src/nodekit-dashboard && \
+	npm run build
+
 build-docs:
 	cd docs && \
 	uv run mkdocs build --strict
 
-build: lint check test build-browser build-docs
+build: lint check test build-browser build-dashboard build-docs
 	rm -rf dist && \
 	uv build
 

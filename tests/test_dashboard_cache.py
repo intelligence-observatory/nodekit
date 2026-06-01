@@ -143,6 +143,18 @@ def test_dashboard_cache_scope_isolates_clients_and_never_writes_raw_token(
                     "next_page_cursor": None,
                 }
             )
+        if request.url.path == f"/runs/{run_id}":
+            return _json_response(
+                {
+                    "run_id": str(run_id),
+                    "site_id": str(site_id),
+                    "status": RunStatus.SUBMITTED.value,
+                    "is_archived": False,
+                    "timestamp_created": TIMESTAMP_CREATED,
+                    "site_submission": None,
+                    "trace": None,
+                }
+            )
         if request.url.path == f"/sites/{site_id}":
             return _json_response(
                 {
@@ -177,7 +189,15 @@ def test_dashboard_cache_scope_isolates_clients_and_never_writes_raw_token(
 
     first_cache.refresh_all()
     first_cache.refresh_site(site_id=site_id)
-    assert calls == ["/sites", "/tags", "/runs", f"/sites/{site_id}"]
+    assert calls == ["/sites", "/tags", "/runs", f"/runs/{run_id}", f"/sites/{site_id}"]
+    assert (
+        first_cache.read_item(
+            kind="run-detail",
+            key=str(run_id),
+            response_type=contracts.GetRunResponse,
+        )
+        is not None
+    )
 
     for path in tmp_path.rglob("*"):
         assert "secret-token-one" not in str(path)
@@ -271,6 +291,243 @@ def test_dashboard_stub_does_not_contact_server_until_manual_refresh(
         assert response.status_code == 200
 
     assert calls == ["/sites", "/tags", "/runs"]
+
+
+def test_dashboard_serves_built_static_assets_without_contacting_server(
+    tmp_path: Path,
+) -> None:
+    calls: list[str] = []
+    static_dir = tmp_path / "static"
+    assets_dir = static_dir / "assets"
+    assets_dir.mkdir(parents=True)
+    (static_dir / "index.html").write_text(
+        '<!doctype html><script type="module" src="/dashboard-static/assets/app.js"></script>'
+    )
+    (assets_dir / "app.js").write_text("globalThis.__nodekitDashboardLoaded = true;")
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        calls.append(request.url.path)
+        return _json_response({"items": [], "next_page_cursor": None})
+
+    client = nk_server.Client(
+        api_url="https://nodekit.example",
+        api_token="secret",
+        transport=httpx.MockTransport(handler),
+    )
+    cache = _DashboardCache(client=client, cache_dir=tmp_path)
+    app = create_dashboard_app(cache=cache, static_dir=static_dir)
+
+    with TestClient(app) as dashboard_client:
+        index_response = dashboard_client.get("/")
+        asset_response = dashboard_client.get("/dashboard-static/assets/app.js")
+
+    assert index_response.status_code == 200
+    assert "/dashboard-static/assets/app.js" in index_response.text
+    assert asset_response.status_code == 200
+    assert calls == []
+
+
+def test_dashboard_health_endpoint_reports_disconnected_without_client(
+    tmp_path: Path,
+) -> None:
+    cache = _DashboardCache(client=None, cache_dir=tmp_path)
+    app = create_dashboard_app(cache=cache)
+
+    with TestClient(app) as dashboard_client:
+        response = dashboard_client.get("/api/health")
+
+    assert response.status_code == 200
+    assert response.json()["status"] == "disconnected"
+    assert "checked_at" in response.json()
+
+
+def test_dashboard_health_endpoint_proxies_client_health(
+    tmp_path: Path,
+) -> None:
+    calls: list[str] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        calls.append(request.url.path)
+        if request.url.path == "/health":
+            return _json_response({"status": "ok"})
+        raise AssertionError(request.url)
+
+    client = nk_server.Client(
+        api_url="https://nodekit.example",
+        api_token="secret",
+        transport=httpx.MockTransport(handler),
+    )
+    cache = _DashboardCache(client=client, cache_dir=tmp_path)
+    app = create_dashboard_app(cache=cache)
+
+    with TestClient(app) as dashboard_client:
+        response = dashboard_client.get("/api/health")
+
+    assert response.status_code == 200
+    assert response.json()["status"] == "ok"
+    assert calls == ["/health"]
+
+
+def test_dashboard_health_endpoint_reports_unreachable(
+    tmp_path: Path,
+) -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        raise httpx.ConnectError("could not connect", request=request)
+
+    client = nk_server.Client(
+        api_url="https://nodekit.example",
+        api_token="secret",
+        transport=httpx.MockTransport(handler),
+    )
+    cache = _DashboardCache(client=client, cache_dir=tmp_path)
+    app = create_dashboard_app(cache=cache)
+
+    with TestClient(app) as dashboard_client:
+        response = dashboard_client.get("/api/health")
+
+    assert response.status_code == 502
+    assert response.json()["status"] == "unreachable"
+    assert "could not connect" in response.json()["message"]
+
+
+def test_dashboard_manual_refresh_returns_structured_gateway_error(
+    tmp_path: Path,
+) -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        raise httpx.ConnectError("could not connect", request=request)
+
+    client = nk_server.Client(
+        api_url="https://nodekit.example",
+        api_token="secret",
+        transport=httpx.MockTransport(handler),
+    )
+    cache = _DashboardCache(client=client, cache_dir=tmp_path)
+    app = create_dashboard_app(cache=cache)
+
+    with TestClient(app) as dashboard_client:
+        response = dashboard_client.post("/api/refresh")
+
+    assert response.status_code == 502
+    assert response.json()["detail"]["error"] == "refresh_failed"
+
+
+def test_dashboard_runs_endpoint_excludes_archived_cached_runs(
+    tmp_path: Path,
+) -> None:
+    site_id = uuid4()
+    visible_run_id = uuid4()
+    archived_run_id = uuid4()
+    cache = _DashboardCache(client=None, cache_dir=tmp_path)
+    for run_id, is_archived in (
+        (visible_run_id, False),
+        (archived_run_id, True),
+    ):
+        cache.upsert_item(
+            kind="run",
+            key=str(run_id),
+            payload=contracts.ListRunsItem(
+                run_id=run_id,
+                site_id=site_id,
+                status=RunStatus.SUBMITTED,
+                is_archived=is_archived,
+                timestamp_created=datetime.datetime.fromisoformat(TIMESTAMP_CREATED),
+            ),
+        )
+    app = create_dashboard_app(cache=cache)
+
+    with TestClient(app) as dashboard_client:
+        response = dashboard_client.get("/api/runs")
+
+    assert response.status_code == 200
+    assert [item["run_id"] for item in response.json()] == [str(visible_run_id)]
+
+
+def test_dashboard_runs_endpoint_includes_cached_detail_summary(
+    tmp_path: Path,
+) -> None:
+    graph = _make_graph()
+    site_id = uuid4()
+    run_id = uuid4()
+    site_submission = _make_site_submission(graph)
+    cache = _DashboardCache(client=None, cache_dir=tmp_path)
+    cache.store_run_detail(
+        contracts.GetRunResponse(
+            run_id=run_id,
+            site_id=site_id,
+            status=RunStatus.SUBMITTED,
+            is_archived=False,
+            timestamp_created=datetime.datetime.fromisoformat(TIMESTAMP_CREATED),
+            site_submission=site_submission,
+            trace=site_submission.trace,
+        )
+    )
+    app = create_dashboard_app(cache=cache)
+
+    with TestClient(app) as dashboard_client:
+        response = dashboard_client.get("/api/runs")
+
+    assert response.status_code == 200
+    [run] = response.json()
+    assert run["run_id"] == str(run_id)
+    assert run["trace_available"] is True
+    assert run["event_count"] == 5
+    assert run["duration_msec"] == 4
+    assert run["platform_label"] == "None"
+
+
+def test_dashboard_runs_endpoint_hydrates_missing_submitted_detail(
+    tmp_path: Path,
+) -> None:
+    graph = _make_graph()
+    site_id = uuid4()
+    run_id = uuid4()
+    site_submission = _make_site_submission(graph)
+    calls: list[str] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        calls.append(request.url.path)
+        if request.url.path == f"/runs/{run_id}":
+            return _json_response(
+                {
+                    "run_id": str(run_id),
+                    "site_id": str(site_id),
+                    "status": RunStatus.SUBMITTED.value,
+                    "is_archived": False,
+                    "timestamp_created": TIMESTAMP_CREATED,
+                    "site_submission": site_submission.model_dump(mode="json"),
+                    "trace": site_submission.trace.model_dump(mode="json"),
+                }
+            )
+        raise AssertionError(request.url)
+
+    client = nk_server.Client(
+        api_url="https://nodekit.example",
+        api_token="secret",
+        transport=httpx.MockTransport(handler),
+    )
+    cache = _DashboardCache(client=client, cache_dir=tmp_path)
+    cache.upsert_item(
+        kind="run",
+        key=str(run_id),
+        payload=contracts.ListRunsItem(
+            run_id=run_id,
+            site_id=site_id,
+            status=RunStatus.SUBMITTED,
+            is_archived=False,
+            timestamp_created=datetime.datetime.fromisoformat(TIMESTAMP_CREATED),
+        ),
+    )
+    app = create_dashboard_app(cache=cache)
+
+    with TestClient(app) as dashboard_client:
+        response = dashboard_client.get("/api/runs")
+
+    assert response.status_code == 200
+    [run] = response.json()
+    assert calls == [f"/runs/{run_id}"]
+    assert run["trace_available"] is True
+    assert run["event_count"] == 5
+    assert run["duration_msec"] == 4
 
 
 def test_dashboard_manual_refresh_caches_admin_metadata(

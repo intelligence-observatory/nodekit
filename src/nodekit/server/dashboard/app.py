@@ -1,30 +1,66 @@
-"""FastAPI stub app for the local NodeKit dashboard."""
+"""FastAPI app for the local NodeKit dashboard."""
 
-from typing import Any
+import datetime
+from pathlib import Path
+from typing import Any, Callable
 from uuid import UUID
 
 import fastapi
-from fastapi.responses import HTMLResponse
+import httpx
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response
+from fastapi.staticfiles import StaticFiles
 
 from nodekit.server import contracts
-from nodekit.server.values import RunId, SiteId
+from nodekit.server.values import RunId, RunStatus, SiteId
 
 from .cache import _DashboardCache
 
 
 # %% App factory
-def create_dashboard_app(cache: _DashboardCache) -> fastapi.FastAPI:
-    """Create the local dashboard stub app."""
+def create_dashboard_app(
+    cache: _DashboardCache,
+    *,
+    static_dir: Path | None = None,
+) -> fastapi.FastAPI:
+    """Create the local dashboard app."""
 
     app = fastapi.FastAPI(title="NodeKit Dashboard")
+    resolved_static_dir = static_dir or Path(__file__).parent / "_static"
+    static_index_path = resolved_static_dir / "index.html"
+    if static_index_path.exists():
+        app.mount(
+            "/dashboard-static",
+            StaticFiles(directory=resolved_static_dir),
+            name="dashboard-static",
+        )
 
-    @app.get("/", response_class=HTMLResponse)
-    def index() -> str:
-        return _DASHBOARD_HTML
+    @app.get("/", response_class=HTMLResponse, response_model=None)
+    def index() -> Response:
+        if static_index_path.exists():
+            return FileResponse(static_index_path)
+        return HTMLResponse(_DASHBOARD_HTML)
 
     @app.get("/api/status")
     def status() -> dict[str, Any]:
         return cache.status()
+
+    @app.get("/api/health", response_model=None)
+    def health() -> Response:
+        checked_at = datetime.datetime.now(datetime.UTC).isoformat()
+        if cache.client is None:
+            return JSONResponse({"status": "disconnected", "checked_at": checked_at})
+        try:
+            cache.client.get_health()
+        except httpx.HTTPError as exc:
+            return JSONResponse(
+                status_code=fastapi.status.HTTP_502_BAD_GATEWAY,
+                content={
+                    "status": "unreachable",
+                    "message": str(exc),
+                    "checked_at": checked_at,
+                },
+            )
+        return JSONResponse({"status": "ok", "checked_at": checked_at})
 
     @app.get("/api/sites")
     def sites() -> list[dict[str, Any]]:
@@ -70,8 +106,13 @@ def create_dashboard_app(cache: _DashboardCache) -> fastapi.FastAPI:
             stale_kind="run-list",
         )
         if items:
-            return items
-        return cache.read_items(kind="run", response_type=contracts.ListRunsItem)
+            return _enrich_run_items(cache, _visible_run_items(items))
+        return _enrich_run_items(
+            cache,
+            _visible_run_items(
+                cache.read_items(kind="run", response_type=contracts.ListRunsItem),
+            ),
+        )
 
     @app.get("/api/runs/{run_id}")
     def run_detail(run_id: UUID) -> dict[str, Any] | None:
@@ -87,37 +128,42 @@ def create_dashboard_app(cache: _DashboardCache) -> fastapi.FastAPI:
     @app.post("/api/refresh")
     def refresh_all() -> dict[str, Any]:
         _ensure_client(cache)
-        return {"refreshed": cache.refresh_all(), "status": cache.status()}
+        return _refresh_response(
+            lambda: {"refreshed": cache.refresh_all(), "status": cache.status()}
+        )
 
     @app.post("/api/refresh/sites")
     def refresh_sites() -> dict[str, Any]:
         _ensure_client(cache)
-        response = cache.refresh_sites()
-        return {"count": len(response.items), "status": cache.status()}
+        return _refresh_response(
+            lambda: {"count": len(cache.refresh_sites().items), "status": cache.status()}
+        )
 
     @app.post("/api/refresh/sites/{site_id}")
     def refresh_site(site_id: SiteId) -> dict[str, Any]:
         _ensure_client(cache)
-        response = cache.refresh_site(site_id=site_id)
-        return response.model_dump(mode="json")
+        return _refresh_response(
+            lambda: cache.refresh_site(site_id=site_id).model_dump(mode="json")
+        )
 
     @app.post("/api/refresh/tags")
     def refresh_tags() -> dict[str, Any]:
         _ensure_client(cache)
-        response = cache.refresh_tags()
-        return {"count": len(response.items), "status": cache.status()}
+        return _refresh_response(
+            lambda: {"count": len(cache.refresh_tags().items), "status": cache.status()}
+        )
 
     @app.post("/api/refresh/runs")
     def refresh_runs() -> dict[str, Any]:
         _ensure_client(cache)
-        response = cache.refresh_runs()
-        return {"count": len(response.items), "status": cache.status()}
+        return _refresh_response(
+            lambda: {"count": len(cache.refresh_runs().items), "status": cache.status()}
+        )
 
     @app.post("/api/refresh/runs/{run_id}")
     def refresh_run(run_id: RunId) -> dict[str, Any]:
         _ensure_client(cache)
-        response = cache.refresh_run(run_id=run_id)
-        return response.model_dump(mode="json")
+        return _refresh_response(lambda: cache.refresh_run(run_id=run_id).model_dump(mode="json"))
 
     return app
 
@@ -131,6 +177,82 @@ def _ensure_client(cache: _DashboardCache) -> None:
         )
 
 
+def _refresh_response(callback: Callable[[], Any]) -> Any:
+    try:
+        return callback()
+    except httpx.HTTPError as exc:
+        raise fastapi.HTTPException(
+            status_code=fastapi.status.HTTP_502_BAD_GATEWAY,
+            detail={
+                "error": "refresh_failed",
+                "message": str(exc),
+            },
+        ) from exc
+
+
+def _enrich_run_items(
+    cache: _DashboardCache,
+    items: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    enriched: list[dict[str, Any]] = []
+    for item in items:
+        next_item = dict(item)
+        detail = cache.read_item(
+            kind="run-detail",
+            key=str(item["run_id"]),
+            response_type=contracts.GetRunResponse,
+        )
+        if detail is None and _should_hydrate_run_detail(cache=cache, item=item):
+            try:
+                detail = cache.refresh_run(run_id=UUID(str(item["run_id"])))
+            except httpx.HTTPError:
+                detail = None
+        next_item.update(_run_summary(detail))
+        enriched.append(next_item)
+    return enriched
+
+
+def _visible_run_items(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return [item for item in items if not item.get("is_archived", False)]
+
+
+def _should_hydrate_run_detail(cache: _DashboardCache, item: dict[str, Any]) -> bool:
+    if cache.client is None:
+        return False
+    return item.get("status") in {
+        RunStatus.SUBMITTED.value,
+        RunStatus.COMPLETED.value,
+        RunStatus.INVALID.value,
+    }
+
+
+def _run_summary(detail: contracts.GetRunResponse | None) -> dict[str, Any]:
+    if detail is None:
+        return {
+            "trace_available": None,
+            "event_count": None,
+            "duration_msec": None,
+            "platform_label": None,
+        }
+
+    event_times = [
+        event.t
+        for event in (detail.trace.events if detail.trace is not None else ())
+        if isinstance(event.t, int | float)
+    ]
+    duration_msec = max(event_times) - min(event_times) if len(event_times) >= 2 else None
+    platform_context = (
+        detail.site_submission.platform_context if detail.site_submission is not None else None
+    )
+    platform = getattr(platform_context, "platform", None)
+    return {
+        "trace_available": detail.trace is not None,
+        "event_count": len(detail.trace.events) if detail.trace is not None else None,
+        "duration_msec": duration_msec,
+        "platform_label": str(platform) if platform is not None else None,
+    }
+
+
 # %% HTML
 _DASHBOARD_HTML = """
 <!doctype html>
@@ -141,30 +263,25 @@ _DASHBOARD_HTML = """
   <title>NodeKit Dashboard</title>
   <style>
     :root {
-      color-scheme: light dark;
-      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-family: Inter, sans-serif;
       background: #f6f7f9;
       color: #182026;
     }
     body {
       margin: 0;
-      padding: 24px;
-    }
-    main {
-      max-width: 1180px;
-      margin: 0 auto;
     }
     header {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 16px;
-      margin-bottom: 24px;
+      padding: 14px 20px;
+      border-bottom: 1px solid #d8e0e5;
+      background: #fff;
     }
     h1 {
       margin: 0;
-      font-size: 24px;
-      line-height: 1.2;
+      font-size: 16px;
     }
     h2 {
       margin: 0 0 12px;
@@ -180,14 +297,9 @@ _DASHBOARD_HTML = """
       font: inherit;
       cursor: pointer;
     }
-    button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 16px;
+    button.primary {
+      border-color: #88d4b5;
+      background: #88d4b5;
     }
     section {
       background: #ffffff;
@@ -195,20 +307,7 @@ _DASHBOARD_HTML = """
       border-radius: 8px;
       padding: 16px;
       min-width: 0;
-    }
-    dl {
-      display: grid;
-      grid-template-columns: 130px 1fr;
-      gap: 8px 12px;
-      margin: 0;
-      font-size: 13px;
-    }
-    dt {
-      color: #52616d;
-    }
-    dd {
-      margin: 0;
-      word-break: break-word;
+      margin: 16px;
     }
     table {
       width: 100%;
@@ -225,62 +324,42 @@ _DASHBOARD_HTML = """
       color: #52616d;
       font-weight: 600;
     }
-    code {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    .muted {
+      color: #60707c;
       font-size: 12px;
     }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        background: #11161a;
-        color: #edf1f5;
-      }
-      section, button {
-        background: #1a2229;
-        border-color: #34434f;
-      }
-      th, td {
-        border-bottom-color: #34434f;
-      }
-      dt, th {
-        color: #aeb9c2;
-      }
+    .chart-empty {
+      display: grid;
+      min-height: 220px;
+      place-items: center;
+      color: #60707c;
+      border: 1px dashed #d8e0e5;
+      border-radius: 6px;
     }
   </style>
 </head>
 <body>
-  <main>
-    <header>
+  <header>
+    <div>
       <h1>NodeKit Dashboard</h1>
-      <button id="refresh" type="button">Refresh</button>
-    </header>
-    <section>
-      <h2>Cache</h2>
-      <dl id="status"></dl>
-    </section>
-    <div class="grid" style="margin-top:16px;">
-      <section>
-        <h2>Sites</h2>
-        <table>
-          <thead><tr><th>Site</th><th>Tags</th><th>Cached</th></tr></thead>
-          <tbody id="sites"></tbody>
-        </table>
-      </section>
-      <section>
-        <h2>Tags</h2>
-        <table>
-          <thead><tr><th>Name</th><th>Archived</th><th>Cached</th></tr></thead>
-          <tbody id="tags"></tbody>
-        </table>
-      </section>
-      <section>
-        <h2>Runs</h2>
-        <table>
-          <thead><tr><th>Run</th><th>Status</th><th>Cached</th></tr></thead>
-          <tbody id="runs"></tbody>
-        </table>
-      </section>
+      <div id="source" class="muted">Cache-only shell</div>
     </div>
-  </main>
+    <div>
+      <span id="refreshed" class="muted"></span>
+      <button id="refresh" class="primary" type="button">Refresh</button>
+    </div>
+  </header>
+  <section>
+    <h2>Run Volume</h2>
+    <div class="chart-empty">Build dashboard assets for the interactive histogram.</div>
+  </section>
+  <section>
+    <h2>Runs</h2>
+    <table>
+          <thead><tr><th>Run</th><th>Status</th><th>Site</th></tr></thead>
+      <tbody id="runs"></tbody>
+    </table>
+  </section>
   <script>
     const refreshButton = document.querySelector("#refresh");
 
@@ -315,44 +394,21 @@ _DASHBOARD_HTML = """
     }
 
     async function load() {
-      const [status, sites, tags, runs] = await Promise.all([
+      const [status, runs] = await Promise.all([
         fetch("/api/status").then((r) => r.json()),
-        fetch("/api/sites").then((r) => r.json()),
-        fetch("/api/tags").then((r) => r.json()),
         fetch("/api/runs").then((r) => r.json()),
       ]);
 
-      const statusEl = document.querySelector("#status");
-      statusEl.replaceChildren();
-      for (const [key, value] of Object.entries({
-        cache_root: status.cache_root,
-        scope_key: status.scope_key,
-        source_api_url: status.source_api_url || "",
-        has_client: String(status.has_client),
-        last_refresh_at: status.last_refresh_at || "",
-        counts: JSON.stringify(status.counts),
-      })) {
-        const dt = document.createElement("dt");
-        dt.textContent = key;
-        const dd = document.createElement("dd");
-        dd.textContent = value;
-        statusEl.append(dt, dd);
-      }
-
-      renderRows("#sites", sites, [
-        (row) => row.site_id,
-        (row) => (row.tags || []).join(", "),
-        cacheText,
-      ]);
-      renderRows("#tags", tags, [
-        (row) => row.name,
-        (row) => String(row.is_archived),
-        cacheText,
-      ]);
+      document.querySelector("#source").textContent = status.source_api_url
+        ? `Source: ${status.source_api_url}`
+        : "Cache-only shell";
+      document.querySelector("#refreshed").textContent = status.last_refresh_at
+        ? `Last refreshed ${new Date(status.last_refresh_at).toLocaleString([], { timeZoneName: "short" })}`
+        : "No refresh recorded";
       renderRows("#runs", runs, [
         (row) => row.run_id,
         (row) => row.status,
-        cacheText,
+        (row) => row.site_id,
       ]);
     }
 

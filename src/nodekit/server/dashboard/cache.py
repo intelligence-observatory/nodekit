@@ -232,7 +232,7 @@ class _DashboardCache:
     def refresh_runs(self) -> contracts.ListRunsResponse:
         client = self._require_client()
         query = contracts.ListRunsQuery(max_items=100)
-        return self._refresh_pages(
+        response = self._refresh_pages(
             client=client,
             path="/runs",
             resource="runs",
@@ -241,6 +241,9 @@ class _DashboardCache:
             item_kind="run",
             item_key=lambda item: str(item.run_id),
         )
+        for item in response.items:
+            self.refresh_run(run_id=item.run_id)
+        return response
 
     def refresh_users(self) -> contracts.ListUsersResponse | None:
         client = self.client
