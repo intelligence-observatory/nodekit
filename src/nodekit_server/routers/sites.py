@@ -311,6 +311,7 @@ def create_site(
         is_archived=False,
     )
     session.add(site_record)
+    session.flush()
 
     for identifier in asset_identifiers:
         session.add(
