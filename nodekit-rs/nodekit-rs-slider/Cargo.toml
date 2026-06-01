@@ -1,0 +1,18 @@
+[package]
+name = "nodekit-rs-slider"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+blittle.workspace = true
+nodekit-rs-models = { path = "../nodekit-rs-models" }
+nodekit-rs-visual = { path = "../nodekit-rs-visual" }
+thiserror.workspace = true
+
+[dev-dependencies]
+criterion.workspace = true
+nodekit-rs-png = { path = "../nodekit-rs-png" }
+
+[[bench]]
+name = "bench"
+harness = false
