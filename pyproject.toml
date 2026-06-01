@@ -25,6 +25,7 @@ dependencies = [
     "sqlmodel>=0.0.38",
     "pydantic-settings>=2.14.1",
     "httpx>=0.28.1",
+    "platformdirs>=4.5.1",
 ]
 
 [dependency-groups]

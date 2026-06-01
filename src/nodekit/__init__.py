@@ -19,6 +19,7 @@ __all__ = [
     "transitions",
     "expressions",
     "values",
+    "server",
     # Ops:
     "concat",
     "play",
@@ -28,6 +29,8 @@ __all__ = [
     "open_asset",
     "build_site",
     "prepare_site_url",
+    "start_dashboard",
+    "clear_dashboard_cache",
 ]
 
 # Version
@@ -62,3 +65,5 @@ from nodekit._internal.ops.save_graph_load_graph import save_graph, load_graph
 from nodekit._internal.ops.open_asset_save_asset import open_asset
 from nodekit._internal.ops.build_site import build_site
 from nodekit._internal.ops.prepare_site_url import prepare_site_url
+from nodekit.server.dashboard import start_dashboard, clear_dashboard_cache
+import nodekit.server as server
