@@ -1,7 +1,7 @@
 {
   "name": "nodekit-browser",
   "private": false,
-  "version": "0.3.0.dev1",
+  "version": "0.3.0.dev2",
   "type": "module",
   "files": [
     "dist",
