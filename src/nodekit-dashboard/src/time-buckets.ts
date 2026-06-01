@@ -4,20 +4,27 @@ const MINUTE_MS = 60 * 1000;
 const HOUR_MS = 60 * 60 * 1000;
 const DAY_MS = 24 * HOUR_MS;
 
-export const lookbackRanges: LookbackRange[] = ["12h", "24h", "7d", "30d"];
+export const lookbackRanges: LookbackRange[] = ["1h", "24h", "7d", "30d"];
 
 export function visibleRange(lookback: LookbackRange, nowMs = Date.now()): TimeRange {
   const durationMs = lookbackDurationMs(lookback);
+  const bucketMs = bucketDurationMs(lookback);
+  const bucketCount = Math.round(durationMs / bucketMs);
+  const currentBucketStartMs = currentWallClockBucketStartMs(lookback, nowMs);
   const labelUnit: RelativeLabelUnit = lookback.endsWith("h") ? "hour" : "day";
   return {
-    startMs: nowMs - durationMs,
+    startMs: currentBucketStartMs - (bucketCount - 1) * bucketMs,
     endMs: nowMs,
-    bucketMs: bucketDurationMs(lookback),
+    bucketMs,
     labelUnit,
   };
 }
 
-export function bucketRuns(rows: RunTableRow[], range: TimeRange): RunBucket[] {
+export function bucketRuns(
+  rows: RunTableRow[],
+  range: TimeRange,
+  selectedRows: RunTableRow[] = [],
+): RunBucket[] {
   const buckets = createEmptyBuckets(range);
   const bucketMap = new Map(buckets.map((bucket) => [bucket.startMs, bucket]));
   for (const row of rows) {
@@ -28,6 +35,15 @@ export function bucketRuns(rows: RunTableRow[], range: TimeRange): RunBucket[] {
     if (!bucket) continue;
     bucket.total += 1;
     bucket.runs.push(row);
+  }
+  for (const row of selectedRows) {
+    if (row.createdAtMs < range.startMs || row.createdAtMs > range.endMs) continue;
+
+    const startMs = rowBucketStart(row.createdAtMs, range, buckets.length);
+    const bucket = bucketMap.get(startMs);
+    if (!bucket) continue;
+    bucket.selectedTotal += 1;
+    bucket.selectedRuns.push(row);
   }
   return buckets;
 }
@@ -69,7 +85,7 @@ function createEmptyBuckets(range: TimeRange): RunBucket[] {
   ) {
     const endMs = Math.min(startMs + range.bucketMs, range.endMs);
     if (endMs <= range.startMs) continue;
-    buckets.push({ startMs, endMs, total: 0, runs: [] });
+    buckets.push({ startMs, endMs, total: 0, selectedTotal: 0, runs: [], selectedRuns: [] });
   }
   return buckets;
 }
@@ -83,14 +99,32 @@ function rowBucketStart(timestampMs: number, range: TimeRange, bucketCount: numb
 }
 
 function lookbackDurationMs(lookback: LookbackRange): number {
-  if (lookback === "12h") return 12 * HOUR_MS;
+  if (lookback === "1h") return HOUR_MS;
   if (lookback === "24h") return 24 * HOUR_MS;
   if (lookback === "7d") return 7 * DAY_MS;
   return 30 * DAY_MS;
 }
 
 function bucketDurationMs(lookback: LookbackRange): number {
-  if (lookback === "12h" || lookback === "24h") return 5 * MINUTE_MS;
+  if (lookback === "1h") return MINUTE_MS;
+  if (lookback === "24h") return 15 * MINUTE_MS;
   if (lookback === "7d") return HOUR_MS;
   return DAY_MS;
+}
+
+function currentWallClockBucketStartMs(lookback: LookbackRange, nowMs: number): number {
+  const date = new Date(nowMs);
+  if (lookback === "1h") {
+    date.setSeconds(0, 0);
+  } else if (lookback === "24h") {
+    date.setMinutes(Math.floor(date.getMinutes() / 15) * 15, 0, 0);
+  } else if (lookback === "7d") {
+    date.setMinutes(0, 0, 0);
+  } else {
+    date.setHours(0, 0, 0, 0);
+  }
+
+  const bucketStartMs = date.getTime();
+  if (nowMs === bucketStartMs) return bucketStartMs - bucketDurationMs(lookback);
+  return bucketStartMs;
 }

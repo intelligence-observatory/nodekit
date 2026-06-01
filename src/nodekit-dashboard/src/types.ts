@@ -102,6 +102,18 @@ export interface RunTableRow {
   source: CachedRunItem;
 }
 
+export interface SiteTableRow {
+  siteId: string;
+  tags: string[];
+  url: string;
+  createdAt: string;
+  createdAtMs: number;
+  runCount: number;
+  latestRunAt: string;
+  latestRunAtMs: number;
+  source: CachedSiteItem;
+}
+
 export interface DashboardData {
   status: CacheStatus;
   sites: CachedSiteItem[];
@@ -109,7 +121,7 @@ export interface DashboardData {
   runs: CachedRunItem[];
 }
 
-export type LookbackRange = "12h" | "24h" | "7d" | "30d";
+export type LookbackRange = "1h" | "24h" | "7d" | "30d";
 export type RelativeLabelUnit = "hour" | "day";
 
 export interface TimeRange {
@@ -123,5 +135,7 @@ export interface RunBucket {
   startMs: number;
   endMs: number;
   total: number;
+  selectedTotal: number;
   runs: RunTableRow[];
+  selectedRuns: RunTableRow[];
 }

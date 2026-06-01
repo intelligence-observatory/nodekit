@@ -1,15 +1,15 @@
-import type { SortingState } from "@tanstack/table-core";
+import type { Header, SortingState } from "@tanstack/table-core";
 
 import { fetchDashboardData, fetchHealth, refreshDashboard } from "./api";
 import { renderRunChart, type RunChartController } from "./chart";
-import { buildRunRows } from "./derive";
+import { buildRunRows, buildSiteRows, filterRowsBySiteIds } from "./derive";
 import { formatDateTimeWithZone, localTimeZoneLabel } from "./format";
 import { healthClass, healthLabel } from "./health";
 import { icon } from "./icons";
-import { pageInfo, pageRows, rowsInTimeRange } from "./pagination";
-import { matchesRunSearch } from "./search";
+import { pageInfo, pageRows, rowsInTimeRange, SITES_PAGE_SIZE } from "./pagination";
+import { matchesRunSearch, matchesSiteSearch } from "./search";
 import "./styles.css";
-import { createRunsTable } from "./table";
+import { createRunsTable, createSitesTable } from "./table";
 import { bucketRuns, lookbackRanges, visibleRange } from "./time-buckets";
 import type {
   CachedRunItem,
@@ -19,6 +19,7 @@ import type {
   LookbackRange,
   RunStatus,
   RunTableRow,
+  SiteTableRow,
 } from "./types";
 
 const HEALTH_POLL_INTERVAL_MS = 30_000;
@@ -30,9 +31,14 @@ interface AppState {
   sites: CachedSiteItem[];
   rows: RunTableRow[];
   sorting: SortingState;
+  siteSorting: SortingState;
   lookback: LookbackRange;
   search: string;
+  siteSearch: string;
   pageIndex: number;
+  sitePageIndex: number;
+  selectedSiteIds: Set<string>;
+  hasInitializedSiteSelection: boolean;
   error: string | null;
   loading: boolean;
 }
@@ -44,9 +50,17 @@ const state: AppState = {
   sites: [],
   rows: [],
   sorting: [{ id: "createdAtMs", desc: true }],
-  lookback: "12h",
+  siteSorting: [
+    { id: "runCount", desc: true },
+    { id: "latestRunAtMs", desc: true },
+  ],
+  lookback: "1h",
   search: "",
+  siteSearch: "",
   pageIndex: 0,
+  sitePageIndex: 0,
+  selectedSiteIds: new Set(),
+  hasInitializedSiteSelection: false,
   error: null,
   loading: false,
 };
@@ -89,6 +103,24 @@ app.innerHTML = `
 
       <section class="panel">
         <div class="panel-header">
+          <h2>Sites</h2>
+          <label class="search-field">
+            ${icon("search")}
+            <input
+              id="site-search-filter"
+              type="search"
+              placeholder="Search Sites"
+              title="Searches full Site ID, tags, and URL."
+              aria-label="Search full Site ID, tags, and URL"
+            />
+          </label>
+        </div>
+        <div id="sites-table" class="table-wrap"></div>
+        <div id="sites-pager" class="pager"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
           <h2>Runs</h2>
           <label class="search-field">
             ${icon("search")}
@@ -122,6 +154,12 @@ function bindStaticControls(): void {
     state.pageIndex = 0;
     render();
   });
+  input("site-search-filter").addEventListener("input", (event) => {
+    state.siteSearch = (event.target as HTMLInputElement).value;
+    state.sitePageIndex = 0;
+    state.pageIndex = 0;
+    render();
+  });
 }
 
 function bindChartResize(): void {
@@ -131,7 +169,14 @@ function bindChartResize(): void {
     const width = Math.round(host.clientWidth);
     if (width <= 0 || width === lastChartWidth) return;
     lastChartWidth = width;
-    renderChart(chartWindowRows());
+    const chartRows = chartWindowRows();
+    const sites = filteredSiteRows(buildSiteRows(state.sites, chartRows));
+    const selectedSiteIds = visibleSelectedSiteIds(sites);
+    renderChart(
+      chartRows,
+      selectedSiteIds.size === 0 ? [] : filterRowsBySiteIds(chartRows, selectedSiteIds),
+      sites.length > 0,
+    );
   });
   observer.observe(host);
 }
@@ -141,10 +186,22 @@ async function loadData(): Promise<void> {
   state.error = null;
   try {
     const data = await fetchDashboardData();
+    const wasAllSitesSelected =
+      state.sites.length === 0 ||
+      state.sites.every((site) => state.selectedSiteIds.has(site.site_id));
     state.status = data.status;
     state.runs = data.runs.filter((run) => !run.is_archived);
     state.sites = data.sites;
     state.rows = buildRunRows(state.runs, state.sites);
+    if (!state.hasInitializedSiteSelection || wasAllSitesSelected) {
+      state.selectedSiteIds = new Set(state.sites.map((site) => site.site_id));
+    } else {
+      const currentSiteIds = new Set(state.sites.map((site) => site.site_id));
+      state.selectedSiteIds = new Set(
+        [...state.selectedSiteIds].filter((siteId) => currentSiteIds.has(siteId)),
+      );
+    }
+    state.hasInitializedSiteSelection = true;
     state.pageIndex = 0;
   } catch (error) {
     state.error = errorMessage(error);
@@ -182,11 +239,17 @@ async function manualRefresh(): Promise<void> {
 }
 
 function render(): void {
-  const chartRows = chartWindowRows();
-  const rows = filteredRows(chartRows);
+  const range = visibleRange(state.lookback);
+  const chartRows = rowsInTimeRange(state.rows, range);
+  const sites = filteredSiteRows(buildSiteRows(state.sites, chartRows));
+  const selectedSiteIds = visibleSelectedSiteIds(sites);
+  const selectedRows =
+    selectedSiteIds.size === 0 ? [] : filterRowsBySiteIds(chartRows, selectedSiteIds);
+  const rows = filteredRows(filterRowsBySiteIds(chartRows, selectedSiteIds));
   renderTopbar();
   renderRangePills();
-  renderChart(chartRows);
+  renderChart(chartRows, selectedRows, sites.length > 0);
+  renderSitesTable(sites);
   renderRunsTable(rows);
   byId("error").textContent = state.error ?? "";
 }
@@ -218,18 +281,81 @@ function renderRangePills(): void {
     button.addEventListener("click", () => {
       state.lookback = range;
       state.pageIndex = 0;
+      state.sitePageIndex = 0;
       render();
     });
     host.append(button);
   }
 }
 
-function renderChart(rows: RunTableRow[]): void {
+function renderChart(
+  rows: RunTableRow[],
+  selectedRows: RunTableRow[],
+  siteLensVisible: boolean,
+): void {
   chartController?.destroy();
   const range = visibleRange(state.lookback);
-  const buckets = bucketRuns(rows, range);
-  chartController = renderRunChart(byId("chart"), buckets, range);
+  const buckets = bucketRuns(rows, range, selectedRows);
+  chartController = renderRunChart(byId("chart"), buckets, range, siteLensVisible);
   lastChartWidth = Math.round(byId("chart").clientWidth);
+}
+
+function renderSitesTable(rows: SiteTableRow[]): void {
+  const table = createSitesTable(rows, { sorting: state.siteSorting }, (sorting) => {
+    state.siteSorting = sorting;
+    state.sitePageIndex = 0;
+    state.pageIndex = 0;
+    render();
+  });
+  const sortedRows = table.getRowModel().rows;
+  const info = pageInfo(sortedRows.length, state.sitePageIndex, SITES_PAGE_SIZE);
+  state.sitePageIndex = info.pageIndex;
+  const visibleRows = pageRows(sortedRows, state.sitePageIndex, SITES_PAGE_SIZE);
+
+  const html = document.createElement("table");
+  const thead = document.createElement("thead");
+  const headerRow = document.createElement("tr");
+  for (const header of table.getHeaderGroups()[0]?.headers ?? []) {
+    const th = document.createElement("th");
+    if (header.id === "select") {
+      th.className = "select-column";
+      th.append(selectAllCell(rows));
+    } else {
+      appendSortHeader(th, header);
+      const sortingHandler = header.column.getToggleSortingHandler();
+      if (sortingHandler) th.addEventListener("click", sortingHandler);
+    }
+    headerRow.append(th);
+  }
+  thead.append(headerRow);
+
+  const tbody = document.createElement("tbody");
+  for (const row of visibleRows) {
+    const source = row.original;
+    const isSelected = state.selectedSiteIds.has(source.siteId);
+    const tr = document.createElement("tr");
+    tr.className = isSelected ? "selected-row" : "";
+    tr.append(
+      selectCell(source.siteId, isSelected),
+      textCell(shortId(source.siteId), source.siteId),
+      textCell(source.tags.join(", ") || "none"),
+      textCell(String(source.runCount)),
+      textCell(formatDateTime(source.latestRunAt)),
+      textCell(formatDateTime(source.createdAt)),
+      urlCell(source.url),
+    );
+    tbody.append(tr);
+  }
+  if (rows.length === 0) {
+    const tr = document.createElement("tr");
+    const td = textCell("No cached Sites have Runs in this window.");
+    td.colSpan = 7;
+    tr.append(td);
+    tbody.append(tr);
+  }
+  html.append(thead, tbody);
+  byId("sites-table").replaceChildren(html);
+  renderSitesPager(info, rows);
 }
 
 function renderRunsTable(rows: RunTableRow[]): void {
@@ -248,7 +374,7 @@ function renderRunsTable(rows: RunTableRow[]): void {
   const headerRow = document.createElement("tr");
   for (const header of table.getHeaderGroups()[0]?.headers ?? []) {
     const th = document.createElement("th");
-    th.textContent = String(header.column.columnDef.header ?? header.id);
+    appendSortHeader(th, header);
     const sortingHandler = header.column.getToggleSortingHandler();
     if (sortingHandler) th.addEventListener("click", sortingHandler);
     headerRow.append(th);
@@ -281,6 +407,38 @@ function renderRunsTable(rows: RunTableRow[]): void {
   html.append(thead, tbody);
   byId("runs-table").replaceChildren(html);
   renderPager(info);
+}
+
+function renderSitesPager(info: ReturnType<typeof pageInfo>, rows: SiteTableRow[]): void {
+  const host = byId("sites-pager");
+  const rangeLabel = state.lookback;
+  host.replaceChildren();
+
+  const summary = document.createElement("div");
+  summary.className = "pager-summary";
+  summary.textContent =
+    info.total === 0
+      ? `Showing 0 of 0 Sites in last ${rangeLabel}`
+      : `Showing ${info.start}-${info.end} of ${info.total} Sites in last ${rangeLabel}`;
+
+  const controls = document.createElement("div");
+  controls.className = "pager-controls";
+  const selected = document.createElement("span");
+  selected.className = "pager-page";
+  selected.textContent = `${visibleSelectedSiteIds(rows).size} Sites selected`;
+  const previous = pagerButton("Previous", info.pageIndex === 0, () => {
+    state.sitePageIndex = Math.max(0, state.sitePageIndex - 1);
+    render();
+  });
+  const label = document.createElement("span");
+  label.className = "pager-page";
+  label.textContent = `Page ${info.pageIndex + 1} of ${info.pageCount}`;
+  const next = pagerButton("Next", info.pageIndex >= info.pageCount - 1, () => {
+    state.sitePageIndex = Math.min(info.pageCount - 1, state.sitePageIndex + 1);
+    render();
+  });
+  controls.append(selected, previous, label, next);
+  host.append(summary, controls);
 }
 
 function renderPager(info: ReturnType<typeof pageInfo>): void {
@@ -321,12 +479,84 @@ function pagerButton(label: string, disabled: boolean, onClick: () => void): HTM
   return button;
 }
 
+function appendSortHeader<T>(th: HTMLTableCellElement, header: Header<T, unknown>): void {
+  const label = document.createElement("span");
+  const sortState = header.column.getIsSorted();
+  label.className = "sort-label";
+  label.textContent = String(header.column.columnDef.header ?? header.id);
+
+  const indicator = document.createElement("span");
+  indicator.className = `sort-indicator ${sortState ? "active" : ""}`;
+  indicator.textContent = sortState === "asc" ? "↑" : sortState === "desc" ? "↓" : "↕";
+  indicator.setAttribute("aria-hidden", "true");
+
+  th.append(label, indicator);
+  th.setAttribute(
+    "aria-sort",
+    sortState === "asc" ? "ascending" : sortState === "desc" ? "descending" : "none",
+  );
+  th.title =
+    sortState === "asc"
+      ? "Sorted ascending. Click to sort descending."
+      : sortState === "desc"
+        ? "Sorted descending. Click to clear sorting."
+        : "Not sorted. Click to sort ascending.";
+}
+
 function chartWindowRows(): RunTableRow[] {
   return rowsInTimeRange(state.rows, visibleRange(state.lookback));
 }
 
 function filteredRows(rows: RunTableRow[]): RunTableRow[] {
   return rows.filter((row) => matchesRunSearch(row, state.search));
+}
+
+function filteredSiteRows(rows: SiteTableRow[]): SiteTableRow[] {
+  return rows.filter((row) => matchesSiteSearch(row, state.siteSearch));
+}
+
+function visibleSelectedSiteIds(rows: SiteTableRow[]): Set<string> {
+  const visibleIds = new Set(rows.map((row) => row.siteId));
+  return new Set([...state.selectedSiteIds].filter((siteId) => visibleIds.has(siteId)));
+}
+
+function selectCell(siteId: string, selected: boolean): HTMLTableCellElement {
+  const td = document.createElement("td");
+  td.className = "select-column";
+  const checkbox = document.createElement("input");
+  checkbox.type = "checkbox";
+  checkbox.checked = selected;
+  checkbox.setAttribute("aria-label", `Select Site ${siteId}`);
+  checkbox.addEventListener("change", () => {
+    if (checkbox.checked) state.selectedSiteIds.add(siteId);
+    else state.selectedSiteIds.delete(siteId);
+    state.pageIndex = 0;
+    render();
+  });
+  td.append(checkbox);
+  return td;
+}
+
+function selectAllCell(rows: SiteTableRow[]): HTMLInputElement {
+  const checkbox = document.createElement("input");
+  const allSelected =
+    rows.length > 0 && rows.every((row) => state.selectedSiteIds.has(row.siteId));
+  const someSelected = rows.some((row) => state.selectedSiteIds.has(row.siteId));
+  checkbox.type = "checkbox";
+  checkbox.checked = allSelected;
+  checkbox.indeterminate = someSelected && !allSelected;
+  checkbox.disabled = rows.length === 0;
+  checkbox.setAttribute("aria-label", "Select all visible Sites");
+  checkbox.addEventListener("change", () => {
+    if (allSelected) {
+      for (const row of rows) state.selectedSiteIds.delete(row.siteId);
+    } else {
+      for (const row of rows) state.selectedSiteIds.add(row.siteId);
+    }
+    state.pageIndex = 0;
+    render();
+  });
+  return checkbox;
 }
 
 function statusCell(status: RunStatus): HTMLTableCellElement {
@@ -342,6 +572,18 @@ function textCell(text: string, title?: string): HTMLTableCellElement {
   const td = document.createElement("td");
   td.textContent = text;
   if (title) td.title = title;
+  return td;
+}
+
+function urlCell(url: string): HTMLTableCellElement {
+  const td = document.createElement("td");
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.target = "_blank";
+  anchor.rel = "noreferrer";
+  anchor.textContent = formatUrl(url);
+  anchor.title = url;
+  td.append(anchor);
   return td;
 }
 
@@ -364,6 +606,15 @@ function formatDuration(durationMsec: number | null): string {
 
 function shortId(value: string): string {
   return value.length > 8 ? value.slice(0, 8) : value;
+}
+
+function formatUrl(value: string): string {
+  try {
+    const url = new URL(value);
+    return `${url.host}${url.pathname}`;
+  } catch {
+    return value;
+  }
 }
 
 function errorMessage(error: unknown): string {

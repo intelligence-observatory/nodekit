@@ -42,6 +42,9 @@ view-docs: build-docs
 	cd docs && \
 	uv run mkdocs serve --livereload
 
+view-mock-dashboard: build-dashboard
+	uv run python scripts/view_mock_dashboard.py
+
 server-build:
 	docker build -f Dockerfile.server -t $(SERVER_IMAGE_NAME):local .
 

@@ -1,4 +1,4 @@
-import type { CachedRunItem, CachedSiteItem, RunTableRow } from "./types";
+import type { CachedRunItem, CachedSiteItem, RunTableRow, SiteTableRow } from "./types";
 
 export function buildRunRows(
   runs: CachedRunItem[],
@@ -32,4 +32,56 @@ export function buildRunRows(
       };
     })
     .sort((a, b) => b.createdAtMs - a.createdAtMs);
+}
+
+export function buildSiteRows(
+  sites: CachedSiteItem[],
+  rows: RunTableRow[],
+): SiteTableRow[] {
+  const stats = new Map<string, { runCount: number; latestRunAt: string; latestRunAtMs: number }>();
+  for (const row of rows) {
+    const current = stats.get(row.siteId);
+    if (!current) {
+      stats.set(row.siteId, {
+        runCount: 1,
+        latestRunAt: row.createdAt,
+        latestRunAtMs: row.createdAtMs,
+      });
+      continue;
+    }
+    current.runCount += 1;
+    if (row.createdAtMs > current.latestRunAtMs) {
+      current.latestRunAt = row.createdAt;
+      current.latestRunAtMs = row.createdAtMs;
+    }
+  }
+
+  return sites
+    .flatMap((site) => {
+      const siteStats = stats.get(site.site_id);
+      if (!siteStats) return [];
+      const createdAtMs = Date.parse(site.timestamp_created);
+      return [
+        {
+          siteId: site.site_id,
+          tags: site.tags,
+          url: site.url,
+          createdAt: site.timestamp_created,
+          createdAtMs: Number.isFinite(createdAtMs) ? createdAtMs : 0,
+          runCount: siteStats.runCount,
+          latestRunAt: siteStats.latestRunAt,
+          latestRunAtMs: siteStats.latestRunAtMs,
+          source: site,
+        },
+      ];
+    })
+    .sort((a, b) => b.runCount - a.runCount || b.latestRunAtMs - a.latestRunAtMs);
+}
+
+export function filterRowsBySiteIds(
+  rows: RunTableRow[],
+  siteIds: Set<string>,
+): RunTableRow[] {
+  if (siteIds.size === 0) return rows;
+  return rows.filter((row) => siteIds.has(row.siteId));
 }

@@ -12,6 +12,7 @@ export function renderRunChart(
   parent: HTMLElement,
   buckets: RunBucket[],
   range: TimeRange,
+  siteLensVisible: boolean,
 ): RunChartController {
   parent.replaceChildren();
   if (buckets.length === 0) {
@@ -24,8 +25,11 @@ export function renderRunChart(
 
   const x = buckets.map((_bucket, index) => index);
   const totals = buckets.map((bucket) => bucket.total);
+  const selectedTotals = buckets.map((bucket) => bucket.selectedTotal);
+  const hasSelectedTotals = selectedTotals.some((value) => value > 0);
+  const muteGlobal = siteLensVisible;
   const xSplits = xAxisSplits(buckets, range, parent.clientWidth);
-  const max = Math.max(1, ...totals);
+  const max = Math.max(1, ...totals, ...selectedTotals);
   const ticks = integerTicks(Math.max(10, max));
   const plot = new uPlot(
     {
@@ -36,6 +40,10 @@ export function renderRunChart(
         y: { range: [0, Math.max(...ticks)] },
       },
       cursor: {
+        show: false,
+        x: false,
+        y: false,
+        points: { show: false },
         drag: { x: false, y: false },
       },
       legend: { show: false },
@@ -77,15 +85,23 @@ export function renderRunChart(
         {},
         {
           label: "Runs",
-          stroke: "#237a5d",
-          fill: "#88d4b5",
+          stroke: muteGlobal ? "rgba(82, 97, 109, 0.24)" : "#237a5d",
+          fill: muteGlobal ? "rgba(82, 97, 109, 0.18)" : "#88d4b5",
           width: 0,
           points: { show: false },
-          paths: uPlot.paths?.bars?.({ size: [0.72, 80], gap: 2 }),
+          paths: uPlot.paths?.bars?.({ size: [1, Number.POSITIVE_INFINITY, 1], gap: 0 }),
+        },
+        {
+          label: "Selected Sites",
+          stroke: "#237a5d",
+          fill: hasSelectedTotals ? "#88d4b5" : "rgba(136, 212, 181, 0)",
+          width: 0,
+          points: { show: false },
+          paths: uPlot.paths?.bars?.({ size: [1, Number.POSITIVE_INFINITY, 1], gap: 0 }),
         },
       ],
     },
-    [x, totals],
+    [x, totals, selectedTotals],
     parent,
   );
 

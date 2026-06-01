@@ -257,6 +257,16 @@ table {
   font-size: 13px;
 }
 
+a {
+  color: var(--accent-dark);
+  text-decoration: none;
+}
+
+a:hover,
+a:focus-visible {
+  text-decoration: underline;
+}
+
 th,
 td {
   border-bottom: 1px solid var(--line);
@@ -274,6 +284,38 @@ th {
   font-weight: 600;
   z-index: 1;
   cursor: pointer;
+}
+
+.sort-label {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.sort-indicator {
+  display: inline-block;
+  width: 14px;
+  margin-left: 5px;
+  color: color-mix(in srgb, var(--muted) 45%, white);
+  font-size: 11px;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+.sort-indicator.active {
+  color: var(--accent-dark);
+}
+
+.select-column {
+  width: 36px;
+  text-align: center;
+}
+
+.select-column input {
+  accent-color: var(--accent-dark);
+}
+
+.selected-row {
+  background: color-mix(in srgb, var(--accent) 5%, #f3f6f5);
 }
 
 .status-badge {

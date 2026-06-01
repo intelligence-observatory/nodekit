@@ -1,6 +1,7 @@
 import type { RunTableRow, TimeRange } from "./types";
 
 export const RUNS_PAGE_SIZE = 100;
+export const SITES_PAGE_SIZE = 100;
 
 export interface PageInfo {
   pageIndex: number;
