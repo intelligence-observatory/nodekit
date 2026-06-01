@@ -78,6 +78,9 @@ Traditional psych tasks are implemented as bespoke spaghetti code: ad-hoc state 
 
 ## Documentation style:
 
+## Visual Style
+- NodeKit's accent hue is the docs green: `rgb(136, 212, 181)` / `#88d4b5`. Use this as the primary accent color for NodeKit-owned UI unless a more specific design direction overrides it.
+
 ### Tutorials
 - Start with a short purpose statement, then a clear “by the end” outcome and a target Graph image.
 - Organize as steps (`## Step N:`) with small sub-steps (“Define…”, “Wire…”), each with a concrete goal.
