@@ -9,6 +9,8 @@ import pydantic
 from nodekit import Graph
 from nodekit.assets import Asset
 from nodekit._internal.ops.open_asset_save_asset import open_asset
+from nodekit._internal.ops.transform_asset_locators import transform_asset_locators
+from nodekit._internal.types.assets import URL
 from nodekit._internal.utils.iter_assets import iter_assets
 import nodekit.server.contracts as contracts
 from nodekit.server.pagination import PageResponse
@@ -122,7 +124,11 @@ class Client:
                 self.upload_asset(asset=asset)
                 uploaded_asset_keys.add(asset_key)
 
-        request = contracts.CreateSiteRequest(graph=graph, tags=tuple(tags))
+        server_graph = transform_asset_locators(
+            graph=graph,
+            transform=lambda asset: URL(url=f"{self.api_url}/assets/{asset.sha256}"),
+        )
+        request = contracts.CreateSiteRequest(graph=server_graph, tags=tuple(tags))
         return self._request("POST", "/sites", contracts.CreateSiteResponse, request=request)
 
     def iter_sites(

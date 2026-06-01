@@ -7,6 +7,8 @@ from uuid import uuid4
 import httpx
 
 import nodekit as nk
+from nodekit._internal.types.assets import LocatorTypeEnum, URL
+from nodekit._internal.utils.iter_assets import iter_assets
 import nodekit.server as nk_server
 import nodekit.server.contracts as contracts
 
@@ -204,6 +206,17 @@ def test_create_site_preflights_and_uploads_missing_assets(graph_with_assets: nk
     assert len(captured["check_body"]["assets"]) == 3
     assert len(captured["uploads"]) == 1
     assert captured["site_body"]["tags"] == ["pilot"]
+    posted_graph = nk.Graph.model_validate(captured["site_body"]["graph"])
+    assert {
+        str(asset.locator.url)
+        for asset in iter_assets(posted_graph)
+        if isinstance(asset.locator, URL)
+    } == {
+        f"https://nodekit.example/assets/{asset.sha256}" for asset in iter_assets(graph_with_assets)
+    }
+    assert {asset.locator.locator_type for asset in iter_assets(graph_with_assets)} == {
+        LocatorTypeEnum.FileSystemPath
+    }
     assert response.site_id == site_id
 
 

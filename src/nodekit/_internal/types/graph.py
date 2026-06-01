@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Literal, Self
+from typing import Annotated, Literal, Self
 
 import pydantic
 
@@ -16,8 +16,10 @@ class Graph(pydantic.BaseModel):
     type: Literal["Graph"] = "Graph"
     nodekit_version: str = pydantic.Field(default=VERSION, validate_default=True)
 
-    nodes: dict[NodeId, Node | Graph] = pydantic.Field(
-        description="The set of Nodes in the Graph, by NodeId. Note that a Graph can contain other Graphs as Nodes.",
+    nodes: dict[NodeId, Annotated[Node | Graph, pydantic.Field(discriminator="type")]] = (
+        pydantic.Field(
+            description="The set of Nodes in the Graph, by NodeId. Note that a Graph can contain other Graphs as Nodes.",
+        )
     )
 
     transitions: dict[NodeId, Transition] = pydantic.Field(
