@@ -44,6 +44,7 @@ class SendBonusPaymentRequest(pydantic.BaseModel):
     worker_id: str
     assignment_id: str
     amount_usd: Decimal = pydantic.Field(decimal_places=2)
+    reason: str = "Assignment-based bonus."
 
 
 # %%
@@ -94,6 +95,9 @@ class MturkClient:
         else:
             return "MTurk"
 
+    def get_account_balance(self) -> Decimal:
+        return Decimal(self.boto3_client.get_account_balance()["AvailableBalance"])
+
     def create_hit(
         self,
         request: CreateHitRequest,
@@ -111,7 +115,7 @@ class MturkClient:
         min_approval_cost = (
             completion_reward_usd * Decimal("1.2") * Decimal(num_assignments)
         )  # Turk fees are 20% of the base completion reward.
-        current_balance = Decimal(self.boto3_client.get_account_balance()["AvailableBalance"])
+        current_balance = self.get_account_balance()
         if current_balance < min_approval_cost:
             raise RuntimeError(
                 f"Insufficient balance to create HIT. Minimum required: ${min_approval_cost:.2f}, current balance: ${current_balance:.2f}"
@@ -158,7 +162,7 @@ class MturkClient:
                 WorkerId=request.worker_id,
                 BonusAmount=str(request.amount_usd),
                 AssignmentId=request.assignment_id,
-                Reason="Assignment-based bonus.",
+                Reason=request.reason,
                 UniqueRequestToken=unique_request_token,  # For idempotency
             )
         except Exception as e:
