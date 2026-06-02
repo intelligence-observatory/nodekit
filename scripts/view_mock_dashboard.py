@@ -35,8 +35,8 @@ MOCK_API_TOKEN = "mock-dashboard-token"
 MOCK_USER_NAMESPACE = UUID("5f1096d0-4d4e-4bc3-a05b-29e690b044dd")
 MOCK_SITE_NAMESPACE = UUID("f3d9b0db-425f-4e23-aa51-69ef5f183ee4")
 MOCK_RUN_NAMESPACE = UUID("66cad706-c801-4f4b-9e57-23d7140306c9")
-DEFAULT_SITE_COUNT = 20
-DEFAULT_RUN_COUNT = 1500
+DEFAULT_SITE_COUNT = 200
+DEFAULT_RUN_COUNT = 15000
 DEFAULT_SEED = 0
 DEFAULT_ARCHIVED_RUN_FRACTION = 0.05
 TAG_POOL = (
@@ -115,7 +115,7 @@ def _run_mock_dashboard(
     seed_mock_dashboard_cache(cache=cache, data=data)
 
     print(f"NodeKit mock dashboard: {len(data.sites)} sites, {len(data.runs)} runs, seed {seed}")
-    nk.server.start_dashboard(client=client, cache_dir=cache_dir)
+    nk.server.start_dashboard(client=client, cache_dir=cache_dir, open_browser=False)
 
 
 # %% Mock data

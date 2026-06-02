@@ -19,17 +19,18 @@ export const runColumns: ColumnDef<RunTableRow>[] = [
   { accessorFn: (row) => row.tags.join(", "), id: "tags", header: "Tags" },
   { accessorKey: "platformLabel", header: "Platform" },
   { accessorKey: "createdAtMs", header: "Created" },
+  { accessorKey: "createdAt", header: "Creation Date" },
   { accessorKey: "durationMsec", header: "Duration" },
   { accessorKey: "eventCount", header: "Events" },
 ];
 
 export const siteColumns: ColumnDef<SiteTableRow>[] = [
-  { id: "select", header: "" },
   { accessorKey: "siteId", header: "Site" },
   { accessorFn: (row) => row.tags.join(", "), id: "tags", header: "Tags" },
   { accessorKey: "runCount", header: "Runs" },
   { accessorKey: "latestRunAtMs", header: "Latest Run" },
   { accessorKey: "createdAtMs", header: "Created" },
+  { accessorKey: "createdAt", header: "Creation Date" },
   { accessorKey: "url", header: "URL" },
 ];
 

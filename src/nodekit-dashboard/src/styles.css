@@ -199,29 +199,241 @@ h2 {
   background: color-mix(in srgb, var(--accent) 28%, white);
 }
 
-.chart-wrap {
-  position: relative;
+.matrix-wrap {
   margin-top: 12px;
   min-height: 246px;
 }
 
-.chart-wrap .u-over {
+.matrix-host {
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #f8faf9;
+}
+
+.master-matrix {
+  --matrix-label-width: 92px;
+  --matrix-gap: 1px;
+  --matrix-plot-width: max(720px, calc(100vw - 190px));
+  position: relative;
+  display: grid;
+  column-gap: var(--matrix-gap);
+  grid-template-columns: var(--matrix-label-width) repeat(var(--matrix-columns), minmax(0, 1fr));
+  row-gap: var(--matrix-gap);
+  width: calc(var(--matrix-label-width) + var(--matrix-gap) + var(--matrix-plot-width));
+  min-width: calc(var(--matrix-label-width) + var(--matrix-gap) + var(--matrix-plot-width));
+  padding: 8px;
+  background:
+    linear-gradient(to right, transparent var(--matrix-label-width), rgba(89, 105, 116, 0.035) var(--matrix-label-width)),
+    #fff;
+}
+
+.matrix-corner,
+.matrix-time-label,
+.matrix-aggregate-label,
+.matrix-row-label,
+.matrix-cell {
+  height: 18px;
+}
+
+.matrix-time-label {
+  position: relative;
+  overflow: visible;
+  border-bottom: 1px solid color-mix(in srgb, var(--line) 62%, transparent);
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 18px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.matrix-time-label.has-label::after {
+  position: absolute;
+  bottom: -3px;
+  left: 50%;
+  height: 5px;
+  border-left: 1px solid color-mix(in srgb, var(--muted) 35%, transparent);
+  content: "";
+}
+
+.matrix-corner {
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--line) 78%, transparent);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--panel) 88%, var(--bg));
+  color: var(--text);
+  font-size: 11px;
+  font-weight: 650;
+  line-height: 18px;
+  padding: 0 8px;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.matrix-corner:hover,
+.matrix-corner:focus-visible {
+  border-color: color-mix(in srgb, var(--accent-dark) 38%, var(--line));
+  background: color-mix(in srgb, var(--accent) 16%, white);
+  color: var(--accent-dark);
+  outline: 0;
+}
+
+.matrix-aggregate-label,
+.matrix-row-label {
+  overflow: hidden;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 18px;
+  padding: 0 8px 0 0;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.matrix-row-label {
+  color: var(--text);
+}
+
+.matrix-row-label:hover,
+.matrix-row-label:focus-visible {
+  color: var(--accent-dark);
+  outline: 0;
+}
+
+.matrix-cell {
+  position: relative;
+  width: 100%;
+  border: 0;
+  border-radius: 2px;
+  background: var(--cell-color);
   cursor: default;
+  overflow: hidden;
+  padding: 0;
 }
 
-.chart-wrap .u-select {
-  background: color-mix(in srgb, var(--accent) 18%, transparent);
-  border: 1px solid color-mix(in srgb, var(--accent-dark) 38%, transparent);
+.matrix-cell::after {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1px solid color-mix(in srgb, var(--text) 30%, transparent);
+  content: "";
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 80ms ease-out;
 }
 
-.chart-readout {
+.matrix-cell.is-empty {
+  background: transparent;
+  box-shadow: none;
+}
+
+.matrix-cell.is-unknown {
+  background:
+    repeating-linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--muted) 10%, transparent) 0 2px,
+      transparent 2px 5px
+    ),
+    color-mix(in srgb, var(--muted) 4%, white);
+}
+
+.matrix-cell.is-partial-unknown {
+  background:
+    linear-gradient(
+      90deg,
+      var(--cell-color) 0 50%,
+      color-mix(in srgb, var(--muted) 7%, white) 50% 100%
+    );
+}
+
+.matrix-cell.is-partial-unknown::before {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: repeating-linear-gradient(
+    135deg,
+    transparent 0 3px,
+    color-mix(in srgb, var(--muted) 14%, transparent) 3px 5px
+  );
+  clip-path: inset(0 0 0 50%);
+  content: "";
+  pointer-events: none;
+}
+
+.matrix-cell:hover,
+.matrix-cell:focus-visible {
+  outline: 0;
+}
+
+.matrix-cell:hover::after,
+.matrix-cell:focus-visible::after {
+  opacity: 1;
+}
+
+.matrix-aggregate-cell {
+  height: 14px;
+  margin-top: 2px;
+  opacity: 0.88;
+}
+
+.matrix-aggregate-label,
+.matrix-aggregate-cell {
+  border-bottom: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
+}
+
+.matrix-cell.dimmed,
+.matrix-aggregate-cell.dimmed {
+  opacity: 0.28;
+}
+
+.matrix-row-label.dimmed {
+  opacity: 0.38;
+}
+
+.matrix-selection-overlay {
+  position: absolute;
+  z-index: 2;
+  border: 1px solid color-mix(in srgb, var(--muted) 48%, transparent);
+  background: transparent;
+  box-shadow: 0 0 0 1px color-mix(in srgb, white 70%, transparent) inset;
+  pointer-events: none;
+}
+
+.matrix-preview-overlay {
+  z-index: 3;
+  border-color: color-mix(in srgb, var(--muted) 62%, transparent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.matrix-readout {
   min-height: 18px;
   margin-top: 6px;
   color: var(--muted);
   font-size: 12px;
 }
 
-.chart-empty {
+.matrix-scrub {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.matrix-scrub-label {
+  min-width: 122px;
+}
+
+.matrix-scrub input[type="range"] {
+  flex: 1;
+  accent-color: var(--accent-dark);
+}
+
+.matrix-empty {
   display: grid;
   min-height: 220px;
   place-items: center;
@@ -284,8 +496,87 @@ h2 {
 
 table {
   width: 100%;
+  table-layout: fixed;
   border-collapse: collapse;
   font-size: 13px;
+}
+
+.sites-table {
+  min-width: 1180px;
+}
+
+.runs-table {
+  min-width: 1080px;
+}
+
+.runs-table th:nth-child(1),
+.runs-table td:nth-child(1),
+.runs-table th:nth-child(3),
+.runs-table td:nth-child(3) {
+  width: 92px;
+}
+
+.sites-table th:nth-child(1),
+.sites-table td:nth-child(1) {
+  width: 92px;
+}
+
+.sites-table th:nth-child(2),
+.sites-table td:nth-child(2),
+.runs-table th:nth-child(4),
+.runs-table td:nth-child(4) {
+  width: 220px;
+}
+
+.sites-table th:nth-child(3),
+.sites-table td:nth-child(3),
+.runs-table th:nth-child(9),
+.runs-table td:nth-child(9) {
+  width: 86px;
+}
+
+.sites-table th:nth-child(4),
+.sites-table td:nth-child(4),
+.sites-table th:nth-child(5),
+.sites-table td:nth-child(5),
+.runs-table th:nth-child(6),
+.runs-table td:nth-child(6) {
+  width: 140px;
+}
+
+.sites-table th:nth-child(6),
+.sites-table td:nth-child(6),
+.runs-table th:nth-child(7),
+.runs-table td:nth-child(7) {
+  width: 170px;
+}
+
+.runs-table th:nth-child(2),
+.runs-table td:nth-child(2) {
+  width: 96px;
+}
+
+.runs-table th:nth-child(5),
+.runs-table td:nth-child(5) {
+  width: 132px;
+}
+
+.runs-table th:nth-child(8),
+.runs-table td:nth-child(8) {
+  width: 96px;
+}
+
+.sites-table th:nth-child(7),
+.sites-table td:nth-child(7) {
+  width: 330px;
+}
+
+.sites-table th:last-child,
+.sites-table td:last-child,
+.runs-table th:last-child,
+.runs-table td:last-child {
+  padding-left: 18px;
+  text-align: left;
 }
 
 a {
@@ -301,8 +592,10 @@ a:focus-visible {
 th,
 td {
   border-bottom: 1px solid var(--line);
+  overflow: hidden;
   padding: 8px 10px;
   text-align: left;
+  text-overflow: ellipsis;
   vertical-align: top;
   white-space: nowrap;
 }
@@ -319,7 +612,16 @@ th {
 
 .sort-label {
   display: inline-block;
+  max-width: calc(100% - 20px);
+  overflow: hidden;
+  text-overflow: ellipsis;
   vertical-align: middle;
+}
+
+td a {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .sort-indicator {
@@ -334,19 +636,6 @@ th {
 
 .sort-indicator.active {
   color: var(--accent-dark);
-}
-
-.select-column {
-  width: 36px;
-  text-align: center;
-}
-
-.select-column input {
-  accent-color: var(--accent-dark);
-}
-
-.selected-row {
-  background: color-mix(in srgb, var(--accent) 5%, #f3f6f5);
 }
 
 .status-badge {
@@ -395,6 +684,10 @@ th {
 }
 
 @media (max-width: 640px) {
+  .master-matrix {
+    --matrix-plot-width: 720px;
+  }
+
   .topbar {
     align-items: flex-start;
     flex-direction: column;

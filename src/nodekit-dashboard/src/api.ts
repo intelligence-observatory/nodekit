@@ -2,9 +2,9 @@ import type {
   CacheStatus,
   CachedRunItem,
   CachedSiteItem,
-  CachedTagItem,
   DashboardData,
   HealthStatus,
+  TimeBounds,
 } from "./types";
 
 async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
@@ -20,14 +20,17 @@ async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
   return payload as T;
 }
 
-export async function fetchDashboardData(): Promise<DashboardData> {
-  const [status, sites, tags, runs] = await Promise.all([
+export async function fetchDashboardData(range: TimeBounds): Promise<DashboardData> {
+  const query = new URLSearchParams({
+    start_ms: String(Math.floor(range.startMs)),
+    end_ms: String(Math.floor(range.endMs)),
+  });
+  const [status, sites, runs] = await Promise.all([
     requestJson<CacheStatus>("/api/status"),
     requestJson<CachedSiteItem[]>("/api/sites"),
-    requestJson<CachedTagItem[]>("/api/tags"),
-    requestJson<CachedRunItem[]>("/api/runs"),
+    requestJson<CachedRunItem[]>(`/api/runs?${query}`),
   ]);
-  return { status, sites, tags, runs };
+  return { status, sites, tags: [], runs };
 }
 
 export async function refreshDashboard(): Promise<unknown> {

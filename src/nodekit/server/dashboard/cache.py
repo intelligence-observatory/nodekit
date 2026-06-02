@@ -167,6 +167,46 @@ class _DashboardCache:
             items.append(item)
         return items
 
+    def read_items_in_time_window(
+        self,
+        *,
+        kind: str,
+        response_type: type[ResponseT],
+        timestamp_field: str,
+        start_ms: int | None,
+        end_ms: int | None,
+        stale_kind: str | None = None,
+    ) -> list[dict[str, Any]]:
+        """Read cached items after cheap JSON time filtering."""
+
+        with self._connect() as connection:
+            rows = connection.execute(
+                """
+                SELECT kind, key, contract_type, payload_json, source_api_url,
+                       fetched_at, cache_schema_version
+                FROM entries
+                WHERE kind = ?
+                ORDER BY fetched_at DESC, key
+                """,
+                (kind,),
+            ).fetchall()
+
+        items: list[dict[str, Any]] = []
+        for row in rows:
+            raw_payload = json.loads(row["payload_json"])
+            timestamp = raw_payload.get(timestamp_field)
+            if not isinstance(timestamp, str):
+                continue
+            if not _timestamp_in_window(timestamp=timestamp, start_ms=start_ms, end_ms=end_ms):
+                continue
+
+            entry = _entry_from_row(row)
+            payload = response_type.model_validate(raw_payload)
+            item = payload.model_dump(mode="json")
+            item["_cache"] = self._entry_cache_info(entry=entry, stale_kind=stale_kind or kind)
+            items.append(item)
+        return items
+
     def read_query_items(
         self,
         *,
@@ -732,6 +772,18 @@ def _query_key(*, query: contracts.ContractModel, page_cursor: str | None) -> st
 
 def _stable_json(value: Any) -> str:
     return json.dumps(value, sort_keys=True, separators=(",", ":"))
+
+
+def _timestamp_in_window(*, timestamp: str, start_ms: int | None, end_ms: int | None) -> bool:
+    try:
+        timestamp_ms = int(
+            datetime.datetime.fromisoformat(timestamp.replace("Z", "+00:00")).timestamp() * 1000
+        )
+    except ValueError:
+        return False
+    return (start_ms is None or timestamp_ms >= start_ms) and (
+        end_ms is None or timestamp_ms <= end_ms
+    )
 
 
 def _utc_now() -> datetime.datetime:

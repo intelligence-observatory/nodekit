@@ -77,11 +77,3 @@ export function buildSiteRows(
     })
     .sort((a, b) => b.runCount - a.runCount || b.latestRunAtMs - a.latestRunAtMs);
 }
-
-export function filterRowsBySiteIds(
-  rows: RunTableRow[],
-  siteIds: Set<string>,
-): RunTableRow[] {
-  if (siteIds.size === 0) return rows;
-  return rows.filter((row) => siteIds.has(row.siteId));
-}

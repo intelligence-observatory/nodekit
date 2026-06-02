@@ -1,7 +1,7 @@
-import type { RunTableRow, TimeRange } from "./types";
+import type { RunTableRow, TimeBounds } from "./types";
 
-export const RUNS_PAGE_SIZE = 100;
-export const SITES_PAGE_SIZE = 100;
+export const RUNS_PAGE_SIZE = 10;
+export const SITES_PAGE_SIZE = 10;
 
 export interface PageInfo {
   pageIndex: number;
@@ -11,7 +11,7 @@ export interface PageInfo {
   total: number;
 }
 
-export function rowsInTimeRange(rows: RunTableRow[], range: TimeRange): RunTableRow[] {
+export function rowsInTimeRange(rows: RunTableRow[], range: TimeBounds): RunTableRow[] {
   return rows.filter((row) => row.createdAtMs >= range.startMs && row.createdAtMs <= range.endMs);
 }
 

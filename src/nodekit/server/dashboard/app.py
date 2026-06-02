@@ -98,7 +98,22 @@ def create_dashboard_app(
         return cache.read_items(kind="tag", response_type=contracts.ListTagsItem)
 
     @app.get("/api/runs")
-    def runs() -> list[dict[str, Any]]:
+    def runs(start_ms: int | None = None, end_ms: int | None = None) -> list[dict[str, Any]]:
+        if start_ms is not None or end_ms is not None:
+            return _enrich_run_items(
+                cache,
+                _visible_run_items(
+                    cache.read_items_in_time_window(
+                        kind="run",
+                        response_type=contracts.ListRunsItem,
+                        timestamp_field="timestamp_created",
+                        start_ms=start_ms,
+                        end_ms=end_ms,
+                        stale_kind="run-list",
+                    )
+                ),
+            )
+
         items = cache.read_query_items(
             resource="runs",
             query=contracts.ListRunsQuery(max_items=100),

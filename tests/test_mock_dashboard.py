@@ -86,6 +86,40 @@ def test_mock_dashboard_cache_seeding_exposes_enriched_visible_runs(tmp_path) ->
     assert any(run["platform_label"] == "MechanicalTurk" for run in runs)
 
 
+def test_mock_dashboard_runs_endpoint_filters_by_time_window(tmp_path) -> None:
+    now = datetime.datetime(2026, 6, 1, 12, 0, tzinfo=datetime.UTC)
+    data = view_mock_dashboard.generate_mock_dashboard_data(
+        site_count=20,
+        run_count=500,
+        seed=2,
+        now=now,
+    )
+    cache = _DashboardCache(
+        client=view_mock_dashboard.create_mock_dashboard_client(data),
+        cache_dir=tmp_path,
+    )
+    view_mock_dashboard.seed_mock_dashboard_cache(cache=cache, data=data)
+    app = create_dashboard_app(cache=cache)
+    start_ms = int((now - datetime.timedelta(hours=1)).timestamp() * 1000)
+    end_ms = int(now.timestamp() * 1000)
+
+    with TestClient(app) as dashboard_client:
+        all_runs_response = dashboard_client.get("/api/runs")
+        window_runs_response = dashboard_client.get(
+            f"/api/runs?start_ms={start_ms}&end_ms={end_ms}"
+        )
+
+    assert all_runs_response.status_code == 200
+    assert window_runs_response.status_code == 200
+    all_runs = all_runs_response.json()
+    window_runs = window_runs_response.json()
+    assert len(window_runs) < len(all_runs)
+    assert window_runs
+    for run in window_runs:
+        timestamp = datetime.datetime.fromisoformat(run["timestamp_created"])
+        assert now - datetime.timedelta(hours=1) <= timestamp <= now
+
+
 def test_mock_dashboard_manual_refresh_uses_mock_transport(tmp_path) -> None:
     now = datetime.datetime(2026, 6, 1, 12, 0, tzinfo=datetime.UTC)
     data = view_mock_dashboard.generate_mock_dashboard_data(

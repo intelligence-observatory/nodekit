@@ -1,23 +1,31 @@
 import type { Header, SortingState } from "@tanstack/table-core";
 
 import { fetchDashboardData, fetchHealth, refreshDashboard } from "./api";
-import { renderRunChart, type RunChartController } from "./chart";
-import { buildRunRows, buildSiteRows, filterRowsBySiteIds } from "./derive";
-import { formatDateTimeWithZone, localTimeZoneLabel } from "./format";
+import { buildRunRows } from "./derive";
+import {
+  formatDateTimeWithZone,
+  formatMinuteTimeAgo,
+  formatTimeAgo,
+  localTimeZoneLabel,
+} from "./format";
 import { healthClass, healthLabel } from "./health";
 import { icon } from "./icons";
+import {
+  buildMatrixModel,
+  defaultMatrixSelection,
+  MATRIX_ROW_LIMIT,
+  renderMasterMatrix,
+  rowsInMatrixSelection,
+  siteRowsInMatrixSelection,
+  type MatrixController,
+  type MatrixSelection,
+} from "./matrix";
 import { pageInfo, pageRows, rowsInTimeRange, SITES_PAGE_SIZE } from "./pagination";
 import { matchesRunSearch, matchesSiteSearch } from "./search";
 import "./styles.css";
 import { createRunsTable, createSitesTable } from "./table";
-import {
-  bucketRuns,
-  lookbackRanges,
-  selectedBucketTimeRange,
-  visibleRange,
-} from "./time-buckets";
+import { lookbackRanges, visibleRange } from "./time-buckets";
 import type {
-  BucketRangeSelection,
   CachedRunItem,
   CachedSiteItem,
   CacheStatus,
@@ -26,9 +34,11 @@ import type {
   RunStatus,
   RunTableRow,
   SiteTableRow,
+  TimeBounds,
 } from "./types";
 
 const HEALTH_POLL_INTERVAL_MS = 30_000;
+const WINDOW_CLOCK_INTERVAL_MS = 60_000;
 
 interface AppState {
   status: CacheStatus | null;
@@ -44,8 +54,10 @@ interface AppState {
   pageIndex: number;
   sitePageIndex: number;
   selectedSiteIds: Set<string>;
-  selectedBucketRange: BucketRangeSelection | null;
-  hasInitializedSiteSelection: boolean;
+  selectedTimeBounds: TimeBounds;
+  matrixRowOffset: number;
+  selectionFollowsGlobalWindow: boolean;
+  hasInitializedMatrixSelection: boolean;
   error: string | null;
   loading: boolean;
 }
@@ -67,15 +79,17 @@ const state: AppState = {
   pageIndex: 0,
   sitePageIndex: 0,
   selectedSiteIds: new Set(),
-  selectedBucketRange: null,
-  hasInitializedSiteSelection: false,
+  selectedTimeBounds: visibleRange("1h"),
+  matrixRowOffset: 0,
+  selectionFollowsGlobalWindow: true,
+  hasInitializedMatrixSelection: false,
   error: null,
   loading: false,
 };
 
-let chartController: RunChartController | null = null;
-let lastChartWidth = 0;
-let chartInteractionEpoch = 0;
+let matrixController: MatrixController | null = null;
+let lastMatrixWidth = 0;
+let matrixInteractionEpoch = 0;
 
 const app = document.querySelector<HTMLDivElement>("#app");
 if (!app) throw new Error("Missing #app mount point.");
@@ -105,10 +119,11 @@ app.innerHTML = `
     <main class="content">
       <section class="panel">
         <div class="panel-header">
-          <h2>Run Volume <span id="run-volume-title-meta" class="title-meta"></span></h2>
+          <h2>Site Activity <span id="matrix-title-meta" class="title-meta"></span></h2>
           <div id="range-pills" class="range-pills" aria-label="Histogram range"></div>
         </div>
-        <div id="chart" class="chart-wrap"></div>
+        <div id="matrix" class="matrix-wrap"></div>
+        <div id="matrix-scrub" class="matrix-scrub"></div>
       </section>
 
       <section class="panel">
@@ -156,6 +171,7 @@ bindChartResize();
 void loadData();
 void loadHealth();
 window.setInterval(() => void loadHealth(), HEALTH_POLL_INTERVAL_MS);
+window.setInterval(() => render(), WINDOW_CLOCK_INTERVAL_MS);
 
 function bindStaticControls(): void {
   byId("reset-view").addEventListener("click", resetView);
@@ -168,29 +184,18 @@ function bindStaticControls(): void {
   input("site-search-filter").addEventListener("input", (event) => {
     state.siteSearch = (event.target as HTMLInputElement).value;
     state.sitePageIndex = 0;
-    state.pageIndex = 0;
     render();
   });
 }
 
 function bindChartResize(): void {
-  const host = byId("chart");
+  const host = byId("matrix");
   if (!("ResizeObserver" in window)) return;
   const observer = new ResizeObserver(() => {
     const width = Math.round(host.clientWidth);
-    if (width <= 0 || width === lastChartWidth) return;
-    lastChartWidth = width;
-    const fullRange = visibleRange(state.lookback);
-    const activeRange = selectedBucketTimeRange(fullRange, state.selectedBucketRange);
-    const chartRows = rowsInTimeRange(state.rows, fullRange);
-    const activeRows = rowsInTimeRange(state.rows, activeRange);
-    const sites = filteredSiteRows(buildSiteRows(state.sites, activeRows));
-    const selectedSiteIds = visibleSelectedSiteIds(sites);
-    renderChart(
-      chartRows,
-      selectedSiteIds.size === 0 ? [] : filterRowsBySiteIds(activeRows, selectedSiteIds),
-      sites.length > 0,
-    );
+    if (width <= 0 || width === lastMatrixWidth) return;
+    lastMatrixWidth = width;
+    render();
   });
   observer.observe(host);
 }
@@ -198,25 +203,25 @@ function bindChartResize(): void {
 async function loadData(): Promise<void> {
   state.loading = true;
   state.error = null;
+  const range = visibleRange(state.lookback);
   try {
-    const data = await fetchDashboardData();
-    const wasAllSitesSelected =
-      state.sites.length === 0 ||
-      state.sites.every((site) => state.selectedSiteIds.has(site.site_id));
+    const data = await fetchDashboardData(range);
     state.status = data.status;
     state.runs = data.runs.filter((run) => !run.is_archived);
     state.sites = data.sites;
     state.rows = buildRunRows(state.runs, state.sites);
-    if (!state.hasInitializedSiteSelection || wasAllSitesSelected) {
-      state.selectedSiteIds = new Set(state.sites.map((site) => site.site_id));
+    const matrix = buildCurrentMatrix();
+    if (!state.hasInitializedMatrixSelection || state.selectionFollowsGlobalWindow) {
+      setMatrixSelection(defaultMatrixSelection(matrix.model, matrix.range), true);
     } else {
-      const currentSiteIds = new Set(state.sites.map((site) => site.site_id));
+      const currentSiteIds = new Set(matrix.model.allRows.map((row) => row.site.siteId));
       state.selectedSiteIds = new Set(
         [...state.selectedSiteIds].filter((siteId) => currentSiteIds.has(siteId)),
       );
     }
-    state.hasInitializedSiteSelection = true;
+    state.hasInitializedMatrixSelection = true;
     state.pageIndex = 0;
+    state.sitePageIndex = 0;
   } catch (error) {
     state.error = errorMessage(error);
   } finally {
@@ -253,34 +258,34 @@ async function manualRefresh(): Promise<void> {
 }
 
 function render(): void {
-  const fullRange = visibleRange(state.lookback);
-  const activeRange = selectedBucketTimeRange(fullRange, state.selectedBucketRange);
-  const chartRows = rowsInTimeRange(state.rows, fullRange);
-  const activeRows = rowsInTimeRange(state.rows, activeRange);
-  const activeSites = buildSiteRows(state.sites, activeRows);
-  const sites = filteredSiteRows(activeSites);
-  const selectedSiteIds = visibleSelectedSiteIds(sites);
-  const selectedRows =
-    selectedSiteIds.size === 0 ? [] : filterRowsBySiteIds(activeRows, selectedSiteIds);
-  const rows = filteredRows(filterRowsBySiteIds(activeRows, selectedSiteIds));
+  const { range, windowRows, model } = buildCurrentMatrix();
+  state.matrixRowOffset = model.rowOffset;
+  if (state.selectionFollowsGlobalWindow) {
+    setMatrixSelection(defaultMatrixSelection(model, range), true);
+  }
+  const selection = currentMatrixSelection();
+  const selectedRunRows = rowsInMatrixSelection(windowRows, selection);
+  const selectedSiteRows = siteRowsInMatrixSelection(state.sites, selection, selectedRunRows);
+  const visibleSiteRows = filteredSiteRows(selectedSiteRows);
+  const visibleRunRows = filteredRows(selectedRunRows);
   renderTopbar();
-  renderTitleMetadata(activeRows.length, activeSites.length, activeRange);
+  renderTitleMetadata(selectedRunRows.length, selectedSiteRows.length);
   renderRangePills();
-  renderChart(chartRows, selectedRows, sites.length > 0);
-  renderSitesTable(sites);
-  renderRunsTable(rows);
+  renderMatrix(model, range, selection);
+  renderMatrixScrub(model);
+  renderSitesTable(visibleSiteRows, selectedSiteRows.length);
+  renderRunsTable(visibleRunRows);
   byId("error").textContent = state.error ?? "";
 }
 
 function renderTitleMetadata(
   runCount: number,
   siteCount: number,
-  activeRange: ReturnType<typeof visibleRange>,
 ): void {
-  const label = activeWindowLabel(activeRange);
-  byId("run-volume-title-meta").textContent = `(n=${runCount} in ${label})`;
-  byId("sites-title-meta").textContent = `(n=${siteCount} active in ${label})`;
-  byId("runs-title-meta").textContent = `(n=${runCount} in ${label})`;
+  const label = `last ${currentWindowLabel()}`;
+  byId("matrix-title-meta").textContent = `(n=${runCount} Runs · ${siteCount} Sites selected)`;
+  byId("sites-title-meta").textContent = `(n=${siteCount} in selection)`;
+  byId("runs-title-meta").textContent = `(n=${runCount} in selection, ${label})`;
 }
 
 function renderTopbar(): void {
@@ -291,9 +296,14 @@ function renderTopbar(): void {
   healthLight.className = healthClass(state.health);
   healthLight.title = healthLabel(state.health);
   healthLight.setAttribute("aria-label", healthLabel(state.health));
-  byId("cache-line").textContent = state.status?.last_refresh_at
-    ? `Last refreshed ${formatDateTimeWithZone(state.status.last_refresh_at)}`
-    : `No refresh recorded (${localTimeZoneLabel()})`;
+  const cacheLine = byId("cache-line");
+  if (state.status?.last_refresh_at) {
+    cacheLine.textContent = `Last refreshed ${formatTimeAgo(state.status.last_refresh_at)}`;
+    cacheLine.title = formatDateTimeWithZone(state.status.last_refresh_at);
+  } else {
+    cacheLine.textContent = `No refresh recorded (${localTimeZoneLabel()})`;
+    cacheLine.removeAttribute("title");
+  }
   const refreshButton = byId("refresh") as HTMLButtonElement;
   refreshButton.disabled = state.loading || state.status?.has_client === false;
   refreshButton.classList.toggle("is-refreshing", state.loading);
@@ -314,40 +324,64 @@ function renderRangePills(): void {
   }
 }
 
-function renderChart(
-  rows: RunTableRow[],
-  selectedRows: RunTableRow[],
-  siteLensVisible: boolean,
+function renderMatrix(
+  model: ReturnType<typeof buildMatrixModel>,
+  range: ReturnType<typeof visibleRange>,
+  selection: MatrixSelection,
 ): void {
-  const epoch = ++chartInteractionEpoch;
-  chartController?.destroy();
-  const range = visibleRange(state.lookback);
-  const buckets = bucketRuns(rows, range, selectedRows);
-  chartController = renderRunChart(byId("chart"), buckets, range, siteLensVisible, {
-    selectedBucketRange: state.selectedBucketRange,
-    onBucketSelect(selection) {
-      if (epoch !== chartInteractionEpoch) return;
-      state.selectedBucketRange = selection;
-      selectAllActiveSitesInCurrentView();
+  const epoch = ++matrixInteractionEpoch;
+  matrixController?.destroy();
+  matrixController = renderMasterMatrix(byId("matrix"), model, range, {
+    selection,
+    observedThroughMs: observedThroughMs(),
+    onSelect(nextSelection) {
+      if (epoch !== matrixInteractionEpoch) return;
+      setMatrixSelection(nextSelection, false);
       state.pageIndex = 0;
       state.sitePageIndex = 0;
       render();
     },
   });
-  lastChartWidth = Math.round(byId("chart").clientWidth);
+  lastMatrixWidth = Math.round(byId("matrix").clientWidth);
 }
 
 function changeLookback(range: LookbackRange): void {
-  chartInteractionEpoch += 1;
+  matrixInteractionEpoch += 1;
   state.lookback = range;
-  state.selectedBucketRange = null;
-  selectAllSitesInRange(visibleRange(range));
+  state.matrixRowOffset = 0;
   state.pageIndex = 0;
   state.sitePageIndex = 0;
-  render();
+  void loadData();
 }
 
-function renderSitesTable(rows: SiteTableRow[]): void {
+function renderMatrixScrub(model: ReturnType<typeof buildMatrixModel>): void {
+  const host = byId("matrix-scrub");
+  host.replaceChildren();
+  if (model.totalRows <= MATRIX_ROW_LIMIT) return;
+
+  const label = document.createElement("span");
+  label.className = "matrix-scrub-label";
+  label.textContent = `Sites ${model.rowOffset + 1}-${Math.min(
+    model.rowOffset + MATRIX_ROW_LIMIT,
+    model.totalRows,
+  )} of ${model.totalRows}`;
+
+  const slider = document.createElement("input");
+  slider.type = "range";
+  slider.min = "0";
+  slider.max = String(Math.max(0, model.totalRows - MATRIX_ROW_LIMIT));
+  slider.step = "1";
+  slider.value = String(model.rowOffset);
+  slider.setAttribute("aria-label", "Scrub visible Site rows");
+  slider.addEventListener("input", () => {
+    state.matrixRowOffset = Number(slider.value);
+    render();
+  });
+
+  host.append(label, slider);
+}
+
+function renderSitesTable(rows: SiteTableRow[], selectedCount: number): void {
   const table = createSitesTable(rows, { sorting: state.siteSorting }, (sorting) => {
     state.siteSorting = sorting;
     state.sitePageIndex = 0;
@@ -360,18 +394,14 @@ function renderSitesTable(rows: SiteTableRow[]): void {
   const visibleRows = pageRows(sortedRows, state.sitePageIndex, SITES_PAGE_SIZE);
 
   const html = document.createElement("table");
+  html.className = "sites-table";
   const thead = document.createElement("thead");
   const headerRow = document.createElement("tr");
   for (const header of table.getHeaderGroups()[0]?.headers ?? []) {
     const th = document.createElement("th");
-    if (header.id === "select") {
-      th.className = "select-column";
-      th.append(selectAllCell(rows));
-    } else {
-      appendSortHeader(th, header);
-      const sortingHandler = header.column.getToggleSortingHandler();
-      if (sortingHandler) th.addEventListener("click", sortingHandler);
-    }
+    appendSortHeader(th, header);
+    const sortingHandler = header.column.getToggleSortingHandler();
+    if (sortingHandler) th.addEventListener("click", sortingHandler);
     headerRow.append(th);
   }
   thead.append(headerRow);
@@ -379,30 +409,28 @@ function renderSitesTable(rows: SiteTableRow[]): void {
   const tbody = document.createElement("tbody");
   for (const row of visibleRows) {
     const source = row.original;
-    const isSelected = state.selectedSiteIds.has(source.siteId);
     const tr = document.createElement("tr");
-    tr.className = isSelected ? "selected-row" : "";
     tr.append(
-      selectCell(source.siteId, isSelected),
       textCell(shortId(source.siteId), source.siteId),
-      textCell(source.tags.join(", ") || "none"),
+      textCell(source.tags.join(", ") || "none", source.tags.join(", ")),
       textCell(String(source.runCount)),
-      textCell(formatDateTime(source.latestRunAt)),
-      textCell(formatDateTime(source.createdAt)),
+      textCell(formatOptionalDateTime(source.latestRunAt)),
+      textCell(formatRelativeTimestamp(source.createdAt), formatDateTimeWithZone(source.createdAt)),
+      textCell(formatDateTimeWithZone(source.createdAt)),
       urlCell(source.url),
     );
     tbody.append(tr);
   }
   if (rows.length === 0) {
     const tr = document.createElement("tr");
-    const td = textCell("No cached Sites have Runs in this window.");
+    const td = textCell("No Sites match this table view.");
     td.colSpan = 7;
     tr.append(td);
     tbody.append(tr);
   }
   html.append(thead, tbody);
   byId("sites-table").replaceChildren(html);
-  renderSitesPager(info, rows);
+  renderSitesPager(info, selectedCount);
 }
 
 function renderRunsTable(rows: RunTableRow[]): void {
@@ -417,6 +445,7 @@ function renderRunsTable(rows: RunTableRow[]): void {
   const visibleRows = pageRows(sortedRows, state.pageIndex);
 
   const html = document.createElement("table");
+  html.className = "runs-table";
   const thead = document.createElement("thead");
   const headerRow = document.createElement("tr");
   for (const header of table.getHeaderGroups()[0]?.headers ?? []) {
@@ -436,9 +465,10 @@ function renderRunsTable(rows: RunTableRow[]): void {
       textCell(shortId(source.runId), source.runId),
       statusCell(source.status),
       textCell(shortId(source.siteId), source.siteId),
-      textCell(source.tags.join(", ") || "none"),
-      textCell(source.platformLabel),
-      textCell(formatDateTime(source.createdAt)),
+      textCell(source.tags.join(", ") || "none", source.tags.join(", ")),
+      textCell(source.platformLabel, source.platformLabel),
+      textCell(formatRelativeTimestamp(source.createdAt), formatDateTimeWithZone(source.createdAt)),
+      textCell(formatDateTimeWithZone(source.createdAt)),
       textCell(formatDuration(source.durationMsec)),
       textCell(source.eventCount === null ? "" : String(source.eventCount)),
     );
@@ -447,7 +477,7 @@ function renderRunsTable(rows: RunTableRow[]): void {
   if (rows.length === 0) {
     const tr = document.createElement("tr");
     const td = textCell("No cached Runs match this view.");
-    td.colSpan = 8;
+    td.colSpan = 9;
     tr.append(td);
     tbody.append(tr);
   }
@@ -456,7 +486,7 @@ function renderRunsTable(rows: RunTableRow[]): void {
   renderPager(info);
 }
 
-function renderSitesPager(info: ReturnType<typeof pageInfo>, rows: SiteTableRow[]): void {
+function renderSitesPager(info: ReturnType<typeof pageInfo>, selectedCount: number): void {
   const host = byId("sites-pager");
   host.replaceChildren();
 
@@ -464,14 +494,14 @@ function renderSitesPager(info: ReturnType<typeof pageInfo>, rows: SiteTableRow[
   summary.className = "pager-summary";
   summary.textContent =
     info.total === 0
-      ? "Showing 0 of 0 selected"
-      : `Showing ${info.start}-${info.end} of ${info.total} selected`;
+      ? "Showing 0 of 0 in selection"
+      : `Showing ${info.start}-${info.end} of ${info.total} in selection`;
 
   const controls = document.createElement("div");
   controls.className = "pager-controls";
   const selected = document.createElement("span");
   selected.className = "pager-page";
-  selected.textContent = `${visibleSelectedSiteIds(rows).size} Sites selected`;
+  selected.textContent = `${selectedCount} Sites selected`;
   const previous = pagerButton("Previous", info.pageIndex === 0, () => {
     state.sitePageIndex = Math.max(0, state.sitePageIndex - 1);
     render();
@@ -525,7 +555,6 @@ function pagerButton(label: string, disabled: boolean, onClick: () => void): HTM
 }
 
 function resetView(): void {
-  state.selectedBucketRange = null;
   state.search = "";
   state.siteSearch = "";
   input("search-filter").value = "";
@@ -537,19 +566,49 @@ function resetView(): void {
   ];
   state.pageIndex = 0;
   state.sitePageIndex = 0;
-  selectAllActiveSitesInCurrentView();
+  state.matrixRowOffset = 0;
+  const { range, model } = buildCurrentMatrix();
+  setMatrixSelection(defaultMatrixSelection(model, range), true);
   render();
 }
 
-function selectAllActiveSitesInCurrentView(): void {
-  const fullRange = visibleRange(state.lookback);
-  const activeRange = selectedBucketTimeRange(fullRange, state.selectedBucketRange);
-  selectAllSitesInRange(activeRange);
+function buildCurrentMatrix(): {
+  range: ReturnType<typeof visibleRange>;
+  windowRows: RunTableRow[];
+  model: ReturnType<typeof buildMatrixModel>;
+} {
+  const range = visibleRange(state.lookback);
+  const windowRows = rowsInTimeRange(state.rows, range);
+  return {
+    range,
+    windowRows,
+    model: buildMatrixModel(
+      state.sites,
+      windowRows,
+      range,
+      MATRIX_ROW_LIMIT,
+      state.matrixRowOffset,
+    ),
+  };
 }
 
-function selectAllSitesInRange(range: ReturnType<typeof visibleRange>): void {
-  const activeRows = rowsInTimeRange(state.rows, range);
-  state.selectedSiteIds = new Set(buildSiteRows(state.sites, activeRows).map((site) => site.siteId));
+function currentMatrixSelection(): MatrixSelection {
+  return {
+    siteIds: new Set(state.selectedSiteIds),
+    timeBounds: state.selectedTimeBounds,
+  };
+}
+
+function observedThroughMs(): number | null {
+  if (!state.status?.last_refresh_at) return null;
+  const parsed = Date.parse(state.status.last_refresh_at);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function setMatrixSelection(selection: MatrixSelection, followsGlobalWindow: boolean): void {
+  state.selectedSiteIds = new Set(selection.siteIds);
+  state.selectedTimeBounds = selection.timeBounds;
+  state.selectionFollowsGlobalWindow = followsGlobalWindow;
 }
 
 function appendSortHeader<T>(th: HTMLTableCellElement, header: Header<T, unknown>): void {
@@ -584,50 +643,6 @@ function filteredSiteRows(rows: SiteTableRow[]): SiteTableRow[] {
   return rows.filter((row) => matchesSiteSearch(row, state.siteSearch));
 }
 
-function visibleSelectedSiteIds(rows: SiteTableRow[]): Set<string> {
-  const visibleIds = new Set(rows.map((row) => row.siteId));
-  return new Set([...state.selectedSiteIds].filter((siteId) => visibleIds.has(siteId)));
-}
-
-function selectCell(siteId: string, selected: boolean): HTMLTableCellElement {
-  const td = document.createElement("td");
-  td.className = "select-column";
-  const checkbox = document.createElement("input");
-  checkbox.type = "checkbox";
-  checkbox.checked = selected;
-  checkbox.setAttribute("aria-label", `Select Site ${siteId}`);
-  checkbox.addEventListener("change", () => {
-    if (checkbox.checked) state.selectedSiteIds.add(siteId);
-    else state.selectedSiteIds.delete(siteId);
-    state.pageIndex = 0;
-    render();
-  });
-  td.append(checkbox);
-  return td;
-}
-
-function selectAllCell(rows: SiteTableRow[]): HTMLInputElement {
-  const checkbox = document.createElement("input");
-  const allSelected =
-    rows.length > 0 && rows.every((row) => state.selectedSiteIds.has(row.siteId));
-  const someSelected = rows.some((row) => state.selectedSiteIds.has(row.siteId));
-  checkbox.type = "checkbox";
-  checkbox.checked = allSelected;
-  checkbox.indeterminate = someSelected && !allSelected;
-  checkbox.disabled = rows.length === 0;
-  checkbox.setAttribute("aria-label", "Select all visible Sites");
-  checkbox.addEventListener("change", () => {
-    if (allSelected) {
-      for (const row of rows) state.selectedSiteIds.delete(row.siteId);
-    } else {
-      for (const row of rows) state.selectedSiteIds.add(row.siteId);
-    }
-    state.pageIndex = 0;
-    render();
-  });
-  return checkbox;
-}
-
 function statusCell(status: RunStatus): HTMLTableCellElement {
   const td = document.createElement("td");
   const span = document.createElement("span");
@@ -656,13 +671,19 @@ function urlCell(url: string): HTMLTableCellElement {
   return td;
 }
 
-function formatDateTime(value: string): string {
+function formatOptionalDateTime(value: string): string {
+  if (!value) return "";
   return new Date(value).toLocaleString([], {
     month: "short",
     day: "numeric",
     hour: "numeric",
     minute: "2-digit",
   });
+}
+
+function formatRelativeTimestamp(value: string): string {
+  if (!value) return "";
+  return formatMinuteTimeAgo(value);
 }
 
 function formatDuration(durationMsec: number | null): string {
@@ -691,21 +712,6 @@ function currentWindowLabel(): string {
   if (state.lookback === "1d") return "day";
   if (state.lookback === "7d") return "week";
   return "month";
-}
-
-function activeWindowLabel(range: ReturnType<typeof visibleRange>): string {
-  if (state.selectedBucketRange === null) return `last ${currentWindowLabel()}`;
-  return formatActiveRange(range);
-}
-
-function formatActiveRange(range: ReturnType<typeof visibleRange>): string {
-  const options: Intl.DateTimeFormatOptions =
-    range.labelUnit === "hour"
-      ? { hour: "numeric", minute: "2-digit" }
-      : { month: "short", day: "numeric", hour: "numeric" };
-  return `${new Date(range.startMs).toLocaleString([], options)}-${new Date(
-    range.endMs,
-  ).toLocaleString([], options)}`;
 }
 
 function errorMessage(error: unknown): string {

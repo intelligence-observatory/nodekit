@@ -131,6 +131,11 @@ export interface TimeRange {
   labelUnit: RelativeLabelUnit;
 }
 
+export interface TimeBounds {
+  startMs: number;
+  endMs: number;
+}
+
 export interface BucketRangeSelection {
   startIndex: number;
   endIndex: number;

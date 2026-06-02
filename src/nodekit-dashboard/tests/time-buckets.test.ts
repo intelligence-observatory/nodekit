@@ -1,8 +1,24 @@
 import { describe, expect, it } from "vitest";
 
-import { buildRunRows, buildSiteRows, filterRowsBySiteIds } from "../src/derive";
-import { formatDateTimeWithZone } from "../src/format";
+import { buildRunRows, buildSiteRows } from "../src/derive";
+import { formatDateTimeWithZone, formatMinuteTimeAgo, formatTimeAgo } from "../src/format";
 import { healthClass, healthLabel } from "../src/health";
+import {
+  buildMatrixBins,
+  buildMatrixModel,
+  defaultMatrixSelection,
+  densityColor,
+  MATRIX_ROW_LIMIT,
+  observationState,
+  rowsInMatrixSelection,
+  selectionFromAggregateBin,
+  selectionFromAll,
+  selectionFromCell,
+  selectionFromDrag,
+  selectionFromRow,
+  siteRowsInMatrixSelection,
+  timeHeaderLabel,
+} from "../src/matrix";
 import {
   pageInfo,
   pageRows,
@@ -20,10 +36,9 @@ import {
   bucketRuns,
   integerTicks,
   relativeTickLabel,
-  selectedBucketTimeRange,
   visibleRange,
 } from "../src/time-buckets";
-import type { CachedRunItem, RunTableRow } from "../src/types";
+import type { CachedRunItem, CachedSiteItem, RunTableRow } from "../src/types";
 
 const nowMs = Date.parse("2026-05-31T12:30:00Z");
 
@@ -49,6 +64,25 @@ const runs: CachedRunItem[] = [
     status: "completed",
     is_archived: false,
     timestamp_created: "2026-05-30T10:15:00Z",
+  },
+];
+
+const sites: CachedSiteItem[] = [
+  {
+    site_id: "site-1",
+    user_id: "user-1",
+    url: "https://nodekit.example/site-1",
+    tags: ["pilot"],
+    is_archived: false,
+    timestamp_created: "2026-05-31T09:00:00Z",
+  },
+  {
+    site_id: "site-2",
+    user_id: "user-1",
+    url: "https://nodekit.example/site-2",
+    tags: ["qa"],
+    is_archived: false,
+    timestamp_created: "2026-05-29T09:00:00Z",
   },
 ];
 
@@ -115,29 +149,12 @@ describe("run bucketing", () => {
   it("counts selected site runs without changing global bucket counts", () => {
     const rows = buildRunRows(runs, []);
     const range = visibleRange("1d", nowMs);
-    const selectedRows = filterRowsBySiteIds(rows, new Set(["site-1"]));
+    const selectedRows = rows.filter((row) => row.siteId === "site-1");
     const buckets = bucketRuns(rows, range, selectedRows);
 
     expect(buckets.reduce((sum, bucket) => sum + bucket.total, 0)).toBe(2);
     expect(buckets.reduce((sum, bucket) => sum + bucket.selectedTotal, 0)).toBe(2);
     expect(bucketRuns(rows, range).every((bucket) => bucket.selectedTotal === 0)).toBe(true);
-  });
-
-  it("converts selected bucket indices to an active time range", () => {
-    const range = visibleRange("1h", nowMs);
-    const selected = selectedBucketTimeRange(range, { startIndex: 10, endIndex: 12 });
-
-    expect(selected.startMs).toBe(range.startMs + 10 * range.bucketMs);
-    expect(selected.endMs).toBe(range.startMs + 13 * range.bucketMs);
-    expect(selected.bucketMs).toBe(range.bucketMs);
-  });
-
-  it("normalizes reversed selected bucket indices", () => {
-    const range = visibleRange("1h", nowMs);
-    const selected = selectedBucketTimeRange(range, { startIndex: 12, endIndex: 10 });
-
-    expect(selected.startMs).toBe(range.startMs + 10 * range.bucketMs);
-    expect(selected.endMs).toBe(range.startMs + 13 * range.bucketMs);
   });
 
   it("creates discrete bucket counts from the configured chunk size", () => {
@@ -161,6 +178,208 @@ describe("run bucketing", () => {
     expect(integerTicks(3.2).every(Number.isInteger)).toBe(true);
     expect(integerTicks(10)).toEqual([0, 5, 10]);
     expect(integerTicks(0)).toEqual([0, 5, 10]);
+  });
+});
+
+describe("master matrix derivation", () => {
+  it("uses wall-clock aligned bins for the matrix", () => {
+    const unalignedNowMs = Date.parse("2026-05-31T12:37:45Z");
+    const bins = buildMatrixBins(visibleRange("1d", unalignedNowMs));
+
+    expect(bins).toHaveLength(96);
+    expect(new Date(bins[0]!.startMs).getMinutes() % 15).toBe(0);
+    expect(new Date(bins.at(-1)!.startMs).getMinutes() % 15).toBe(0);
+    expect(bins.at(-1)!.endMs).toBe(unalignedNowMs);
+  });
+
+  it("uses stable nice labels for the one-hour matrix axis", () => {
+    const range = visibleRange("1h", Date.parse("2026-05-31T12:37:45Z"));
+    const bins = buildMatrixBins(range);
+    const labels = bins.map((bin) => timeHeaderLabel(bin, range));
+
+    expect(labels.filter(Boolean)).toEqual(["1h", "45m", "30m", "15m", "now"]);
+  });
+
+  it("labels the current day as today on day-scale matrix axes", () => {
+    for (const lookback of ["1d", "7d", "30d"] as const) {
+      const range = visibleRange(lookback, Date.parse("2026-05-31T12:37:45Z"));
+      const bins = buildMatrixBins(range);
+      expect(timeHeaderLabel(bins.at(-1)!, range)).toBe("today");
+    }
+  });
+
+  it("uses a capped log density color scale", () => {
+    expect(densityColor(0)).toBe("transparent");
+    expect(densityColor(1000)).toBe(densityColor(2000));
+    expect(densityColor(1)).not.toBe(densityColor(10));
+  });
+
+  it("distinguishes observed, partial, and unknown matrix bins", () => {
+    const bin = {
+      startMs: Date.parse("2026-05-31T12:00:00Z"),
+      endMs: Date.parse("2026-05-31T12:15:00Z"),
+    };
+
+    expect(observationState(bin, null)).toBe("observed");
+    expect(observationState(bin, Date.parse("2026-05-31T12:16:00Z"))).toBe("observed");
+    expect(observationState(bin, Date.parse("2026-05-31T12:08:00Z"))).toBe("partial");
+    expect(observationState(bin, Date.parse("2026-05-31T12:00:00Z"))).toBe("unknown");
+  });
+
+  it("counts runs per Site per time bin and sorts active Sites", () => {
+    const rows = buildRunRows(runs, sites);
+    const range = visibleRange("7d", nowMs);
+    const model = buildMatrixModel(sites, rowsInTimeRange(rows, range), range);
+
+    expect(model.rows.map((row) => row.site.siteId)).toEqual(["site-1", "site-2"]);
+    expect(model.rows[0]!.counts.reduce((sum, count) => sum + count, 0)).toBe(2);
+    expect(model.rows[1]!.counts.reduce((sum, count) => sum + count, 0)).toBe(1);
+    expect(model.aggregateCounts.reduce((sum, count) => sum + count, 0)).toBe(3);
+  });
+
+  it("includes Sites created in the current window and caps visible rows to 50", () => {
+    const range = visibleRange("1d", nowMs);
+    const manySites: CachedSiteItem[] = Array.from({ length: 60 }, (_value, index) => ({
+      site_id: `created-site-${String(index).padStart(2, "0")}`,
+      user_id: "user-1",
+      url: `https://nodekit.example/site-${index}`,
+      tags: ["created"],
+      is_archived: false,
+      timestamp_created: "2026-05-31T11:00:00Z",
+    }));
+    const model = buildMatrixModel(manySites, [], range);
+
+    expect(MATRIX_ROW_LIMIT).toBe(50);
+    expect(model.totalRows).toBe(60);
+    expect(model.allRows).toHaveLength(60);
+    expect(model.rows).toHaveLength(50);
+    expect(model.rows[0]!.site.runCount).toBe(0);
+  });
+
+  it("scrubs the visible matrix row window across active and created Sites", () => {
+    const range = visibleRange("1d", nowMs);
+    const manySites: CachedSiteItem[] = Array.from({ length: 60 }, (_value, index) => ({
+      site_id: `created-site-${String(index).padStart(2, "0")}`,
+      user_id: "user-1",
+      url: `https://nodekit.example/site-${index}`,
+      tags: ["created"],
+      is_archived: false,
+      timestamp_created: `2026-05-31T${String(Math.floor(index / 10)).padStart(2, "0")}:00:00Z`,
+    }));
+    const firstWindow = buildMatrixModel(manySites, [], range, MATRIX_ROW_LIMIT, 0);
+    const secondWindow = buildMatrixModel(manySites, [], range, MATRIX_ROW_LIMIT, 10);
+
+    expect(firstWindow.rows.map((row) => row.site.siteId)).not.toEqual(
+      secondWindow.rows.map((row) => row.site.siteId),
+    );
+    expect(secondWindow.rowOffset).toBe(10);
+    expect(defaultMatrixSelection(secondWindow, range).siteIds.size).toBe(60);
+    expect(defaultMatrixSelection(secondWindow, range).siteIds.has("created-site-00")).toBe(true);
+  });
+
+  it("defaults selection to all matrix Sites and the full global window", () => {
+    const rows = buildRunRows(runs, sites);
+    const range = visibleRange("1d", nowMs);
+    const model = buildMatrixModel(sites, rowsInTimeRange(rows, range), range);
+    const selection = defaultMatrixSelection(model, range);
+
+    expect([...selection.siteIds]).toEqual(["site-1"]);
+    expect(selection.timeBounds).toEqual({ startMs: range.startMs, endMs: range.endMs });
+  });
+
+  it("maps the matrix corner control to all Sites and the full window", () => {
+    const rows = buildRunRows(runs, sites);
+    const range = visibleRange("7d", nowMs);
+    const model = buildMatrixModel(sites, rowsInTimeRange(rows, range), range);
+    const selection = selectionFromAll(model, range);
+
+    expect([...selection.siteIds]).toEqual(["site-1", "site-2"]);
+    expect(selection.timeBounds).toEqual({ startMs: range.startMs, endMs: range.endMs });
+  });
+
+  it("maps a cell click to one Site and one absolute bin", () => {
+    const rows = buildRunRows(runs, sites);
+    const range = visibleRange("1d", nowMs);
+    const model = buildMatrixModel(sites, rowsInTimeRange(rows, range), range);
+    const binIndex = model.bins.findIndex(
+      (bin) => Date.parse("2026-05-31T11:15:00Z") >= bin.startMs &&
+        Date.parse("2026-05-31T11:15:00Z") <= bin.endMs,
+    );
+    const selection = selectionFromCell(model, 0, binIndex);
+
+    expect([...selection.siteIds]).toEqual(["site-1"]);
+    expect(selection.timeBounds).toEqual(model.bins[binIndex]);
+    expect(rowsInMatrixSelection(rows, selection).map((row) => row.runId)).toEqual(["run-2"]);
+  });
+
+  it("maps a row click to one Site and the full global window", () => {
+    const rows = buildRunRows(runs, sites);
+    const range = visibleRange("7d", nowMs);
+    const model = buildMatrixModel(sites, rowsInTimeRange(rows, range), range);
+    const selection = selectionFromRow(model, 1, range);
+
+    expect([...selection.siteIds]).toEqual(["site-2"]);
+    expect(selection.timeBounds).toEqual({ startMs: range.startMs, endMs: range.endMs });
+    expect(rowsInMatrixSelection(rows, selection).map((row) => row.runId)).toEqual(["run-3"]);
+  });
+
+  it("maps aggregate bin selection to all Sites for one time bin", () => {
+    const rows = buildRunRows(runs, sites);
+    const range = visibleRange("1d", nowMs);
+    const model = buildMatrixModel(sites, rowsInTimeRange(rows, range), range);
+    const binIndex = model.bins.findIndex((bin) => model.aggregateCounts[bin.index]! > 0);
+    const selection = selectionFromAggregateBin(model, binIndex);
+
+    expect([...selection.siteIds]).toEqual(["site-1"]);
+    expect(selection.timeBounds).toEqual(model.bins[binIndex]);
+  });
+
+  it("maps drag selection to visible Site IDs and snapped absolute time bounds", () => {
+    const rows = buildRunRows(runs, sites);
+    const range = visibleRange("7d", nowMs);
+    const model = buildMatrixModel(sites, rowsInTimeRange(rows, range), range);
+    const selection = selectionFromDrag(
+      model,
+      range,
+      { type: "cell", rowIndex: 1, binIndex: 1 },
+      { type: "cell", rowIndex: 0, binIndex: 3 },
+    );
+
+    expect([...selection.siteIds]).toEqual(["site-1", "site-2"]);
+    expect(selection.timeBounds).toEqual({
+      startMs: model.bins[1]!.startMs,
+      endMs: model.bins[3]!.endMs,
+    });
+  });
+
+  it("maps row-label drag selection to a stable Site range and the full window", () => {
+    const rows = buildRunRows(runs, sites);
+    const range = visibleRange("7d", nowMs);
+    const model = buildMatrixModel(sites, rowsInTimeRange(rows, range), range);
+    const selection = selectionFromDrag(
+      model,
+      range,
+      { type: "row", rowIndex: 1, binIndex: null },
+      { type: "row", rowIndex: 0, binIndex: null },
+    );
+
+    expect([...selection.siteIds]).toEqual(["site-1", "site-2"]);
+    expect(selection.timeBounds).toEqual({ startMs: range.startMs, endMs: range.endMs });
+  });
+
+  it("derives Sites and Runs from the current matrix selection before table search", () => {
+    const rows = buildRunRows(runs, sites);
+    const range = visibleRange("1d", nowMs);
+    const model = buildMatrixModel(sites, rowsInTimeRange(rows, range), range);
+    const selection = selectionFromCell(model, 0, 0);
+    const selectedRows = rowsInMatrixSelection(rows, selection);
+    const selectedSites = siteRowsInMatrixSelection(sites, selection, selectedRows);
+
+    expect(selectedRows).toEqual([]);
+    expect(selectedSites).toHaveLength(1);
+    expect(selectedSites[0]).toMatchObject({ siteId: "site-1", runCount: 0 });
+    expect(matchesSiteSearch(selectedSites[0]!, "pilot")).toBe(true);
+    expect(selectedSites).toHaveLength(1);
   });
 });
 
@@ -254,18 +473,18 @@ describe("site table lens", () => {
     expect(matchesSiteSearch(row!, "submitted")).toBe(false);
   });
 
-  it("filters runs to selected visible site ids", () => {
-    const rows = buildRunRows(runs, []);
+  it("keeps table search presentation-only after matrix selection", () => {
+    const rows = buildRunRows(runs, sites);
+    const range = visibleRange("1d", nowMs);
+    const model = buildMatrixModel(sites, rowsInTimeRange(rows, range), range);
+    const selection = defaultMatrixSelection(model, range);
+    const selectedRows = rowsInMatrixSelection(rows, selection);
+    const selectedSites = siteRowsInMatrixSelection(sites, selection, selectedRows);
 
-    expect(filterRowsBySiteIds(rows, new Set(["site-1"])).map((row) => row.runId)).toEqual([
-      "run-2",
-      "run-1",
-    ]);
-    expect(filterRowsBySiteIds(rows, new Set()).map((row) => row.runId)).toEqual([
-      "run-2",
-      "run-1",
-      "run-3",
-    ]);
+    expect(selectedRows).toHaveLength(2);
+    expect(selectedSites).toHaveLength(1);
+    expect(selectedRows.filter((row) => matchesRunSearch(row, "invalid"))).toHaveLength(1);
+    expect(selectedRows).toHaveLength(2);
   });
 });
 
@@ -326,24 +545,24 @@ describe("run table search", () => {
 });
 
 describe("run table pagination", () => {
-  it("limits rendered pages to 100 rows", () => {
+  it("limits rendered pages to 10 rows", () => {
     const rows = Array.from({ length: 237 }, (_, index) => index);
 
-    expect(RUNS_PAGE_SIZE).toBe(100);
-    expect(SITES_PAGE_SIZE).toBe(100);
-    expect(pageRows(rows, 0)).toHaveLength(100);
-    expect(pageRows(rows, 1)).toHaveLength(100);
-    expect(pageRows(rows, 2)).toHaveLength(37);
+    expect(RUNS_PAGE_SIZE).toBe(10);
+    expect(SITES_PAGE_SIZE).toBe(10);
+    expect(pageRows(rows, 0)).toHaveLength(10);
+    expect(pageRows(rows, 1)).toHaveLength(10);
+    expect(pageRows(rows, 23)).toHaveLength(7);
     expect(pageInfo(rows.length, 0)).toMatchObject({
       pageIndex: 0,
-      pageCount: 3,
+      pageCount: 24,
       start: 1,
-      end: 100,
+      end: 10,
       total: 237,
     });
   });
 
-  it("filters rows to the current chart time window", () => {
+  it("filters rows to the current matrix time window", () => {
     const rows = buildRunRows(
       [
         {
@@ -375,6 +594,24 @@ describe("top bar helpers", () => {
 
     expect(formatted).toContain("56");
     expect(formatted).toMatch(/\b(?:UTC|GMT|[A-Z]{2,5})\b/);
+  });
+
+  it("formats last refreshed as relative time", () => {
+    expect(formatTimeAgo("2026-05-31T12:34:56Z", Date.parse("2026-05-31T12:34:58Z"))).toBe(
+      "just now",
+    );
+    expect(formatTimeAgo("2026-05-31T12:34:00Z", Date.parse("2026-05-31T12:34:42Z"))).toBe(
+      "42 seconds ago",
+    );
+    expect(formatTimeAgo("2026-05-31T12:00:00Z", Date.parse("2026-05-31T12:34:00Z"))).toBe(
+      "34 minutes ago",
+    );
+  });
+
+  it("formats table Created timestamps with minute-level precision", () => {
+    expect(formatMinuteTimeAgo("2026-05-31T12:34:56Z", Date.parse("2026-05-31T12:35:42Z"))).toBe(
+      "<1 minute ago",
+    );
   });
 
   it("maps health states to classes and labels", () => {
