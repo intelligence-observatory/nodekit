@@ -15,7 +15,7 @@ from nodekit.experimental.turk.client import (
     MturkClient,
     SendBonusPaymentRequest,
 )
-from nodekit.experimental.turk.models import Assignment, BonusPayment, HIT
+from nodekit.experimental.turk.models import Assignment, BonusPayment, HIT, QualificationRequirement
 from nodekit.experimental.turk.values import (
     AssignmentId,
     CacheRefreshPolicy,
@@ -32,7 +32,7 @@ if TYPE_CHECKING:
 ASSIGNABLE_HIT_CACHE_TTL = datetime.timedelta(seconds=60)
 REVIEW_HIT_CACHE_TTL = datetime.timedelta(minutes=10)
 BONUS_PAYMENT_CACHE_TTL = datetime.timedelta(seconds=60)
-NODEKIT_PRIVATE_QUALIFICATION_PREFIXES = ("nodekit:allow:", "nodekit:block:")
+NODEKIT_PRIVATE_QUALIFICATION_NAME_PREFIX = "nodekit:turk-recruiter:"
 DEFAULT_DASHBOARD_PORT = 8765
 
 
@@ -125,20 +125,43 @@ class MturkRecruiterClient:
         completion_reward_usd: str | Decimal,
         duration_sec: int,
         auto_approval_delay_sec: int = 1,
+        required_qualification_type_ids: Iterable[QualificationTypeId] = (),
+        disallowed_qualification_type_ids: Iterable[QualificationTypeId] = (),
         allowed_worker_ids: Iterable[WorkerId] = (),
         blocked_worker_ids: Iterable[WorkerId] = (),
         lifetime_sec: int = MAX_HIT_LIFETIME_SEC,
         frame_height_px: int | None = None,
     ) -> HitRecord:
+        unique_request_token = uuid4().hex
+        required_qualification_type_ids = tuple(required_qualification_type_ids)
+        disallowed_qualification_type_ids = tuple(disallowed_qualification_type_ids)
+        _validate_qualification_type_id_sets(
+            required_qualification_type_ids=required_qualification_type_ids,
+            disallowed_qualification_type_ids=disallowed_qualification_type_ids,
+        )
         allowed_worker_ids = tuple(allowed_worker_ids)
         blocked_worker_ids = tuple(blocked_worker_ids)
         qualification_type_ids: list[QualificationTypeId] = []
-        qualification_requirements = []
+        qualification_requirements = [
+            *(
+                _qualification_exists_requirement(qualification_type_id=qualification_type_id)
+                for qualification_type_id in _dedupe(required_qualification_type_ids)
+            ),
+            *(
+                _qualification_does_not_exist_requirement(
+                    qualification_type_id=qualification_type_id
+                )
+                for qualification_type_id in _dedupe(disallowed_qualification_type_ids)
+            ),
+        ]
 
         try:
             if allowed_worker_ids:
                 qual_type = self.mturk_client.create_qualification_type(
-                    unique_name=f"nodekit:allow:{uuid4()}",
+                    unique_name=_private_qualification_type_name(
+                        unique_request_token=unique_request_token,
+                        role="allow",
+                    ),
                     description="NodeKit MTurk worker allowlist.",
                 )
                 qualification_type_ids.append(qual_type.QualificationTypeId)
@@ -153,7 +176,10 @@ class MturkRecruiterClient:
 
             if blocked_worker_ids:
                 qual_type = self.mturk_client.create_qualification_type(
-                    unique_name=f"nodekit:block:{uuid4()}",
+                    unique_name=_private_qualification_type_name(
+                        unique_request_token=unique_request_token,
+                        role="block",
+                    ),
                     description="NodeKit MTurk worker blocklist.",
                 )
                 qualification_type_ids.append(qual_type.QualificationTypeId)
@@ -178,7 +204,7 @@ class MturkRecruiterClient:
                     duration_sec=duration_sec,
                     completion_reward_usd=Decimal(completion_reward_usd),
                     qualification_requirements=tuple(qualification_requirements),
-                    unique_request_token=uuid4().hex,
+                    unique_request_token=unique_request_token,
                     auto_approval_delay_sec=auto_approval_delay_sec,
                     lifetime_sec=lifetime_sec,
                     frame_height_px=0 if frame_height_px is None else frame_height_px,
@@ -518,15 +544,82 @@ def _created_qualification_type_ids_for_hit(
     mturk_client: Any,
 ) -> tuple[QualificationTypeId, ...]:
     requirement_ids = set(record.qualification_type_ids)
-    if not requirement_ids:
+    if not requirement_ids or record.hit is None or record.hit.RequesterAnnotation is None:
         return ()
 
     return tuple(
         qual_type.QualificationTypeId
         for qual_type in mturk_client.list_qualification_types()
         if qual_type.QualificationTypeId in requirement_ids
-        and (qual_type.Name or "").startswith(NODEKIT_PRIVATE_QUALIFICATION_PREFIXES)
+        and _is_private_qualification_type_name_for_hit(
+            name=qual_type.Name,
+            unique_request_token=record.hit.RequesterAnnotation,
+        )
     )
+
+
+def _validate_qualification_type_id_sets(
+    *,
+    required_qualification_type_ids: Iterable[QualificationTypeId],
+    disallowed_qualification_type_ids: Iterable[QualificationTypeId],
+) -> None:
+    overlapping_ids = set(required_qualification_type_ids) & set(disallowed_qualification_type_ids)
+    if overlapping_ids:
+        joined_ids = ", ".join(sorted(overlapping_ids))
+        raise ValueError(
+            f"Qualification Type IDs cannot be both required and disallowed: {joined_ids}"
+        )
+
+
+def _qualification_exists_requirement(
+    *,
+    qualification_type_id: QualificationTypeId,
+) -> QualificationRequirement:
+    return QualificationRequirement(
+        QualificationTypeId=qualification_type_id,
+        Comparator="Exists",
+        ActionsGuarded="DiscoverPreviewAndAccept",
+    )
+
+
+def _qualification_does_not_exist_requirement(
+    *,
+    qualification_type_id: QualificationTypeId,
+) -> QualificationRequirement:
+    return QualificationRequirement(
+        QualificationTypeId=qualification_type_id,
+        Comparator="DoesNotExist",
+        ActionsGuarded="DiscoverPreviewAndAccept",
+    )
+
+
+def _private_qualification_type_name(
+    *,
+    unique_request_token: str,
+    role: str,
+) -> str:
+    return f"{NODEKIT_PRIVATE_QUALIFICATION_NAME_PREFIX}{unique_request_token}:{role}"
+
+
+def _is_private_qualification_type_name_for_hit(
+    *,
+    name: str | None,
+    unique_request_token: str,
+) -> bool:
+    return name in {
+        _private_qualification_type_name(
+            unique_request_token=unique_request_token,
+            role="allow",
+        ),
+        _private_qualification_type_name(
+            unique_request_token=unique_request_token,
+            role="block",
+        ),
+    }
+
+
+def _dedupe[T](items: Iterable[T]) -> tuple[T, ...]:
+    return tuple(dict.fromkeys(items))
 
 
 def _site_url_from_question(question: str) -> str:

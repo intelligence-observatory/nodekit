@@ -96,6 +96,7 @@ class FakeMturkClient:
             title=request.title,
             question=f"<ExternalQuestion><ExternalURL>{request.site_url}</ExternalURL></ExternalQuestion>",
             qualification_requirements=request.qualification_requirements,
+            requester_annotation=request.unique_request_token,
         )
         self.hits[hit.HITId] = hit
         return hit
@@ -148,6 +149,7 @@ def _hit(
     completed: int = 0,
     question: str = "<ExternalQuestion><ExternalURL>https://nodekit.example/s/site-1</ExternalURL></ExternalQuestion>",
     qualification_requirements: Iterable[QualificationRequirement] = (),
+    requester_annotation: str = "token-1",
 ) -> HIT:
     return HIT(
         HITId=hit_id,
@@ -164,7 +166,7 @@ def _hit(
         AutoApprovalDelayInSeconds=3600,
         Expiration=_now(),
         AssignmentDurationInSeconds=600,
-        RequesterAnnotation="token-1",
+        RequesterAnnotation=requester_annotation,
         QualificationRequirements=list(qualification_requirements),
         HITReviewStatus="NotReviewed",
         NumberOfAssignmentsPending=0,
@@ -388,17 +390,44 @@ def test_create_hit_creates_worker_qualifications_and_caches_hit(tmp_path: Path)
         completion_reward_usd="1.25",
         duration_sec=600,
         auto_approval_delay_sec=3600,
+        required_qualification_type_ids=["qual-required"],
+        disallowed_qualification_type_ids=["qual-disallowed"],
         allowed_worker_ids=["worker-allow"],
         blocked_worker_ids=["worker-block"],
     )
 
     request = fake.create_hit_requests[0]
     assert record.hit_id == "hit-created"
-    assert record.qualification_type_ids == ("qual-1", "qual-2")
+    assert record.qualification_type_ids == (
+        "qual-required",
+        "qual-disallowed",
+        "qual-1",
+        "qual-2",
+    )
     assert "allowed_worker_ids" not in record.model_dump()
     assert "blocked_worker_ids" not in record.model_dump()
     assert "qualification_type_ids" not in record.model_dump()
+    assert fake.created_qualification_types == [
+        (
+            f"nodekit:turk-recruiter:{request.unique_request_token}:allow",
+            "NodeKit MTurk worker allowlist.",
+        ),
+        (
+            f"nodekit:turk-recruiter:{request.unique_request_token}:block",
+            "NodeKit MTurk worker blocklist.",
+        ),
+    ]
+    assert [
+        requirement.QualificationTypeId for requirement in request.qualification_requirements
+    ] == [
+        "qual-required",
+        "qual-disallowed",
+        "qual-1",
+        "qual-2",
+    ]
     assert [requirement.Comparator for requirement in request.qualification_requirements] == [
+        "Exists",
+        "DoesNotExist",
         "Exists",
         "DoesNotExist",
     ]
@@ -409,12 +438,31 @@ def test_create_hit_creates_worker_qualifications_and_caches_hit(tmp_path: Path)
     assert client.get_hit(record.hit_id, refresh="never").hit_id == "hit-created"
 
 
-def test_close_hit_deletes_created_qualification_types(tmp_path: Path) -> None:
+def test_create_hit_rejects_conflicting_qualification_type_ids(tmp_path: Path) -> None:
+    client = _client(tmp_path)
+
+    with pytest.raises(ValueError, match="both required and disallowed"):
+        client.create_hit(
+            url="https://nodekit.example/s/site-1",
+            title="Title",
+            description="Description",
+            keywords=["nodekit"],
+            num_assignments=2,
+            completion_reward_usd="1.25",
+            duration_sec=600,
+            auto_approval_delay_sec=3600,
+            required_qualification_type_ids=["qual-1"],
+            disallowed_qualification_type_ids=["qual-1"],
+        )
+
+
+def test_close_hit_deletes_only_private_qualification_types_for_hit(tmp_path: Path) -> None:
     fake = FakeMturkClient()
     fake.created_qualification_types = [
-        ("nodekit:allow:1", "NodeKit MTurk worker allowlist."),
-        ("nodekit:block:1", "NodeKit MTurk worker blocklist."),
+        ("nodekit:turk-recruiter:token-1:allow", "NodeKit MTurk worker allowlist."),
+        ("nodekit:turk-recruiter:token-1:block", "NodeKit MTurk worker blocklist."),
         ("custom-qual", "Not created by this recruiter."),
+        ("nodekit:turk-recruiter:other-token:allow", "Different HIT."),
     ]
     fake.hits["hit-1"] = _hit(
         hit_id="hit-1",
@@ -431,6 +479,11 @@ def test_close_hit_deletes_created_qualification_types(tmp_path: Path) -> None:
             ),
             QualificationRequirement(
                 QualificationTypeId="qual-3",
+                Comparator="Exists",
+                ActionsGuarded="DiscoverPreviewAndAccept",
+            ),
+            QualificationRequirement(
+                QualificationTypeId="qual-4",
                 Comparator="Exists",
                 ActionsGuarded="DiscoverPreviewAndAccept",
             ),
@@ -453,7 +506,7 @@ def test_close_hit_deletes_created_qualification_types(tmp_path: Path) -> None:
 
     assert fake.cleaned_hit_ids == ["hit-1"]
     assert fake.deleted_qualification_type_ids == ["qual-1", "qual-2"]
-    assert record.qualification_type_ids == ("qual-1", "qual-2", "qual-3")
+    assert record.qualification_type_ids == ("qual-1", "qual-2", "qual-3", "qual-4")
 
 
 def test_pay_bonus_avoids_duplicate_matching_bonus(tmp_path: Path) -> None:
