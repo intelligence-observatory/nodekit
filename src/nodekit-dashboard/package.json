@@ -1,0 +1,22 @@
+{
+  "name": "nodekit-dashboard",
+  "private": true,
+  "version": "0.3.0.dev8",
+  "type": "module",
+  "scripts": {
+    "build": "tsc && vite build",
+    "dev": "vite",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@tanstack/table-core": "^8.21.3",
+    "lucide-static": "^0.468.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.60.0",
+    "@types/node": "^24.3.1",
+    "typescript": "~5.8.3",
+    "vite": "7.1.5",
+    "vitest": "^4.0.15"
+  }
+}

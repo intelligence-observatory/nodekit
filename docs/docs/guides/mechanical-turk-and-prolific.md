@@ -49,18 +49,40 @@ Ensure you have the URL of the entrypoint HTML, and that it is publicly accessib
 The site built by `nk.build_site` is compatible with Mechanical Turk and Prolific. The built site handles the expected integration logic for each platform, out-of-the-box (e.g. extracting query parameters, POSTing data, redirecting at the right moment, ...), so you do not have to set this up yourself. 
 
 
-However, some configuration might still be needed: **if you are using Prolific**, you must provide a `nodekitSubmitTo` query parameter whose value is a [URL-encoded](https://developers.google.com/maps/url-encoding) submission endpoint. This is how the Graph site will know where to transmit the participants' Trace data to your server or bucket.
+However, some configuration might still be needed: the Graph site looks for a `nodekitSubmitTo` query parameter whose value points to your submission endpoint. This is how the Graph site knows where to POST the participants' Trace data to your server or bucket.
 
-For example, if your entrypoint URL is "https://site.com/graphs/568...7f6a.html", and you have an endpoint set up at "https://my-endpoint.com", you would specify the `nodekitSubmitTo` query parameter with: 
+For example, if your entrypoint URL is `https://site.com/graphs/568...7f6a.html`, and you have an endpoint set up at `https://my-endpoint.com`, the final URL needs to contain a URL-encoded `nodekitSubmitTo` query parameter:
 
+> https://site.com/graphs/568...7f6a.html**?nodekitSubmitTo=https%3A%2F%2Fmy-endpoint.com**
 
->https://example.com/graphs/568...7f6a.html**?nodekitSubmitTo=https%3A%2F%2Fmy-endpoint.com**
+You can assemble this URL yourself, but [`nk.prepare_site_url`](../reference/site.md) is the easier way to do it correctly:
 
+```python
+import nodekit as nk
+
+entrypoint_url = "https://site.com/graphs/568...7f6a.html"
+submit_url = "https://my-endpoint.com"
+
+prepared_url = nk.prepare_site_url(
+    site_url=entrypoint_url,
+    nodekit_submit_to=submit_url,
+)
+```
 
 
 ### 3a. Request a Mechanical Turk HIT
 
 Mechanical Turk allows ExternalQuestion Assignments to post behavioral data to their backend, where you can later retrieve it. The Graph site automatically submits the Trace data to Mechanical Turk, even if `nodekitSubmitTo` is not provided. **Thus, supplying the `nodekitSubmitTo` query parameter is optional**, if you are using Mechanical Turk. 
+
+If you do want NodeKit to also POST the completed submission to your own endpoint, include `nodekitSubmitTo` in the HIT URL. You can use [`nk.prepare_site_url`](../reference/site.md) to add it:
+
+```python
+hit_url = nk.prepare_site_url(
+    site_url=entrypoint_url,
+    platform="mturk",
+    nodekit_submit_to=submit_url,
+)
+```
 
 Either way, once you have finalized the URL you will be using, use your preferred method to request an [ExternalQuestion HIT](https://docs.aws.amazon.com/AWSMechTurk/latest/AWSMturkAPI/ApiReference_ExternalQuestionArticle.html) which points to the URL. One standard approach might be to use the `mturk` client provided in [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/mturk.html).
 
@@ -76,17 +98,24 @@ Either way, once you have finalized the URL you will be using, use your preferre
 
 ### 3b. Request a Prolific Study
 
-If requesting a Prolific Study, add the following query parameters in the entrypoint URL:
+If requesting a Prolific Study, the study URL must include:
 
-* `nodekitSubmitTo`. As Prolific does not store participant data, specify the endpoint where you can accept JSON POST messages originating from the participant web page.  
-* `prolificCompletionCode`. Specify the completion code you will use / has been issued when creating the Prolific Draft Study (see [link](https://docs.prolific.com/api-reference/studies/the-study-object#completion_codes-required)). NodeKit uses this code to construct and redirect to Prolific’s completion URL, per Prolific's recommended [redirect completion path](https://intercom-help.eu/prolific-research/en/articles/445127-data-collection#aTjpf).  Note NodeKit only supports the use of a single Prolific completion code.
+* `nodekitSubmitTo`. As Prolific does not store participant data, specify the endpoint where you can accept JSON POST messages originating from the participant web page.
+* `prolificCompletionCode`. Specify the completion code you will use / has been issued when creating the Prolific Draft Study (see [link](https://docs.prolific.com/api-reference/studies/the-study-object#completion_codes-required)). NodeKit uses this code to construct and redirect to Prolific's completion URL, per Prolific's recommended [redirect completion path](https://intercom-help.eu/prolific-research/en/articles/445127-data-collection#aTjpf). Note NodeKit only supports the use of a single Prolific completion code.
+* The three Prolific placeholder parameters: `PROLIFIC_PID={{%PROLIFIC_PID%}}`, `STUDY_ID={{%STUDY_ID%}}`, and `SESSION_ID={{%SESSION_ID%}}`.
 
-Then, add the following three strings, separated by &. These are placeholder parameters that Prolific will substitute at runtime for each participant session. 
+Use [`nk.prepare_site_url`](../reference/site.md) to add these query parameters:
 
-* `PROLIFIC_PID={{%PROLIFIC_PID%}}`
-* `STUDY_ID={{%STUDY_ID%}}`
-* `SESSION_ID={{%SESSION_ID%}}`
+```python
+study_url = nk.prepare_site_url(
+    site_url=entrypoint_url,
+    platform="prolific",
+    nodekit_submit_to=submit_url,
+    prolific_completion_code="YOUR_COMPLETION_CODE",
+)
+```
 
+This adds `nodekitSubmitTo`, `prolificCompletionCode`, and the Prolific placeholder parameters that Prolific substitutes at runtime for each participant session.
 
 A full example URL for a Prolific Study should look like:
 > https://my-task.com?nodekitSubmitTo=https%3A%2F%2Fmy-endpoint.com**&prolificCompletionCode=1&PROLIFIC_PID={{%PROLIFIC_PID%}}&STUDY_ID={{%STUDY_ID%}}&SESSION_ID={{%SESSION_ID%}}**

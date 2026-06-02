@@ -4,7 +4,7 @@ build-backend = "uv_build"
 
 [project]
 name = "nodekit"
-version = "0.2.9.dev3"
+version = "0.3.0.dev8"
 authors = [
     { name = "Michael J. Lee", email = "mil@mit.edu" }
 ]
@@ -21,6 +21,11 @@ dependencies = [
     "boto3>=1.40.55",
     "matplotlib>=3.10.8",
     "pandas>=2.3.3",
+    "psycopg[binary]>=3",
+    "sqlmodel>=0.0.38",
+    "pydantic-settings>=2.14.1",
+    "httpx>=0.28.1",
+    "platformdirs>=4.5.1",
 ]
 
 [dependency-groups]
@@ -41,8 +46,8 @@ dev = [
 repository = "https://github.com/intelligence-observatory/nodekit"
 
 [tool.uv.build-backend]
-module-name = "nodekit"
-module-root = ""
+module-name = ["nodekit", "nodekit_server"]
+module-root = "src"
 
 [tool.ty.src]
 exclude = []
@@ -52,5 +57,5 @@ line-length = 100
 
 
 [tool.pytest.ini_options]
-pythonpath = ["."]
+pythonpath = ["src"]
 testpaths = ["tests"]

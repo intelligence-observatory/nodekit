@@ -17,7 +17,13 @@ def wait_node() -> nk.Node:
 
 def compatible_older_version() -> str:
     current = Version(VERSION)
-    return f"{current.major}.{current.minor}.{max(current.micro - 1, 0)}"
+    if current.micro > 0:
+        return f"{current.major}.{current.minor}.{current.micro - 1}"
+    if current.minor > 0:
+        return f"{current.major}.{current.minor - 1}.0"
+    if current > Version(f"{current.major}.0.0.dev0"):
+        return f"{current.major}.0.0.dev0"
+    raise ValueError(f"No older same-major version exists for {VERSION}")
 
 
 def newer_same_major_version() -> str:

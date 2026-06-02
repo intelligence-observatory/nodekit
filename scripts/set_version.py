@@ -35,6 +35,13 @@ def _update_package_lock(path: Path, version: str) -> None:
 
 
 # %%
+def _update_package_json(path: Path, version: str) -> None:
+    package_json = json.loads(path.read_text())
+    package_json["version"] = version
+    path.write_text(json.dumps(package_json, indent=2) + "\n")
+
+
+# %%
 def main(version: str) -> None:
     _validate_version(version)
 
@@ -44,17 +51,14 @@ def main(version: str) -> None:
         f'version = "{version}"',
     )
     _replace_once(
-        ROOT / "nodekit/_internal/version.py",
+        ROOT / "src/nodekit/_internal/version.py",
         r'^VERSION = "[^"]+"$',
         f'VERSION = "{version}"',
     )
 
-    package_json_path = ROOT / "nodekit-browser/package.json"
-    package_json = json.loads(package_json_path.read_text())
-    package_json["version"] = version
-    package_json_path.write_text(json.dumps(package_json, indent=2) + "\n")
-
-    _update_package_lock(ROOT / "nodekit-browser/package-lock.json", version)
+    for package_dir in ("src/nodekit-browser", "src/nodekit-dashboard"):
+        _update_package_json(ROOT / package_dir / "package.json", version)
+        _update_package_lock(ROOT / package_dir / "package-lock.json", version)
 
 
 # %%
