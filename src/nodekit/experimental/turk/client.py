@@ -168,6 +168,45 @@ class MturkClient:
                 return
             raise
 
+    def iter_bonus_payments(
+        self,
+        *,
+        hit_id: str | None = None,
+        assignment_id: str | None = None,
+    ) -> Iterable[boto3_models.BonusPayment]:
+        if (hit_id is None) == (assignment_id is None):
+            raise ValueError("Provide exactly one of hit_id or assignment_id.")
+
+        request_kwargs: dict[str, str | int] = {
+            "MaxResults": 100,
+        }
+        if hit_id is not None:
+            request_kwargs["HITId"] = hit_id
+        if assignment_id is not None:
+            request_kwargs["AssignmentId"] = assignment_id
+
+        # Paginate over boto3 results:
+        next_token = ""
+        while next_token is not None:
+            if next_token != "":
+                request_kwargs["NextToken"] = next_token
+            else:
+                if "NextToken" in request_kwargs:
+                    del request_kwargs["NextToken"]
+
+            call_return = self.boto3_client.list_bonus_payments(**request_kwargs)
+            for bonus_payment_info in call_return["BonusPayments"]:
+                bonus_payment = boto3_models.BonusPayment.model_validate(
+                    obj=bonus_payment_info,
+                )
+                yield bonus_payment
+
+            if "NextToken" in call_return:
+                next_token = call_return["NextToken"]
+            else:
+                # Will break
+                next_token = None
+
     def approve_assignment(self, assignment_id: str) -> None:
         self.boto3_client.approve_assignment(
             AssignmentId=assignment_id,
