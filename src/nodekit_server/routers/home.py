@@ -5,6 +5,8 @@ import textwrap
 import fastapi
 from fastapi.responses import HTMLResponse
 
+from nodekit import VERSION
+
 
 # %% Router
 router = fastapi.APIRouter()
@@ -30,7 +32,7 @@ def get_home() -> HTMLResponse:
                     --muted: #5f6368;
                     --line: #d8dee4;
                     --surface: #f7f8fa;
-                    --accent: #2f6feb;
+                    --accent: #88d4b5;
                     --ok: #1a7f37;
                 }
                 * {
@@ -39,7 +41,7 @@ def get_home() -> HTMLResponse:
                 body {
                     margin: 0;
                     min-height: 100vh;
-                    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+                    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
                         "Segoe UI", sans-serif;
                     color: var(--ink);
                     background: #ffffff;
@@ -55,6 +57,12 @@ def get_home() -> HTMLResponse:
                     padding-bottom: 28px;
                     border-bottom: 1px solid var(--line);
                 }
+                .meta {
+                    display: flex;
+                    flex-wrap: wrap;
+                    align-items: center;
+                    gap: 10px;
+                }
                 .status {
                     display: inline-flex;
                     align-items: center;
@@ -67,6 +75,10 @@ def get_home() -> HTMLResponse:
                     background: #f0fff4;
                     font-size: 14px;
                     font-weight: 600;
+                }
+                .version {
+                    color: var(--muted);
+                    font-size: 13px;
                 }
                 .dot {
                     width: 8px;
@@ -139,7 +151,10 @@ def get_home() -> HTMLResponse:
         <body>
             <main>
                 <header>
-                    <div class="status"><span class="dot"></span>Online</div>
+                    <div class="meta">
+                        <div class="status"><span class="dot"></span>Online</div>
+                        <div class="version">v__NODEKIT_VERSION__</div>
+                    </div>
                     <h1>NodeKit Server</h1>
                     <p>
                         A deployment service for hosting NodeKit Sites, resolving Assets,
@@ -155,18 +170,11 @@ def get_home() -> HTMLResponse:
                         <strong>API Docs</strong>
                         <span>Open the FastAPI reference for researcher and admin routes.</span>
                     </a>
-                    <a href="/redoc">
-                        <strong>ReDoc</strong>
-                        <span>Browse the generated API reference in ReDoc.</span>
-                    </a>
-                    <a href="https://github.com/intelligence-observatory/nodekit">
-                        <strong>NodeKit</strong>
-                        <span>Use <code>nodekit.server.Client</code> to create Sites.</span>
-                    </a>
                 </nav>
             </main>
         </body>
         </html>
         """
     ).strip()
+    html = html.replace("__NODEKIT_VERSION__", VERSION)
     return HTMLResponse(content=html)

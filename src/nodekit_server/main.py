@@ -41,7 +41,7 @@ async def lifespan(app: fastapi.FastAPI):
 
 
 # %% App
-app = fastapi.FastAPI(title="NodeKit Server", lifespan=lifespan)
+app = fastapi.FastAPI(title="NodeKit Server", lifespan=lifespan, redoc_url=None)
 if settings.site_hosting_backend == "filesystem":
     app.mount(
         "/site-artifacts",
