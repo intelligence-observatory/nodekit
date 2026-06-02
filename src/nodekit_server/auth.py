@@ -5,7 +5,6 @@ from uuid import uuid4
 
 import fastapi
 import hashlib
-import secrets
 import sqlmodel
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
@@ -84,9 +83,7 @@ def get_current_user(
     )
     statement = statement.where(ApiTokenRecord.is_revoked == False)  # noqa: E712
     token_record = session.exec(statement).one_or_none()
-    if token_record is None or not secrets.compare_digest(
-        token_record.token_hash, incoming_token_hash
-    ):
+    if token_record is None:
         raise unauthorized
 
     user_record = session.get(UserRecord, token_record.user_id)

@@ -111,10 +111,7 @@ def _strip_owned_query_params(
     platform: Platform,
 ) -> list[tuple[str, str]]:
     owned_params = {NODEKIT_SUBMIT_TO_PARAM}
-    if platform == "prolific":
-        owned_params.update(PROLIFIC_PARAMS)
-        owned_params.update(MTURK_PARAMS)
-    elif platform == "mturk":
+    if platform in ("prolific", "mturk"):
         owned_params.update(PROLIFIC_PARAMS)
         owned_params.update(MTURK_PARAMS)
     return [(key, value) for key, value in query if key not in owned_params]

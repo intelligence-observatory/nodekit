@@ -77,14 +77,22 @@ def _select_asset_records(
     session: sqlmodel.Session,
     identifiers: Iterable[contracts.AssetIdentifier],
 ) -> dict[tuple[SHA256, MediaType], AssetRecord]:
+    identifiers = _dedupe_asset_identifiers(identifiers)
+    if not identifiers:
+        return {}
+
+    requested_keys = {_asset_key(identifier) for identifier in identifiers}
+    sha256_values = [identifier.sha256 for identifier in identifiers]
+    media_type_values = [identifier.media_type for identifier in identifiers]
+    statement = sqlmodel.select(AssetRecord)
+    statement = statement.where(sqlmodel.col(AssetRecord.sha256).in_(sha256_values))
+    statement = statement.where(sqlmodel.col(AssetRecord.media_type).in_(media_type_values))
+
     records: dict[tuple[SHA256, MediaType], AssetRecord] = {}
-    for identifier in identifiers:
-        statement = sqlmodel.select(AssetRecord)
-        statement = statement.where(AssetRecord.sha256 == identifier.sha256)
-        statement = statement.where(AssetRecord.media_type == identifier.media_type)
-        asset_record = session.exec(statement).one_or_none()
-        if asset_record is not None:
-            records[_asset_key(identifier)] = asset_record
+    for asset_record in session.exec(statement).all():
+        key = (asset_record.sha256, asset_record.media_type)
+        if key in requested_keys:
+            records[key] = asset_record
     return records
 
 
@@ -186,32 +194,70 @@ def _get_site_tags(
     user_id: UserId,
     site_id: SiteId,
 ) -> tuple[str, ...]:
-    statement = sqlmodel.select(TagRecord.name)
+    return _get_site_tags_by_site_id(
+        session=session,
+        user_id=user_id,
+        site_ids=(site_id,),
+    ).get(site_id, ())
+
+
+def _get_site_tags_by_site_id(
+    session: sqlmodel.Session,
+    user_id: UserId,
+    site_ids: Iterable[SiteId],
+) -> dict[SiteId, tuple[str, ...]]:
+    site_ids = tuple(site_ids)
+    if not site_ids:
+        return {}
+
+    statement = sqlmodel.select(SiteTagRecord.site_id, TagRecord.name)
     statement = statement.join(
         SiteTagRecord,
         sqlmodel.col(TagRecord.tag_id) == sqlmodel.col(SiteTagRecord.tag_id),
     )
-    statement = statement.where(sqlmodel.col(SiteTagRecord.site_id) == site_id)
+    statement = statement.where(sqlmodel.col(SiteTagRecord.site_id).in_(site_ids))
     statement = statement.where(sqlmodel.col(TagRecord.user_id) == user_id)
     statement = statement.where(sqlmodel.col(TagRecord.is_archived) == False)  # noqa: E712
     statement = statement.order_by(
+        sqlmodel.col(SiteTagRecord.site_id),
         sqlmodel.col(SiteTagRecord.timestamp_created),
         sqlmodel.col(TagRecord.name),
     )
-    return tuple(session.exec(statement).all())
+    grouped: dict[SiteId, list[str]] = {site_id: [] for site_id in site_ids}
+    for site_id, tag_name in session.exec(statement).all():
+        grouped.setdefault(site_id, []).append(tag_name)
+    return {site_id: tuple(tags) for site_id, tags in grouped.items()}
 
 
 def _get_site_condition_records(
     session: sqlmodel.Session,
     site_id: SiteId,
 ) -> tuple[SiteConditionRecord, ...]:
+    return _get_site_condition_records_by_site_id(
+        session=session,
+        site_ids=(site_id,),
+    ).get(site_id, ())
+
+
+def _get_site_condition_records_by_site_id(
+    session: sqlmodel.Session,
+    site_ids: Iterable[SiteId],
+) -> dict[SiteId, tuple[SiteConditionRecord, ...]]:
+    site_ids = tuple(site_ids)
+    if not site_ids:
+        return {}
+
     statement = sqlmodel.select(SiteConditionRecord)
-    statement = statement.where(sqlmodel.col(SiteConditionRecord.site_id) == site_id)
+    statement = statement.where(sqlmodel.col(SiteConditionRecord.site_id).in_(site_ids))
     statement = statement.order_by(
+        sqlmodel.col(SiteConditionRecord.site_id),
         sqlmodel.col(SiteConditionRecord.timestamp_created),
         sqlmodel.col(SiteConditionRecord.condition_id),
     )
-    return tuple(session.exec(statement).all())
+    grouped: dict[SiteId, list[SiteConditionRecord]] = {site_id: [] for site_id in site_ids}
+    for condition_record in session.exec(statement).all():
+        grouped.setdefault(condition_record.site_id, []).append(condition_record)
+    return {site_id: tuple(condition_records) for site_id, condition_records in grouped.items()}
 
 
 def _get_condition_asset_items(
@@ -219,29 +265,48 @@ def _get_condition_asset_items(
     site_id: SiteId,
     condition_id: SiteConditionId,
 ) -> tuple[contracts.SiteAssetItem, ...]:
+    return _get_condition_asset_items_by_condition_id(
+        session=session,
+        site_id=site_id,
+    ).get(condition_id, ())
+
+
+def _get_condition_asset_items_by_condition_id(
+    session: sqlmodel.Session,
+    site_id: SiteId,
+) -> dict[SiteConditionId, tuple[contracts.SiteAssetItem, ...]]:
     statement = sqlmodel.select(SiteAssetDependencyRecord)
     statement = statement.where(sqlmodel.col(SiteAssetDependencyRecord.site_id) == site_id)
-    statement = statement.where(
-        sqlmodel.col(SiteAssetDependencyRecord.condition_id) == condition_id
-    )
     statement = statement.order_by(
+        sqlmodel.col(SiteAssetDependencyRecord.condition_id),
         sqlmodel.col(SiteAssetDependencyRecord.timestamp_created),
         sqlmodel.col(SiteAssetDependencyRecord.sha256),
         sqlmodel.col(SiteAssetDependencyRecord.media_type),
     )
     dependency_records = session.exec(statement).all()
+    asset_records = _select_asset_records(
+        session=session,
+        identifiers=(
+            contracts.AssetIdentifier(
+                sha256=dependency_record.sha256,
+                media_type=dependency_record.media_type,
+            )
+            for dependency_record in dependency_records
+        ),
+    )
 
-    items: list[contracts.SiteAssetItem] = []
+    grouped: dict[SiteConditionId, list[contracts.SiteAssetItem]] = {}
     for dependency_record in dependency_records:
         identifier = contracts.AssetIdentifier(
             sha256=dependency_record.sha256,
             media_type=dependency_record.media_type,
         )
-        asset_records = _select_asset_records(session=session, identifiers=(identifier,))
         asset_record = asset_records.get(_asset_key(identifier))
         if asset_record is not None:
-            items.append(_asset_record_to_item(asset_record))
-    return tuple(items)
+            grouped.setdefault(dependency_record.condition_id, []).append(
+                _asset_record_to_item(asset_record)
+            )
+    return {condition_id: tuple(items) for condition_id, items in grouped.items()}
 
 
 def _site_condition_item(
@@ -254,18 +319,14 @@ def _site_condition_item(
 
 
 def _site_condition_detail_item(
-    session: sqlmodel.Session,
     condition_record: SiteConditionRecord,
+    assets: tuple[contracts.SiteAssetItem, ...],
 ) -> contracts.SiteConditionDetailItem:
     return contracts.SiteConditionDetailItem(
         condition_id=condition_record.condition_id,
         allocation_weight=condition_record.allocation_weight,
         graph_json_gzip=base64.b64encode(condition_record.graph_json_gzip).decode("ascii"),
-        assets=_get_condition_asset_items(
-            session=session,
-            site_id=condition_record.site_id,
-            condition_id=condition_record.condition_id,
-        ),
+        assets=assets,
     )
 
 
@@ -282,16 +343,16 @@ def _get_site_condition_items(
 def _site_list_item(
     request: fastapi.Request,
     settings: ServerSettings,
-    session: sqlmodel.Session,
-    user_id: UserId,
     site_record: SiteRecord,
+    conditions: tuple[contracts.SiteConditionItem, ...],
+    tags: tuple[str, ...],
 ) -> contracts.ListSitesItem:
     return contracts.ListSitesItem(
         site_id=site_record.site_id,
         user_id=site_record.user_id,
         url=_site_url(request=request, settings=settings, site_id=site_record.site_id),
-        conditions=_get_site_condition_items(session=session, site_id=site_record.site_id),
-        tags=_get_site_tags(session=session, user_id=user_id, site_id=site_record.site_id),
+        conditions=conditions,
+        tags=tags,
         is_archived=site_record.is_archived,
         timestamp_created=as_utc(site_record.timestamp_created),
     )
@@ -304,16 +365,27 @@ def _site_detail_response(
     user_id: UserId,
     site_record: SiteRecord,
 ) -> contracts.GetSiteResponse:
+    condition_records = _get_site_condition_records(
+        session=session,
+        site_id=site_record.site_id,
+    )
+    asset_items_by_condition_id = _get_condition_asset_items_by_condition_id(
+        session=session,
+        site_id=site_record.site_id,
+    )
     return contracts.GetSiteResponse(
         site_id=site_record.site_id,
         user_id=site_record.user_id,
         url=_site_url(request=request, settings=settings, site_id=site_record.site_id),
         conditions=tuple(
-            _site_condition_detail_item(session=session, condition_record=condition_record)
-            for condition_record in _get_site_condition_records(
-                session=session,
-                site_id=site_record.site_id,
+            _site_condition_detail_item(
+                condition_record=condition_record,
+                assets=asset_items_by_condition_id.get(
+                    condition_record.condition_id,
+                    (),
+                ),
             )
+            for condition_record in condition_records
         ),
         tags=_get_site_tags(session=session, user_id=user_id, site_id=site_record.site_id),
         is_archived=site_record.is_archived,
@@ -514,14 +586,30 @@ def list_sites(
         timestamp_attr="timestamp_created",
         id_attr="site_id",
     )
+    page_site_ids = tuple(site_record.site_id for site_record in records_page)
+    condition_records_by_site_id = _get_site_condition_records_by_site_id(
+        session=session,
+        site_ids=page_site_ids,
+    )
+    tags_by_site_id = _get_site_tags_by_site_id(
+        session=session,
+        user_id=user.user_id,
+        site_ids=page_site_ids,
+    )
 
     items = [
         _site_list_item(
             request=request,
             settings=settings,
-            session=session,
-            user_id=user.user_id,
             site_record=site_record,
+            conditions=tuple(
+                _site_condition_item(condition_record)
+                for condition_record in condition_records_by_site_id.get(
+                    site_record.site_id,
+                    (),
+                )
+            ),
+            tags=tags_by_site_id.get(site_record.site_id, ()),
         )
         for site_record in records_page
     ]
