@@ -13,5 +13,7 @@ dist
 docs/site
 src/nodekit-browser/dist
 src/nodekit-browser/node_modules
+src/nodekit-dashboard/dist
+src/nodekit-dashboard/node_modules
 
 examples/**/*.nkg
