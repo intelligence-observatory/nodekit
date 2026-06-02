@@ -2,7 +2,7 @@ import datetime
 import os
 from decimal import Decimal
 from pathlib import Path
-from typing import Any, Iterable
+from typing import TYPE_CHECKING, Any, Iterable
 from uuid import uuid4
 from xml.etree import ElementTree
 
@@ -24,11 +24,16 @@ from nodekit.experimental.turk.values import (
     WorkerId,
 )
 
+if TYPE_CHECKING:
+    from nodekit.experimental.turk.dashboard import DashboardHandle
+
 
 # %% Constants
 ASSIGNABLE_HIT_CACHE_TTL = datetime.timedelta(seconds=60)
 REVIEW_HIT_CACHE_TTL = datetime.timedelta(minutes=10)
 BONUS_PAYMENT_CACHE_TTL = datetime.timedelta(seconds=60)
+NODEKIT_PRIVATE_QUALIFICATION_PREFIXES = ("nodekit:allow:", "nodekit:block:")
+DEFAULT_DASHBOARD_PORT = 8765
 
 
 # %% Models
@@ -36,12 +41,17 @@ class HitRecord(pydantic.BaseModel):
     hit_id: HitId
     url: str
     title: str
-    qualification_type_ids: tuple[QualificationTypeId, ...] = ()
-    allowed_worker_ids: tuple[WorkerId, ...] = ()
-    blocked_worker_ids: tuple[WorkerId, ...] = ()
     hit: HIT | None = None
     timestamp_created: datetime.datetime
     timestamp_refreshed: datetime.datetime | None = None
+
+    @property
+    def qualification_type_ids(self) -> tuple[QualificationTypeId, ...]:
+        if self.hit is None or self.hit.QualificationRequirements is None:
+            return ()
+        return tuple(
+            requirement.QualificationTypeId for requirement in self.hit.QualificationRequirements
+        )
 
 
 class BonusPaymentResult(pydantic.BaseModel):
@@ -81,6 +91,28 @@ class MturkRecruiterClient:
 
     def get_account_balance(self) -> Decimal:
         return self.mturk_client.get_account_balance()
+
+    def start_dashboard(
+        self,
+        *,
+        host: str = "127.0.0.1",
+        port: int = DEFAULT_DASHBOARD_PORT,
+        refresh: CacheRefreshPolicy = "auto",
+        print_url: bool = True,
+        allow_remote: bool = False,
+    ) -> "DashboardHandle":
+        """Start a non-blocking read-only dashboard for this recruiter."""
+
+        from nodekit.experimental.turk.dashboard import start_dashboard
+
+        return start_dashboard(
+            self,
+            host=host,
+            port=port,
+            refresh=refresh,
+            print_url=print_url,
+            allow_remote=allow_remote,
+        )
 
     def create_hit(
         self,
@@ -164,9 +196,6 @@ class MturkRecruiterClient:
             hit_id=hit.HITId,
             url=url,
             title=title,
-            qualification_type_ids=tuple(qualification_type_ids),
-            allowed_worker_ids=allowed_worker_ids,
-            blocked_worker_ids=blocked_worker_ids,
             hit=hit,
             timestamp_created=now,
             timestamp_refreshed=now,
@@ -180,9 +209,22 @@ class MturkRecruiterClient:
         refresh: CacheRefreshPolicy = "auto",
         include_closed: bool = True,
     ) -> Iterable[HitRecord]:
+        records: dict[HitId, HitRecord] = {}
+
+        if refresh != "never":
+            for hit in self.mturk_client.iter_hits():
+                records[hit.HITId] = self._cache_observed_hit(hit=hit)
+
         for cached in self.cache.iter_hit_payloads():
             cached_record = HitRecord.model_validate(cached.payload)
-            record = self.get_hit(cached_record.hit_id, refresh=refresh)
+            if cached_record.hit_id in records:
+                continue
+            record = cached_record if refresh == "never" else self.get_hit(cached_record.hit_id)
+            records[record.hit_id] = record
+
+        for record in sorted(
+            records.values(), key=lambda item: item.timestamp_created, reverse=True
+        ):
             if include_closed or record.hit is None or not _is_hit_closed_to_workers(record.hit):
                 yield record
 
@@ -259,7 +301,10 @@ class MturkRecruiterClient:
         hit_id: HitId,
     ) -> HitRecord:
         record = self.get_hit(hit_id, refresh="auto")
-        qualification_type_ids = _qualification_type_ids_for_hit(record=record)
+        qualification_type_ids = _created_qualification_type_ids_for_hit(
+            record=record,
+            mturk_client=self.mturk_client,
+        )
 
         self.mturk_client.cleanup_hit(hit_id=hit_id)
         for qualification_type_id in qualification_type_ids:
@@ -267,9 +312,7 @@ class MturkRecruiterClient:
                 qualification_type_id=qualification_type_id
             )
 
-        refreshed = self.get_hit(hit_id, refresh="always").model_copy(
-            update={"qualification_type_ids": ()}
-        )
+        refreshed = self.get_hit(hit_id, refresh="always")
         self._write_hit_record(record=refreshed, fetched_at=_utc_now())
         return refreshed
 
@@ -381,29 +424,37 @@ class MturkRecruiterClient:
         cached_record: HitRecord | None,
     ) -> HitRecord:
         hit = self.mturk_client.get_hit(hit_id=hit_id)
+        return self._cache_observed_hit(hit=hit, cached_record=cached_record)
+
+    def _cache_observed_hit(
+        self,
+        *,
+        hit: HIT,
+        cached_record: HitRecord | None = None,
+    ) -> HitRecord:
+        if cached_record is None:
+            cached = self.cache.read_payload(self.cache.hit_path(hit_id=hit.HITId))
+            cached_record = HitRecord.model_validate(cached.payload) if cached is not None else None
+
         now = _utc_now()
-        record = (
-            cached_record.model_copy(
+        if cached_record is not None:
+            record = cached_record.model_copy(
                 update={
+                    "url": cached_record.url or _site_url_from_question(hit.Question),
                     "title": hit.Title,
                     "hit": hit,
                     "timestamp_refreshed": now,
                 }
             )
-            if cached_record is not None
-            else HitRecord(
+        else:
+            record = HitRecord(
                 hit_id=hit.HITId,
                 url=_site_url_from_question(hit.Question),
                 title=hit.Title,
-                qualification_type_ids=tuple(
-                    requirement.QualificationTypeId
-                    for requirement in (hit.QualificationRequirements or ())
-                ),
                 hit=hit,
                 timestamp_created=hit.CreationTime,
                 timestamp_refreshed=now,
             )
-        )
         self._write_hit_record(record=record, fetched_at=now)
         return record
 
@@ -461,13 +512,20 @@ def _is_hit_closed_to_workers(hit: HIT) -> bool:
     return hit.HITStatus != "Assignable"
 
 
-def _qualification_type_ids_for_hit(record: HitRecord) -> tuple[QualificationTypeId, ...]:
-    if record.qualification_type_ids:
-        return record.qualification_type_ids
-    if record.hit is None or record.hit.QualificationRequirements is None:
+def _created_qualification_type_ids_for_hit(
+    *,
+    record: HitRecord,
+    mturk_client: Any,
+) -> tuple[QualificationTypeId, ...]:
+    requirement_ids = set(record.qualification_type_ids)
+    if not requirement_ids:
         return ()
+
     return tuple(
-        requirement.QualificationTypeId for requirement in record.hit.QualificationRequirements
+        qual_type.QualificationTypeId
+        for qual_type in mturk_client.list_qualification_types()
+        if qual_type.QualificationTypeId in requirement_ids
+        and (qual_type.Name or "").startswith(NODEKIT_PRIVATE_QUALIFICATION_PREFIXES)
     )
 
 

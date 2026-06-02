@@ -98,6 +98,31 @@ class MturkClient:
     def get_account_balance(self) -> Decimal:
         return Decimal(self.boto3_client.get_account_balance()["AvailableBalance"])
 
+    def iter_hits(self) -> Iterable[boto3_models.HIT]:
+        request_kwargs = {
+            "MaxResults": 100,
+        }
+
+        # Paginate over boto3 results:
+        next_token = ""
+        while next_token is not None:
+            if next_token != "":
+                request_kwargs["NextToken"] = next_token
+            else:
+                if "NextToken" in request_kwargs:
+                    del request_kwargs["NextToken"]
+
+            call_return = self.boto3_client.list_hits(**request_kwargs)
+            for hit_info in call_return["HITs"]:
+                hit = boto3_models.HIT.model_validate(obj=hit_info)
+                yield hit
+
+            if "NextToken" in call_return:
+                next_token = call_return["NextToken"]
+            else:
+                # Will break
+                next_token = None
+
     def create_hit(
         self,
         request: CreateHitRequest,

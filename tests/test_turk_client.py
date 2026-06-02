@@ -22,6 +22,7 @@ class FakeBoto3MturkClient:
         self.disassociated_qualifications = []
         self.deleted_qualification_type_ids = []
         self.expired_hit_ids = []
+        self.list_hits_calls = []
         self.list_bonus_payments_calls = []
 
     def get_account_balance(self):
@@ -66,6 +67,51 @@ class FakeBoto3MturkClient:
                 },
                 max_assignments=1,
             )
+        }
+
+    def list_hits(self, **kwargs):
+        self.list_hits_calls.append(kwargs)
+        if "NextToken" not in kwargs:
+            return {
+                "NumResults": 1,
+                "NextToken": "page-2",
+                "HITs": [
+                    _hit_response(
+                        hit_id="hit-1",
+                        hit_type_id="hit-type-1",
+                        question="<ExternalQuestion />",
+                        hit_type_kwargs={
+                            "Title": "First",
+                            "Description": "Description",
+                            "Keywords": "nodekit",
+                            "Reward": "1.00",
+                            "AutoApprovalDelayInSeconds": MAX_AUTO_APPROVAL_DELAY_SEC,
+                            "AssignmentDurationInSeconds": 60,
+                            "QualificationRequirements": [],
+                        },
+                        max_assignments=1,
+                    )
+                ],
+            }
+        return {
+            "NumResults": 1,
+            "HITs": [
+                _hit_response(
+                    hit_id="hit-2",
+                    hit_type_id="hit-type-1",
+                    question="<ExternalQuestion />",
+                    hit_type_kwargs={
+                        "Title": "Second",
+                        "Description": "Description",
+                        "Keywords": "nodekit",
+                        "Reward": "1.00",
+                        "AutoApprovalDelayInSeconds": MAX_AUTO_APPROVAL_DELAY_SEC,
+                        "AssignmentDurationInSeconds": 60,
+                        "QualificationRequirements": [],
+                    },
+                    max_assignments=1,
+                )
+            ],
         }
 
     def update_expiration_for_hit(self, HITId, ExpireAt):
@@ -208,6 +254,20 @@ def test_create_hit_passes_low_level_request_to_boto3() -> None:
     ]
     assert fake_boto3_client.create_hit_with_hit_type_kwargs["LifetimeInSeconds"] == 7200
     assert "x=1&amp;y=2" in fake_boto3_client.create_hit_with_hit_type_kwargs["Question"]
+
+
+def test_iter_hits_paginates_boto3_list_hits() -> None:
+    fake_boto3_client = FakeBoto3MturkClient()
+    client = MturkClient(boto3_client=fake_boto3_client, verify_credentials=False)
+
+    hits = list(client.iter_hits())
+
+    assert [hit.HITId for hit in hits] == ["hit-1", "hit-2"]
+    assert [hit.Title for hit in hits] == ["First", "Second"]
+    assert fake_boto3_client.list_hits_calls == [
+        {"MaxResults": 100},
+        {"MaxResults": 100, "NextToken": "page-2"},
+    ]
 
 
 def test_iter_bonus_payments_paginates_by_hit_id() -> None:

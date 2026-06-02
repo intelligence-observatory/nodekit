@@ -26,6 +26,7 @@ class FakeMturkClient:
         }
         self.assignments: tuple[Assignment, ...] = ()
         self.bonus_payments: tuple[BonusPayment, ...] = ()
+        self.iter_hits_calls = 0
         self.get_hit_calls: list[str] = []
         self.create_hit_requests: list[CreateHitRequest] = []
         self.created_qualification_types: list[tuple[str, str | None]] = []
@@ -35,6 +36,9 @@ class FakeMturkClient:
         self.approved_assignment_ids: list[str] = []
         self.sent_bonus_requests: list[SendBonusPaymentRequest] = []
         self.iter_bonus_payment_calls: list[tuple[str | None, str | None]] = []
+
+    def get_account_balance(self) -> Decimal:
+        return Decimal("12.34")
 
     def create_qualification_type(
         self,
@@ -49,6 +53,20 @@ class FakeMturkClient:
             Description=description,
             QualificationTypeStatus="Active",
         )
+
+    def list_qualification_types(self) -> list[QualificationType]:
+        return [
+            QualificationType(
+                QualificationTypeId=f"qual-{index}",
+                Name=unique_name,
+                Description=description,
+                QualificationTypeStatus="Active",
+            )
+            for index, (unique_name, description) in enumerate(
+                self.created_qualification_types,
+                start=1,
+            )
+        ]
 
     def grant_qualification(self, qualification_type_id: str, worker_id: str) -> None:
         self.granted_qualifications.append((qualification_type_id, worker_id))
@@ -81,6 +99,10 @@ class FakeMturkClient:
         )
         self.hits[hit.HITId] = hit
         return hit
+
+    def iter_hits(self):
+        self.iter_hits_calls += 1
+        yield from self.hits.values()
 
     def get_hit(self, hit_id: str) -> HIT:
         self.get_hit_calls.append(hit_id)
@@ -203,6 +225,12 @@ def test_default_cache_path_uses_platformdirs_namespace(
     assert production_cache.root == tmp_path / "nodekit" / "nodekit" / "mturk" / "production"
 
 
+def test_get_account_balance_delegates_to_mturk_client(tmp_path: Path) -> None:
+    client = _client(tmp_path)
+
+    assert client.get_account_balance() == Decimal("12.34")
+
+
 def test_get_hit_refresh_never_returns_cache_and_raises_on_miss(tmp_path: Path) -> None:
     client = _client(tmp_path)
     record = HitRecord(
@@ -242,6 +270,31 @@ def test_get_hit_refresh_always_overwrites_cache(tmp_path: Path) -> None:
     assert fresh.title == "Fresh"
     assert cached_again.title == "Fresh"
     assert fake.get_hit_calls == ["hit-1"]
+
+
+def test_iter_hits_discovers_and_caches_remote_hits_when_cache_is_empty(tmp_path: Path) -> None:
+    fake = FakeMturkClient()
+    fake.hits["hit-2"] = _hit(hit_id="hit-2", title="Remote")
+    client = _client(tmp_path, fake=fake)
+
+    hits = list(client.iter_hits())
+    cached = client.get_hit("hit-2", refresh="never")
+
+    assert [hit.hit_id for hit in hits] == ["hit-2", "hit-1"]
+    assert hits[0].title == "Remote"
+    assert cached.title == "Remote"
+    assert fake.iter_hits_calls == 1
+    assert fake.get_hit_calls == []
+
+
+def test_iter_hits_refresh_never_uses_cache_only(tmp_path: Path) -> None:
+    fake = FakeMturkClient()
+    client = _client(tmp_path, fake=fake)
+
+    hits = list(client.iter_hits(refresh="never"))
+
+    assert hits == []
+    assert fake.iter_hits_calls == 0
 
 
 def test_auto_refresh_skips_disposed_hit_and_refreshes_stale_assignable_hit(
@@ -342,6 +395,9 @@ def test_create_hit_creates_worker_qualifications_and_caches_hit(tmp_path: Path)
     request = fake.create_hit_requests[0]
     assert record.hit_id == "hit-created"
     assert record.qualification_type_ids == ("qual-1", "qual-2")
+    assert "allowed_worker_ids" not in record.model_dump()
+    assert "blocked_worker_ids" not in record.model_dump()
+    assert "qualification_type_ids" not in record.model_dump()
     assert [requirement.Comparator for requirement in request.qualification_requirements] == [
         "Exists",
         "DoesNotExist",
@@ -355,13 +411,37 @@ def test_create_hit_creates_worker_qualifications_and_caches_hit(tmp_path: Path)
 
 def test_close_hit_deletes_created_qualification_types(tmp_path: Path) -> None:
     fake = FakeMturkClient()
+    fake.created_qualification_types = [
+        ("nodekit:allow:1", "NodeKit MTurk worker allowlist."),
+        ("nodekit:block:1", "NodeKit MTurk worker blocklist."),
+        ("custom-qual", "Not created by this recruiter."),
+    ]
+    fake.hits["hit-1"] = _hit(
+        hit_id="hit-1",
+        qualification_requirements=[
+            QualificationRequirement(
+                QualificationTypeId="qual-1",
+                Comparator="Exists",
+                ActionsGuarded="DiscoverPreviewAndAccept",
+            ),
+            QualificationRequirement(
+                QualificationTypeId="qual-2",
+                Comparator="DoesNotExist",
+                ActionsGuarded="DiscoverPreviewAndAccept",
+            ),
+            QualificationRequirement(
+                QualificationTypeId="qual-3",
+                Comparator="Exists",
+                ActionsGuarded="DiscoverPreviewAndAccept",
+            ),
+        ],
+    )
     client = _client(tmp_path, fake=fake)
     client._write_hit_record(
         record=HitRecord(
             hit_id="hit-1",
             url="https://nodekit.example/s/site-1",
             title="Title",
-            qualification_type_ids=("qual-1", "qual-2"),
             hit=fake.hits["hit-1"],
             timestamp_created=_now(),
             timestamp_refreshed=_now(),
@@ -373,7 +453,7 @@ def test_close_hit_deletes_created_qualification_types(tmp_path: Path) -> None:
 
     assert fake.cleaned_hit_ids == ["hit-1"]
     assert fake.deleted_qualification_type_ids == ["qual-1", "qual-2"]
-    assert record.qualification_type_ids == ()
+    assert record.qualification_type_ids == ("qual-1", "qual-2", "qual-3")
 
 
 def test_pay_bonus_avoids_duplicate_matching_bonus(tmp_path: Path) -> None:

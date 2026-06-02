@@ -1,4 +1,5 @@
 from nodekit.experimental.turk.client import MturkClient
+from nodekit.experimental.turk.dashboard import DashboardHandle
 from nodekit.experimental.turk.recruiter import (
     BonusPaymentResult,
     HitRecord,
@@ -7,6 +8,7 @@ from nodekit.experimental.turk.recruiter import (
 
 __all__ = [
     "BonusPaymentResult",
+    "DashboardHandle",
     "HitRecord",
     "MturkClient",
     "MturkRecruiterClient",
