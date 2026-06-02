@@ -677,6 +677,37 @@ def test_submit_run_updates_started_run(
 
 
 # %%
+def test_submit_run_rejects_invalid_trace_payload_without_submitting_run(
+    authenticated_client: TestClient,
+    server_main: ModuleType,
+) -> None:
+    site = _create_site(authenticated_client)
+    site_submission = _make_site_submission()
+    site_submission.trace_gzipped_base64 = "not gzip"
+
+    with TestClient(server_main.app) as client:
+        start_response = _start_no_platform_site(client=client, site_id=site["site_id"])
+        assert start_response.status_code == 307
+        start_query = parse_qs(urlparse(start_response.headers["location"]).query)
+        run_id = _run_id_from_submit_url(start_query["nodekitSubmitTo"][0])
+        response = client.post(
+            f"/s/{site['site_id']}/runs/{run_id}/submit",
+            json=site_submission.model_dump(mode="json"),
+        )
+
+    assert response.status_code == 400
+    assert response.json() == {"detail": "trace_gzipped_base64 must be base64-encoded gzip JSON."}
+
+    records, engine = _get_records_and_engine()
+    with sqlmodel.Session(engine) as session:
+        run_record = session.get(records.RunRecord, run_id)
+        assert run_record is not None
+        assert run_record.status == RunStatus.STARTED
+        assert run_record.site_submission_json_gzip is None
+        assert run_record.timestamp_submitted is None
+
+
+# %%
 def test_run_specific_submit_rejects_missing_wrong_site_and_duplicate_runs(
     authenticated_client: TestClient,
     server_main: ModuleType,

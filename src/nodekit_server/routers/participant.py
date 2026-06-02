@@ -159,6 +159,16 @@ def _gzip_site_submission(site_submission: contracts.SubmitRunRequest) -> bytes:
     return gzip.compress(site_submission.model_dump_json().encode("utf-8"), mtime=0)
 
 
+def _validate_site_submission_trace(site_submission: contracts.SubmitRunRequest) -> None:
+    try:
+        _ = site_submission.trace
+    except ValueError as exc:
+        raise fastapi.HTTPException(
+            status_code=fastapi.status.HTTP_400_BAD_REQUEST,
+            detail=str(exc),
+        ) from exc
+
+
 def _run_recruitment_context(site_submission: contracts.SubmitRunRequest) -> _RunRecruitmentContext:
     platform_context = site_submission.platform_context
     if isinstance(platform_context, ProlificContext):
@@ -508,6 +518,7 @@ def submit_run(
             detail="Run has already been submitted.",
         )
 
+    _validate_site_submission_trace(submit_run_request)
     recruitment_context = _run_recruitment_context(submit_run_request)
     existing_recruiter_participant_id = run_record.recruiter_participant_id
     run_record.status = RunStatus.SUBMITTED
