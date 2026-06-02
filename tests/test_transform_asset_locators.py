@@ -54,7 +54,13 @@ def _make_nested_asset_graph() -> nk.Graph:
                                     },
                                     min_selections=1,
                                     max_selections=1,
-                                    confirm_button=nk.cards.TextCard(text="confirm"),
+                                    confirm_button=nk.cards.VideoCard(video=video_asset),
+                                ),
+                                "slider": nk.sensors.SliderSensor(
+                                    num_bins=5,
+                                    initial_bin_index=2,
+                                    region=nk.Region(x=0, y=0, w=200, h=50),
+                                    confirm_button=nk.cards.ImageCard(image=svg_asset),
                                 ),
                             }
                         )

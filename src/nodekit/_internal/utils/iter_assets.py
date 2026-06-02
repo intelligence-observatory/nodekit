@@ -8,6 +8,7 @@ from nodekit._internal.types.sensors import (
     SelectSensor,
     MultiSelectSensor,
     ProductSensor,
+    SliderSensor,
     SumSensor,
     Sensor,
 )
@@ -53,6 +54,9 @@ def _iter_sensor_cards(sensor: Sensor) -> Iterable[Image | Video]:
     elif isinstance(sensor, MultiSelectSensor):
         for choice_card in sensor.choices.values():
             yield from _iter_card_assets(choice_card)
+        yield from _iter_card_assets(sensor.confirm_button)
+    elif isinstance(sensor, SliderSensor) and sensor.confirm_button is not None:
+        yield from _iter_card_assets(sensor.confirm_button)
     elif isinstance(sensor, ProductSensor):
         for child in sensor.children.values():
             yield from _iter_sensor_cards(child)

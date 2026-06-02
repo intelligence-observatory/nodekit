@@ -11,6 +11,7 @@ from nodekit._internal.types.sensors import (
     ProductSensor,
     SelectSensor,
     Sensor,
+    SliderSensor,
     SumSensor,
 )
 
@@ -68,8 +69,13 @@ def _transform_sensor_asset_locators_in_place(
 
 
 def _iter_sensor_cards(sensor: Sensor) -> Iterable[Card]:
-    if isinstance(sensor, (SelectSensor, MultiSelectSensor)):
+    if isinstance(sensor, SelectSensor):
         yield from sensor.choices.values()
+    elif isinstance(sensor, MultiSelectSensor):
+        yield from sensor.choices.values()
+        yield sensor.confirm_button
+    elif isinstance(sensor, SliderSensor) and sensor.confirm_button is not None:
+        yield sensor.confirm_button
 
 
 def _transform_locator(
