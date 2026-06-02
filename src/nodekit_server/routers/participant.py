@@ -1,7 +1,7 @@
 """Participant-facing routes for nodekit-server."""
 
 import gzip
-from typing import TypedDict
+from typing import TypedDict, cast
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 from uuid import uuid4
 
@@ -24,6 +24,7 @@ from nodekit_server.records import RunRecord, SiteRecord, as_utc, utc_now
 
 # %% Router
 router = fastapi.APIRouter()
+NODEKIT_PARTICIPANT_ID_PARAM = "nodekitParticipantId"
 
 
 # %% Helpers
@@ -58,6 +59,15 @@ def _submit_url(
     return f"{base_url.rstrip('/')}/s/{site_id}/runs/{run_id}/submit"
 
 
+def _site_start_url(
+    request: fastapi.Request,
+    settings: SettingsDep,
+    site_id: SiteId,
+) -> str:
+    base_url = settings.public_base_url or str(request.base_url)
+    return f"{base_url.rstrip('/')}/s/{site_id}"
+
+
 def _with_request_query(site_url: str, request: fastapi.Request) -> str:
     """Return a Site URL with the incoming request query parameters preserved."""
 
@@ -68,6 +78,34 @@ def _with_request_query(site_url: str, request: fastapi.Request) -> str:
     ]
     if not query_items:
         return site_url
+
+    split_url = urlsplit(site_url)
+    query = parse_qsl(split_url.query, keep_blank_values=True)
+    query.extend(query_items)
+    return urlunsplit(
+        (
+            split_url.scheme,
+            split_url.netloc,
+            split_url.path,
+            urlencode(query, doseq=True),
+            split_url.fragment,
+        )
+    )
+
+
+def _with_nodekit_participant_id(
+    site_url: str,
+    request: fastapi.Request,
+    nodekit_participant_id: str,
+) -> str:
+    """Return a Site URL with a canonical NodeKit participant id."""
+
+    query_items = [
+        (key, value)
+        for key, value in parse_qsl(request.url.query, keep_blank_values=True)
+        if key not in {"nodekitSubmitTo", NODEKIT_PARTICIPANT_ID_PARAM}
+    ]
+    query_items.append((NODEKIT_PARTICIPANT_ID_PARAM, nodekit_participant_id))
 
     split_url = urlsplit(site_url)
     query = parse_qsl(split_url.query, keep_blank_values=True)
@@ -242,11 +280,30 @@ def serve_site(
     recruitment_context = _infer_start_recruitment_context(request=request)
     run_record = None
     if "preview" not in recruitment_context:
+        run_recruitment_context = cast(_RunRecruitmentContext, recruitment_context)
+        if run_recruitment_context["recruitment_platform"] == "NoPlatform":
+            nodekit_participant_id = request.query_params.get(NODEKIT_PARTICIPANT_ID_PARAM)
+            if nodekit_participant_id is None:
+                redirect_url = _with_nodekit_participant_id(
+                    site_url=_site_start_url(
+                        request=request,
+                        settings=settings,
+                        site_id=site_id,
+                    ),
+                    request=request,
+                    nodekit_participant_id=str(uuid4()),
+                )
+                return fastapi.responses.RedirectResponse(
+                    url=redirect_url,
+                    status_code=fastapi.status.HTTP_307_TEMPORARY_REDIRECT,
+                )
+            run_recruitment_context["recruiter_participant_id"] = nodekit_participant_id
+
         run_record = RunRecord(
             run_id=uuid4(),
             site_id=site_id,
             status=RunStatus.STARTED,
-            **recruitment_context,
+            **run_recruitment_context,
             is_archived=False,
         )
         session.add(run_record)
@@ -293,10 +350,15 @@ def submit_run(
         )
 
     recruitment_context = _run_recruitment_context(submit_run_request)
+    existing_recruiter_participant_id = run_record.recruiter_participant_id
     run_record.status = RunStatus.SUBMITTED
     run_record.recruitment_platform = recruitment_context["recruitment_platform"]
     run_record.recruiter_study_id = recruitment_context["recruiter_study_id"]
-    run_record.recruiter_participant_id = recruitment_context["recruiter_participant_id"]
+    run_record.recruiter_participant_id = (
+        existing_recruiter_participant_id
+        if recruitment_context["recruitment_platform"] == "NoPlatform"
+        else recruitment_context["recruiter_participant_id"]
+    )
     run_record.recruiter_session_id = recruitment_context["recruiter_session_id"]
     run_record.site_submission_json_gzip = _gzip_site_submission(submit_run_request)
     run_record.timestamp_submitted = utc_now()

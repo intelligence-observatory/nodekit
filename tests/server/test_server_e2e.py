@@ -107,8 +107,18 @@ def test_server_e2e_site_submission_flow(
             follow_redirects=False,
         )
         assert site_response.status_code == 307
-        location = site_response.headers["location"]
+        participant_query = parse_qs(urlparse(site_response.headers["location"]).query)
+        [nodekit_participant_id] = participant_query["nodekitParticipantId"]
+
+        artifact_response = participant_client.get(
+            f"/s/{site['site_id']}",
+            params=[("nodekitParticipantId", nodekit_participant_id)],
+            follow_redirects=False,
+        )
+        assert artifact_response.status_code == 307
+        location = artifact_response.headers["location"]
         query = parse_qs(urlparse(location).query)
+        assert query["nodekitParticipantId"] == [nodekit_participant_id]
         [submit_url] = query["nodekitSubmitTo"]
         assert urlparse(submit_url).path.startswith(f"/s/{site['site_id']}/runs/")
 
