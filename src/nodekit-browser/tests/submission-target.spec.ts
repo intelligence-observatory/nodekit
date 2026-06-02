@@ -1,6 +1,6 @@
 import {expect, test} from '@playwright/test';
 
-import {getSubmissionTarget} from '../src/submission/get-submission-target.ts';
+import {getSubmissionTarget} from '../src/submission/get-submission-target';
 
 function setSearch(search: string): void {
     Object.defineProperty(globalThis, 'window', {
