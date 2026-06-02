@@ -380,6 +380,7 @@ class _DashboardCache:
             recruiter_session_id=response.recruiter_session_id,
             is_archived=response.is_archived,
             timestamp_created=response.timestamp_created,
+            timestamp_submitted=response.timestamp_submitted,
         )
         self.upsert_item(kind="run", key=str(response.run_id), payload=summary)
 
@@ -398,6 +399,7 @@ class _DashboardCache:
                     "recruiter_session_id": response.recruiter_session_id,
                     "is_archived": response.is_archived,
                     "timestamp_created": response.timestamp_created,
+                    "timestamp_submitted": response.timestamp_submitted,
                 }
             )
             self.store_run_detail(updated)
@@ -808,4 +810,5 @@ def _run_detail_to_list_item(response: contracts.GetRunResponse) -> contracts.Li
         recruiter_session_id=response.recruiter_session_id,
         is_archived=response.is_archived,
         timestamp_created=response.timestamp_created,
+        timestamp_submitted=response.timestamp_submitted,
     )

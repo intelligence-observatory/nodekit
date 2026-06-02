@@ -167,3 +167,4 @@ class RunRecord(SQLModel, table=True):
     )
     is_archived: bool = False
     timestamp_created: datetime.datetime = Field(default_factory=utc_now, index=True)
+    timestamp_submitted: datetime.datetime | None = Field(default=None, index=True)

@@ -225,6 +225,7 @@ class ListRunsItem(ContractModel):
     recruiter_session_id: str | None = None
     is_archived: bool
     timestamp_created: DatetimeUTC
+    timestamp_submitted: DatetimeUTC | None = None
 
 
 ListRunsResponse = PageResponse[ListRunsItem]
@@ -250,6 +251,7 @@ class GetRunResponse(ContractModel):
     recruiter_session_id: str | None = None
     is_archived: bool
     timestamp_created: DatetimeUTC
+    timestamp_submitted: DatetimeUTC | None = None
     site_submission_json_gzip: str | None = None
 
     @property
@@ -280,6 +282,7 @@ class ArchiveRunResponse(ContractModel):
     recruiter_session_id: str | None = None
     is_archived: bool
     timestamp_created: DatetimeUTC
+    timestamp_submitted: DatetimeUTC | None = None
 
 
 # %% SubmitRun
@@ -296,6 +299,7 @@ class SubmitRunResponse(ContractModel):
     recruiter_session_id: str | None = None
     is_archived: bool
     timestamp_created: DatetimeUTC
+    timestamp_submitted: DatetimeUTC | None = None
 
 
 # %% CreateUser

@@ -7,7 +7,7 @@ from pathlib import Path
 from types import ModuleType
 from typing import Any
 from urllib.parse import parse_qs, urlparse
-from uuid import UUID
+from uuid import UUID, uuid4
 
 import sqlmodel
 from fastapi.testclient import TestClient
@@ -91,6 +91,25 @@ def _get_records_and_engine() -> tuple[Any, Any]:
     return sys.modules["nodekit_server.records"], sys.modules["nodekit_server.deps"].engine
 
 
+def _run_id_from_submit_url(submit_url: str) -> UUID:
+    path_parts = urlparse(submit_url).path.split("/")
+    assert path_parts[:4] == ["", "s", path_parts[2], "runs"]
+    assert path_parts[5:] == ["submit"]
+    return UUID(path_parts[4])
+
+
+def _run_records_for_site(site_id: str) -> list[Any]:
+    records, engine = _get_records_and_engine()
+    with sqlmodel.Session(engine) as session:
+        statement = sqlmodel.select(records.RunRecord).where(
+            records.RunRecord.site_id == UUID(site_id)
+        )
+        statement = statement.order_by(
+            records.RunRecord.timestamp_created, records.RunRecord.run_id
+        )
+        return list(session.exec(statement).all())
+
+
 def _upload_graph_assets(client: TestClient, graph: nk.Graph) -> None:
     for asset in iter_assets(graph=graph):
         assert isinstance(asset.locator, FileSystemPath)
@@ -167,7 +186,40 @@ def test_asset_resolver_returns_uploaded_asset_without_auth(
 
 
 # %%
-def test_site_redirect_adds_submit_url_and_preserves_query_params(
+def test_site_redirect_creates_started_run_and_adds_run_submit_url(
+    authenticated_client: TestClient,
+    server_main: ModuleType,
+) -> None:
+    site = _create_site(authenticated_client)
+
+    with TestClient(server_main.app) as client:
+        response = client.get(
+            f"/s/{site['site_id']}",
+            follow_redirects=False,
+        )
+
+    assert response.status_code == 307
+    location = response.headers["location"]
+    parsed_location = urlparse(location)
+    query = parse_qs(parsed_location.query)
+    assert parsed_location.path == f"/site-artifacts/sites/{site['site_id']}/index.html"
+    [submit_url] = query["nodekitSubmitTo"]
+    run_id = _run_id_from_submit_url(submit_url)
+    assert submit_url == f"http://testserver/s/{site['site_id']}/runs/{run_id}/submit"
+
+    [run_record] = _run_records_for_site(site["site_id"])
+    assert run_record.run_id == run_id
+    assert run_record.status == RunStatus.STARTED
+    assert run_record.recruitment_platform == "NoPlatform"
+    assert run_record.recruiter_study_id is None
+    assert run_record.recruiter_participant_id is None
+    assert run_record.recruiter_session_id is None
+    assert run_record.site_submission_json_gzip is None
+    assert run_record.timestamp_submitted is None
+
+
+# %%
+def test_site_redirect_infers_prolific_started_run(
     authenticated_client: TestClient,
     server_main: ModuleType,
 ) -> None:
@@ -179,18 +231,126 @@ def test_site_redirect_adds_submit_url_and_preserves_query_params(
             params=[
                 ("PROLIFIC_PID", "participant-1"),
                 ("STUDY_ID", "study-1"),
+                ("SESSION_ID", "session-1"),
+                ("prolificCompletionCode", "complete-1"),
             ],
             follow_redirects=False,
         )
 
     assert response.status_code == 307
-    location = response.headers["location"]
-    parsed_location = urlparse(location)
-    query = parse_qs(parsed_location.query)
-    assert parsed_location.path == f"/site-artifacts/sites/{site['site_id']}/index.html"
+    query = parse_qs(urlparse(response.headers["location"]).query)
     assert query["PROLIFIC_PID"] == ["participant-1"]
     assert query["STUDY_ID"] == ["study-1"]
-    assert query["nodekitSubmitTo"] == [f"http://testserver/s/{site['site_id']}/submit"]
+    assert query["SESSION_ID"] == ["session-1"]
+    assert query["prolificCompletionCode"] == ["complete-1"]
+    [run_record] = _run_records_for_site(site["site_id"])
+    assert run_record.status == RunStatus.STARTED
+    assert run_record.recruitment_platform == "Prolific"
+    assert run_record.recruiter_study_id == "study-1"
+    assert run_record.recruiter_participant_id == "participant-1"
+    assert run_record.recruiter_session_id == "session-1"
+
+
+# %%
+def test_site_redirect_infers_mturk_started_run(
+    authenticated_client: TestClient,
+    server_main: ModuleType,
+) -> None:
+    site = _create_site(authenticated_client)
+    cases = [
+        ("https://www.mturk.com/mturk/externalSubmit", "MechanicalTurk"),
+        ("https://workersandbox.mturk.com/mturk/externalSubmit", "MechanicalTurkSandbox"),
+    ]
+
+    for index, (turk_submit_to, _expected_platform) in enumerate(cases):
+        with TestClient(server_main.app) as client:
+            response = client.get(
+                f"/s/{site['site_id']}",
+                params=[
+                    ("assignmentId", f"assignment-{index}"),
+                    ("hitId", f"hit-{index}"),
+                    ("workerId", f"worker-{index}"),
+                    ("turkSubmitTo", turk_submit_to),
+                ],
+                follow_redirects=False,
+            )
+
+        assert response.status_code == 307
+
+    run_records = _run_records_for_site(site["site_id"])
+    assert {
+        (
+            run.recruitment_platform,
+            run.recruiter_study_id,
+            run.recruiter_participant_id,
+            run.recruiter_session_id,
+        )
+        for run in run_records
+    } == {
+        ("MechanicalTurk", "hit-0", "worker-0", "assignment-0"),
+        ("MechanicalTurkSandbox", "hit-1", "worker-1", "assignment-1"),
+    }
+
+
+# %%
+def test_mturk_preview_redirect_creates_no_run(
+    authenticated_client: TestClient,
+    server_main: ModuleType,
+) -> None:
+    site = _create_site(authenticated_client)
+
+    with TestClient(server_main.app) as client:
+        response = client.get(
+            f"/s/{site['site_id']}",
+            params=[("assignmentId", "ASSIGNMENT_ID_NOT_AVAILABLE")],
+            follow_redirects=False,
+        )
+
+    assert response.status_code == 307
+    query = parse_qs(urlparse(response.headers["location"]).query)
+    assert "nodekitSubmitTo" not in query
+    assert _run_records_for_site(site["site_id"]) == []
+
+
+# %%
+def test_bad_platform_start_params_return_400(
+    authenticated_client: TestClient,
+    server_main: ModuleType,
+) -> None:
+    site = _create_site(authenticated_client)
+
+    with TestClient(server_main.app) as client:
+        missing_prolific_response = client.get(
+            f"/s/{site['site_id']}",
+            params=[("PROLIFIC_PID", "participant-1")],
+            follow_redirects=False,
+        )
+        mixed_platform_response = client.get(
+            f"/s/{site['site_id']}",
+            params=[
+                ("PROLIFIC_PID", "participant-1"),
+                ("STUDY_ID", "study-1"),
+                ("SESSION_ID", "session-1"),
+                ("prolificCompletionCode", "complete-1"),
+                ("assignmentId", "assignment-1"),
+            ],
+            follow_redirects=False,
+        )
+        unknown_mturk_host_response = client.get(
+            f"/s/{site['site_id']}",
+            params=[
+                ("assignmentId", "assignment-1"),
+                ("hitId", "hit-1"),
+                ("workerId", "worker-1"),
+                ("turkSubmitTo", "https://example.com/submit"),
+            ],
+            follow_redirects=False,
+        )
+
+    assert missing_prolific_response.status_code == 400
+    assert mixed_platform_response.status_code == 400
+    assert unknown_mturk_host_response.status_code == 400
+    assert _run_records_for_site(site["site_id"]) == []
 
 
 # %%
@@ -233,6 +393,9 @@ def test_filesystem_artifact_site_redirect_preserves_query_and_freezes_runtime(
             f"/s/{site['site_id']}",
             params=[
                 ("PROLIFIC_PID", "participant-1"),
+                ("STUDY_ID", "study-1"),
+                ("SESSION_ID", "session-1"),
+                ("prolificCompletionCode", "complete-1"),
                 ("batch", "one"),
                 ("batch", "two"),
                 ("nodekitSubmitTo", "https://old.example/submit"),
@@ -245,8 +408,13 @@ def test_filesystem_artifact_site_redirect_preserves_query_and_freezes_runtime(
     query = parse_qs(parsed_location.query)
     assert parsed_location.path == f"/site-artifacts/sites/{site['site_id']}/index.html"
     assert query["PROLIFIC_PID"] == ["participant-1"]
+    assert query["STUDY_ID"] == ["study-1"]
+    assert query["SESSION_ID"] == ["session-1"]
+    assert query["prolificCompletionCode"] == ["complete-1"]
     assert query["batch"] == ["one", "two"]
-    assert query["nodekitSubmitTo"] == [f"http://testserver/s/{site['site_id']}/submit"]
+    [submit_url] = query["nodekitSubmitTo"]
+    run_id = _run_id_from_submit_url(submit_url)
+    assert submit_url == f"http://testserver/s/{site['site_id']}/runs/{run_id}/submit"
 
 
 # %%
@@ -287,15 +455,13 @@ def test_missing_and_archived_site_return_404(
     with TestClient(server_main.app) as client:
         archived_get_response = client.get(
             f"/s/{site['site_id']}",
-            params=[("nodekitSubmitTo", f"/s/{site['site_id']}/submit")],
         )
         archived_submit_response = client.post(
-            f"/s/{site['site_id']}/submit",
+            f"/s/{site['site_id']}/runs/{uuid4()}/submit",
             json=_make_site_submission().model_dump(mode="json"),
         )
         missing_get_response = client.get(
             "/s/00000000-0000-0000-0000-000000000000",
-            params=[("nodekitSubmitTo", "/s/00000000-0000-0000-0000-000000000000/submit")],
         )
 
     assert archived_get_response.status_code == 404
@@ -304,7 +470,7 @@ def test_missing_and_archived_site_return_404(
 
 
 # %%
-def test_submit_run_accepts_bare_site_submission_and_creates_run(
+def test_submit_run_updates_started_run(
     authenticated_client: TestClient,
     server_main: ModuleType,
 ) -> None:
@@ -312,8 +478,12 @@ def test_submit_run_accepts_bare_site_submission_and_creates_run(
     site_submission = _make_site_submission()
 
     with TestClient(server_main.app) as client:
+        start_response = client.get(f"/s/{site['site_id']}", follow_redirects=False)
+        assert start_response.status_code == 307
+        start_query = parse_qs(urlparse(start_response.headers["location"]).query)
+        run_id = _run_id_from_submit_url(start_query["nodekitSubmitTo"][0])
         response = client.post(
-            f"/s/{site['site_id']}/submit",
+            f"/s/{site['site_id']}/runs/{run_id}/submit",
             json=site_submission.model_dump(mode="json"),
         )
 
@@ -327,10 +497,11 @@ def test_submit_run_accepts_bare_site_submission_and_creates_run(
     assert body["recruiter_session_id"] is None
     assert body["is_archived"] is False
     _assert_utc_timestamp(body["timestamp_created"])
+    _assert_utc_timestamp(body["timestamp_submitted"])
 
     records, engine = _get_records_and_engine()
     with sqlmodel.Session(engine) as session:
-        run_record = session.get(records.RunRecord, UUID(body["run_id"]))
+        run_record = session.get(records.RunRecord, run_id)
         assert run_record is not None
         assert run_record.site_id == UUID(site["site_id"])
         assert run_record.status == RunStatus.SUBMITTED
@@ -339,6 +510,7 @@ def test_submit_run_accepts_bare_site_submission_and_creates_run(
         assert run_record.recruiter_participant_id is None
         assert run_record.recruiter_session_id is None
         assert run_record.site_submission_json_gzip is not None
+        assert run_record.timestamp_submitted is not None
         stored_submission = nk.SiteSubmission.model_validate_json(
             gzip.decompress(run_record.site_submission_json_gzip).decode("utf-8")
         )
@@ -352,6 +524,48 @@ def test_submit_run_accepts_bare_site_submission_and_creates_run(
         ).decode("utf-8")
     )
     assert returned_submission == site_submission
+
+
+# %%
+def test_run_specific_submit_rejects_missing_wrong_site_and_duplicate_runs(
+    authenticated_client: TestClient,
+    server_main: ModuleType,
+) -> None:
+    first_site = _create_site(authenticated_client)
+    second_site = _create_site(authenticated_client)
+    site_submission = _make_site_submission()
+
+    with TestClient(server_main.app) as client:
+        start_response = client.get(f"/s/{first_site['site_id']}", follow_redirects=False)
+        assert start_response.status_code == 307
+        start_query = parse_qs(urlparse(start_response.headers["location"]).query)
+        run_id = _run_id_from_submit_url(start_query["nodekitSubmitTo"][0])
+        missing_run_response = client.post(
+            f"/s/{first_site['site_id']}/runs/{uuid4()}/submit",
+            json=site_submission.model_dump(mode="json"),
+        )
+        wrong_site_response = client.post(
+            f"/s/{second_site['site_id']}/runs/{run_id}/submit",
+            json=site_submission.model_dump(mode="json"),
+        )
+        first_submit_response = client.post(
+            f"/s/{first_site['site_id']}/runs/{run_id}/submit",
+            json=site_submission.model_dump(mode="json"),
+        )
+        duplicate_submit_response = client.post(
+            f"/s/{first_site['site_id']}/runs/{run_id}/submit",
+            json=site_submission.model_dump(mode="json"),
+        )
+        old_submit_response = client.post(
+            f"/s/{first_site['site_id']}/submit",
+            json=site_submission.model_dump(mode="json"),
+        )
+
+    assert missing_run_response.status_code == 404
+    assert wrong_site_response.status_code == 404
+    assert first_submit_response.status_code == 200
+    assert duplicate_submit_response.status_code == 409
+    assert old_submit_response.status_code == 404
 
 
 # %%
@@ -398,13 +612,18 @@ def test_submit_run_stores_recruitment_context(
     ]
 
     with TestClient(server_main.app) as client:
-        responses = [
-            client.post(
-                f"/s/{site['site_id']}/submit",
-                json=site_submission.model_dump(mode="json"),
+        responses = []
+        for site_submission, _expected in cases:
+            start_response = client.get(f"/s/{site['site_id']}", follow_redirects=False)
+            assert start_response.status_code == 307
+            start_query = parse_qs(urlparse(start_response.headers["location"]).query)
+            run_id = _run_id_from_submit_url(start_query["nodekitSubmitTo"][0])
+            responses.append(
+                client.post(
+                    f"/s/{site['site_id']}/runs/{run_id}/submit",
+                    json=site_submission.model_dump(mode="json"),
+                )
             )
-            for site_submission, _expected in cases
-        ]
 
     records, engine = _get_records_and_engine()
     for response, (_site_submission, expected) in zip(responses, cases, strict=True):

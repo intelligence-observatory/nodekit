@@ -109,7 +109,8 @@ def test_server_e2e_site_submission_flow(
         assert site_response.status_code == 307
         location = site_response.headers["location"]
         query = parse_qs(urlparse(location).query)
-        assert query["nodekitSubmitTo"] == [f"http://testserver/s/{site['site_id']}/submit"]
+        [submit_url] = query["nodekitSubmitTo"]
+        assert urlparse(submit_url).path.startswith(f"/s/{site['site_id']}/runs/")
 
         html_response = participant_client.get(location)
         assert html_response.status_code == 200
@@ -117,7 +118,7 @@ def test_server_e2e_site_submission_flow(
 
         site_submission = _make_site_submission(graph_with_assets)
         submit_response = participant_client.post(
-            f"/s/{site['site_id']}/submit",
+            urlparse(submit_url).path,
             json=site_submission.model_dump(mode="json"),
         )
         submit_response.raise_for_status()

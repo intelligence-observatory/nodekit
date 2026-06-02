@@ -331,7 +331,7 @@ def _make_site(
         tags=tags,
         is_archived=False,
         timestamp_created=timestamp_created,
-        graph=graph,
+        graph_json_gzip=_json_gzip_b64(graph.model_dump_json()),
         assets=(),
     )
 
@@ -382,9 +382,12 @@ def _make_run(
         **recruitment_context,
         is_archived=is_archived,
         timestamp_created=timestamp_created,
-        site_submission=site_submission,
-        trace=trace,
+        site_submission_json_gzip=_json_gzip_b64(site_submission.model_dump_json()),
     )
+
+
+def _json_gzip_b64(json_value: str) -> str:
+    return base64.b64encode(gzip.compress(json_value.encode("utf-8"), mtime=0)).decode("ascii")
 
 
 def _status_for_index(*, index: int, rng: random.Random) -> RunStatus:

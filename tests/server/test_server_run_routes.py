@@ -280,7 +280,12 @@ def test_list_runs_filters_and_paginates(authenticated_client: TestClient) -> No
 
     platform_response = authenticated_client.get(
         "/runs",
-        params=[("recruitment_platforms", "Prolific")],
+        params=[
+            ("run_ids", str(first_run.run_id)),
+            ("run_ids", str(second_run.run_id)),
+            ("run_ids", str(third_run.run_id)),
+            ("recruitment_platforms", "Prolific"),
+        ],
     )
     assert platform_response.status_code == 200
     platform_items = platform_response.json()["items"]
@@ -292,6 +297,9 @@ def test_list_runs_filters_and_paginates(authenticated_client: TestClient) -> No
     recruiter_context_response = authenticated_client.get(
         "/runs",
         params=[
+            ("run_ids", str(first_run.run_id)),
+            ("run_ids", str(second_run.run_id)),
+            ("run_ids", str(third_run.run_id)),
             ("recruitment_platforms", "MechanicalTurk"),
             ("recruiter_study_ids", "hit-1"),
             ("recruiter_participant_ids", "worker-1"),
@@ -305,6 +313,9 @@ def test_list_runs_filters_and_paginates(authenticated_client: TestClient) -> No
     mismatched_context_response = authenticated_client.get(
         "/runs",
         params=[
+            ("run_ids", str(first_run.run_id)),
+            ("run_ids", str(second_run.run_id)),
+            ("run_ids", str(third_run.run_id)),
             ("recruitment_platforms", "MechanicalTurk"),
             ("recruiter_participant_ids", "pid-1"),
         ],

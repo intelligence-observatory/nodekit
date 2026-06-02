@@ -31,6 +31,11 @@ def _run_record_summary(run_record: RunRecord) -> dict[str, Any]:
         "recruiter_session_id": run_record.recruiter_session_id,
         "is_archived": run_record.is_archived,
         "timestamp_created": as_utc(run_record.timestamp_created),
+        "timestamp_submitted": (
+            as_utc(run_record.timestamp_submitted)
+            if run_record.timestamp_submitted is not None
+            else None
+        ),
     }
 
 
