@@ -124,7 +124,7 @@ class MturkRecruiterClient:
         num_assignments: int,
         completion_reward_usd: str | Decimal,
         duration_sec: int,
-        auto_approval_delay_sec: int,
+        auto_approval_delay_sec: int = 1,
         allowed_worker_ids: Iterable[WorkerId] = (),
         blocked_worker_ids: Iterable[WorkerId] = (),
         lifetime_sec: int = MAX_HIT_LIFETIME_SEC,
