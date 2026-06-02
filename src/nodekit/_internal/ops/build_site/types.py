@@ -11,8 +11,12 @@ from nodekit._internal.types.trace import Trace
 
 
 # %%
+type Platform = Literal["MechanicalTurk", "MechanicalTurkSandbox", "Prolific", "NoPlatform"]
+
+
+# %%
 class BasePlatformContext(pydantic.BaseModel):
-    platform: str
+    platform: Platform
 
 
 # %%
@@ -28,7 +32,6 @@ class BaseMechanicalTurkContext(BasePlatformContext):
 # %%
 class MechanicalTurkContext(BaseMechanicalTurkContext):
     platform: Literal["MechanicalTurk"]
-
 
 # %%
 class MechanicalTurkSandboxContext(BaseMechanicalTurkContext):
@@ -46,7 +49,7 @@ class ProlificContext(BasePlatformContext):
 
 # %%
 class NoPlatformContext(BasePlatformContext):
-    platform: Literal["None"]
+    platform: Literal["NoPlatform"]
 
 
 # %%
@@ -69,6 +72,12 @@ class SiteSubmission(pydantic.BaseModel):
     platform_context: PlatformContext = pydantic.Field(
         description="Information about the platform (if any) that the Graph site was hosted on."
     )
+
+    @property
+    def platform(self) -> Platform:
+        """Return the recruiter platform for this submission."""
+
+        return self.platform_context.platform
 
     @cached_property
     def trace(self) -> Trace:
