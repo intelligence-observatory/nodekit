@@ -14,7 +14,7 @@ from nodekit._internal.ops.transform_asset_locators import transform_asset_locat
 from nodekit._internal.types.assets import URL
 from nodekit._internal.utils.iter_assets import iter_assets
 import nodekit.server.contracts as contracts
-from nodekit.server.values import SiteId, UserId
+from nodekit.server.values import SiteConditionId, SiteId, UserId
 from nodekit.values import MediaType, SHA256
 from nodekit_server.auth import UserDep
 from nodekit_server.deps import SessionDep, SettingsDep, SiteArtifactStoreDep
@@ -22,6 +22,7 @@ from nodekit_server.pagination import apply_timestamp_id_page_cursor, page_recor
 from nodekit_server.records import (
     AssetRecord,
     SiteAssetDependencyRecord,
+    SiteConditionRecord,
     SiteRecord,
     SiteTagRecord,
     TagRecord,
@@ -56,6 +57,20 @@ def _iter_unique_asset_identifiers(
         seen.add(key)
         identifiers.append(identifier)
     return tuple(identifiers)
+
+
+def _dedupe_asset_identifiers(
+    identifiers: Iterable[contracts.AssetIdentifier],
+) -> tuple[contracts.AssetIdentifier, ...]:
+    deduped: list[contracts.AssetIdentifier] = []
+    seen: set[tuple[str, str]] = set()
+    for identifier in identifiers:
+        key = (str(identifier.sha256), str(identifier.media_type))
+        if key in seen:
+            continue
+        seen.add(key)
+        deduped.append(identifier)
+    return tuple(deduped)
 
 
 def _select_asset_records(
@@ -186,12 +201,29 @@ def _get_site_tags(
     return tuple(session.exec(statement).all())
 
 
-def _get_site_asset_items(
+def _get_site_condition_records(
     session: sqlmodel.Session,
     site_id: SiteId,
+) -> tuple[SiteConditionRecord, ...]:
+    statement = sqlmodel.select(SiteConditionRecord)
+    statement = statement.where(sqlmodel.col(SiteConditionRecord.site_id) == site_id)
+    statement = statement.order_by(
+        sqlmodel.col(SiteConditionRecord.timestamp_created),
+        sqlmodel.col(SiteConditionRecord.condition_id),
+    )
+    return tuple(session.exec(statement).all())
+
+
+def _get_condition_asset_items(
+    session: sqlmodel.Session,
+    site_id: SiteId,
+    condition_id: SiteConditionId,
 ) -> tuple[contracts.SiteAssetItem, ...]:
     statement = sqlmodel.select(SiteAssetDependencyRecord)
     statement = statement.where(sqlmodel.col(SiteAssetDependencyRecord.site_id) == site_id)
+    statement = statement.where(
+        sqlmodel.col(SiteAssetDependencyRecord.condition_id) == condition_id
+    )
     statement = statement.order_by(
         sqlmodel.col(SiteAssetDependencyRecord.timestamp_created),
         sqlmodel.col(SiteAssetDependencyRecord.sha256),
@@ -212,6 +244,41 @@ def _get_site_asset_items(
     return tuple(items)
 
 
+def _site_condition_item(
+    condition_record: SiteConditionRecord,
+) -> contracts.SiteConditionItem:
+    return contracts.SiteConditionItem(
+        condition_id=condition_record.condition_id,
+        allocation_weight=condition_record.allocation_weight,
+    )
+
+
+def _site_condition_detail_item(
+    session: sqlmodel.Session,
+    condition_record: SiteConditionRecord,
+) -> contracts.SiteConditionDetailItem:
+    return contracts.SiteConditionDetailItem(
+        condition_id=condition_record.condition_id,
+        allocation_weight=condition_record.allocation_weight,
+        graph_json_gzip=base64.b64encode(condition_record.graph_json_gzip).decode("ascii"),
+        assets=_get_condition_asset_items(
+            session=session,
+            site_id=condition_record.site_id,
+            condition_id=condition_record.condition_id,
+        ),
+    )
+
+
+def _get_site_condition_items(
+    session: sqlmodel.Session,
+    site_id: SiteId,
+) -> tuple[contracts.SiteConditionItem, ...]:
+    return tuple(
+        _site_condition_item(condition_record)
+        for condition_record in _get_site_condition_records(session=session, site_id=site_id)
+    )
+
+
 def _site_list_item(
     request: fastapi.Request,
     settings: ServerSettings,
@@ -223,6 +290,7 @@ def _site_list_item(
         site_id=site_record.site_id,
         user_id=site_record.user_id,
         url=_site_url(request=request, settings=settings, site_id=site_record.site_id),
+        conditions=_get_site_condition_items(session=session, site_id=site_record.site_id),
         tags=_get_site_tags(session=session, user_id=user_id, site_id=site_record.site_id),
         is_archived=site_record.is_archived,
         timestamp_created=as_utc(site_record.timestamp_created),
@@ -240,11 +308,16 @@ def _site_detail_response(
         site_id=site_record.site_id,
         user_id=site_record.user_id,
         url=_site_url(request=request, settings=settings, site_id=site_record.site_id),
+        conditions=tuple(
+            _site_condition_detail_item(session=session, condition_record=condition_record)
+            for condition_record in _get_site_condition_records(
+                session=session,
+                site_id=site_record.site_id,
+            )
+        ),
         tags=_get_site_tags(session=session, user_id=user_id, site_id=site_record.site_id),
         is_archived=site_record.is_archived,
         timestamp_created=as_utc(site_record.timestamp_created),
-        graph_json_gzip=base64.b64encode(site_record.graph_json_gzip).decode("ascii"),
-        assets=_get_site_asset_items(session=session, site_id=site_record.site_id),
     )
 
 
@@ -259,6 +332,7 @@ def _site_mutation_response(
         "site_id": site_record.site_id,
         "user_id": site_record.user_id,
         "url": _site_url(request=request, settings=settings, site_id=site_record.site_id),
+        "conditions": _get_site_condition_items(session=session, site_id=site_record.site_id),
         "tags": _get_site_tags(session=session, user_id=user_id, site_id=site_record.site_id),
         "is_archived": site_record.is_archived,
         "timestamp_created": as_utc(site_record.timestamp_created),
@@ -290,13 +364,21 @@ def create_site(
     settings: SettingsDep,
     site_artifact_store: SiteArtifactStoreDep,
 ) -> contracts.CreateSiteResponse:
-    """Create a frozen participant-facing Site from a Graph."""
+    """Create a frozen participant-facing Site from one or more Conditions."""
 
-    asset_identifiers = _iter_unique_asset_identifiers(graph=create_site_request.graph)
-    asset_records = _select_asset_records(session=session, identifiers=asset_identifiers)
+    condition_asset_identifiers = {
+        condition_id: _iter_unique_asset_identifiers(graph=condition.graph)
+        for condition_id, condition in create_site_request.conditions.items()
+    }
+    all_asset_identifiers = _dedupe_asset_identifiers(
+        identifier
+        for identifiers in condition_asset_identifiers.values()
+        for identifier in identifiers
+    )
+    asset_records = _select_asset_records(session=session, identifiers=all_asset_identifiers)
     missing = [
         identifier
-        for identifier in asset_identifiers
+        for identifier in all_asset_identifiers
         if _asset_key(identifier) not in asset_records
     ]
     if missing:
@@ -305,45 +387,66 @@ def create_site(
             detail={"missing": [identifier.model_dump(mode="json") for identifier in missing]},
         )
 
-    normalized_graph = transform_asset_locators(
-        graph=create_site_request.graph,
-        transform=lambda asset: URL(
-            url=_public_asset_url(request=request, settings=settings, sha256=asset.sha256)
-        ),
-    )
+    normalized_conditions = {
+        condition_id: condition.model_copy(
+            update={
+                "graph": transform_asset_locators(
+                    graph=condition.graph,
+                    transform=lambda asset: URL(
+                        url=_public_asset_url(
+                            request=request,
+                            settings=settings,
+                            sha256=asset.sha256,
+                        )
+                    ),
+                )
+            }
+        )
+        for condition_id, condition in create_site_request.conditions.items()
+    }
     site_id = uuid4()
     tags = _dedupe_tags(tags=create_site_request.tags)
-    published_artifacts = publish_site_artifacts(
-        site_id=site_id,
-        graph=normalized_graph,
-        store=site_artifact_store,
-    )
 
     site_record = SiteRecord(
         site_id=site_id,
         user_id=user.user_id,
-        graph_json_gzip=_gzip_graph_json(graph=normalized_graph),
         is_archived=False,
     )
-    site_record.site_artifact_storage_key = published_artifacts.site_artifact_storage_key
-    site_record.site_artifact_url = published_artifacts.site_artifact_url
-    site_record.runtime_js_storage_key = published_artifacts.runtime_js_storage_key
-    site_record.runtime_css_storage_key = published_artifacts.runtime_css_storage_key
-    site_record.runtime_js_sha256 = published_artifacts.runtime_js_sha256
-    site_record.runtime_css_sha256 = published_artifacts.runtime_css_sha256
-    site_record.frozen_nodekit_version = published_artifacts.frozen_nodekit_version
-    site_record.site_hosting_backend = settings.site_hosting_backend
     session.add(site_record)
     session.flush()
 
-    for identifier in asset_identifiers:
-        session.add(
-            SiteAssetDependencyRecord(
-                site_id=site_id,
-                sha256=identifier.sha256,
-                media_type=identifier.media_type,
-            )
+    for condition_id, condition in normalized_conditions.items():
+        published_artifacts = publish_site_artifacts(
+            site_id=site_id,
+            condition_id=condition_id,
+            graph=condition.graph,
+            store=site_artifact_store,
         )
+        condition_record = SiteConditionRecord(
+            site_id=site_id,
+            condition_id=condition_id,
+            allocation_weight=condition.allocation_weight,
+            graph_json_gzip=_gzip_graph_json(graph=condition.graph),
+            site_artifact_storage_key=published_artifacts.site_artifact_storage_key,
+            site_artifact_url=published_artifacts.site_artifact_url,
+            runtime_js_storage_key=published_artifacts.runtime_js_storage_key,
+            runtime_css_storage_key=published_artifacts.runtime_css_storage_key,
+            runtime_js_sha256=published_artifacts.runtime_js_sha256,
+            runtime_css_sha256=published_artifacts.runtime_css_sha256,
+            frozen_nodekit_version=published_artifacts.frozen_nodekit_version,
+            site_hosting_backend=settings.site_hosting_backend,
+        )
+        session.add(condition_record)
+
+        for identifier in condition_asset_identifiers[condition_id]:
+            session.add(
+                SiteAssetDependencyRecord(
+                    site_id=site_id,
+                    condition_id=condition_id,
+                    sha256=identifier.sha256,
+                    media_type=identifier.media_type,
+                )
+            )
 
     for tag in tags:
         tag_record = _get_or_create_tag(

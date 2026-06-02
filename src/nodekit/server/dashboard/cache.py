@@ -6,7 +6,7 @@ import json
 import os
 import shutil
 import sqlite3
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, TypeVar
@@ -373,6 +373,7 @@ class _DashboardCache:
         summary = contracts.ListRunsItem(
             run_id=response.run_id,
             site_id=response.site_id,
+            condition_id=response.condition_id,
             status=response.status,
             recruitment_platform=response.recruitment_platform,
             recruiter_study_id=response.recruiter_study_id,
@@ -392,6 +393,7 @@ class _DashboardCache:
         if existing is not None:
             updated = existing.model_copy(
                 update={
+                    "condition_id": response.condition_id,
                     "status": response.status,
                     "recruitment_platform": response.recruitment_platform,
                     "recruiter_study_id": response.recruiter_study_id,
@@ -560,10 +562,16 @@ class _CachedDashboardClient:
 
     def create_site(
         self,
-        graph: Graph,
+        graph: Graph | None = None,
+        *,
+        conditions: Mapping[
+            str,
+            Graph | contracts.CreateSiteConditionRequest,
+        ]
+        | None = None,
         tags: Iterable[str] = (),
     ) -> contracts.CreateSiteResponse:
-        response = self.client.create_site(graph=graph, tags=tags)
+        response = self.client.create_site(graph=graph, conditions=conditions, tags=tags)
         self.cache.invalidate_queries("sites")
         return response
 
@@ -716,6 +724,7 @@ class _CachedDashboardClient:
             site_id=response.site_id,
             user_id=response.user_id,
             url=response.url,
+            conditions=response.conditions,
             tags=response.tags,
             is_archived=response.is_archived,
             timestamp_created=response.timestamp_created,
@@ -793,6 +802,7 @@ def _site_detail_to_list_item(response: contracts.GetSiteResponse) -> contracts.
         site_id=response.site_id,
         user_id=response.user_id,
         url=response.url,
+        conditions=response.conditions,
         tags=response.tags,
         is_archived=response.is_archived,
         timestamp_created=response.timestamp_created,
@@ -803,6 +813,7 @@ def _run_detail_to_list_item(response: contracts.GetRunResponse) -> contracts.Li
     return contracts.ListRunsItem(
         run_id=response.run_id,
         site_id=response.site_id,
+        condition_id=response.condition_id,
         status=response.status,
         recruitment_platform=response.recruitment_platform,
         recruiter_study_id=response.recruiter_study_id,

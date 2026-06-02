@@ -8,7 +8,15 @@ from sqlmodel import Field, SQLModel
 
 from nodekit.values import MediaType, Platform, SHA256
 
-from nodekit.server.values import ApiTokenId, RunId, RunStatus, SiteId, TagId, UserId
+from nodekit.server.values import (
+    ApiTokenId,
+    RunId,
+    RunStatus,
+    SiteConditionId,
+    SiteId,
+    TagId,
+    UserId,
+)
 
 
 # %% Timestamps
@@ -57,12 +65,25 @@ class TagRecord(SQLModel, table=True):
 
 # %%
 class SiteRecord(SQLModel, table=True):
-    """A frozen, participant-facing Site for running a Graph."""
+    """A participant-facing Site link that contains one or more Conditions."""
 
     __tablename__: ClassVar[str] = "sites"
 
     site_id: SiteId = Field(primary_key=True)
     user_id: UserId = Field(foreign_key="users.user_id")
+    is_archived: bool = False
+    timestamp_created: datetime.datetime = Field(default_factory=utc_now, index=True)
+
+
+# %%
+class SiteConditionRecord(SQLModel, table=True):
+    """A frozen Graph variant within a participant-facing Site."""
+
+    __tablename__: ClassVar[str] = "site_conditions"
+
+    site_id: SiteId = Field(foreign_key="sites.site_id", primary_key=True)
+    condition_id: SiteConditionId = Field(sa_column=Column(String, primary_key=True))
+    allocation_weight: int = Field(default=1, gt=0)
     graph_json_gzip: bytes = Field(
         sa_column=Column(LargeBinary, nullable=False),
         description="Gzipped JSON bytes for the frozen Graph with server-owned Asset locators.",
@@ -87,17 +108,17 @@ class SiteRecord(SQLModel, table=True):
     runtime_css_sha256: SHA256 | None = Field(default=None, sa_column=Column(String(64)))
     frozen_nodekit_version: str | None = Field(default=None)
     site_hosting_backend: str | None = Field(default=None)
-    is_archived: bool = False
     timestamp_created: datetime.datetime = Field(default_factory=utc_now, index=True)
 
 
 # %%
 class SiteAssetDependencyRecord(SQLModel, table=True):
-    """Association between a Site and one of its stored Assets."""
+    """Association between a Site Condition and one of its stored Assets."""
 
     __tablename__: ClassVar[str] = "site_asset_dependencies"
 
     site_id: SiteId = Field(foreign_key="sites.site_id", primary_key=True)
+    condition_id: SiteConditionId = Field(sa_column=Column(String, primary_key=True))
     sha256: SHA256 = Field(sa_column=Column(String(64), primary_key=True))
     media_type: MediaType = Field(sa_column=Column(String, primary_key=True))
     timestamp_created: datetime.datetime = Field(default_factory=utc_now, index=True)
@@ -152,6 +173,7 @@ class RunRecord(SQLModel, table=True):
 
     run_id: RunId = Field(primary_key=True)
     site_id: SiteId = Field(foreign_key="sites.site_id")
+    condition_id: SiteConditionId = Field(default="default", sa_column=Column(String, index=True))
     status: RunStatus = Field(default=RunStatus.STARTED)
     recruitment_platform: Platform = Field(
         default="NoPlatform",
@@ -168,3 +190,15 @@ class RunRecord(SQLModel, table=True):
     is_archived: bool = False
     timestamp_created: datetime.datetime = Field(default_factory=utc_now, index=True)
     timestamp_submitted: datetime.datetime | None = Field(default=None, index=True)
+
+
+# %%
+class SiteAssignmentRecord(SQLModel, table=True):
+    """Deterministic assignment from one participant to one Site Condition."""
+
+    __tablename__: ClassVar[str] = "site_assignments"
+
+    site_id: SiteId = Field(foreign_key="sites.site_id", primary_key=True)
+    participant_id: str = Field(sa_column=Column(String, primary_key=True))
+    condition_id: SiteConditionId = Field(sa_column=Column(String, nullable=False, index=True))
+    timestamp_created: datetime.datetime = Field(default_factory=utc_now, index=True)

@@ -173,11 +173,17 @@ def test_dashboard_cache_scope_isolates_clients_and_never_writes_raw_token(
                     "site_id": str(site_id),
                     "user_id": str(user_id),
                     "url": f"https://nodekit.example/s/{site_id}",
+                    "conditions": [
+                        {
+                            "condition_id": "default",
+                            "allocation_weight": 1,
+                            "graph_json_gzip": _graph_json_gzip_b64(graph),
+                            "assets": [],
+                        }
+                    ],
                     "tags": ["pilot"],
                     "is_archived": False,
                     "timestamp_created": TIMESTAMP_CREATED,
-                    "graph_json_gzip": _graph_json_gzip_b64(graph),
-                    "assets": [],
                 }
             )
         raise AssertionError(request.url)
@@ -232,11 +238,17 @@ def test_dashboard_cache_round_trips_site_and_run_detail(
             site_id=site_id,
             user_id=user_id,
             url=f"https://nodekit.example/s/{site_id}",
+            conditions=(
+                contracts.SiteConditionDetailItem(
+                    condition_id="default",
+                    allocation_weight=1,
+                    graph_json_gzip=_graph_json_gzip_b64(graph),
+                    assets=(),
+                ),
+            ),
             tags=("pilot",),
             is_archived=False,
             timestamp_created=datetime.datetime.fromisoformat(TIMESTAMP_CREATED),
-            graph_json_gzip=_graph_json_gzip_b64(graph),
-            assets=(),
         )
     )
     cache.store_run_detail(

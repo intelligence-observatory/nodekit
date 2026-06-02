@@ -54,7 +54,12 @@ def _create_site(
     response = authenticated_client.post(
         "/sites",
         json={
-            "graph": graph.model_dump(mode="json"),
+            "conditions": {
+                "default": {
+                    "graph": graph.model_dump(mode="json"),
+                    "allocation_weight": 1,
+                }
+            },
             "tags": [],
         },
     )
@@ -118,6 +123,19 @@ def _run_records_for_site(site_id: str) -> list[Any]:
         )
         statement = statement.order_by(
             records.RunRecord.timestamp_created, records.RunRecord.run_id
+        )
+        return list(session.exec(statement).all())
+
+
+def _assignment_records_for_site(site_id: str) -> list[Any]:
+    records, engine = _get_records_and_engine()
+    with sqlmodel.Session(engine) as session:
+        statement = sqlmodel.select(records.SiteAssignmentRecord).where(
+            records.SiteAssignmentRecord.site_id == UUID(site_id)
+        )
+        statement = statement.order_by(
+            records.SiteAssignmentRecord.timestamp_created,
+            records.SiteAssignmentRecord.participant_id,
         )
         return list(session.exec(statement).all())
 
@@ -236,7 +254,9 @@ def test_site_redirect_creates_started_run_and_adds_run_submit_url(
     location = response.headers["location"]
     parsed_location = urlparse(location)
     query = parse_qs(parsed_location.query)
-    assert parsed_location.path == f"/site-artifacts/sites/{site['site_id']}/index.html"
+    assert parsed_location.path == (
+        f"/site-artifacts/sites/{site['site_id']}/conditions/default/index.html"
+    )
     assert query["cohort"] == ["pilot"]
     assert query["nodekitParticipantId"] == [nodekit_participant_id]
     [submit_url] = query["nodekitSubmitTo"]
@@ -252,6 +272,71 @@ def test_site_redirect_creates_started_run_and_adds_run_submit_url(
     assert run_record.recruiter_session_id is None
     assert run_record.site_submission_json_gzip is None
     assert run_record.timestamp_submitted is None
+
+
+# %%
+def test_site_condition_assignment_balances_weights_and_reuses_participants(
+    authenticated_client: TestClient,
+    server_main: ModuleType,
+) -> None:
+    response = authenticated_client.post(
+        "/sites",
+        json={
+            "conditions": {
+                "control": {
+                    "graph": _make_graph().model_dump(mode="json"),
+                    "allocation_weight": 1,
+                },
+                "treatment": {
+                    "graph": _make_graph().model_dump(mode="json"),
+                    "allocation_weight": 2,
+                },
+            },
+            "tags": [],
+        },
+    )
+    response.raise_for_status()
+    site = response.json()
+
+    participants = [f"participant-{index}" for index in range(6)]
+    with TestClient(server_main.app) as client:
+        for participant_id in participants:
+            start_response = _start_no_platform_site(
+                client=client,
+                site_id=site["site_id"],
+                participant_id=participant_id,
+            )
+            assert start_response.status_code == 307
+
+        repeat_response = _start_no_platform_site(
+            client=client,
+            site_id=site["site_id"],
+            participant_id=participants[0],
+        )
+        assert repeat_response.status_code == 307
+
+    assignment_records = _assignment_records_for_site(site["site_id"])
+    assert len(assignment_records) == 6
+    assignment_counts = {
+        condition_id: sum(
+            assignment.condition_id == condition_id for assignment in assignment_records
+        )
+        for condition_id in ("control", "treatment")
+    }
+    assert assignment_counts == {"control": 2, "treatment": 4}
+
+    run_records = _run_records_for_site(site["site_id"])
+    assert len(run_records) == 7
+    first_assignment = next(
+        assignment
+        for assignment in assignment_records
+        if assignment.participant_id == participants[0]
+    )
+    first_participant_runs = [
+        run for run in run_records if run.recruiter_participant_id == participants[0]
+    ]
+    assert len(first_participant_runs) == 2
+    assert {run.condition_id for run in first_participant_runs} == {first_assignment.condition_id}
 
 
 # %%
@@ -404,14 +489,28 @@ def test_filesystem_artifact_site_redirect_preserves_query_and_freezes_runtime(
     with sqlmodel.Session(engine) as session:
         site_record = session.get(records.SiteRecord, UUID(site["site_id"]))
         assert site_record is not None
-        assert site_record.site_artifact_storage_key == f"sites/{site['site_id']}/index.html"
-        assert site_record.site_artifact_url == (
-            f"/site-artifacts/sites/{site['site_id']}/index.html"
+        condition_record = session.get(
+            records.SiteConditionRecord,
+            (UUID(site["site_id"]), "default"),
         )
-        assert site_record.runtime_js_sha256 is not None
-        assert site_record.runtime_css_sha256 is not None
+        assert condition_record is not None
+        assert condition_record.site_artifact_storage_key == (
+            f"sites/{site['site_id']}/conditions/default/index.html"
+        )
+        assert condition_record.site_artifact_url == (
+            f"/site-artifacts/sites/{site['site_id']}/conditions/default/index.html"
+        )
+        assert condition_record.runtime_js_sha256 is not None
+        assert condition_record.runtime_css_sha256 is not None
 
-    artifact_path = server_main.settings.site_store_dir / "sites" / site["site_id"] / "index.html"
+    artifact_path = (
+        server_main.settings.site_store_dir
+        / "sites"
+        / site["site_id"]
+        / "conditions"
+        / "default"
+        / "index.html"
+    )
     html = artifact_path.read_text()
     browser_bundle = get_browser_bundle()
     assert f"/site-artifacts/runtime/nodekit.{browser_bundle.js_sha256}.js" in html
@@ -444,7 +543,9 @@ def test_filesystem_artifact_site_redirect_preserves_query_and_freezes_runtime(
     assert response.status_code == 307
     parsed_location = urlparse(response.headers["location"])
     query = parse_qs(parsed_location.query)
-    assert parsed_location.path == f"/site-artifacts/sites/{site['site_id']}/index.html"
+    assert parsed_location.path == (
+        f"/site-artifacts/sites/{site['site_id']}/conditions/default/index.html"
+    )
     assert query["PROLIFIC_PID"] == ["participant-1"]
     assert query["STUDY_ID"] == ["study-1"]
     assert query["SESSION_ID"] == ["session-1"]
@@ -463,10 +564,13 @@ def test_site_without_frozen_artifact_does_not_fall_back_to_dynamic_render(
     site = _create_site(authenticated_client)
     records, engine = _get_records_and_engine()
     with sqlmodel.Session(engine) as session:
-        site_record = session.get(records.SiteRecord, UUID(site["site_id"]))
-        assert site_record is not None
-        site_record.site_artifact_url = None
-        session.add(site_record)
+        condition_record = session.get(
+            records.SiteConditionRecord,
+            (UUID(site["site_id"]), "default"),
+        )
+        assert condition_record is not None
+        condition_record.site_artifact_url = None
+        session.add(condition_record)
         session.commit()
 
     with TestClient(server_main.app) as client:
@@ -476,7 +580,7 @@ def test_site_without_frozen_artifact_does_not_fall_back_to_dynamic_render(
         )
 
     assert response.status_code == 500
-    assert response.json() == {"detail": "Site is missing a frozen artifact URL."}
+    assert response.json() == {"detail": "Site Condition is missing a frozen artifact URL."}
 
 
 # %%

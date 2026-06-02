@@ -28,6 +28,16 @@ test.describe('MTurk submission target inference', () => {
         Reflect.deleteProperty(globalThis, 'window');
     });
 
+    test('uses the server-compatible NoPlatform discriminator by default', () => {
+        setSearch('');
+
+        const target = getSubmissionTarget();
+
+        expect(target.externalPlatformContext).toEqual({
+            platform: 'NoPlatform',
+        });
+    });
+
     test('infers production MechanicalTurk from turkSubmitTo', () => {
         setSearch(mturkSearch('https://www.mturk.com'));
 

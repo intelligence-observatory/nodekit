@@ -33,7 +33,7 @@ export interface ProlificContext extends BasePlatformContext {
 }
 
 export interface NoPlatformContext extends BasePlatformContext {
-    platform: "None"
+    platform: "NoPlatform"
 }
 
 

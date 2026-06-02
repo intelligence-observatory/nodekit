@@ -5,6 +5,7 @@ from typing import Any
 from uuid import uuid4
 
 import httpx
+import pytest
 
 import nodekit as nk
 from nodekit._internal.types.assets import LocatorTypeEnum, URL
@@ -199,7 +200,9 @@ def test_create_site_preflights_and_uploads_missing_assets(graph_with_assets: nk
     assert len(captured["check_body"]["assets"]) == 3
     assert len(captured["uploads"]) == 1
     assert captured["site_body"]["tags"] == ["pilot"]
-    posted_graph = nk.Graph.model_validate(captured["site_body"]["graph"])
+    assert set(captured["site_body"]["conditions"]) == {"default"}
+    assert captured["site_body"]["conditions"]["default"]["allocation_weight"] == 1
+    posted_graph = nk.Graph.model_validate(captured["site_body"]["conditions"]["default"]["graph"])
     assert {
         str(asset.locator.url)
         for asset in iter_assets(posted_graph)
@@ -222,6 +225,7 @@ def test_create_site_without_assets_posts_site_directly() -> None:
     def handler(request: httpx.Request) -> httpx.Response:
         captured["paths"].append(request.url.path)
         if request.url.path == "/sites":
+            captured["site_body"] = json.loads(request.content)
             return httpx.Response(
                 200,
                 json={
@@ -241,7 +245,63 @@ def test_create_site_without_assets_posts_site_directly() -> None:
     response = client.create_site(graph=graph, tags=("no-assets",))
 
     assert captured["paths"] == ["/sites"]
+    assert set(captured["site_body"]["conditions"]) == {"default"}
     assert response.site_id == site_id
+
+
+# %%
+def test_create_site_posts_multi_condition_site() -> None:
+    site_id = uuid4()
+    control_graph = _make_graph_without_assets()
+    treatment_graph = _make_graph_without_assets()
+    captured: dict[str, Any] = {"paths": []}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        captured["paths"].append(request.url.path)
+        if request.url.path == "/sites":
+            captured["site_body"] = json.loads(request.content)
+            return httpx.Response(
+                200,
+                json={
+                    "site_id": str(site_id),
+                    "url": f"https://nodekit.example/s/{site_id}",
+                },
+            )
+
+        raise AssertionError(request.url)
+
+    client = nk_server.Client(
+        api_url="https://nodekit.example",
+        api_token="secret",
+        transport=httpx.MockTransport(handler),
+    )
+
+    response = client.create_site(
+        conditions={
+            "control": control_graph,
+            "treatment": contracts.CreateSiteConditionRequest(
+                graph=treatment_graph,
+                allocation_weight=2,
+            ),
+        }
+    )
+
+    assert captured["paths"] == ["/sites"]
+    assert captured["site_body"]["conditions"]["control"]["allocation_weight"] == 1
+    assert captured["site_body"]["conditions"]["treatment"]["allocation_weight"] == 2
+    assert response.site_id == site_id
+
+
+def test_create_site_requires_graph_or_conditions() -> None:
+    client = nk_server.Client(api_url="https://nodekit.example", api_token="secret")
+    graph = _make_graph_without_assets()
+
+    with pytest.raises(ValueError, match="exactly one"):
+        client.create_site()
+    with pytest.raises(ValueError, match="exactly one"):
+        client.create_site(graph=graph, conditions={"default": graph})
+    with pytest.raises(ValueError, match="nonempty"):
+        client.create_site(conditions={})
 
 
 # %%
@@ -262,6 +322,7 @@ def test_iter_runs_sends_recruitment_filters() -> None:
     assert (
         list(
             client.iter_runs(
+                condition_id="treatment",
                 recruitment_platforms=["Prolific", "MechanicalTurk"],
                 recruiter_study_ids=["study-1", "hit-1"],
                 recruiter_participant_ids=["pid-1", "worker-1"],
@@ -274,6 +335,7 @@ def test_iter_runs_sends_recruitment_filters() -> None:
 
     assert captured["path"] == "/runs"
     assert captured["params"] == [
+        ("condition_id", "treatment"),
         ("recruitment_platforms", "Prolific"),
         ("recruitment_platforms", "MechanicalTurk"),
         ("recruiter_study_ids", "study-1"),

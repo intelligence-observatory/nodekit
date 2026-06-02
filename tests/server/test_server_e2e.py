@@ -92,7 +92,12 @@ def test_server_e2e_site_submission_flow(
         create_site_response = researcher_client.post(
             "/sites",
             json={
-                "graph": graph_with_assets.model_dump(mode="json"),
+                "conditions": {
+                    "default": {
+                        "graph": graph_with_assets.model_dump(mode="json"),
+                        "allocation_weight": 1,
+                    }
+                },
                 "tags": ["e2e"],
             },
         )

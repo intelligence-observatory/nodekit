@@ -1,12 +1,15 @@
 """Participant-facing routes for nodekit-server."""
 
 import gzip
+import hashlib
+from fractions import Fraction
 from typing import TypedDict, cast
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 from uuid import uuid4
 
 import fastapi
 import sqlmodel
+from sqlalchemy import exc, func
 
 from nodekit import prepare_site_url
 from nodekit._internal.ops.build_site.types import (
@@ -15,11 +18,18 @@ from nodekit._internal.ops.build_site.types import (
     ProlificContext,
 )
 import nodekit.server.contracts as contracts
-from nodekit.server.values import RunStatus, SiteId
+from nodekit.server.values import RunStatus, SiteConditionId, SiteId
 from nodekit.server.values import RunId
 from nodekit.values import Platform
 from nodekit_server.deps import SessionDep, SettingsDep
-from nodekit_server.records import RunRecord, SiteRecord, as_utc, utc_now
+from nodekit_server.records import (
+    RunRecord,
+    SiteAssignmentRecord,
+    SiteConditionRecord,
+    SiteRecord,
+    as_utc,
+    utc_now,
+)
 
 
 # %% Router
@@ -47,6 +57,30 @@ def _get_public_site_record(session: sqlmodel.Session, site_id: SiteId) -> SiteR
             detail="Site not found.",
         )
     return site_record
+
+
+def _get_site_condition_records(
+    session: sqlmodel.Session,
+    site_id: SiteId,
+) -> tuple[SiteConditionRecord, ...]:
+    statement = sqlmodel.select(SiteConditionRecord)
+    statement = statement.where(sqlmodel.col(SiteConditionRecord.site_id) == site_id)
+    statement = statement.order_by(sqlmodel.col(SiteConditionRecord.condition_id))
+    return tuple(session.exec(statement).all())
+
+
+def _get_site_condition_record(
+    session: sqlmodel.Session,
+    site_id: SiteId,
+    condition_id: SiteConditionId,
+) -> SiteConditionRecord:
+    condition_record = session.get(SiteConditionRecord, (site_id, condition_id))
+    if condition_record is None:
+        raise fastapi.HTTPException(
+            status_code=fastapi.status.HTTP_404_NOT_FOUND,
+            detail="Site Condition not found.",
+        )
+    return condition_record
 
 
 def _submit_url(
@@ -245,6 +279,7 @@ def _submit_run_response(run_record: RunRecord) -> contracts.SubmitRunResponse:
     return contracts.SubmitRunResponse(
         run_id=run_record.run_id,
         site_id=run_record.site_id,
+        condition_id=run_record.condition_id,
         status=run_record.status,
         recruitment_platform=run_record.recruitment_platform,
         recruiter_study_id=run_record.recruiter_study_id,
@@ -260,6 +295,108 @@ def _submit_run_response(run_record: RunRecord) -> contracts.SubmitRunResponse:
     )
 
 
+def _participant_id_for_context(recruitment_context: _RunRecruitmentContext) -> str:
+    participant_id = recruitment_context["recruiter_participant_id"]
+    if participant_id is None:
+        raise fastapi.HTTPException(
+            status_code=fastapi.status.HTTP_400_BAD_REQUEST,
+            detail="Participant id is required to start this Site.",
+        )
+    return participant_id
+
+
+def _assignment_counts_by_condition(
+    session: sqlmodel.Session,
+    site_id: SiteId,
+) -> dict[SiteConditionId, int]:
+    statement = sqlmodel.select(
+        SiteAssignmentRecord.condition_id,
+        func.count(),
+    )
+    statement = statement.where(sqlmodel.col(SiteAssignmentRecord.site_id) == site_id)
+    statement = statement.group_by(sqlmodel.col(SiteAssignmentRecord.condition_id))
+    return {condition_id: count for condition_id, count in session.exec(statement).all()}
+
+
+def _tie_break_hash(
+    *,
+    site_id: SiteId,
+    participant_id: str,
+    condition_id: SiteConditionId,
+) -> str:
+    payload = f"{site_id}:{participant_id}:{condition_id}".encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
+
+
+def _choose_assignment_condition(
+    *,
+    site_id: SiteId,
+    participant_id: str,
+    condition_records: tuple[SiteConditionRecord, ...],
+    assignment_counts: dict[SiteConditionId, int],
+) -> SiteConditionRecord:
+    total_weight = sum(condition.allocation_weight for condition in condition_records)
+    total_assignments = sum(assignment_counts.values())
+
+    def priority(condition: SiteConditionRecord) -> tuple[Fraction, str]:
+        current_count = assignment_counts.get(condition.condition_id, 0)
+        deficit = (
+            Fraction(
+                (total_assignments + 1) * condition.allocation_weight,
+                total_weight,
+            )
+            - current_count
+        )
+        return (
+            deficit,
+            _tie_break_hash(
+                site_id=site_id,
+                participant_id=participant_id,
+                condition_id=condition.condition_id,
+            ),
+        )
+
+    return max(condition_records, key=priority)
+
+
+def _get_or_create_assignment(
+    *,
+    session: sqlmodel.Session,
+    site_id: SiteId,
+    participant_id: str,
+) -> SiteAssignmentRecord:
+    assignment_record = session.get(SiteAssignmentRecord, (site_id, participant_id))
+    if assignment_record is not None:
+        return assignment_record
+
+    condition_records = _get_site_condition_records(session=session, site_id=site_id)
+    if not condition_records:
+        raise fastapi.HTTPException(
+            status_code=fastapi.status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Site is missing Conditions.",
+        )
+    condition_record = _choose_assignment_condition(
+        site_id=site_id,
+        participant_id=participant_id,
+        condition_records=condition_records,
+        assignment_counts=_assignment_counts_by_condition(session=session, site_id=site_id),
+    )
+    assignment_record = SiteAssignmentRecord(
+        site_id=site_id,
+        participant_id=participant_id,
+        condition_id=condition_record.condition_id,
+    )
+    session.add(assignment_record)
+    try:
+        session.flush()
+    except exc.IntegrityError:
+        session.rollback()
+        assignment_record = session.get(SiteAssignmentRecord, (site_id, participant_id))
+        if assignment_record is None:
+            raise
+    return assignment_record
+
+
 # %% Serve Site
 @router.get("/s/{site_id}", include_in_schema=False)
 def serve_site(
@@ -270,15 +407,11 @@ def serve_site(
 ) -> fastapi.Response:
     """Serve a participant-facing NodeKit Site."""
 
-    site_record = _get_public_site_record(session=session, site_id=site_id)
-    if site_record.site_artifact_url is None:
-        raise fastapi.HTTPException(
-            status_code=fastapi.status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Site is missing a frozen artifact URL.",
-        )
+    _get_public_site_record(session=session, site_id=site_id)
 
     recruitment_context = _infer_start_recruitment_context(request=request)
     run_record = None
+    condition_record = None
     if "preview" not in recruitment_context:
         run_recruitment_context = cast(_RunRecruitmentContext, recruitment_context)
         if run_recruitment_context["recruitment_platform"] == "NoPlatform":
@@ -299,9 +432,21 @@ def serve_site(
                 )
             run_recruitment_context["recruiter_participant_id"] = nodekit_participant_id
 
+        participant_id = _participant_id_for_context(run_recruitment_context)
+        assignment_record = _get_or_create_assignment(
+            session=session,
+            site_id=site_id,
+            participant_id=participant_id,
+        )
+        condition_record = _get_site_condition_record(
+            session=session,
+            site_id=site_id,
+            condition_id=assignment_record.condition_id,
+        )
         run_record = RunRecord(
             run_id=uuid4(),
             site_id=site_id,
+            condition_id=condition_record.condition_id,
             status=RunStatus.STARTED,
             **run_recruitment_context,
             is_archived=False,
@@ -309,6 +454,20 @@ def serve_site(
         session.add(run_record)
         session.commit()
         session.refresh(run_record)
+    else:
+        condition_records = _get_site_condition_records(session=session, site_id=site_id)
+        if not condition_records:
+            raise fastapi.HTTPException(
+                status_code=fastapi.status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Site is missing Conditions.",
+            )
+        condition_record = condition_records[0]
+
+    if condition_record.site_artifact_url is None:
+        raise fastapi.HTTPException(
+            status_code=fastapi.status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Site Condition is missing a frozen artifact URL.",
+        )
 
     nodekit_submit_to = (
         _submit_url(request=request, settings=settings, site_id=site_id, run_id=run_record.run_id)
@@ -316,7 +475,7 @@ def serve_site(
         else None
     )
     redirect_url = prepare_site_url(
-        site_url=_with_request_query(site_url=site_record.site_artifact_url, request=request),
+        site_url=_with_request_query(site_url=condition_record.site_artifact_url, request=request),
         platform="none",
         nodekit_submit_to=nodekit_submit_to,
     )

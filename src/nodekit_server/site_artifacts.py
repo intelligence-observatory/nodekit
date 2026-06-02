@@ -6,11 +6,12 @@ import html
 
 from nodekit import Graph, VERSION
 from nodekit._internal.utils.get_browser_bundle import get_browser_bundle
-from nodekit.server.values import SiteId
+from nodekit.server.values import SiteConditionId, SiteId
 from nodekit_server.storage import (
     SiteArtifactStore,
     runtime_css_artifact_key,
     runtime_js_artifact_key,
+    site_condition_index_artifact_key,
     site_index_artifact_key,
 )
 
@@ -112,6 +113,7 @@ def render_site_html(
 def publish_site_artifacts(
     *,
     site_id: SiteId,
+    condition_id: SiteConditionId | None = None,
     graph: Graph,
     store: SiteArtifactStore,
 ) -> PublishedSiteArtifacts:
@@ -124,7 +126,11 @@ def publish_site_artifacts(
     css_key = store.storage_key_for_artifact(
         runtime_css_artifact_key(str(browser_bundle.css_sha256))
     )
-    site_key = store.storage_key_for_artifact(site_index_artifact_key(site_id))
+    site_key = store.storage_key_for_artifact(
+        site_index_artifact_key(site_id)
+        if condition_id is None
+        else site_condition_index_artifact_key(site_id=site_id, condition_id=condition_id)
+    )
 
     if not store.exists(js_key):
         store.put_bytes(

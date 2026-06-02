@@ -2,6 +2,7 @@
 
 import datetime
 import enum
+import re
 from typing import Annotated, TypeAlias
 from uuid import UUID
 
@@ -21,6 +22,12 @@ def _ensure_utc_datetime(value: datetime.datetime) -> datetime.datetime:
     return value.astimezone(datetime.UTC)
 
 
+def _ensure_site_condition_id(value: str) -> str:
+    if re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]*", value) is None:
+        raise ValueError("SiteConditionId must match ^[A-Za-z0-9][A-Za-z0-9_.-]*$.")
+    return value
+
+
 DatetimeUTC: TypeAlias = Annotated[
     datetime.datetime,
     pydantic.AfterValidator(_ensure_utc_datetime),
@@ -31,6 +38,10 @@ DatetimeUTC: TypeAlias = Annotated[
 ApiTokenId: TypeAlias = UUID
 RunId: TypeAlias = UUID
 SiteId: TypeAlias = UUID
+SiteConditionId: TypeAlias = Annotated[
+    str,
+    pydantic.AfterValidator(_ensure_site_condition_id),
+]
 TagId: TypeAlias = UUID
 UserId: TypeAlias = UUID
 

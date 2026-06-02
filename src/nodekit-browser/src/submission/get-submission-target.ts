@@ -9,7 +9,7 @@ import type {
 
 
 export function getSubmissionTarget(): SubmissionTarget {
-    let externalPlatformContext: PlatformContext = {platform: "None"}
+    let externalPlatformContext: PlatformContext = {platform: "NoPlatform"}
 
     // Not running in a browser:
     if (typeof window === "undefined" || !window.location) {

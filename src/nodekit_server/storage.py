@@ -199,6 +199,12 @@ def site_index_artifact_key(site_id: object) -> str:
     return f"sites/{site_id}/index.html"
 
 
+def site_condition_index_artifact_key(site_id: object, condition_id: object) -> str:
+    """Return the storage key for a frozen Site Condition entrypoint."""
+
+    return f"sites/{site_id}/conditions/{condition_id}/index.html"
+
+
 def runtime_js_artifact_key(js_sha256: str) -> str:
     """Return the storage key for a frozen browser JavaScript runtime artifact."""
 

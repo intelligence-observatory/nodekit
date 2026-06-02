@@ -24,6 +24,7 @@ def _run_record_summary(run_record: RunRecord) -> dict[str, Any]:
     return {
         "run_id": run_record.run_id,
         "site_id": run_record.site_id,
+        "condition_id": run_record.condition_id,
         "status": run_record.status,
         "recruitment_platform": run_record.recruitment_platform,
         "recruiter_study_id": run_record.recruiter_study_id,
@@ -107,6 +108,8 @@ def list_runs(
         statement = statement.where(sqlmodel.col(RunRecord.run_id).in_(query.run_ids))
     if query.site_id is not None:
         statement = statement.where(sqlmodel.col(RunRecord.site_id) == query.site_id)
+    if query.condition_id is not None:
+        statement = statement.where(sqlmodel.col(RunRecord.condition_id) == query.condition_id)
     if query.statuses is not None:
         statement = statement.where(sqlmodel.col(RunRecord.status).in_(query.statuses))
     if query.recruitment_platforms is not None:

@@ -1,6 +1,6 @@
 """Python client for the NodeKit deployment service."""
 
-from collections.abc import Iterable, Iterator
+from collections.abc import Iterable, Iterator, Mapping
 from typing import TypeVar
 
 import httpx
@@ -15,7 +15,14 @@ from nodekit._internal.types.assets import URL
 from nodekit._internal.utils.iter_assets import iter_assets
 import nodekit.server.contracts as contracts
 from nodekit.server.pagination import PageResponse
-from nodekit.server.values import ApiTokenId, RunId, RunStatus, SiteId, UserId
+from nodekit.server.values import (
+    ApiTokenId,
+    RunId,
+    RunStatus,
+    SiteConditionId,
+    SiteId,
+    UserId,
+)
 
 
 ResponseT = TypeVar("ResponseT", bound=pydantic.BaseModel)
@@ -106,17 +113,30 @@ class Client:
     # %% Sites
     def create_site(
         self,
-        graph: Graph,
+        graph: Graph | None = None,
+        *,
+        conditions: Mapping[
+            str,
+            Graph | contracts.CreateSiteConditionRequest,
+        ]
+        | None = None,
         tags: Iterable[str] = (),
     ) -> contracts.CreateSiteResponse:
-        graph_assets = tuple(iter_assets(graph=graph))
-        if graph_assets:
-            check_assets_response = self.check_assets(assets=graph_assets)
+        condition_requests = _normalize_create_site_conditions(
+            graph=graph,
+            conditions=conditions,
+        )
+        condition_graphs = tuple(condition.graph for condition in condition_requests.values())
+        all_assets = tuple(
+            asset for condition_graph in condition_graphs for asset in iter_assets(condition_graph)
+        )
+        if all_assets:
+            check_assets_response = self.check_assets(assets=all_assets)
             missing_asset_keys = {
                 _asset_key(identifier) for identifier in check_assets_response.missing
             }
             uploaded_asset_keys: set[AssetKey] = set()
-            for asset in graph_assets:
+            for asset in all_assets:
                 asset_key = _asset_key(asset)
                 if asset_key not in missing_asset_keys:
                     continue
@@ -125,11 +145,18 @@ class Client:
                 self.upload_asset(asset=asset)
                 uploaded_asset_keys.add(asset_key)
 
-        server_graph = transform_asset_locators(
-            graph=graph,
-            transform=lambda asset: URL(url=f"{self.api_url}/assets/{asset.sha256}"),
-        )
-        request = contracts.CreateSiteRequest(graph=server_graph, tags=tuple(tags))
+        server_conditions = {
+            condition_id: condition.model_copy(
+                update={
+                    "graph": transform_asset_locators(
+                        graph=condition.graph,
+                        transform=lambda asset: URL(url=f"{self.api_url}/assets/{asset.sha256}"),
+                    )
+                }
+            )
+            for condition_id, condition in condition_requests.items()
+        }
+        request = contracts.CreateSiteRequest(conditions=server_conditions, tags=tuple(tags))
         return self._request("POST", "/sites", contracts.CreateSiteResponse, request=request)
 
     def iter_sites(
@@ -281,6 +308,7 @@ class Client:
         *,
         run_ids: list[RunId] | None = None,
         site_id: SiteId | None = None,
+        condition_id: SiteConditionId | None = None,
         statuses: list[RunStatus] | None = None,
         recruitment_platforms: list[Platform] | None = None,
         recruiter_study_ids: list[str] | None = None,
@@ -292,6 +320,7 @@ class Client:
         query = contracts.ListRunsQuery(
             run_ids=run_ids,
             site_id=site_id,
+            condition_id=condition_id,
             statuses=statuses,
             recruitment_platforms=recruitment_platforms,
             recruiter_study_ids=recruiter_study_ids,
@@ -412,6 +441,35 @@ class AdminClient(Client):
 
 
 # %% Helpers
+def _normalize_create_site_conditions(
+    *,
+    graph: Graph | None,
+    conditions: Mapping[str, Graph | contracts.CreateSiteConditionRequest] | None,
+) -> dict[str, contracts.CreateSiteConditionRequest]:
+    if graph is not None and conditions is not None:
+        raise ValueError("Provide exactly one of graph or conditions.")
+    if graph is None and conditions is None:
+        raise ValueError("Provide exactly one of graph or conditions.")
+    if graph is not None:
+        return {
+            "default": contracts.CreateSiteConditionRequest(
+                graph=graph,
+                allocation_weight=1,
+            )
+        }
+    if not conditions:
+        raise ValueError("conditions must be nonempty.")
+
+    normalized: dict[str, contracts.CreateSiteConditionRequest] = {}
+    for condition_id, condition in conditions.items():
+        normalized[condition_id] = (
+            contracts.CreateSiteConditionRequest(graph=condition)
+            if isinstance(condition, Graph)
+            else condition
+        )
+    return normalized
+
+
 AssetKey = tuple[str, str]
 
 

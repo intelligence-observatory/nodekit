@@ -328,11 +328,17 @@ def _make_site(
         site_id=site_id,
         user_id=user_id,
         url=f"{MOCK_API_URL}/s/{site_id}",
+        conditions=(
+            contracts.SiteConditionDetailItem(
+                condition_id="default",
+                allocation_weight=1,
+                graph_json_gzip=_json_gzip_b64(graph.model_dump_json()),
+                assets=(),
+            ),
+        ),
         tags=tags,
         is_archived=False,
         timestamp_created=timestamp_created,
-        graph_json_gzip=_json_gzip_b64(graph.model_dump_json()),
-        assets=(),
     )
 
 
@@ -378,6 +384,7 @@ def _make_run(
     return contracts.GetRunResponse(
         run_id=run_id,
         site_id=site.site_id,
+        condition_id=site.conditions[0].condition_id,
         status=status,
         **recruitment_context,
         is_archived=is_archived,
@@ -526,6 +533,7 @@ def _site_detail_to_list_item(response: contracts.GetSiteResponse) -> contracts.
         site_id=response.site_id,
         user_id=response.user_id,
         url=response.url,
+        conditions=response.conditions,
         tags=response.tags,
         is_archived=response.is_archived,
         timestamp_created=response.timestamp_created,
@@ -536,6 +544,7 @@ def _run_detail_to_list_item(response: contracts.GetRunResponse) -> contracts.Li
     return contracts.ListRunsItem(
         run_id=response.run_id,
         site_id=response.site_id,
+        condition_id=response.condition_id,
         status=response.status,
         recruitment_platform=response.recruitment_platform,
         recruiter_study_id=response.recruiter_study_id,

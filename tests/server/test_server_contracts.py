@@ -54,13 +54,19 @@ def test_get_site_response_serializes_blob_and_validates_graph_lazily() -> None:
         site_id=uuid4(),
         user_id=uuid4(),
         url="https://nodekit.example/s/site",
+        conditions=(
+            contracts.SiteConditionDetailItem(
+                condition_id="default",
+                allocation_weight=1,
+                graph_json_gzip=_json_gzip_b64(graph.model_dump_json()),
+            ),
+        ),
         is_archived=False,
         timestamp_created=TIMESTAMP_CREATED,
-        graph_json_gzip=_json_gzip_b64(graph.model_dump_json()),
     )
 
     dumped = response.model_dump(mode="json")
-    assert "graph_json_gzip" in dumped
+    assert "graph_json_gzip" in dumped["conditions"][0]
     assert "graph" not in dumped
     assert response.model_dump_json()
     assert response.graph == graph
@@ -93,9 +99,15 @@ def test_lazy_blob_properties_raise_validation_error_for_invalid_payloads() -> N
         site_id=uuid4(),
         user_id=uuid4(),
         url="https://nodekit.example/s/site",
+        conditions=(
+            contracts.SiteConditionDetailItem(
+                condition_id="default",
+                allocation_weight=1,
+                graph_json_gzip=_json_gzip_b64('{"not": "a graph"}'),
+            ),
+        ),
         is_archived=False,
         timestamp_created=TIMESTAMP_CREATED,
-        graph_json_gzip=_json_gzip_b64('{"not": "a graph"}'),
     )
     run_response = contracts.GetRunResponse(
         run_id=uuid4(),

@@ -9,7 +9,15 @@ from nodekit import Graph, SiteSubmission
 from nodekit.values import MediaType, Platform, SHA256
 
 from nodekit.server.pagination import PageQuery, PageResponse
-from nodekit.server.values import ApiTokenId, DatetimeUTC, RunId, RunStatus, SiteId, UserId
+from nodekit.server.values import (
+    ApiTokenId,
+    DatetimeUTC,
+    RunId,
+    RunStatus,
+    SiteConditionId,
+    SiteId,
+    UserId,
+)
 
 
 # %% Base
@@ -72,8 +80,13 @@ class ArchiveTagResponse(ContractModel):
 
 
 # %% CreateSite
-class CreateSiteRequest(ContractModel):
+class CreateSiteConditionRequest(ContractModel):
     graph: Graph
+    allocation_weight: int = pydantic.Field(default=1, gt=0)
+
+
+class CreateSiteRequest(ContractModel):
+    conditions: dict[SiteConditionId, CreateSiteConditionRequest] = pydantic.Field(min_length=1)
     tags: tuple[str, ...] = ()
 
 
@@ -109,6 +122,28 @@ class CreateSiteResponse(ContractModel):
     url: str
 
 
+class SiteConditionItem(ContractModel):
+    condition_id: SiteConditionId
+    allocation_weight: int
+
+
+class SiteConditionDetailItem(SiteConditionItem):
+    _graph_cache: Graph | None = pydantic.PrivateAttr(default=None)
+
+    graph_json_gzip: str
+    assets: tuple[SiteAssetItem, ...] = ()
+
+    @property
+    def graph(self) -> Graph:
+        """Return the stored Graph, validated lazily against the current schema."""
+
+        if self._graph_cache is None:
+            self._graph_cache = Graph.model_validate_json(
+                gzip.decompress(base64.b64decode(self.graph_json_gzip)).decode("utf-8")
+            )
+        return self._graph_cache
+
+
 # %% ListSites
 class ListSitesFilters(ContractModel):
     site_ids: list[SiteId] | None = None
@@ -120,6 +155,7 @@ class ListSitesItem(ContractModel):
     site_id: SiteId
     user_id: UserId
     url: str
+    conditions: tuple[SiteConditionItem, ...] = ()
     tags: tuple[str, ...] = ()
     is_archived: bool
     timestamp_created: DatetimeUTC
@@ -137,26 +173,21 @@ class GetSiteRequest(ContractModel):
 
 
 class GetSiteResponse(ContractModel):
-    _graph_cache: Graph | None = pydantic.PrivateAttr(default=None)
-
     site_id: SiteId
     user_id: UserId
     url: str
+    conditions: tuple[SiteConditionDetailItem, ...]
     tags: tuple[str, ...] = ()
     is_archived: bool
     timestamp_created: DatetimeUTC
-    graph_json_gzip: str
-    assets: tuple[SiteAssetItem, ...] = ()
 
     @property
     def graph(self) -> Graph:
-        """Return the stored Graph, validated lazily against the current schema."""
+        """Return the only condition Graph, validated lazily against the current schema."""
 
-        if self._graph_cache is None:
-            self._graph_cache = Graph.model_validate_json(
-                gzip.decompress(base64.b64decode(self.graph_json_gzip)).decode("utf-8")
-            )
-        return self._graph_cache
+        if len(self.conditions) != 1:
+            raise ValueError("Site has multiple Conditions.")
+        return self.conditions[0].graph
 
 
 # %% ArchiveSite
@@ -168,6 +199,7 @@ class ArchiveSiteResponse(ContractModel):
     site_id: SiteId
     user_id: UserId
     url: str
+    conditions: tuple[SiteConditionItem, ...] = ()
     tags: tuple[str, ...] = ()
     is_archived: bool
     timestamp_created: DatetimeUTC
@@ -183,6 +215,7 @@ class AddSiteTagsResponse(ContractModel):
     site_id: SiteId
     user_id: UserId
     url: str
+    conditions: tuple[SiteConditionItem, ...] = ()
     tags: tuple[str, ...] = ()
     is_archived: bool
     timestamp_created: DatetimeUTC
@@ -198,6 +231,7 @@ class RemoveSiteTagsResponse(ContractModel):
     site_id: SiteId
     user_id: UserId
     url: str
+    conditions: tuple[SiteConditionItem, ...] = ()
     tags: tuple[str, ...] = ()
     is_archived: bool
     timestamp_created: DatetimeUTC
@@ -207,6 +241,7 @@ class RemoveSiteTagsResponse(ContractModel):
 class ListRunsFilters(ContractModel):
     run_ids: list[RunId] | None = None
     site_id: SiteId | None = None
+    condition_id: SiteConditionId | None = None
     statuses: list[RunStatus] | None = None
     recruitment_platforms: list[Platform] | None = None
     recruiter_study_ids: list[str] | None = None
@@ -218,6 +253,7 @@ class ListRunsFilters(ContractModel):
 class ListRunsItem(ContractModel):
     run_id: RunId
     site_id: SiteId
+    condition_id: SiteConditionId = "default"
     status: RunStatus
     recruitment_platform: Platform = "NoPlatform"
     recruiter_study_id: str | None = None
@@ -244,6 +280,7 @@ class GetRunResponse(ContractModel):
 
     run_id: RunId
     site_id: SiteId
+    condition_id: SiteConditionId = "default"
     status: RunStatus
     recruitment_platform: Platform = "NoPlatform"
     recruiter_study_id: str | None = None
@@ -275,6 +312,7 @@ class ArchiveRunRequest(ContractModel):
 class ArchiveRunResponse(ContractModel):
     run_id: RunId
     site_id: SiteId
+    condition_id: SiteConditionId = "default"
     status: RunStatus
     recruitment_platform: Platform = "NoPlatform"
     recruiter_study_id: str | None = None
@@ -292,6 +330,7 @@ SubmitRunRequest = SiteSubmission
 class SubmitRunResponse(ContractModel):
     run_id: RunId
     site_id: SiteId
+    condition_id: SiteConditionId = "default"
     status: RunStatus
     recruitment_platform: Platform = "NoPlatform"
     recruiter_study_id: str | None = None

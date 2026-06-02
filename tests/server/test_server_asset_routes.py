@@ -188,7 +188,15 @@ def test_create_site_rejects_missing_assets(authenticated_client: TestClient) ->
 
     response = authenticated_client.post(
         "/sites",
-        json={"graph": graph.model_dump(mode="json"), "tags": []},
+        json={
+            "conditions": {
+                "default": {
+                    "graph": graph.model_dump(mode="json"),
+                    "allocation_weight": 1,
+                }
+            },
+            "tags": [],
+        },
     )
 
     assert response.status_code == 400
@@ -202,6 +210,41 @@ def test_create_site_rejects_missing_assets(authenticated_client: TestClient) ->
             ]
         }
     }
+
+
+# %%
+def test_create_site_rejects_empty_and_invalid_conditions(
+    authenticated_client: TestClient,
+) -> None:
+    graph = nk.Graph(
+        nodes={
+            "start": nk.Node(
+                sensor=nk.sensors.WaitSensor(duration_msec=1),
+            )
+        },
+        transitions={"start": nk.transitions.End()},
+        start="start",
+    )
+
+    empty_response = authenticated_client.post(
+        "/sites",
+        json={"conditions": {}, "tags": []},
+    )
+    invalid_id_response = authenticated_client.post(
+        "/sites",
+        json={
+            "conditions": {
+                "not valid": {
+                    "graph": graph.model_dump(mode="json"),
+                    "allocation_weight": 1,
+                }
+            },
+            "tags": [],
+        },
+    )
+
+    assert empty_response.status_code == 422
+    assert invalid_id_response.status_code == 422
 
 
 # %%
@@ -231,7 +274,12 @@ def test_create_site_persists_normalized_graph(
     response = authenticated_client.post(
         "/sites",
         json={
-            "graph": graph_with_assets.model_dump(mode="json"),
+            "conditions": {
+                "default": {
+                    "graph": graph_with_assets.model_dump(mode="json"),
+                    "allocation_weight": 1,
+                }
+            },
             "tags": ["pilot", "pilot", "main"],
         },
     )
@@ -251,12 +299,18 @@ def test_create_site_persists_normalized_graph(
         site_id = UUID(body["site_id"])
         site_record = session.get(records.SiteRecord, site_id)
         assert site_record is not None
-        stored_graph_json = gzip.decompress(site_record.graph_json_gzip).decode("utf-8")
+        condition_record = session.get(records.SiteConditionRecord, (site_id, "default"))
+        assert condition_record is not None
+        assert condition_record.allocation_weight == 1
+        stored_graph_json = gzip.decompress(condition_record.graph_json_gzip).decode("utf-8")
         stored_graph = nk.Graph.model_validate_json(stored_graph_json)
         assert all(isinstance(asset.locator, URL) for asset in iter_assets(stored_graph))
 
         dependency_statement = sqlmodel.select(records.SiteAssetDependencyRecord).where(
             records.SiteAssetDependencyRecord.site_id == site_id
+        )
+        dependency_statement = dependency_statement.where(
+            records.SiteAssetDependencyRecord.condition_id == "default"
         )
         tag_statement = sqlmodel.select(records.SiteTagRecord).where(
             records.SiteTagRecord.site_id == site_id
@@ -297,7 +351,12 @@ def _create_site(
     response = authenticated_client.post(
         "/sites",
         json={
-            "graph": graph.model_dump(mode="json"),
+            "conditions": {
+                "default": {
+                    "graph": graph.model_dump(mode="json"),
+                    "allocation_weight": 1,
+                }
+            },
             "tags": tags,
         },
     )
@@ -327,9 +386,13 @@ def test_site_management_routes(
     get_body = get_response.json()
     assert get_body["site_id"] == first_site["site_id"]
     assert get_body["tags"] == ["shared", "route-a"]
-    assert len(get_body["assets"]) == 3
+    assert get_body["conditions"][0]["condition_id"] == "default"
+    assert get_body["conditions"][0]["allocation_weight"] == 1
+    assert len(get_body["conditions"][0]["assets"]) == 3
     assert "graph" not in get_body
-    get_graph_json = gzip.decompress(base64.b64decode(get_body["graph_json_gzip"])).decode("utf-8")
+    get_graph_json = gzip.decompress(
+        base64.b64decode(get_body["conditions"][0]["graph_json_gzip"])
+    ).decode("utf-8")
     assert nk.Graph.model_validate_json(get_graph_json)
 
     filtered_response = authenticated_client.get(
@@ -436,10 +499,13 @@ def test_get_site_returns_invalid_stored_graph_blob_without_validation(
     engine = sys.modules["nodekit_server.deps"].engine
     records: Any = sys.modules["nodekit_server.records"]
     with sqlmodel.Session(engine) as session:
-        site_record = session.get(records.SiteRecord, UUID(site["site_id"]))
-        assert site_record is not None
-        site_record.graph_json_gzip = invalid_graph_json_gzip
-        session.add(site_record)
+        condition_record = session.get(
+            records.SiteConditionRecord,
+            (UUID(site["site_id"]), "default"),
+        )
+        assert condition_record is not None
+        condition_record.graph_json_gzip = invalid_graph_json_gzip
+        session.add(condition_record)
         session.commit()
 
     response = authenticated_client.get(f"/sites/{site['site_id']}")
@@ -447,7 +513,7 @@ def test_get_site_returns_invalid_stored_graph_blob_without_validation(
     assert response.status_code == 200
     body = response.json()
     assert "graph" not in body
-    assert base64.b64decode(body["graph_json_gzip"]) == invalid_graph_json_gzip
+    assert base64.b64decode(body["conditions"][0]["graph_json_gzip"]) == invalid_graph_json_gzip
 
 
 # %%

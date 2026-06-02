@@ -270,6 +270,18 @@ def test_list_runs_filters_and_paginates(authenticated_client: TestClient) -> No
         str(first_run.run_id),
         str(second_run.run_id),
     }
+    assert {item["condition_id"] for item in site_response.json()["items"]} == {"default"}
+
+    condition_response = authenticated_client.get(
+        "/runs",
+        params=[("condition_id", "default")],
+    )
+    assert condition_response.status_code == 200
+    assert {item["run_id"] for item in condition_response.json()["items"]} >= {
+        str(first_run.run_id),
+        str(second_run.run_id),
+        str(third_run.run_id),
+    }
 
     status_response = authenticated_client.get(
         "/runs",
