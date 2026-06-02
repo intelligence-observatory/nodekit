@@ -45,8 +45,8 @@ class ServerSettings(BaseSettings):
         alias="NODEKIT_SERVER_PUBLIC_BASE_URL",
         description="Externally visible base URL, if different from request.base_url.",
     )
-    site_hosting_backend: Literal["server", "filesystem", "s3"] = pydantic.Field(
-        default="server",
+    site_hosting_backend: Literal["filesystem", "s3"] = pydantic.Field(
+        default="filesystem",
         alias="NODEKIT_SERVER_SITE_HOSTING_BACKEND",
         description="Participant-facing Site artifact hosting backend.",
     )

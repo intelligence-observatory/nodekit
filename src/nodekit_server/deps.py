@@ -89,11 +89,8 @@ AssetStoreDep = Annotated[AssetStore, fastapi.Depends(get_asset_store)]
 
 
 # %% Site artifact storage
-def get_site_artifact_store(settings: SettingsDep) -> SiteArtifactStore | None:
+def get_site_artifact_store(settings: SettingsDep) -> SiteArtifactStore:
     """Return the configured frozen Site artifact storage backend."""
-
-    if settings.site_hosting_backend == "server":
-        return None
 
     if settings.site_hosting_backend == "filesystem":
         return FileSystemSiteArtifactStore(root=settings.site_store_dir)
@@ -128,6 +125,6 @@ def get_site_artifact_store(settings: SettingsDep) -> SiteArtifactStore | None:
 
 
 SiteArtifactStoreDep = Annotated[
-    SiteArtifactStore | None,
+    SiteArtifactStore,
     fastapi.Depends(get_site_artifact_store),
 ]

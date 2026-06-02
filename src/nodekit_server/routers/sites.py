@@ -316,13 +316,11 @@ def create_site(
     )
     site_id = uuid4()
     tags = _dedupe_tags(tags=create_site_request.tags)
-    published_artifacts = None
-    if site_artifact_store is not None:
-        published_artifacts = publish_site_artifacts(
-            site_id=site_id,
-            graph=normalized_graph,
-            store=site_artifact_store,
-        )
+    published_artifacts = publish_site_artifacts(
+        site_id=site_id,
+        graph=normalized_graph,
+        store=site_artifact_store,
+    )
 
     site_record = SiteRecord(
         site_id=site_id,
@@ -330,15 +328,14 @@ def create_site(
         graph_json_gzip=_gzip_graph_json(graph=normalized_graph),
         is_archived=False,
     )
-    if published_artifacts is not None:
-        site_record.site_artifact_storage_key = published_artifacts.site_artifact_storage_key
-        site_record.site_artifact_url = published_artifacts.site_artifact_url
-        site_record.runtime_js_storage_key = published_artifacts.runtime_js_storage_key
-        site_record.runtime_css_storage_key = published_artifacts.runtime_css_storage_key
-        site_record.runtime_js_sha256 = published_artifacts.runtime_js_sha256
-        site_record.runtime_css_sha256 = published_artifacts.runtime_css_sha256
-        site_record.frozen_nodekit_version = published_artifacts.frozen_nodekit_version
-        site_record.site_hosting_backend = settings.site_hosting_backend
+    site_record.site_artifact_storage_key = published_artifacts.site_artifact_storage_key
+    site_record.site_artifact_url = published_artifacts.site_artifact_url
+    site_record.runtime_js_storage_key = published_artifacts.runtime_js_storage_key
+    site_record.runtime_css_storage_key = published_artifacts.runtime_css_storage_key
+    site_record.runtime_js_sha256 = published_artifacts.runtime_js_sha256
+    site_record.runtime_css_sha256 = published_artifacts.runtime_css_sha256
+    site_record.frozen_nodekit_version = published_artifacts.frozen_nodekit_version
+    site_record.site_hosting_backend = settings.site_hosting_backend
     session.add(site_record)
     session.flush()
 

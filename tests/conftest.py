@@ -20,11 +20,15 @@ def server_main(tmp_path_factory: pytest.TempPathFactory) -> Iterator[ModuleType
     env_keys = [
         "NODEKIT_SERVER_DATABASE_URL",
         "NODEKIT_SERVER_ASSET_STORE_DIR",
+        "NODEKIT_SERVER_SITE_HOSTING_BACKEND",
+        "NODEKIT_SERVER_SITE_STORE_DIR",
         "NODEKIT_SERVER_BOOTSTRAP_ADMIN_API_TOKEN",
     ]
     previous_env = {key: os.environ.get(key) for key in env_keys}
     os.environ["NODEKIT_SERVER_DATABASE_URL"] = f"sqlite:///{tmp_path / 'server.db'}"
     os.environ["NODEKIT_SERVER_ASSET_STORE_DIR"] = str(tmp_path / "asset-store")
+    os.environ["NODEKIT_SERVER_SITE_HOSTING_BACKEND"] = "filesystem"
+    os.environ["NODEKIT_SERVER_SITE_STORE_DIR"] = str(tmp_path / "site-store")
     os.environ["NODEKIT_SERVER_BOOTSTRAP_ADMIN_API_TOKEN"] = "test-token"
 
     for module_name in list(sys.modules):

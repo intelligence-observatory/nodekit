@@ -11,7 +11,6 @@ from uuid import UUID
 
 import sqlmodel
 from fastapi.testclient import TestClient
-from fastapi.staticfiles import StaticFiles
 
 import nodekit as nk
 from nodekit._internal.ops.build_site.types import NoPlatformContext
@@ -182,36 +181,10 @@ def test_site_redirect_adds_submit_url_and_preserves_query_params(
     location = response.headers["location"]
     parsed_location = urlparse(location)
     query = parse_qs(parsed_location.query)
+    assert parsed_location.path == f"/site-artifacts/sites/{site['site_id']}/index.html"
     assert query["PROLIFIC_PID"] == ["participant-1"]
     assert query["STUDY_ID"] == ["study-1"]
     assert query["nodekitSubmitTo"] == [f"http://testserver/s/{site['site_id']}/submit"]
-
-
-# %%
-def test_site_html_contains_graph_payload_and_runtime_urls(
-    authenticated_client: TestClient,
-    server_main: ModuleType,
-) -> None:
-    graph = _make_graph()
-    site = _create_site(authenticated_client, graph=graph)
-    browser_bundle = get_browser_bundle()
-
-    with TestClient(server_main.app) as client:
-        response = client.get(
-            f"/s/{site['site_id']}",
-            params=[("nodekitSubmitTo", f"/s/{site['site_id']}/submit")],
-        )
-
-    assert response.status_code == 200
-    assert response.headers["content-type"].startswith("text/html")
-    assert f"/runtime/nodekit.{browser_bundle.js_sha256}.js" in response.text
-    assert f"/runtime/nodekit.{browser_bundle.css_sha256}.css" in response.text
-
-    match = re.search(r"const graphGzB64 = `(?P<payload>.*?)`;", response.text, re.S)
-    assert match is not None
-    graph_gzip = base64.b64decode(re.sub(r"\s+", "", match.group("payload")))
-    response_graph = nk.Graph.model_validate_json(gzip.decompress(graph_gzip).decode("utf-8"))
-    assert response_graph == graph
 
 
 # %%
@@ -219,72 +192,79 @@ def test_filesystem_artifact_site_redirect_preserves_query_and_freezes_runtime(
     authenticated_client: TestClient,
     graph_with_assets: nk.Graph,
     server_main: ModuleType,
-    tmp_path: Path,
 ) -> None:
-    previous_backend = server_main.settings.site_hosting_backend
-    previous_store_dir = server_main.settings.site_store_dir
-    site_store_dir = tmp_path / "site-store"
-    site_store_dir.mkdir(parents=True)
-    server_main.settings.site_hosting_backend = "filesystem"
-    server_main.settings.site_store_dir = site_store_dir
-    server_main.app.mount(
-        "/site-artifacts",
-        StaticFiles(directory=site_store_dir),
-        name="test-site-artifacts",
-    )
+    _upload_graph_assets(authenticated_client, graph_with_assets)
+    site = _create_site(authenticated_client, graph=graph_with_assets)
 
-    try:
-        _upload_graph_assets(authenticated_client, graph_with_assets)
-        site = _create_site(authenticated_client, graph=graph_with_assets)
+    records, engine = _get_records_and_engine()
+    with sqlmodel.Session(engine) as session:
+        site_record = session.get(records.SiteRecord, UUID(site["site_id"]))
+        assert site_record is not None
+        assert site_record.site_artifact_storage_key == f"sites/{site['site_id']}/index.html"
+        assert site_record.site_artifact_url == (
+            f"/site-artifacts/sites/{site['site_id']}/index.html"
+        )
+        assert site_record.runtime_js_sha256 is not None
+        assert site_record.runtime_css_sha256 is not None
 
-        records, engine = _get_records_and_engine()
-        with sqlmodel.Session(engine) as session:
-            site_record = session.get(records.SiteRecord, UUID(site["site_id"]))
-            assert site_record is not None
-            assert site_record.site_artifact_storage_key == f"sites/{site['site_id']}/index.html"
-            assert site_record.site_artifact_url == (
-                f"/site-artifacts/sites/{site['site_id']}/index.html"
-            )
-            assert site_record.runtime_js_sha256 is not None
-            assert site_record.runtime_css_sha256 is not None
+    artifact_path = server_main.settings.site_store_dir / "sites" / site["site_id"] / "index.html"
+    html = artifact_path.read_text()
+    browser_bundle = get_browser_bundle()
+    assert f"/site-artifacts/runtime/nodekit.{browser_bundle.js_sha256}.js" in html
+    assert f"/site-artifacts/runtime/nodekit.{browser_bundle.css_sha256}.css" in html
+    assert f'src="/runtime/nodekit.{browser_bundle.js_sha256}.js"' not in html
 
-        artifact_path = site_store_dir / "sites" / site["site_id"] / "index.html"
-        html = artifact_path.read_text()
-        browser_bundle = get_browser_bundle()
-        assert f"/site-artifacts/runtime/nodekit.{browser_bundle.js_sha256}.js" in html
-        assert f"/site-artifacts/runtime/nodekit.{browser_bundle.css_sha256}.css" in html
-        assert f'src="/runtime/nodekit.{browser_bundle.js_sha256}.js"' not in html
+    match = re.search(r"const graphGzB64 = `(?P<payload>.*?)`;", html, re.S)
+    assert match is not None
+    graph_gzip = base64.b64decode(re.sub(r"\s+", "", match.group("payload")))
+    frozen_graph = nk.Graph.model_validate_json(gzip.decompress(graph_gzip).decode("utf-8"))
+    for asset in iter_assets(frozen_graph):
+        assert isinstance(asset.locator, URL)
+        assert asset.locator.url == f"http://testserver/assets/{asset.sha256}"
 
-        match = re.search(r"const graphGzB64 = `(?P<payload>.*?)`;", html, re.S)
-        assert match is not None
-        graph_gzip = base64.b64decode(re.sub(r"\s+", "", match.group("payload")))
-        frozen_graph = nk.Graph.model_validate_json(gzip.decompress(graph_gzip).decode("utf-8"))
-        for asset in iter_assets(frozen_graph):
-            assert isinstance(asset.locator, URL)
-            assert asset.locator.url == f"http://testserver/assets/{asset.sha256}"
+    with TestClient(server_main.app) as client:
+        response = client.get(
+            f"/s/{site['site_id']}",
+            params=[
+                ("PROLIFIC_PID", "participant-1"),
+                ("batch", "one"),
+                ("batch", "two"),
+                ("nodekitSubmitTo", "https://old.example/submit"),
+            ],
+            follow_redirects=False,
+        )
 
-        with TestClient(server_main.app) as client:
-            response = client.get(
-                f"/s/{site['site_id']}",
-                params=[
-                    ("PROLIFIC_PID", "participant-1"),
-                    ("batch", "one"),
-                    ("batch", "two"),
-                    ("nodekitSubmitTo", "https://old.example/submit"),
-                ],
-                follow_redirects=False,
-            )
+    assert response.status_code == 307
+    parsed_location = urlparse(response.headers["location"])
+    query = parse_qs(parsed_location.query)
+    assert parsed_location.path == f"/site-artifacts/sites/{site['site_id']}/index.html"
+    assert query["PROLIFIC_PID"] == ["participant-1"]
+    assert query["batch"] == ["one", "two"]
+    assert query["nodekitSubmitTo"] == [f"http://testserver/s/{site['site_id']}/submit"]
 
-        assert response.status_code == 307
-        parsed_location = urlparse(response.headers["location"])
-        query = parse_qs(parsed_location.query)
-        assert parsed_location.path == f"/site-artifacts/sites/{site['site_id']}/index.html"
-        assert query["PROLIFIC_PID"] == ["participant-1"]
-        assert query["batch"] == ["one", "two"]
-        assert query["nodekitSubmitTo"] == [f"http://testserver/s/{site['site_id']}/submit"]
-    finally:
-        server_main.settings.site_hosting_backend = previous_backend
-        server_main.settings.site_store_dir = previous_store_dir
+
+# %%
+def test_site_without_frozen_artifact_does_not_fall_back_to_dynamic_render(
+    authenticated_client: TestClient,
+    server_main: ModuleType,
+) -> None:
+    site = _create_site(authenticated_client)
+    records, engine = _get_records_and_engine()
+    with sqlmodel.Session(engine) as session:
+        site_record = session.get(records.SiteRecord, UUID(site["site_id"]))
+        assert site_record is not None
+        site_record.site_artifact_url = None
+        session.add(site_record)
+        session.commit()
+
+    with TestClient(server_main.app) as client:
+        response = client.get(
+            f"/s/{site['site_id']}",
+            params=[("nodekitSubmitTo", f"/s/{site['site_id']}/submit")],
+        )
+
+    assert response.status_code == 500
+    assert response.json() == {"detail": "Site is missing a frozen artifact URL."}
 
 
 # %%

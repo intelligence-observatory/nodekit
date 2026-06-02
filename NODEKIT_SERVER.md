@@ -60,13 +60,14 @@ Uploaded Assets are stored under content-addressed S3 keys such as `assets/<sha2
 
 ## Frozen Site Artifacts
 
-By default, participant Sites are rendered by the server:
+By default, participant Sites are frozen to the local filesystem:
 
 ```bash
-NODEKIT_SERVER_SITE_HOSTING_BACKEND=server
+NODEKIT_SERVER_SITE_HOSTING_BACKEND=filesystem
+NODEKIT_SERVER_SITE_STORE_DIR=/site-store
 ```
 
-To freeze participant-facing HTML and the exact browser runtime at Site creation time, enable filesystem or S3 Site artifact hosting:
+For S3-backed frozen Site artifact hosting:
 
 ```bash
 NODEKIT_SERVER_SITE_HOSTING_BACKEND=s3
