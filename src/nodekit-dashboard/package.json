@@ -1,7 +1,7 @@
 {
   "name": "nodekit-dashboard",
   "private": true,
-  "version": "0.3.0.dev8",
+  "version": "0.3.0.dev9",
   "type": "module",
   "scripts": {
     "build": "tsc && vite build",

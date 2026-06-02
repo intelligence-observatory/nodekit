@@ -3,7 +3,7 @@ from packaging.version import InvalidVersion, Version
 
 
 # %%
-VERSION = "0.3.0.dev8"
+VERSION = "0.3.0.dev9"
 
 
 # %%
