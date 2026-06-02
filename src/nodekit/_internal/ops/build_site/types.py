@@ -16,14 +16,23 @@ class BasePlatformContext(pydantic.BaseModel):
 
 
 # %%
-class MechanicalTurkContext(BasePlatformContext):
-    platform: Literal["MechanicalTurk"]
+class BaseMechanicalTurkContext(BasePlatformContext):
     assignment_id: str = pydantic.Field(description="The Mechanical Turk Assignment ID.")
     worker_id: str = pydantic.Field(description="The Mechanical Turk Worker ID.")
     hit_id: str = pydantic.Field(description="The Mechanical Turk HIT ID.")
     turk_submit_to: str = pydantic.Field(
         description="The link that the Trace was submitted to. Encodes whether sandbox or production."
     )
+
+
+# %%
+class MechanicalTurkContext(BaseMechanicalTurkContext):
+    platform: Literal["MechanicalTurk"]
+
+
+# %%
+class MechanicalTurkSandboxContext(BaseMechanicalTurkContext):
+    platform: Literal["MechanicalTurkSandbox"]
 
 
 # %%
@@ -44,6 +53,7 @@ class NoPlatformContext(BasePlatformContext):
 type PlatformContext = Annotated[
     Union[
         MechanicalTurkContext,
+        MechanicalTurkSandboxContext,
         ProlificContext,
         NoPlatformContext,
     ],

@@ -1,4 +1,11 @@
-import type {MechanicalTurkContext, MechanicalTurkPreviewModeContext, PlatformContext, ProlificContext, SubmissionTarget} from "./submission-contexts.ts";
+import type {
+    MechanicalTurkContext,
+    MechanicalTurkPreviewModeContext,
+    MechanicalTurkSandboxContext,
+    PlatformContext,
+    ProlificContext,
+    SubmissionTarget,
+} from "./submission-contexts.ts";
 
 
 export function getSubmissionTarget(): SubmissionTarget {
@@ -46,7 +53,7 @@ export function getSubmissionTarget(): SubmissionTarget {
     }
 }
 
-function inferMturkContext(): MechanicalTurkContext | MechanicalTurkPreviewModeContext | null {
+function inferMturkContext(): MechanicalTurkContext | MechanicalTurkSandboxContext | MechanicalTurkPreviewModeContext | null {
     const params = new URLSearchParams(window.location.search);
 
     // MTurk-style query params
@@ -82,13 +89,38 @@ function inferMturkContext(): MechanicalTurkContext | MechanicalTurkPreviewModeC
         throw error;
     }
 
+    const platform = inferMturkPlatform(turkSubmitTo);
+
     return {
-        platform: "MechanicalTurk",
+        platform: platform,
         assignment_id: assignmentId,
         worker_id: workerId,
         hit_id: hitId,
         turk_submit_to: turkSubmitTo,
     };
+}
+
+function inferMturkPlatform(turkSubmitTo: string): "MechanicalTurk" | "MechanicalTurkSandbox" {
+    let hostname: string;
+    try {
+        hostname = new URL(turkSubmitTo).hostname;
+    } catch {
+        const error = new Error("Invalid turkSubmitTo URL in MTurk platform context.");
+        error.name = "BadPlatformContextError";
+        throw error;
+    }
+
+    if (hostname === "www.mturk.com") {
+        return "MechanicalTurk";
+    }
+
+    if (hostname === "workersandbox.mturk.com") {
+        return "MechanicalTurkSandbox";
+    }
+
+    const error = new Error("Unknown turkSubmitTo host in MTurk platform context.");
+    error.name = "BadPlatformContextError";
+    throw error;
 }
 
 function inferProlificContext(): ProlificContext | null {

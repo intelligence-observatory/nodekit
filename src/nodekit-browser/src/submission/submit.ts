@@ -1,5 +1,9 @@
 import type {Trace} from "../types/node.ts";
-import type {MechanicalTurkContext, PlatformContext, SubmissionTarget} from "./submission-contexts.ts";
+import type {
+    PlatformContext,
+    SubmissionTarget,
+    SubmittableMechanicalTurkContext,
+} from "./submission-contexts.ts";
 import {compressTrace} from "./compression.ts";
 
 
@@ -50,10 +54,13 @@ export async function submit(
     }
 
     // If using Turk, post the SubmissionPayload using submitToTurk.
-    if (externalPlatformContext.platform === "MechanicalTurk") {
+    if (
+        externalPlatformContext.platform === "MechanicalTurk" ||
+        externalPlatformContext.platform === "MechanicalTurkSandbox"
+    ) {
         submitToTurk(
             payload,
-            submissionTarget as SubmissionTarget<MechanicalTurkContext>,
+            submissionTarget as SubmissionTarget<SubmittableMechanicalTurkContext>,
         );
     }
 
@@ -75,7 +82,7 @@ export async function submit(
 
 export function submitToTurk(
     payload: SiteSubmission,
-    submissionTarget: SubmissionTarget<MechanicalTurkContext>,
+    submissionTarget: SubmissionTarget<SubmittableMechanicalTurkContext>,
 ): void {
     // Submission procedure for Mechanical Turk. See:
     // https://docs.aws.amazon.com/AWSMechTurk/latest/AWSMechanicalTurkRequester/mturk-hits-defining-questions-html-javascript.html

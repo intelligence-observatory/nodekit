@@ -7,12 +7,18 @@ interface BasePlatformContext {
     platform: string
 }
 
-export interface MechanicalTurkContext extends BasePlatformContext {
-    platform: "MechanicalTurk"
+interface BaseMechanicalTurkContext extends BasePlatformContext {
     assignment_id: string;
-    worker_id: string; // null if preview mode
-    hit_id: string; // null if preview mode
-    turk_submit_to: string; // null if preview mode
+    worker_id: string;
+    hit_id: string;
+    turk_submit_to: string;
+}
+
+export interface MechanicalTurkContext extends BaseMechanicalTurkContext {
+    platform: "MechanicalTurk"
+}
+export interface MechanicalTurkSandboxContext extends BaseMechanicalTurkContext {
+    platform: "MechanicalTurkSandbox"
 }
 export interface MechanicalTurkPreviewModeContext extends BasePlatformContext {
     platform: "MechanicalTurkPreviewMode"
@@ -33,7 +39,11 @@ export interface NoPlatformContext extends BasePlatformContext {
 
 export type PlatformContext =
     | MechanicalTurkContext
+    | MechanicalTurkSandboxContext
     | MechanicalTurkPreviewModeContext
     | ProlificContext
     | NoPlatformContext
 
+export type SubmittableMechanicalTurkContext =
+    | MechanicalTurkContext
+    | MechanicalTurkSandboxContext
