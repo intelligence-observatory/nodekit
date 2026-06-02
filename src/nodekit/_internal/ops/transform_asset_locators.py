@@ -62,13 +62,13 @@ def _transform_sensor_asset_locators_in_place(
     for card in _iter_sensor_cards(sensor=sensor):
         _transform_card_asset_locators_in_place(card=card, transform=transform)
 
-    if isinstance(sensor, ProductSensor | SumSensor):
+    if isinstance(sensor, (ProductSensor, SumSensor)):
         for child in sensor.children.values():
             _transform_sensor_asset_locators_in_place(sensor=child, transform=transform)
 
 
 def _iter_sensor_cards(sensor: Sensor) -> Iterable[Card]:
-    if isinstance(sensor, SelectSensor | MultiSelectSensor):
+    if isinstance(sensor, (SelectSensor, MultiSelectSensor)):
         yield from sensor.choices.values()
 
 
