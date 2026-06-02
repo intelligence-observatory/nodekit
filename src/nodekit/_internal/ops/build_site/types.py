@@ -33,6 +33,7 @@ class BaseMechanicalTurkContext(BasePlatformContext):
 class MechanicalTurkContext(BaseMechanicalTurkContext):
     platform: Literal["MechanicalTurk"]
 
+
 # %%
 class MechanicalTurkSandboxContext(BaseMechanicalTurkContext):
     platform: Literal["MechanicalTurkSandbox"]

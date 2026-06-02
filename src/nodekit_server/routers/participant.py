@@ -3,6 +3,7 @@
 import base64
 import gzip
 import html
+from urllib.parse import urlsplit, urlunsplit
 from uuid import uuid4
 
 import fastapi
@@ -47,6 +48,29 @@ def _runtime_url(
 ) -> str:
     base_url = settings.public_base_url or str(request.base_url)
     return f"{base_url.rstrip('/')}{path}"
+
+
+def _with_request_query(site_url: str, request: fastapi.Request) -> str:
+    """Return a Site URL with the incoming request query parameters preserved."""
+
+    if not request.url.query:
+        return site_url
+
+    split_url = urlsplit(site_url)
+    query = split_url.query
+    if query:
+        query = f"{query}&{request.url.query}"
+    else:
+        query = request.url.query
+    return urlunsplit(
+        (
+            split_url.scheme,
+            split_url.netloc,
+            split_url.path,
+            query,
+            split_url.fragment,
+        )
+    )
 
 
 def _graph_gz_b64(graph_json_gzip: bytes) -> str:
@@ -137,6 +161,17 @@ def serve_site(
     """Serve a participant-facing NodeKit Site."""
 
     site_record = _get_public_site_record(session=session, site_id=site_id)
+    if site_record.site_artifact_url is not None:
+        redirect_url = prepare_site_url(
+            site_url=_with_request_query(site_url=site_record.site_artifact_url, request=request),
+            platform="none",
+            nodekit_submit_to=_submit_url(request=request, settings=settings, site_id=site_id),
+        )
+        return fastapi.responses.RedirectResponse(
+            url=redirect_url,
+            status_code=fastapi.status.HTTP_307_TEMPORARY_REDIRECT,
+        )
+
     if "nodekitSubmitTo" not in request.query_params:
         redirect_url = prepare_site_url(
             site_url=str(request.url),

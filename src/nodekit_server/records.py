@@ -67,6 +67,26 @@ class SiteRecord(SQLModel, table=True):
         sa_column=Column(LargeBinary, nullable=False),
         description="Gzipped JSON bytes for the frozen Graph with server-owned Asset locators.",
     )
+    site_artifact_storage_key: str | None = Field(
+        default=None,
+        description="Storage key for the frozen participant-facing Site HTML artifact.",
+    )
+    site_artifact_url: str | None = Field(
+        default=None,
+        description="Public URL for the frozen participant-facing Site HTML artifact.",
+    )
+    runtime_js_storage_key: str | None = Field(
+        default=None,
+        description="Storage key for the frozen NodeKit browser JavaScript runtime.",
+    )
+    runtime_css_storage_key: str | None = Field(
+        default=None,
+        description="Storage key for the frozen NodeKit browser CSS runtime.",
+    )
+    runtime_js_sha256: SHA256 | None = Field(default=None, sa_column=Column(String(64)))
+    runtime_css_sha256: SHA256 | None = Field(default=None, sa_column=Column(String(64)))
+    frozen_nodekit_version: str | None = Field(default=None)
+    site_hosting_backend: str | None = Field(default=None)
     is_archived: bool = False
     timestamp_created: datetime.datetime = Field(default_factory=utc_now, index=True)
 

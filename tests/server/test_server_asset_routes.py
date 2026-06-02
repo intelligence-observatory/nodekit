@@ -247,7 +247,7 @@ def test_create_site_persists_normalized_graph(
     response_graph = nk.Graph.model_validate(body["graph"])
     for asset in iter_assets(graph=response_graph):
         assert isinstance(asset.locator, URL)
-        assert asset.locator.url == f"/assets/{asset.sha256}"
+        assert asset.locator.url == f"http://testserver/assets/{asset.sha256}"
 
     for asset in iter_assets(graph=graph_with_assets):
         assert isinstance(asset.locator, FileSystemPath)

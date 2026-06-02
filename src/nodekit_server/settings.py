@@ -45,6 +45,21 @@ class ServerSettings(BaseSettings):
         alias="NODEKIT_SERVER_PUBLIC_BASE_URL",
         description="Externally visible base URL, if different from request.base_url.",
     )
+    site_hosting_backend: Literal["server", "filesystem", "s3"] = pydantic.Field(
+        default="server",
+        alias="NODEKIT_SERVER_SITE_HOSTING_BACKEND",
+        description="Participant-facing Site artifact hosting backend.",
+    )
+    site_store_dir: Path = pydantic.Field(
+        default=Path("./nodekit-server-sites"),
+        alias="NODEKIT_SERVER_SITE_STORE_DIR",
+        description="Directory for filesystem-backed frozen Site artifacts.",
+    )
+    site_cors_origins: tuple[str, ...] = pydantic.Field(
+        default=(),
+        alias="NODEKIT_SERVER_SITE_CORS_ORIGINS",
+        description="Allowed browser origins for frozen Site submissions.",
+    )
 
     s3_bucket_name: str | None = pydantic.Field(
         default=None,
@@ -70,6 +85,26 @@ class ServerSettings(BaseSettings):
         default=None,
         alias="NODEKIT_SERVER_S3_ENDPOINT_URL",
         description="Optional custom S3 endpoint URL for S3-compatible storage.",
+    )
+    s3_site_bucket_name: str | None = pydantic.Field(
+        default=None,
+        alias="NODEKIT_SERVER_S3_SITE_BUCKET_NAME",
+        description="S3 bucket name for frozen Site artifact storage.",
+    )
+    s3_site_prefix: str = pydantic.Field(
+        default="",
+        alias="NODEKIT_SERVER_S3_SITE_PREFIX",
+        description="S3 object key prefix for frozen Site artifacts.",
+    )
+    s3_site_public_base_url: str | None = pydantic.Field(
+        default=None,
+        alias="NODEKIT_SERVER_S3_SITE_PUBLIC_BASE_URL",
+        description="Public base URL used to load frozen Site artifacts.",
+    )
+    s3_site_endpoint_url: str | None = pydantic.Field(
+        default=None,
+        alias="NODEKIT_SERVER_S3_SITE_ENDPOINT_URL",
+        description="Optional custom S3 endpoint URL for Site artifact storage.",
     )
 
     bootstrap_admin_username: str = pydantic.Field(

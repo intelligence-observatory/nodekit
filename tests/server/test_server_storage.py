@@ -112,3 +112,55 @@ def test_s3_asset_store_uploads_and_deletes_staged_file(
             "content": b"asset-bytes",
         }
     ]
+
+
+def test_filesystem_site_artifact_store_persists_bytes(
+    tmp_path: Path,
+    server_main: ModuleType,
+) -> None:
+    _ = server_main
+    storage = sys.modules["nodekit_server.storage"]
+    store = storage.FileSystemSiteArtifactStore(root=tmp_path / "sites")
+    storage_key = store.storage_key_for_artifact("sites/site-1/index.html")
+
+    store.put_bytes(
+        storage_key=storage_key,
+        content=b"<html>site</html>",
+        media_type="text/html",
+    )
+
+    assert (tmp_path / "sites" / "sites" / "site-1" / "index.html").read_bytes() == (
+        b"<html>site</html>"
+    )
+    assert store.exists(storage_key)
+    assert store.resolve_url(storage_key) == "/site-artifacts/sites/site-1/index.html"
+
+
+def test_s3_site_artifact_store_uses_prefix_and_public_base_url(
+    server_main: ModuleType,
+) -> None:
+    _ = server_main
+    storage = sys.modules["nodekit_server.storage"]
+    fake_client = FakeS3Client()
+    store = storage.S3SiteArtifactStore(
+        bucket_name="nodekit-sites",
+        public_base_url="https://cdn.example.com/nodekit/",
+        region_name="us-east-1",
+        prefix="/frozen/",
+        client=fake_client,
+    )
+    storage_key = store.storage_key_for_artifact("sites/site-1/index.html")
+
+    store.put_bytes(
+        storage_key=storage_key,
+        content=b"<html>site</html>",
+        media_type="text/html",
+    )
+
+    assert storage_key == "frozen/sites/site-1/index.html"
+    assert store.resolve_url(storage_key) == (
+        "https://cdn.example.com/nodekit/frozen/sites/site-1/index.html"
+    )
+    assert fake_client.uploads[0]["bucket"] == "nodekit-sites"
+    assert fake_client.uploads[0]["key"] == storage_key
+    assert fake_client.uploads[0]["extra_args"] == {"ContentType": "text/html"}

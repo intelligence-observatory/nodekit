@@ -56,7 +56,7 @@ def _make_site_submission(graph: nk.Graph) -> nk.SiteSubmission:
     trace_json_gzip = gzip.compress(trace.model_dump_json().encode("utf-8"), mtime=0)
     return nk.SiteSubmission(
         trace_gzipped_base64=base64.b64encode(trace_json_gzip).decode("ascii"),
-        platform_context=NoPlatformContext(platform="None"),
+        platform_context=NoPlatformContext(platform="NoPlatform"),
     )
 
 
@@ -472,7 +472,7 @@ def test_dashboard_runs_endpoint_includes_cached_detail_summary(
     assert run["trace_available"] is True
     assert run["event_count"] == 5
     assert run["duration_msec"] == 4
-    assert run["platform_label"] == "None"
+    assert run["platform_label"] == "NoPlatform"
 
 
 def test_dashboard_runs_endpoint_hydrates_missing_submitted_detail(

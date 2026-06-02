@@ -16,7 +16,7 @@ import nodekit.server.contracts as contracts
 from nodekit.server.values import SiteId, UserId
 from nodekit.values import MediaType, SHA256
 from nodekit_server.auth import UserDep
-from nodekit_server.deps import SessionDep, SettingsDep
+from nodekit_server.deps import SessionDep, SettingsDep, SiteArtifactStoreDep
 from nodekit_server.pagination import apply_timestamp_id_page_cursor, page_records
 from nodekit_server.records import (
     AssetRecord,
@@ -27,6 +27,7 @@ from nodekit_server.records import (
     as_utc,
 )
 from nodekit_server.settings import ServerSettings
+from nodekit_server.site_artifacts import publish_site_artifacts
 
 
 # %% Router
@@ -83,6 +84,15 @@ def _asset_record_to_item(asset_record: AssetRecord) -> contracts.SiteAssetItem:
 
 def _asset_url(sha256: SHA256) -> str:
     return f"/assets/{sha256}"
+
+
+def _public_asset_url(
+    request: fastapi.Request,
+    settings: ServerSettings,
+    sha256: SHA256,
+) -> str:
+    base_url = settings.public_base_url or str(request.base_url)
+    return f"{base_url.rstrip('/')}/assets/{sha256}"
 
 
 def _site_url(
@@ -281,6 +291,7 @@ def create_site(
     session: SessionDep,
     user: UserDep,
     settings: SettingsDep,
+    site_artifact_store: SiteArtifactStoreDep,
 ) -> contracts.CreateSiteResponse:
     """Create a frozen participant-facing Site from a Graph."""
 
@@ -299,10 +310,19 @@ def create_site(
 
     normalized_graph = transform_asset_locators(
         graph=create_site_request.graph,
-        transform=lambda asset: URL(url=_asset_url(sha256=asset.sha256)),
+        transform=lambda asset: URL(
+            url=_public_asset_url(request=request, settings=settings, sha256=asset.sha256)
+        ),
     )
     site_id = uuid4()
     tags = _dedupe_tags(tags=create_site_request.tags)
+    published_artifacts = None
+    if site_artifact_store is not None:
+        published_artifacts = publish_site_artifacts(
+            site_id=site_id,
+            graph=normalized_graph,
+            store=site_artifact_store,
+        )
 
     site_record = SiteRecord(
         site_id=site_id,
@@ -310,6 +330,15 @@ def create_site(
         graph_json_gzip=_gzip_graph_json(graph=normalized_graph),
         is_archived=False,
     )
+    if published_artifacts is not None:
+        site_record.site_artifact_storage_key = published_artifacts.site_artifact_storage_key
+        site_record.site_artifact_url = published_artifacts.site_artifact_url
+        site_record.runtime_js_storage_key = published_artifacts.runtime_js_storage_key
+        site_record.runtime_css_storage_key = published_artifacts.runtime_css_storage_key
+        site_record.runtime_js_sha256 = published_artifacts.runtime_js_sha256
+        site_record.runtime_css_sha256 = published_artifacts.runtime_css_sha256
+        site_record.frozen_nodekit_version = published_artifacts.frozen_nodekit_version
+        site_record.site_hosting_backend = settings.site_hosting_backend
     session.add(site_record)
     session.flush()
 

@@ -56,7 +56,7 @@ def _make_site_submission() -> nk.SiteSubmission:
     trace_json_gzip = gzip.compress(trace.model_dump_json().encode("utf-8"), mtime=0)
     return nk.SiteSubmission(
         trace_gzipped_base64=base64.b64encode(trace_json_gzip).decode("ascii"),
-        platform_context=NoPlatformContext(platform="None"),
+        platform_context=NoPlatformContext(platform="NoPlatform"),
     )
 
 
