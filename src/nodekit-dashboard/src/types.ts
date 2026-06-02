@@ -1,4 +1,5 @@
 export type RunStatus = "started" | "submitted" | "completed" | "invalid";
+export type Platform = "MechanicalTurk" | "MechanicalTurkSandbox" | "Prolific" | "NoPlatform";
 
 export type JsonValue =
   | null
@@ -54,6 +55,10 @@ export interface CachedRunItem {
   run_id: string;
   site_id: string;
   status: RunStatus;
+  recruitment_platform?: Platform;
+  recruiter_study_id?: string | null;
+  recruiter_participant_id?: string | null;
+  recruiter_session_id?: string | null;
   is_archived: boolean;
   timestamp_created: string;
   trace_available?: boolean | null;
@@ -98,6 +103,9 @@ export interface RunTableRow {
   eventCount: number | null;
   durationMsec: number | null;
   platformLabel: string;
+  recruiterStudyId: string | null;
+  recruiterParticipantId: string | null;
+  recruiterSessionId: string | null;
   cacheState: "fresh" | "stale" | "unknown";
   source: CachedRunItem;
 }
@@ -119,6 +127,13 @@ export interface DashboardData {
   sites: CachedSiteItem[];
   tags: CachedTagItem[];
   runs: CachedRunItem[];
+}
+
+export interface RunDashboardFilters {
+  recruitmentPlatforms: Platform[];
+  recruiterStudyIds: string[];
+  recruiterParticipantIds: string[];
+  recruiterSessionIds: string[];
 }
 
 export type LookbackRange = "1h" | "1d" | "7d" | "30d";

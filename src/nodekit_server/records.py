@@ -6,7 +6,7 @@ from typing import ClassVar
 from sqlalchemy import Column, LargeBinary, String
 from sqlmodel import Field, SQLModel
 
-from nodekit.values import MediaType, SHA256
+from nodekit.values import MediaType, Platform, SHA256
 
 from nodekit.server.values import ApiTokenId, RunId, RunStatus, SiteId, TagId, UserId
 
@@ -153,6 +153,13 @@ class RunRecord(SQLModel, table=True):
     run_id: RunId = Field(primary_key=True)
     site_id: SiteId = Field(foreign_key="sites.site_id")
     status: RunStatus = Field(default=RunStatus.STARTED)
+    recruitment_platform: Platform = Field(
+        default="NoPlatform",
+        sa_column=Column(String, nullable=False, index=True),
+    )
+    recruiter_study_id: str | None = Field(default=None, index=True)
+    recruiter_participant_id: str | None = Field(default=None, index=True)
+    recruiter_session_id: str | None = Field(default=None, index=True)
     site_submission_json_gzip: bytes | None = Field(
         default=None,
         sa_column=Column(LargeBinary, nullable=True),

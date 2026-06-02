@@ -462,6 +462,37 @@ h2 {
   color: var(--text);
 }
 
+.run-filters {
+  display: grid;
+  grid-template-columns: minmax(150px, 0.75fr) repeat(3, minmax(170px, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.filter-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.filter-field span {
+  flex: 0 0 auto;
+}
+
+.filter-field input,
+.filter-field select {
+  min-width: 0;
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--text);
+  padding: 7px 9px;
+}
+
 .table-wrap {
   margin-top: 12px;
   overflow: auto;
@@ -506,7 +537,7 @@ table {
 }
 
 .runs-table {
-  min-width: 1080px;
+  min-width: 1460px;
 }
 
 .runs-table th:nth-child(1),
@@ -530,8 +561,8 @@ table {
 
 .sites-table th:nth-child(3),
 .sites-table td:nth-child(3),
-.runs-table th:nth-child(9),
-.runs-table td:nth-child(9) {
+.runs-table th:nth-child(12),
+.runs-table td:nth-child(12) {
   width: 86px;
 }
 
@@ -539,15 +570,15 @@ table {
 .sites-table td:nth-child(4),
 .sites-table th:nth-child(5),
 .sites-table td:nth-child(5),
-.runs-table th:nth-child(6),
-.runs-table td:nth-child(6) {
+.runs-table th:nth-child(9),
+.runs-table td:nth-child(9) {
   width: 140px;
 }
 
 .sites-table th:nth-child(6),
 .sites-table td:nth-child(6),
-.runs-table th:nth-child(7),
-.runs-table td:nth-child(7) {
+.runs-table th:nth-child(10),
+.runs-table td:nth-child(10) {
   width: 170px;
 }
 
@@ -561,14 +592,32 @@ table {
   width: 132px;
 }
 
+.runs-table th:nth-child(6),
+.runs-table td:nth-child(6),
 .runs-table th:nth-child(8),
 .runs-table td:nth-child(8) {
+  width: 150px;
+}
+
+.runs-table th:nth-child(7),
+.runs-table td:nth-child(7) {
+  width: 160px;
+}
+
+.runs-table th:nth-child(11),
+.runs-table td:nth-child(11) {
   width: 96px;
 }
 
 .sites-table th:nth-child(7),
 .sites-table td:nth-child(7) {
   width: 330px;
+}
+
+@media (max-width: 760px) {
+  .run-filters {
+    grid-template-columns: 1fr;
+  }
 }
 
 .sites-table th:last-child,

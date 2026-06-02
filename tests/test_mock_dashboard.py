@@ -84,6 +84,9 @@ def test_mock_dashboard_cache_seeding_exposes_enriched_visible_runs(tmp_path) ->
     assert any(run["event_count"] is not None for run in runs)
     assert any(run["platform_label"] == "Prolific" for run in runs)
     assert any(run["platform_label"] == "MechanicalTurk" for run in runs)
+    assert any(run["recruiter_study_id"] is not None for run in runs)
+    assert any(run["recruiter_participant_id"] is not None for run in runs)
+    assert any(run["recruiter_session_id"] is not None for run in runs)
 
 
 def test_mock_dashboard_runs_endpoint_filters_by_time_window(tmp_path) -> None:

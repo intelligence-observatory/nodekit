@@ -3,7 +3,7 @@
 import pydantic
 
 from nodekit import Graph, SiteSubmission, Trace
-from nodekit.values import MediaType, SHA256
+from nodekit.values import MediaType, Platform, SHA256
 
 from nodekit.server.pagination import PageQuery, PageResponse
 from nodekit.server.values import ApiTokenId, DatetimeUTC, RunId, RunStatus, SiteId, UserId
@@ -199,6 +199,10 @@ class ListRunsFilters(ContractModel):
     run_ids: list[RunId] | None = None
     site_id: SiteId | None = None
     statuses: list[RunStatus] | None = None
+    recruitment_platforms: list[Platform] | None = None
+    recruiter_study_ids: list[str] | None = None
+    recruiter_participant_ids: list[str] | None = None
+    recruiter_session_ids: list[str] | None = None
     include_archived: bool = False
 
 
@@ -206,6 +210,10 @@ class ListRunsItem(ContractModel):
     run_id: RunId
     site_id: SiteId
     status: RunStatus
+    recruitment_platform: Platform = "NoPlatform"
+    recruiter_study_id: str | None = None
+    recruiter_participant_id: str | None = None
+    recruiter_session_id: str | None = None
     is_archived: bool
     timestamp_created: DatetimeUTC
 
@@ -225,6 +233,10 @@ class GetRunResponse(ContractModel):
     run_id: RunId
     site_id: SiteId
     status: RunStatus
+    recruitment_platform: Platform = "NoPlatform"
+    recruiter_study_id: str | None = None
+    recruiter_participant_id: str | None = None
+    recruiter_session_id: str | None = None
     is_archived: bool
     timestamp_created: DatetimeUTC
     site_submission: SiteSubmission | None = None
@@ -240,6 +252,10 @@ class ArchiveRunResponse(ContractModel):
     run_id: RunId
     site_id: SiteId
     status: RunStatus
+    recruitment_platform: Platform = "NoPlatform"
+    recruiter_study_id: str | None = None
+    recruiter_participant_id: str | None = None
+    recruiter_session_id: str | None = None
     is_archived: bool
     timestamp_created: DatetimeUTC
 
@@ -252,6 +268,10 @@ class SubmitRunResponse(ContractModel):
     run_id: RunId
     site_id: SiteId
     status: RunStatus
+    recruitment_platform: Platform = "NoPlatform"
+    recruiter_study_id: str | None = None
+    recruiter_participant_id: str | None = None
+    recruiter_session_id: str | None = None
     is_archived: bool
     timestamp_created: DatetimeUTC
 

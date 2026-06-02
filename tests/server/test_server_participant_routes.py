@@ -13,7 +13,11 @@ import sqlmodel
 from fastapi.testclient import TestClient
 
 import nodekit as nk
-from nodekit._internal.ops.build_site.types import NoPlatformContext
+from nodekit._internal.ops.build_site.types import (
+    MechanicalTurkContext,
+    NoPlatformContext,
+    ProlificContext,
+)
 from nodekit._internal.types.assets import FileSystemPath, URL
 from nodekit._internal.utils.get_browser_bundle import get_browser_bundle
 from nodekit._internal.utils.iter_assets import iter_assets
@@ -58,7 +62,9 @@ def _create_site(
     return response.json()
 
 
-def _make_site_submission() -> nk.SiteSubmission:
+def _make_site_submission(
+    platform_context: NoPlatformContext | ProlificContext | MechanicalTurkContext | None = None,
+) -> nk.SiteSubmission:
     graph = _make_graph()
     trace = nk.Trace(
         graph=graph,
@@ -77,7 +83,7 @@ def _make_site_submission() -> nk.SiteSubmission:
     trace_json_gzip = gzip.compress(trace.model_dump_json().encode("utf-8"), mtime=0)
     return nk.SiteSubmission(
         trace_gzipped_base64=base64.b64encode(trace_json_gzip).decode("ascii"),
-        platform_context=NoPlatformContext(platform="NoPlatform"),
+        platform_context=platform_context or NoPlatformContext(platform="NoPlatform"),
     )
 
 
@@ -315,6 +321,10 @@ def test_submit_run_accepts_bare_site_submission_and_creates_run(
     body = response.json()
     assert body["site_id"] == site["site_id"]
     assert body["status"] == RunStatus.SUBMITTED.value
+    assert body["recruitment_platform"] == "NoPlatform"
+    assert body["recruiter_study_id"] is None
+    assert body["recruiter_participant_id"] is None
+    assert body["recruiter_session_id"] is None
     assert body["is_archived"] is False
     _assert_utc_timestamp(body["timestamp_created"])
 
@@ -324,6 +334,10 @@ def test_submit_run_accepts_bare_site_submission_and_creates_run(
         assert run_record is not None
         assert run_record.site_id == UUID(site["site_id"])
         assert run_record.status == RunStatus.SUBMITTED
+        assert run_record.recruitment_platform == "NoPlatform"
+        assert run_record.recruiter_study_id is None
+        assert run_record.recruiter_participant_id is None
+        assert run_record.recruiter_session_id is None
         assert run_record.site_submission_json_gzip is not None
         stored_submission = nk.SiteSubmission.model_validate_json(
             gzip.decompress(run_record.site_submission_json_gzip).decode("utf-8")
@@ -333,3 +347,69 @@ def test_submit_run_accepts_bare_site_submission_and_creates_run(
     get_run_response = authenticated_client.get(f"/runs/{body['run_id']}")
     assert get_run_response.status_code == 200
     assert get_run_response.json()["site_submission"] == site_submission.model_dump(mode="json")
+
+
+# %%
+def test_submit_run_stores_recruitment_context(
+    authenticated_client: TestClient,
+    server_main: ModuleType,
+) -> None:
+    site = _create_site(authenticated_client)
+    cases = [
+        (
+            _make_site_submission(
+                ProlificContext(
+                    platform="Prolific",
+                    completion_code="complete-1",
+                    prolific_pid="pid-1",
+                    study_id="study-1",
+                    session_id="session-1",
+                )
+            ),
+            {
+                "recruitment_platform": "Prolific",
+                "recruiter_study_id": "study-1",
+                "recruiter_participant_id": "pid-1",
+                "recruiter_session_id": "session-1",
+            },
+        ),
+        (
+            _make_site_submission(
+                MechanicalTurkContext(
+                    platform="MechanicalTurk",
+                    assignment_id="assignment-1",
+                    worker_id="worker-1",
+                    hit_id="hit-1",
+                    turk_submit_to="https://workersandbox.mturk.com/mturk/externalSubmit",
+                )
+            ),
+            {
+                "recruitment_platform": "MechanicalTurk",
+                "recruiter_study_id": "hit-1",
+                "recruiter_participant_id": "worker-1",
+                "recruiter_session_id": "assignment-1",
+            },
+        ),
+    ]
+
+    with TestClient(server_main.app) as client:
+        responses = [
+            client.post(
+                f"/s/{site['site_id']}/submit",
+                json=site_submission.model_dump(mode="json"),
+            )
+            for site_submission, _expected in cases
+        ]
+
+    records, engine = _get_records_and_engine()
+    for response, (_site_submission, expected) in zip(responses, cases, strict=True):
+        assert response.status_code == 200
+        body = response.json()
+        assert {key: body[key] for key in expected} == expected
+        with sqlmodel.Session(engine) as session:
+            run_record = session.get(records.RunRecord, UUID(body["run_id"]))
+            assert run_record is not None
+            assert run_record.recruitment_platform == expected["recruitment_platform"]
+            assert run_record.recruiter_study_id == expected["recruiter_study_id"]
+            assert run_record.recruiter_participant_id == expected["recruiter_participant_id"]
+            assert run_record.recruiter_session_id == expected["recruiter_session_id"]

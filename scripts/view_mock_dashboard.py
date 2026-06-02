@@ -11,7 +11,7 @@ import tempfile
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable
+from typing import Callable, TypedDict
 from uuid import UUID, uuid5
 
 import httpx
@@ -20,6 +20,7 @@ import nodekit as nk
 import nodekit.server as nk_server
 import nodekit.server.contracts as contracts
 from nodekit._internal.ops.build_site.types import (
+    BaseMechanicalTurkContext,
     MechanicalTurkContext,
     NoPlatformContext,
     ProlificContext,
@@ -27,6 +28,7 @@ from nodekit._internal.ops.build_site.types import (
 from nodekit._internal.types.events import Event
 from nodekit.server.dashboard.cache import _DashboardCache
 from nodekit.server.values import RunStatus
+from nodekit.values import Platform
 
 
 # %% Constants
@@ -67,6 +69,13 @@ class MockDashboardData:
     sites: tuple[contracts.GetSiteResponse, ...]
     tags: tuple[contracts.ListTagsItem, ...]
     runs: tuple[contracts.GetRunResponse, ...]
+
+
+class _RunRecruitmentContext(TypedDict):
+    recruitment_platform: Platform
+    recruiter_study_id: str | None
+    recruiter_participant_id: str | None
+    recruiter_session_id: str | None
 
 
 # %% Launcher
@@ -263,6 +272,10 @@ def _filter_runs(
     run_ids = set(params.get_list("run_ids"))
     site_id = params.get("site_id")
     statuses = set(params.get_list("statuses"))
+    recruitment_platforms = set(params.get_list("recruitment_platforms"))
+    recruiter_study_ids = set(params.get_list("recruiter_study_ids"))
+    recruiter_participant_ids = set(params.get_list("recruiter_participant_ids"))
+    recruiter_session_ids = set(params.get_list("recruiter_session_ids"))
     return [
         run
         for run in runs
@@ -270,6 +283,13 @@ def _filter_runs(
         and (not run_ids or str(run.run_id) in run_ids)
         and (site_id is None or str(run.site_id) == site_id)
         and (not statuses or run.status.value in statuses)
+        and (not recruitment_platforms or run.recruitment_platform in recruitment_platforms)
+        and (not recruiter_study_ids or run.recruiter_study_id in recruiter_study_ids)
+        and (
+            not recruiter_participant_ids
+            or run.recruiter_participant_id in recruiter_participant_ids
+        )
+        and (not recruiter_session_ids or run.recruiter_session_id in recruiter_session_ids)
     ]
 
 
@@ -354,10 +374,12 @@ def _make_run(
         index=index,
         seed=seed,
     )
+    recruitment_context = _recruitment_context(site_submission)
     return contracts.GetRunResponse(
         run_id=run_id,
         site_id=site.site_id,
         status=status,
+        **recruitment_context,
         is_archived=is_archived,
         timestamp_created=timestamp_created,
         site_submission=site_submission,
@@ -470,6 +492,32 @@ def _make_site_submission(
     )
 
 
+def _recruitment_context(site_submission: nk.SiteSubmission) -> _RunRecruitmentContext:
+    platform_context = site_submission.platform_context
+    if isinstance(platform_context, ProlificContext):
+        return {
+            "recruitment_platform": platform_context.platform,
+            "recruiter_study_id": platform_context.study_id,
+            "recruiter_participant_id": platform_context.prolific_pid,
+            "recruiter_session_id": platform_context.session_id,
+        }
+    if isinstance(platform_context, BaseMechanicalTurkContext):
+        return {
+            "recruitment_platform": platform_context.platform,
+            "recruiter_study_id": platform_context.hit_id,
+            "recruiter_participant_id": platform_context.worker_id,
+            "recruiter_session_id": platform_context.assignment_id,
+        }
+    if isinstance(platform_context, NoPlatformContext):
+        return {
+            "recruitment_platform": platform_context.platform,
+            "recruiter_study_id": None,
+            "recruiter_participant_id": None,
+            "recruiter_session_id": None,
+        }
+    raise ValueError(f"Unsupported platform context: {type(platform_context).__name__}.")
+
+
 def _site_detail_to_list_item(response: contracts.GetSiteResponse) -> contracts.ListSitesItem:
     return contracts.ListSitesItem(
         site_id=response.site_id,
@@ -486,6 +534,10 @@ def _run_detail_to_list_item(response: contracts.GetRunResponse) -> contracts.Li
         run_id=response.run_id,
         site_id=response.site_id,
         status=response.status,
+        recruitment_platform=response.recruitment_platform,
+        recruiter_study_id=response.recruiter_study_id,
+        recruiter_participant_id=response.recruiter_participant_id,
+        recruiter_session_id=response.recruiter_session_id,
         is_archived=response.is_archived,
         timestamp_created=response.timestamp_created,
     )

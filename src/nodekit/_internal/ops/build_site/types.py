@@ -8,10 +8,7 @@ import gzip
 import pydantic
 
 from nodekit._internal.types.trace import Trace
-
-
-# %%
-type Platform = Literal["MechanicalTurk", "MechanicalTurkSandbox", "Prolific", "NoPlatform"]
+from nodekit.values import Platform
 
 
 # %%

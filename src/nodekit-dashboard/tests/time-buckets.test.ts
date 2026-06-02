@@ -460,6 +460,9 @@ describe("site table lens", () => {
           eventCount: null,
           durationMsec: null,
           platformLabel: "unknown",
+          recruiterStudyId: null,
+          recruiterParticipantId: null,
+          recruiterSessionId: null,
           cacheState: "unknown",
           source: runs[0]!,
         },
@@ -519,6 +522,9 @@ describe("run table search", () => {
           event_count: 99,
           duration_msec: 1234,
           platform_label: "prolific",
+          recruiter_study_id: "study-1",
+          recruiter_participant_id: "pid-1",
+          recruiter_session_id: "session-1",
         },
       ],
       [
@@ -538,6 +544,9 @@ describe("run table search", () => {
     expect(matchesRunSearch(row, "submitted")).toBe(true);
     expect(matchesRunSearch(row, "pilot")).toBe(true);
     expect(matchesRunSearch(row, "prolific")).toBe(true);
+    expect(matchesRunSearch(row, "study-1")).toBe(true);
+    expect(matchesRunSearch(row, "pid-1")).toBe(true);
+    expect(matchesRunSearch(row, "session-1")).toBe(true);
     expect(matchesRunSearch(row, "99")).toBe(false);
     expect(matchesRunSearch(row, "1234")).toBe(false);
     expect(matchesRunSearch(row, "May 31")).toBe(false);

@@ -1,7 +1,16 @@
 import type { RunTableRow, SiteTableRow } from "./types";
 
 export function searchableRunText(row: RunTableRow): string {
-  return [row.runId, row.siteId, row.status, row.tags.join(" "), row.platformLabel]
+  return [
+    row.runId,
+    row.siteId,
+    row.status,
+    row.tags.join(" "),
+    row.platformLabel,
+    row.recruiterStudyId ?? "",
+    row.recruiterParticipantId ?? "",
+    row.recruiterSessionId ?? "",
+  ]
     .join(" ")
     .toLowerCase();
 }

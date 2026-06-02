@@ -5,6 +5,7 @@ import pydantic
 
 # %% Base Values
 
+type Platform = Literal["MechanicalTurk", "MechanicalTurkSandbox", "Prolific", "NoPlatform"]
 type List = list["Value"]
 type Dict = dict[str, "Value"]
 type LeafValue = bool | int | float | str

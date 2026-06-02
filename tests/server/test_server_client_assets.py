@@ -260,6 +260,49 @@ def test_create_site_without_assets_posts_site_directly() -> None:
 
 
 # %%
+def test_iter_runs_sends_recruitment_filters() -> None:
+    captured: dict[str, Any] = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        captured["path"] = request.url.path
+        captured["params"] = list(request.url.params.multi_items())
+        return httpx.Response(200, json={"items": [], "next_page_cursor": None})
+
+    client = nk_server.Client(
+        api_url="https://nodekit.example",
+        api_token="secret",
+        transport=httpx.MockTransport(handler),
+    )
+
+    assert (
+        list(
+            client.iter_runs(
+                recruitment_platforms=["Prolific", "MechanicalTurk"],
+                recruiter_study_ids=["study-1", "hit-1"],
+                recruiter_participant_ids=["pid-1", "worker-1"],
+                recruiter_session_ids=["session-1", "assignment-1"],
+                max_items=25,
+            )
+        )
+        == []
+    )
+
+    assert captured["path"] == "/runs"
+    assert captured["params"] == [
+        ("recruitment_platforms", "Prolific"),
+        ("recruitment_platforms", "MechanicalTurk"),
+        ("recruiter_study_ids", "study-1"),
+        ("recruiter_study_ids", "hit-1"),
+        ("recruiter_participant_ids", "pid-1"),
+        ("recruiter_participant_ids", "worker-1"),
+        ("recruiter_session_ids", "session-1"),
+        ("recruiter_session_ids", "assignment-1"),
+        ("include_archived", "False"),
+        ("max_items", "25"),
+    ]
+
+
+# %%
 def test_create_site_skips_upload_when_assets_are_present(
     graph_with_assets: nk.Graph,
 ) -> None:

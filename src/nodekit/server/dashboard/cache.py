@@ -374,6 +374,10 @@ class _DashboardCache:
             run_id=response.run_id,
             site_id=response.site_id,
             status=response.status,
+            recruitment_platform=response.recruitment_platform,
+            recruiter_study_id=response.recruiter_study_id,
+            recruiter_participant_id=response.recruiter_participant_id,
+            recruiter_session_id=response.recruiter_session_id,
             is_archived=response.is_archived,
             timestamp_created=response.timestamp_created,
         )
@@ -388,6 +392,10 @@ class _DashboardCache:
             updated = existing.model_copy(
                 update={
                     "status": response.status,
+                    "recruitment_platform": response.recruitment_platform,
+                    "recruiter_study_id": response.recruiter_study_id,
+                    "recruiter_participant_id": response.recruiter_participant_id,
+                    "recruiter_session_id": response.recruiter_session_id,
                     "is_archived": response.is_archived,
                     "timestamp_created": response.timestamp_created,
                 }
@@ -806,6 +814,10 @@ def _run_detail_to_list_item(response: contracts.GetRunResponse) -> contracts.Li
         run_id=response.run_id,
         site_id=response.site_id,
         status=response.status,
+        recruitment_platform=response.recruitment_platform,
+        recruiter_study_id=response.recruiter_study_id,
+        recruiter_participant_id=response.recruiter_participant_id,
+        recruiter_session_id=response.recruiter_session_id,
         is_archived=response.is_archived,
         timestamp_created=response.timestamp_created,
     )

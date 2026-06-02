@@ -1,6 +1,7 @@
 """Participant-facing routes for nodekit-server."""
 
 import gzip
+from typing import TypedDict
 from urllib.parse import urlsplit, urlunsplit
 from uuid import uuid4
 
@@ -8,8 +9,14 @@ import fastapi
 import sqlmodel
 
 from nodekit import prepare_site_url
+from nodekit._internal.ops.build_site.types import (
+    BaseMechanicalTurkContext,
+    NoPlatformContext,
+    ProlificContext,
+)
 import nodekit.server.contracts as contracts
 from nodekit.server.values import RunStatus, SiteId
+from nodekit.values import Platform
 from nodekit_server.deps import SessionDep, SettingsDep
 from nodekit_server.records import RunRecord, SiteRecord, as_utc
 
@@ -19,6 +26,13 @@ router = fastapi.APIRouter()
 
 
 # %% Helpers
+class _RunRecruitmentContext(TypedDict):
+    recruitment_platform: Platform
+    recruiter_study_id: str | None
+    recruiter_participant_id: str | None
+    recruiter_session_id: str | None
+
+
 def _get_public_site_record(session: sqlmodel.Session, site_id: SiteId) -> SiteRecord:
     site_record = session.get(SiteRecord, site_id)
     if site_record is None or site_record.is_archived:
@@ -65,6 +79,46 @@ def _gzip_site_submission(site_submission: contracts.SubmitRunRequest) -> bytes:
     return gzip.compress(site_submission.model_dump_json().encode("utf-8"), mtime=0)
 
 
+def _run_recruitment_context(site_submission: contracts.SubmitRunRequest) -> _RunRecruitmentContext:
+    platform_context = site_submission.platform_context
+    if isinstance(platform_context, ProlificContext):
+        return {
+            "recruitment_platform": platform_context.platform,
+            "recruiter_study_id": platform_context.study_id,
+            "recruiter_participant_id": platform_context.prolific_pid,
+            "recruiter_session_id": platform_context.session_id,
+        }
+    if isinstance(platform_context, BaseMechanicalTurkContext):
+        return {
+            "recruitment_platform": platform_context.platform,
+            "recruiter_study_id": platform_context.hit_id,
+            "recruiter_participant_id": platform_context.worker_id,
+            "recruiter_session_id": platform_context.assignment_id,
+        }
+    if isinstance(platform_context, NoPlatformContext):
+        return {
+            "recruitment_platform": platform_context.platform,
+            "recruiter_study_id": None,
+            "recruiter_participant_id": None,
+            "recruiter_session_id": None,
+        }
+    raise ValueError(f"Unsupported platform context: {type(platform_context).__name__}.")
+
+
+def _submit_run_response(run_record: RunRecord) -> contracts.SubmitRunResponse:
+    return contracts.SubmitRunResponse(
+        run_id=run_record.run_id,
+        site_id=run_record.site_id,
+        status=run_record.status,
+        recruitment_platform=run_record.recruitment_platform,
+        recruiter_study_id=run_record.recruiter_study_id,
+        recruiter_participant_id=run_record.recruiter_participant_id,
+        recruiter_session_id=run_record.recruiter_session_id,
+        is_archived=run_record.is_archived,
+        timestamp_created=as_utc(run_record.timestamp_created),
+    )
+
+
 # %% Serve Site
 @router.get("/s/{site_id}", include_in_schema=False)
 def serve_site(
@@ -107,6 +161,7 @@ def submit_run(
         run_id=uuid4(),
         site_id=site_id,
         status=RunStatus.SUBMITTED,
+        **_run_recruitment_context(submit_run_request),
         site_submission_json_gzip=_gzip_site_submission(submit_run_request),
         is_archived=False,
     )
@@ -114,10 +169,4 @@ def submit_run(
     session.commit()
     session.refresh(run_record)
 
-    return contracts.SubmitRunResponse(
-        run_id=run_record.run_id,
-        site_id=run_record.site_id,
-        status=run_record.status,
-        is_archived=run_record.is_archived,
-        timestamp_created=as_utc(run_record.timestamp_created),
-    )
+    return _submit_run_response(run_record)

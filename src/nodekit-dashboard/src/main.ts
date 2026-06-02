@@ -31,6 +31,8 @@ import type {
   CacheStatus,
   HealthStatus,
   LookbackRange,
+  Platform,
+  RunDashboardFilters,
   RunStatus,
   RunTableRow,
   SiteTableRow,
@@ -51,6 +53,10 @@ interface AppState {
   lookback: LookbackRange;
   search: string;
   siteSearch: string;
+  runPlatformFilter: Platform | "";
+  runStudyFilter: string;
+  runParticipantFilter: string;
+  runSessionFilter: string;
   pageIndex: number;
   sitePageIndex: number;
   selectedSiteIds: Set<string>;
@@ -76,6 +82,10 @@ const state: AppState = {
   lookback: "1h",
   search: "",
   siteSearch: "",
+  runPlatformFilter: "",
+  runStudyFilter: "",
+  runParticipantFilter: "",
+  runSessionFilter: "",
   pageIndex: 0,
   sitePageIndex: 0,
   selectedSiteIds: new Set(),
@@ -158,6 +168,45 @@ app.innerHTML = `
             />
           </label>
         </div>
+        <div class="run-filters" aria-label="Run recruitment filters">
+          <label class="filter-field">
+            <span>Platform</span>
+            <select id="run-platform-filter" aria-label="Filter Runs by recruitment platform">
+              <option value="">All</option>
+              <option value="NoPlatform">NoPlatform</option>
+              <option value="Prolific">Prolific</option>
+              <option value="MechanicalTurk">MechanicalTurk</option>
+              <option value="MechanicalTurkSandbox">MechanicalTurkSandbox</option>
+            </select>
+          </label>
+          <label class="filter-field">
+            <span>Study/HIT</span>
+            <input
+              id="run-study-filter"
+              type="text"
+              placeholder="study-1, hit-1"
+              aria-label="Filter Runs by Study or HIT IDs"
+            />
+          </label>
+          <label class="filter-field">
+            <span>Participant</span>
+            <input
+              id="run-participant-filter"
+              type="text"
+              placeholder="pid-1, worker-1"
+              aria-label="Filter Runs by participant or worker IDs"
+            />
+          </label>
+          <label class="filter-field">
+            <span>Session</span>
+            <input
+              id="run-session-filter"
+              type="text"
+              placeholder="session-1, assignment-1"
+              aria-label="Filter Runs by session or assignment IDs"
+            />
+          </label>
+        </div>
         <div id="error" class="error"></div>
         <div id="runs-table" class="table-wrap"></div>
         <div id="runs-pager" class="pager"></div>
@@ -186,6 +235,26 @@ function bindStaticControls(): void {
     state.sitePageIndex = 0;
     render();
   });
+  select("run-platform-filter").addEventListener("change", (event) => {
+    state.runPlatformFilter = (event.target as HTMLSelectElement).value as Platform | "";
+    resetRunViewAfterFilterChange();
+    void loadData();
+  });
+  input("run-study-filter").addEventListener("input", (event) => {
+    state.runStudyFilter = (event.target as HTMLInputElement).value;
+    resetRunViewAfterFilterChange();
+    void loadData();
+  });
+  input("run-participant-filter").addEventListener("input", (event) => {
+    state.runParticipantFilter = (event.target as HTMLInputElement).value;
+    resetRunViewAfterFilterChange();
+    void loadData();
+  });
+  input("run-session-filter").addEventListener("input", (event) => {
+    state.runSessionFilter = (event.target as HTMLInputElement).value;
+    resetRunViewAfterFilterChange();
+    void loadData();
+  });
 }
 
 function bindChartResize(): void {
@@ -205,7 +274,7 @@ async function loadData(): Promise<void> {
   state.error = null;
   const range = visibleRange(state.lookback);
   try {
-    const data = await fetchDashboardData(range);
+    const data = await fetchDashboardData(range, currentRunFilters());
     state.status = data.status;
     state.runs = data.runs.filter((run) => !run.is_archived);
     state.sites = data.sites;
@@ -467,6 +536,12 @@ function renderRunsTable(rows: RunTableRow[]): void {
       textCell(shortId(source.siteId), source.siteId),
       textCell(source.tags.join(", ") || "none", source.tags.join(", ")),
       textCell(source.platformLabel, source.platformLabel),
+      textCell(shortNullableId(source.recruiterStudyId), source.recruiterStudyId ?? undefined),
+      textCell(
+        shortNullableId(source.recruiterParticipantId),
+        source.recruiterParticipantId ?? undefined,
+      ),
+      textCell(shortNullableId(source.recruiterSessionId), source.recruiterSessionId ?? undefined),
       textCell(formatRelativeTimestamp(source.createdAt), formatDateTimeWithZone(source.createdAt)),
       textCell(formatDateTimeWithZone(source.createdAt)),
       textCell(formatDuration(source.durationMsec)),
@@ -477,7 +552,7 @@ function renderRunsTable(rows: RunTableRow[]): void {
   if (rows.length === 0) {
     const tr = document.createElement("tr");
     const td = textCell("No cached Runs match this view.");
-    td.colSpan = 9;
+    td.colSpan = 12;
     tr.append(td);
     tbody.append(tr);
   }
@@ -557,8 +632,16 @@ function pagerButton(label: string, disabled: boolean, onClick: () => void): HTM
 function resetView(): void {
   state.search = "";
   state.siteSearch = "";
+  state.runPlatformFilter = "";
+  state.runStudyFilter = "";
+  state.runParticipantFilter = "";
+  state.runSessionFilter = "";
   input("search-filter").value = "";
   input("site-search-filter").value = "";
+  select("run-platform-filter").value = "";
+  input("run-study-filter").value = "";
+  input("run-participant-filter").value = "";
+  input("run-session-filter").value = "";
   state.sorting = [{ id: "createdAtMs", desc: true }];
   state.siteSorting = [
     { id: "runCount", desc: true },
@@ -567,9 +650,32 @@ function resetView(): void {
   state.pageIndex = 0;
   state.sitePageIndex = 0;
   state.matrixRowOffset = 0;
-  const { range, model } = buildCurrentMatrix();
-  setMatrixSelection(defaultMatrixSelection(model, range), true);
-  render();
+  state.hasInitializedMatrixSelection = false;
+  state.selectionFollowsGlobalWindow = true;
+  void loadData();
+}
+
+function resetRunViewAfterFilterChange(): void {
+  state.pageIndex = 0;
+  state.sitePageIndex = 0;
+  state.matrixRowOffset = 0;
+  state.hasInitializedMatrixSelection = false;
+}
+
+function currentRunFilters(): RunDashboardFilters {
+  return {
+    recruitmentPlatforms: state.runPlatformFilter ? [state.runPlatformFilter] : [],
+    recruiterStudyIds: splitFilterValues(state.runStudyFilter),
+    recruiterParticipantIds: splitFilterValues(state.runParticipantFilter),
+    recruiterSessionIds: splitFilterValues(state.runSessionFilter),
+  };
+}
+
+function splitFilterValues(value: string): string[] {
+  return value
+    .split(",")
+    .map((item) => item.trim())
+    .filter((item) => item.length > 0);
 }
 
 function buildCurrentMatrix(): {
@@ -698,6 +804,10 @@ function shortId(value: string): string {
   return value.length > 8 ? value.slice(0, 8) : value;
 }
 
+function shortNullableId(value: string | null): string {
+  return value === null ? "" : shortId(value);
+}
+
 function formatUrl(value: string): string {
   try {
     const url = new URL(value);
@@ -726,4 +836,8 @@ function byId(id: string): HTMLElement {
 
 function input(id: string): HTMLInputElement {
   return byId(id) as HTMLInputElement;
+}
+
+function select(id: string): HTMLSelectElement {
+  return byId(id) as HTMLSelectElement;
 }

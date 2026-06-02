@@ -6,6 +6,7 @@ __all__ = [
     "List",
     "Dict",
     "LeafValue",
+    "Platform",
     # Space
     "PixelSize",
     "PixelPoint",
@@ -35,6 +36,7 @@ from nodekit._internal.types.values import (
     List,
     Dict,
     LeafValue,
+    Platform,
     # Space
     PixelSize,
     PixelPoint,

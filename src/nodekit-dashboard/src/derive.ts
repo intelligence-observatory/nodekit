@@ -26,7 +26,10 @@ export function buildRunRows(
         traceAvailable: run.trace_available ?? null,
         eventCount: run.event_count ?? null,
         durationMsec: run.duration_msec ?? null,
-        platformLabel: run.platform_label ?? "unknown",
+        platformLabel: run.platform_label ?? run.recruitment_platform ?? "unknown",
+        recruiterStudyId: run.recruiter_study_id ?? null,
+        recruiterParticipantId: run.recruiter_participant_id ?? null,
+        recruiterSessionId: run.recruiter_session_id ?? null,
         cacheState,
         source: run,
       };

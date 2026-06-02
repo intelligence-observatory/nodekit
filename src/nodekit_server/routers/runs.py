@@ -1,7 +1,7 @@
 """Run routes for nodekit-server."""
 
 import gzip
-from typing import Annotated
+from typing import Annotated, Any
 from uuid import UUID
 
 import fastapi
@@ -21,14 +21,22 @@ router = fastapi.APIRouter()
 
 
 # %% Helpers
+def _run_record_summary(run_record: RunRecord) -> dict[str, Any]:
+    return {
+        "run_id": run_record.run_id,
+        "site_id": run_record.site_id,
+        "status": run_record.status,
+        "recruitment_platform": run_record.recruitment_platform,
+        "recruiter_study_id": run_record.recruiter_study_id,
+        "recruiter_participant_id": run_record.recruiter_participant_id,
+        "recruiter_session_id": run_record.recruiter_session_id,
+        "is_archived": run_record.is_archived,
+        "timestamp_created": as_utc(run_record.timestamp_created),
+    }
+
+
 def _run_item(run_record: RunRecord) -> contracts.ListRunsItem:
-    return contracts.ListRunsItem(
-        run_id=run_record.run_id,
-        site_id=run_record.site_id,
-        status=run_record.status,
-        is_archived=run_record.is_archived,
-        timestamp_created=as_utc(run_record.timestamp_created),
-    )
+    return contracts.ListRunsItem.model_validate(_run_record_summary(run_record))
 
 
 def _gunzip_site_submission(payload: bytes) -> SiteSubmission:
@@ -43,24 +51,14 @@ def _run_detail_response(run_record: RunRecord) -> contracts.GetRunResponse:
         trace = site_submission.trace
 
     return contracts.GetRunResponse(
-        run_id=run_record.run_id,
-        site_id=run_record.site_id,
-        status=run_record.status,
-        is_archived=run_record.is_archived,
-        timestamp_created=as_utc(run_record.timestamp_created),
+        **_run_record_summary(run_record),
         site_submission=site_submission,
         trace=trace,
     )
 
 
 def _run_mutation_response(run_record: RunRecord) -> dict[str, object]:
-    return {
-        "run_id": run_record.run_id,
-        "site_id": run_record.site_id,
-        "status": run_record.status,
-        "is_archived": run_record.is_archived,
-        "timestamp_created": as_utc(run_record.timestamp_created),
-    }
+    return _run_record_summary(run_record)
 
 
 def _ensure_path_body_run_match(path_run_id: RunId, body_run_id: RunId) -> None:
@@ -114,6 +112,22 @@ def list_runs(
         statement = statement.where(sqlmodel.col(RunRecord.site_id) == query.site_id)
     if query.statuses is not None:
         statement = statement.where(sqlmodel.col(RunRecord.status).in_(query.statuses))
+    if query.recruitment_platforms is not None:
+        statement = statement.where(
+            sqlmodel.col(RunRecord.recruitment_platform).in_(query.recruitment_platforms)
+        )
+    if query.recruiter_study_ids is not None:
+        statement = statement.where(
+            sqlmodel.col(RunRecord.recruiter_study_id).in_(query.recruiter_study_ids)
+        )
+    if query.recruiter_participant_ids is not None:
+        statement = statement.where(
+            sqlmodel.col(RunRecord.recruiter_participant_id).in_(query.recruiter_participant_ids)
+        )
+    if query.recruiter_session_ids is not None:
+        statement = statement.where(
+            sqlmodel.col(RunRecord.recruiter_session_id).in_(query.recruiter_session_ids)
+        )
     if not query.include_archived:
         statement = statement.where(sqlmodel.col(RunRecord.is_archived) == False)  # noqa: E712
 

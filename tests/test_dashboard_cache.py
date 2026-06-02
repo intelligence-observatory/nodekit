@@ -442,6 +442,64 @@ def test_dashboard_runs_endpoint_excludes_archived_cached_runs(
     assert [item["run_id"] for item in response.json()] == [str(visible_run_id)]
 
 
+def test_dashboard_runs_endpoint_filters_recruitment_context(
+    tmp_path: Path,
+) -> None:
+    site_id = uuid4()
+    prolific_run_id = uuid4()
+    mturk_run_id = uuid4()
+    cache = _DashboardCache(client=None, cache_dir=tmp_path)
+    for run_id, recruitment_platform, study_id, participant_id, session_id in (
+        (prolific_run_id, "Prolific", "study-1", "pid-1", "session-1"),
+        (mturk_run_id, "MechanicalTurk", "hit-1", "worker-1", "assignment-1"),
+    ):
+        cache.upsert_item(
+            kind="run",
+            key=str(run_id),
+            payload=contracts.ListRunsItem(
+                run_id=run_id,
+                site_id=site_id,
+                status=RunStatus.SUBMITTED,
+                recruitment_platform=recruitment_platform,
+                recruiter_study_id=study_id,
+                recruiter_participant_id=participant_id,
+                recruiter_session_id=session_id,
+                is_archived=False,
+                timestamp_created=datetime.datetime.fromisoformat(TIMESTAMP_CREATED),
+            ),
+        )
+    app = create_dashboard_app(cache=cache)
+
+    with TestClient(app) as dashboard_client:
+        response = dashboard_client.get(
+            "/api/runs",
+            params=[
+                ("recruitment_platforms", "Prolific"),
+                ("recruiter_study_ids", "study-1"),
+                ("recruiter_participant_ids", "pid-1"),
+                ("recruiter_session_ids", "session-1"),
+            ],
+        )
+        mismatch_response = dashboard_client.get(
+            "/api/runs",
+            params=[
+                ("recruitment_platforms", "Prolific"),
+                ("recruiter_participant_ids", "worker-1"),
+            ],
+        )
+
+    assert response.status_code == 200
+    [run] = response.json()
+    assert run["run_id"] == str(prolific_run_id)
+    assert run["recruitment_platform"] == "Prolific"
+    assert run["platform_label"] == "Prolific"
+    assert run["recruiter_study_id"] == "study-1"
+    assert run["recruiter_participant_id"] == "pid-1"
+    assert run["recruiter_session_id"] == "session-1"
+    assert mismatch_response.status_code == 200
+    assert mismatch_response.json() == []
+
+
 def test_dashboard_runs_endpoint_includes_cached_detail_summary(
     tmp_path: Path,
 ) -> None:

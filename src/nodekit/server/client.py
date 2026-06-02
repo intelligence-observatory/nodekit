@@ -8,6 +8,7 @@ import pydantic
 
 from nodekit import Graph
 from nodekit.assets import Asset
+from nodekit.values import Platform
 from nodekit._internal.ops.open_asset_save_asset import open_asset
 from nodekit._internal.ops.transform_asset_locators import transform_asset_locators
 from nodekit._internal.types.assets import URL
@@ -281,6 +282,10 @@ class Client:
         run_ids: list[RunId] | None = None,
         site_id: SiteId | None = None,
         statuses: list[RunStatus] | None = None,
+        recruitment_platforms: list[Platform] | None = None,
+        recruiter_study_ids: list[str] | None = None,
+        recruiter_participant_ids: list[str] | None = None,
+        recruiter_session_ids: list[str] | None = None,
         include_archived: bool = False,
         max_items: int = 100,
     ) -> Iterator[contracts.ListRunsItem]:
@@ -288,6 +293,10 @@ class Client:
             run_ids=run_ids,
             site_id=site_id,
             statuses=statuses,
+            recruitment_platforms=recruitment_platforms,
+            recruiter_study_ids=recruiter_study_ids,
+            recruiter_participant_ids=recruiter_participant_ids,
+            recruiter_session_ids=recruiter_session_ids,
             include_archived=include_archived,
             max_items=max_items,
         )

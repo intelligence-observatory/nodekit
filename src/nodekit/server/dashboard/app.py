@@ -1,6 +1,7 @@
 """FastAPI app for the local NodeKit dashboard."""
 
 import datetime
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Any, Callable
 from uuid import UUID
@@ -10,6 +11,7 @@ import httpx
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 
+from nodekit.values import Platform
 from nodekit.server import contracts
 from nodekit.server.values import RunId, RunStatus, SiteId
 
@@ -98,19 +100,32 @@ def create_dashboard_app(
         return cache.read_items(kind="tag", response_type=contracts.ListTagsItem)
 
     @app.get("/api/runs")
-    def runs(start_ms: int | None = None, end_ms: int | None = None) -> list[dict[str, Any]]:
+    def runs(
+        start_ms: int | None = None,
+        end_ms: int | None = None,
+        recruitment_platforms: list[Platform] | None = fastapi.Query(default=None),
+        recruiter_study_ids: list[str] | None = fastapi.Query(default=None),
+        recruiter_participant_ids: list[str] | None = fastapi.Query(default=None),
+        recruiter_session_ids: list[str] | None = fastapi.Query(default=None),
+    ) -> list[dict[str, Any]]:
         if start_ms is not None or end_ms is not None:
             return _enrich_run_items(
                 cache,
-                _visible_run_items(
-                    cache.read_items_in_time_window(
-                        kind="run",
-                        response_type=contracts.ListRunsItem,
-                        timestamp_field="timestamp_created",
-                        start_ms=start_ms,
-                        end_ms=end_ms,
-                        stale_kind="run-list",
-                    )
+                _filter_run_items(
+                    _visible_run_items(
+                        cache.read_items_in_time_window(
+                            kind="run",
+                            response_type=contracts.ListRunsItem,
+                            timestamp_field="timestamp_created",
+                            start_ms=start_ms,
+                            end_ms=end_ms,
+                            stale_kind="run-list",
+                        )
+                    ),
+                    recruitment_platforms=recruitment_platforms,
+                    recruiter_study_ids=recruiter_study_ids,
+                    recruiter_participant_ids=recruiter_participant_ids,
+                    recruiter_session_ids=recruiter_session_ids,
                 ),
             )
 
@@ -121,11 +136,26 @@ def create_dashboard_app(
             stale_kind="run-list",
         )
         if items:
-            return _enrich_run_items(cache, _visible_run_items(items))
+            return _enrich_run_items(
+                cache,
+                _filter_run_items(
+                    _visible_run_items(items),
+                    recruitment_platforms=recruitment_platforms,
+                    recruiter_study_ids=recruiter_study_ids,
+                    recruiter_participant_ids=recruiter_participant_ids,
+                    recruiter_session_ids=recruiter_session_ids,
+                ),
+            )
         return _enrich_run_items(
             cache,
-            _visible_run_items(
-                cache.read_items(kind="run", response_type=contracts.ListRunsItem),
+            _filter_run_items(
+                _visible_run_items(
+                    cache.read_items(kind="run", response_type=contracts.ListRunsItem),
+                ),
+                recruitment_platforms=recruitment_platforms,
+                recruiter_study_ids=recruiter_study_ids,
+                recruiter_participant_ids=recruiter_participant_ids,
+                recruiter_session_ids=recruiter_session_ids,
             ),
         )
 
@@ -222,13 +252,42 @@ def _enrich_run_items(
                 detail = cache.refresh_run(run_id=UUID(str(item["run_id"])))
             except httpx.HTTPError:
                 detail = None
-        next_item.update(_run_summary(detail))
+        summary = _run_summary(detail)
+        if summary["platform_label"] is None:
+            summary["platform_label"] = item.get("recruitment_platform")
+        next_item.update(summary)
         enriched.append(next_item)
     return enriched
 
 
 def _visible_run_items(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return [item for item in items if not item.get("is_archived", False)]
+
+
+def _filter_run_items(
+    items: list[dict[str, Any]],
+    *,
+    recruitment_platforms: list[Platform] | None,
+    recruiter_study_ids: list[str] | None,
+    recruiter_participant_ids: list[str] | None,
+    recruiter_session_ids: list[str] | None,
+) -> list[dict[str, Any]]:
+    return [
+        item
+        for item in items
+        if _matches_filter(item, "recruitment_platform", recruitment_platforms)
+        and _matches_filter(item, "recruiter_study_id", recruiter_study_ids)
+        and _matches_filter(item, "recruiter_participant_id", recruiter_participant_ids)
+        and _matches_filter(item, "recruiter_session_id", recruiter_session_ids)
+    ]
+
+
+def _matches_filter(
+    item: dict[str, Any],
+    key: str,
+    allowed_values: Sequence[str] | None,
+) -> bool:
+    return allowed_values is None or item.get(key) in set(allowed_values)
 
 
 def _should_hydrate_run_detail(cache: _DashboardCache, item: dict[str, Any]) -> bool:
