@@ -147,7 +147,6 @@ def test_upload_asset_sends_multipart_asset_bytes() -> None:
 # %%
 def test_create_site_preflights_and_uploads_missing_assets(graph_with_assets: nk.Graph) -> None:
     site_id = uuid4()
-    user_id = uuid4()
     captured: dict[str, Any] = {"paths": [], "uploads": []}
 
     def handler(request: httpx.Request) -> httpx.Response:
@@ -182,13 +181,7 @@ def test_create_site_preflights_and_uploads_missing_assets(graph_with_assets: nk
                 200,
                 json={
                     "site_id": str(site_id),
-                    "user_id": str(user_id),
                     "url": f"https://nodekit.example/s/{site_id}",
-                    "tags": body["tags"],
-                    "is_archived": False,
-                    "timestamp_created": TIMESTAMP_CREATED,
-                    "graph": body["graph"],
-                    "assets": [],
                 },
             )
 
@@ -223,25 +216,17 @@ def test_create_site_preflights_and_uploads_missing_assets(graph_with_assets: nk
 # %%
 def test_create_site_without_assets_posts_site_directly() -> None:
     site_id = uuid4()
-    user_id = uuid4()
     graph = _make_graph_without_assets()
     captured: dict[str, Any] = {"paths": []}
 
     def handler(request: httpx.Request) -> httpx.Response:
         captured["paths"].append(request.url.path)
         if request.url.path == "/sites":
-            body = json.loads(request.content)
             return httpx.Response(
                 200,
                 json={
                     "site_id": str(site_id),
-                    "user_id": str(user_id),
                     "url": f"https://nodekit.example/s/{site_id}",
-                    "tags": body["tags"],
-                    "is_archived": False,
-                    "timestamp_created": TIMESTAMP_CREATED,
-                    "graph": body["graph"],
-                    "assets": [],
                 },
             )
 
@@ -307,7 +292,6 @@ def test_create_site_skips_upload_when_assets_are_present(
     graph_with_assets: nk.Graph,
 ) -> None:
     site_id = uuid4()
-    user_id = uuid4()
     captured: dict[str, Any] = {"paths": []}
 
     def handler(request: httpx.Request) -> httpx.Response:
@@ -316,18 +300,11 @@ def test_create_site_skips_upload_when_assets_are_present(
             return httpx.Response(200, json={"missing": []})
 
         if request.url.path == "/sites":
-            body = json.loads(request.content)
             return httpx.Response(
                 200,
                 json={
                     "site_id": str(site_id),
-                    "user_id": str(user_id),
                     "url": f"https://nodekit.example/s/{site_id}",
-                    "tags": body["tags"],
-                    "is_archived": False,
-                    "timestamp_created": TIMESTAMP_CREATED,
-                    "graph": body["graph"],
-                    "assets": [],
                 },
             )
 
@@ -348,7 +325,6 @@ def test_create_site_skips_upload_when_assets_are_present(
 # %%
 def test_create_site_deduplicates_duplicate_asset_uploads() -> None:
     site_id = uuid4()
-    user_id = uuid4()
     asset = nk.assets.Image.from_path(ASSET_DIR / "fixation-cross.svg")
     graph = _make_graph_with_duplicate_asset(asset)
     captured: dict[str, Any] = {"paths": [], "uploads": []}
@@ -376,18 +352,11 @@ def test_create_site_deduplicates_duplicate_asset_uploads() -> None:
             )
 
         if request.url.path == "/sites":
-            body = json.loads(request.content)
             return httpx.Response(
                 200,
                 json={
                     "site_id": str(site_id),
-                    "user_id": str(user_id),
                     "url": f"https://nodekit.example/s/{site_id}",
-                    "tags": body["tags"],
-                    "is_archived": False,
-                    "timestamp_created": TIMESTAMP_CREATED,
-                    "graph": body["graph"],
-                    "assets": [],
                 },
             )
 

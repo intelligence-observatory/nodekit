@@ -346,7 +346,12 @@ def test_submit_run_accepts_bare_site_submission_and_creates_run(
 
     get_run_response = authenticated_client.get(f"/runs/{body['run_id']}")
     assert get_run_response.status_code == 200
-    assert get_run_response.json()["site_submission"] == site_submission.model_dump(mode="json")
+    returned_submission = nk.SiteSubmission.model_validate_json(
+        gzip.decompress(
+            base64.b64decode(get_run_response.json()["site_submission_json_gzip"])
+        ).decode("utf-8")
+    )
+    assert returned_submission == site_submission
 
 
 # %%

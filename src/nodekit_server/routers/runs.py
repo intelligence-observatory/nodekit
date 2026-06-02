@@ -1,13 +1,12 @@
 """Run routes for nodekit-server."""
 
-import gzip
+import base64
 from typing import Annotated, Any
 from uuid import UUID
 
 import fastapi
 import sqlmodel
 
-from nodekit import SiteSubmission
 import nodekit.server.contracts as contracts
 from nodekit.server.values import RunId
 from nodekit_server.auth import UserDep
@@ -39,21 +38,14 @@ def _run_item(run_record: RunRecord) -> contracts.ListRunsItem:
     return contracts.ListRunsItem.model_validate(_run_record_summary(run_record))
 
 
-def _gunzip_site_submission(payload: bytes) -> SiteSubmission:
-    return SiteSubmission.model_validate_json(gzip.decompress(payload).decode("utf-8"))
-
-
 def _run_detail_response(run_record: RunRecord) -> contracts.GetRunResponse:
-    site_submission = None
-    trace = None
-    if run_record.site_submission_json_gzip is not None:
-        site_submission = _gunzip_site_submission(run_record.site_submission_json_gzip)
-        trace = site_submission.trace
-
     return contracts.GetRunResponse(
         **_run_record_summary(run_record),
-        site_submission=site_submission,
-        trace=trace,
+        site_submission_json_gzip=(
+            base64.b64encode(run_record.site_submission_json_gzip).decode("ascii")
+            if run_record.site_submission_json_gzip is not None
+            else None
+        ),
     )
 
 

@@ -1,3 +1,4 @@
+import base64
 import hashlib
 import gzip
 import datetime
@@ -237,17 +238,8 @@ def test_create_site_persists_normalized_graph(
 
     assert response.status_code == 200
     body = response.json()
+    assert set(body) == {"site_id", "url"}
     assert body["url"] == f"http://testserver/s/{body['site_id']}"
-    assert body["tags"] == ["pilot", "main"]
-    _assert_utc_timestamp(body["timestamp_created"])
-    assert len(body["assets"]) == 3
-    for asset in body["assets"]:
-        _assert_utc_timestamp(asset["timestamp_created"])
-
-    response_graph = nk.Graph.model_validate(body["graph"])
-    for asset in iter_assets(graph=response_graph):
-        assert isinstance(asset.locator, URL)
-        assert asset.locator.url == f"http://testserver/assets/{asset.sha256}"
 
     for asset in iter_assets(graph=graph_with_assets):
         assert isinstance(asset.locator, FileSystemPath)
@@ -336,7 +328,9 @@ def test_site_management_routes(
     assert get_body["site_id"] == first_site["site_id"]
     assert get_body["tags"] == ["shared", "route-a"]
     assert len(get_body["assets"]) == 3
-    assert nk.Graph.model_validate(get_body["graph"])
+    assert "graph" not in get_body
+    get_graph_json = gzip.decompress(base64.b64decode(get_body["graph_json_gzip"])).decode("utf-8")
+    assert nk.Graph.model_validate_json(get_graph_json)
 
     filtered_response = authenticated_client.get(
         "/sites",
@@ -424,6 +418,36 @@ def test_site_management_routes(
     assert len(archived_items) == 1
     assert archived_items[0]["site_id"] == first_site["site_id"]
     assert archived_items[0]["is_archived"] is True
+
+
+# %%
+def test_get_site_returns_invalid_stored_graph_blob_without_validation(
+    authenticated_client: TestClient,
+    graph_with_assets: nk.Graph,
+) -> None:
+    _upload_graph_assets(authenticated_client, graph_with_assets)
+    site = _create_site(
+        authenticated_client=authenticated_client,
+        graph=graph_with_assets,
+        tags=[],
+    )
+
+    invalid_graph_json_gzip = gzip.compress(b'{"not": "a graph"}', mtime=0)
+    engine = sys.modules["nodekit_server.deps"].engine
+    records: Any = sys.modules["nodekit_server.records"]
+    with sqlmodel.Session(engine) as session:
+        site_record = session.get(records.SiteRecord, UUID(site["site_id"]))
+        assert site_record is not None
+        site_record.graph_json_gzip = invalid_graph_json_gzip
+        session.add(site_record)
+        session.commit()
+
+    response = authenticated_client.get(f"/sites/{site['site_id']}")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert "graph" not in body
+    assert base64.b64decode(body["graph_json_gzip"]) == invalid_graph_json_gzip
 
 
 # %%

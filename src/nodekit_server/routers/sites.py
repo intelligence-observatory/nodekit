@@ -1,5 +1,6 @@
 """Site routes for nodekit-server."""
 
+import base64
 import gzip
 from collections.abc import Iterable
 from typing import Annotated
@@ -106,10 +107,6 @@ def _site_url(
 
 def _gzip_graph_json(graph: Graph) -> bytes:
     return gzip.compress(graph.model_dump_json().encode("utf-8"), mtime=0)
-
-
-def _gunzip_graph_json(payload: bytes) -> Graph:
-    return Graph.model_validate_json(gzip.decompress(payload).decode("utf-8"))
 
 
 def _get_or_create_tag(
@@ -246,7 +243,7 @@ def _site_detail_response(
         tags=_get_site_tags(session=session, user_id=user_id, site_id=site_record.site_id),
         is_archived=site_record.is_archived,
         timestamp_created=as_utc(site_record.timestamp_created),
-        graph=_gunzip_graph_json(site_record.graph_json_gzip),
+        graph_json_gzip=base64.b64encode(site_record.graph_json_gzip).decode("ascii"),
         assets=_get_site_asset_items(session=session, site_id=site_record.site_id),
     )
 
@@ -364,20 +361,9 @@ def create_site(
     session.commit()
     session.refresh(site_record)
 
-    asset_items = tuple(
-        _asset_record_to_item(asset_records[_asset_key(identifier)])
-        for identifier in asset_identifiers
-    )
-
     return contracts.CreateSiteResponse(
         site_id=site_record.site_id,
-        user_id=site_record.user_id,
         url=_site_url(request=request, settings=settings, site_id=site_record.site_id),
-        tags=tags,
-        is_archived=site_record.is_archived,
-        timestamp_created=as_utc(site_record.timestamp_created),
-        graph=normalized_graph,
-        assets=asset_items,
     )
 
 

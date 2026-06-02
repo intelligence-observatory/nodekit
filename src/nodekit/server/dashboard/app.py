@@ -301,27 +301,33 @@ def _should_hydrate_run_detail(cache: _DashboardCache, item: dict[str, Any]) -> 
 
 
 def _run_summary(detail: contracts.GetRunResponse | None) -> dict[str, Any]:
+    empty_summary = {
+        "trace_available": None,
+        "event_count": None,
+        "duration_msec": None,
+        "platform_label": None,
+    }
     if detail is None:
-        return {
-            "trace_available": None,
-            "event_count": None,
-            "duration_msec": None,
-            "platform_label": None,
-        }
+        return empty_summary
+
+    try:
+        site_submission = detail.site_submission
+    except Exception:
+        return empty_summary
+
+    trace = site_submission.trace if site_submission is not None else None
 
     event_times = [
         event.t
-        for event in (detail.trace.events if detail.trace is not None else ())
+        for event in (trace.events if trace is not None else ())
         if isinstance(event.t, int | float)
     ]
     duration_msec = max(event_times) - min(event_times) if len(event_times) >= 2 else None
-    platform_context = (
-        detail.site_submission.platform_context if detail.site_submission is not None else None
-    )
+    platform_context = site_submission.platform_context if site_submission is not None else None
     platform = getattr(platform_context, "platform", None)
     return {
-        "trace_available": detail.trace is not None,
-        "event_count": len(detail.trace.events) if detail.trace is not None else None,
+        "trace_available": trace is not None,
+        "event_count": len(trace.events) if trace is not None else None,
         "duration_msec": duration_msec,
         "platform_label": str(platform) if platform is not None else None,
     }

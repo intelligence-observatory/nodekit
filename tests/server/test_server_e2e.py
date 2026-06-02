@@ -83,7 +83,7 @@ def test_server_e2e_site_submission_flow(
     server_main: Any,
     graph_with_assets: nk.Graph,
 ) -> None:
-    user, token = _create_researcher(authenticated_client)
+    _, token = _create_researcher(authenticated_client)
 
     with TestClient(server_main.app) as researcher_client:
         researcher_client.headers.update({"Authorization": f"Bearer {token}"})
@@ -99,8 +99,7 @@ def test_server_e2e_site_submission_flow(
         create_site_response.raise_for_status()
         site = create_site_response.json()
 
-    assert site["user_id"] == user["user_id"]
-    assert site["tags"] == ["e2e"]
+    assert set(site) == {"site_id", "url"}
 
     with TestClient(server_main.app) as participant_client:
         site_response = participant_client.get(
@@ -134,5 +133,7 @@ def test_server_e2e_site_submission_flow(
         run = get_run_response.json()
 
     assert run["site_id"] == site["site_id"]
-    assert run["site_submission"] == site_submission.model_dump(mode="json")
-    assert run["trace"] == site_submission.trace.model_dump(mode="json")
+    returned_submission = nk.SiteSubmission.model_validate_json(
+        gzip.decompress(base64.b64decode(run["site_submission_json_gzip"])).decode("utf-8")
+    )
+    assert returned_submission == site_submission

@@ -364,7 +364,7 @@ def test_list_runs_filters_and_paginates(authenticated_client: TestClient) -> No
 
 
 # %%
-def test_get_run_returns_submission_and_derived_trace(
+def test_get_run_returns_compressed_submission_blob(
     authenticated_client: TestClient,
 ) -> None:
     user_id = _get_bootstrap_user_id()
@@ -386,9 +386,41 @@ def test_get_run_returns_submission_and_derived_trace(
     assert body["recruiter_study_id"] is None
     assert body["recruiter_participant_id"] is None
     assert body["recruiter_session_id"] is None
-    assert body["site_submission"] == site_submission.model_dump(mode="json")
-    assert body["trace"] == site_submission.trace.model_dump(mode="json")
+    assert "site_submission" not in body
+    assert "trace" not in body
+    returned_submission = nk.SiteSubmission.model_validate_json(
+        gzip.decompress(base64.b64decode(body["site_submission_json_gzip"])).decode("utf-8")
+    )
+    assert returned_submission == site_submission
     _assert_utc_timestamp(body["timestamp_created"])
+
+
+# %%
+def test_get_run_returns_invalid_stored_submission_blob_without_validation(
+    authenticated_client: TestClient,
+) -> None:
+    user_id = _get_bootstrap_user_id()
+    site = _create_site_record(user_id=user_id)
+    run = _create_run_record(
+        site_id=site.site_id,
+        status=RunStatus.SUBMITTED,
+    )
+    invalid_submission_json_gzip = gzip.compress(b'{"not": "a submission"}', mtime=0)
+    records, engine = _get_records_and_engine()
+    with sqlmodel.Session(engine) as session:
+        run_record = session.get(records.RunRecord, run.run_id)
+        assert run_record is not None
+        run_record.site_submission_json_gzip = invalid_submission_json_gzip
+        session.add(run_record)
+        session.commit()
+
+    response = authenticated_client.get(f"/runs/{run.run_id}")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert "site_submission" not in body
+    assert "trace" not in body
+    assert base64.b64decode(body["site_submission_json_gzip"]) == invalid_submission_json_gzip
 
 
 # %%

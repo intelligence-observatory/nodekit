@@ -562,18 +562,6 @@ class _CachedDashboardClient:
         tags: Iterable[str] = (),
     ) -> contracts.CreateSiteResponse:
         response = self.client.create_site(graph=graph, tags=tags)
-        self.cache.store_site_detail(
-            contracts.GetSiteResponse(
-                site_id=response.site_id,
-                user_id=response.user_id,
-                url=response.url,
-                tags=response.tags,
-                is_archived=response.is_archived,
-                timestamp_created=response.timestamp_created,
-                graph=response.graph,
-                assets=response.assets,
-            )
-        )
         self.cache.invalidate_queries("sites")
         return response
 

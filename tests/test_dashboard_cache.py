@@ -60,6 +60,19 @@ def _make_site_submission(graph: nk.Graph) -> nk.SiteSubmission:
     )
 
 
+def _graph_json_gzip_b64(graph: nk.Graph) -> str:
+    graph_json_gzip = gzip.compress(graph.model_dump_json().encode("utf-8"), mtime=0)
+    return base64.b64encode(graph_json_gzip).decode("ascii")
+
+
+def _site_submission_json_gzip_b64(site_submission: nk.SiteSubmission) -> str:
+    site_submission_json_gzip = gzip.compress(
+        site_submission.model_dump_json().encode("utf-8"),
+        mtime=0,
+    )
+    return base64.b64encode(site_submission_json_gzip).decode("ascii")
+
+
 def _json_response(payload: dict[str, Any]) -> httpx.Response:
     return httpx.Response(200, json=payload)
 
@@ -151,8 +164,7 @@ def test_dashboard_cache_scope_isolates_clients_and_never_writes_raw_token(
                     "status": RunStatus.SUBMITTED.value,
                     "is_archived": False,
                     "timestamp_created": TIMESTAMP_CREATED,
-                    "site_submission": None,
-                    "trace": None,
+                    "site_submission_json_gzip": None,
                 }
             )
         if request.url.path == f"/sites/{site_id}":
@@ -164,7 +176,7 @@ def test_dashboard_cache_scope_isolates_clients_and_never_writes_raw_token(
                     "tags": ["pilot"],
                     "is_archived": False,
                     "timestamp_created": TIMESTAMP_CREATED,
-                    "graph": graph.model_dump(mode="json"),
+                    "graph_json_gzip": _graph_json_gzip_b64(graph),
                     "assets": [],
                 }
             )
@@ -223,7 +235,7 @@ def test_dashboard_cache_round_trips_site_and_run_detail(
             tags=("pilot",),
             is_archived=False,
             timestamp_created=datetime.datetime.fromisoformat(TIMESTAMP_CREATED),
-            graph=graph,
+            graph_json_gzip=_graph_json_gzip_b64(graph),
             assets=(),
         )
     )
@@ -234,8 +246,7 @@ def test_dashboard_cache_round_trips_site_and_run_detail(
             status=RunStatus.SUBMITTED,
             is_archived=False,
             timestamp_created=datetime.datetime.fromisoformat(TIMESTAMP_CREATED),
-            site_submission=site_submission,
-            trace=site_submission.trace,
+            site_submission_json_gzip=_site_submission_json_gzip_b64(site_submission),
         )
     )
 
@@ -254,7 +265,8 @@ def test_dashboard_cache_round_trips_site_and_run_detail(
     assert cached_site.graph == graph
     assert cached_run is not None
     assert cached_run.site_submission == site_submission
-    assert cached_run.trace == site_submission.trace
+    assert cached_run.site_submission is not None
+    assert cached_run.site_submission.trace == site_submission.trace
 
 
 def test_dashboard_stub_does_not_contact_server_until_manual_refresh(
@@ -515,8 +527,7 @@ def test_dashboard_runs_endpoint_includes_cached_detail_summary(
             status=RunStatus.SUBMITTED,
             is_archived=False,
             timestamp_created=datetime.datetime.fromisoformat(TIMESTAMP_CREATED),
-            site_submission=site_submission,
-            trace=site_submission.trace,
+            site_submission_json_gzip=_site_submission_json_gzip_b64(site_submission),
         )
     )
     app = create_dashboard_app(cache=cache)
@@ -552,8 +563,7 @@ def test_dashboard_runs_endpoint_hydrates_missing_submitted_detail(
                     "status": RunStatus.SUBMITTED.value,
                     "is_archived": False,
                     "timestamp_created": TIMESTAMP_CREATED,
-                    "site_submission": site_submission.model_dump(mode="json"),
-                    "trace": site_submission.trace.model_dump(mode="json"),
+                    "site_submission_json_gzip": _site_submission_json_gzip_b64(site_submission),
                 }
             )
         raise AssertionError(request.url)

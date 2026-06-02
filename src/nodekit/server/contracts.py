@@ -1,8 +1,11 @@
 """Public request and response contracts for the NodeKit server/client API."""
 
+import base64
+import gzip
+
 import pydantic
 
-from nodekit import Graph, SiteSubmission, Trace
+from nodekit import Graph, SiteSubmission
 from nodekit.values import MediaType, Platform, SHA256
 
 from nodekit.server.pagination import PageQuery, PageResponse
@@ -103,13 +106,7 @@ class UploadAssetResponse(ContractModel):
 
 class CreateSiteResponse(ContractModel):
     site_id: SiteId
-    user_id: UserId
     url: str
-    tags: tuple[str, ...] = ()
-    is_archived: bool
-    timestamp_created: DatetimeUTC
-    graph: Graph
-    assets: tuple[SiteAssetItem, ...] = ()
 
 
 # %% ListSites
@@ -140,14 +137,26 @@ class GetSiteRequest(ContractModel):
 
 
 class GetSiteResponse(ContractModel):
+    _graph_cache: Graph | None = pydantic.PrivateAttr(default=None)
+
     site_id: SiteId
     user_id: UserId
     url: str
     tags: tuple[str, ...] = ()
     is_archived: bool
     timestamp_created: DatetimeUTC
-    graph: Graph
+    graph_json_gzip: str
     assets: tuple[SiteAssetItem, ...] = ()
+
+    @property
+    def graph(self) -> Graph:
+        """Return the stored Graph, validated lazily against the current schema."""
+
+        if self._graph_cache is None:
+            self._graph_cache = Graph.model_validate_json(
+                gzip.decompress(base64.b64decode(self.graph_json_gzip)).decode("utf-8")
+            )
+        return self._graph_cache
 
 
 # %% ArchiveSite
@@ -230,6 +239,8 @@ class GetRunRequest(ContractModel):
 
 
 class GetRunResponse(ContractModel):
+    _site_submission_cache: SiteSubmission | None = pydantic.PrivateAttr(default=None)
+
     run_id: RunId
     site_id: SiteId
     status: RunStatus
@@ -239,8 +250,19 @@ class GetRunResponse(ContractModel):
     recruiter_session_id: str | None = None
     is_archived: bool
     timestamp_created: DatetimeUTC
-    site_submission: SiteSubmission | None = None
-    trace: Trace | None = None
+    site_submission_json_gzip: str | None = None
+
+    @property
+    def site_submission(self) -> SiteSubmission | None:
+        """Return the stored SiteSubmission, validated lazily against the current schema."""
+
+        if self.site_submission_json_gzip is None:
+            return None
+        if self._site_submission_cache is None:
+            self._site_submission_cache = SiteSubmission.model_validate_json(
+                gzip.decompress(base64.b64decode(self.site_submission_json_gzip)).decode("utf-8")
+            )
+        return self._site_submission_cache
 
 
 # %% ArchiveRun
