@@ -1,13 +1,17 @@
 import datetime
-from abc import ABC, abstractmethod
 from decimal import Decimal
-from typing import Iterable, List, Literal
-from uuid import uuid4
+from typing import Any, Iterable
+from xml.sax.saxutils import escape
 
 import pydantic
 from boto3.session import Session
 
 import nodekit.experimental.turk.models as boto3_models
+
+
+# %% Constants
+MAX_HIT_LIFETIME_SEC = 1_209_600
+MAX_AUTO_APPROVAL_DELAY_SEC = 2_592_000
 
 
 # %%
@@ -18,28 +22,22 @@ class RecruiterCredentialsError(Exception):
 
 
 # %%
-class ListAssignmentsItem(pydantic.BaseModel):
-    hit_id: str
-    worker_id: str
-    assignment_id: str
-    status: Literal["Submitted", "Approved", "Rejected"]
-    submission_payload: str
-
-
 class CreateHitRequest(pydantic.BaseModel):
-    entrypoint_url: str
+    site_url: str
     title: str
     description: str
-    keywords: List[str]
-    num_assignments: int
-    duration_sec: int
-    completion_reward_usd: Decimal
-    allowed_participant_ids: List[str]
+    keywords: list[str]
+    num_assignments: int = pydantic.Field(gt=0)
+    duration_sec: int = pydantic.Field(gt=0)
+    completion_reward_usd: Decimal = pydantic.Field(decimal_places=2, ge=0)
+    qualification_requirements: tuple[boto3_models.QualificationRequirement, ...] = ()
     unique_request_token: str
-
-
-class CreateHitResponse(pydantic.BaseModel):
-    hit_id: str
+    auto_approval_delay_sec: int = pydantic.Field(
+        ge=0,
+        le=MAX_AUTO_APPROVAL_DELAY_SEC,
+    )
+    lifetime_sec: int = pydantic.Field(gt=0, le=MAX_HIT_LIFETIME_SEC)
+    frame_height_px: int = pydantic.Field(default=0, ge=0)
 
 
 class SendBonusPaymentRequest(pydantic.BaseModel):
@@ -49,49 +47,17 @@ class SendBonusPaymentRequest(pydantic.BaseModel):
 
 
 # %%
-class RecruiterServiceClient(ABC):
-    @abstractmethod
-    def get_recruiter_service_name(self) -> str: ...
-
-    @abstractmethod
-    def create_hit(
-        self,
-        request: CreateHitRequest,
-    ) -> CreateHitResponse: ...
-
-    @abstractmethod
-    def send_bonus_payment(
-        self,
-        request: SendBonusPaymentRequest,
-    ) -> None: ...
-
-    @abstractmethod
-    def iter_assignments(
-        self,
-        hit_id: str,
-    ) -> Iterable[ListAssignmentsItem]:
-        raise NotImplementedError
-
-    @abstractmethod
-    def cleanup_hit(self, hit_id: str) -> None: ...
-
-    @abstractmethod
-    def approve_assignment(
-        self,
-        assignment_id: str,
-    ) -> None: ...
-
-
-# %%
-
-
-# %%
 class MturkClient:
     def __init__(
         self,
-        aws_access_key_id: str,
-        aws_secret_access_key: str,
-        sandbox: bool,
+        aws_access_key_id: str | None = None,
+        aws_secret_access_key: str | None = None,
+        sandbox: bool = True,
+        *,
+        boto3_client: Any | None = None,
+        session: Session | None = None,
+        region_name: str = "us-east-1",
+        verify_credentials: bool = True,
     ):
         # Initialize MTurk client
         if sandbox:
@@ -99,21 +65,28 @@ class MturkClient:
         else:
             endpoint_url = "https://mturk-requester.us-east-1.amazonaws.com"
 
-        session = Session(
-            aws_access_key_id=aws_access_key_id,
-            aws_secret_access_key=aws_secret_access_key,
-        )
+        if boto3_client is None:
+            if session is None:
+                session = Session(
+                    aws_access_key_id=aws_access_key_id,
+                    aws_secret_access_key=aws_secret_access_key,
+                )
 
-        self.boto3_client = session.client(
-            service_name="mturk", endpoint_url=endpoint_url, region_name="us-east-1"
-        )
+            boto3_client = session.client(
+                service_name="mturk",
+                endpoint_url=endpoint_url,
+                region_name=region_name,
+            )
+
+        self.boto3_client = boto3_client
         self.sandbox = sandbox
 
         # Try verifying the credentials; throw if invalid:
-        try:
-            self.boto3_client.get_account_balance()
-        except Exception as e:
-            raise RecruiterCredentialsError from e
+        if verify_credentials:
+            try:
+                self.boto3_client.get_account_balance()
+            except Exception as e:
+                raise RecruiterCredentialsError from e
 
     def get_recruiter_service_name(self) -> str:
         if self.sandbox:
@@ -126,14 +99,13 @@ class MturkClient:
         request: CreateHitRequest,
     ) -> boto3_models.HIT:
         # Unpack:
-        entrypoint_url = request.entrypoint_url
+        site_url = request.site_url
         title = request.title
         description = request.description
         keywords = request.keywords
         num_assignments = request.num_assignments
         duration_sec = request.duration_sec
         completion_reward_usd = request.completion_reward_usd
-        allowed_participant_ids = request.allowed_participant_ids
 
         # Calculate minimum approval cost
         min_approval_cost = (
@@ -145,45 +117,28 @@ class MturkClient:
                 f"Insufficient balance to create HIT. Minimum required: ${min_approval_cost:.2f}, current balance: ${current_balance:.2f}"
             )
 
-        qualification_requirements: List[boto3_models.QualificationRequirement] = []
-        if len(allowed_participant_ids) > 0:
-            # Create qualification type for this TaskRequest:
-            qual_type = self.create_qualification_type(unique_name=f"psy:{uuid4()}")
-
-            # Grant each worker ID the qualification:
-            for worker_id in allowed_participant_ids:
-                self.grant_qualification(
-                    qualification_type_id=qual_type.QualificationTypeId,
-                    worker_id=worker_id,
-                )
-
-            # Create qualification requirement for this HIT:
-            qual_requirement = self.package_qualification_exists_requirement(qual_type=qual_type)
-            qualification_requirements.append(qual_requirement)
-
         hit_type_response = self.boto3_client.create_hit_type(
-            AutoApprovalDelayInSeconds=1,
+            AutoApprovalDelayInSeconds=request.auto_approval_delay_sec,
             AssignmentDurationInSeconds=duration_sec,
             Reward=str(completion_reward_usd),
             Title=title,
             Keywords=",".join(keywords),
             Description=description,
             QualificationRequirements=[
-                qr.model_dump(mode="json") for qr in qualification_requirements
+                qr.model_dump(mode="json") for qr in request.qualification_requirements
             ],
         )
 
-        q = (
-            f'<ExternalQuestion xmlns="http://mechanicalturk.amazonaws.com/AWSMechanicalTurkDataSchemas/2006-07-14/ExternalQuestion.xsd">'
-            f"<ExternalURL>{entrypoint_url}</ExternalURL>"
-            f"<FrameHeight>{0}</FrameHeight></ExternalQuestion>"
+        question = package_external_question_xml(
+            site_url=site_url,
+            frame_height_px=request.frame_height_px,
         )
 
         hit_info = self.boto3_client.create_hit_with_hit_type(
             HITTypeId=hit_type_response["HITTypeId"],
-            Question=q,
+            Question=question,
             MaxAssignments=num_assignments,
-            LifetimeInSeconds=1209600,  # 1209600 seconds = 2 weeks is max allowed by MTurk
+            LifetimeInSeconds=request.lifetime_sec,
             UniqueRequestToken=request.unique_request_token,
             RequesterAnnotation=request.unique_request_token,
         )["HIT"]
@@ -256,27 +211,12 @@ class MturkClient:
         hit = boto3_models.HIT.model_validate(obj=hit_info["HIT"])
         return hit
 
-    def cleanup_hit(self, hit_id: str) -> None:
+    def cleanup_hit(
+        self,
+        hit_id: str,
+    ) -> None:
         # First, retrieve the HIT to ensure it exists
-        hit = self.get_hit(hit_id=hit_id)
-
-        # See if this HIT has any QualificationRequirements
-        qual_reqs = hit.QualificationRequirements
-        if qual_reqs is not None:
-            for qual_req in qual_reqs:
-                # Get workers associated with this qualification:
-                worker_ids = self.list_workers_with_qualification_type(
-                    qual_type_id=qual_req.QualificationTypeId
-                )
-                # Dissociate any qualifications from workers that were previously granted
-                for worker_id in worker_ids:
-                    self.boto3_client.disassociate_qualification_from_worker(
-                        WorkerId=worker_id,
-                        QualificationTypeId=qual_req.QualificationTypeId,
-                    )
-
-                # Delete the qualification type
-                self.delete_qualification_type(qualification_type_id=qual_req.QualificationTypeId)
+        self.get_hit(hit_id=hit_id)
 
         # Update the expiration for the HIT to *now*
         self.boto3_client.update_expiration_for_hit(
@@ -287,7 +227,7 @@ class MturkClient:
     def list_workers_with_qualification_type(
         self,
         qual_type_id: str,
-    ) -> List[str]:
+    ) -> list[str]:
         next_token = ""
         request_kwargs = dict(
             QualificationTypeId=qual_type_id,
@@ -316,10 +256,11 @@ class MturkClient:
     def create_qualification_type(
         self,
         unique_name: str,
+        description: str | None = None,
     ) -> boto3_models.QualificationType:
         response = self.boto3_client.create_qualification_type(
             Name=unique_name,
-            Description=unique_name,
+            Description=description or unique_name,
             QualificationTypeStatus="Active",
         )
         # Validate response:
@@ -335,7 +276,17 @@ class MturkClient:
             ActionsGuarded="DiscoverPreviewAndAccept",
         )
 
-    def list_qualification_types(self) -> List[boto3_models.QualificationType]:
+    def package_qualification_does_not_exist_requirement(
+        self,
+        qual_type: boto3_models.QualificationType,
+    ) -> boto3_models.QualificationRequirement:
+        return boto3_models.QualificationRequirement(
+            QualificationTypeId=qual_type.QualificationTypeId,
+            Comparator="DoesNotExist",
+            ActionsGuarded="DiscoverPreviewAndAccept",
+        )
+
+    def list_qualification_types(self) -> list[boto3_models.QualificationType]:
         qualification_types = []
 
         next_token = ""
@@ -403,3 +354,33 @@ class MturkClient:
         qualification_type_id: str,
     ):
         self.boto3_client.delete_qualification_type(QualificationTypeId=qualification_type_id)
+
+    def delete_worker_qualification_type(
+        self,
+        qualification_type_id: str,
+    ) -> None:
+        """Revoke a requester Qualification Type from Workers and delete it."""
+
+        worker_ids = self.list_workers_with_qualification_type(
+            qual_type_id=qualification_type_id,
+        )
+        for worker_id in worker_ids:
+            self.boto3_client.disassociate_qualification_from_worker(
+                WorkerId=worker_id,
+                QualificationTypeId=qualification_type_id,
+            )
+        self.delete_qualification_type(qualification_type_id=qualification_type_id)
+
+
+# %% Helpers
+def package_external_question_xml(site_url: str, frame_height_px: int = 0) -> str:
+    """Return MTurk ExternalQuestion XML for a participant-facing URL."""
+
+    escaped_url = escape(site_url)
+    return (
+        '<ExternalQuestion xmlns="http://mechanicalturk.amazonaws.com/'
+        'AWSMechanicalTurkDataSchemas/2006-07-14/ExternalQuestion.xsd">'
+        f"<ExternalURL>{escaped_url}</ExternalURL>"
+        f"<FrameHeight>{frame_height_px}</FrameHeight>"
+        "</ExternalQuestion>"
+    )
