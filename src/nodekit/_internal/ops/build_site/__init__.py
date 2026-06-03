@@ -63,14 +63,17 @@ def _get_asset_relative_path(asset_media_type: MediaType, asset_sha256: SHA256) 
 
 
 def build_site(
-    graph: Graph,
+    graph: Graph | list[Graph],
     savedir: os.PathLike | str,
     slug: str | None = None,
 ) -> BuildSiteResult:
-    """Build a static website for a Graph and save it to disk.
+    """Build a static website for one or more Graphs and save it to disk.
 
     Args:
-        graph: Graph to serialize and render into a site.
+        graph: Graph to serialize and render into a site, or a nonempty list
+            of Graphs. If a list is provided, the static page selects one Graph
+            i.i.d. from the uniform distribution on each page load. This
+            assignment does not guarantee balanced sample counts.
         savedir: Directory to write the site into.
         slug: Optional human-readable URL slug for the entrypoint HTML file.
 
@@ -79,6 +82,7 @@ def build_site(
 
     Raises:
         ValueError: If savedir is not a directory.
+        ValueError: If graph is an empty list.
         ValueError: If slug is invalid or collides with a different built Graph.
 
     Site layout:
@@ -89,7 +93,7 @@ def build_site(
             nodekit.{js-digest}.js
             nodekit.{css-digest}.css
         graphs/
-            {graph_digest}.html (if slug is None)
+            {graph-payload-digest}.html (if slug is None)
             {slug}.html (if slug is provided)
         ```
     """
@@ -99,6 +103,13 @@ def build_site(
 
     if not savedir.is_dir():
         raise ValueError(f"Savedir must be a directory: {savedir}")
+
+    if isinstance(graph, list):
+        if len(graph) == 0:
+            raise ValueError("graph list must be nonempty.")
+        graphs = graph
+    else:
+        graphs = [graph]
 
     dependencies = []
 
@@ -118,50 +129,55 @@ def build_site(
         js_abs_path.write_text(browser_bundle.js)
 
     # Ensure all assets saved to the appropriate location:
-    for asset in iter_assets(graph=graph):
-        asset_relative_path = _get_asset_relative_path(
-            asset_media_type=asset.media_type,
-            asset_sha256=asset.sha256,
-        )
-        asset_abs_path = savedir / asset_relative_path
-        dependencies.append(asset_relative_path)
-        if not asset_abs_path.exists():
-            # Copy the asset to the savepath:
-            asset_abs_path.parent.mkdir(parents=True, exist_ok=True)
-            save_asset(
-                asset=asset,
-                path=asset_abs_path,
-            )
-
-    graph = transform_asset_locators(
-        graph=graph,
-        transform=lambda asset: RelativePath(
-            relative_path=Path("..")
-            / _get_asset_relative_path(
+    for graph in graphs:
+        for asset in iter_assets(graph=graph):
+            asset_relative_path = _get_asset_relative_path(
                 asset_media_type=asset.media_type,
                 asset_sha256=asset.sha256,
             )
-        ),
-    )
+            asset_abs_path = savedir / asset_relative_path
+            dependencies.append(asset_relative_path)
+            if not asset_abs_path.exists():
+                # Copy the asset to the savepath:
+                asset_abs_path.parent.mkdir(parents=True, exist_ok=True)
+                save_asset(
+                    asset=asset,
+                    path=asset_abs_path,
+                )
+
+    graphs = [
+        transform_asset_locators(
+            graph=graph,
+            transform=lambda asset: RelativePath(
+                relative_path=Path("..")
+                / _get_asset_relative_path(
+                    asset_media_type=asset.media_type,
+                    asset_sha256=asset.sha256,
+                )
+            ),
+        )
+        for graph in graphs
+    ]
 
     # Render the HTML site using the Jinja2 template:
     jinja2_location = Path(__file__).parent / "harness.j2"
     jinja2_loader = jinja2.FileSystemLoader(searchpath=jinja2_location.parent)
     jinja2_env = jinja2.Environment(loader=jinja2_loader)
     # Save the graph site:
-    graph_serialized = graph.model_dump_json()
-    graph_gz_bytes = gzip.compress(graph_serialized.encode("utf-8"), mtime=0)
-    graph_gz_b64 = base64.b64encode(graph_gz_bytes).decode("ascii")
-    graph_gz_b64_wrapped = "\n".join(
-        graph_gz_b64[i : i + 120] for i in range(0, len(graph_gz_b64), 120)
+    _graph_list_adapter = pydantic.TypeAdapter(list[Graph])
+    graphs_serialized = _graph_list_adapter.dump_json(graphs).decode("utf-8")
+    graphs_gz_bytes = gzip.compress(graphs_serialized.encode("utf-8"), mtime=0)
+    graphs_gz_b64 = base64.b64encode(graphs_gz_bytes).decode("ascii")
+    graphs_gz_b64_wrapped = "\n".join(
+        graphs_gz_b64[i : i + 120] for i in range(0, len(graphs_gz_b64), 120)
     )
     entrypoint_relative_path = _get_entrypoint_relative_path(
-        graph_serialized=graph_serialized, slug=slug
+        graph_serialized=graphs_serialized, slug=slug
     )
 
     template = jinja2_env.get_template(jinja2_location.name)
     rendered_html = template.render(
-        graph_gz_b64=graph_gz_b64_wrapped,
+        graphs_gz_b64=graphs_gz_b64_wrapped,
         css_path=Path("..") / css_relative_path,
         js_path=Path("..") / js_relative_path,
     )
