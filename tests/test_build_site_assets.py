@@ -83,7 +83,7 @@ def test_build_site_entrypoint_renders_visible_load_error(
     entrypoint_path = result.site_root / result.entrypoint
     html = entrypoint_path.read_text()
 
-    assert "Unable to load this NodeKit site" in html
+    assert "This browser experienced an issue." in html
     assert "renderLoadError(message);" in html
     assert 'throw new Error("DecompressionStream is not available in this browser.")' in html
 

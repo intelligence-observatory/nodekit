@@ -206,6 +206,7 @@ def start_dashboard(
         port=actual_port,
         log_level="warning",
         access_log=False,
+        ws="none",
     )
     server = uvicorn.Server(config)
     thread = threading.Thread(
