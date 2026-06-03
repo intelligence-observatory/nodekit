@@ -1,10 +1,9 @@
 """Frozen participant-facing Site artifact publishing."""
 
 import base64
-import gzip
 import html
 
-from nodekit import Graph, VERSION
+from nodekit import VERSION
 from nodekit._internal.utils.get_browser_bundle import get_browser_bundle
 from nodekit.server.values import SiteConditionId, SiteId
 from nodekit_server.storage import (
@@ -114,13 +113,12 @@ def publish_site_artifacts(
     *,
     site_id: SiteId,
     condition_id: SiteConditionId | None = None,
-    graph: Graph,
+    graph_json_gzip: bytes,
     store: SiteArtifactStore,
 ) -> PublishedSiteArtifacts:
     """Publish frozen Site HTML and runtime bundle artifacts."""
 
     browser_bundle = get_browser_bundle()
-    graph_json_gzip = gzip.compress(graph.model_dump_json().encode("utf-8"), mtime=0)
 
     js_key = store.storage_key_for_artifact(runtime_js_artifact_key(str(browser_bundle.js_sha256)))
     css_key = store.storage_key_for_artifact(

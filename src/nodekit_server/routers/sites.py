@@ -459,23 +459,25 @@ def create_site(
             detail={"missing": [identifier.model_dump(mode="json") for identifier in missing]},
         )
 
-    normalized_conditions = {
-        condition_id: condition.model_copy(
-            update={
-                "graph": transform_asset_locators(
-                    graph=condition.graph,
-                    transform=lambda asset: URL(
-                        url=_public_asset_url(
-                            request=request,
-                            settings=settings,
-                            sha256=asset.sha256,
-                        )
-                    ),
-                )
-            }
-        )
-        for condition_id, condition in create_site_request.conditions.items()
-    }
+    normalized_conditions: dict[SiteConditionId, contracts.CreateSiteConditionRequest] = {}
+    for condition_id, condition in create_site_request.conditions.items():
+        if condition_asset_identifiers[condition_id]:
+            normalized_conditions[condition_id] = condition.model_copy(
+                update={
+                    "graph": transform_asset_locators(
+                        graph=condition.graph,
+                        transform=lambda asset: URL(
+                            url=_public_asset_url(
+                                request=request,
+                                settings=settings,
+                                sha256=asset.sha256,
+                            )
+                        ),
+                    )
+                }
+            )
+        else:
+            normalized_conditions[condition_id] = condition
     site_id = uuid4()
     tags = _dedupe_tags(tags=create_site_request.tags)
 
@@ -488,17 +490,18 @@ def create_site(
     session.flush()
 
     for condition_id, condition in normalized_conditions.items():
+        graph_json_gzip = _gzip_graph_json(graph=condition.graph)
         published_artifacts = publish_site_artifacts(
             site_id=site_id,
             condition_id=condition_id,
-            graph=condition.graph,
+            graph_json_gzip=graph_json_gzip,
             store=site_artifact_store,
         )
         condition_record = SiteConditionRecord(
             site_id=site_id,
             condition_id=condition_id,
             allocation_weight=condition.allocation_weight,
-            graph_json_gzip=_gzip_graph_json(graph=condition.graph),
+            graph_json_gzip=graph_json_gzip,
             site_artifact_storage_key=published_artifacts.site_artifact_storage_key,
             site_artifact_url=published_artifacts.site_artifact_url,
             runtime_js_storage_key=published_artifacts.runtime_js_storage_key,

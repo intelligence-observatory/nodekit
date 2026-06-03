@@ -1,3 +1,4 @@
+import gzip
 import json
 import datetime
 from pathlib import Path
@@ -11,6 +12,7 @@ import nodekit as nk
 from nodekit._internal.types.assets import LocatorTypeEnum, URL
 from nodekit._internal.utils.iter_assets import iter_assets
 import nodekit.server as nk_server
+import nodekit.server.client as client_module
 import nodekit.server.contracts as contracts
 
 
@@ -245,6 +247,39 @@ def test_create_site_without_assets_posts_site_directly() -> None:
     response = client.create_site(graph=graph, tags=("no-assets",))
 
     assert captured["paths"] == ["/sites"]
+    assert set(captured["site_body"]["conditions"]) == {"default"}
+    assert response.site_id == site_id
+
+
+# %%
+def test_create_site_gzips_large_site_request(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(client_module, "GZIP_REQUEST_THRESHOLD_BYTES", 1)
+    site_id = uuid4()
+    graph = _make_graph_without_assets()
+    captured: dict[str, Any] = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        captured["path"] = request.url.path
+        captured["content_encoding"] = request.headers["content-encoding"]
+        captured["site_body"] = json.loads(gzip.decompress(request.content))
+        return httpx.Response(
+            200,
+            json={
+                "site_id": str(site_id),
+                "url": f"https://nodekit.example/s/{site_id}",
+            },
+        )
+
+    client = nk_server.Client(
+        api_url="https://nodekit.example",
+        api_token="secret",
+        transport=httpx.MockTransport(handler),
+    )
+
+    response = client.create_site(graph=graph)
+
+    assert captured["path"] == "/sites"
+    assert captured["content_encoding"] == "gzip"
     assert set(captured["site_body"]["conditions"]) == {"default"}
     assert response.site_id == site_id
 

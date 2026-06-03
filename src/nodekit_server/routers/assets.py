@@ -1,6 +1,7 @@
 """Asset routes for nodekit-server."""
 
 import tempfile
+from collections.abc import Iterable
 from pathlib import Path
 from typing import Annotated
 
@@ -21,6 +22,47 @@ router = fastapi.APIRouter()
 
 
 # %% Helpers
+def _asset_key(identifier: contracts.AssetIdentifier) -> tuple[SHA256, MediaType]:
+    return identifier.sha256, identifier.media_type
+
+
+def _dedupe_asset_identifiers(
+    identifiers: Iterable[contracts.AssetIdentifier],
+) -> tuple[contracts.AssetIdentifier, ...]:
+    deduped: list[contracts.AssetIdentifier] = []
+    seen: set[tuple[str, str]] = set()
+    for identifier in identifiers:
+        key = (str(identifier.sha256), str(identifier.media_type))
+        if key in seen:
+            continue
+        seen.add(key)
+        deduped.append(identifier)
+    return tuple(deduped)
+
+
+def _select_asset_records(
+    session: sqlmodel.Session,
+    identifiers: Iterable[contracts.AssetIdentifier],
+) -> dict[tuple[SHA256, MediaType], AssetRecord]:
+    identifiers = _dedupe_asset_identifiers(identifiers)
+    if not identifiers:
+        return {}
+
+    requested_keys = {_asset_key(identifier) for identifier in identifiers}
+    sha256_values = [identifier.sha256 for identifier in identifiers]
+    media_type_values = [identifier.media_type for identifier in identifiers]
+    statement = sqlmodel.select(AssetRecord)
+    statement = statement.where(sqlmodel.col(AssetRecord.sha256).in_(sha256_values))
+    statement = statement.where(sqlmodel.col(AssetRecord.media_type).in_(media_type_values))
+
+    records: dict[tuple[SHA256, MediaType], AssetRecord] = {}
+    for asset_record in session.exec(statement).all():
+        key = (asset_record.sha256, asset_record.media_type)
+        if key in requested_keys:
+            records[key] = asset_record
+    return records
+
+
 def _asset_record_to_item(asset_record: AssetRecord) -> contracts.SiteAssetItem:
     return contracts.SiteAssetItem(
         sha256=asset_record.sha256,
@@ -89,15 +131,11 @@ def check_assets(
     """Return which requested Assets are not known to the server."""
 
     _ = user
-    missing: list[contracts.AssetIdentifier] = []
-    seen: set[tuple[str, str]] = set()
-    for identifier in request.assets:
-        key = (str(identifier.sha256), str(identifier.media_type))
-        if key in seen:
-            continue
-        seen.add(key)
-        if _get_asset_record(session=session, identifier=identifier) is None:
-            missing.append(identifier)
+    identifiers = _dedupe_asset_identifiers(request.assets)
+    asset_records = _select_asset_records(session=session, identifiers=identifiers)
+    missing = [
+        identifier for identifier in identifiers if _asset_key(identifier) not in asset_records
+    ]
 
     return contracts.CheckAssetsResponse(missing=tuple(missing))
 

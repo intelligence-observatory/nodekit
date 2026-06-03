@@ -2,6 +2,7 @@ import base64
 import hashlib
 import gzip
 import datetime
+import json
 from pathlib import Path
 import sys
 from types import ModuleType
@@ -317,6 +318,42 @@ def test_create_site_persists_normalized_graph(
         )
         assert len(session.exec(dependency_statement).all()) == 3
         assert len(session.exec(tag_statement).all()) == 2
+
+
+# %%
+def test_create_site_accepts_gzipped_json_body(authenticated_client: TestClient) -> None:
+    graph = nk.Graph(
+        nodes={
+            "start": nk.Node(
+                sensor=nk.sensors.WaitSensor(duration_msec=1),
+            )
+        },
+        transitions={"start": nk.transitions.End()},
+        start="start",
+    )
+    body = json.dumps(
+        {
+            "conditions": {
+                "default": {
+                    "graph": graph.model_dump(mode="json"),
+                    "allocation_weight": 1,
+                }
+            },
+            "tags": [],
+        }
+    ).encode("utf-8")
+
+    response = authenticated_client.post(
+        "/sites",
+        content=gzip.compress(body, mtime=0),
+        headers={
+            "Content-Encoding": "gzip",
+            "Content-Type": "application/json",
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.json()["url"].startswith("http://testserver/s/")
 
 
 # %%
