@@ -1,5 +1,6 @@
 """Python client for the NodeKit deployment service."""
 
+import gzip
 from collections.abc import Iterable, Iterator, Mapping
 from typing import TypeVar
 
@@ -28,6 +29,7 @@ from nodekit.server.values import (
 ResponseT = TypeVar("ResponseT", bound=pydantic.BaseModel)
 ItemT = TypeVar("ItemT", bound=pydantic.BaseModel)
 QueryParamValue = str | int | float | None
+GZIP_REQUEST_THRESHOLD_BYTES = 1024 * 1024
 
 
 # %% Client
@@ -75,14 +77,19 @@ class Client:
         auth: bool = True,
     ) -> ResponseT:
         headers = self._auth_headers() if auth else {}
-        json = request.model_dump(mode="json") if request is not None else None
+        content = request.model_dump_json().encode("utf-8") if request is not None else None
+        if content is not None:
+            headers["Content-Type"] = "application/json"
+            if len(content) >= GZIP_REQUEST_THRESHOLD_BYTES:
+                content = gzip.compress(content, mtime=0)
+                headers["Content-Encoding"] = "gzip"
         params = self._query_params(query) if query is not None else None
         with httpx.Client(timeout=self.timeout, transport=self.transport) as client:
             response = client.request(
                 method=method,
                 url=self._url(path),
                 headers=headers,
-                json=json,
+                content=content,
                 params=params,
             )
             response.raise_for_status()
@@ -126,10 +133,11 @@ class Client:
             graph=graph,
             conditions=conditions,
         )
-        condition_graphs = tuple(condition.graph for condition in condition_requests.values())
-        all_assets = tuple(
-            asset for condition_graph in condition_graphs for asset in iter_assets(condition_graph)
-        )
+        condition_assets = {
+            condition_id: tuple(iter_assets(condition.graph))
+            for condition_id, condition in condition_requests.items()
+        }
+        all_assets = tuple(asset for assets in condition_assets.values() for asset in assets)
         if all_assets:
             check_assets_response = self.check_assets(assets=all_assets)
             missing_asset_keys = {
@@ -145,17 +153,21 @@ class Client:
                 self.upload_asset(asset=asset)
                 uploaded_asset_keys.add(asset_key)
 
-        server_conditions = {
-            condition_id: condition.model_copy(
-                update={
-                    "graph": transform_asset_locators(
-                        graph=condition.graph,
-                        transform=lambda asset: URL(url=f"{self.api_url}/assets/{asset.sha256}"),
-                    )
-                }
-            )
-            for condition_id, condition in condition_requests.items()
-        }
+        server_conditions: dict[str, contracts.CreateSiteConditionRequest] = {}
+        for condition_id, condition in condition_requests.items():
+            if condition_assets[condition_id]:
+                server_conditions[condition_id] = condition.model_copy(
+                    update={
+                        "graph": transform_asset_locators(
+                            graph=condition.graph,
+                            transform=lambda asset: URL(
+                                url=f"{self.api_url}/assets/{asset.sha256}"
+                            ),
+                        )
+                    }
+                )
+            else:
+                server_conditions[condition_id] = condition
         request = contracts.CreateSiteRequest(conditions=server_conditions, tags=tuple(tags))
         return self._request("POST", "/sites", contracts.CreateSiteResponse, request=request)
 
