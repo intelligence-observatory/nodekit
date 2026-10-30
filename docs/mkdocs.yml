@@ -2,6 +2,7 @@ site_name: NodeKit
 
 nav:
   - Home: index.md
+  - Preview nkl: nkl-preview.md
   - Tutorial:
       - 1. Install NodeKit: 'tutorial/1-installation.md'
       - 2. Write your first Graph: 'tutorial/2-first-graph.md'

@@ -4,7 +4,7 @@ on:
     branches-ignore:
       - main
     paths:
-      - nodekit/**/*.py
+      - src/nodekit/**/*.py
       - examples/**/*.py
       - tests/**/*.py
       - .github/workflows/ci.yaml

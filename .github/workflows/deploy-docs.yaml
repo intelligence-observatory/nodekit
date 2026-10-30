@@ -3,9 +3,10 @@ on:
   push:
     branches:
       - main
+      - docs/nkl-preview
     paths:
       - docs/**
-      - nodekit/**
+      - src/nodekit/**
       - pyproject.toml
       - uv.lock
       - Makefile
