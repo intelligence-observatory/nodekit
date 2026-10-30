@@ -1,6 +1,6 @@
 <!doctype html>
-<script type="module" crossorigin src="./assets/poster-BLOA_BtF.js"></script>
-<link rel="stylesheet" crossorigin href="./assets/poster-B_63LTKL.css">
+<script type="module" crossorigin src="./assets/poster-D2okbQuM.js"></script>
+<link rel="stylesheet" crossorigin href="./assets/poster-C4LQgANy.css">
 
 <meta charset="utf-8">
 <title>nkl Poster</title>
@@ -314,8 +314,9 @@ h2 span { color: var(--muted); font-weight: 600; }
           <defs>
             <marker id="interface-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--muted)"/></marker>
             <!-- One frame: mountain car at the start of an episode, the car at rest in the valley, the hill's left side cut away
-                 (rendered by the frame option of thumbnails/make.ts). Styled inline: the page's rules don't reach into a use. -->
-            <g id="mc-frame"><rect width="142" height="104" rx="6" style="fill: var(--bg); stroke: var(--line); stroke-width: 1.25"/><svg x="5" y="5" width="132" height="94" viewBox="300 196 625 444" preserveAspectRatio="xMidYMid slice"><image href="figures/mountain-car-start.png" width="1024" height="768"/></svg></g>
+                 (rendered by the frame option of thumbnails/make.ts, then cropped to the panel's right part as its own image:
+                 Safari doesn't clip a nested svg inside a use). Styled inline: the page's rules don't reach into a use. -->
+            <g id="mc-frame"><rect width="142" height="104" rx="6" style="fill: var(--bg); stroke: var(--line); stroke-width: 1.25"/><image href="figures/mountain-car-frame.png" x="5" y="5" width="132" height="94" preserveAspectRatio="xMidYMid slice"/></g>
           </defs>
           <!-- The frames: one scene, the same at every frame, shown to both players alike. -->
           <use href="#mc-frame" x="204" y="15"/><use href="#mc-frame" x="180" y="32"/><use href="#mc-frame" x="156" y="49"/><use href="#mc-frame" x="132" y="66"/>
