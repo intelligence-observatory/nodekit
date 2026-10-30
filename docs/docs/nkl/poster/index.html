@@ -180,7 +180,7 @@ h2 span { color: var(--muted); font-weight: 600; }
    the preview site's QR code sits under them, on the bottom line. */
 /* The side columns' copy sits a little inside its section bar's rounded ends, not flush with them. */
 .col.left section > p, .col.right section > p, .deploy, .start .try { padding-inline: 8px; }
-.start .email { font: 400 14px var(--mono); }
+.start .email { font: 400 .92em var(--mono); }
 .col.right section.start { height: 400px; flex: none; gap: 12px; }   /* taller than the examples, to hold its lead-in and the rule over the QR code */
 #poster .start .deploy { margin: auto 0 0; }   /* the commands, the rule, and the QR code share the room left out evenly */
 #poster .start hr { margin: auto 0; border: 0; border-top: 1px solid var(--rule); }   /* parts the commands from the QR code, centred in the room between them */
@@ -194,7 +194,7 @@ h2 span { color: var(--muted); font-weight: 600; }
 .deploy .verb { color: #6a4c9e; }   /* the keyword violet, a touch stronger: the part that differs by row */
 .deploy .arg { color: var(--muted); }
 .start .try { display: flex; gap: 16px; align-items: center; margin-top: auto !important; }   /* the copy centred on the QR code */
-.start .try p { font-size: 15px; line-height: 20px; color: var(--text); }
+.start .try p { font-size: 16.4px; line-height: 22px; color: #6b6b6b; }   /* sized so its second line runs nearly to the QR code; in the QR code's grey */
 /* The examples: a picture of each task, labelled inside at the top centre with its name and a short
    reference. The active one is outlined. */
 /* The examples are one set of programs, so one even grid across both agent columns, not split under them. */
@@ -229,7 +229,7 @@ h2 span { color: var(--muted); font-weight: 600; }
 .commands { display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; align-items: baseline; }
 .commands dt { font: 400 15px var(--mono); color: var(--ink); }
 .commands dd { font-size: 15px; color: var(--muted); }
-.start .qr { flex: none; width: 112px; height: 112px; padding: 0; }   /* on the tray's right, ending on the bottom line */
+.start .qr { flex: none; display: block; width: 112px; height: 112px; padding: 0; }   /* on the tray's right, ending on the bottom line */
 </style>
 
 <div class="frame" id="frame">
@@ -345,7 +345,7 @@ h2 span { color: var(--muted); font-weight: 600; }
         <dt>To AI agents</dt><dd><code><span class="cmd">nkl</span> <span class="verb">sim</span> <span class="arg">task.py</span></code></dd>
       </dl>
       <hr>
-      <div class="try"><p>Scan to see this poster online and learn more (<span class="email">mil@mit.edu</span>):</p><div class="placeholder qr">QR</div></div>
+      <div class="try"><p>Scan to see this poster online and learn more (<span class="email">mil@mit.edu</span>):</p><img class="qr" src="qr.svg" alt="QR code linking to this poster online"></div>
     </section>
   </div>
 </main>
