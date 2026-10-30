@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - main
-      - docs/nkl-preview
     paths:
       - docs/**
       - src/nodekit/**
